@@ -22,16 +22,19 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('filmy2000', views.filmy_z_roku_2000, name='filmy2000'),
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
     path('filmy/', views.filmy, name='index_filmy'),
-    path('film/<str:nazev_filmu>/', views.film_detail, name='film_detail'),
+    path('film/<str:nazev_filmu>', views.film_detail, name='film_detail'),
     path('knihy/', views.knihy, name='index_knihy'),
-    path('kniha/<str:nazev_knihy>/', views.kniha_detail, name='kniha_detail'),
+    path('kniha/<str:nazev_knihy>', views.kniha_detail, name='kniha_detail'),
     path('hry/', views.hry, name='index_hry'),
-    path('hra/<str:nazev_hry>/', views.hra_detail, name='hra_detail'),
+    path('hra/<str:nazev_hry>', views.hra_detail, name='hra_detail'),
     path('lokality/', views.lokality, name='index_lokality'),
-    path('lokalita/<str:nazev_lokality>/', views.lokalita_detail, name='lokalita_detail'),
+    path('lokalita/<str:nazev_lokality>', views.lokalita_detail, name='lokalita_detail'),
+
+    path('testtest', views.testtest, name='testtest'),
 ]
 
 if settings.DEBUG:

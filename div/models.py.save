@@ -1,0 +1,12 @@
+from django.db import models
+
+class Movie(models.Model):
+    nazev = models.CharField(max_length=255, unique=True)
+    popis = models.TextField(blank=True, null=True)
+    datum_vydani = models.DateField(blank=True, null=True)
+
+    class Meta: 
+        app_label = 'divdb'
+
+    def __str__(self):
+        return self.nazev
