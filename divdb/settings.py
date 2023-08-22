@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,12 +26,24 @@ SECRET_KEY = 'django-insecure-(7wns0c0f-zk&jpy02dw*^k9iv-q8dg4ofd36tz_+&!o^g3u+q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['46.28.109.39']
+ALLOWED_HOSTS = ['46.28.109.39',
+        'div.cz',
+        '2001:1aeb:3d00:f00:2c75:101e:b80a:7977',]
 INTERNAL_IPS =  [
+        '46.28.109.39',
         '193.179.123.10', 
-        '2001:1aeb:3d00:f00:db89:68c3:3699:dab2'
+        '2001:1aeb:3d00:f00:db89:68c3:3699:dab2',
+        '127.0.0.1',
+        '46.28.109.39',
+        '2001:1aeb:3d00:f00:2c75:101e:b80a:79772001:1aeb:3d00:f00:2c75:101e:b80a:7977',
         ]
 
+DEBUG_TOOLBAR_CONFIG = {
+#    "SHOW_TOOLBAR_CALLBACK": show_toolbar,
+    
+}
+
+ 
 # Application definition
 
 INSTALLED_APPS = [
@@ -55,6 +68,8 @@ MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
+MIGRATION_MODULES = {"div": None,}
+ 
 ROOT_URLCONF = 'divdb.urls'
 
 TEMPLATES = [
@@ -81,8 +96,12 @@ WSGI_APPLICATION = 'divdb.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'divDB',
+        'USER': 'editordb2',
+        'PASSWORD': '2*mP3jD6kW',
+        'HOST': '46.28.109.39',
+        'PORT': '3306',
     }
 }
 
