@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-(7wns0c0f-zk&jpy02dw*^k9iv-q8dg4ofd36tz_+&!o^g3u+q'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['46.28.109.39',
         'div.cz',
@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'debug_toolbar',
-    'divcontent',
+    'div_content',
 ]
 
 MIDDLEWARE = [
@@ -70,9 +70,9 @@ MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
-MIGRATION_MODULES = {"divcontent": None,}
+MIGRATION_MODULES = {"div_content": None,}
  
-ROOT_URLCONF = 'divconfig.urls'
+ROOT_URLCONF = 'div_config.urls'
 
 TEMPLATES = [
     {
@@ -90,7 +90,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'divconfig.wsgi.application'
+WSGI_APPLICATION = 'div_config.wsgi.application'
 
 
 # Database
