@@ -17,11 +17,12 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from divcontent import views
+from div_content import views
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+#    path("divconfig/", include("divconfig.urls")),
     path('filmy2000', views.filmy_z_roku_2000, name='filmy2000'),
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
