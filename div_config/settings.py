@@ -70,14 +70,16 @@ MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
-MIGRATION_MODULES = {"div_content": None,}
+MIGRATION_MODULES = {
+#    "div_content": None,
+}
  
 ROOT_URLCONF = 'div_config.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'divcontent/templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'div_content/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
