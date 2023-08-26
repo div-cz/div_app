@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from .models import Movie, Game, Book, Lokalita
 from django.shortcuts import render
 
+
 def testtest(request):
     context = {
         'title': 'Testovaci titulek',
@@ -14,19 +15,18 @@ def filmy_z_roku_2000(request):
     filmy = Film.objects.filter(rok=2000)
     return render(request, 'filmy.html', {'filmy': filmy})
 
-
 def index(request):
 #        return HttpResponse("Toto je hlavní stránka.kontakt")
         return render(request, 'index.html')
 
-
 def filmy(request):
-        filmy = Movie.objects.all()
-        return render(request, 'filmy/filmy_list.html', {'filmy': filmy})
+        return HttpResponse("hlavni strana fff")
+#        filmy = Movie.objects.all()
+#        return render(request, 'filmy/filmy_list.html', {'filmy': filmy})
 #        return HttpResponse("hlavni strana fff")
 
-def film_detail(request, url_filmu):
-    film = get_object_or_404(Movie, url=url_filmu)
+def film_detail(request, nazev_filmu):
+    film = get_object_or_404(Movie, title=nazev_filmu)
     return render(request, 'filmy/film_detail.html', {'film': film})
 
 # Pro hry
@@ -40,7 +40,7 @@ def hra_detail(request, nazev_hry):
 
 # Pro knihy
 def knihy(request):
-    knihy = Book.objects.all()
+    knihy = Kniha.objects.all()
     return render(request, 'knihy/knihy_list.html', {'knihy': knihy})
 
 def kniha_detail(request, nazev_knihy):

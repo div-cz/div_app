@@ -6,63 +6,66 @@ class MetaWorld(models.Model):
 
     class Meta:
         db_table = 'MetaWorld'
-        app_label = 'divdb'
+        app_label = 'div_content'
 
 class MetaGenre(models.Model):
     genreid = models.AutoField(primary_key=True)
 
     class Meta:
         db_table = 'MetaGenre'
-        app_label = 'divdb'
+        app_label = 'div_content'
 
 class GamePlatform(models.Model):
     platformid = models.AutoField(primary_key=True)
 
     class Meta:
         db_table = 'GamePlatform'
-        app_label = 'divdb'
+        app_label = 'div_content'
 
 class GamePublisher(models.Model):
     publisherid = models.AutoField(primary_key=True)
 
     class Meta:
         db_table = 'GamePublisher'
-        app_label = 'divdb'
+        app_label = 'div_content'
 
 class GameDevelopers(models.Model):
     developerid = models.AutoField(primary_key=True)
 
     class Meta:
         db_table = 'GameDevelopers'
-        app_label = 'divdb'
+        app_label = 'div_content'
 
 class BookPublisher(models.Model):
     publisherid = models.AutoField(primary_key=True)
 
     class Meta:
         db_table = 'BookPublisher'
-        app_label = 'divdb'
+        app_label = 'div_content'
 
 class MetaCountry(models.Model):
     countryid = models.AutoField(primary_key=True)
 
     class Meta:
         db_table = 'MetaCountry'
-        app_label = 'divdb'
+        app_label = 'div_content'
 
 class Movie(models.Model):
     movieid = models.AutoField(primary_key=True)
     title = models.CharField(max_length=255)
+    titlecz = models.CharField(max_length=255)
+    url = models.CharField(max_length=128)
+    oldurl = models.CharField(max_length=128, null=True, blank=True)
     description = models.TextField()
     releaseyear = models.DateField()
     duration = models.IntegerField()
     language = models.CharField(max_length=5)
     budget = models.DecimalField(max_digits=15, decimal_places=2)
-    world = models.ForeignKey(MetaWorld, on_delete=models.CASCADE)
+    world = models.ForeignKey(MetaWorld, on_delete=models.CASCADE, db_column='WorldID')
 
     class Meta:
         db_table = 'Movie'
-        app_label = 'divdb'
+        app_label = 'div_content'
 
     def __str__(self):
         return self.title
@@ -81,7 +84,7 @@ class Game(models.Model):
 
     class Meta:
         db_table = 'Game'
-        app_label = 'divdb'
+        app_label = 'div_content'
 
     def __str__(self):
         return self.title
@@ -98,7 +101,7 @@ class Book(models.Model):
 
     class Meta:
         db_table = 'Book'
-        app_label = 'divdb'
+        app_label = 'div_content'
 
     def __str__(self):
         return self.title
