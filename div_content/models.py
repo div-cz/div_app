@@ -17,7 +17,7 @@ class MetaGenre(models.Model):
 
 class GamePlatform(models.Model):
     platformid = models.AutoField(primary_key=True)
-
+    platform = models.CharField(max_length=255)
     class Meta:
         db_table = 'GamePlatform'
         app_label = 'div_content'

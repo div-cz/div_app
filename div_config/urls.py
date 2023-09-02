@@ -20,6 +20,7 @@ from django.urls import path, include
 from div_content import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import TemplateView 
 
 urlpatterns = [
 #    path("divconfig/", include("divconfig.urls")),
@@ -35,7 +36,10 @@ urlpatterns = [
     path('lokality/', views.lokality, name='index_lokality'),
     path('lokalita/<str:nazev_lokality>', views.lokalita_detail, name='lokalita_detail'),
 
-    path('testtest', views.testtest, name='testtest'),
+    path('podminky-pouziti/', TemplateView.as_view(template_name='podminky-pouziti.html'), name='podminky-pouziti'),
+    path('ochrana-osobnich-udaju/', TemplateView.as_view(template_name='ochrana-osobnich-udaju.html'), name='ochrana-osobnich-udaju'),
+
+
 ]
 
 if settings.DEBUG:

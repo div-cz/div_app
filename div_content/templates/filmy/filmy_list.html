@@ -4,11 +4,18 @@
 
     {% include "../inc/head.html" %}
 
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
 <title>Filmy | Databáze filmů DIV</title>
 
 <style>
 .carousel-caption {
     background-color: rgba(0, 0, 0, 0.5);
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .carousel .carousel-inner .carousel-item {
@@ -21,6 +28,40 @@
     width: 100%;
     object-fit: cover;
 }
+
+.table {
+    background-color: #333;
+    width:100% !important;
+}
+
+table {
+    width:100% !important;
+    border-collapse: collapse;
+}
+
+.table thead {
+    background-color: #444;
+}
+.table thead th {
+    color: #fff !important;
+}
+
+.table tbody tr {
+    background-color: #555;
+}
+
+.table tbody td {
+    color: #ddd;
+}
+#moviesTable tr:nth-child(even) {
+    background-color: #555 ;
+}
+
+
+.table tbody tr:hover {
+    background-color: #666 !important;
+}
+
 </style>
 
 </head>
@@ -87,9 +128,10 @@
 
 <!-- Sekce odkazů na filmy -->
 <div class="container my-4">
-    <h2 class="mb-4">Nejnovější filmy</h2>
+    <h2 class="mb-4">Seznam filmů</h2>
+<!--
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4">
-        <!-- První film -->
+
         <div class="col">
             <div class="card h-100">
                 <a href="#"><img src="http://www.div.cz/im/poster100/6/m/813259-hotel-transylv-nie-stra-ideln-mazl-ci-2021.jpg" class="card-img-top" alt="Film"></a>
@@ -99,18 +141,6 @@
             </div>
         </div>
 
-        <!-- Další filmy -->
-        <!-- 
-        <div class="col">
-            <div class="card h-100">
-                <a href="#"><img src="http://www.div.cz/im/poster100/6/m/813259-hotel-transylv-nie-stra-ideln-mazl-ci-2021.jpg" class="card-img-top" alt="Film"></a>
-                <div class="card-body">
-                    <h5 class="card-title">Název filmu (Rok)</h5>
-                </div>
-            </div>
-        </div>
-        -->
-        <!-- Další film -->
         <div class="col">
             <div class="card h-100">
                 <a href="#"><img src="http://www.div.cz/im/poster100/6/m/813259-hotel-transylv-nie-stra-ideln-mazl-ci-2021.jpg" class="card-img-top" alt="Film"></a>
@@ -120,7 +150,6 @@
             </div>
         </div>
 
-        <!-- Další film -->
         <div class="col">
             <div class="card h-100">
                 <a href="#"><img src="http://www.div.cz/im/poster100/6/m/813259-hotel-transylv-nie-stra-ideln-mazl-ci-2021.jpg" class="card-img-top" alt="Film"></a>
@@ -130,7 +159,6 @@
             </div>
         </div>
 
-        <!-- Další film -->
         <div class="col">
             <div class="card h-100">
                 <a href="#"><img src="http://www.div.cz/im/poster100/6/m/813259-hotel-transylv-nie-stra-ideln-mazl-ci-2021.jpg" class="card-img-top" alt="Film"></a>
@@ -140,7 +168,6 @@
             </div>
         </div>
 
-        <!-- Další film -->
         <div class="col">
             <div class="card h-100">
                 <a href="#"><img src="http://www.div.cz/im/poster100/6/m/813259-hotel-transylv-nie-stra-ideln-mazl-ci-2021.jpg" class="card-img-top" alt="Film"></a>
@@ -149,12 +176,184 @@
                 </div>
             </div>
         </div>
+    </div>-->
+
+
+
+    <div class="row mb-3">
+        <div class="col-md-4 mb-3">
+            <label for="genresFilter">Žánr:</label>
+            <select id="genresFilter" class="form-control">
+                <option value="">Vše</option>
+                <option value="Akční">Akční</option>
+                <option value="Fantasy">Fantasy</option>
+                <option value="Sci-fi">Sci-fi</option>
+                <option value="Thriller">Thriller</option>
+                <!-- další žánry -->
+            </select>
+        </div>
+
+
+        <div class="col-md-4 mb-3">
+            <label for="ratingFilter">Hodnocení:</label>
+            <select id="ratingFilter" class="form-control">
+                <option value="0">Všechno</option>
+                <option value="10">jen 10</option>
+                <option value="9">9 a víc</option>
+                <option value="8">8 a víc</option>
+                <option value="7">7 a víc</option>
+            </select>
     </div>
+
+
+
+    <!-- Tabulka s hrami -->
+    <table class="table table-striped w-100 hover" id="moviesTable" style="width:100%">
+        <thead>
+            <tr>
+                <th>Rok</th>
+                <th>Název</th>
+                <th>Žánr</th>
+                <th>Hodnocení</th>
+                <th>Země</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Ukázková data -->
+            <tr>
+                <td><a href="/rok/100">1994</a></td>
+                <td><a href="/film/forrest-gump">Forrest Gump</a></td>
+                <td><a href="/drama">Drama</a></td>
+                <td>8/10</td>
+                <td>USA</td>
+            </tr>
+            <tr>
+                <td>2008</td>
+                <td><a href="/film/temny-rytir">The Dark Knight</a></td>
+                <td>Akční</td>
+                <td>9/10</td>
+                <td>USA/UK</td>
+            </tr>
+            <tr>
+                <td>1993</td>
+                <td><a href="/film/schindleruv-seznam">Schindler's List</a></td>
+                <td>Drama</td>
+                <td>8/10</td>
+                <td>USA</td>
+            </tr>
+            <tr>
+                <td>2010</td>
+                <td>Inception</td>
+                <td>Sci-Fi</td>
+                <td>8/10</td>
+                <td>USA/UK</td>
+            </tr>
+            <tr>
+                <td>2001</td>
+                <td>Spirited Away</td>
+                <td>Animovaný</td>
+                <td>8/10</td>
+                <td>Japonsko</td>
+            </tr>
+            <tr>
+                <td>2019</td>
+                <td>Parasite</td>
+                <td>Thriller</td>
+                <td>8/10</td>
+                <td>Jižní Korea</td>
+            </tr>
+            <tr>
+                <td>1995</td>
+                <td><a href="/film/toy-story-pribeh-hracek">Toy Story</a></td>
+                <td>Komedie</td>
+                <td>8/10</td>
+                <td>USA</td>
+            </tr>
+            <tr>
+                <td>1999</td>
+                <td><a href="/film/klub-rvacu">Fight Club</a></td>
+                <td>Thriller</td>
+                <td>8/10</td>
+                <td>USA</td>
+            </tr>
+            <tr>
+                <td>2002</td>
+                <td><a href="/film/pianista">The Pianist</a></td>
+                <td>Drama</td>
+                <td>8/10</td>
+                <td>Polsko/UK/Francie</td>
+            </tr>
+            <tr>
+                <td>1999</td>
+                <td><a href="/film/matrix">The Matrix</a></td>
+                <td>Akční</td>
+                <td>8/10</td>
+                <td>USA</td>
+            </tr>
+
+        </tbody>
+    </table>
 </div>
 
+    </div>
+
+</main>
 
 
 {% include "../inc/footer_filmy.html" %}
+
+
+<script>
+
+$(document).ready(function() {
+    // Initialize DataTable
+    var table = $('#moviesTable').DataTable();
+
+    // Apply the filter
+    $('#genresFilter, #ratingFilter').on('change', function() {
+        table.draw();
+    });
+
+    // Custom filtering function
+    $.fn.dataTable.ext.search.push(
+        function(settings, data, dataIndex) {
+            var genres = $('#genresFilter').val();
+            var minRating = $('#ratingFilter').val();
+
+            var rowGenres = data[2]; // Genres is in the second column
+            var rowRating = parseInt(data[3].split('/')[0]); // Extract rating from format "X/10"
+
+            if ((genres === "" || genres === rowGenres) && (minRating === "0" || rowRating >= minRating)) {
+                return true; // Show row
+            }
+            return false; // Hide row
+        }
+    );
+});
+
+
+
+
+$('#moviesTable').DataTable({
+    "language": {
+        "lengthMenu": "Zobrazit _MENU_ záznamů",
+        "zeroRecords": "Žádné záznamy nebyly nalezeny",
+        "info": "Strana _PAGE_ z _PAGES_",
+        "infoEmpty": "Žádné záznamy k dispozici",
+        "infoFiltered": "(vyfiltrováno z celkem _MAX_ záznamů)",
+        "search": "Hledat:",
+        "paginate": {
+            "first":      "První",
+            "last":       "Poslední",
+            "next":       "Další",
+            "previous":   "Předchozí"
+        },
+    }
+});
+
+
+</script>
+
 
 </body>
 </html>
