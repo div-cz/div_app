@@ -1,22 +1,30 @@
 <!DOCTYPE html>
-<html lang="cz">
+<html lang="cs">
 <head>
-    {# import head  #}
-    {% include "../inc/head.html" %}
 
-    <title>Filmy z roku 2000</title>
+    {% include "inc/head.html" %}
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+ <title>{% block title %}Databáze | DIV.cz{% endblock %}</title>
+
 </head>
+
 <body>
-    <h1>Filmy z roku 2000</h1>
-    <ul>
-    {% for film in filmy %}
-        <li>{{ film.nazev }}</li>
-    {% endfor %}
-    </ul>
 
+    {% include "inc/navbar.html" %}
+<main class="mb-5">
 
-    {# import footer  #}
-    {% include "../inc/footer.html" %}
+<div class="container mt-4">
+    <h2 class="mb-4">{% block header %} {% endblock %}</h2>
+
+{% block content %}
+{% endblock %}
+
+</div>
+</main>
+
+{% include "inc/footer.html" %}
 
 </body>
 </html>

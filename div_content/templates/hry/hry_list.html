@@ -2,9 +2,17 @@
 <html lang="cs">
 <head>
 
+
     {% include "../inc/head.html" %}
 
-<title>Filmy | Databáze filmů DIV</title>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+
+
+<title>Hry | Databáze filmů a her DIV</title>
 
 <style>
 .carousel-caption {
@@ -12,7 +20,7 @@
 }
 
 .carousel .carousel-inner .carousel-item {
-    height: 300px;
+    height: 200px;
     overflow: hidden;
 }
 
@@ -21,14 +29,45 @@
     width: 100%;
     object-fit: cover;
 }
+
+
+.table {
+    background-color: #333;
+    width:100%;
+}
+
+.table thead {
+    background-color: #444; 
+}
+
+.table thead th {
+    color: #fff !important;
+}
+
+.table tbody tr {
+    background-color: #555;
+}
+
+.table tbody td {
+    color: #ddd;
+}
+#gamesTable tr:nth-child(even) {
+    background-color: #555 ;
+}
+
+
+.table tbody tr:hover {
+    background-color: #666 !important;
+}
+
+
 </style>
 
 </head>
 
 <body>
 
-    {% include "../inc/navbar_filmy.html" %}
-
+    {% include "../inc/navbar_hry.html" %}
 
 <main class="mb-5">
     <section>
@@ -42,14 +81,14 @@
   </ol>
   <div class="carousel-inner">
     <div class="carousel-item active">
-      <img src="https://e0.pxfuel.com/wallpapers/1/848/desktop-wallpaper-destiny-the-game-moon-panorama-2953-x-1080-destiny-destiny-game-destiny-video-game.jpg" class="d-block w-100" alt="...">
+      <img src="https://e0.pxfuel.com/wallpapers/1/848/desktop-wallpaper-destiny-the-game-moon-panorama-2953-x-1080-destiny-destiny-game-destiny-video-game.jpg" class="d-block w-100" alt="Hra pro PS">
                 <div class="carousel-caption text-left text-white p-3">
                 <h5>Hra I.</h5>
                 <p>Hra pro Playstation 5</p>
                 </div>
     </div>
     <div class="carousel-item">
-      <img src=https://pixabay.com/photos/queen-archer-female-queen-archer-4442893/https://www.themoviedb.org/t/p/original/xZuhDaKDpWDG0sE3Dx6CIR8DeaN.jpg" class="d-block w-100" alt="After: Odloučení">
+      <img src="https://assets.nintendo.com/image/upload/ar_16:9,c_lpad,w_1240/b_white/f_auto/q_auto/ncom/software/switch/70010000052933/ca4daae0eaae22b18cefda3e0ca948516794309d5a885b650671d9ec1987843d" class="d-block w-100" alt="After: Odloučení">
                 <div class="carousel-caption text-left text-white p-3">
                 <h5>Hra II.</h5>
                 <p>Lorem ipsum, žlutoučký kům</p>
@@ -77,77 +116,318 @@
 </div>
     </section>
 
+<!-- Filtry pro tabulku -->
+<div class="container mt-4">
+    <h2 class="mb-4">Seznam her</h2>
+<!--<input type="text" id="searchBox" placeholder="Hledat...">-->
+    
+    <div class="row mb-3">
+        <div class="col-md-4 mb-3">
+            <label for="platformFilter">Platforma:</label>
+            <select id="platformFilter" class="form-control">
+                <option value="">Vše</option>
+                <option value="Playstation 5">Playstation 5</option>
+                <option value="Xbox">Xbox</option>
+                <option value="PC">PC</option>
+                <option value="Deskova">Desková hra</option>
+                <!-- další platformy -->
+            </select>
+        </div>
+        <!--<div class="col-md-4">
+            <label for="yearFilter">Rok:</label>
+            <select id="yearFilter" class="form-control">
+                <option value="">Vše</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+            </select>
+        </div>-->
+        <div class="col-md-4 mb-3">
+            <label for="ratingFilter">Hodnocení:</label>
+            <select id="ratingFilter" class="form-control">
+                <option value="0">Všechno</option>
+                <option value="10">jen 10</option>
+                <option value="9">9 a víc</option>
+                <option value="8">8 a víc</option>
+                <option value="7">7 a víc</option>
+            </select>
 
-<!-- Sekce odkazů na filmy -->
-<div class="container my-4">
-    <h2 class="mb-4">Nejnovější filmy</h2>
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4">
-        <!-- První film -->
-        <div class="col">
-            <div class="card h-100">
-                <a href="#"><img src="http://www.div.cz/im/poster100/6/m/813259-hotel-transylv-nie-stra-ideln-mazl-ci-2021.jpg" class="card-img-top" alt="Film"></a>
-                <div class="card-body">
-                    <h5 class="card-title">Název filmu (2023)</h5>
-                </div>
-            </div>
-        </div>
-
-        <!-- Další hry -->
-        <!--
-        <div class="col">
-            <div class="card h-100">
-                <a href="#"><img src="http://www.div.cz/im/poster100/6/m/813259-hotel-transylv-nie-stra-ideln-mazl-ci-2021.jpg" class="card-img-top" alt="Film"></a>
-                <div class="card-body">
-                    <h5 class="card-title">Název filmu (Rok)</h5>
-                </div>
-            </div>
-        </div>
-        -->
-        <!-- Další film -->
-        <div class="col">
-            <div class="card h-100">
-                <a href="#"><img src="http://www.div.cz/im/poster100/6/m/813259-hotel-transylv-nie-stra-ideln-mazl-ci-2021.jpg" class="card-img-top" alt="Film"></a>
-                <div class="card-body">
-                    <h5 class="card-title">Název filmu (2023)</h5>
-                </div>
-            </div>
-        </div>
-
-        <!-- Další film -->
-        <div class="col">
-            <div class="card h-100">
-                <a href="#"><img src="http://www.div.cz/im/poster100/6/m/813259-hotel-transylv-nie-stra-ideln-mazl-ci-2021.jpg" class="card-img-top" alt="Film"></a>
-                <div class="card-body">
-                    <h5 class="card-title">Název filmu (2023)</h5>
-                </div>
-            </div>
-        </div>
-
-        <!-- Další film -->
-        <div class="col">
-            <div class="card h-100">
-                <a href="#"><img src="http://www.div.cz/im/poster100/6/m/813259-hotel-transylv-nie-stra-ideln-mazl-ci-2021.jpg" class="card-img-top" alt="Film"></a>
-                <div class="card-body">
-                    <h5 class="card-title">Název filmu (2023)</h5>
-                </div>
-            </div>
-        </div>
-
-        <!-- Další film -->
-        <div class="col">
-            <div class="card h-100">
-                <a href="#"><img src="http://www.div.cz/im/poster100/6/m/813259-hotel-transylv-nie-stra-ideln-mazl-ci-2021.jpg" class="card-img-top" alt="Film"></a>
-                <div class="card-body">
-                    <h5 class="card-title">Název filmu (2023)</h5>
-                </div>
-            </div>
-        </div>
     </div>
+
+    <!-- Tabulka s hrami -->
+    <table class="table table-striped w-100 hover" id="gamesTable" style="width:100%">
+        <thead>
+            <tr>
+                <th>Název</th>
+                <th>Platforma</th>
+                <th>Rok</th>
+                <th>Hodnocení</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Ukázková data -->
+<tr>
+    <td><a href="">The Last of Us Part II</a></td>
+    <td><a href="">Playstation 5</a></td>
+    <td>2020</td>
+    <td>9/10</td>
+</tr>
+<tr>
+    <td>Cyberpunk 2077</td>
+    <td>PC</td>
+    <td><a href="">2020</a></td>
+    <td>8/10</td>
+</tr>
+<tr>
+    <td>Catan</td>
+    <td>Deskova</td>
+    <td>1995</td>
+    <td>8/10</td>
+</tr>
+<tr>
+    <td>Red Dead Redemption 2</td>
+    <td>Playstation 5</td>
+    <td>2018</td>
+    <td>10/10</td>
+</tr>
+<tr>
+    <td>Star Wars: Jedi Fallen Order</td>
+    <td>PC</td>
+    <td>2019</td>
+    <td>8/10</td>
+</tr>
+<tr>
+    <td>Carpe Diem</td>
+    <td>Deskova</td>
+    <td>2019</td>
+    <td>7/10</td>
+</tr>
+<tr>
+    <td>Ghost of Tsushima</td>
+    <td>Playstation 5</td>
+    <td>2020</td>
+    <td>9/10</td>
+</tr>
+<tr>
+    <td>Control</td>
+    <td>PC</td>
+    <td>2019</td>
+    <td>8/10</td>
+</tr>
+<tr>
+    <td>Pandemic</td>
+    <td>Deskova</td>
+    <td>2008</td>
+    <td>8/10</td>
+</tr>
+<tr>
+    <td>Death Stranding</td>
+    <td>Playstation 5</td>
+    <td>2019</td>
+    <td>7/10</td>
+</tr>
+<tr>
+    <td>Assassin's Creed Valhalla</td>
+    <td>PC</td>
+    <td>2020</td>
+    <td>8/10</td>
+</tr>
+<tr>
+    <td>Ticket to Ride</td>
+    <td>Deskova</td>
+    <td>2004</td>
+    <td>8/10</td>
+</tr>
+<tr>
+    <td>Final Fantasy VII Remake</td>
+    <td>Playstation 5</td>
+    <td>2020</td>
+    <td>9/10</td>
+</tr>
+<tr>
+    <td>DOOM Eternal</td>
+    <td>PC</td>
+    <td>2020</td>
+    <td>9/10</td>
+</tr>
+<tr>
+    <td>7 Wonders</td>
+    <td>Deskova</td>
+    <td>2010</td>
+    <td>8/10</td>
+</tr>
+<tr>
+    <td>Spider-Man: Miles Morales</td>
+    <td>Playstation 5</td>
+    <td>2020</td>
+    <td>9/10</td>
+</tr>
+<tr>
+    <td>Baldur's Gate 3</td>
+    <td>PC</td>
+    <td>2021</td>
+    <td>9/10</td>
+</tr>
+<tr>
+    <td>Carcassonne</td>
+    <td>Deskova</td>
+    <td>2000</td>
+    <td>8/10</td>
+</tr>
+<tr>
+    <td>Resident Evil Village</td>
+    <td>Playstation 5</td>
+    <td>2021</td>
+    <td>8/10</td>
+</tr>
+<tr>
+    <td>Half-Life: Alyx</td>
+    <td>PC</td>
+    <td>2020</td>
+    <td>10/10</td>
+</tr>
+<tr>
+    <td>Dominion</td>
+    <td>Deskova</td>
+    <td>2008</td>
+    <td>8/10</td>
+</tr>
+
+            <tr>
+                <td>Hra 1</td>
+                <td>Playstation 5</td>
+                <td>2023</td>
+                <td>8/10</td>
+            </tr>
+            <tr>
+                <td>Hra 2</td>
+                <td>PC</td>
+                <td>2022</td>
+                <td>9/10</td>
+            </tr>
+            <tr>
+                <td>Hra 3</td>
+                <td>Deskova</td>
+                <td>2021</td>
+                <td>7/10</td>
+            </tr>
+<tr>
+    <td>Horizon Zero Dawn</td>
+    <td>Playstation 5</td>
+    <td>2017</td>
+    <td>9/10</td>
+</tr>
+<tr>
+    <td>The Witcher 3: Wild Hunt</td>
+    <td>PC</td>
+    <td>2015</td>
+    <td>10/10</td>
+</tr>
+<tr>
+    <td>Twilight Struggle</td>
+    <td>Deskova</td>
+    <td>2005</td>
+    <td>9/10</td>
+</tr>
+<tr>
+    <td>God of War</td>
+    <td>Playstation 5</td>
+    <td>2018</td>
+    <td>10/10</td>
+</tr>
+<tr>
+    <td>Dark Souls III</td>
+    <td>PC</td>
+    <td>2016</td>
+    <td>9/10</td>
+</tr>
+<tr>
+    <td>Agricola</td>
+    <td>Deskova</td>
+    <td>2007</td>
+    <td>8/10</td>
+</tr>
+<tr>
+    <td>Bloodborne</td>
+    <td>Playstation 5</td>
+    <td>2015</td>
+    <td>9/10</td>
+</tr>
+<tr>
+    <td>Stardew Valley</td>
+    <td>PC</td>
+    <td>2016</td>
+    <td>9/10</td>
+</tr>
+<tr>
+    <td>Viticulture</td>
+    <td>Deskova</td>
+    <td>2013</td>
+    <td>8/10</td>
+</tr>
+
+        </tbody>
+    </table>
 </div>
 
+    </div>
+
+</main>
 
 
 {% include "../inc/footer_hry.html" %}
+
+
+<script>
+
+
+$(document).ready(function() {
+    // Initialize DataTable
+    var table = $('#gamesTable').DataTable();
+
+    // Apply the filter
+    $('#platformFilter, #ratingFilter').on('change', function() {
+        table.draw();
+    });
+
+    // Custom filtering function
+    $.fn.dataTable.ext.search.push(
+        function(settings, data, dataIndex) {
+            var platform = $('#platformFilter').val();
+            var minRating = $('#ratingFilter').val();
+
+            var rowPlatform = data[1]; // Platform is in the second column
+            var rowRating = parseInt(data[3].split('/')[0]); // Extract rating from format "X/10"
+
+            if ((platform === "" || platform === rowPlatform) && (minRating === "0" || rowRating >= minRating)) {
+                return true; // Show row
+            }
+            return false; // Hide row
+        }
+    );
+});
+
+
+
+$('#gamesTable').DataTable({
+    "language": {
+        "lengthMenu": "Zobrazit _MENU_ záznamů",
+        "zeroRecords": "Žádné záznamy nebyly nalezeny",
+        "info": "Strana _PAGE_ z _PAGES_",
+        "infoEmpty": "Žádné záznamy k dispozici",
+        "infoFiltered": "(vyfiltrováno z celkem _MAX_ záznamů)",
+        "search": "Hledat:",
+        "paginate": {
+            "first":      "První",
+            "last":       "Poslední",
+            "next":       "Další",
+            "previous":   "Předchozí"
+        },
+    }
+});
+
+
+</script>
+
 
 </body>
 </html>
