@@ -25,6 +25,7 @@ class GamePlatform(models.Model):
 class GamePublisher(models.Model):
     publisherid = models.AutoField(primary_key=True)
 
+
     class Meta:
         db_table = 'GamePublisher'
         app_label = 'div_content'
@@ -95,7 +96,7 @@ class Book(models.Model):
     author = models.CharField(max_length=255)
     description = models.TextField()
     genre = models.ForeignKey(MetaGenre, on_delete=models.CASCADE)
-    publisher = models.ForeignKey(BookPublisher, on_delete=models.CASCADE)
+    publisher = models.ForeignKey('BookPublisher', on_delete=models.SET_NULL, null=True)
     world = models.ForeignKey(MetaWorld, on_delete=models.CASCADE)
     country = models.ForeignKey(MetaCountry, on_delete=models.CASCADE)
 
@@ -118,3 +119,24 @@ class Lokalita(models.Model):
 
     def __str__(self):
         return self.nazev
+
+class Article(models.Model):
+    url = models.SlugField(max_length=200, unique=True)  # Unikátní URL slug
+    title = models.CharField(max_length=255, unique=True)  # Unikátní titulek
+    h1 = models.CharField(max_length=255)  # H1 nadpis
+    h2 = models.CharField(max_length=255, blank=True)  # H2 nadpis, není povinný
+    content = models.TextField()  # Obsah článku
+    img1600 = models.ImageField(upload_to='art/1600/')  # Obrázek 1600px
+    img500x500 = models.ImageField(upload_to='art/500x500/')  # Obrázek 500x500
+    img400x250 = models.ImageField(upload_to='art/400x250/')  # Obrázek 400x250
+    alt = models.CharField(max_length=255, unique=True)  # Unikátní ALT text
+    perex = models.TextField()  # Krátký perex (úvod) článku
+    article = models.TextField()  # Textové tělo článku
+    autor = models.CharField(max_length=255)
+    typ = models.CharField(max_length=50)  # Typ článku (např. "recenze", "novi>
+    counter = models.IntegerField(default=0)  # Počítadlo návštěv
+    created = models.DateTimeField(auto_now_add=True)  # Datum a čas vytvoření
+    updated = models.DateTimeField(auto_now=True)  # Datum a čas poslední úpravy
+
+    def __str__(self):
+        return self.title

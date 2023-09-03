@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from .models import Movie, Game, Book, Lokalita
+from .models import Article, Book, Game, Movie, Lokalita
 from django.shortcuts import render
 
 def testtest(request):
@@ -14,11 +14,9 @@ def filmy_z_roku_2000(request):
     filmy = Film.objects.filter(rok=2000)
     return render(request, 'filmy.html', {'filmy': filmy})
 
-
 def index(request):
 #        return HttpResponse("Toto je hlavní stránka.kontakt")
         return render(request, 'index.html')
-
 
 def filmy(request):
         filmy = Movie.objects.all()
@@ -28,6 +26,17 @@ def filmy(request):
 def film_detail(request, url_filmu):
     film = get_object_or_404(Movie, url=url_filmu)
     return render(request, 'filmy/film_detail.html', {'film': film})
+
+# Pro články
+#def clanky(request):
+#    clanky = Article.objects.all()
+#    return render(request, 'clanky/clanky_list.html', {'clanky': clanky})
+
+# Pro článek
+#def clanek_detail(request, url_clanku):
+#    clanek = get_object_or_404(Article, url=nazev_clanku)
+#    return render(request, 'clanky/clanek_detail.html', {'clanek': clanek})
+
 
 # Pro hry
 def hry(request):
