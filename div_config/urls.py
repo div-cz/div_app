@@ -27,6 +27,7 @@ urlpatterns = [
     path('filmy2000', views.filmy_z_roku_2000, name='filmy2000'),
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
+
     path('filmy/', views.filmy, name='index_filmy'),
     path('film/<str:url_filmu>', views.film_detail, name='film_detail'),
     path('knihy/', views.knihy, name='index_knihy'),
@@ -39,7 +40,8 @@ urlpatterns = [
     path('podminky-pouziti/', TemplateView.as_view(template_name='podminky-pouziti.html'), name='podminky-pouziti'),
     path('ochrana-osobnich-udaju/', TemplateView.as_view(template_name='ochrana-osobnich-udaju.html'), name='ochrana-osobnich-udaju'),
 
-
+#    path('clanky/', views.clanky, name='clanky'),
+#    path('<str:url_clanku>', views.clanek_detail, name='clanek_detail'),
 ]
 
 if settings.DEBUG:
