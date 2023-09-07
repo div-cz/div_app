@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from .models import Article, Book, Game, Movie, Lokalita
+from .models import Article, Book, Game, Movie, Location
 from django.shortcuts import render
 
 def testtest(request):
@@ -58,7 +58,7 @@ def kniha_detail(request, nazev_knihy):
 
 # Pro lokality
 def lokality(request):
-    lokality = Lokalita.objects.all()
+    lokality = Location.objects.all()
     return render(request, 'lokality/lokality_list.html', {'lokality': lokality})
 
 def lokalita_detail(request, nazev_lokality):
