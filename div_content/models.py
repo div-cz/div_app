@@ -14,6 +14,7 @@ class Article(models.Model):
     title = models.CharField(db_column='Title', max_length=255)  # Field name made lowercase.
     h1 = models.CharField(db_column='H1', max_length=255)  # Field name made lowercase.
     h2 = models.CharField(db_column='H2', max_length=255)  # Field name made lowercase.
+    tagline = models.CharField(db_column='Tagline', max_length=64)
     content = models.TextField(db_column='Content')  # Field name made lowercase.
     img1600 = models.CharField(db_column='Img1600', max_length=255)  # Field name made lowercase.
     img500x500 = models.CharField(db_column='Img500x500', max_length=255)  # Field name made lowercase.
@@ -28,7 +29,6 @@ class Article(models.Model):
     updated = models.DateField(db_column='Updated')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'Article'
 
 
@@ -43,7 +43,6 @@ class Book(models.Model):
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'Book'
 
 
@@ -54,7 +53,6 @@ class Bookcomments(models.Model):
     bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'BookComments'
 
 
@@ -64,7 +62,6 @@ class Bookcover(models.Model):
     cover = models.CharField(db_column='Cover', max_length=255)  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'BookCover'
 
 
@@ -73,7 +70,6 @@ class Bookpublisher(models.Model):
     publishername = models.CharField(db_column='PublisherName', max_length=255)  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'BookPublisher'
 
 
@@ -85,7 +81,6 @@ class Bookpurchase(models.Model):
     bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'BookPurchase'
 
 
@@ -97,7 +92,6 @@ class Bookrating(models.Model):
     bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'BookRating'
 
 
@@ -108,7 +102,6 @@ class Characterbook(models.Model):
     bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'CharacterBook'
 
 
@@ -119,7 +112,6 @@ class Charactergame(models.Model):
     gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'CharacterGame'
 
 
@@ -129,7 +121,6 @@ class Charactermeta(models.Model):
     characterdescription = models.TextField(db_column='CharacterDescription')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'CharacterMeta'
 
 
@@ -140,7 +131,6 @@ class Charactermovie(models.Model):
     movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'CharacterMovie'
 
 
@@ -151,7 +141,6 @@ class Charactertvshow(models.Model):
     tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'CharacterTVShow'
 
 
@@ -162,7 +151,6 @@ class Comments(models.Model):
     userid = models.ForeignKey('User', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'Comments'
 
 
@@ -175,7 +163,6 @@ class Creator(models.Model):
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'Creator'
 
 
@@ -186,7 +173,6 @@ class Creatoringame(models.Model):
     creatorid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='CreatorID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'CreatorInGame'
 
 
@@ -197,7 +183,6 @@ class Creatorinmovie(models.Model):
     movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'CreatorInMovie'
 
 
@@ -208,7 +193,6 @@ class Creatorintvshow(models.Model):
     tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'CreatorInTVShow'
 
 
@@ -217,7 +201,7 @@ class Creatorrole(models.Model):
     rolename = models.CharField(db_column='RoleName', max_length=255)  # Field name made lowercase.
 
     class Meta:
-        managed = False
+
         db_table = 'CreatorRole'
 
 
@@ -227,7 +211,6 @@ class Drink(models.Model):
     description = models.TextField(db_column='Description')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'Drink'
 
 
@@ -237,7 +220,6 @@ class Drinkmedia(models.Model):
     drinkid = models.ForeignKey(Drink, models.DO_NOTHING, db_column='DrinkID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'DrinkMedia'
 
 
@@ -247,7 +229,6 @@ class Food(models.Model):
     description = models.TextField(db_column='Description')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'Food'
 
 
@@ -257,7 +238,6 @@ class Foodmedia(models.Model):
     foodid = models.ForeignKey(Food, models.DO_NOTHING, db_column='FoodID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'FoodMedia'
 
 
@@ -274,7 +254,6 @@ class Game(models.Model):
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'Game'
 
 
@@ -285,7 +264,6 @@ class Gamecomments(models.Model):
     userid = models.ForeignKey('User', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'GameComments'
 
 
@@ -294,7 +272,6 @@ class Gamedevelopers(models.Model):
     developername = models.CharField(db_column='DeveloperName', max_length=255)  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'GameDevelopers'
 
 
@@ -303,7 +280,6 @@ class Gameplatform(models.Model):
     platform = models.CharField(db_column='Platform', max_length=255)  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'GamePlatform'
 
 
@@ -312,7 +288,6 @@ class Gamepublisher(models.Model):
     publishername = models.CharField(db_column='PublisherName', max_length=255)  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'GamePublisher'
 
 
@@ -324,7 +299,6 @@ class Gamepurchase(models.Model):
     userid = models.ForeignKey('User', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'GamePurchase'
 
 
@@ -336,7 +310,6 @@ class Gamerating(models.Model):
     userid = models.ForeignKey('User', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'GameRating'
 
 
@@ -347,7 +320,6 @@ class Item(models.Model):
     itemtypeid = models.ForeignKey('Itemtypes', models.DO_NOTHING, db_column='ItemTypeID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'Item'
 
 
@@ -358,7 +330,6 @@ class Itembook(models.Model):
     bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'ItemBook'
 
 
@@ -369,7 +340,6 @@ class Itemgame(models.Model):
     gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'ItemGame'
 
 
@@ -380,7 +350,6 @@ class Itemmovie(models.Model):
     itemid = models.ForeignKey(Item, models.DO_NOTHING, db_column='ItemID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'ItemMovie'
 
 
@@ -389,7 +358,6 @@ class Itemtypes(models.Model):
     type = models.CharField(db_column='Type', max_length=255)  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'ItemTypes'
 
 
@@ -402,7 +370,6 @@ class Location(models.Model):
     locationadress = models.CharField(db_column='LocationAdress', max_length=255)  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'Location'
 
 
@@ -413,7 +380,6 @@ class Locationbook(models.Model):
     bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'LocationBook'
 
 
@@ -424,7 +390,6 @@ class Locationgame(models.Model):
     gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'LocationGame'
 
 
@@ -435,7 +400,6 @@ class Locationmovie(models.Model):
     movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'LocationMovie'
 
 
@@ -445,18 +409,16 @@ class Metacity(models.Model):
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'MetaCity'
 
 
 class Metacountry(models.Model):
     countryid = models.IntegerField(db_column='CountryID', primary_key=True)  # Field name made lowercase.
     countryname = models.CharField(db_column='CountryName', max_length=255)  # Field name made lowercase.
-    countrycode = models.CharField(db_column='CountryCode', max_length=3)  # Field name made lowercase.
+    countrycode = models.CharField(db_column='CountryCode', max_length=4)  # Field name made lowercase.
     countrynamecz = models.CharField(db_column='CountryNameCZ', max_length=255)  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'MetaCountry'
 
 
@@ -467,7 +429,6 @@ class Metagenre(models.Model):
     tmdbid = models.IntegerField(db_column='TmdbID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'MetaGenre'
 
 
@@ -477,7 +438,6 @@ class Metaworld(models.Model):
     worlddescrtiption = models.TextField(db_column='WorldDescrtiption')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'MetaWorld'
 
 
@@ -487,18 +447,17 @@ class Movie(models.Model):
     description = models.TextField(db_column='Description')  # Field name made lowercase.
     releaseyear = models.TextField(db_column='ReleaseYear')  # Field name made lowercase. This field type is a guess.
     duration = models.IntegerField(db_column='Duration')  # Field name made lowercase.
-    language = models.CharField(db_column='Language', max_length=5)  # Field name made lowercase.
-    budget = models.DecimalField(db_column='Budget', max_digits=15, decimal_places=2)  # Field name made lowercase.
-    id_csfd = models.IntegerField(db_column='ID_Csfd')  # Field name made lowercase.
-    id_imdb = models.IntegerField(db_column='ID_Imdb')  # Field name made lowercase.
-    id_tmdb = models.IntegerField(db_column='ID_Tmdb')  # Field name made lowercase.
+    language = models.CharField(db_column='Language', max_length=5, null=True, blank=True)  # Field name made lowercase.
+    budget = models.DecimalField(db_column='Budget', max_digits=15, decimal_places=2, null=True, blank=True)  # Field name made lowercase.
+    id_csfd = models.IntegerField(db_column='ID_Csfd', null=True)  # Field name made lowercase.
+    id_imdb = models.IntegerField(db_column='ID_Imdb', null=True)  # Field name made lowercase.
+    id_tmdb = models.IntegerField(db_column='ID_Tmdb', null=True)  # Field name made lowercase.
     titlecz = models.CharField(db_column='TitleCZ', max_length=255)  # Field name made lowercase.
     url = models.CharField(db_column='URL', max_length=255)  # Field name made lowercase.
     oldurl = models.CharField(db_column='OldURL', max_length=255)  # Field name made lowercase.
-    worldid = models.ForeignKey(Metaworld, models.DO_NOTHING, db_column='WorldID')  # Field name made lowercase.
+    worldid = models.ForeignKey(Metaworld, models.DO_NOTHING, db_column='WorldID', null=True, blank=True)  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'Movie'
 
 
@@ -509,7 +468,6 @@ class Moviecomments(models.Model):
     userid = models.ForeignKey('User', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'MovieComments'
 
 
@@ -518,7 +476,6 @@ class Moviecountries(models.Model):
     countryid = models.ForeignKey(Metacountry, models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'MovieCountries'
 
 
@@ -530,7 +487,6 @@ class Moviecrew(models.Model):
     peopleid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='PeopleID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'MovieCrew'
 
 
@@ -539,7 +495,6 @@ class Moviegenre(models.Model):
     genreid = models.ForeignKey(Metagenre, models.DO_NOTHING, db_column='GenreID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'MovieGenre'
 
 
@@ -551,7 +506,6 @@ class Movierating(models.Model):
     userid = models.ForeignKey('User', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'MovieRating'
 
 
@@ -563,7 +517,6 @@ class Movieversions(models.Model):
     movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'MovieVersions'
 
 
@@ -576,7 +529,6 @@ class Tvepisode(models.Model):
     sessionid = models.ForeignKey('Tvseason', models.DO_NOTHING, db_column='SessionID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'TVEpisode'
 
 
@@ -588,7 +540,6 @@ class Tvseason(models.Model):
     tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'TVSeason'
 
 
@@ -603,7 +554,7 @@ class Tvshow(models.Model):
     countryid = models.ForeignKey(Metacountry, models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
+
         db_table = 'TVShow'
 
 
@@ -626,119 +577,5 @@ class User(models.Model):
     countryid = models.ForeignKey(Metacountry, models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
 
     class Meta:
-        managed = False
         db_table = 'User'
 
-
-class AuthGroup(models.Model):
-    name = models.CharField(unique=True, max_length=150)
-
-    class Meta:
-        managed = False
-        db_table = 'auth_group'
-
-
-class AuthGroupPermissions(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    group = models.ForeignKey(AuthGroup, models.DO_NOTHING)
-    permission = models.ForeignKey('AuthPermission', models.DO_NOTHING)
-
-    class Meta:
-        managed = False
-        db_table = 'auth_group_permissions'
-        unique_together = (('group', 'permission'),)
-
-
-class AuthPermission(models.Model):
-    name = models.CharField(max_length=255)
-    content_type = models.ForeignKey('DjangoContentType', models.DO_NOTHING)
-    codename = models.CharField(max_length=100)
-
-    class Meta:
-        managed = False
-        db_table = 'auth_permission'
-        unique_together = (('content_type', 'codename'),)
-
-
-class AuthUser(models.Model):
-    password = models.CharField(max_length=128)
-    last_login = models.DateTimeField(blank=True, null=True)
-    is_superuser = models.IntegerField()
-    username = models.CharField(unique=True, max_length=150)
-    first_name = models.CharField(max_length=150)
-    last_name = models.CharField(max_length=150)
-    email = models.CharField(max_length=254)
-    is_staff = models.IntegerField()
-    is_active = models.IntegerField()
-    date_joined = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = 'auth_user'
-
-
-class AuthUserGroups(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
-    group = models.ForeignKey(AuthGroup, models.DO_NOTHING)
-
-    class Meta:
-        managed = False
-        db_table = 'auth_user_groups'
-        unique_together = (('user', 'group'),)
-
-
-class AuthUserUserPermissions(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
-    permission = models.ForeignKey(AuthPermission, models.DO_NOTHING)
-
-    class Meta:
-        managed = False
-        db_table = 'auth_user_user_permissions'
-        unique_together = (('user', 'permission'),)
-
-
-class DjangoAdminLog(models.Model):
-    action_time = models.DateTimeField()
-    object_id = models.TextField(blank=True, null=True)
-    object_repr = models.CharField(max_length=200)
-    action_flag = models.PositiveSmallIntegerField()
-    change_message = models.TextField()
-    content_type = models.ForeignKey('DjangoContentType', models.DO_NOTHING, blank=True, null=True)
-    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
-
-    class Meta:
-        managed = False
-        db_table = 'django_admin_log'
-
-
-class DjangoContentType(models.Model):
-    app_label = models.CharField(max_length=100)
-    model = models.CharField(max_length=100)
-
-    class Meta:
-        managed = False
-        db_table = 'django_content_type'
-        unique_together = (('app_label', 'model'),)
-
-
-class DjangoMigrations(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    app = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
-    applied = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = 'django_migrations'
-
-
-class DjangoSession(models.Model):
-    session_key = models.CharField(primary_key=True, max_length=40)
-    session_data = models.TextField()
-    expire_date = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = 'django_session'

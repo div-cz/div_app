@@ -7,26 +7,6 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 
-class Lokalita(models.Model):
-    nazev = models.CharField(max_length=255, verbose_name="Název lokality")
-    popis = models.TextField(blank=True, null=True, verbose_name="Popis lokality")
-    adresa = models.CharField(max_length=255, blank=True, null=True, verbose_name="Adresa")
-    mesto = models.CharField(max_length=100, verbose_name="Město")
-    psc = models.CharField(max_length=5, verbose_name="PSČ")
-    zeme = models.CharField(max_length=100, verbose_name="Země")
-
-    def __str__(self):
-        return self.nazev
-
-    class Meta:
-        verbose_name = "Lokalita"
-        verbose_name_plural = "Lokality"
-
-
-class Film(models.Model):
-    nazev = models.CharField(max_length=200)
-    rok = models.IntegerField()
-
 
 class AuthGroup(models.Model):
     name = models.CharField(unique=True, max_length=150)
