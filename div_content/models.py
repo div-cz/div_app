@@ -65,6 +65,19 @@ class Bookcover(models.Model):
         db_table = 'BookCover'
 
 
+class BookISBN(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='isbns')
+    isbn = models.CharField(max_length=13, unique=True)
+    edition = models.CharField(max_length=255, null=True, blank=True)
+    publication_year = models.IntegerField(null=True, blank=True)
+    format = models.CharField(max_length=100, null=True, blank=True) # e.g., Hardcover, Paperback, eBook
+    language = models.CharField(max_length=100, null=True, blank=True) # e.g., English, Czech
+    description = models.TextField(null=True, blank=True)
+    cover_image = models.URLField(max_length=200, null=True, blank=True)
+    
+    class Meta:
+        db_table = 'BookISBN'
+
 class Bookpublisher(models.Model):
     publisherid = models.IntegerField(db_column='PublisherID', primary_key=True)  # Field name made lowercase.
     publishername = models.CharField(db_column='PublisherName', max_length=255)  # Field name made lowercase.
