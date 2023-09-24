@@ -14,19 +14,22 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-
 from django.contrib import admin
 from django.urls import path, include
 from div_content import views
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView 
+#from .views import SignUpView, Editace, RegisterView, ProfileUpdateView
 
 urlpatterns = [
 #    path("divconfig/", include("divconfig.urls")),
     path('filmy2000', views.filmy_z_roku_2000, name='filmy2000'),
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
+
+#    path('registrace/', RegisterView.as_view(), name='register')
+#    path('profil/upravit/', ProfileUpdateView.as_view(), name='edit_profile'),
 
     path('filmy/', views.filmy, name='index_filmy'),
     path('film/<str:url_filmu>', views.film_detail, name='film_detail'),
@@ -48,4 +51,5 @@ if settings.DEBUG:
     import debug_toolbar
     urlpatterns = [
         path('__debug__/', include(debug_toolbar.urls)),
+#        path(r'^__debug__/', include(debug_toolbar.urls)),
     ] + urlpatterns
