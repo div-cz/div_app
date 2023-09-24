@@ -79,10 +79,22 @@ table {
     <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
     <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
     <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+    <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
     <!-- další indikátory -->
   </ol>
   <div class="carousel-inner">
-    <div class="carousel-item active">
+
+cdcc        {% for movie in carousel_movies %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ movie.img }}" class="d-block w-100" alt="{{ movie.titlecz }}">
+            <div class="carousel-caption text-left text-white p-3">
+                <h5><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></h5>
+                <p>{{ movie.description|truncatewords:10 }}</p>
+            </div>
+        </div>
+        {% endfor %}
+
+    <div class="carousel-item">
       <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/lx89oBeJIastndjbQxznnfSYpmR.jpg" class="d-block w-100" alt="...">
                 <div class="carousel-caption text-left text-white p-3">
                 <h5>Tři mušketýři: D'Artagnan</h5>
@@ -221,6 +233,22 @@ table {
         </thead>
         <tbody>
             <!-- Ukázková data -->
+{% for film in filmy %}
+    <tr>
+        <td><a href="/rok/{{ film.releaseyear }}">{{ film.releaseyear }}</a></td>
+        <td><a href="/film/{{ film.url }}">{{ film.titlecz }}</a></td>
+        
+        <!-- Pro žánr budete muset zjistit, jak je přiřadit filmu -->
+        <td><a href="/zanr/{{ film.genre }}">{{ film.genre }}</a></td>
+
+        <!-- Hodnocení zatím není dostupné v modelu -->
+        <td>8/10</td>
+        
+        <!-- Země zatím není dostupná v modelu -->
+        <td>USA</td>
+    </tr>
+{% endfor %}
+
             <tr>
                 <td><a href="/rok/100">1994</a></td>
                 <td><a href="/film/forrest-gump">Forrest Gump</a></td>
@@ -334,8 +362,6 @@ $(document).ready(function() {
 });
 
 
-
-
 $('#moviesTable').DataTable({
     "language": {
         "lengthMenu": "Zobrazit _MENU_ záznamů",
@@ -350,7 +376,10 @@ $('#moviesTable').DataTable({
             "next":       "Další",
             "previous":   "Předchozí"
         },
-    }
+    },
+
+    "order": [[ 0, "desc" ]], 
+    "pageLength": 25
 });
 
 

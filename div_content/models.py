@@ -36,6 +36,7 @@ class Book(models.Model):
     bookid = models.IntegerField(db_column='BookID', primary_key=True)  # Field name made lowercase.
     title = models.CharField(db_column='Title', max_length=255)  # Field name made lowercase.
     author = models.CharField(db_column='Author', max_length=255)  # Field name made lowercase.
+    googleid = models.CharField(db_column='GoogleID', max_length=16, null=True)
     description = models.TextField(db_column='Description')  # Field name made lowercase.
     genreid = models.ForeignKey('Metagenre', models.DO_NOTHING, db_column='GenreID')  # Field name made lowercase.
     publisherid = models.ForeignKey('Bookpublisher', models.DO_NOTHING, db_column='PublisherID')  # Field name made lowercase.
@@ -171,9 +172,14 @@ class Creator(models.Model):
     creatorid = models.IntegerField(db_column='CreatorID', primary_key=True)  # Field name made lowercase.
     firstname = models.CharField(db_column='FirstName', max_length=255)  # Field name made lowercase.
     lastname = models.CharField(db_column='LastName', max_length=255)  # Field name made lowercase.
-    birthdate = models.DateField(db_column='BirthDate')  # Field name made lowercase.
-    nationality = models.CharField(db_column='Nationality', max_length=255)  # Field name made lowercase.
-    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
+    birthdate = models.DateField(db_column='BirthDate', null=True, blank=True)  # Field name made lowercase.
+    deathdate = models.DateField(db_column='DeathDate', null=True, blank=True)
+    imdb_id = models.CharField(db_column='Imdb_id', max_length=16, null=True)
+    popularity = models.CharField(db_column='Popularity', max_length=32, null=True)
+    nationality = models.CharField(db_column='Nationality', max_length=32, null=True) # Možno smazat
+    img = models.CharField(db_column='IMG', max_length=32, null=True)
+    knownfordepartment = models.CharField(db_column='KnownForDepartment', max_length=255, null=True)  # Field name made lowercase.
+    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True)  # Field name made lowercase.
 
     class Meta:
         db_table = 'Creator'
@@ -212,7 +218,8 @@ class Creatorintvshow(models.Model):
 class Creatorrole(models.Model):
     roleid = models.IntegerField(db_column='RoleID', primary_key=True)  # Field name made lowercase.
     rolename = models.CharField(db_column='RoleName', max_length=255)  # Field name made lowercase.
-
+    rolenamecz = models.CharField(db_column='RoleNameCZ', max_length=255, blank=True)
+    department = models. CharField(db_column='Department', max_length=255, blank=True)
     class Meta:
 
         db_table = 'CreatorRole'
@@ -291,7 +298,7 @@ class Gamedevelopers(models.Model):
 class Gameplatform(models.Model):
     platformid = models.IntegerField(db_column='PlatformID', primary_key=True)  # Field name made lowercase.
     platform = models.CharField(db_column='Platform', max_length=255)  # Field name made lowercase.
-
+    url = models.CharField(db_column='PlatformURL', max_length=255, blank=True)
     class Meta:
         db_table = 'GamePlatform'
 
@@ -424,11 +431,19 @@ class Metacity(models.Model):
     class Meta:
         db_table = 'MetaCity'
 
+class Metacollection(models.Model):
+    collectionid = models.IntegerField(db_column='CollectionID', primary_key=True)
+    collectionname = models.CharField(db_column='CollectionName', max_length=255)
+    collectionDescription = models.TextField(db_column='CollectionDescription')
+
+    class Meta:
+        db_table = 'MetaCollection'
 
 class Metacountry(models.Model):
     countryid = models.IntegerField(db_column='CountryID', primary_key=True)  # Field name made lowercase.
     countryname = models.CharField(db_column='CountryName', max_length=255)  # Field name made lowercase.
     countrycode = models.CharField(db_column='CountryCode', max_length=4)  # Field name made lowercase.
+    countrycode2 = models.CharField(db_column='CountryCode2', max_length=2, blank=True)
     countrynamecz = models.CharField(db_column='CountryNameCZ', max_length=255)  # Field name made lowercase.
 
     class Meta:
@@ -448,30 +463,34 @@ class Metagenre(models.Model):
 class Metaworld(models.Model):
     worldid = models.IntegerField(db_column='WorldID', primary_key=True)  # Field name made lowercase.
     worldname = models.CharField(db_column='WorldName', max_length=255)  # Field name made lowercase.
-    worlddescrtiption = models.TextField(db_column='WorldDescrtiption')  # Field name made lowercase.
+    worlddescription = models.TextField(db_column='WorldDescription', null=True)  # Field name made lowercase.
 
     class Meta:
         db_table = 'MetaWorld'
 
 
 class Movie(models.Model):
-    movieid = models.IntegerField(db_column='MovieID', primary_key=True)  # Field name made lowercase.
+    movieid = models.IntegerField(db_column='MovieID', primary_key=True)  # Field name made lowercase
     title = models.CharField(db_column='Title', max_length=255)  # Field name made lowercase.
-    description = models.TextField(db_column='Description')  # Field name made lowercase.
-    releaseyear = models.TextField(db_column='ReleaseYear')  # Field name made lowercase. This field type is a guess.
-    duration = models.IntegerField(db_column='Duration')  # Field name made lowercase.
-    language = models.CharField(db_column='Language', max_length=5, null=True, blank=True)  # Field name made lowercase.
-    budget = models.DecimalField(db_column='Budget', max_digits=15, decimal_places=2, null=True, blank=True)  # Field name made lowercase.
-    id_csfd = models.IntegerField(db_column='ID_Csfd', null=True)  # Field name made lowercase.
-    id_imdb = models.IntegerField(db_column='ID_Imdb', null=True)  # Field name made lowercase.
-    id_tmdb = models.IntegerField(db_column='ID_Tmdb', null=True)  # Field name made lowercase.
-    titlecz = models.CharField(db_column='TitleCZ', max_length=255)  # Field name made lowercase.
+    titlecz = models.CharField(db_column='TitleCZ', max_length=255, default='')  # Field name made lowercase.
     url = models.CharField(db_column='URL', max_length=255)  # Field name made lowercase.
-    oldurl = models.CharField(db_column='OldURL', max_length=255)  # Field name made lowercase.
-    worldid = models.ForeignKey(Metaworld, models.DO_NOTHING, db_column='WorldID', null=True, blank=True)  # Field name made lowercase.
+    oldurl = models.CharField(db_column='OldURL', max_length=255, null=True)  # Field name made lowercase.
+    img = models.CharField(db_column='IMG', max_length=255, default='/static/img/filmy/nomovie.jpg')
+    description = models.TextField(db_column='Description', null=True)  # Field name made lowercase.
+    releaseyear = models.CharField(db_column='ReleaseYear', max_length=4, null=True)  # Field name made lowercase. 
+    duration = models.IntegerField(db_column='Duration', null=True)  # Field name made lowercase.
+    language = models.CharField(db_column='Language', max_length=5, null=True, blank=True)  # Field
+    budget = models.IntegerField(db_column='Budget', null=True)
+    adult = models.IntegerField(db_column='Adult', default='0')
+    popularity = models.CharField(db_column='Popularity', max_length=6, null=True)
+    id_csfd = models.CharField(db_column='ID_Csfd', max_length=16, null=True)
+    id_imdb = models.CharField(db_column='ID_Imdb', max_length=16, null=True)  # Field name made lowercase.
+    id_div = models.CharField(db_column='ID_DIV', max_length=16, null=True)  # Field name made lowercase.
+    worldid = models.ForeignKey(Metaworld, models.DO_NOTHING, db_column='WorldID', null=True, blank=True)
 
     class Meta:
         db_table = 'Movie'
+
 
 
 class Moviecomments(models.Model):
@@ -493,7 +512,7 @@ class Moviecountries(models.Model):
 
 
 class Moviecrew(models.Model):
-    moviecrewid = models.IntegerField(db_column='MovieCrewID')  # Field name made lowercase.
+    moviecrewid = models.IntegerField(db_column='MovieCrewID', primary_key=True)  # Field name made lowercase.
     movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')  # Field name made lowercase.
     roleid = models.ForeignKey(Creatorrole, models.DO_NOTHING, db_column='RoleID')  # Field name made lowercase.
     characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID')  # Field name made lowercase.
@@ -567,7 +586,6 @@ class Tvshow(models.Model):
     countryid = models.ForeignKey(Metacountry, models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
 
     class Meta:
-
         db_table = 'TVShow'
 
 

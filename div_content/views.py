@@ -1,7 +1,10 @@
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from .models import Article, Book, Game, Movie, Location
-from django.shortcuts import render
+#from django.urls import reverse_lazy
+#from django.views import generic
+#from .forms import CustomUserCreatonForm, CustomUserChangeForm
+#from django.contrib.auth.decorators import login_required
 
 def testtest(request):
     context = {
@@ -19,13 +22,16 @@ def index(request):
         return render(request, 'index.html')
 
 def filmy(request):
-        filmy = Movie.objects.all()
-        return render(request, 'filmy/filmy_list.html', {'filmy': filmy})
+#        carousel_movies = Movie.objects.all().order_by('-releaseyear', '-popularity')[:4]
+        carousel_movies = Movie.objects.filter(releaseyear=2023).order_by('-popularity')[:4]
+        filmy = Movie.objects.all().order_by('-popularity')[:200]
+        return render(request, 'filmy/filmy_list.html', {'filmy': filmy, 'carousel_movies': carousel_movies})
 #        return HttpResponse("hlavni strana fff")
 
 def film_detail(request, url_filmu):
     film = get_object_or_404(Movie, url=url_filmu)
-    return render(request, 'filmy/film_detail.html', {'film': film})
+    genres = film.moviegenre_set.all() # get all genres
+    return render(request, 'filmy/film_detail.html', {'film': film, 'genres': genres})
 
 # Pro články
 #def clanky(request):
@@ -64,7 +70,6 @@ def lokality(request):
 def lokalita_detail(request, nazev_lokality):
     lokalita = get_object_or_404(Lokalita, nazev=nazev_lokality)
     return render(request, 'lokality/lokalita_detail.html', {'lokalita': lokalita})
-
 
 def onas(request):
         return HttpResponse("Toto je stranka o nas")
