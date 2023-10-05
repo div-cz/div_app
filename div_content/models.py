@@ -16,12 +16,12 @@ class Article(models.Model):
     h2 = models.CharField(db_column='H2', max_length=255)  # Field name made lowercase.
     tagline = models.CharField(db_column='Tagline', max_length=64)
     content = models.TextField(db_column='Content')  # Field name made lowercase.
+    youtube = models.CharField(db_column='Youtube', max_length=20, null=True, blank=True)
     img1600 = models.CharField(db_column='Img1600', max_length=255)  # Field name made lowercase.
     img500x500 = models.CharField(db_column='Img500x500', max_length=255)  # Field name made lowercase.
     img400x250 = models.CharField(db_column='Img400x250', max_length=255)  # Field name made lowercase.
     alt = models.CharField(db_column='Alt', max_length=255)  # Field name made lowercase.
     perex = models.CharField(db_column='Perex', max_length=255)  # Field name made lowercase.
-    article = models.TextField(db_column='Article')  # Field name made lowercase.
     autor = models.CharField(db_column='Autor', max_length=255)  # Field name made lowercase.
     typ = models.CharField(db_column='Typ', max_length=50)  # Field name made lowercase.
     counter = models.IntegerField(db_column='Counter')  # Field name made lowercase.
@@ -176,7 +176,6 @@ class Creator(models.Model):
     deathdate = models.DateField(db_column='DeathDate', null=True, blank=True)
     imdb_id = models.CharField(db_column='Imdb_id', max_length=16, null=True)
     popularity = models.CharField(db_column='Popularity', max_length=32, null=True)
-    nationality = models.CharField(db_column='Nationality', max_length=32, null=True) # Možno smazat
     img = models.CharField(db_column='IMG', max_length=32, null=True)
     knownfordepartment = models.CharField(db_column='KnownForDepartment', max_length=255, null=True)  # Field name made lowercase.
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True)  # Field name made lowercase.
@@ -473,7 +472,7 @@ class Movie(models.Model):
     movieid = models.IntegerField(db_column='MovieID', primary_key=True)  # Field name made lowercase
     title = models.CharField(db_column='Title', max_length=255)  # Field name made lowercase.
     titlecz = models.CharField(db_column='TitleCZ', max_length=255, default='')  # Field name made lowercase.
-    url = models.CharField(db_column='URL', max_length=255)  # Field name made lowercase.
+    url = models.CharField(db_column='URL', max_length=255, unique=True)  # Field name made lowercase.
     oldurl = models.CharField(db_column='OldURL', max_length=255, null=True)  # Field name made lowercase.
     img = models.CharField(db_column='IMG', max_length=255, default='/static/img/filmy/nomovie.jpg')
     description = models.TextField(db_column='Description', null=True)  # Field name made lowercase.
@@ -512,7 +511,7 @@ class Moviecountries(models.Model):
 
 
 class Moviecrew(models.Model):
-    moviecrewid = models.IntegerField(db_column='MovieCrewID', primary_key=True)  # Field name made lowercase.
+    moviecrewid = models.IntegerField(db_column='MovieCrewID', primary_key=True, unique=True)  # Field name made lowercase.
     movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')  # Field name made lowercase.
     roleid = models.ForeignKey(Creatorrole, models.DO_NOTHING, db_column='RoleID')  # Field name made lowercase.
     characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID')  # Field name made lowercase.

@@ -27,19 +27,19 @@
 
       <!-- Info Bar -->
       <div class="bg-dark  rounded-3 p-2 mb-3 d-flex">
-        <span class="me-3">{{ film.releaseyear }}</span>, 
+        <span class="me-3">{{ film.releaseyear }}</span>,&nbsp;
         <span class="me-3">
         {% for movie_genre in genres %}
             {{ movie_genre.genreid.genrenamecz }}{% if not forloop.last %}, {% endif %}
         {% endfor %}
-        </span>, 
+        </span>,&nbsp;
         <span> {{ film.duration }} minut</span>
       </div>
 
     <div class="d-flex">
         <div class="me-3 mr-2 mb-3 flex-shrink-0" style="width:200px">
         {% if film.img == "noimg.png" %}
-        <img src="http://www.div.cz/im/poster100/nomovie.jpg" alt="{{ film.titlecz }}" class="img-fluid rounded" style="max-width: 200px; object-fit: cover;">
+        <img src="http://www.div.cz/im/poster200/nomovie.jpg" alt="{{ film.titlecz }}" class="img-fluid rounded" style="max-width: 200px; object-fit: cover;">
 
         {% else %}
     <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ film.img }}" alt="{{ film.titlecz }}" class="img-fluid rounded" style="width: 100%; object-fit: cover;">
@@ -51,6 +51,7 @@
             <li><strong>Žánr:</strong>{% for movie_genre in genres %}
             {{ movie_genre.genreid.genrenamecz }}{% if not forloop.last %}, {% endif %}
         {% endfor %}</li>
+            <li>Země: </li>
             <li><strong>Režie:</strong> Cal Brunker</li>
             <li><strong>Hrají:</strong> Marsai Martin, Ron Pardo, Yara Shahidi</li>
             <li><strong>Délka:</strong>  {{ film.duration }}  minut</li>
@@ -105,6 +106,10 @@
           <h4>Odkazy</h4>
             <a href="https://www.themoviedb.org/movie/{{ film.movieid }}"">
           <img src="data:image/webp;base64,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" alt="tmdb.org"></a>
+
+        {% if film.id_imdb %}
+    <a href="https://www.imdb.com/title/{{ film.id_imdb }}/"><img src="https://www.div.cz/img/ico/imdb.png" alt="Imdb"></a>
+        {% endif %}
         </div>
       </div>
 
@@ -114,9 +119,9 @@
         <div class="card-body">
           <h4>Tagy</h4>
           <!-- Add tages -->
-        <span class="badge bg-secondary">Animační</span>
-        <span class="badge bg-secondary">Rodinný</span>
-        <span class="badge bg-secondary">Akční</span>
+        {% for movie_genre in genres %}
+           <span class="badge bg-secondary"> {{ movie_genre.genreid.genrenamecz }}</span> {% if not forloop.last %} {% endif %}
+        {% endfor %}
         </div>
       </div>
 

@@ -33,15 +33,16 @@ def film_detail(request, url_filmu):
     genres = film.moviegenre_set.all() # get all genres
     return render(request, 'filmy/film_detail.html', {'film': film, 'genres': genres})
 
+
 # Pro články
 #def clanky(request):
 #    clanky = Article.objects.all()
 #    return render(request, 'clanky/clanky_list.html', {'clanky': clanky})
 
 # Pro článek
-#def clanek_detail(request, url_clanku):
-#    clanek = get_object_or_404(Article, url=nazev_clanku)
-#    return render(request, 'clanky/clanek_detail.html', {'clanek': clanek})
+def clanek_detail(request, url_clanku):
+    clanek = get_object_or_404(Article, url=url_clanku)
+    return render(request, 'clanky/clanek_detail.html', {'clanek': clanek})
 
 
 # Pro hry
@@ -74,8 +75,6 @@ def lokalita_detail(request, nazev_lokality):
 def onas(request):
         return HttpResponse("Toto je stranka o nas")
 
-def about(request):
-        return HttpResponse("Tot je about")
 
 def kontakt(request):
         return  HttpResponse("Toto je kontaktní stránka.")

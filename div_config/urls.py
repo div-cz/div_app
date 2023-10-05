@@ -30,8 +30,13 @@ urlpatterns = [
 
 #    path('registrace/', RegisterView.as_view(), name='register')
 #    path('profil/upravit/', ProfileUpdateView.as_view(), name='edit_profile'),
+    path('<str:url_clanku>', views.clanek_detail, name='clanek_detail'),
 
     path('filmy/', views.filmy, name='index_filmy'),
+
+#    path('filmy/<str:genre_name>' views.genre_view, name='genre_view'),
+#    path('filmy/<int:year>', views.year_view, name='year_view'),
+
     path('film/<str:url_filmu>', views.film_detail, name='film_detail'),
     path('knihy/', views.knihy, name='index_knihy'),
     path('kniha/<str:nazev_knihy>', views.kniha_detail, name='kniha_detail'),
