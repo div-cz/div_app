@@ -27,8 +27,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
     path("register", views.register_request, name="register"),
+    path("login", views.login_request, name="login"),
 
-#    path('registrace/', RegisterView.as_view(), name='register')
+
+#    path('registrace/', RegisterView.as_view(), name='user_access')
 #    path('profil/upravit/', ProfileUpdateView.as_view(), name='edit_profile'),
     path('<str:url_clanku>', views.clanek_detail, name='clanek_detail'),
 
