@@ -27,7 +27,7 @@
 
       <!-- Info Bar -->
       <div class="bg-dark  rounded-3 p-2 mb-3 d-flex">
-        <span class="me-3">{{ film.releaseyear }}</span>,&nbsp;
+        <span class="me-3"><a href="/filmy/{{ film.releaseyear }}">{{ film.releaseyear }}</a></span>,&nbsp;
         <span class="me-3">
         {% for movie_genre in genres %}
             {{ movie_genre.genreid.genrenamecz }}{% if not forloop.last %}, {% endif %}
@@ -39,7 +39,7 @@
     <div class="d-flex">
         <div class="me-3 mr-2 mb-3 flex-shrink-0" style="width:200px">
         {% if film.img == "noimg.png" %}
-        <img src="http://www.div.cz/im/poster200/nomovie.jpg" alt="{{ film.titlecz }}" class="img-fluid rounded" style="max-width: 200px; object-fit: cover;">
+        <img src="https://div.cz/im/poster200/nomovie.jpg" alt="{{ film.titlecz }}" class="img-fluid rounded" style="max-width: 200px; object-fit: cover;">
 
         {% else %}
     <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ film.img }}" alt="{{ film.titlecz }}" class="img-fluid rounded" style="width: 100%; object-fit: cover;">
@@ -51,7 +51,11 @@
             <li><strong>Žánr:</strong>{% for movie_genre in genres %}
             {{ movie_genre.genreid.genrenamecz }}{% if not forloop.last %}, {% endif %}
         {% endfor %}</li>
-            <li>Země: </li>
+            <li>Země: 
+            {% for movie_country in staty %}
+            {{ movie_country.countryid.countrynamecz }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+            </li>
             <li><strong>Režie:</strong> Cal Brunker</li>
             <li><strong>Hrají:</strong> Marsai Martin, Ron Pardo, Yara Shahidi</li>
             <li><strong>Délka:</strong>  {{ film.duration }}  minut</li>
