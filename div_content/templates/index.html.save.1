@@ -2,13 +2,14 @@
 <html lang="cs">
 <head>
 
-    {% include "../inc/head.html" %}
+    {% include "inc/head.html" %}
+
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-<title>Filmy  {{ rok }} | Databáze filmů DIV</title>
+<title>Filmy | Databáze filmů DIV</title>
 
 <style>
 .carousel-caption {
@@ -67,7 +68,7 @@ table {
 
 <body>
 
-    {% include "../inc/navbar_filmy.html" %}
+    {% include "inc/navbar_filmy.html" %}
 
 
 <main class="mb-5">
@@ -78,34 +79,21 @@ table {
     <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
     <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
     <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+    <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
     <!-- další indikátory -->
   </ol>
+
   <div class="carousel-inner">
-
-
-                    <div class="position-absolute w-100 text-center text-white bg-dark py-2" style="top: 5%; z-index:10;">
-                        <h2>Filmy roku {{ rok }}</h2>
-                    </div>
 
         {% for movie in carousel_movies %}
         <div class="carousel-item {% if forloop.first %}active{% endif %}">
-            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" class="d-block w-100" alt="{{ movie.titlecz }}">
-
-
-<!--
-                    <div class="position-absolute w-100 text-center text-white bg-dark py-2" style="top: 5%;">
-                        <h2>Filmy roku {{ rok }}</h2>
-                    </div>-->
-
-                    <div class="carousel-caption text-left text-white p-3">
-                        <h5><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></h5>
-                        <p>{{ movie.description|truncatewords:10 }}</p>
-                    </div>
-
+            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ movie.img }}" class="d-block w-100" alt="{{ movie.titlecz }}">
+            <div class="carousel-caption text-left text-white p-3">
+                <h5><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></h5>
+                <p>{{ movie.description|truncatewords:10 }}</p>
+            </div>
         </div>
         {% endfor %}
-
-    <!-- další položky carouselu -->
 
   </div>
   <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
@@ -120,40 +108,107 @@ table {
     </section>
 
 
+
 <!-- Sekce odkazů na filmy -->
 <div class="container my-4">
-    <h2 class="mb-4">Seznam filmů {{ rok }}</h2>
+    <h2 class="mb-4">Seznam filmů</h2>
 
-    <div class="row mb-3">
-        {% for movie in vypis_filmu %}
-        <div class="col-md-4 col-sm-6 mb-3">
-            <div class="card">
-
-        {% if movie.img == "noimg.png" %}
-        <img src="https://div.cz/im/poster200/nomovie.jpg" alt="{{ movie.titlecz }}" class="card-img-top">
-
-        {% else %}
-    <img src="https://www.themoviedb.org/t/p/w400{{ movie.img }}" alt="{{ movie.titlecz }}" class="card-img-top">
-        {% endif %}
-
-<!--            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ movie.img }}" class="card-img-top" alt="{{ movie.titlecz }}">-->
+        <div class="row">
+        {% for movie in special_movie_15 %}
+    <div class="col-md-4 col-sm-6 mb-3">
+        <div class="card">
+            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ movie.img }}" class="card-img-top" alt="{{ movie.titlecz }}">
             <div class="card-body">
                 <h5 class="card-title"><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></h5>
                 <p class="card-text">{{ movie.description|truncatewords:10 }}</p>
-                <a href="/film/{{ movie.url }}" class="btn btn-primary">{{ movie.title }}</a>
+                <a href="" class="btn btn-primary">{{ movie.title }}</a>
             </div>
-            </div>
-        </div><!--/col-md-4-->
+        </div>
+    </div>
         {% endfor %}
-    </div><!--/row -->
+        </div>
+
+    <div class="row">
+        {% for creator in top_creators %}
+    <div class="col-md-3 col-sm-6 mb-3">
+      <div class="card">
+        <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ creator.img }}" class="card-img-top" alt="Harrison Ford">
+        <div class="card-body">
+          <h5 class="card-title">Harrison Ford</h5>
+          <p class="card-text">Oslavil 80 let</p>
+          <a href="#" class="btn btn-primary">Více informací</a>
+        </div>
+      </div>
+    </div>
 
 
-</div><!--/container -->
+    <div class="row mb-3">
+        <div class="col-md-4 mb-3">
+            <label for="genresFilter">Žánr:</label>
+            <select id="genresFilter" class="form-control">
+                <option value="">Vše</option>
+                <option value="Akční">Akční</option>
+                <option value="Animovaný">Animovaný</option>
+                <option value="Dobrodružný">Dobrodružný</option>
+                <option value="Fantasy">Fantasy</option>
+                <option value="Sci-fi">Sci-fi</option>
+                <option value="Thriller">Thriller</option>
+                <!-- další žánry -->
+            </select>
+        </div>
+
+<!--
+        <div class="col-md-4 mb-3">
+            <label for="ratingFilter">Hodnocení:</label>
+            <select id="ratingFilter" class="form-control">
+                <option value="0">Všechno</option>
+                <option value="10">jen 10</option>
+                <option value="9">9 a víc</option>
+                <option value="8">8 a víc</option>
+                <option value="7">7 a víc</option>
+            </select>
+        </div>-->
+
+    <!-- Tabulka s hrami -->
+<div class="w-100">
+    <table class="table table-striped hover" id="moviesTable" style="width:100%">
+        <thead>
+            <tr>
+                <th>Rok</th>
+                <th>Název</th>
+                <th>Žánr</th>
+                <th>Hodnocení</th>
+                <th>Země</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Ukázková data -->
+{% for film in filmy %}
+    <tr>
+        <td><a href="/filmy/{{ film.releaseyear }}">{{ film.releaseyear }}</a></td>
+        <td><a href="/film/{{ film.url }}">{{ film.titlecz }}</a></td>
+
+        <!-- Pro žánr budete muset zjistit, jak je přiřadit filmu -->
+        <td><a href="/filmy/{{ film.genre }}">{{ film.genre }}</a></td>
+
+        <!-- Hodnocení zatím není dostupné v modelu -->
+        <td>8/10</td>
+
+        <!-- Země zatím není dostupná v modelu -->
+        <td>USA</td>
+    </tr>
+{% endfor %}
+
+        </tbody>
+    </table>
+</div><!--/w-100-->
+</div>
+    </div>
 
 </main>
 
 
-{% include "../inc/footer_filmy.html" %}
+{% include "inc/footer_filmy.html" %}
 
 
 <script>
@@ -184,7 +239,6 @@ $(document).ready(function() {
     );
 });
 
-
 $('#moviesTable').DataTable({
     "language": {
         "lengthMenu": "Zobrazit _MENU_ záznamů",
@@ -201,7 +255,7 @@ $('#moviesTable').DataTable({
         },
     },
 
-    "order": [[ 0, "desc" ]], 
+    "order": [[ 0, "desc" ]],
     "pageLength": 25
 });
 

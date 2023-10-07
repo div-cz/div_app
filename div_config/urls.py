@@ -24,7 +24,6 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
 #    path("divconfig/", include("divconfig.urls")),
-    path('filmy2000', views.filmy_z_roku_2000, name='filmy2000'),
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
 
@@ -33,6 +32,8 @@ urlpatterns = [
     path('<str:url_clanku>', views.clanek_detail, name='clanek_detail'),
 
     path('filmy/', views.filmy, name='index_filmy'),
+    path('filmy/<int:rok>', views.filmy, name='filmy_rok'),
+    path('filmy/<slug:url_zanru>', views.filmy, name='filmy_zanr'),
 
 #    path('filmy/<str:genre_name>' views.genre_view, name='genre_view'),
 #    path('filmy/<int:year>', views.year_view, name='year_view'),
@@ -44,6 +45,9 @@ urlpatterns = [
     path('hra/<str:nazev_hry>', views.hra_detail, name='hra_detail'),
     path('lokality/', views.lokality, name='index_lokality'),
     path('lokalita/<str:nazev_lokality>', views.lokalita_detail, name='lokalita_detail'),
+
+    path('osobnost/', views.osobnost_list, name='osobnost_list'),
+    path('osobnost/<int:creator_url>', views.osobnost_detail, name='osobnost_detail'),
 
     path('podminky-pouziti/', TemplateView.as_view(template_name='podminky-pouziti.html'), name='podminky-pouziti'),
     path('ochrana-osobnich-udaju/', TemplateView.as_view(template_name='ochrana-osobnich-udaju.html'), name='ochrana-osobnich-udaju'),
