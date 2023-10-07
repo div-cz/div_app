@@ -19,13 +19,14 @@ from django.urls import path, include
 from div_content import views
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import TemplateView 
+from django.views.generic import TemplateView
 #from .views import SignUpView, Editace, RegisterView, ProfileUpdateView
 
 urlpatterns = [
 #    path("divconfig/", include("divconfig.urls")),
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
+    path("register", views.register_request, name="register"),
 
 #    path('registrace/', RegisterView.as_view(), name='register')
 #    path('profil/upravit/', ProfileUpdateView.as_view(), name='edit_profile'),
