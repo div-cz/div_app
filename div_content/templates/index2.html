@@ -108,46 +108,12 @@ table {
     </section>
 
 
-
 <!-- Sekce odkazů na filmy -->
 <div class="container my-4">
+    <div class="row">
     <h2 class="mb-4">Seznam filmů</h2>
 
-        <div class="row">
-        {% for movie in special_movie_15 %}
-    <div class="col-md-4 col-sm-6 mb-3">
-        <div class="card">
-            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ movie.img }}" class="card-img-top" alt="{{ movie.titlecz }}">
-            <div class="card-body">
-                <h5 class="card-title"><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></h5>
-                <p class="card-text">{{ movie.description|truncatewords:10 }}</p>
-                <a href="/film/{{ movie.url }}" class="btn btn-primary">{{ movie.title }}</a>
-            </div>
-        </div>
-    </div>
-        {% endfor %}
-        </div>
-
-
-<h2 class="mb-4">Výročí osobností</h2>
-
-<div class="row">
-        {% for creator in top_creators %}
-    <div class="col-lg-3 col-md-3 col-sm-6 mb-3">
-      <div class="card">
-        <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ creator.img }}" class="card-img-top" alt="{{ creator.lastname }}">
-
-        <div class="card-body">
-          <h5 class="card-title">{{ creator.firstname }} {{ creator.lastname }}</h5>
-          <p class="card-text">{{ creator.knownfordepartment }}</p>
-          <a href="{% url 'osobnost_detail' creator.creatorid %}" class="btn btn-primary">{{ creator.lastname }}, {{ creator.firstname }}</a>
-        </div>
-      </div>
-    </div>
-        {% endfor %}
-  </div>
-
-<!--
+    <div class="col-lg-8">
     <div class="row mb-3">
         <div class="col-md-4 mb-3">
             <label for="genresFilter">Žánr:</label>
@@ -159,13 +125,101 @@ table {
                 <option value="Fantasy">Fantasy</option>
                 <option value="Sci-fi">Sci-fi</option>
                 <option value="Thriller">Thriller</option>
+                <!-- další žánry -->
+            </select>
+        </div>
+
+<!--
+        <div class="col-md-4 mb-3">
+            <label for="ratingFilter">Hodnocení:</label>
+            <select id="ratingFilter" class="form-control">
+                <option value="0">Všechno</option>
+                <option value="10">jen 10</option>
+                <option value="9">9 a víc</option>
+                <option value="8">8 a víc</option>
+                <option value="7">7 a víc</option>
             </select>
         </div>-->
 
-    <!-- Tabulka s hrami -->
-        </div>
-    </div>
 
+
+    <!-- Tabulka s hrami -->
+<div class="w-100">
+    <table class="table table-striped hover" id="moviesTable" style="width:100%">
+        <thead>
+            <tr>
+                <th>Rok</th>
+                <th>Název</th>
+                <th>Žánr</th>
+                <th>Hodnocení</th>
+                <th>Země</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Ukázková data -->
+{% for film in filmy %}
+    <tr>
+        <td><a href="/filmy/{{ film.releaseyear }}">{{ film.releaseyear }}</a></td>
+        <td><a href="/film/{{ film.url }}">{{ film.titlecz }}</a></td>
+
+        <!-- Pro žánr budete muset zjistit, jak je přiřadit filmu -->
+        <td><a href="/filmy/{{ film.genre }}">{{ film.genre }}</a></td>
+
+        <!-- Hodnocení zatím není dostupné v modelu -->
+        <td>8/10</td>
+
+        <!-- Země zatím není dostupná v modelu -->
+        <td>USA</td>
+    </tr>
+{% endfor %}
+
+        </tbody>
+    </table>
+        </div><!-- / w-100 -->
+
+
+
+
+<!-- Pravé menu (pravý sloupec) -->
+            <div class="col-lg-4"> <!-- Start of right menu column -->
+                <!-- Hodnocení -->
+                <div class="card rounded mb-4"> <!-- Start of Rating card -->
+                    <div class="card-body"> <!-- Start of card-body for Rating -->
+                        <h4>Hodnocení</h4>
+                        <!-- ... (Zbytek kódu sekce Hodnocení) ... -->
+                    </div> <!-- End of card-body for Rating -->
+                </div> <!-- End of Rating card -->
+
+                <!-- Podobné filmy -->
+                <div class="card rounded mb-4 d-none d-lg-block"> <!-- Start of Similar Movies card -->
+                    <div class="card-body"> <!-- Start of card-body for Similar Movies -->
+                        <h4>Podobné filmy</h4>
+                        <!-- ... (Zbytek kódu sekce Podobné filmy) ... -->
+                    </div> <!-- End of card-body for Similar Movies -->
+                </div> <!-- End of Similar Movies card -->
+
+                <!-- Odkazy -->
+                <div class="card rounded mb-4 d-none d-lg-block"> <!-- Start of Links card -->
+                    <div class="card-body"> <!-- Start of card-body for Links -->
+                        <h4>Odkazy</h4>
+                        <!-- ... (Zbytek kódu sekce Odkazy) ... -->
+                    </div> <!-- End of card-body for Links -->
+                </div> <!-- End of Links card -->
+
+                <!-- Tagy -->
+                <div class="card rounded mb-4 d-none d-lg-block"> <!-- Start of Tags card -->
+                    <div class="card-body"> <!-- Start of card-body for Tags -->
+                        <h4>Tagy</h4>
+                        <!-- ... (Zbytek kódu sekce Tagy) ... -->
+                    </div> <!-- End of card-body for Tags -->
+                </div> <!-- End of Tags card -->
+            </div> <!-- End of right menu column -->
+
+
+
+        </div><!-- / container -->
+    </div><!-- / row-mb-3 -->
+</div><!-- / col -->
 </main>
 
 
