@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+
+    {% include "../inc/head.html" %}
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<title>Filmy  {{ year }} | Databáze filmů DIV</title>
+
+<style>
+.carousel-caption {
+    background-color: rgba(0, 0, 0, 0.5);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.carousel .carousel-inner .carousel-item {
+    height: 300px;
+    overflow: hidden;
+}
+
+.carousel .carousel-inner .carousel-item img {
+    min-height: 100%;
+    width: 100%;
+    object-fit: cover;
+}
+
+.table {
+    background-color: #333;
+    width:100% !important;
+}
+
+table {
+    width:100% !important;
+    border-collapse: collapse;
+}
+
+.table thead {
+    background-color: #444;
+}
+.table thead th {
+    color: #fff !important;
+}
+
+.table tbody tr {
+    background-color: #555;
+}
+
+.table tbody td {
+    color: #ddd;
+}
+#moviesTable tr:nth-child(even) {
+    background-color: #555 ;
+}
+
+
+.table tbody tr:hover {
+    background-color: #666 !important;
+}
+
+</style>
+
+</head>
+
+<body>
+
+    {% include "../inc/navbar_movies.html" %}
+
+
+<main class="mb-5">
+    <section>
+     <!-- Carousel -->
+<div id="carouselExampleIndicators" class="carousel slide mb-4" data-ride="carousel">
+  <ol class="carousel-indicators">
+    <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+    <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+    <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+    <!-- další indikátory -->
+  </ol>
+  <div class="carousel-inner">
+
+
+                    <div class="position-absolute w-100 text-center text-white bg-dark py-2" style="top: 5%; z-index:10;">
+                        <h2>Filmy roku {{ year }}</h2>
+                    </div>
+
+        {% for movie in movies_carousel %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" class="d-block w-100" alt="{{ movie.titlecz }}">
+
+
+<!--
+                    <div class="position-absolute w-100 text-center text-white bg-dark py-2" style="top: 5%;">
+                        <h2>Filmy roku {{ rok }}</h2>
+                    </div>-->
+
+                    <div class="carousel-caption text-left text-white p-3">
+                        <h5><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></h5>
+                        <p>{{ movie.description|truncatewords:10 }}</p>
+                    </div>
+
+        </div>
+        {% endfor %}
+
+    <!-- další položky carouselu -->
+
+  </div>
+  <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="sr-only">Předchozí</span>
+  </a>
+  <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="sr-only">Další</span>
+  </a>
+</div>
+    </section>
+
+
+<!-- Sekce odkazů na filmy -->
+<div class="container my-4">
+    <h2 class="mb-4">Seznam filmů {{ year }}</h2>
+
+    <div class="row mb-3">
+        {% for movie in movies_list_30 %}
+        <div class="col-md-4 col-sm-6 mb-3">
+            <div class="card">
+
+        {% if movie.img == "noimg.png" %}
+        <img src="https://div.cz/im/poster200/nomovie.jpg" alt="{{ movie.titlecz }}" class="card-img-top">
+
+        {% else %}
+    <img src="https://www.themoviedb.org/t/p/w400{{ movie.img }}" alt="{{ movie.titlecz }}" class="card-img-top">
+        {% endif %}
+
+<!--            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ movie.img }}" class="card-img-top" alt="{{ movie.titlecz }}">-->
+            <div class="card-body">
+                <h5 class="card-title"><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></h5>
+                <p class="card-text">{{ movie.description|truncatewords:10 }}</p>
+                <a href="/film/{{ movie.url }}" class="btn btn-primary">{{ movie.title }}</a>
+            </div>
+            </div>
+        </div><!--/col-md-4-->
+        {% endfor %}
+    </div><!--/row -->
+
+
+</div><!--/container -->
+
+</main>
+
+
+{% include "../inc/footer_movies.html" %}
+
+
+<script>
+
+$(document).ready(function() {
+    // Initialize DataTable
+    var table = $('#moviesTable').DataTable();
+
+    // Apply the filter
+    $('#genresFilter, #ratingFilter').on('change', function() {
+        table.draw();
+    });
+
+    // Custom filtering function
+    $.fn.dataTable.ext.search.push(
+        function(settings, data, dataIndex) {
+            var genres = $('#genresFilter').val();
+            var minRating = $('#ratingFilter').val();
+
+            var rowGenres = data[2]; // Genres is in the second column
+            var rowRating = parseInt(data[3].split('/')[0]); // Extract rating from format "X/10"
+
+            if ((genres === "" || genres === rowGenres) && (minRating === "0" || rowRating >= minRating)) {
+                return true; // Show row
+            }
+            return false; // Hide row
+        }
+    );
+});
+
+
+$('#moviesTable').DataTable({
+    "language": {
+        "lengthMenu": "Zobrazit _MENU_ záznamů",
+        "zeroRecords": "Žádné záznamy nebyly nalezeny",
+        "info": "Strana _PAGE_ z _PAGES_",
+        "infoEmpty": "Žádné záznamy k dispozici",
+        "infoFiltered": "(vyfiltrováno z celkem _MAX_ záznamů)",
+        "search": "Hledat:",
+        "paginate": {
+            "first":      "První",
+            "last":       "Poslední",
+            "next":       "Další",
+            "previous":   "Předchozí"
+        },
+    },
+
+    "order": [[ 0, "desc" ]], 
+    "pageLength": 25
+});
+
+
+</script>
+
+
+</body>
+</html>
