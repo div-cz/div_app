@@ -1,151 +1,121 @@
-from django.contrib import messages
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
-
-from div_config.forms import NewUserForm
 from .models import Article, Book, Creator, Game, Metagenre, Movie, Moviegenre, Location
-from datetime import date
+from datetime import date, datetime
 
-
-# from django.urls import reverse_lazy
-# from django.views import generic
-# from .forms import CustomUserCreatonForm, CustomUserChangeForm
-# from django.contrib.auth.decorators import login_required
+#from django.urls import reverse_lazy
+#from .forms import CustomUserCreatonForm, CustomUserChangeForm
+#from django.contrib.auth.decorators import login_required
 
 
 def index(request):
-    carousel_movies = Movie.objects.filter(releaseyear=2022).order_by('-popularity')[:4]
-    special_movie_15 = Movie.objects.filter(special=1).order_by('-popularity')[:6]
-    filmy = Movie.objects.all().order_by('-popularity')[:40]
-
-    today = date.today()
-    top_creators = Creator.objects.all().order_by('-popularity')[:8]
-
-    return render(request, 'index.html',
-                  {'filmy': filmy, 'carousel_movies': carousel_movies, 'special_movie_15': special_movie_15,
-                   'top_creators': top_creators})
-
-
-def filmy(request, rok=None, url_zanru=None):
-    if rok:
-        filmy = Movie.objects.filter(releaseyear=rok).order_by('-popularity')
-        carousel_movies = Movie.objects.filter(releaseyear=rok, adult=0).order_by('-popularity')[:3]
-        vypis_filmu = Movie.objects.filter(releaseyear=rok, adult=0).order_by('-popularity')[:30]
-        return render(request, 'filmy/filmy_rok.html',
-                      {'filmy': filmy, 'carousel_movies': carousel_movies, 'vypis_filmu': vypis_filmu, 'rok': rok})
-    elif url_zanru:
-        zanr = get_object_or_404(Metagenre, url=url_zanru)
-        movie_genres = Moviegenre.objects.filter(genreid=zanr)
-        filmy = [mg.movieid for mg in movie_genres]
-        return render(request, 'filmy/filmy_zanr.html', {'filmy': filmy})
-    else:
-        #        carousel_movies = Movie.objects.all().order_by('-releaseyear', '-popularity')[:4]
-        carousel_movies = Movie.objects.filter(releaseyear=2023).order_by('-popularity')[:4]
-        filmy = Movie.objects.all().order_by('-popularity')[:50]
-        return render(request, 'filmy/filmy_seznam.html', {'filmy': filmy, 'carousel_movies': carousel_movies})
-
-
-#       === === ===
-
-def film_detail(request, url_filmu):
-    film = get_object_or_404(Movie, url=url_filmu)
-    genres = film.moviegenre_set.all()  # get all genres
-    staty = film.moviecountries_set.all()  # get all states
-    return render(request, 'filmy/film_detail.html', {'film': film, 'genres': genres, 'staty': staty})
-
-
-# Pro články
-# def clanky(request):
-#    clanky = Article.objects.all()
-#    return render(request, 'clanky/clanky_list.html', {'clanky': clanky})
-
-# Pro článek
-def clanek_detail(request, url_clanku):
-    clanek = get_object_or_404(Article, url=url_clanku)
-    special_movie_15 = Movie.objects.filter(special=1).order_by('-popularity')[:6]
-    article_list = Article.objects.filter(typ='Článek').order_by('-id')[:6]
-    return render(request, 'clanky/clanek_detail.html',
-                  {'clanek': clanek, 'special_movie_15': special_movie_15, 'article_list': article_list})
-
-
-# Pro hry
-def hry(request):
-    hry = Game.objects.all()
-    return render(request, 'hry/hry_list.html', {'hry': hry})
-
-
-def hra_detail(request, nazev_hry):
-    hra = get_object_or_404(Game, nazev=nazev_hry)
-    return render(request, 'hry/hra_detail.html', {'hra': hra})
-
-
-# Pro knihy
-def knihy(request):
-    knihy = Book.objects.all()
-    return render(request, 'knihy/knihy_list.html', {'knihy': knihy})
-
-
-def kniha_detail(request, nazev_knihy):
-    kniha = get_object_or_404(Kniha, nazev=nazev_knihy)
-    return render(request, 'knihy/kniha_detail.html', {'kniha': kniha})
-
-
-# Pro lokality
-def lokality(request):
-    lokality = Location.objects.all()
-    return render(request, 'lokality/lokality_list.html', {'lokality': lokality})
-
-
-def lokalita_detail(request, nazev_lokality):
-    lokalita = get_object_or_404(Lokalita, nazev=nazev_lokality)
-    return render(request, 'lokality/lokalita_detail.html', {'lokalita': lokalita})
-
-
-# osobnost
-
-def osobnost_list(request):
-    osobnosti = Creator.objects.all().order_by('-popularity')[:50]
-    return render(request, 'osobnost/osobnost_list.html', {'osobnosti': osobnosti})
-
-
-def osobnost_detail(request, creator_id):
-    osobnost = get_object_or_404(Creator, creatorid=creator_id)
-    return render(request, 'osobnost/osobnost_detail.html', {'osobnost': osobnost})
-
+        movies_carousel = Movie.objects.filter(releaseyear=2022).order_by('-popularity')[:4]
+        movies_list_6 = Movie.objects.filter(special=1).order_by('-popularity')[:6]
+        filmy = Movie.objects.all().order_by('-popularity')[:40]
+        today = date.today()
+        today = datetime.today()
+        current_month = today.month
+        current_day = today.day
+        creators_list_8 = Creator.objects.filter(birthdate__month=current_month, birthdate__day=current_day).order_by('-popularity')[:8]
+        return render(request, 'index.html', {'movies': movies, 'movies_carousel': movies_carousel, 'movies_list_6': movies_list_6, 'creators_list_8': creators_list_8})
 
 def register_request(request):
     if request.method == "POST":
-        form = NewUserForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, "Registration successful.")
-            return redirect("main:homepage")
-        messages.error(request, "Unsuccessful registration. Invalid information.")
-    form = NewUserForm()
-    return render(request=request,
-                  template_name="user_access/register.html",
-                  context={"register_form": form})
+        # data from forms
+        return redirect('user_access/login.html')
+    else:
+        # Zobrazíte registrační formulář
+        return render(request, 'user_access/register.html')
 
 
 def login_request(request):
     if request.method == "POST":
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                messages.info(request, f"Jste přihlášený jako {username}.")
-                return redirect("index")
-            else:
-                messages.error(request, "Neplatné uživatelské jméno nebo heslo.")
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            # Přesměrování na domovskou stránku po úspěšném přihlášení
+            return redirect('/')
         else:
-            messages.error(request, "Neplatné uživatelské jméno nebo heslo.")
-    form = AuthenticationForm()
-    return render(request=request,
-                  template_name="user_access/login.html",
-                  context={"login_form": form})
+            # Zobrazte chybovou zprávu o neúspěšném přihlášení
+            return render(request, 'user_access/login.html', {'error': 'Neplatné uživatelské jméno nebo heslo'})
+    else:
+        # Zobrazíte přihlašovací formulář
+        return render(request, 'user_access/login.html')
+
+
+
+def movies(request, year=None, genre_url=None, movie_url=None):
+    if year:
+        movies = Movie.objects.filter(releaseyear=year).order_by('-popularity')
+        movies_carousel = Movie.objects.filter(releaseyear=year,adult=0).order_by('-popularity')[:3]
+        movies_list_30 = Movie.objects.filter(releaseyear=year,adult=0).order_by('-popularity')[:30]
+        return render(request, 'movies/movies_year.html', {'movies': movies, 'movies_carousel': movies_carousel, 'movies_list_30': movies_list_30, 'year': year})
+    elif genre_url:
+        genre = get_object_or_404(Metagenre, url=genre_url)
+        movie_genres = Moviegenre.objects.filter(genreid=genre)
+        movies = [mg.movieid for mg in movie_genres]
+        return render(request, 'movies/movies_genre.html', {'movies': movies})
+    else:
+        movies_carousel = Movie.objects.filter(releaseyear=2023).order_by('-popularity')[:4]
+        movies = Movie.objects.all().order_by('-popularity')[:50]
+        movies_list_30 = Movie.objects.filter(adult=0).order_by('-popularity')[:30]
+        return render(request, 'movies/movies_list.html', {'movies': movies, 'movies_carousel': movies_carousel, 'movies_list_30': movies_list_30})
+
+
+def movie_detail(request, movie_url):
+    movie = get_object_or_404(Movie, url=movie_url)
+    genres = movie.moviegenre_set.all() # get all genres
+    countries = movie.moviecountries_set.all() # get all states
+    return render(request, 'movies/movie_detail.html', {'movie': movie, 'genres': genres, 'countries': countries})
+
+
+# Pro články
+#def clanky(request):
+#    clanky = Article.objects.all()
+#    return render(request, 'clanky/clanky_list.html', {'clanky': clanky})
+
+# Pro článek
+def article_detail(request, article_url):
+    article = get_object_or_404(Article, url=article_url)
+    movie_list_6 = Movie.objects.filter(special=1).order_by('-popularity')[:6]
+    article_list = Article.objects.filter(typ='Článek').order_by('-id')[:6]
+    return render(request, 'articles/article_detail.html', {'article': article, 'movie_list_6': movie_list_6, 'article_list': article_list})
+
+
+# Pro hry
+def games(request):
+    games = Game.objects.all()
+    return render(request, 'games/games_list.html', {'games': games})
+
+def game_detail(request, game_url):
+    game = get_object_or_404(Game, url=game_url)
+    return render(request, 'games/game_detail.html', {'game': game})
+
+# Pro knihy
+def books(request):
+    books = Book.objects.all()
+    return render(request, 'books/books_list.html', {'books': books})
+
+def book_detail(request, book_url):
+    book = get_object_or_404(Book, url=book_url)
+    return render(request, 'books/book_detail.html', {'book': book})
+
+# Pro lokality
+def locations(request):
+    locations = Location.objects.all()
+    return render(request, 'locations/locations_list.html', {'locations': locations})
+
+def location_detail(request, location_url):
+    location = get_object_or_404(Locality, url=location_url)
+    return render(request, 'locations/location_detail.html', {'location': location})
+
+# osobnost
+def creators_list(request):
+    creators = Creator.objects.all().order_by('-popularity')[:50]
+    return render(request, 'creators/creators_list.html', {'creators': creators})
+
+def creator_detail(request, creator_url):
+    creator = get_object_or_404(Creator, url=creator_url)
+    return render(request, 'creators/creator_detail.html', {'creator': creator})
