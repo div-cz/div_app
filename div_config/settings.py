@@ -58,7 +58,8 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'div_content',
     'crispy_forms',
-    'crispy_bootstrap4'
+    'crispy_bootstrap4',
+    'star_ratings'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

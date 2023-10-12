@@ -1,61 +1,62 @@
 <!DOCTYPE html>
+    {% load static %}
 <html lang="cs">
+
 <head>
-
     {% include "../inc/head.html" %}
-
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <link rel="stylesheet"
+          href="{% static 'star-ratings/css/star-ratings.css' %}">
+    <script type="text/javascript"
+            src="{% static 'star-ratings/js/dist/star-ratings.min.js' %}"></script>
     <!-- Font Awesome for stars rating-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-
-<title>{{ film.titlecz }} ({{ film.releaseyear }}) | Databáze filmů DIV</title>
-
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>{{ film.titlecz }} ({{ film.releaseyear }}) | Databáze filmů DIV</title>
 </head>
 
 <body>
-
     {% include "../inc/navbar_filmy.html" %}
-
-
-<!-- Main Content -->
-<main class="container my-5">
-  <div class="row">
-    <!-- Left Column: Film Detail -->
-    <div class="col-lg-8">
+    <!-- Main Content -->
+    <main class="container my-5">
+        <div class="row">
+        <!-- Left Column: Film Detail -->
+        <div class="col-lg-8">
             <h2>{{ film.titlecz }}  <small class="text-muted">({{ film.releaseyear }})</small></h2>
+        <!-- Info Bar -->
+        <div class="bg-dark  rounded-3 p-2 mb-3 d-flex">
+            <span class="me-3"><a href="/filmy/{{ film.releaseyear }}">{{ film.releaseyear }}</a></span>,&nbsp;
+            <span class="me-3">
+            {% for movie_genre in genres %}
+                {{ movie_genre.genreid.genrenamecz }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+                </span>,&nbsp;
+            <span> {{ film.duration }} minut</span>
+        </div>
 
-
-      <!-- Info Bar -->
-      <div class="bg-dark  rounded-3 p-2 mb-3 d-flex">
-        <span class="me-3"><a href="/filmy/{{ film.releaseyear }}">{{ film.releaseyear }}</a></span>,&nbsp;
-        <span class="me-3">
-        {% for movie_genre in genres %}
-            {{ movie_genre.genreid.genrenamecz }}{% if not forloop.last %}, {% endif %}
-        {% endfor %}
-        </span>,&nbsp;
-        <span> {{ film.duration }} minut</span>
-      </div>
-
-    <div class="d-flex">
+        <div class="d-flex">
         <div class="me-3 mr-2 mb-3 flex-shrink-0" style="width:200px">
         {% if film.img == "noimg.png" %}
-        <img src="https://div.cz/im/poster200/nomovie.jpg" alt="{{ film.titlecz }}" class="img-fluid rounded" style="max-width: 200px; object-fit: cover;">
-
+            <img src="https://div.cz/im/poster200/nomovie.jpg"
+                 alt="{{ film.titlecz }}"
+                 class="img-fluid rounded"
+                 style="max-width: 200px; object-fit: cover;">
         {% else %}
-    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ film.img }}" alt="{{ film.titlecz }}" class="img-fluid rounded" style="width: 100%; object-fit: cover;">
+            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ film.img }}"
+                 alt="{{ film.titlecz }}"
+                 class="img-fluid rounded"
+                 style="width: 100%; object-fit: cover;">
         {% endif %}
-    </div>
+        </div>
 
         <div class="flex-grow-1">
           <ul class="list-unstyled">
             <li><strong>Žánr:</strong>{% for movie_genre in genres %}
             {{ movie_genre.genreid.genrenamecz }}{% if not forloop.last %}, {% endif %}
-        {% endfor %}</li>
-            <li>Země: 
-            {% for movie_country in staty %}
-            {{ movie_country.countryid.countrynamecz }}{% if not forloop.last %}, {% endif %}
-            {% endfor %}
-            </li>
+            {% endfor %}</li>
+            <li>Země: {% for movie_country in staty %}
+                {{ movie_country.countryid.countrynamecz }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}</li>
             <li><strong>Režie:</strong> Cal Brunker</li>
             <li><strong>Hrají:</strong> Marsai Martin, Ron Pardo, Yara Shahidi</li>
             <li><strong>Délka:</strong>  {{ film.duration }}  minut</li>
@@ -73,11 +74,8 @@
       <div class="card rounded mb-4">
         <div class="card-body">
           <h4>Hodnocení</h4>
-          <span class="text-warning">★</span>
-          <span class="text-warning">★</span>
-          <span class="text-warning">★</span>
-          <span class="text-warning">☆</span>
-          <span class="text-warning">☆</span>
+            {% load ratings %}
+            {% ratings film %}
         </div>
       </div>
 

@@ -1,11 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.shortcuts import get_object_or_404, render, redirect
 
 from div_config.forms import NewUserForm
-from .models import Article, Book, Creator, Game, Metagenre, Movie, Moviegenre, Location
+from .models import Article, Book, Creator, Game, Metagenre, Movie, Moviegenre, Location, Post, Rating
 from datetime import date
 
 
@@ -14,7 +14,6 @@ from datetime import date
 # from .forms import CustomUserCreatonForm, CustomUserChangeForm
 # from django.contrib.auth.decorators import login_required
 
-
 def index(request):
     carousel_movies = Movie.objects.filter(releaseyear=2022).order_by('-popularity')[:4]
     special_movie_15 = Movie.objects.filter(special=1).order_by('-popularity')[:6]
@@ -22,10 +21,11 @@ def index(request):
 
     today = date.today()
     top_creators = Creator.objects.all().order_by('-popularity')[:8]
-
     return render(request, 'index.html',
-                  {'filmy': filmy, 'carousel_movies': carousel_movies, 'special_movie_15': special_movie_15,
-                   'top_creators': top_creators})
+                  {'filmy': filmy,
+                   'carousel_movies': carousel_movies,
+                   'special_movie_15': special_movie_15,
+                   'top_creators': top_creators}                  )
 
 
 def filmy(request, rok=None, url_zanru=None):
