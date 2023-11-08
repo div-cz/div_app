@@ -1,24 +1,38 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light dark-mode">
-<div class="container">
-  <a class="navbar-brand" href="/">Div.Filmy</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarNav">
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" href="/">Domů</a>
-      </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="/filmy/">Filmy</a>
-      </li>
-      <li class="nav-item">
+    <div class="container">
+        <a class="navbar-brand" href="/">Div.Filmy</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+        {% if user.is_authenticated %}
+        <li class="nav-item"><a class="nav-link" href="/ucet/">{{ user.username }}!</a></li>
+        {% else %}
+        <li class="nav-item"><a class="nav-link" href="/prihlaseni/">Přihlásit!</a></li>
+        {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Domů</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/filmy/">Filmy</a>
+                </li>
+<!--      <li class="nav-item">
         <a class="nav-link" href="/hry/">Hry</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/knihy/">Knihy</a>
-      </li>
-    </ul>
-  </div>
-</div>
+      </li>-->
+                <li class="nav-item">
+                    <a class="nav-link" href="/osobnosti/">Osobnosti</a>
+                </li>
+            </ul>
+<!-- Vyhledávací formulář v navigační liště -->
+<form class="form-inline my-2 my-lg-0" action="/hledam/" method="get">
+    <input class="form-control form-control-sm mr-2" type="search" placeholder="Vyhledávání" aria-label="Vyhledávání" name="q" style="max-width: 150px;">
+    <button class="btn btn-outline-success btn-sm my-2 my-sm-0" type="submit">Hledat</button>
+</form>
+
+        </div>
+    </div>
 </nav>

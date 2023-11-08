@@ -1,6 +1,134 @@
-<h1>Seznam Osobností</h1>
-<ul>
-{% for creator in creators %}
-    <li><a href="{% url 'creator_detail' creator.creatorid %}">{{ creator.firstname }} {{ creator.lastname }}</a></li>
-{% endfor %}
-</ul>
+{% comment %}
+"Writing" → "Scénáristika"
+"Camera" → "Kamera"
+"Editing" → "Střih"
+"Art" → "Výtvarné oddělení"
+"Sound" → "Zvuk"
+"Actors" → "Herci"
+"Directing" → "Režie"
+"Costume & Make-Up" → "Kostýmy & Líčení"
+"Production" → "Produkce"
+"Visual Effects" → "Vizuální efekty"
+"Crew" → "Štáb"
+"Lighting" → "Osvětlení"
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+
+    {% include "inc/head.html" %}
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+
+<title>Filmové osobnosti | Databáze filmů DIV</title>
+
+<style>
+.carousel-caption {
+    background-color: rgba(0, 0, 0, 0.5);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.carousel .carousel-inner .carousel-item {
+    height: 300px;
+    overflow: hidden;
+}
+
+.carousel .carousel-inner .carousel-item img {
+    min-height: 100%;
+    width: 100%;
+    object-fit: cover;
+}
+
+</style>
+
+</head>
+
+<body>
+
+    {% include "inc/navbar.html" %}
+
+<main class="mb-5">
+    <section>
+     <!-- Carousel -->
+<div id="carouselExampleIndicators" class="carousel slide mb-4" data-ride="carousel">
+  <ol class="carousel-indicators">
+    <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+    <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+    <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+    <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
+  </ol>
+
+  <div class="carousel-inner">
+
+        {% for movie in movies_carousel %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ movie.img }}" class="d-block w-100" alt="{{ movie.titlecz }}">
+            <div class="carousel-caption text-left text-white p-3">
+                <h5><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></h5>
+                <p>{{ movie.description|truncatewords:10 }}</p>
+            </div>
+        </div>
+        {% endfor %}
+
+  </div>
+  <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="sr-only">Předchozí</span>
+  </a>
+  <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="sr-only">Další</span>
+  </a>
+</div>
+    </section>
+
+
+
+<!-- Sekce odkazů na filmy -->
+<div class="container my-4">
+
+
+<h2 class="mb-4">Osobnosti</h2>
+
+<div class="row">
+        {% for creator in creators %}
+    <div class="col-lg-3 col-md-3 col-sm-6 mb-3">
+      <div class="card">
+        <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ creator.img }}" class="card-img-top" alt="{{ creator.lastname }}">
+
+        <div class="card-body">
+          <h5 class="card-title">{{ creator.firstname }} {{ creator.lastname }} <span class="text-muted">({{ creator.birthdate|date:"Y"  }})</span></h5>
+          <p class="card-text"><!--{{ creator.knownfordepartment }}-->
+          {% if creator.knownfordepartment == "Acting" %}
+    Herec
+        {% elif creator.knownfordepartment == "Directing" %}
+    Režisér
+        {% elif creator.knownfordepartment == "Production" %}
+    Producent
+        {% elif creator.knownfordepartment == "Writing" %}
+    Scénárista
+        {% else %}
+    Těžko říct
+        {% endif %} 
+        </p>
+          <a href="{% url 'creator_detail' creator.url %}" class="btn btn-primary">{{ creator.lastname }}, {{ creator.firstname }}</a> 
+        </div>
+      </div>
+    </div>
+        {% endfor %}
+  </div>
+
+    <!-- Tabulka s hrami -->
+        </div>
+    </div>
+
+</main>
+
+
+{% include "inc/footer.html" %}
+
+
+</body>
+</html>

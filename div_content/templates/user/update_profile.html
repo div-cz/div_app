@@ -1,0 +1,113 @@
+{% extends "inc/base.html" %}
+
+{% load i18n %}
+
+{% block title %}Upravit profil  {% if user.is_authenticated %}
+    {{ user.username }}
+    {% else %}
+    Profil
+    {% endif %}
+{% endblock title %}
+{% block h1 %}{% if user.is_authenticated %}
+    {{ user.username }}
+    {% else %}
+    Neznámý
+    {% endif %}{% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+
+    {% if user.is_authenticated %}
+
+    <ul class="nav nav-tabs bg-secondary">
+    <li class="nav-item">
+        <a class="nav-link" href="/ucet/" id="profile">O mně</a>
+    </li>
+    <li class="nav-item"><!--id="/ucet/ohodnocene/" #ratings-->
+        <a class="nav-link" href="/ucet/hodnoceni/">Moje hodnocení</a>
+    </li>
+    <li class="nav-item"><!--id="/ucet/oblibene/" #favorites--> 
+        <a class="nav-link" href="/ucet/oblibene/">Oblíbené</a>
+    </li>
+    <li class="nav-item"><!--id="/ucet/seznamy/to-chci-videt/" #iwantsee--> 
+        <a class="nav-link" href="/ucet/seznamy/chci-videt/">To chci vidět!</a>
+    </li>
+    <li class="nav-item active"><!--id="/ucet/seznamy/to-chci-videt"--> 
+        <a class="nav-link active" href="/ucet/upravit/#edit">Upravit</a>
+    </li>
+    </ul>
+
+<br>
+
+<div class="tab-content mt-3 mb-3">
+<div class="container mt-4">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Pole Bio -->
+        <div class="form-group">
+            <label for="id_bio">O mně:</label>
+            <textarea name="bio" cols="40" rows="10" id="id_bio" class="form-control">{{ form.bio.value }}</textarea>
+            {% if form.bio.errors %}
+            <small class="text-danger">
+                {% for error in form.bio.errors %}
+                {{ error }}
+                {% endfor %}
+            </small>
+            {% endif %}
+        </div>
+
+        <!-- Pole Profile Picture -->
+        <div class="form-group">
+            <label for="id_profilepicture">Profilový obrázek:</label>
+            <input type="file" name="profilepicture" accept="image/*" id="id_profilepicture" class="form-control-file">
+            {% if form.profilepicture.errors %}
+            <small class="text-danger">
+                {% for error in form.profilepicture.errors %}
+                {{ error }}
+                {% endfor %}
+            </small>
+            {% endif %}
+        </div>
+
+        <!-- Pole Birthdate -->
+        <div class="form-group">
+            <label for="id_birthdate">Datum narození (např.: 2000-05-05):</label>
+            <input type="text" name="birthdate" id="id_birthdate" value="{{ form.birthdate.value|date:"Y-m-d"|default:'' }}" class="form-control" placeholder="2010-01-01">
+
+            {% if form.birthdate.errors %}
+            <small class="text-danger">
+                {% for error in form.birthdate.errors %}
+                {{ error }}
+                {% endfor %}
+            </small>
+            {% endif %}
+        </div>
+
+        <!-- Pole Location -->
+        <div class="form-group">
+            <label for="id_location">Bydliště (město):</label>
+            <input type="text" name="location" maxlength="255" id="id_location" value="{{ form.location.value }}" class="form-control" placeholder="Nepovinné">
+            {% if form.location.errors %}
+            <small class="text-danger">
+                {% for error in form.location.errors %}
+                {{ error }}
+                {% endfor %}
+            </small>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Uložit změny</button>
+    </form>
+</div>
+
+</div>
+
+    {% endif %}
+
+
+  </div>
+</div>
+{% endblock content %}
