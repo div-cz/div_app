@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% load i18n %}{% load static %}{% load ratings %}<!DOCTYPE html>
 <html lang="cs">
 <head>
 
@@ -7,6 +7,9 @@
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <!-- Font Awesome for stars rating-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    
+<link rel="stylesheet" href="{% static 'star-ratings/css/star-ratings.css' %}">
+<script type="text/javascript" src="{% static 'star-ratings/js/dist/star-ratings.min.js' %}"></script>
 
 <title>{{ movie.titlecz }} ({{ movie.releaseyear }}) | Databáze filmů DIV</title>
 
@@ -27,102 +30,309 @@
 
       <!-- Info Bar -->
       <div class="bg-dark  rounded-3 p-2 mb-3 d-flex">
-        <span class="me-3"><a href="/filmy/{{ movie.releaseyear }}">{{ movie.releaseyear }}</a></span>,&nbsp;
+        <span class="me-3"><a href="https://div.cz/filmy/{{ movie.releaseyear }}">{{ movie.releaseyear }}</a></span>&nbsp;|&nbsp;
         <span class="me-3">
-        {% for movie_genre in genres %}
-            {{ movie_genre.genreid.genrenamecz }}{% if not forloop.last %}, {% endif %}
-        {% endfor %}
-        </span>,&nbsp;
+                {% for movie_genre in genres %}
+                    <a href="https://div.cz/filmy/{{ movie_genre.genreid.url }}">{{ movie_genre.genreid.genrenamecz }}</a>{% if not forloop.last %},{% endif %}
+                {% endfor %}
+        </span>&nbsp;|&nbsp;
         <span> {{ movie.duration }} minut</span>
       </div>
 
-    <div class="d-flex">
-        <div class="me-3 mr-2 mb-3 flex-shrink-0" style="width:200px">
+
+    <div class="d-flex mb-3">
+        <div class="me-3 mr-4 flex-shrink-0" style="width:200px">
         {% if movie.img == "noimg.png" %}
-        <img src="https://div.cz/im/poster200/nomovie.jpg" alt="{{ movie.titlecz }}" class="img-fluid rounded" style="max-width: 200px; object-fit: cover;">
+        <img src="/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}" class="img-fluid rounded" style="max-width: 200px; object-fit: cover;">
 
         {% else %}
     <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.img }}" alt="{{ movie.titlecz }}" class="img-fluid rounded" style="width: 100%; object-fit: cover;">
         {% endif %}
     </div>
 
+
+
         <div class="flex-grow-1">
           <ul class="list-unstyled">
-            <li><strong>Žánr:</strong>{% for movie_genre in genres %}
-            {{ movie_genre.genreid.genrenamecz }}{% if not forloop.last %}, {% endif %}
-        {% endfor %}</li>
-            <li>Země: 
+              <li><strong>Žánr:</strong>{% for movie_genre in genres %}
+              <a href="/filmy/{{ movie_genre.genreid.url }}">{{ movie_genre.genreid.genrenamecz }}</a>{% if not forloop.last %},{% endif %}
+              {% endfor %}</li>
+
+
+            <li><strong>Země</strong>: 
             {% for movie_country in countries %}
             {{ movie_country.countryid.countrynamecz }}{% if not forloop.last %}, {% endif %}
             {% endfor %}
             </li>
-            <li><strong>Režie:</strong> Cal Brunker</li>
-            <li><strong>Hrají:</strong> Marsai Martin, Ron Pardo, Yara Shahidi</li>
-            <li><strong>Délka:</strong>  {{ movie.duration }}  minut</li>
-            <li><strong>IMDb hodnocení:</strong> 6.7/10</li>
+            <li><strong>Režie:</strong> 
+                {% for director in directors %}
+                   <a href="/osobnost/{{ director.peopleid.url }}"> {{ director.peopleid.firstname }} {{ director.peopleid.lastname }}</a>{% if not forloop.last %},{% endif %}
+                {% endfor %}
+                </li>
+
+                <!--<li><strong>Scénář:</strong> 
+                {% for writer in writers %}
+                    {{ writer.peopleid.firstname }}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+                </li>-->
+                <li><strong>Hrají:</strong>
+                {% for actor in actors_and_characters %}
+                    <a href="/osobnost/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a> jako {{ actor.characterid.charactername }}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+                </li>
           </ul>
-        </div>
-      </div>
+        <!-- Tlačítka -->
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Získáme CSRF token z vygenerovaného skrytého inputu
+    var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+    document.querySelectorAll('.btn-action').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault(); // Zamezíme výchozí akci tlačítka, pokud je nějaká
+
+            var movieId = button.getAttribute('data-movie-id');
+            var listType = button.getAttribute('data-list-type');
+            var thankYouMessage = document.getElementById('add-thankyou');
+
+            // Odesílání požadavku na server
+            fetch("/film/add-to-list/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken  // Přidání CSRF token
+                },
+                body: JSON.stringify({
+                    media_id: movieId,
+                    list_type: listType,
+                    media_type: "movie"
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.action === "added") {
+                        thankYouMessage.textContent = button.getAttribute('data-message-added'); 
+                    } else if (data.action === "removed") {
+                        thankYouMessage.textContent = button.getAttribute('data-message-removed'); 
+                    }
+                    thankYouMessage.style.display = 'block';
+
+                    // Skryjeme hlášku po 4 sekundách
+                    setTimeout(function() {
+                        thankYouMessage.style.display = 'none';
+                    }, 4000);
+                } else {
+                    alert("Něco se pokazilo. Zkuste to prosím znovu.");
+                }
+            });
+        });
+    });
+});
+
+</script>
+{% if user.is_authenticated %}
+{% csrf_token %}
+<div class="d-flex justify-content-end mt-3">
+<button class="btn btn-primary mb-2 mr-1 btn-action" data-movie-id="{{ movie.movieid }}" data-list-type="favorite" data-message-added="Film byl přidán k oblíbeným!" data-message-removed="Film byl odebrán z oblíbených!">
+    <i class="fa fa-heart"></i> <span class="d-none d-md-inline">Oblíbené</span>
+</button>
+<button class="btn btn-secondary mb-2 mr-1 btn-action" data-movie-id="{{ movie.movieid }}" data-list-type="want-to-see" data-message-added="Film byl přidán do Chci vidět!" data-message-removed="Film byl odebrán z Chci vidět!">
+    <i class="fa fa-eye"></i> <span class="d-none d-md-inline">Chci vidět!</span>
+</button>
+
+</div>
+<div id="add-thankyou" class="alert alert-success" style="display: none;">Film přidán do seznamu!</div>
+
+{% else %}
+<div class="d-flex justify-content-end mt-3">
+    <button class="btn btn-primary mb-2 mr-1 btn-action" data-message="Pro přidání do seznamu se musíte přihlásit.">
+        <i class="fa fa-heart"></i> <span class="d-none d-md-inline">Oblíbené</span>
+    </button>
+    <button class="btn btn-secondary mb-2 mr-1 btn-action"" data-message="Pro přidání do seznamu se musíte přihlásit.">
+        <i class="fa fa-eye"></i> <span class="d-none d-md-inline">Chci vidět!</span>
+    </button>
+</div>
+
+<div id="add-thankyou" class="alert alert-success" style="display: none;">Pro přidání do seznamu se musíte přihlásit.</div>
+{% endif %}
+    </div>
+</div>
+
 
           <p>{{ movie.description|safe }}</p>
-    </div>
+
+
+
+<div class="mt-5 mb-5">          
+    <!-- movie_detail.html -->
+    {% if user.is_authenticated %}
+    <form method="post" action="{% url 'movie_detail' movie_url=movie.url %}">
+        {% csrf_token %}
+        <div class="form-group">
+
+
+        {{ comment_form.comment }}
+
+
+        </div>
+        <button type="submit" class="btn btn-primary">Odeslat komentář</button>
+    </form>
+    {% else %}
+    <p>Pro komentování je nutné být <a href="/prihlaseni/">přihlášený</a>.<br>
+    Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
+    {% endif %}
+
+    {% if comments %}
+        <h3 class="mt-4">Komentáře k filmu</h3>
+            <ul class="list-unstyled mt-3">
+                {% for comment in comments %}
+                <li class="mb-2">{{ comment.comment }}</li>
+    {% endfor %}
+            </ul>
+
+    {% else %}
+    <p>Zatím nejsou žádné komentáře k tomuto filmu.</p>
+    {% endif %}
+</div>
+
+
+
+
+
+
+
+</div>
 
     <!-- Right Column: Additional Information -->
     <div class="col-lg-4">
+    
       <!-- Rating -->
-      <div class="card rounded mb-4">
-        <div class="card-body">
-          <h4>Hodnocení</h4>
-          <span class="text-warning">★</span>
-          <span class="text-warning">★</span>
-          <span class="text-warning">★</span>
-          <span class="text-warning">☆</span>
-          <span class="text-warning">☆</span>
-        </div>
-      </div>
+        <div class="card rounded mb-4">
+            <div class="card-body">
 
+<h4>Hodnocení</h4>
+<script>console.log("Script running!");
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Script running!");
+    document.querySelectorAll('.star-ratings-rate-action').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            var thankYouMessage = document.getElementById('rating-thankyou');
+            thankYouMessage.style.display = 'block';
 
-      <!-- Rating -->
-      <div class="card rounded mb-4">
-        <div class="card-body">
-            <h4>Přihlášení</h4>
-            <form action="/registrace/prihlaseni" method="post">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Uživatelské jméno</label>
-                    <input type="text" class="form-control" id="username" name="username" required>
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Heslo</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Přihlásit se</button>
-            </form>
-            <div class="mt-3">
-                <p>Nemáte účet? <a href="/registrace/">Registrace</a></p>
+            // Skryjte hlášku po 3 sekundách
+            setTimeout(function() {
+                thankYouMessage.style.display = 'none';
+            }, 4000);
+        });
+    });
+});
+
+</script>
+{% ratings movie %}
+        {% if user.is_authenticated %}
+        {% else %}
+        <p>Pro hodnocení je třeba se <a href="/prihlaseni/">Přihlásit!</a></p>
+        {% endif %}
+
+<div id="rating-thankyou" class="alert alert-success" style="display: none;">
+    Děkujeme za hodnocení!
+</div>
+
+{% if ratings %}
+<br><hr>
+    <ul class="list-unstyled">
+    {% for rating in ratings %}
+        <li>
+            <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a> <!--(ID: {{ rating.user.id }})-->:
+<span class="right">
+    {% for _ in "12345" %}
+    {% if forloop.counter <= rating.score %}
+        <span class="text-warning">★</span>  {# Třída `text-warning` v Bootstrapu nastaví žlutou barvu #}
+    {% else %}
+        ☆
+    {% endif %}
+    {% endfor %}</span>
+        </li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
             </div>
         </div>
-      </div>
 
 
-      <!-- Similar Movies -->
-      <div class="card rounded mb-4 d-none d-lg-block">
+
+      <div class="card rounded mb-4">
         <div class="card-body">
-          <h4>Podobné filmy</h4>
-          <!-- Add list of similar movies here -->
-        <ul>
-          <li>Mimoni</li>
-          <li>Toy Story</li>
-          <li>Shrek</li>
-        </ul>
+
+{% if user.is_authenticated %}
+    <h4>{{ user.username }}! </h4>
+    <p>Vítejte, {{ user.username }}! <a href="{% url 'logout' %}">Odhlásit se</a></p>
+{% else %}
+    <h4>Přihlášení</h4>
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        {{ form.username.label_tag }}
+        {{ form.username }}
+        {{ form.password.label_tag }}
+        {{ form.password }}
+        <button type="submit" class="btn btn-primary">Přihlásit se</button>
+    </form>
+    <div class="mt-3">
+        <p>Nemáte účet? <a href="{% url 'signup' %}">Registrace</a></p>
+    </div>
+{% endif %}
+
         </div>
       </div>
+
+
+
+<div class="card rounded mb-4">
+    <div class="card-body">
+        <h5 class="card-title">{{ movie.titlecz }}</h5>
+        <p class="card-text">Sdílet na:</p>
+
+        <!-- Facebook Share Button -->
+        <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/film/{{ movie.url }}" class="btn btn-primary mb-2 mr-1" target="_blank">
+            <i class="fab fa-facebook-f"></i>
+        </a>
+
+        <!-- Twitter Share Button -->
+        <a href="https://twitter.com/intent/tweet?url=https://div.cz/film/{{ movie.url }}&text={{ movie.titlecz }}" class="btn btn-info mb-2 mr-1" target="_blank">
+            <i class="fab fa-twitter"></i>
+        </a>
+
+        <!-- LinkedIn Share Button -->
+        <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://div.cz/film/{{ movie.url }}&title={{ movie.titlecz }}" class="btn btn-secondary mb-2 mr-1" target="_blank">
+            <i class="fab fa-linkedin-in"></i>
+        </a>
+
+        <!-- Email Share Button -->
+        <a href="mailto:?subject={{ movie.titlecz }}&body=Podívej se na https://div.cz/film/{{ movie.url }}" class="btn btn-dark mb-2 mr-1">
+            <i class="fas fa-envelope"></i>
+        </a>
+
+        <!-- WhatsApp Share Button -->
+        <a href="https://wa.me/?text={{ movie.titlecz }} - https://div.cz/film/{{ movie.url }}" class="btn btn-success mb-2" target="_blank">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+
+    </div>
+</div>
+
+
+
 
 
       <!-- tmdb.org, imdb.org, div.cz, csfd.cz  -->
       <div class="card rounded mb-4 d-none d-lg-block">
         <div class="card-body">
           <h4>Odkazy</h4>
-            <a href="https://www.themoviedb.org/movie/{{ movie.movieid }}"">
+            <a href="https://www.themoviedb.org/movie/{{ movie.movieid }}">
           <img src="data:image/webp;base64,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" alt="tmdb.org"></a>
 
         {% if film.id_imdb %}
@@ -146,7 +356,6 @@
 
   </div>
 </main>
-
 
 
 {% include "../inc/footer_movies.html" %}

@@ -1,0 +1,88 @@
+{% extends "inc/base.html" %}
+
+{% load i18n %}
+
+{% block title %}Profil uživatele {{ profile_user.username }}{% endblock title %}
+
+
+{% block h1 %}<span class="text-muted">Profil</span> {{ profile_user.username }}{% endblock h1 %}
+
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+
+    {% if user.is_authenticated %}
+    {{ user.username }}
+
+
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Miniatura</th>
+      <th>Název</th>
+      <th>Rok</th>
+      <th>Hodnocení</th>
+    </tr>
+  </thead>
+  <tbody>
+{% for user_rating in page %}
+  <tr>
+    <td>
+      {% if user_rating.rating.content_object.img %}
+        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ user_rating.rating.content_object.img }}" alt="{{ user_rating.rating.content_object.title }}" width="50">
+      {% endif %}
+    </td>
+    <td><a href="/film/{{ user_rating.rating.content_object.url }}">{{ user_rating.rating.content_object.titlecz }}</a></td>
+    <td>
+      <a href="/filmy/{{ user_rating.rating.content_object.releaseyear }}">{{ user_rating.rating.content_object.releaseyear }}</a>
+    </td>
+    <td>
+      {% with score=user_rating.score %}
+        {% if score == 1 %}
+          &#9733; &#9734; &#9734; &#9734; &#9734;
+        {% elif score == 2 %}
+          &#9733; &#9733; &#9734; &#9734; &#9734;
+        {% elif score == 3 %}
+          &#9733; &#9733; &#9733; &#9734; &#9734;
+        {% elif score == 4 %}
+          &#9733; &#9733; &#9733; &#9733; &#9734;
+        {% elif score == 5 %}
+          &#9733; &#9733; &#9733; &#9733; &#9733;
+        {% endif %}
+      {% endwith %}
+    </td>
+  </tr>
+{% endfor %}
+  </tbody>
+</table>
+
+
+
+<div class="pagination">
+  <span class="step-links">
+    {% if page.has_previous %}
+      <a href="?page=1">&laquo; první</a>
+      <a href="?page={{ page.previous_page_number }}">předchozí</a>
+    {% endif %}
+    
+    <span class="current-page">{{ page.number }}/{{ page.paginator.num_pages }}</span>
+    
+    {% if page.has_next %}
+      <a href="?page={{ page.next_page_number }}">další</a>
+      <a href="?page={{ page.paginator.num_pages }}">poslední &raquo;</a>
+    {% endif %}
+  </span>
+</div>
+
+
+
+    {% else %}
+    <p><a href="{% url 'account_login' %}">Přihlásit</a>. Nemáte učet? <a href="{% url 'signup' %}">Registrace</a>.</p>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,65 @@
+{% extends "inc/base.html" %}
+
+{% load i18n %}
+
+{% block title %}Moje hodnocení  {% if user.is_authenticated %}
+    {{ user.username }}
+    {% else %}
+    {% endif %}
+{% endblock title %}
+{% block h1 %}{% if user.is_authenticated %}
+    {{ user.username }}
+    {% else %}
+    Neznámý
+    {% endif %}{% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+
+    {% if user.is_authenticated %}
+
+    <ul class="nav nav-tabs bg-secondary">
+    <li class="nav-item">
+        <a class="nav-link" href="/ucet/" id="profile">O mně</a>
+    </li>
+    <li class="nav-item"><!--id="/ucet/ohodnocene/" #ratings-->
+        <a class="nav-link" href="/ucet/hodnoceni/">Moje hodnocení</a>
+    </li>
+    <li class="nav-item active"><!--id="/ucet/oblibene/" #favorites--> 
+        <a class="nav-link active" href="/ucet/oblibene/">Oblíbené</a>
+    </li>
+    <li class="nav-item"><!--id="/ucet/seznamy/to-chci-videt/" #iwantsee--> 
+        <a class="nav-link" href="/ucet/seznamy/chci-videt/">To chci vidět!</a>
+    </li>
+    <li class="nav-item"><!--id="/ucet/seznamy/to-chci-videt"--> 
+        <a class="nav-link" href="/ucet/upravit/#edit">Upravit</a>
+    </li>
+    </ul>
+
+<div class="tab-content">
+
+
+    <h1>Oblíbené filmy uživatele</h1>
+    <ul>
+    {% for user_list in user_lists %}
+        <li>Film: {{ user_list.movie.title }}</li>
+    {% endfor %}
+    </ul>
+
+
+</div>
+
+
+
+
+
+
+    {% else %}
+    <p><a href="{% url 'account_login' %}">Přihlásit</a>. Nemáte učet? <a href="{% url 'signup' %}">Registrace</a>.</p>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock content %}

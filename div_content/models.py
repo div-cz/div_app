@@ -5,62 +5,71 @@
 #   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
-from django.db import models
 
+from django.db import models
+from django.contrib.auth.models import User
+from star_ratings.models import AbstractBaseRating, Rating
+
+class AAChange(models.Model):
+    id = models.IntegerField(db_column='ID', primary_key=True)
+    description = models.TextField(db_column='Description')
+    created = models.DateField(db_column='Created')
+    class Meta:
+        db_table = 'AAChange'
 
 class Article(models.Model):
-    id = models.IntegerField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    url = models.CharField(db_column='URL', max_length=255)  # Field name made lowercase.
-    title = models.CharField(db_column='Title', max_length=255)  # Field name made lowercase.
-    h1 = models.CharField(db_column='H1', max_length=255)  # Field name made lowercase.
-    h2 = models.CharField(db_column='H2', max_length=255)  # Field name made lowercase.
+    id = models.IntegerField(db_column='ID', primary_key=True)
+    url = models.CharField(db_column='URL', max_length=255)
+    title = models.CharField(db_column='Title', max_length=255)
+    h1 = models.CharField(db_column='H1', max_length=255)
+    h2 = models.CharField(db_column='H2', max_length=255)
     tagline = models.CharField(db_column='Tagline', max_length=64)
-    content = models.TextField(db_column='Content')  # Field name made lowercase.
+    content = models.TextField(db_column='Content')
     youtube = models.CharField(db_column='Youtube', max_length=20, null=True, blank=True)
-    img1600 = models.CharField(db_column='Img1600', max_length=255)  # Field name made lowercase.
-    img500x500 = models.CharField(db_column='Img500x500', max_length=255)  # Field name made lowercase.
-    img400x250 = models.CharField(db_column='Img400x250', max_length=255)  # Field name made lowercase.
-    alt = models.CharField(db_column='Alt', max_length=255)  # Field name made lowercase.
-    perex = models.CharField(db_column='Perex', max_length=255)  # Field name made lowercase.
-    autor = models.CharField(db_column='Autor', max_length=255)  # Field name made lowercase.
-    typ = models.CharField(db_column='Typ', max_length=50)  # Field name made lowercase.
-    counter = models.IntegerField(db_column='Counter')  # Field name made lowercase.
-    created = models.DateField(db_column='Created')  # Field name made lowercase.
-    updated = models.DateField(db_column='Updated')  # Field name made lowercase.
+    img1600 = models.CharField(db_column='Img1600', max_length=255)
+    img500x500 = models.CharField(db_column='Img500x500', max_length=255)
+    img400x250 = models.CharField(db_column='Img400x250', max_length=255)
+    alt = models.CharField(db_column='Alt', max_length=255)
+    perex = models.CharField(db_column='Perex', max_length=255)
+    autor = models.CharField(db_column='Autor', max_length=255)
+    typ = models.CharField(db_column='Typ', max_length=50)
+    counter = models.IntegerField(db_column='Counter')
+    created = models.DateField(db_column='Created')
+    updated = models.DateField(db_column='Updated')
 
     class Meta:
         db_table = 'Article'
 
 
 class Book(models.Model):
-    bookid = models.IntegerField(db_column='BookID', primary_key=True)  # Field name made lowercase.
-    title = models.CharField(db_column='Title', max_length=255)  # Field name made lowercase.
-    author = models.CharField(db_column='Author', max_length=255)  # Field name made lowercase.
+    bookid = models.IntegerField(db_column='BookID', primary_key=True)
+    title = models.CharField(db_column='Title', max_length=255)
+    author = models.CharField(db_column='Author', max_length=255)
     googleid = models.CharField(db_column='GoogleID', max_length=16, null=True)
-    description = models.TextField(db_column='Description')  # Field name made lowercase.
-    genreid = models.ForeignKey('Metagenre', models.DO_NOTHING, db_column='GenreID')  # Field name made lowercase.
-    publisherid = models.ForeignKey('Bookpublisher', models.DO_NOTHING, db_column='PublisherID')  # Field name made lowercase.
-    worldid = models.ForeignKey('Metaworld', models.DO_NOTHING, db_column='WorldID')  # Field name made lowercase.
-    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
+    description = models.TextField(db_column='Description')
+    genreid = models.ForeignKey('Metagenre', models.DO_NOTHING, db_column='GenreID')
+    publisherid = models.ForeignKey('Bookpublisher', models.DO_NOTHING, db_column='PublisherID')
+    worldid = models.ForeignKey('Metaworld', models.DO_NOTHING, db_column='WorldID')
+    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')
 
     class Meta:
         db_table = 'Book'
 
 
 class Bookcomments(models.Model):
-    commentid = models.IntegerField(db_column='CommentID', primary_key=True)  # Field name made lowercase.
-    comment = models.TextField(db_column='Comment')  # Field name made lowercase.
-    userid = models.ForeignKey('User', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
-    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')  # Field name made lowercase.
+    commentid = models.IntegerField(db_column='CommentID', primary_key=True)
+    comment = models.TextField(db_column='Comment')
+##    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
+    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
 
     class Meta:
         db_table = 'BookComments'
 
 
 class Bookcover(models.Model):
-    coverid = models.IntegerField(db_column='CoverID', primary_key=True)  # Field name made lowercase.
-    bookid = models.IntegerField(db_column='BookID')  # Field name made lowercase.
-    cover = models.CharField(db_column='Cover', max_length=255)  # Field name made lowercase.
+    coverid = models.IntegerField(db_column='CoverID', primary_key=True)
+    bookid = models.IntegerField(db_column='BookID')
+    cover = models.CharField(db_column='Cover', max_length=255)
 
     class Meta:
         db_table = 'BookCover'
@@ -80,144 +89,176 @@ class Bookisbn(models.Model):
         db_table = 'BookISBN'
 
 class Bookpublisher(models.Model):
-    publisherid = models.IntegerField(db_column='PublisherID', primary_key=True)  # Field name made lowercase.
-    publishername = models.CharField(db_column='PublisherName', max_length=255)  # Field name made lowercase.
+    publisherid = models.IntegerField(db_column='PublisherID', primary_key=True)
+    publishername = models.CharField(db_column='PublisherName', max_length=255)
 
     class Meta:
         db_table = 'BookPublisher'
 
 
 class Bookpurchase(models.Model):
-    purchaseid = models.IntegerField(db_column='PurchaseID', primary_key=True)  # Field name made lowercase.
-    purchasedate = models.DateField(db_column='PurchaseDate')  # Field name made lowercase.
-    price = models.DecimalField(db_column='Price', max_digits=10, decimal_places=2)  # Field name made lowercase.
-    userid = models.ForeignKey('User', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
-    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')  # Field name made lowercase.
+    purchaseid = models.IntegerField(db_column='PurchaseID', primary_key=True)
+    purchasedate = models.DateField(db_column='PurchaseDate')
+    price = models.DecimalField(db_column='Price', max_digits=10, decimal_places=2)
+#    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
+    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
 
     class Meta:
         db_table = 'BookPurchase'
 
 
 class Bookrating(models.Model):
-    ratingid = models.IntegerField(db_column='RatingID', primary_key=True)  # Field name made lowercase.
-    rating = models.IntegerField(db_column='Rating')  # Field name made lowercase.
-    comment = models.TextField(db_column='Comment')  # Field name made lowercase.
-    userid = models.ForeignKey('User', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
-    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')  # Field name made lowercase.
+    ratingid = models.IntegerField(db_column='RatingID', primary_key=True)
+    rating = models.IntegerField(db_column='Rating')
+    comment = models.TextField(db_column='Comment')
+#    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
+    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
 
     class Meta:
         db_table = 'BookRating'
 
 
 class Characterbook(models.Model):
-    bookcharacterid = models.IntegerField(db_column='BookCharacterID')  # Field name made lowercase.
-    characterrole = models.CharField(db_column='CharacterRole', max_length=255)  # Field name made lowercase.
-    characterid = models.ForeignKey('Charactermeta', models.DO_NOTHING, db_column='CharacterID')  # Field name made lowercase.
-    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')  # Field name made lowercase.
+    bookcharacterid = models.IntegerField(db_column='BookCharacterID', null=True, blank=True)
+    characterrole = models.CharField(db_column='CharacterRole', max_length=255)
+    characterid = models.ForeignKey('Charactermeta', models.DO_NOTHING, db_column='CharacterID')
+    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
 
     class Meta:
         db_table = 'CharacterBook'
 
 
 class Charactergame(models.Model):
-    gamecharacterid = models.IntegerField(db_column='GameCharacterID')  # Field name made lowercase.
-    characterrole = models.CharField(db_column='CharacterRole', max_length=255)  # Field name made lowercase.
-    characterid = models.ForeignKey('Charactermeta', models.DO_NOTHING, db_column='CharacterID')  # Field name made lowercase.
-    gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID')  # Field name made lowercase.
+    gamecharacterid = models.IntegerField(db_column='GameCharacterID')
+    characterrole = models.CharField(db_column='CharacterRole', max_length=255)
+    characterid = models.ForeignKey('Charactermeta', models.DO_NOTHING, db_column='CharacterID')
+    gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID')
 
     class Meta:
         db_table = 'CharacterGame'
 
 
 class Charactermeta(models.Model):
-    characterid = models.IntegerField(db_column='CharacterID', primary_key=True)  # Field name made lowercase.
-    charactername = models.CharField(db_column='CharacterName', max_length=255)  # Field name made lowercase.
-    characterdescription = models.TextField(db_column='CharacterDescription')  # Field name made lowercase.
+    characterid = models.AutoField(db_column='CharacterID', primary_key=True)
+    charactername = models.CharField(db_column='CharacterName', max_length=255, unique=True)
+    characternamecz = models.CharField(db_column='CharacterNameCZ', max_length=255, null=True, blank=True)
+    characterdescription = models.TextField(db_column='CharacterDescription', null=True, blank=True)
+    characterurl = models.URLField(db_column='CharacterURL', max_length=255, null=True, blank=True)  # Nový sloupec pro URL
+    charactercount = models.IntegerField(db_column='CharacterCount', null=True, blank=True)
 
     class Meta:
         db_table = 'CharacterMeta'
 
 
 class Charactermovie(models.Model):
-    moviecharacterid = models.IntegerField(db_column='MovieCharacterID')  # Field name made lowercase.
-    characterrole = models.CharField(db_column='CharacterRole', max_length=255)  # Field name made lowercase.
-    characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID')  # Field name made lowercase.
-    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')  # Field name made lowercase.
+    moviecharacterid = models.AutoField(db_column='MovieCharacterID', primary_key=True)
+    characterrole = models.CharField(db_column='CharacterRole', max_length=255)
+    characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID')
+    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')
 
     class Meta:
         db_table = 'CharacterMovie'
 
-
 class Charactertvshow(models.Model):
-    tvshowcharacterid = models.IntegerField(db_column='TVShowCharacterID')  # Field name made lowercase.
-    characterrole = models.CharField(db_column='CharacterRole', max_length=255)  # Field name made lowercase.
-    characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID')  # Field name made lowercase.
-    tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')  # Field name made lowercase.
+    tvshowcharacterid = models.IntegerField(db_column='TVShowCharacterID')
+    characterrole = models.CharField(db_column='CharacterRole', max_length=255)
+    characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID')
+    tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')
 
     class Meta:
         db_table = 'CharacterTVShow'
 
 
 class Comments(models.Model):
-    commentid = models.IntegerField(db_column='CommentID', primary_key=True)  # Field name made lowercase.
-    comment = models.TextField(db_column='Comment')  # Field name made lowercase.
-    comment_date = models.DateField(db_column='CommentDate')  # Field name made lowercase.
-    userid = models.ForeignKey('User', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    commentid = models.IntegerField(db_column='CommentID', primary_key=True)
+    comment = models.TextField(db_column='Comment')
+    comment_date = models.DateField(db_column='CommentDate')
+#    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)   
 
     class Meta:
         db_table = 'Comments'
 
 
 class Creator(models.Model):
-    creatorid = models.IntegerField(db_column='CreatorID', primary_key=True)  # Field name made lowercase.
-    firstname = models.CharField(db_column='FirstName', max_length=255)  # Field name made lowercase.
-    lastname = models.CharField(db_column='LastName', max_length=255)  # Field name made lowercase.
+    creatorid = models.IntegerField(db_column='CreatorID', primary_key=True)
+    firstname = models.CharField(db_column='FirstName', max_length=255)
+    lastname = models.CharField(db_column='LastName', max_length=255)
     url = models.CharField(db_column='URL', max_length=512, null=True, blank=True, unique=True)
-    birthdate = models.DateField(db_column='BirthDate', null=True, blank=True)  # Field name made lowercase.
+    birthdate = models.DateField(db_column='BirthDate', null=True, blank=True)
     deathdate = models.DateField(db_column='DeathDate', null=True, blank=True)
     imdbid = models.CharField(db_column='Imdb_id', max_length=16, null=True)
     popularity = models.CharField(db_column='Popularity', max_length=32, null=True)
     img = models.CharField(db_column='IMG', max_length=32, null=True)
-    knownfordepartment = models.CharField(db_column='KnownForDepartment', max_length=255, null=True)  # Field name made lowercase.
-    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True)  # Field name made lowercase.
+    knownfordepartment = models.CharField(db_column='KnownForDepartment', max_length=255, null=True)
+    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True)
 
     class Meta:
         db_table = 'Creator'
 
 
+class Creatorbiography(models.Model):
+    biographyid = models.AutoField(primary_key=True)
+    creator = models.ForeignKey(Creator, on_delete=models.CASCADE, db_column='CreatorID', related_name='biographies')
+    biographytext = models.TextField(db_column='BiographyText', null=True, blank=True)
+    source = models.CharField(db_column='Source', max_length=255, blank=True)
+    lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
+    language = models.CharField(db_column='Language', max_length=10, default='en')
+    shortdescription = models.TextField(db_column='ShortDescription', blank=True)
+    externallink = models.URLField(db_column='ExternalLink', blank=True)
+    imageurl = models.URLField(db_column='ImageURL', blank=True)
+    notes = models.TextField(db_column='Notes', blank=True)
+    author = models.CharField(db_column='Author', max_length=255, blank=True)
+    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
+    verificationstatus = models.CharField(
+        db_column='VerificationStatus',
+        max_length=10,
+        choices=[
+            ('Verified', 'Verified'),
+            ('Unverified', 'Unverified'),
+            ('Pending', 'Pending')
+        ],
+        default='Unverified'
+    )
+    is_primary = models.BooleanField(db_column='IsPrimary', default=False)
+
+    class Meta:
+        db_table = 'CreatorBiography'
+
+
+
 class Creatoringame(models.Model):
-    creatoringameid = models.IntegerField(db_column='CreatorInGameID', primary_key=True)  # Field name made lowercase.
-    roleid = models.ForeignKey('Creatorrole', models.DO_NOTHING, db_column='RoleID')  # Field name made lowercase.
-    gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID')  # Field name made lowercase.
-    creatorid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='CreatorID')  # Field name made lowercase.
+    creatoringameid = models.IntegerField(db_column='CreatorInGameID', primary_key=True)
+    roleid = models.ForeignKey('Creatorrole', models.DO_NOTHING, db_column='RoleID')
+    gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID')
+    creatorid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='CreatorID')
 
     class Meta:
         db_table = 'CreatorInGame'
 
 
 class Creatorinmovie(models.Model):
-    creatorinmovieid = models.IntegerField(db_column='CreatorInMovieID', primary_key=True)  # Field name made lowercase.
-    creatorid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='CreatorID')  # Field name made lowercase.
-    roleid = models.ForeignKey('Creatorrole', models.DO_NOTHING, db_column='RoleID')  # Field name made lowercase.
-    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')  # Field name made lowercase.
+    creatorinmovieid = models.IntegerField(db_column='CreatorInMovieID', primary_key=True)
+    creatorid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='CreatorID')
+    roleid = models.ForeignKey('Creatorrole', models.DO_NOTHING, db_column='RoleID')
+    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')
 
     class Meta:
         db_table = 'CreatorInMovie'
 
 
 class Creatorintvshow(models.Model):
-    creatorintvshowid = models.IntegerField(db_column='CreatorInTVShowID', primary_key=True)  # Field name made lowercase.
-    creatorid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='CreatorID')  # Field name made lowercase.
-    roleid = models.ForeignKey('Creatorrole', models.DO_NOTHING, db_column='RoleID')  # Field name made lowercase.
-    tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')  # Field name made lowercase.
+    creatorintvshowid = models.IntegerField(db_column='CreatorInTVShowID', primary_key=True)
+    creatorid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='CreatorID')
+    roleid = models.ForeignKey('Creatorrole', models.DO_NOTHING, db_column='RoleID')
+    tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')
 
     class Meta:
         db_table = 'CreatorInTVShow'
 
 
 class Creatorrole(models.Model):
-    roleid = models.IntegerField(db_column='RoleID', primary_key=True)  # Field name made lowercase.
-    rolename = models.CharField(db_column='RoleName', max_length=255)  # Field name made lowercase.
+    roleid = models.IntegerField(db_column='RoleID', primary_key=True)
+    rolename = models.CharField(db_column='RoleName', max_length=255)
     rolenamecz = models.CharField(db_column='RoleNameCZ', max_length=255, blank=True)
     department = models.CharField(db_column='Department', max_length=255, blank=True)
     class Meta:
@@ -226,108 +267,108 @@ class Creatorrole(models.Model):
 
 
 class Drink(models.Model):
-    drinkid = models.IntegerField(db_column='DrinkID', primary_key=True)  # Field name made lowercase.
-    drinkname = models.CharField(db_column='DrinkName', max_length=255)  # Field name made lowercase.
-    description = models.TextField(db_column='Description')  # Field name made lowercase.
+    drinkid = models.IntegerField(db_column='DrinkID', primary_key=True)
+    drinkname = models.CharField(db_column='DrinkName', max_length=255)
+    description = models.TextField(db_column='Description')
 
     class Meta:
         db_table = 'Drink'
 
 
 class Drinkmedia(models.Model):
-    id = models.IntegerField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    mediatype = models.IntegerField(db_column='MediaType')  # Field name made lowercase.
-    drinkid = models.ForeignKey(Drink, models.DO_NOTHING, db_column='DrinkID')  # Field name made lowercase.
+    id = models.IntegerField(db_column='ID', primary_key=True)
+    mediatype = models.IntegerField(db_column='MediaType')
+    drinkid = models.ForeignKey(Drink, models.DO_NOTHING, db_column='DrinkID')
 
     class Meta:
         db_table = 'DrinkMedia'
 
 
 class Food(models.Model):
-    foodid = models.IntegerField(db_column='FoodID', primary_key=True)  # Field name made lowercase.
-    foodname = models.CharField(db_column='FoodName', max_length=255)  # Field name made lowercase.
-    description = models.TextField(db_column='Description')  # Field name made lowercase.
+    foodid = models.IntegerField(db_column='FoodID', primary_key=True)
+    foodname = models.CharField(db_column='FoodName', max_length=255)
+    description = models.TextField(db_column='Description')
 
     class Meta:
         db_table = 'Food'
 
 
 class Foodmedia(models.Model):
-    id = models.IntegerField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    mediatype = models.IntegerField(db_column='MediaType')  # Field name made lowercase.
-    foodid = models.ForeignKey(Food, models.DO_NOTHING, db_column='FoodID')  # Field name made lowercase.
+    id = models.IntegerField(db_column='ID', primary_key=True)
+    mediatype = models.IntegerField(db_column='MediaType')
+    foodid = models.ForeignKey(Food, models.DO_NOTHING, db_column='FoodID')
 
     class Meta:
         db_table = 'FoodMedia'
 
 
 class Game(models.Model):
-    gameid = models.IntegerField(db_column='GameID', primary_key=True)  # Field name made lowercase.
-    title = models.CharField(db_column='Title', max_length=255)  # Field name made lowercase.
-    ratingid = models.IntegerField(db_column='RatingID')  # Field name made lowercase.
-    description = models.TextField(db_column='Description')  # Field name made lowercase.
-    platformid = models.ForeignKey('Gameplatform', models.DO_NOTHING, db_column='PlatformID')  # Field name made lowercase.
-    publisherid = models.ForeignKey('Gamepublisher', models.DO_NOTHING, db_column='PublisherID')  # Field name made lowercase.
-    genreid = models.ForeignKey('Metagenre', models.DO_NOTHING, db_column='GenreID')  # Field name made lowercase.
-    worldid = models.ForeignKey('Metaworld', models.DO_NOTHING, db_column='WorldID')  # Field name made lowercase.
-    developerid = models.ForeignKey('Gamedevelopers', models.DO_NOTHING, db_column='DeveloperID')  # Field name made lowercase.
-    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
+    gameid = models.IntegerField(db_column='GameID', primary_key=True)
+    title = models.CharField(db_column='Title', max_length=255)
+    ratingid = models.IntegerField(db_column='RatingID')
+    description = models.TextField(db_column='Description')
+    platformid = models.ForeignKey('Gameplatform', models.DO_NOTHING, db_column='PlatformID')
+    publisherid = models.ForeignKey('Gamepublisher', models.DO_NOTHING, db_column='PublisherID')
+    genreid = models.ForeignKey('Metagenre', models.DO_NOTHING, db_column='GenreID')
+    worldid = models.ForeignKey('Metaworld', models.DO_NOTHING, db_column='WorldID')
+    developerid = models.ForeignKey('Gamedevelopers', models.DO_NOTHING, db_column='DeveloperID')
+    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')
 
     class Meta:
         db_table = 'Game'
 
 
 class Gamecomments(models.Model):
-    commentid = models.IntegerField(db_column='CommentID', primary_key=True)  # Field name made lowercase.
-    comment = models.TextField(db_column='Comment')  # Field name made lowercase.
-    gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')  # Field name made lowercase.
-    userid = models.ForeignKey('User', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    commentid = models.IntegerField(db_column='CommentID', primary_key=True)
+    comment = models.TextField(db_column='Comment')
+    gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')
+#    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)    
 
     class Meta:
         db_table = 'GameComments'
 
 
 class Gamedevelopers(models.Model):
-    developerid = models.IntegerField(db_column='DeveloperID', primary_key=True)  # Field name made lowercase.
-    developername = models.CharField(db_column='DeveloperName', max_length=255)  # Field name made lowercase.
+    developerid = models.IntegerField(db_column='DeveloperID', primary_key=True)
+    developername = models.CharField(db_column='DeveloperName', max_length=255)
 
     class Meta:
         db_table = 'GameDevelopers'
 
 
 class Gameplatform(models.Model):
-    platformid = models.IntegerField(db_column='PlatformID', primary_key=True)  # Field name made lowercase.
-    platform = models.CharField(db_column='Platform', max_length=255)  # Field name made lowercase.
+    platformid = models.IntegerField(db_column='PlatformID', primary_key=True)
+    platform = models.CharField(db_column='Platform', max_length=255)
     url = models.CharField(db_column='PlatformURL', max_length=255, blank=True)
     class Meta:
         db_table = 'GamePlatform'
 
 
 class Gamepublisher(models.Model):
-    publisherid = models.IntegerField(db_column='PublisherID', primary_key=True)  # Field name made lowercase.
-    publishername = models.CharField(db_column='PublisherName', max_length=255)  # Field name made lowercase.
+    publisherid = models.IntegerField(db_column='PublisherID', primary_key=True)
+    publishername = models.CharField(db_column='PublisherName', max_length=255)
 
     class Meta:
         db_table = 'GamePublisher'
 
 
 class Gamepurchase(models.Model):
-    purchaseid = models.IntegerField(db_column='PurchaseID', primary_key=True)  # Field name made lowercase.
-    purchasedate = models.DateField(db_column='PurchaseDate')  # Field name made lowercase.
-    price = models.DecimalField(db_column='Price', max_digits=10, decimal_places=2)  # Field name made lowercase.
-    gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID')  # Field name made lowercase.
-    userid = models.ForeignKey('User', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    purchaseid = models.IntegerField(db_column='PurchaseID', primary_key=True)
+    purchasedate = models.DateField(db_column='PurchaseDate')
+    price = models.DecimalField(db_column='Price', max_digits=10, decimal_places=2)
+    gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID')
+#    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
 
     class Meta:
         db_table = 'GamePurchase'
 
 
 class Gamerating(models.Model):
-    ratingid = models.IntegerField(db_column='RatingID', primary_key=True)  # Field name made lowercase.
-    rating = models.IntegerField(db_column='Rating')  # Field name made lowercase.
-    comment = models.TextField(db_column='Comment')  # Field name made lowercase.
-    gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')  # Field name made lowercase.
-    userid = models.ForeignKey('User', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    ratingid = models.IntegerField(db_column='RatingID', primary_key=True)
+    rating = models.IntegerField(db_column='Rating')
+    comment = models.TextField(db_column='Comment')
+    gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')
+#    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
 
     class Meta:
         db_table = 'GameRating'
@@ -345,12 +386,12 @@ class Itemtype(models.TextChoices):
     OTHER = '10', 'Ostatní'
 
 class Item(models.Model):
-    itemid = models.IntegerField(db_column='ItemID', primary_key=True)  # Field name made lowercase.
-    itemname = models.CharField(db_column='ItemName', max_length=255, unique=True)  # Field name made lowercase.
+    itemid = models.IntegerField(db_column='ItemID', primary_key=True)
+    itemname = models.CharField(db_column='ItemName', max_length=255, unique=True)
     itemname_cz = models.CharField(db_column='ItemNameCZ', max_length=255, blank=True)
-    itemdescription = models.TextField(db_column='ItemDescription')  # Field name made lowercase.
+    itemdescription = models.TextField(db_column='ItemDescription')
     itemtype = models.CharField(max_length=3, choices=Itemtype.choices, db_column='ItemType', null=True, blank=True)
-    locationid = models.ForeignKey('Location', models.DO_NOTHING, db_column='LocationID', blank=True, null=True)  # Field name made lowercase.
+    locationid = models.ForeignKey('Location', models.DO_NOTHING, db_column='LocationID', blank=True, null=True)
 
 
     class Meta:
@@ -358,30 +399,30 @@ class Item(models.Model):
 
 
 class Itembook(models.Model):
-    bookitemid = models.IntegerField(db_column='BookItemID', primary_key=True)  # Field name made lowercase.
-    itemrole = models.CharField(db_column='ItemRole', max_length=255)  # Field name made lowercase.
-    itemid = models.ForeignKey(Item, models.DO_NOTHING, db_column='ItemID')  # Field name made lowercase.
-    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')  # Field name made lowercase.
+    bookitemid = models.IntegerField(db_column='BookItemID', primary_key=True)
+    itemrole = models.CharField(db_column='ItemRole', max_length=255)
+    itemid = models.ForeignKey(Item, models.DO_NOTHING, db_column='ItemID')
+    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
 
     class Meta:
         db_table = 'ItemBook'
 
 
 class Itemgame(models.Model):
-    gameitemid = models.IntegerField(db_column='GameItemID', primary_key=True)  # Field name made lowercase.
-    itemrole = models.CharField(db_column='ItemRole', max_length=255)  # Field name made lowercase.
-    itemid = models.ForeignKey(Item, models.DO_NOTHING, db_column='ItemID')  # Field name made lowercase.
-    gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')  # Field name made lowercase.
+    gameitemid = models.IntegerField(db_column='GameItemID', primary_key=True)
+    itemrole = models.CharField(db_column='ItemRole', max_length=255)
+    itemid = models.ForeignKey(Item, models.DO_NOTHING, db_column='ItemID')
+    gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')
 
     class Meta:
         db_table = 'ItemGame'
 
 
 class Itemmovie(models.Model):
-    movieitemid = models.IntegerField(db_column='MovieItemID', primary_key=True)  # Field name made lowercase.
-    itemrole = models.IntegerField(db_column='ItemRole')  # Field name made lowercase.
-    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')  # Field name made lowercase.
-    itemid = models.ForeignKey(Item, models.DO_NOTHING, db_column='ItemID')  # Field name made lowercase.
+    movieitemid = models.IntegerField(db_column='MovieItemID', primary_key=True)
+    itemrole = models.IntegerField(db_column='ItemRole')
+    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')
+    itemid = models.ForeignKey(Item, models.DO_NOTHING, db_column='ItemID')
 
     class Meta:
         db_table = 'ItemMovie'
@@ -410,51 +451,51 @@ class Itemmedia(models.Model):
 
 
 class Location(models.Model):
-    locationid = models.IntegerField(db_column='LocationID', primary_key=True)  # Field name made lowercase.
-    locationname = models.CharField(db_column='LocationName', max_length=255, unique=True)  # Field name made lowercase.
-    locationtype = models.CharField(db_column='LocationType', max_length=50)  # Field name made lowercase.
-    locationdescription = models.TextField(db_column='LocationDescription')  # Field name made lowercase.
-    parentlocationid = models.IntegerField(db_column='ParentLocationID', blank=True, null=True)  # Field name made lowercase.
-    locationadress = models.CharField(db_column='LocationAdress', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    locationid = models.IntegerField(db_column='LocationID', primary_key=True)
+    locationname = models.CharField(db_column='LocationName', max_length=255, unique=True)
+    locationtype = models.CharField(db_column='LocationType', max_length=50)
+    locationdescription = models.TextField(db_column='LocationDescription')
+    parentlocationid = models.IntegerField(db_column='ParentLocationID', blank=True, null=True)
+    locationadress = models.CharField(db_column='LocationAdress', max_length=255, blank=True, null=True)
 
     class Meta:
         db_table = 'Location'
 
 
 class Locationbook(models.Model):
-    booklocationid = models.IntegerField(db_column='BookLocationID', primary_key=True)  # Field name made lowercase.
-    locationrole = models.CharField(db_column='LocationRole', max_length=255)  # Field name made lowercase.
-    locationid = models.ForeignKey(Location, models.DO_NOTHING, db_column='LocationID')  # Field name made lowercase.
-    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')  # Field name made lowercase.
+    booklocationid = models.IntegerField(db_column='BookLocationID', primary_key=True)
+    locationrole = models.CharField(db_column='LocationRole', max_length=255)
+    locationid = models.ForeignKey(Location, models.DO_NOTHING, db_column='LocationID')
+    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
 
     class Meta:
         db_table = 'LocationBook'
 
 
 class Locationgame(models.Model):
-    gamelocationid = models.IntegerField(db_column='GameLocationID', primary_key=True)  # Field name made lowercase.
-    locationrole = models.CharField(db_column='LocationRole', max_length=255)  # Field name made lowercase.
-    locationid = models.ForeignKey(Location, models.DO_NOTHING, db_column='LocationID')  # Field name made lowercase.
-    gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')  # Field name made lowercase.
+    gamelocationid = models.IntegerField(db_column='GameLocationID', primary_key=True)
+    locationrole = models.CharField(db_column='LocationRole', max_length=255)
+    locationid = models.ForeignKey(Location, models.DO_NOTHING, db_column='LocationID')
+    gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')
 
     class Meta:
         db_table = 'LocationGame'
 
 
 class Locationmovie(models.Model):
-    movielocationid = models.IntegerField(db_column='MovieLocationID', primary_key=True)  # Field name made lowercase.
-    locationrole = models.CharField(db_column='LocationRole', max_length=255)  # Field name made lowercase.
-    locationid = models.ForeignKey(Location, models.DO_NOTHING, db_column='LocationID')  # Field name made lowercase.
-    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')  # Field name made lowercase.
+    movielocationid = models.IntegerField(db_column='MovieLocationID', primary_key=True)
+    locationrole = models.CharField(db_column='LocationRole', max_length=255)
+    locationid = models.ForeignKey(Location, models.DO_NOTHING, db_column='LocationID')
+    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')
 
     class Meta:
         db_table = 'LocationMovie'
 
 
 class Metacity(models.Model):
-    cityid = models.IntegerField(db_column='CityID', primary_key=True)  # Field name made lowercase.
-    namecity = models.CharField(db_column='NameCity', max_length=255)  # Field name made lowercase.
-    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
+    cityid = models.IntegerField(db_column='CityID', primary_key=True)
+    namecity = models.CharField(db_column='NameCity', max_length=255)
+    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')
 
     class Meta:
         db_table = 'MetaCity'
@@ -468,31 +509,31 @@ class Metacollection(models.Model):
         db_table = 'MetaCollection'
 
 class Metacountry(models.Model):
-    countryid = models.IntegerField(db_column='CountryID', primary_key=True)  # Field name made lowercase.
-    countryname = models.CharField(db_column='CountryName', max_length=255)  # Field name made lowercase.
-    countrycode = models.CharField(db_column='CountryCode', max_length=4)  # Field name made lowercase.
+    countryid = models.IntegerField(db_column='CountryID', primary_key=True)
+    countryname = models.CharField(db_column='CountryName', max_length=255)
+    countrycode = models.CharField(db_column='CountryCode', max_length=4)
     countrycode2 = models.CharField(db_column='CountryCode2', max_length=2, blank=True)
-    countrynamecz = models.CharField(db_column='CountryNameCZ', max_length=255)  # Field name made lowercase.
+    countrynamecz = models.CharField(db_column='CountryNameCZ', max_length=255)
 
     class Meta:
         db_table = 'MetaCountry'
 
 
 class Metagenre(models.Model):
-    genreid = models.IntegerField(db_column='GenreID', primary_key=True)  # Field name made lowercase.
-    genrename = models.CharField(db_column='GenreName', max_length=255)  # Field name made lowercase.
-    genrenamecz = models.CharField(db_column='GenreNameCZ', max_length=255)  # Field name made lowercase.
+    genreid = models.IntegerField(db_column='GenreID', primary_key=True)
+    genrename = models.CharField(db_column='GenreName', max_length=255)
+    genrenamecz = models.CharField(db_column='GenreNameCZ', max_length=255)
     url = models.CharField(db_column='URL', max_length=255, blank=True, null=True, unique=True)
-    tmdbid = models.IntegerField(db_column='TmdbID')  # Field name made lowercase.
+    tmdbid = models.IntegerField(db_column='TmdbID', blank=True, null=True)
 
     class Meta:
         db_table = 'MetaGenre'
 
 
 class Metaworld(models.Model):
-    worldid = models.IntegerField(db_column='WorldID', primary_key=True)  # Field name made lowercase.
-    worldname = models.CharField(db_column='WorldName', max_length=255)  # Field name made lowercase.
-    worlddescription = models.TextField(db_column='WorldDescription', null=True)  # Field name made lowercase.
+    worldid = models.IntegerField(db_column='WorldID', primary_key=True)
+    worldname = models.CharField(db_column='WorldName', max_length=255)
+    worlddescription = models.TextField(db_column='WorldDescription', null=True)
 
     class Meta:
         db_table = 'MetaWorld'
@@ -502,144 +543,190 @@ class MovieSpecialSort(models.TextChoices):
     CZ = '2', 'CZ'
 
 class Movie(models.Model):
-    movieid = models.IntegerField(db_column='MovieID', primary_key=True)  # Field name made lowercase
-    title = models.CharField(db_column='Title', max_length=255)  # Field name made lowercase.
-    titlecz = models.CharField(db_column='TitleCZ', max_length=255, default='')  # Field name made lowercase.
+    movieid = models.IntegerField(db_column='MovieID', primary_key=True) 
+    title = models.CharField(db_column='Title', max_length=255)
+    titlecz = models.CharField(db_column='TitleCZ', max_length=255, default='')    
     special = models.IntegerField(choices=MovieSpecialSort.choices, db_column='Special', blank=True, null=True)
-    url = models.CharField(db_column='URL', max_length=255, unique=True)  # Field name made lowercase.
-    oldurl = models.CharField(db_column='OldURL', max_length=255, null=True)  # Field name made lowercase.
+    url = models.CharField(db_column='URL', max_length=255, unique=True)
+    oldurl = models.CharField(db_column='OldURL', max_length=255, null=True)
     img = models.CharField(db_column='IMG', max_length=255, default='/static/img/filmy/nomovie.jpg')
-    description = models.TextField(db_column='Description', null=True)  # Field name made lowercase.
-    releaseyear = models.CharField(db_column='ReleaseYear', max_length=4, null=True)  # Field name made lowercase. 
-    duration = models.IntegerField(db_column='Duration', null=True)  # Field name made lowercase.
+    description = models.TextField(db_column='Description', null=True)
+    releaseyear = models.CharField(db_column='ReleaseYear', max_length=4, null=True) 
+    duration = models.IntegerField(db_column='Duration', null=True)
     language = models.CharField(db_column='Language', max_length=5, null=True, blank=True)  # Field
     budget = models.IntegerField(db_column='Budget', null=True)
-    adult = models.IntegerField(db_column='Adult', default='0')
-    popularity = models.CharField(db_column='Popularity', max_length=6, null=True)
+    adult = models.CharField(db_column='Adult',  max_length=1)
+    popularity = models.CharField(db_column='Popularity', max_length=6, null=True, db_index=True)
     idcsfd = models.CharField(db_column='ID_Csfd', max_length=16, null=True)
-    idimdb = models.CharField(db_column='ID_Imdb', max_length=16, null=True)  # Field name made lowercase.
-    iddiv = models.CharField(db_column='ID_DIV', max_length=16, null=True)  # Field name made lowercase.
+    idimdb = models.CharField(db_column='ID_Imdb', max_length=16, null=True)
+    iddiv = models.CharField(db_column='ID_DIV', max_length=16, null=True)
     worldid = models.ForeignKey(Metaworld, models.DO_NOTHING, db_column='WorldID', null=True, blank=True)
+    ratings = models.ForeignKey(Rating, on_delete=models.CASCADE, related_name='movies', null=True, blank=True)
 
+
+        
     class Meta:
         db_table = 'Movie'
 
 
-
 class Moviecomments(models.Model):
-    commentid = models.IntegerField(db_column='CommentID', primary_key=True)  # Field name made lowercase.
-    comment = models.TextField(db_column='Comment')  # Field name made lowercase.
-    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')  # Field name made lowercase.
-    userid = models.ForeignKey('User', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    commentid = models.AutoField(db_column='CommentID', primary_key=True, unique=True) 
+    comment = models.TextField(db_column='Comment')
+    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True) 
+#    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
 
     class Meta:
         db_table = 'MovieComments'
 
 
 class Moviecountries(models.Model):
-    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')  # Field name made lowercase.
-    countryid = models.ForeignKey(Metacountry, models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
+    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')
+    countryid = models.ForeignKey(Metacountry, models.DO_NOTHING, db_column='CountryID')
 
     class Meta:
         db_table = 'MovieCountries'
+        unique_together = [['movieid', 'countryid']]
 
 
 class Moviecrew(models.Model):
-    moviecrewid = models.IntegerField(db_column='MovieCrewID', primary_key=True, unique=True)  # Field name made lowercase.
-    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')  # Field name made lowercase.
-    roleid = models.ForeignKey(Creatorrole, models.DO_NOTHING, db_column='RoleID')  # Field name made lowercase.
-    characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID')  # Field name made lowercase.
-    peopleid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='PeopleID')  # Field name made lowercase.
+    moviecrewid = models.AutoField(db_column='MovieCrewID', primary_key=True, unique=True) 
+    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')
+    roleid = models.ForeignKey(Creatorrole, models.DO_NOTHING, db_column='RoleID')
+    characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID')
+    peopleid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='PeopleID')
 
     class Meta:
         db_table = 'MovieCrew'
 
 
 class Moviegenre(models.Model):
-    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')  # Field name made lowercase.
-    genreid = models.ForeignKey(Metagenre, models.DO_NOTHING, db_column='GenreID')  # Field name made lowercase.
+    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')
+    genreid = models.ForeignKey(Metagenre, models.DO_NOTHING, db_column='GenreID')
 
     class Meta:
         db_table = 'MovieGenre'
 
 
-class Movierating(models.Model):
-    ratingid = models.IntegerField(db_column='RatingID', primary_key=True)  # Field name made lowercase.
-    rating = models.IntegerField(db_column='Rating')  # Field name made lowercase.
-    comment = models.TextField(db_column='Comment')  # Field name made lowercase.
-    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')  # Field name made lowercase.
-    userid = models.ForeignKey('User', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
-
+class Movierating(AbstractBaseRating, models.Model):
+    ratingid = models.AutoField(db_column='RatingID', primary_key=True)
+    rating = models.IntegerField(db_column='Rating')
+    movieid = models.ForeignKey(Movie, on_delete=models.CASCADE, db_column='MovieID')
+#    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True) 
     class Meta:
         db_table = 'MovieRating'
 
 
 class Movieversions(models.Model):
-    movieversionid = models.IntegerField(db_column='MovieVersionID', primary_key=True)  # Field name made lowercase.
-    versionname = models.CharField(db_column='VersionName', max_length=255)  # Field name made lowercase.
-    duration = models.IntegerField(db_column='Duration')  # Field name made lowercase.
-    releasedate = models.DateField(db_column='ReleaseDate')  # Field name made lowercase.
-    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')  # Field name made lowercase.
+    movieversionid = models.IntegerField(db_column='MovieVersionID', primary_key=True)
+    versionname = models.CharField(db_column='VersionName', max_length=255)
+    duration = models.IntegerField(db_column='Duration')
+    releasedate = models.DateField(db_column='ReleaseDate')
+    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')
 
     class Meta:
         db_table = 'MovieVersions'
 
 
 class Tvepisode(models.Model):
-    episodeid = models.IntegerField(db_column='EpisodeID', primary_key=True)  # Field name made lowercase.
-    episodenumber = models.IntegerField(db_column='EpisodeNumber')  # Field name made lowercase.
-    title = models.CharField(db_column='Title', max_length=255)  # Field name made lowercase.
-    airdate = models.DateField(db_column='AirDate')  # Field name made lowercase.
-    description = models.TextField(db_column='Description')  # Field name made lowercase.
-    sessionid = models.ForeignKey('Tvseason', models.DO_NOTHING, db_column='SessionID')  # Field name made lowercase.
+    episodeid = models.IntegerField(db_column='EpisodeID', primary_key=True)
+    episodenumber = models.IntegerField(db_column='EpisodeNumber')
+    title = models.CharField(db_column='Title', max_length=255)
+    airdate = models.DateField(db_column='AirDate')
+    description = models.TextField(db_column='Description')
+    sessionid = models.ForeignKey('Tvseason', models.DO_NOTHING, db_column='SessionID')
 
     class Meta:
         db_table = 'TVEpisode'
 
 
 class Tvseason(models.Model):
-    sessionid = models.IntegerField(db_column='SessionID', primary_key=True)  # Field name made lowercase.
-    seasonnumber = models.IntegerField(db_column='SeasonNumber')  # Field name made lowercase.
-    premieredate = models.DateField(db_column='PremiereDate')  # Field name made lowercase.
-    enddate = models.DateField(db_column='EndDate')  # Field name made lowercase.
-    tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')  # Field name made lowercase.
+    sessionid = models.IntegerField(db_column='SessionID', primary_key=True)
+    seasonnumber = models.IntegerField(db_column='SeasonNumber')
+    premieredate = models.DateField(db_column='PremiereDate')
+    enddate = models.DateField(db_column='EndDate')
+    tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')
 
     class Meta:
         db_table = 'TVSeason'
 
 
 class Tvshow(models.Model):
-    tvshowid = models.IntegerField(db_column='TVShowID', primary_key=True)  # Field name made lowercase.
-    title = models.CharField(db_column='Title', max_length=255)  # Field name made lowercase.
-    description = models.TextField(db_column='Description')  # Field name made lowercase.
-    premieredate = models.DateField(db_column='PremiereDate')  # Field name made lowercase.
-    enddate = models.DateField(db_column='EndDate')  # Field name made lowercase.
-    rating = models.IntegerField(db_column='Rating')  # Field name made lowercase.
-    genreid = models.ForeignKey(Metagenre, models.DO_NOTHING, db_column='GenreID')  # Field name made lowercase.
-    countryid = models.ForeignKey(Metacountry, models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
+    tvshowid = models.IntegerField(db_column='TVShowID', primary_key=True)
+    title = models.CharField(db_column='Title', max_length=255)
+    description = models.TextField(db_column='Description')
+    premieredate = models.DateField(db_column='PremiereDate')
+    enddate = models.DateField(db_column='EndDate')
+    rating = models.IntegerField(db_column='Rating')
+    genreid = models.ForeignKey(Metagenre, models.DO_NOTHING, db_column='GenreID')
+    countryid = models.ForeignKey(Metacountry, models.DO_NOTHING, db_column='CountryID')
 
     class Meta:
         db_table = 'TVShow'
 
 
-class User(models.Model):
-    userid = models.IntegerField(db_column='UserID', primary_key=True)  # Field name made lowercase.
-    username = models.CharField(db_column='Username', max_length=255)  # Field name made lowercase.
-    email = models.CharField(db_column='Email', unique=True, max_length=255)  # Field name made lowercase.
-    password = models.CharField(db_column='Password', max_length=255)  # Field name made lowercase.
-    firstname = models.CharField(db_column='FirstName', max_length=255)  # Field name made lowercase.
-    lastname = models.CharField(db_column='LastName', max_length=255)  # Field name made lowercase.
-    dateofbirth = models.DateField(db_column='DateOfBirth')  # Field name made lowercase.
-    gender = models.CharField(db_column='Gender', max_length=6)  # Field name made lowercase.
-    city = models.CharField(db_column='City', max_length=255)  # Field name made lowercase.
-    signupdate = models.DateField(db_column='SignUpDate')  # Field name made lowercase.
-    lastlogin = models.DateField(db_column='LastLogin')  # Field name made lowercase.
-    isactive = models.IntegerField(db_column='IsActive')  # Field name made lowercase.
-    isadmin = models.IntegerField(db_column='IsAdmin')  # Field name made lowercase.
-    profilepicture = models.CharField(db_column='ProfilePicture', max_length=255)  # Field name made lowercase.
-    bio = models.TextField(db_column='Bio')  # Field name made lowercase.
-    countryid = models.ForeignKey(Metacountry, models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
+class Userprofile(models.Model):
+    userprofileid = models.AutoField(db_column='UserProfileID', primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    bio = models.TextField(db_column='Bio', default="", blank=True)
+    profilepicture = models.ImageField(db_column='ProfilePicture', upload_to='profiles/2023/', blank=True, null=True)
+    location = models.CharField(db_column='Location', max_length=255, null=True, blank=True)
+    birthdate = models.DateField(db_column='BirthDate', null=True, blank=True)
+    
+    class Meta:
+        db_table = 'UserProfile'
+    
+    
+class Userlist(models.Model):
+    userlistid = models.AutoField(db_column='UserListID', primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, )
+    namelist = models.CharField(db_column='NameList', max_length=255)
+    description = models.TextField(db_column='Description', blank=True, null=True)
+    createdat = models.DateTimeField(db_column='CreatedAt', auto_now_add=True)
 
     class Meta:
-        db_table = 'User'
+        db_table = 'UserList'
+    def __str__(self):
+        return self.name    
+    
+    
+class Userlistmovie(models.Model):
+    userlistmovieid = models.AutoField(db_column='UserListMovieID', primary_key=True)
+    userlist = models.ForeignKey(Userlist, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    addedat = models.DateTimeField(db_column='AddedAt', auto_now_add=True)
+
+    class Meta:
+        unique_together = [['userlist', 'movie']]
+        db_table = 'UserListMovie'
+    def __str__(self):
+        return f"{self.user_list.name} - {self.movie.title}"
+
+
+
+class Userlistbook(models.Model):
+    userlistbookid = models.AutoField(db_column='UserListBookID', primary_key=True)
+    userlist = models.ForeignKey(Userlist, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    addedat = models.DateTimeField(db_column='AddedAt', auto_now_add=True)
+
+    class Meta:
+#        unique_together = [['userlist', 'book']]
+        db_table = 'UserListBook'
+    def __str__(self):
+        return f"{self.user_list.name} - {self.book.title}"
+
+
+class Userlistgame(models.Model):
+    userlistgameid = models.AutoField(db_column='UserListGameID', primary_key=True)
+    userlist = models.ForeignKey(Userlist, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    addedat = models.DateTimeField(db_column='AddedAt', auto_now_add=True)
+
+    class Meta:
+#        unique_together = [['userlist', 'game']]
+        db_table = 'UserListGame'
+    def __str__(self):
+        return f"{self.user_list.name} - {self.game.title}"
 
