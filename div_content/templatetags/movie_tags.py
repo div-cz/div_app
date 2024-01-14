@@ -9,5 +9,13 @@ def nejnovejsi_filmy():
     return {'nejnovejsi_filmy': filmy}
 
 
-#{% load my_tags %}
+#{% load movie_tags %} - on the top
 #{% nejnovejsi_filmy %}
+
+
+@register.filter
+def round_value(value):
+    try:
+        return round(float(value))
+    except (ValueError, TypeError):
+        return value

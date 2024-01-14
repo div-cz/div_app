@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+
+    {% include "../inc/head.html" %}
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- Font Awesome for stars rating-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+<title>{{ author.firstname }} ({{ author.lastname }})</title>
+
+</head>
+
+<body>
+
+    {% include "../inc/navbar.html" %}
+
+
+<!-- Main Content -->
+<main class="container my-5">
+  <div class="row">
+    <!-- Left Column: Film Detail -->
+    <div class="col-lg-8">
+            <h2>{{ author.lastname }},  {{ author.firstname }} 
+
+{% if author.birthyear %}
+    <small class="text-muted">({{ author.birthyear }})</small>
+{% endif %}
+</h2>
+
+
+      <!-- Info Bar --><!--
+      <div class="bg-dark  rounded-3 p-2 mb-3 d-flex">
+        <span class="me-3">{{ author.birthdate|date:"Y" }}</span>,&nbsp;
+
+        <span> {{ author.deathdate|date:"Y" }} </span>
+      </div>-->
+
+    <div class="d-flex">
+        <div class="me-3 mr-4 mb-3 flex-shrink-0" style="width:200px">
+        {% if not author.img or author.img == "" %}
+        <img src="/img/creator/noperson.svg" alt="{{ author.firstname }} {{ author.lastname }}" class="img-fluid rounded" style="max-width: 200px; object-fit: cover;">
+
+        {% else %}
+    <img src="/img/{{ author.img }}" alt="{{ author.firstname }} {{ author.lastname }}" class="img-fluid rounded" style="width: 100%; object-fit: cover;">
+        {% endif %}
+    </div>
+
+        <div class="flex-grow-1">
+          <ul class="list-unstyled">
+        {% if author.birthdate %}
+            <li><strong>Datum narození:</strong> {{ author.birthdate }}</li>
+        {% endif %}
+
+        {% if author.deathdate %}
+            <li><strong>Datum úmrtí:</strong> {{ author.deathdate }}</li>
+        {% endif %}
+    <!--<li>ID: {{ author.creatorid }}</li>-->
+    <!--<li>{{ author.popularity }}</li>-->
+          </ul>
+          
+          
+          
+        {% if author.description %}
+    <p>
+            {{ author.description|safe }}
+    </p>
+        {% else %}
+    
+        Přidej vlastní popis, zatím tu žádný není!
+{% endif %}
+
+
+        </div>
+      </div>
+
+
+
+
+
+
+
+<h3>Seznam knih</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Film</th>
+            <th>Rok</th>
+            <th>Role</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in filmography %}
+        <tr>
+            <td><a href="/film/{{ entry.movieid.url }}">
+                        {% if entry.movieid.img == "noimg.png" %}
+            <img src="/img/movie/w400/nomovie.png" alt="{{ entry.movieid.titlecz }}" width="150">
+            {% else %}
+            <img src="https://www.themoviedb.org/t/p/w400{{ entry.movieid.img }}" alt="{{ entry.movieid.titlecz }}" width="150">
+            {% endif %}</a>
+            </td>
+            <td><a href="/film/{{ entry.movieid.url }}">{{ entry.movieid.moviename }}{{ entry.movieid.titlecz }}</a></td>
+            <td><a href="/filmy/{{ entry.movieid.releaseyear }}">{{ entry.movieid.releaseyear }}</a></td>
+            <td>{{ entry.roleid.rolenamecz }}<!--
+                {% if entry.roleid.rolename == "Writing" %}
+                    Scénárista
+                {% elif entry.roleid.rolename == "Camera" %}
+                    Kamera
+                {% else %}
+                    {{ entry.roleid.rolenamecz }}
+                {% endif %}-->
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-lg-4">
+      <!--<div class="card rounded mb-4">
+        <div class="card-body">
+          <h4>Hodnocení</h4>
+          <span class="text-warning">★</span>
+          <span class="text-warning">★</span>
+          <span class="text-warning">★</span>
+          <span class="text-warning">☆</span>
+          <span class="text-warning">☆</span>
+        </div>
+      </div>-->
+
+
+
+      <!--<div class="card rounded mb-4">
+        <div class="card-body">
+
+        </div>
+      </div>-->
+
+      <div class="card rounded mb-4">
+        <div class="card-body">
+
+{% if user.is_authenticated %}
+    <h4>{{ user.username }}! </h4>
+    <p>Vítejte, {{ user.username }}! <a href="{% url 'logout' %}">Odhlásit se</a></p>
+{% else %}
+    <h4>Přihlášení</h4>
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        {{ form.username.label_tag }}
+        {{ form.username }}
+        {{ form.password.label_tag }}
+        {{ form.password }}
+        <button type="submit" class="btn btn-primary">Přihlásit se</button>
+    </form>
+    <div class="mt-3">
+        <p>Nemáte účet? <a href="{% url 'signup' %}">Registrace</a></p>
+    </div>
+{% endif %}
+
+        </div>
+      </div>
+
+
+
+      <div class="card rounded mb-4 d-none d-lg-block">
+        <div class="card-body">
+          <h4>Další spisovatelé</h4>
+        <ul>
+    {% for author in author_list_10 %}
+        <li>
+           <a href="/spisovatel/{{ author.url }}"> {{ author.firstname }}  {{ author.lastname }}</a> 
+        </li>
+    {% endfor %}
+    {% for author in author_list_10_minus %}
+        <li>
+           <a href="/spisovatel/{{ author.url }}"> {{ author.firstname }}  {{ author.lastname }}</a> ({{ author.birthyear }})
+        </li>
+    {% endfor %}
+        </ul>
+        </div>
+      </div>
+
+
+      <!-- tmdb.org, imdb.org, div.cz, csfd.cz  -->
+      <div class="card rounded mb-4 d-none d-lg-block">
+        <div class="card-body">
+          <h4>Odkazy</h4>
+            <a href="https://www.themoviedb.org/"">
+          <img src="data:image/webp;base64,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" alt="tmdb.org"></a>
+
+
+    <a href="https://www.imdb.com/"><img src="https://www.div.cz/img/ico/imdb.png" alt="Imdb"></a>
+
+        </div>
+      </div>
+
+
+      <!-- Tags 
+      <div class="card rounded mb-4 d-none d-lg-block">
+        <div class="card-body">
+          <h4>Tagy</h4>
+
+           <span class="badge bg-secondary">abc</span>, <span class="badge bg-secondary">def</span> 
+
+        </div>
+      </div>-->
+
+
+  </div>
+</main>
+
+
+
+{% include "../inc/footer.html" %}
+
+</body>
+</html>
+

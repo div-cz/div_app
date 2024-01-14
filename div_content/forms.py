@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from .models import Moviecomments, Userprofile
+from forms import Games
 
 # use in movies/movie_detail.html
 class CommentForm(forms.ModelForm):
@@ -21,9 +22,3 @@ class CommentForm(forms.ModelForm):
 class SearchForm(forms.Form):
     q = forms.CharField(label='Hledat', max_length=255)
 
-
-# Use in profile
-class UserProfileForm(forms.ModelForm):
-    class Meta:
-        model = Userprofile
-        fields = ['bio', 'profilepicture', 'birthdate', 'location']

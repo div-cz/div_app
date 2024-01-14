@@ -29,11 +29,11 @@
         <a class="nav-link" href="/ucet/hodnoceni/">Moje hodnocení</a>
     </li>
     <li class="nav-item"><!--id="/ucet/oblibene/" #favorites--> 
-        <a class="nav-link" href="/ucet/oblibene/">Oblíbené</a>
+        <a class="nav-link" href="/ucet/seznamy/oblibene/">Oblíbené</a>
     </li>
     <li class="nav-item"><!--id="/ucet/seznamy/to-chci-videt/" #iwantsee--> 
         <a class="nav-link" href="/ucet/seznamy/chci-videt/">To chci vidět!</a>
-    </li>
+    </li> 
     <li class="nav-item"><!--id="/ucet/seznamy/to-chci-videt"--> 
         <a class="nav-link" href="/ucet/upravit/#edit">Upravit</a>
     </li>
@@ -45,7 +45,59 @@
     <!-- O mně -->
     <div class="tab-pane active" id="profile">
         <!-- Zde může být obsah sekce "O mně" -->
-        <p>{{ user_profile.bio|linebreaksbr }}</p>
+{% if user_profile.bio %}
+    <p>O mně:<br>{{ user_profile.bio|linebreaksbr }}</p>
+{% else %}
+    <p>O mně:<br><a href="/ucet/upravit/">Úvodní text si můžete upravit zde</a></p>
+{% endif %}
+
+        
+               <p> Moje naposledy ohodnocené filmy: </p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Miniatura</th>
+      <th>Název</th>
+      <th>Rok</th>
+      <th>Hodnocení</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user_rating in page %}
+      <tr>
+        <td>
+        {% if user_rating.rating.content_object.img == "noimg.png" %}
+        <img src="/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}" width="50">
+        {% else %}
+    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ user_rating.rating.content_object.img }}" alt="{{ user_rating.rating.content_object.title }}" width="50">
+        {% endif %}
+        </td>
+        <td><a href="/film/{{ user_rating.rating.content_object.url }}">{{ user_rating.rating.content_object.titlecz }}</a></td>
+        <td>
+        <a href="/filmy/{{ user_rating.rating.content_object.releaseyear }}">{{ user_rating.rating.content_object.releaseyear }}</a>
+        </td>
+        <td>
+      {% with score=user_rating.score %}
+        <span class="text-warning h4">
+        {% if score == 1 %}
+          &#9733; &#9734; &#9734; &#9734; &#9734;
+        {% elif score == 2 %}
+          &#9733; &#9733; &#9734; &#9734; &#9734;
+        {% elif score == 3 %}
+          &#9733; &#9733; &#9733; &#9734; &#9734;
+        {% elif score == 4 %}
+          &#9733; &#9733; &#9733; &#9733; &#9734;
+        {% elif score == 5 %}
+          &#9733; &#9733; &#9733; &#9733; &#9733;
+        {% endif %}
+        </span>
+      {% endwith %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
     </div>
 
 

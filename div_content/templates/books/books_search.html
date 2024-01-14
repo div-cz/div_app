@@ -1,0 +1,23 @@
+<!-- search_books.html -->
+{% extends 'inc/base.html' %}
+
+{% block content %}
+    <h1>Vyhledávání knih</h1>
+    <form method="get" action="{% url 'books_search' %}">
+        <input type="text" name="query" placeholder="Hledat knihy...">
+        <button type="submit">Vyhledat</button>
+    </form>
+
+    <div>
+        {% if books %}
+            <ul>
+                {% for book in books %}
+                    <li>{{ book.title }} - {{ book.author }}</li>
+                    <!-- Další detaily o knize -->
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Žádné knihy nebyly nalezeny.</p>
+        {% endif %}
+    </div>
+{% endblock %}
