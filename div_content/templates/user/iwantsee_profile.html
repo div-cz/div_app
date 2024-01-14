@@ -28,7 +28,7 @@
         <a class="nav-link" href="/ucet/hodnoceni/">Moje hodnocení</a>
     </li>
     <li class="nav-item"><!--id="/ucet/oblibene/" #favorites--> 
-        <a class="nav-link" href="/ucet/oblibene/">Oblíbené</a>
+        <a class="nav-link" href="/ucet/seznamy/oblibene/">Oblíbené</a>
     </li>
     <li class="nav-item active"><!--id="/ucet/seznamy/to-chci-videt/" #iwantsee--> 
         <a class="nav-link active" href="/ucet/seznamy/chci-videt/">To chci vidět!</a>
@@ -38,32 +38,73 @@
     </li>
     </ul>
 
-<div class="tab-content">
+<div class="w-100"></div>
 
-
-    <h1>Filmy, které chci vidět</h1>
-    <ul>
-    {% for user_list2 in user_lists2 %}
-        <li>Film: {{ user_list2.movie.title }}</li>
-    {% endfor %}
-    </ul>
+<div class="tab-content mt-3 mb-3">
 
 
 
-<h1>Filmy, které chci vidět</h1>
+
+<p> Filmy, které chci vidět:</p>
 {% if user_lists2 %}
-    <ul>
+<div class="tab-pane active" id="iwantsee">
+<table class="table w-100" style="width:100%">
+
+    <thead>
+    <tr>
+        <th>Miniatura</th>
+        <th>Název</th>
+        <th>Rok</th>
+        <th>Průměrné hodnocení</th>
+    </tr>
+    </thead> 
+    <tbody>
     {% for user_list2 in user_lists2 %}
-        <li>Film: {{ user_list2.movie.title }}</li>
+    <tr>
+        <td>
+        {% if user_list2.movie.img == "noimg.png" %}
+        <img src="/img/movie/w200/nomovie.jpg" alt="{{ user_list2.movie.titlecz }}" width="50">
+        {% else %}
+    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ user_list2.movie.img }}" alt="{{ user_list2.movie.title }}" width="50">
+        {% endif %}
+        </td>
+        <td><a href="/film/{{ user_list2.movie.url }}">{{ user_list2.movie.title }}</a></td>
+        <td>
+        <a href="/filmy/{{ user_list2.movie.releaseyear }}">{{ user_list2.movie.releaseyear }}</a>
+        </td>
+        <td>
+            {% if user_list2.average_rating %}
+                {% with score=user_list2.average_rating|floatformat:0 %}
+                    <span class="text-warning h4">
+                        {% if score == "1" %}
+                            &#9733; &#9734; &#9734; &#9734; &#9734;
+                        {% elif score == "2" %}
+                            &#9733; &#9733; &#9734; &#9734; &#9734;
+                        {% elif score == "3" %}
+                            &#9733; &#9733; &#9733; &#9734; &#9734;
+                        {% elif score == "4" %}
+                            &#9733; &#9733; &#9733; &#9733; &#9734;
+                        {% elif score == "5" %}
+                            &#9733; &#9733; &#9733; &#9733; &#9733;
+                        {% endif %}
+                    </span>
+                {% endwith %}
+            {% else %}
+                <span>Nehodnoceno</span>
+            {% endif %}
+        </td>
+    </tr>
     {% endfor %}
-    </ul>
+    </tbody>
+</table>
+</div>
 {% else %}
-    <p>Žádné filmy k zobrazení.</p>
+<p>Nemáte žádné filmy, které byste chtěli vidět.</p>
 {% endif %}
 
+
+
 </div>
-
-
 
 
 

@@ -1,17 +1,35 @@
+# VIEWS.USERS.PY
+
 from django.shortcuts import get_object_or_404, render, redirect
 from datetime import date
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+
 from div_content.models import Book, Game, Movie, Movierating, Userlist, Userlistbook, Userlistgame, Userlistmovie, Userprofile
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 from star_ratings.models import UserRating
-from div_content.forms import UserProfileForm
+from div_content.forms.users import ContactForm, UserProfileForm
 
-from django.db.models import F
+from django.db.models import Avg, F, Q
+from django.http import JsonResponse
 
 import json
 
+
+
+
+def contact_form(request):
+    message_sent = False
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            message_sent = True
+    else:
+        form = ContactForm()
+
+    return render(request, 'user/contact.html', {'form': form, 'message_sent': message_sent})
 
 
 
@@ -23,7 +41,7 @@ def myuser_detail(request, user_id=None):
         user_id = request.user.id
 
     profile_user = get_object_or_404(User, id=user_id)
-    user_ratings = UserRating.objects.filter(user_id=user_id)
+    user_ratings = UserRating.objects.filter(user_id=user_id).order_by('-modified')[:5]
 
     # Získání instance profilu uživatele
     user_profile = Userprofile.objects.get(user=profile_user)
@@ -44,6 +62,11 @@ def myuser_detail(request, user_id=None):
         'page': page, 
         'user_profile': user_profile,
     })
+
+
+
+
+
 
 
 
@@ -107,22 +130,64 @@ def ratings_profile(request):
 
 # Zobrazení oblíbených filmů uživatele
 def favorites_profile(request):
-    user_lists = Userlistmovie.objects.filter(userlist__namelist="Oblíbené", userlist__user=request.user).select_related('movie')
+    user_lists = Userlistmovie.objects.filter(
+        userlist__namelist="Oblíbené",
+        userlist__user=request.user
+    ).select_related('movie').annotate(
+        average_rating=F('movie__averagerating')  # Use the direct field
+    )
     return render(request, 'user/favorites_profile.html', {'user_lists': user_lists})
 
 # Zobrazení filmů, které uživatel chce vidět
 def iwantsee_profile(request):
-    user_lists2 = Userlistmovie.objects.filter(userlist__namelist="Chci vidět", userlist__user=request.user).select_related('movie')
+    user_lists2 = Userlistmovie.objects.filter(
+        userlist__namelist="Chci vidět",
+        userlist__user=request.user
+    ).select_related('movie').annotate(
+        average_rating=F('movie__averagerating')  # Use the direct field
+    )
     return render(request, 'user/iwantsee_profile.html', {'user_lists2': user_lists2})
+
+
+
+
+@login_required
+def favorite_movies(request):
+ # Získání seznamu "Oblíbené" pro aktuálně přihlášeného uživatele
+    favorites_list = Userlist.objects.filter(user=request.user, namelist="Oblíbené").first()
+    if favorites_list:
+        favorite_movies = Userlistmovie.objects.filter(userlist=favorites_list)
+    else:
+        favorite_movies = None
+
+    return render(request, 'user/user_lists_favorites.html', {'favorite_movies': favorite_movies})
+
+
 
 
 
 # users
 @login_required
-def rated_media(request):
+def rated_media(request, user_id=None):
     # Implementujte logiku pro zobrazení všeho ohodnoceného média
-    user_ratings = Movierating.objects.filter(user=request.user)
-    return render(request, 'user/rated_media.html', {'user_ratings': user_ratings})
+    if user_id is None:
+        user_id = request.user.id
+    profile_user = get_object_or_404(User, id=user_id)
+    user_ratings = UserRating.objects.filter(user_id=user_id).order_by('-modified')
+    # Získání instance profilu uživatele
+    user_profile = Userprofile.objects.get(user=profile_user)
+    # Stránkování
+    items_per_page = 10
+    paginator = Paginator(user_ratings, items_per_page)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+    
+    return render(request, 'user/rated_media.html', {
+        'profile_user': profile_user, 
+        'user_ratings': user_ratings, 
+        'page': page, 
+        'user_profile': user_profile,
+        })
 
 @login_required
 def rated_movies(request):
@@ -179,18 +244,6 @@ def favorite_locations(request):
     # Implementujte logiku pro zobrazení oblíbených lokalit
     return render(request, 'user/favorite_locations.html')
 
-@login_required
-def favorite_movies(request):
- # Získání seznamu "Oblíbené" pro aktuálně přihlášeného uživatele
-    favorites_list = Userlist.objects.filter(user=request.user, namelist="Oblíbené").first()
-    if favorites_list:
-        favorite_movies = Userlistmovie.objects.filter(userlist=favorites_list)
-    else:
-        favorite_movies = None
-
-    return render(request, 'user/user_lists_favorites.html', {'favorite_movies': favorite_movies})
-
-
 
 @login_required
 def user_lists(request):
@@ -198,7 +251,7 @@ def user_lists(request):
     return render(request, 'user/user_lists.html')
 
 
-
+"""
 @login_required
 def wantsee_movies(request):
     # Získání seznamu filmů "Chci vidět" pro aktuálně přihlášeného uživatele
@@ -208,7 +261,7 @@ def wantsee_movies(request):
     else:
         iwantsee_movies = None
     return render(request, 'user/iwantsee_profile.html', {'iwantsee_movies': iwantsee_movies})
-
+"""
 
 
 def update_profile(request):

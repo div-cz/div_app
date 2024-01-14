@@ -11,11 +11,14 @@
 
 {% block content %}
 <div class="container">
-  <div class="row justify-content-center">
+    <div class="row justify-content-center">
 
     {% if user.is_authenticated %}
-    {{ user.username }}
+    <a href="/ucet/">{{ user.username }}</a>
 
+    {% else %}
+    <p><a href="{% url 'account_login' %}">Přihlásit</a>. Nemáte učet? <a href="{% url 'signup' %}">Registrace</a>.</p>
+    {% endif %}
 
 
 <table class="table">
@@ -31,9 +34,11 @@
 {% for user_rating in page %}
   <tr>
     <td>
-      {% if user_rating.rating.content_object.img %}
-        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ user_rating.rating.content_object.img }}" alt="{{ user_rating.rating.content_object.title }}" width="50">
-      {% endif %}
+      {% if user_rating.rating.content_object.img == "noimg.png" %}
+        <img src="/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}" width="50">
+        {% else %}
+    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ user_rating.rating.content_object.img }}" alt="{{ user_rating.rating.content_object.title }}" width="50">
+        {% endif %}
     </td>
     <td><a href="/film/{{ user_rating.rating.content_object.url }}">{{ user_rating.rating.content_object.titlecz }}</a></td>
     <td>
@@ -41,6 +46,7 @@
     </td>
     <td>
       {% with score=user_rating.score %}
+        <span class="text-warning h4">
         {% if score == 1 %}
           &#9733; &#9734; &#9734; &#9734; &#9734;
         {% elif score == 2 %}
@@ -52,6 +58,7 @@
         {% elif score == 5 %}
           &#9733; &#9733; &#9733; &#9733; &#9733;
         {% endif %}
+        </span>
       {% endwith %}
     </td>
   </tr>
@@ -79,10 +86,8 @@
 
 
 
-    {% else %}
-    <p><a href="{% url 'account_login' %}">Přihlásit</a>. Nemáte učet? <a href="{% url 'signup' %}">Registrace</a>.</p>
-    {% endif %}
 
-  </div>
+
+    </div>
 </div>
 {% endblock content %}

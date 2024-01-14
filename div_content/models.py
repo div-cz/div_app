@@ -10,6 +10,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from star_ratings.models import AbstractBaseRating, Rating
 
+
 class AAChange(models.Model):
     id = models.IntegerField(db_column='ID', primary_key=True)
     description = models.TextField(db_column='Description')
@@ -42,19 +43,49 @@ class Article(models.Model):
 
 
 class Book(models.Model):
-    bookid = models.IntegerField(db_column='BookID', primary_key=True)
+    bookid = models.AutoField(db_column='BookID', primary_key=True)
     title = models.CharField(db_column='Title', max_length=255)
+    year = models.IntegerField(db_column='Year', null=True, blank=True)
+    pages = models.IntegerField(db_column='Pages', null=True, blank=True)
+    url = models.CharField(db_column='URL', max_length=255, blank=True, null=True)
+    img = models.CharField(db_column='IMG', max_length=255, default="noimg.png")
+    subtitle = models.CharField(db_column='Subtitle', max_length=255, blank=True, null=True)
     author = models.CharField(db_column='Author', max_length=255)
+    pseudonym = models.CharField(db_column='Pseudonym', max_length=2, null=True, blank=True)
+    authorid = models.ForeignKey('Bookauthor', models.DO_NOTHING, db_column='AuthorID', null=True)
     googleid = models.CharField(db_column='GoogleID', max_length=16, null=True)
-    description = models.TextField(db_column='Description')
-    genreid = models.ForeignKey('Metagenre', models.DO_NOTHING, db_column='GenreID')
-    publisherid = models.ForeignKey('Bookpublisher', models.DO_NOTHING, db_column='PublisherID')
-    worldid = models.ForeignKey('Metaworld', models.DO_NOTHING, db_column='WorldID')
-    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')
+    description = models.TextField(db_column='Description', blank=True, null=True)
+    goodreads = models.CharField(db_column='GoodreadsID', max_length=12, blank=True, null=True)
+    databazeknih = models.CharField(db_column='DatabazeKnih', max_length=16, blank=True, null=True)
+    genreid = models.ForeignKey('Metagenre', models.DO_NOTHING, db_column='GenreID', null=True)
+    worldid = models.ForeignKey('Metaworld', models.DO_NOTHING, db_column='WorldID', null=True)
+    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True)
 
     class Meta:
         db_table = 'Book'
 
+class Bookauthor(models.Model):
+    authorid = models.AutoField(db_column='AuthorID', primary_key=True)
+    firstname = models.CharField(db_column='FirstName', max_length=255)
+    middlename = models.CharField(db_column='MiddleName', max_length=255, null=True, blank=True)
+    lastname = models.CharField(db_column='LastName', max_length=255)
+    description = models.CharField(db_column='Description', max_length=2048, null=True, blank=True)
+    url = models.CharField(db_column='URL', max_length=512, null=True, blank=True)
+    main = models.CharField(db_column='Main', max_length=2, null=True, blank=True)
+    alias = models.CharField(db_column='Alias', max_length=2, null=True, blank=True)
+    favorites = models.IntegerField(db_column='Favorites', null=True, blank=True)
+    birthyear = models.CharField(db_column='BirthYear', max_length=5, null=True, blank=True)
+    birthdate = models.DateField(db_column='BirthDate', null=True, blank=True)
+    deathyear = models.CharField(db_column='DeathYear', max_length=5, null=True, blank=True)
+    deathdate = models.DateField(db_column='DeathDate', null=True, blank=True)
+    goodreads = models.CharField(db_column='GoodreadsID', max_length=12, blank=True, null=True)
+    databazeknih = models.CharField(db_column='DatabazeKnih', max_length=16, blank=True, null=True)
+    img = models.CharField(db_column='IMG', max_length=32, null=True, blank=True)
+    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True)
+    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', blank=True, null=True)
+
+    class Meta:
+        db_table = 'BookAuthor'
 
 class Bookcomments(models.Model):
     commentid = models.IntegerField(db_column='CommentID', primary_key=True)
@@ -79,6 +110,7 @@ class Bookisbn(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='isbns')
     isbn = models.CharField(max_length=13, unique=True)
     edition = models.CharField(max_length=255, null=True, blank=True)
+    publisherid = models.ForeignKey('Bookpublisher', models.DO_NOTHING, db_column='PublisherID', null=True)
     publicationyear = models.IntegerField(null=True, blank=True)
     format = models.CharField(max_length=100, null=True, blank=True) # e.g., Hardcover, Paperback, eBook
     language = models.CharField(max_length=100, null=True, blank=True) # e.g., English, Czech
@@ -90,7 +122,10 @@ class Bookisbn(models.Model):
 
 class Bookpublisher(models.Model):
     publisherid = models.IntegerField(db_column='PublisherID', primary_key=True)
-    publishername = models.CharField(db_column='PublisherName', max_length=255)
+    publishername = models.CharField(db_column='PublisherName', max_length=255, unique=True)
+    publisherurl = models.CharField(db_column='PublisherURL', max_length=255, null=True, blank=True)
+    publisherdescription = models.CharField(db_column='PublisherDescription', max_length=512, null=True, blank=True)
+    publisherwww = models.CharField(db_column='PublisherWWW', max_length=255, null=True, blank=True)
 
     class Meta:
         db_table = 'BookPublisher'
@@ -226,6 +261,7 @@ class Creatorbiography(models.Model):
 
 
 
+
 class Creatoringame(models.Model):
     creatoringameid = models.IntegerField(db_column='CreatorInGameID', primary_key=True)
     roleid = models.ForeignKey('Creatorrole', models.DO_NOTHING, db_column='RoleID')
@@ -305,25 +341,28 @@ class Foodmedia(models.Model):
 class Game(models.Model):
     gameid = models.IntegerField(db_column='GameID', primary_key=True)
     title = models.CharField(db_column='Title', max_length=255)
-    ratingid = models.IntegerField(db_column='RatingID')
-    description = models.TextField(db_column='Description')
-    platformid = models.ForeignKey('Gameplatform', models.DO_NOTHING, db_column='PlatformID')
-    publisherid = models.ForeignKey('Gamepublisher', models.DO_NOTHING, db_column='PublisherID')
-    genreid = models.ForeignKey('Metagenre', models.DO_NOTHING, db_column='GenreID')
-    worldid = models.ForeignKey('Metaworld', models.DO_NOTHING, db_column='WorldID')
-    developerid = models.ForeignKey('Gamedevelopers', models.DO_NOTHING, db_column='DeveloperID')
-    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')
-
+    titlecz = models.CharField(db_column='TitleCZ', max_length=255, null=True, blank=True)
+    url = models.CharField(db_column='URL', max_length=255, null=True, blank=True)
+    ratingid = models.IntegerField(db_column='RatingID', null=True, blank=True)
+    description = models.TextField(db_column='Description', null=True, blank=True)
+    platformid = models.ForeignKey('Gameplatform', models.DO_NOTHING, db_column='PlatformID', null=True, blank=True)
+    publisherid = models.ForeignKey('Gamepublisher', models.DO_NOTHING, db_column='PublisherID', null=True, blank=True)
+    genreid = models.ForeignKey('Metagenre', models.DO_NOTHING, db_column='GenreID', null=True, blank=True)
+    worldid = models.ForeignKey('Metaworld', models.DO_NOTHING, db_column='WorldID', null=True, blank=True)
+    developerid = models.ForeignKey('Gamedevelopers', models.DO_NOTHING, db_column='DeveloperID', null=True, blank=True)
+    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True, blank=True)
+    averageratinggame = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, db_column='AverageRatingGame')
     class Meta:
         db_table = 'Game'
+    def __str__(self):
+        return self.titlecz 
 
 
 class Gamecomments(models.Model):
     commentid = models.IntegerField(db_column='CommentID', primary_key=True)
     comment = models.TextField(db_column='Comment')
     gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')
-#    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)    
-
+#    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)   
     class Meta:
         db_table = 'GameComments'
 
@@ -331,9 +370,11 @@ class Gamecomments(models.Model):
 class Gamedevelopers(models.Model):
     developerid = models.IntegerField(db_column='DeveloperID', primary_key=True)
     developername = models.CharField(db_column='DeveloperName', max_length=255)
-
     class Meta:
         db_table = 'GameDevelopers'
+    def __str__(self):
+        return self.developername 
+
 
 
 class Gameplatform(models.Model):
@@ -342,14 +383,17 @@ class Gameplatform(models.Model):
     url = models.CharField(db_column='PlatformURL', max_length=255, blank=True)
     class Meta:
         db_table = 'GamePlatform'
+    def __str__(self):
+        return self.platform 
 
 
 class Gamepublisher(models.Model):
     publisherid = models.IntegerField(db_column='PublisherID', primary_key=True)
     publishername = models.CharField(db_column='PublisherName', max_length=255)
-
     class Meta:
         db_table = 'GamePublisher'
+    def __str__(self):
+        return self.publishername 
 
 
 class Gamepurchase(models.Model):
@@ -514,10 +558,10 @@ class Metacountry(models.Model):
     countrycode = models.CharField(db_column='CountryCode', max_length=4)
     countrycode2 = models.CharField(db_column='CountryCode2', max_length=2, blank=True)
     countrynamecz = models.CharField(db_column='CountryNameCZ', max_length=255)
-
     class Meta:
         db_table = 'MetaCountry'
-
+    def __str__(self):
+        return self.countrynamecz
 
 class Metagenre(models.Model):
     genreid = models.IntegerField(db_column='GenreID', primary_key=True)
@@ -525,18 +569,21 @@ class Metagenre(models.Model):
     genrenamecz = models.CharField(db_column='GenreNameCZ', max_length=255)
     url = models.CharField(db_column='URL', max_length=255, blank=True, null=True, unique=True)
     tmdbid = models.IntegerField(db_column='TmdbID', blank=True, null=True)
-
     class Meta:
         db_table = 'MetaGenre'
+    def __str__(self):
+        return self.genrenamecz
 
 
 class Metaworld(models.Model):
     worldid = models.IntegerField(db_column='WorldID', primary_key=True)
     worldname = models.CharField(db_column='WorldName', max_length=255)
+    worldnamecz = models.CharField(db_column='WorldNameCZ', max_length=255, blank=True, null=True)
     worlddescription = models.TextField(db_column='WorldDescription', null=True)
-
     class Meta:
         db_table = 'MetaWorld'
+    def __str__(self):
+        return self.worldnamecz
 
 class MovieSpecialSort(models.TextChoices):
     TOP = '1', 'Top'
@@ -561,12 +608,12 @@ class Movie(models.Model):
     idimdb = models.CharField(db_column='ID_Imdb', max_length=16, null=True)
     iddiv = models.CharField(db_column='ID_DIV', max_length=16, null=True)
     worldid = models.ForeignKey(Metaworld, models.DO_NOTHING, db_column='WorldID', null=True, blank=True)
-    ratings = models.ForeignKey(Rating, on_delete=models.CASCADE, related_name='movies', null=True, blank=True)
-
-
+#    ratings = models.ForeignKey(Rating, on_delete=models.CASCADE, related_name='movies', null=True, blank=True)
+    averagerating = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, db_column='AverageRating')
         
     class Meta:
         db_table = 'Movie'
+
 
 
 class Moviecomments(models.Model):

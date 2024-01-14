@@ -1,3 +1,5 @@
+# VIEWS.MOVIES.PY
+
 from datetime import date
 
 from django.contrib.auth.decorators import login_required
@@ -6,16 +8,13 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import DetailView
 
-from div_content.forms import CommentForm, SearchForm
+from div_content.forms.movies import CommentForm, SearchForm
 from div_content.models import (
     Article, Book, Creator, Creatorbiography, Game, Location, Metagenre,
     Movie, Moviecomments, Moviecrew, Moviegenre, Movierating, Userlist,
     Userlistmovie, Userprofile
 )
 from star_ratings.models import Rating, UserRating
-
-
-
 
 
 
@@ -115,8 +114,8 @@ def search(request):
         form = SearchForm(request.GET)
         if form.is_valid():
             query = form.cleaned_data['q']
-            movies = (Movie.objects.filter(titlecz__icontains=query)
-                .values('title', 'titlecz', 'url', 'img', 'description', 'releaseyear')[:50])
+            movies = (Movie.objects.filter(titlecz__icontains=query, adult=0)
+                .values('title', 'titlecz', 'url', 'img', 'description', 'releaseyear', 'averagerating')[:50])
     else:
         form = SearchForm()
 

@@ -12,7 +12,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 #from div_content import views
-from div_content.views import articles, books, creators, games, locations, movies, users
+#from div_content.views import articles, books, creators, games, locations, movies, users
+from div_content.views.articles import article_detail
+from div_content.views.authors import authors_list, author_detail, author_add
+from div_content.views.books import book_add, book_detail, books, books_search
+from div_content.views.creators import creator_detail, creators_list
+from div_content.views.games import game_detail, game_add, games
+from div_content.views.locations import locations, location_detail
+from div_content.views.movies import movie_detail, movies, index, search, MovieDetailView
+from div_content.views.users import contact_form, myuser_detail, rate_movie, add_to_list, ratings_profile, favorites_profile, iwantsee_profile, favorite_movies, rated_media, rated_movies, rated_books, rated_games, favorite_media, favorite_actors, favorite_books, favorite_drinks, favorite_foods, favorite_games, favorite_items, favorite_locations, user_lists, update_profile
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView 
@@ -27,61 +35,70 @@ from allauth.account.views import SignupView, LogoutView, LoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', movies.index, name='index'),
-    path('filmy/', movies.movies, name='movies_index'),
-    path('filmy/<int:year>', movies.movies, name='movies_year'),
-    path('filmy/<slug:genre_url>', movies.movies, name='movies_genre'),
+    path('', index, name='index'),
+    path('filmy/', movies, name='movies_index'),
+    path('filmy/<int:year>', movies, name='movies_year'),
+    path('filmy/<slug:genre_url>', movies, name='movies_genre'),
+
+    path('film/<str:movie_url>', movie_detail, name='movie_detail'),
+    path('film/<int:pk>/', MovieDetailView.as_view(), name='movie_detail'),
+    path('film/<int:pk>/rate/', rate_movie, name='movie_rate'),
+    path('film/add-to-list/', add_to_list, name='add_to_list'),
+
+    path('hry/', games, name='games_index'),
+    path('hra/<str:game_url>', game_detail, name='game_detail'),
+    path('hra/pridat/', game_add, name='game_add'),
+
+    path('knihy/', books, name='books_index'),
+    path('hledani-knih/', books_search, name='books_search'),
+    path('kniha/<str:book_url>', book_detail, name='book_detail'),
+    path('knihy/pridat/', book_add, name='book_add'),
+    path('spisovatele/', authors_list, name='authors_list'),
+    path('spisovatel/<str:author_url>', author_detail, name='author_detail'), 
+    path('spisovatel/pridat/', author_add, name='author_add'),
 
 
-
-    path('film/<str:movie_url>', movies.movie_detail, name='movie_detail'),
-    path('film/<int:pk>/', movies.MovieDetailView.as_view(), name='movie_detail'),
-    path('film/<int:pk>/rate/', users.rate_movie, name='movie_rate'),
-    path('film/add-to-list/', users.add_to_list, name='add_to_list'),
-    path('hry/', games.games, name='games_index'),
-    path('hra/<str:game_url>', games.game_detail, name='game_detail'),
-    path('knihy/', books.books, name='books_index'),
-    path('kniha/<str:book_url>', books.book_detail, name='book_detail'),
-    path('lokality/', locations.locations, name='locations_index'),
-    path('lokalita/<str:location_url>', locations.location_detail, name='location_detail'),
-    path('osobnosti/', creators.creators_list, name='creators_list'),
-    path('osobnost/<str:creator_url>', creators.creator_detail, name='creator_detail'),
+    path('lokality/', locations, name='locations_index'),
+    path('lokalita/<str:location_url>', location_detail, name='location_detail'),
+    path('osobnosti/', creators_list, name='creators_list'),
+    path('osobnost/<str:creator_url>', creator_detail, name='creator_detail'),
     path('ratings/', include('star_ratings.urls', namespace='ratings')),
-    path('hledam/', movies.search, name='search'),
-    path('<str:article_url>', articles.article_detail, name='article_detail'),
+    path('hledam/', search, name='search'),
+    path('<str:article_url>', article_detail, name='article_detail'),
 
-    path('uzivatel/<int:user_id>/', users.myuser_detail, name='user_profile_with_profil'),
+    path('uzivatel/<int:user_id>/', myuser_detail, name='user_profile_with_profil'),
 
-    path('ucet/', users.myuser_detail, name='myuser_detail'),
-    path('ucet/hodnoceni/', users.rated_media, name='rated_media'),
-    path('ucet/hodnoceni/filmy/', users.rated_movies, name='rated_movies'),
-    path('ucet/hodnoceni/knihy/', users.rated_books, name='rated_books'),
-    path('ucet/hodnoceni/hry/', users.rated_games, name='rated_games'),
+    path('ucet/', myuser_detail, name='myuser_detail'),
+    path('ucet/hodnoceni/', rated_media, name='rated_media'),
+    path('ucet/hodnoceni/filmy/', rated_movies, name='rated_movies'),
+    path('ucet/hodnoceni/knihy/', rated_books, name='rated_books'),
+    path('ucet/hodnoceni/hry/', rated_games, name='rated_games'),
     
     
-    path('ucet/oblibene/', users.favorites_profile, name='favorites_media'),
-    path('ucet/oblibene/herci/', users.favorite_actors, name='favorite_actors'),
-    path('ucet/oblibene/knihy/', users.favorite_books, name='favorite_books'),
-    path('ucet/oblibene/hry/', users.favorite_games, name='favorite_games'),
-    path('ucet/oblibene/lokality/', users.favorite_locations, name='favorite_locations'),
-    path('ucet/oblibene/napoje/', users.favorite_drinks, name='favorite_drinks'),
-    path('ucet/oblibene/jidlo/', users.favorite_foods, name='favorite_foods'),
-    path('ucet/oblibene/predmety/', users.favorite_items, name='favorite_items'),
-    
+    path('ucet/oblibene/', favorites_profile, name='favorites_media'),
+    path('ucet/oblibene/herci/', favorite_actors, name='favorite_actors'),
+    path('ucet/oblibene/knihy/', favorite_books, name='favorite_books'),
+    path('ucet/oblibene/hry/', favorite_games, name='favorite_games'),
+    path('ucet/oblibene/lokality/', favorite_locations, name='favorite_locations'),
+    path('ucet/oblibene/napoje/', favorite_drinks, name='favorite_drinks'),
+    path('ucet/oblibene/jidlo/', favorite_foods, name='favorite_foods'),
+    path('ucet/oblibene/predmety/', favorite_items, name='favorite_items'),
 
-    path('ucet/tochcividet/', users.iwantsee_profile, name='iwantsee_profile'),
-    path('ucet/upravit/', users.update_profile, name='update_profile'),
 
-    path('ucet/seznamy/', users.user_lists, name='user_lists'),
-    path('ucet/seznamy/oblibene/', users.favorites_profile, name='favorites_media'),
-    path('ucet/seznamy/chci-videt/', users.wantsee_movies, name='user_lists_iwantsee'),
+    path('ucet/upravit/', update_profile, name='update_profile'),
+
+    path('ucet/seznamy/', user_lists, name='user_lists'),
+    path('ucet/seznamy/oblibene/', favorites_profile, name='favorites_media'),
+    path('ucet/seznamy/chci-videt/', iwantsee_profile, name='iwantsee_profile'),
         
+    path('kontakt/', contact_form, name='contact'),
     path('prihlaseni/', LoginView.as_view(), name='login'),
     path('registrace/', SignupView.as_view(), name='signup'),
     path('odhlaseni/', LogoutView.as_view(), name='logout'),
 
     path('ucet/', include('allauth.urls')),
 ]#    path('ucet/hodnoceni/', views.ratings_profile, name='ratings_profile'),
+#    path('ucet/tochcividet/', users.iwantsee_profile, name='iwantsee_profile'),
 
 #    path('registrace/', include('allauth.urls')),  predelat na redirect
 """    path('ucet/', include('allauth.urls')),
