@@ -28,6 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['46.28.109.39',
         'div.cz',
+        'www.div.cz',
         '2001:1aeb:3d00:f00:2c75:101e:b80a:7977', 
         'localhost', 
         '127.0.0.1',
@@ -42,9 +43,15 @@ INTERNAL_IPS =  [
 
 DEBUG_TOOLBAR_CONFIG = {
 #    "SHOW_TOOLBAR_CALLBACK": show_toolbar,
-    'SHOW_TOOLBAR_CALLBACK': lambda request: False,
+#    'SHOW_TOOLBAR_CALLBACK': lambda request: True, #show toolbar for all requests
+    'SHOW_TOOLBAR_CALLBACK': 'div_config.settings.custom_show_toolbar',
+
 }
 
+def custom_show_toolbar(request):
+    if hasattr(request, 'user') and request.user.is_authenticated:
+        return request.user.username == 'Martin2'
+    return False
  
 # Application definition
 INSTALLED_APPS = [
@@ -56,22 +63,63 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'debug_toolbar',
     'div_content',
-    'crispy_forms', 
-]
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.instagram',
+    'allauth.socialaccount.providers.microsoft',
+    'star_ratings'
 
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
+]#    'crispy_forms', 
+
+#https://console.cloud.google.com/apis/credentials/oauthclient/696202768234-bamc765kjqrbidnd2jdo5k1blr7gu4s1.apps.googleusercontent.com?project=knihy-div
+# https://developers.facebook.com/apps/642069596173684/fb-login/settings/
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': '696202768234-bamc765kjqrbidnd2jdo5k1blr7gu4s1.apps.googleusercontent.com',
+            'secret': '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',
+            'key': 'AIzaSyDlJ9E567Xdsxi1Vb-mYdc_yBQp6kD0-mo'
+        }
+    },
+    'facebook': {
+    'APP': {
+        'client_id': '642069596173684',
+        'secret': 'bfe2272459085a3d74223481477ff3ee'
+    }
+}
+
+
+}
+
+
+
 
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # Bezpečnost by měla být vždy na prvním místě
     'django.middleware.security.SecurityMiddleware',
+
+    # Session middleware by měl předcházet Authentication middleware
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+    # CSRF middleware a CommonMiddleware obvykle následují po autentizační vrstvě
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+    # Debug Toolbar by měla být co nejvýše v seznamu, ale po Session a Authentication middlewares
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+
+    # Další standardní middlewares
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
+
+    # Middleware pro Allauth
+    'allauth.account.middleware.AccountMiddleware',
 ]
+
 
 MIGRATION_MODULES = {
 #    "div_content": None,
@@ -90,10 +138,13 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',
+
             ],
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'div_config.wsgi.application'
 
@@ -105,9 +156,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'divDB',
-        'USER': 'editordb2',
-        'PASSWORD': '2*mP3jD6kW',
-        'HOST': '46.28.109.39',
+        'USER': 'martindb', #'editordb2',
+        'PASSWORD': 'Han1cka+1a9', #'2*mP3jD6kW',
+        'HOST': 'localhost', #'46.28.109.39',
         'PORT': '3306',
     }
 }
@@ -117,27 +168,32 @@ DATABASES = {
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+
 ]
+ACCOUNT_USE_SIGNUP_HONEYPOT = True
 
 #AUTH_USER_MODEL = 'div_content.CustomUser'
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
 
+    # `allauth` specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 25
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
 LANGUAGE_CODE = 'cs-cz'
+LANGUAGES = [
+    ('cs', 'Czech'),
+]
 
 TIME_ZONE = 'Europe/Prague'
 
@@ -146,6 +202,7 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+DEFAULT_CHARSET = 'utf-8'
 
 
 # Static files (CSS, JavaScript, Images)
@@ -155,7 +212,37 @@ STATIC_URL = '/static/'
 #STATIC_ROOT = '/var/www/div/divdb/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+MEDIA_ROOT = '/var/www/div_app/img/'
+MEDIA_URL = '/img/'
+#STATIC_ROOT = '/var/www/div_app/static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+"""
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'var/log/django.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        '': {  # '' znamená default logger pro celou aplikaci
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}"""
+

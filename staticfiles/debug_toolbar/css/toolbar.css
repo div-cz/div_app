@@ -1,16 +1,3 @@
-/* Variable definitions */
-:root {
-    /* Font families are the same as in Django admin/css/base.css */
-    --djdt-font-family-primary: "Segoe UI", system-ui, Roboto, "Helvetica Neue",
-        Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-        "Segoe UI Symbol", "Noto Color Emoji";
-    --djdt-font-family-monospace: ui-monospace, Menlo, Monaco, "Cascadia Mono",
-        "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace",
-        "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New",
-        monospace, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-        "Noto Color Emoji";
-}
-
 /* Debug Toolbar CSS Reset, adapted from Eric Meyer's CSS Reset */
 #djDebug {
     color: #000;
@@ -77,7 +64,6 @@
 #djDebug tr,
 #djDebug th,
 #djDebug td,
-#djDebug summary,
 #djDebug button {
     margin: 0;
     padding: 0;
@@ -90,7 +76,7 @@
     color: #000;
     vertical-align: baseline;
     background-color: transparent;
-    font-family: var(--djdt-font-family-primary);
+    font-family: sans-serif;
     text-align: left;
     text-shadow: none;
     white-space: normal;
@@ -122,9 +108,7 @@
 #djDebug button:active {
     border: 1px solid #aaa;
     border-bottom: 1px solid #888;
-    box-shadow:
-        inset 0 0 5px 2px #aaa,
-        0 1px 0 0 #eee;
+    box-shadow: inset 0 0 5px 2px #aaa, 0 1px 0 0 #eee;
 }
 
 #djDebug #djDebugToolbar {
@@ -173,7 +157,7 @@
     text-decoration: none;
     display: block;
     font-size: 16px;
-    padding: 7px 10px 8px 25px;
+    padding: 10px 10px 5px 25px;
     color: #fff;
 }
 #djDebug #djDebugToolbar li > div.djdt-disabled {
@@ -192,7 +176,6 @@
 
 #djDebug #djDebugToolbar li.djdt-active:before {
     content: "▶";
-    font-family: var(--djdt-font-family-primary);
     position: absolute;
     left: 0;
     top: 50%;
@@ -215,7 +198,7 @@
 
 #djDebug #djDebugToolbarHandle {
     position: fixed;
-    transform: translateY(-100%) rotate(-90deg);
+    transform: rotate(-90deg);
     transform-origin: right bottom;
     background-color: #fff;
     border: 1px solid #111;
@@ -254,26 +237,13 @@
     font-size: 16px;
 }
 
-#djDebug pre,
 #djDebug code {
     display: block;
-    font-family: var(--djdt-font-family-monospace);
-    overflow: auto;
-}
-
-#djDebug code {
+    font-family: Consolas, Monaco, "Bitstream Vera Sans Mono", "Lucida Console",
+        monospace;
     font-size: 12px;
     white-space: pre;
-}
-
-#djDebug pre {
-    white-space: pre-wrap;
-    color: #555;
-    border: 1px solid #ccc;
-    border-collapse: collapse;
-    background-color: #fff;
-    padding: 2px 3px;
-    margin-bottom: 3px;
+    overflow: auto;
 }
 
 #djDebug .djdt-panelContent {
@@ -365,7 +335,7 @@
     margin-top: 0.8em;
     overflow: auto;
 }
-#djDebug .djdt-panelContent tbody > tr:nth-child(odd):not(.djdt-highlighted) {
+#djDebug .djdt-panelContent tbody > tr:nth-child(odd) {
     background-color: #f5f5f5;
 }
 #djDebug .djdt-panelContent tbody td,
@@ -399,19 +369,18 @@
     position: absolute;
     top: 4px;
     right: 15px;
+    height: 16px;
+    width: 16px;
     line-height: 16px;
+    padding: 5px;
     border: 6px solid #ddd;
     border-radius: 50%;
     background: #fff;
     color: #ddd;
+    text-align: center;
     font-weight: 900;
     font-size: 20px;
-    height: 36px;
-    width: 36px;
-    padding: 0 0 5px;
-    box-sizing: border-box;
-    display: grid;
-    place-items: center;
+    box-sizing: content-box;
 }
 
 #djDebug .djdt-panelContent .djDebugClose:hover {
@@ -593,7 +562,19 @@
 #djDebug .djSQLDetailsDiv {
     margin-top: 0.8em;
 }
-
+#djDebug pre {
+    white-space: pre-wrap;
+    color: #555;
+    border: 1px solid #ccc;
+    border-collapse: collapse;
+    background-color: #fff;
+    display: block;
+    overflow: auto;
+    padding: 2px 3px;
+    margin-bottom: 3px;
+    font-family: Consolas, Monaco, "Bitstream Vera Sans Mono", "Lucida Console",
+        monospace;
+}
 #djDebug .djdt-stack span {
     color: #000;
     font-weight: bold;
@@ -610,13 +591,6 @@
 #djDebug .djdt-stack pre.djdt-locals {
     margin: 0 27px 27px 27px;
 }
-#djDebug .djdt-raw {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    margin-top: 0.8em;
-    padding: 5px;
-    white-space: pre-wrap;
-}
 
 #djDebug .djdt-width-20 {
     width: 20%;
@@ -627,30 +601,9 @@
 #djDebug .djdt-width-60 {
     width: 60%;
 }
-#djDebug .djdt-max-height-100 {
-    max-height: 100%;
-}
 #djDebug .djdt-highlighted {
     background-color: lightgrey;
 }
-#djDebug tr.djdt-highlighted.djdt-profile-row {
-    background-color: #ffc;
-}
-#djDebug tr.djdt-highlighted.djdt-profile-row:nth-child(2n + 1) {
-    background-color: #dd9;
-}
-@keyframes djdt-flash-new {
-    from {
-        background-color: green;
-    }
-    to {
-        background-color: inherit;
-    }
-}
-#djDebug .flash-new {
-    animation: djdt-flash-new 1s;
-}
-
 .djdt-hidden {
     display: none;
 }

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+
+    {% include "inc/head.html" %}
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+
+<title>Spisovatelé | Databáze filmů a knih DIV</title>
+
+<style>
+.carousel-caption {
+    background-color: rgba(0, 0, 0, 0.5);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.carousel .carousel-inner .carousel-item {
+    height: 300px;
+    overflow: hidden;
+}
+
+.carousel .carousel-inner .carousel-item img {
+    min-height: 100%;
+    width: 100%;
+    object-fit: cover;
+}
+</style>
+
+</head>
+
+<body>
+
+    {% include "inc/navbar.html" %}
+
+<main class="mb-5">
+     <!-- Carousel -->
+
+
+
+<!-- Sekce odkazů na filmy -->
+<div class="container my-4">
+
+
+<h2 class="mb-4">Spisovatelé</h2>
+
+<div class="row">
+        {% for author in authors %}
+    <div class="col-lg-3 col-md-3 col-sm-6 mb-3">
+      <div class="card">
+        <img src="/img/noimg.png" class="card-img-top" alt="{{ author.lastname }}">
+
+        <div class="card-body">
+          <h5 class="card-title">{{ author.firstname }} {{ author.lastname }} <span class="text-muted">({{ author.birthyear  }})</span></h5>
+          <p class="card-text"><!--{{ creator.knownfordepartment }}-->
+
+        </p>
+          <a href="{% url 'author_detail' author.url %}" class="btn btn-primary">{{ author.lastname }}, {{ author.firstname }}</a> 
+        </div>
+      </div>
+    </div>
+        {% endfor %}
+  </div>
+
+        </div>
+    </div>
+
+</main>
+
+
+{% include "inc/footer.html" %}
+
+
+</body>
+</html>

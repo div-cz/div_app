@@ -1,0 +1,87 @@
+{% extends "inc/base.html" %}
+
+{% load i18n %}
+
+{% block title %}Registrace{% endblock title %}
+{% block h1 %}Registrace{% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+
+
+      <p><!--{% blocktrans %}Already have an account? Please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}--> Už máš účet? <a href="{{ login_url }}">Přihlásit</a></p>
+
+
+<form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="{{ form.username.id_for_label }}" class="form-label text-right">{% trans "Username" %}</label><br>
+        {{ form.username.errors }}
+        <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" class="form-control rounded w-50" value="{{ form.username.value|default:'' }}" placeholder="Uživatelské nebo skutečné jméno" required>
+    </div>
+    <div class="form-group">
+        <label for="{{ form.email.id_for_label }}" class="form-label text-right">{% trans "Email" %}</label><br>
+        {{ form.email.errors }}
+        <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="form-control rounded w-50" value="{{ form.email.value|default:'' }}" placeholder="Tvůj e-mail" required>
+    </div>
+    <div class="form-group">
+        <label for="{{ form.password1.id_for_label }}" class="form-label text-right">{% trans "Password" %}</label>
+        {{ form.password1.errors }}
+        <div class="input-group w-50">
+            <input type="password" name="{{ form.password1.name }}" id="{{ form.password1.id_for_label }}" class="form-control" value="{{ form.password1.value|default:'' }}" placeholder="Zadej heslo"  required>
+            <div class="input-group-append">
+                <button id="togglePassword1" type="button" class="btn btn-outline-secondary">
+                    <i class="fa fa-eye" id="togglePasswordIcon1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="{{ form.password2.id_for_label }}" class="form-label text-right">Potvrdit {% trans "Password" %}</label>
+        {{ form.password2.errors }}
+        <div class="input-group w-50">
+            <input type="password" name="{{ form.password2.name }}" id="{{ form.password2.id_for_label }}" class="form-control" value="{{ form.password2.value|default:'' }}" placeholder="Znovu heslo" required>
+            <div class="input-group-append">
+                <button id="togglePassword2" type="button" class="btn btn-outline-secondary">
+                    <i class="fa fa-eye" id="togglePasswordIcon2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    {% if redirect_field_value %}
+    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+    {% endif %}
+    <p>Registrací souhlasíte s <a href="/podminky-pouziti">podmínkami použití</a>.</p>
+    <button type="submit" class="btn btn-primary">{% trans "Sign Up" %} &raquo;</button>
+</form>
+
+<script>
+    function togglePasswordVisibility(passwordFieldId, iconElementId) {
+        const passwordField = document.getElementById(passwordFieldId);
+        const togglePasswordIcon = document.getElementById(iconElementId);
+
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            togglePasswordIcon.classList.remove('fa-eye');
+            togglePasswordIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            togglePasswordIcon.classList.remove('fa-eye-slash');
+            togglePasswordIcon.classList.add('fa-eye');
+        }
+    }
+
+    document.getElementById('togglePassword1').addEventListener('click', function() {
+        togglePasswordVisibility('{{ form.password1.id_for_label }}', 'togglePasswordIcon1');
+    });
+
+    document.getElementById('togglePassword2').addEventListener('click', function() {
+        togglePasswordVisibility('{{ form.password2.id_for_label }}', 'togglePasswordIcon2');
+    });
+</script>
+
+
+
+
+
+{% endblock content %}

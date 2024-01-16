@@ -1,0 +1,91 @@
+{% extends "inc/base.html" %}
+
+{% load i18n %}
+{% load account socialaccount %}
+
+{% block title %}{% trans "Sign In" %}{% endblock title %}
+{% block h1 %}{% trans "Sign In" %}{% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+
+
+{% get_providers as socialaccount_providers %}
+
+{% if socialaccount_providers %}
+<p>{% blocktrans with site.name as site_name %}Please sign in with one
+of your existing third party accounts. Or, <a href="{{ signup_url }}">sign up</a>
+for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
+
+<div class="socialaccount_ballot">
+
+  <ul class="socialaccount_providers">
+    {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+  </ul>
+
+  <!--<div class="login-or">{% trans 'or' %}</div>-->
+</div>
+
+{% include "socialaccount/snippets/login_extra.html" %}
+
+{% else %}
+<p>{% blocktrans %}If you have not created an account yet, then please
+<a href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</p>
+{% endif %}
+
+
+
+<form class="login w-50 mx-auto" method="POST" action="{% url 'account_login' %}">
+  {% csrf_token %}
+  <div class="form-group">
+    <label for="{{ form.login.id_for_label }}">{{ form.login.label }}</label><br>
+    <input type="text" name="{{ form.login.name }}" id="{{ form.login.id_for_label }}" class="form-control pt-1 pb-1" placeholder="{{ form.login.label }}">
+  </div>
+  <div class="form-group">
+    <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+    <div class="input-group">
+      <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" class="form-control pt-1 pb-1" placeholder="{{ form.password.label }}">
+      <div class="input-group-append">
+        <button id="toggleLoginPassword" type="button" class="btn btn-outline-secondary">
+          <i class="fa fa-eye" id="toggleLoginPasswordIcon"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  {% if form.remember %}
+    <div class="form-check">
+      {{ form.remember }}
+      <label for="{{ form.remember.id_for_label }}" class="form-check-label">{{ form.remember.label }}</label>
+    </div>
+  {% endif %}
+  <button class="primaryAction btn btn-primary mt-3" type="submit">{% trans "Sign In" %}</button>
+</form>
+
+
+<script>
+  function togglePasswordVisibility(passwordFieldId, iconElementId) {
+    const passwordField = document.getElementById(passwordFieldId);
+    const togglePasswordIcon = document.getElementById(iconElementId);
+
+    if (passwordField.type === 'password') {
+      passwordField.type = 'text';
+      togglePasswordIcon.classList.remove('fa-eye');
+      togglePasswordIcon.classList.add('fa-eye-slash');
+    } else {
+      passwordField.type = 'password';
+      togglePasswordIcon.classList.remove('fa-eye-slash');
+      togglePasswordIcon.classList.add('fa-eye');
+    }
+  }
+
+  document.getElementById('toggleLoginPassword').addEventListener('click', function() {
+    togglePasswordVisibility('{{ form.password.id_for_label }}', 'toggleLoginPasswordIcon');
+  });
+</script>
+
+
+
+
+
+
+{% endblock content %}

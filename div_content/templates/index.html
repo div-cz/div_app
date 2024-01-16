@@ -5,9 +5,33 @@
     {% include "inc/head.html" %}
 
 
+<link rel="apple-touch-icon" href="/img/site/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/img/site/apple/apple-touch-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/img/site/apple/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="/img/site/apple/apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="/img/site/apple/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/img/site/apple/apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/img/site/apple/apple-touch-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/img/site/apple/apple-touch-icon-152x152.png">
+
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+
+
+<meta name="msapplication-square70x70logo" content="/img/site/microsoft/div70.png">
+<meta name="msapplication-square150x150logo" content="/img/site/microsoft/div150.png">
+<meta name="msapplication-wide310x150logo" content="/img/site/microsoft/div310x150.png">
+<meta name="msapplication-square310x310logo" content="/img/site/microsoft/div310.png">
+
+<meta name="msapplication-TileImage" content="/img/site/microsoft/div152.png">
+<meta name="msapplication-TileColor" content="#FFFFFF"> 
+
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+
+
 
 <title>Filmy | Databáze filmů DIV</title>
 
@@ -68,7 +92,7 @@ table {
 
 <body>
 
-    {% include "inc/navbar_movies.html" %}
+    {% include "inc/navbar.html" %}
 
 
 <main class="mb-5">
@@ -139,8 +163,20 @@ table {
 
         <div class="card-body">
           <h5 class="card-title">{{ creator.firstname }} {{ creator.lastname }}</h5>
-          <p class="card-text">{{ creator.knownfordepartment }}</p>
-          <a href="{% url 'creator_detail' creator.creatorid %}" class="btn btn-primary">{{ creator.lastname }}, {{ creator.firstname }}</a>
+          <p class="card-text">
+            {% if creator.knownfordepartment == "Acting" %}
+            Herec
+            {% elif creator.knownfordepartment == "Directing" %}
+            Režisér
+            {% elif creator.knownfordepartment == "Production" %}
+            Producent
+            {% elif creator.knownfordepartment == "Writing" %}
+            Scénárista
+            {% else %}
+            Těžko říct
+            {% endif %} - {{ creator.birthdate|date:"d.m.Y"  }}
+            </p>
+          <a href="{% url 'creator_detail' creator.url %}" class="btn btn-primary">{{ creator.lastname }}, {{ creator.firstname }}</a>
         </div>
       </div>
     </div>

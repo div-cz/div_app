@@ -117,6 +117,29 @@
 
 <!-- Filtry pro tabulku -->
 <div class="container mt-4">
+<!-- === -->
+{% for book in all_books %}
+    <div class="book">
+        <h3>
+            {% if book.url %}
+                <a href="{% url 'book_detail' book.url %}">{{ book.title }}</a>
+            {% else %}
+                {{ book.title }}
+            {% endif %}
+        </h3>
+        <!-- Další informace o knize -->
+    </div>
+{% endfor %}
+
+
+<h2>Top 20 Most Searched Books</h2>
+
+        <p>Error: {{ error_message }}</p>
+<div>
+    <p>Test API: {{ api_test_message }}</p>
+</div>
+
+
 
     <h2 class="mb-4">Seznam knih</h2>
 <!--<input type="text" id="searchBox" placeholder="Hledat...">-->
@@ -210,7 +233,7 @@ $(document).ready(function() {
 });
 </script>
     <!-- Tabulka s hrami -->
-<div class="w-100">
+<div class="w-100"><a href="https://div.cz/hledani-knih/">Hledání knih</a>
     <table class="table table-striped hover" id="booksTable">
         <thead>
             <tr>

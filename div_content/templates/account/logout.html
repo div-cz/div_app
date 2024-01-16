@@ -1,0 +1,46 @@
+{% extends "inc/base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Sign Out" %} {% if user.is_authenticated %}
+    {{ user.username }}
+    {% else %}
+    {% endif %}
+{% endblock title %}
+{% block h1 %}{% trans "Sign Out" %}{% if user.is_authenticated %}
+    {{ user.username }}
+    {% else %}
+    {% trans "Unknown" %}
+    {% endif %}{% endblock h1 %}
+{% block text_muted %} z DIV.cz{% endblock text_muted %}
+
+{% block content %}
+<div class="container">
+  <div class="row m-3">
+
+
+<p class="">{{ user.username }}, {% trans 'Are you sure you want to sign out?' %} </p>
+
+<form method="post" class="mt-5" action="{% url 'account_logout' %}">
+  {% csrf_token %}
+  {% if redirect_field_value %}
+  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+  {% endif %} 
+  <div class="d-block">
+    <button type="submit" class="btn btn-danger">{% trans 'Sign Out' %}</button>
+  </div>
+</form>
+
+
+    {% if user.is_authenticated %}
+
+    {% else %}
+    <p><a href="{% url 'account_login' %}">{% trans "Sign In" %}</a>. Nemate ucet? <a href="{% url 'registration' %}">Registrace</a>.</p>
+    {% endif %}
+
+
+
+
+  </div>
+</div>
+{% endblock content %}

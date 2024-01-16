@@ -1,0 +1,300 @@
+{% extends "inc/base.html" %}
+
+{% load i18n %}
+
+{% block title %}Můj profil  {% if user.is_authenticated %}
+    {{ user.username }}
+    {% else %}
+    Profil
+    {% endif %}
+{% endblock title %}
+{% block h1 %}{% if user.is_authenticated %}
+    {{ user.username }}
+    {% else %}
+    Neznámý
+    {% endif %}{% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+
+    {% if user.is_authenticated %}
+
+    <ul class="nav nav-tabs bg-secondary">
+    <li class="nav-item active">
+        <a class="nav-link active" href="/ucet/" id="profile">O mně</a>
+    </li>
+    <li class="nav-item"><!--id="/ucet/ohodnocene/" #ratings-->
+        <a class="nav-link" href="/ucet/hodnoceni/">Moje hodnocení</a>
+    </li>
+    <li class="nav-item"><!--id="/ucet/oblibene/" #favorites--> 
+        <a class="nav-link" href="/ucet/seznamy/oblibene/">Oblíbené</a>
+    </li>
+    <li class="nav-item"><!--id="/ucet/seznamy/to-chci-videt/" #iwantsee--> 
+        <a class="nav-link" href="/ucet/seznamy/chci-videt/">To chci vidět!</a>
+    </li> 
+    <li class="nav-item"><!--id="/ucet/seznamy/to-chci-videt"--> 
+        <a class="nav-link" href="/ucet/upravit/#edit">Upravit</a>
+    </li>
+    </ul>
+
+<div class="w-100"></div>
+
+<div class="tab-content mt-3 mb-3">
+    <!-- O mně -->
+    <div class="tab-pane active" id="profile">
+        <!-- Zde může být obsah sekce "O mně" -->
+{% if user_profile.bio %}
+    <p>O mně:<br>{{ user_profile.bio|linebreaksbr }}</p>
+{% else %}
+    <p>O mně:<br><a href="/ucet/upravit/">Úvodní text si můžete upravit zde</a></p>
+{% endif %}
+
+        
+               <p> Moje naposledy ohodnocené filmy: </p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Miniatura</th>
+      <th>Název</th>
+      <th>Rok</th>
+      <th>Hodnocení</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user_rating in page %}
+      <tr>
+        <td>
+        {% if user_rating.rating.content_object.img == "noimg.png" %}
+        <img src="/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}" width="50">
+        {% else %}
+    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ user_rating.rating.content_object.img }}" alt="{{ user_rating.rating.content_object.title }}" width="50">
+        {% endif %}
+        </td>
+        <td><a href="/film/{{ user_rating.rating.content_object.url }}">{{ user_rating.rating.content_object.titlecz }}</a></td>
+        <td>
+        <a href="/filmy/{{ user_rating.rating.content_object.releaseyear }}">{{ user_rating.rating.content_object.releaseyear }}</a>
+        </td>
+        <td>
+      {% with score=user_rating.score %}
+        <span class="text-warning h4">
+        {% if score == 1 %}
+          &#9733; &#9734; &#9734; &#9734; &#9734;
+        {% elif score == 2 %}
+          &#9733; &#9733; &#9734; &#9734; &#9734;
+        {% elif score == 3 %}
+          &#9733; &#9733; &#9733; &#9734; &#9734;
+        {% elif score == 4 %}
+          &#9733; &#9733; &#9733; &#9733; &#9734;
+        {% elif score == 5 %}
+          &#9733; &#9733; &#9733; &#9733; &#9733;
+        {% endif %}
+        </span>
+      {% endwith %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+    </div>
+
+
+    <div class="tab-pane" id="ratings">
+       <p> Moje naposledy ohodnocené filmy: </p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Miniatura</th>
+      <th>Název</th>
+      <th>Rok</th>
+      <th>Hodnocení</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user_rating in page %}
+      <tr>
+        <td>
+          {% if user_rating.rating.content_object.img %}
+            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ user_rating.rating.content_object.img }}" alt="{{ user_rating.rating.content_object.title }}" width="50">
+          {% endif %}
+        </td>
+        <td><a href="/film/{{ user_rating.rating.content_object.url }}">{{ user_rating.rating.content_object.titlecz }}</a></td>
+        <td>
+        <a href="/filmy/{{ user_rating.rating.content_object.releaseyear }}">{{ user_rating.rating.content_object.releaseyear }}</a>
+        </td>
+        <td>
+          {% with rating=user_rating.rating.score %}
+            {% for i in "12345" %}
+              {% if rating >= i %}
+                &#9733;
+              {% else %}
+                &#9734;
+              {% endif %}
+            {% endfor %}
+          {% endwith %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="pagination">
+  <span class="step-links">
+    {% if page.has_previous %}
+      <a href="?page=1">&laquo; první</a>
+      <a href="?page={{ page.previous_page_number }}">předchozí</a>
+    {% endif %}
+    <span class="current-page">{{ page.number }}/{{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}
+      <a href="?page={{ page.next_page_number }}">další</a>
+      <a href="?page={{ page.paginator.num_pages }}">poslední &raquo;</a>
+    {% endif %}
+  </span>
+</div>
+    </div>
+
+<div class="tab-pane w-100" id="favorites">
+    <p> Moje oblíbené filmy:</p>
+    {% if user_favorites %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Miniatura</th>
+            <th>Název</th>
+            <th>Rok</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for movie in favorite_movies %}
+        <tr>
+            <td>
+            {% if movie.img %}
+                <img src="{{ movie.img }}" alt="{{ movie.titlecz }}" width="50">
+            {% endif %}
+            </td>
+            <td><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></td>
+            <td>
+            <a href="/filmy/{{ movie.releaseyear }}">{{ movie.releaseyear }}</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Nemáte žádné oblíbené filmy.</p>
+    {% endif %}
+    <hr>
+    <!--  <h3>Oblíbené filmy:</h3>
+   {% if user_favorites_movies %}
+       <ul>
+       {% for movie in user_favorites_movies %}
+           <li><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></li>
+       {% endfor %}
+       </ul>
+   {% else %}
+       <p>Nemáte žádné oblíbené filmy.</p>
+   {% endif %}-->
+    <h3>Oblíbené knihy:</h3>
+   {% if user_favorites_books %}
+       <ul>
+       {% for book in user_favorites_books %}
+           <li><a href="/kniha/{{ book.url }}">{{ book.titlecz }}</a></li>
+       {% endfor %}
+       </ul>
+   {% else %}
+       <p>Nemáte žádné oblíbené knihy.</p>
+   {% endif %}
+
+   <h3>Oblíbené hry:</h3>
+   {% if user_favorites_games %}
+       <ul>
+       {% for game in user_favorites_games %}
+           <li><a href="/hra/{{ game.url }}">{{ game.titlecz }}</a></li>
+       {% endfor %}
+       </ul>
+   {% else %}
+       <p>Nemáte žádné oblíbené hry.</p>
+    {% endif %}
+</div>
+
+<div class="tab-pane" id="iwantsee">
+    <p> Filmy, které chci vidět:</p>
+    {% if iwantsee_movies %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Miniatura</th>
+            <th>Název</th>
+            <th>Rok</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for movie in iwantsee_movies %}
+        <tr>
+            <td>
+            {% if movie.img %}
+                <img src="{{ movie.img }}" alt="{{ movie.titlecz }}" width="50">
+            {% endif %}
+            </td>
+            <td><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></td>
+            <td>
+            <a href="/filmy/{{ movie.releaseyear }}">{{ movie.releaseyear }}</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Nemáte žádné filmy, které byste chtěli vidět.</p>
+    {% endif %}
+    
+    
+   <p>Knihy, které chci číst:</p>
+   {% if user_wantsee_books %}
+       <ul>
+       {% for book in user_wantsee_books %}
+           <li><a href="/kniha/{{ book.url }}">{{ book.titlecz }}</a></li>
+       {% endfor %}
+       </ul>
+   {% else %}
+       <p>Nemáte žádné knihy, které byste chtěli číst.</p>
+   {% endif %}
+
+   <p>Hry, které chci hrát:</p>
+   {% if user_wantsee_games %}
+       <ul>
+       {% for game in user_wantsee_games %}
+           <li><a href="/hra/{{ game.url }}">{{ game.titlecz }}</a></li>
+       {% endfor %}
+       </ul>
+   {% else %}
+       <p>Nemáte žádné hry, které byste chtěli hrát.</p>
+   {% endif %}
+</div>
+
+
+</div>
+
+
+
+    {% if not user_ratings %}  {# Pokud uživatel ještě nic nehodnotil #}
+      <p class="mt-3">
+        Vítej na <a href="/">DIV.cz</a> {{ user.username }}! Toto je místo, kde můžeš hodnotit <a href="/filmy/">filmy</a>, soutěžit o skvělé ceny a nechat se inspirovat našimi filmovými tipy. 
+        Začni svou filmovou cestu nyní a objev nové filmy, které by ti mohly uniknout!
+      </p>
+      <p>Filmy roku <a href="/filmy/2023">2023</a>, <a href="/filmy/2022">2022</a>, <a href="/filmy/2021">2021</a>, <a href="/filmy/akcni">akční</a>, <a href="/filmy/komedie">komedie</a>, <a href="/filmy/romanticky">romantické</a>, <a href="/filmy/fantasy">fantasy</a>, <a href="/osobnosti/">Osobnosti</a> a mnoho dalšího. Začít hodnotit můžeš kdekoliv.</p>
+
+
+
+    {% endif %}
+
+
+
+    {% else %}
+    <p><a href="{% url 'account_login' %}">Přihlásit</a>. Nemáte učet? <a href="{% url 'signup' %}">Registrace</a>.</p>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock content %}
