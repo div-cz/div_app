@@ -610,7 +610,7 @@ class Movie(models.Model):
     worldid = models.ForeignKey(Metaworld, models.DO_NOTHING, db_column='WorldID', null=True, blank=True)
 #    ratings = models.ForeignKey(Rating, on_delete=models.CASCADE, related_name='movies', null=True, blank=True)
     averagerating = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, db_column='AverageRating')
-    lastupdated = models.DateField(db_column='LastUpdated', auto_now=True, format='%d-%m-%Y')
+    lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
 
         
     class Meta:
