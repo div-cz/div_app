@@ -29,16 +29,16 @@ DEBUG = True
 ALLOWED_HOSTS = ['46.28.109.39',
         'div.cz',
         'www.div.cz',
-        '2001:1aeb:3d00:f00:2c75:101e:b80a:7977', 
+        '2001:4860:7:20a::fd', 
         'localhost', 
         '127.0.0.1',
         'localhost:8000']
 INTERNAL_IPS =  [
         '46.28.109.39',
         '193.179.123.10', 
-        '2001:1aeb:3d00:f00:db89:68c3:3699:dab2',
+        '2001:4860:7:20a::fd',
         '127.0.0.1',
-        '2001:1aeb:3d00:f00:2c75:101e:b80a:7977'
+        '2001:4860:7:20a::fd'
         ]
 
 DEBUG_TOOLBAR_CONFIG = {
