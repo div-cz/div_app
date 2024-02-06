@@ -70,7 +70,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.instagram',
     'allauth.socialaccount.providers.microsoft',
-    'star_ratings'
+    'star_ratings',
+    'rest_framework',
 
 ]#    'crispy_forms', 
 
