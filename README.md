@@ -34,3 +34,7 @@ DATABASE = {
 * python manage.py migrate
 
 * python manage.py runserver
+
+#How to run Django tests
+
+* python manage.py test
