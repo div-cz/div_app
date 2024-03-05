@@ -1,14 +1,16 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,  permission_classes 
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser
 from div_content.models import Movie
 from .serializers import MovieSerializer
 from .serializers import UserSerializer
 from django.contrib.auth.models import User
 from rest_framework import status
-from django.http import Http404
+from django.conf import settings
+from django.http import Http404, HttpResponseForbidden
 import jwt, datetime
+
 
 @api_view(['POST'])
 def RegisterView(request):
@@ -73,50 +75,57 @@ def LogoutView(request):
 
 @api_view(['GET'])
 def MoviesGet(request):
-    movies = Movie.objects.all()
-    serializer = MovieSerializer(movies, many=True)
-    return Response(serializer.data)
+    secret_key = request.headers.get('X-Secret-Key')
+    if secret_key != settings.SECRET_KEY:
+        return HttpResponseForbidden('Neplatný secret key')
+    else:
+        movies = Movie.objects.all()
+        serializer = MovieSerializer(movies, many=True)
+        return Response(serializer.data)
 
 @api_view(['GET'])
 def MovieDetailGet(request, pk):
+    secret_key = request.headers.get('X-Secret-Key')
+    if secret_key != settings.SECRET_KEY:
+        return HttpResponseForbidden('Neplatný secret key')
+    else:
+        try:
+            movie = Movie.objects.get(pk=pk)
+        except Movie.DoesNotExist:
+            raise Http404("Film nebyl nalezen.")
+
+        serializer = MovieSerializer(movie)
+        return Response(serializer.data)
+
+@api_view(['PATCH'])
+@permission_classes([IsAdminUser])
+def MovieDetailPatch(request, pk):
     try:
         movie = Movie.objects.get(pk=pk)
     except Movie.DoesNotExist:
-        raise Http404
+        raise Http404("Film nebyl nalezen.")
 
-    serializer = MovieSerializer(movie)
-    return Response(serializer.data)
+    serializer = MovieSerializer(movie, data=request.data,partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# @api_view(['PATCH'])
-# @permission_classes([IsAuthenticated])
-# def MovieDetailPatch(request, pk):
-#     try:
-#         movie = Movie.objects.get(pk=pk)
-#     except Movie.DoesNotExist:
-#         raise Http404
-#
-#     serializer = MovieSerializer(movie, data=request.data,partial=True)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data)
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def MovieCreate(request):
-#     serializer = MovieSerializer(data=request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-# @api_view(['DELETE'])
-# @permission_classes([IsAuthenticated])
-# def MovieDelete(request,pk):
-#     try:
-#         movie = Movie.objects.get(pk=pk)
-#     except Movie.DoesNotExist:
-#         raise Http404("Film nebyl nalezen.")
-#
-#     movie.delete()
-#     return Response(status=status.HTTP_204_NO_CONTENT)
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def MovieCreate(request):
+    serializer = MovieSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+@permission_classes([IsAdminUser])
+def MovieDelete(request,pk):
+    try:
+        movie = Movie.objects.get(pk=pk)
+    except Movie.DoesNotExist:
+        raise Http404("Film nebyl nalezen.")
+    movie.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
