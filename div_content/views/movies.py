@@ -11,11 +11,12 @@ from django.views.generic import DetailView
 from div_content.forms.movies import CommentForm, SearchForm
 from div_content.models import (
     Article, Book, Creator, Creatorbiography, Game, Location, Metagenre,
-    Movie, Moviecomments, Moviecrew, Moviegenre, Movierating, Userlist,
+    Movie, Moviecomments, Moviecrew, Moviegenre, Movierating, User, Userlist,
     Userlistmovie, Userprofile
 )
 from star_ratings.models import Rating, UserRating
-
+# for index
+from django.db.models import Count
 
 
 #Carouse = .values('title', 'titlecz', 'url', 'img', 'description')
@@ -29,7 +30,13 @@ def index(request):
         current_month = today.month
         current_day = today.day
         creators_list_8 = Creator.objects.filter(birthdate__month=current_month, birthdate__day=current_day).order_by('-popularity')[:8]
-        return render(request, 'index.html', {'movies': movies, 'movies_carousel': movies_carousel, 'movies_list_6': movies_list_6, 'creators_list_8': creators_list_8})
+        users_list_4 = User.objects.annotate(
+            comment_count=Count('moviecomments'),
+            rating_count=Count('userrating'),
+            comment_rating_sum=Count('moviecomments')+Count('userrating')
+        ).order_by('-comment_count', '-rating_count')[:6]
+        
+        return render(request, 'index.html', {'movies': movies, 'movies_carousel': movies_carousel, 'movies_list_6': movies_list_6, 'creators_list_8': creators_list_8, 'users_list_4': users_list_4})
 
 
 def movies(request, year=None, genre_url=None, movie_url=None):

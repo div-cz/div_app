@@ -133,6 +133,31 @@ table {
 
 
 
+      <!-- Sekce odkazů na uživatele -->
+      <div class="container my-4">
+        <h2 class="mb-4">Nejaktivnější uživatelé</h2>
+        <div class="row">
+          {% for user in users_list_4 %}
+          <div class="col-md-4 col-sm-6 col-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/uzivatel/{{ user.id }}">{{ user.username }}</a>
+                </h5>
+                <p class="card-text">
+                  Počet komentářů: {{ user.comment_count }}
+                </p>
+                <p class="card-text">
+                  Počet hodnocení: {{ user.rating_count }}
+                </p>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+
+
 <!-- Sekce odkazů na filmy -->
 <div class="container my-4">
     <h2 class="mb-4">Seznam filmů</h2>
