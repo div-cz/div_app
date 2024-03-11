@@ -29,7 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['46.28.109.39',
         'div.cz',
         'www.div.cz',
-        '2001:4860:7:20a::fd', 
+        '2001:4860:7:20a::fd',
         'localhost', 
         '127.0.0.1',
         'localhost:8000']
@@ -209,7 +209,7 @@ DEFAULT_CHARSET = 'utf-8'
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-#STATIC_ROOT = '/var/www/div/divdb/static/'
+#STATIC_ROOT = '/var/www/div/div_app/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_ROOT = '/var/www/div_app/img/'
