@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,  permission_classes 
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import BasePermission,IsAuthenticated
 from div_content.models import Movie
 from .serializers import MovieSerializer
 from .serializers import UserSerializer
@@ -10,6 +10,13 @@ from rest_framework import status
 from django.conf import settings
 from django.http import Http404, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+
+###ADMIN only access to API
+
+class IsSuperUser(BasePermission):
+    def has_permission(self,request,view):
+        return bool(request.user and request.user.is_superuser)
 
 ###MOVIES API Endpoints
 
@@ -23,21 +30,15 @@ def MoviesGet(request):
 @login_required
 @api_view(['GET'])
 def MovieDetailGet(request, pk):
-    try:
-        movie = Movie.objects.get(pk=pk)
-    except Movie.DoesNotExist:
-        raise Http404("Film nebyl nalezen.")
+    movie = get_object_or_404(Movie, pk=pk)
     serializer = MovieSerializer(movie)
     return Response(serializer.data)
 
 @login_required
 @api_view(['PATCH'])
+@permission_classes([IsSuperUser])
 def MovieDetailPatch(request, pk):
-    try:
-        movie = Movie.objects.get(pk=pk)
-    except Movie.DoesNotExist:
-        raise Http404("Film nebyl nalezen.")
-
+    movie = get_object_or_404(Movie, pk=pk)
     serializer = MovieSerializer(movie, data=request.data,partial=True)
     if serializer.is_valid():
         serializer.save()
@@ -46,6 +47,7 @@ def MovieDetailPatch(request, pk):
 
 @login_required
 @api_view(['POST'])
+@permission_classes([IsSuperUser])
 def MovieCreate(request):
     serializer = MovieSerializer(data=request.data)
     if serializer.is_valid():
@@ -55,10 +57,11 @@ def MovieCreate(request):
 
 @login_required
 @api_view(['DELETE'])
+@permission_classes([IsSuperUser])
 def MovieDelete(request,pk):
     try:
         movie = Movie.objects.get(pk=pk)
     except Movie.DoesNotExist:
-        raise Http404("Film nebyl nalezen.")
+        return Response(status=status.HTTP_404_NOT_FOUND)
     movie.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
