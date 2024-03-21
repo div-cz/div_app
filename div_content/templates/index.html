@@ -2,17 +2,18 @@
 <html lang="cs">
 <head>
 
-    {% include "inc/head.html" %}
+    {% include "inc/div_head.html" %}
 
+<link href="https://fonts.googleapis.com/css?family=San+Francisco&display=swap" rel="stylesheet">
 
-<link rel="apple-touch-icon" href="/img/site/apple-touch-icon.png">
-<link rel="apple-touch-icon" sizes="57x57" href="/img/site/apple/apple-touch-icon-57x57.png">
-<link rel="apple-touch-icon" sizes="72x72" href="/img/site/apple/apple-touch-icon-72x72.png">
-<link rel="apple-touch-icon" sizes="76x76" href="/img/site/apple/apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" sizes="114x114" href="/img/site/apple/apple-touch-icon-114x114.png">
-<link rel="apple-touch-icon" sizes="120x120" href="/img/site/apple/apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" sizes="144x144" href="/img/site/apple/apple-touch-icon-144x144.png">
-<link rel="apple-touch-icon" sizes="152x152" href="/img/site/apple/apple-touch-icon-152x152.png">
+<link rel="apple-touch-icon" href="/static/img/site/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/static/img/site/apple/apple-touch-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/static/img/site/apple/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="/static/img/site/apple/apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="/static/img/site/apple/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/static/img/site/apple/apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/static/img/site/apple/apple-touch-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/static/img/site/apple/apple-touch-icon-152x152.png">
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -20,12 +21,12 @@
 
 
 
-<meta name="msapplication-square70x70logo" content="/img/site/microsoft/div70.png">
-<meta name="msapplication-square150x150logo" content="/img/site/microsoft/div150.png">
-<meta name="msapplication-wide310x150logo" content="/img/site/microsoft/div310x150.png">
-<meta name="msapplication-square310x310logo" content="/img/site/microsoft/div310.png">
+<meta name="msapplication-square70x70logo" content="/static/img/site/microsoft/div_70.png">
+<meta name="msapplication-square150x150logo" content="/static/img/site/microsoft/div_150.png">
+<meta name="msapplication-wide310x150logo" content="/static/img/site/microsoft/div_310x150.png">
+<meta name="msapplication-square310x310logo" content="/static/img/site/microsoft/div_310.png">
 
-<meta name="msapplication-TileImage" content="/img/site/microsoft/div152.png">
+<meta name="msapplication-TileImage" content="/static/img/site/microsoft/div_152.png">
 <meta name="msapplication-TileColor" content="#FFFFFF"> 
 
 <meta name="msapplication-TileColor" content="#da532c">
@@ -33,163 +34,248 @@
 
 
 
-<title>Filmy | Databáze filmů DIV</title>
-
-<style>
-.carousel-caption {
-    background-color: rgba(0, 0, 0, 0.5);
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.carousel .carousel-inner .carousel-item {
-    height: 300px;
-    overflow: hidden;
-}
-
-.carousel .carousel-inner .carousel-item img {
-    min-height: 100%;
-    width: 100%;
-    object-fit: cover;
-}
-
-.table {
-    background-color: #333;
-    width:100% !important;
-}
-
-table {
-    width:100% !important;
-    border-collapse: collapse;
-}
-
-.table thead {
-    background-color: #444;
-}
-.table thead th {
-    color: #fff !important;
-}
-
-.table tbody tr {
-    background-color: #555;
-}
-
-.table tbody td {
-    color: #ddd;
-}
-#moviesTable tr:nth-child(even) {
-    background-color: #555 ;
-}
-
-
-.table tbody tr:hover {
-    background-color: #666 !important;
-}
-
-</style>
+<title>DIV.cz | Databáze filmů, her a knih DIV</title>
 
 </head>
 
 <body>
+<div class="container">
 
-    {% include "inc/navbar.html" %}
-
-
-<main class="mb-5">
-    <section>
-     <!-- Carousel -->
-<div id="carouselExampleIndicators" class="carousel slide mb-4" data-ride="carousel">
-  <ol class="carousel-indicators">
-    <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-    <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-    <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
-    <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
-    <!-- další indikátory -->
-  </ol>
-
-  <div class="carousel-inner">
-
-        {% for movie in movies_carousel %}
-        <div class="carousel-item {% if forloop.first %}active{% endif %}">
-            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ movie.img }}" class="d-block w-100" alt="{{ movie.titlecz }}">
-            <div class="carousel-caption text-left text-white p-3">
-                <h5><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></h5>
-                <p>{{ movie.description|truncatewords:10 }}</p>
+    <section class="column">
+        <div class="box">
+            <div class="p10">
+                <img src="https://div.cz/static/img/site/microsoft/div_310x150.png" class="w90 p5 auto">
+                <br><a href="/">Hlavní strana</a> - <a href="/filmy/">Filmy</a>
             </div>
         </div>
-        {% endfor %}
+        <div class="box text">
+Vítejte na DIV.cz, unikátním místě, kde se propojují <span class="red">filmy</span>, <span class="green">knihy</span> a <span class="blue">hry</span>. Objevujte fascinující světy, postavy a příběhy napříč různými médii. Připojte se k naší komunitě nadšenců a objevujte, diskutujte a sdílejte své zážitky z filmů, knih a her.
+        </div><!--/ box -->
+        
+        <!-- DEV -->
+        <!--<div class="box-blue">
+            Obsah boxu 5
+            <div class="left-section bgblue"><div class="text">HRY</div></div>
+            <div class="right-section">Sekce her je v současné době ve vývoji, ale databáze obsahuje všechny platformy her včetně deskových</div>
+        </div>
+    
+    
+        <div class="box bggreen">
+            <div class="text">Obsah boxu 4</div>
+        </div>
+        <div class="box-blue">
+            Obsah boxu 5
+            <div class="left-section bgblue"><div class="text">Text v modré části</div></div>
+            <div class="right-section">Text v bílé části</div>
+        </div>
+        <div class="box">
+            <div class="text">Obsah boxu 4</div>
+        </div>-->
 
-  </div>
-  <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="sr-only">Předchozí</span>
-  </a>
-  <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="sr-only">Další</span>
-  </a>
-</div>
+        <div class="box text"><h3>Kam směřujeme</h3>
+        Naše cíle:            
+        <ul>
+            <li>04/2024 filmy</li>
+            <li>06/2024 knižní sekce</li>
+            <li>08/2024 herní sekce</li>
+            <li>10/2024 postavy</li>
+            <li>10/2024 lokality</li>
+            <li>Vývoj pro iOS a android</li>
+            <li>Program ambasadarů</li>
+            <li>Interní fórum</li>
+            <li>Uživatelské recenze</li>
+            <li>Soutěže a výzvy</li>
+        </ul></div>
+
+        <div class="box text none bgblue">Hry - ve vývoji</div>
+        <div class="box">
+            <h4>Deskové hry</h4>
+            <ul>
+                <li>Osadníci z Katanu</li>
+                <li>Monopoly</li>
+                <li>Scrabble</li>
+                <li>Risk</li>
+                <li>Člověče, nezlob se!</li>
+            </ul>
+            <h4>Elektronické hry</h4>
+            <ul>
+                <li>The Witcher 3: Wild Hunt</li>
+                <li>Minecraft</li>
+                <li>Fortnite</li>
+                <li>Grand Theft Auto V</li>
+                <li>Elden Ring</li>
+            </ul>
+        </div>
+        <div class="box text none bggreen">Knihy - částečně přístupné</div>
+        <div class="box">
+            <h4>České knihy</h4>
+            <ul>
+                <li>Babička - Božena Němcová</li>
+                <li>Osudy dobrého vojáka Švejka - Jaroslav Hašek</li>
+                <li>R.U.R. - Karel Čapek</li>
+                <li>Valčík na rozloučenou - Jiří Suchý</li>
+                <li>Smrt krásných srnců - Ota Pavel</li>
+            </ul>
+            <h4>Ostatní knihy</h4>
+            <ul>
+                <li>1984 - George Orwell</li>
+                <li>Hobit - J.R.R. Tolkien</li>
+                <li>Harry Potter - J.K. Rowling</li>
+                <li>Alchymista - Paulo Coelho</li>
+                <li>Da Vinciho kód - Dan Brown</li>
+            </ul>
+        </div>
+
+
+        <div class="box text none bgred">Filmy - téměř dokončené</div>
+
+        <div class="box">
+            <h4>České filmy</h4>
+            <ul class="film">
+                <li><a href="https://div.cz/film/obecna-skola">Obecná škola</a></li>
+                <li><a href="https://div.cz/film/vesnicko-ma-strediskova">Vesničko má středisková</a></li>
+                <li><a href="https://div.cz/film/kolja">Kolja</a></li>
+                <li><a href="https://div.cz/film/pelisky">Pelíšky</a></li>
+                <li><a href="https://div.cz/film/samotari">Samotáři</a></li>
+            </ul>
+            <h4>Mezinárodní filmy</h4>
+            <ul>
+                <li><a href="https://div.cz/film/pulp-fiction-historky-z-podsveti">Pulp Fiction</a></li>
+                <li><a href="https://div.cz/film/forrest-gump">Forrest Gump</a></li>
+                <li><a href="https://div.cz/film/pocatek">Inception</a></li>
+                <li><a href="https://div.cz/film/matrix">Matrix</a></li>
+                <li><a href="https://div.cz/film/gladiator">Gladiátor</a></li>
+            </ul>
+        </div>
     </section>
 
 
 
-      <!-- Sekce odkazů na uživatele -->
-      <div class="container my-4">
-        <h2 class="mb-4">Nejaktivnější uživatelé</h2>
-        <div class="row">
-          {% for user in users_list_4 %}
-          <div class="col-md-4 col-sm-6 col-6 mb-3">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">
-                  <a href="/uzivatel/{{ user.id }}">{{ user.username }}</a>
-                </h5>
-                <p class="card-text">
-                  Počet komentářů: {{ user.comment_count }}
-                </p>
-                <p class="card-text">
-                  Počet hodnocení: {{ user.rating_count }}
-                </p>
-              </div>
+    <section class="column">
+
+        <div class="box text bgsilver"><h3>V přípravě - <a href="https://div.cz/podpora/">Podpořte nás na startovači</a>!</h3>  </div>
+<!--        <div class="box-img">
+            <div class="box-i">
+                <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//63y4XSVTZ7mRzAzkqwi3o0ajDZZ.jpg">
             </div>
-          </div>
-          {% endfor %}
-        </div>
+            <div class="box-content film">
+            <h4><a href="/film/vlk-z-wall-street" class="film">Vlk z Wall Street</a></h4>
+                <p>Jordan Belfort, americký broker, podnikatel a spisovatel, začínal jako ambiciózní …...</p>
+            </div>
+        </div>-->
 
+        <div class="box text bgred"><h3>Seznam filmů</h3></div>
 
-
-<!-- Sekce odkazů na filmy -->
-<div class="container my-4">
-    <h2 class="mb-4">Seznam filmů</h2>
-
-        <div class="row">
         {% for movie in movies_list_6 %}
-    <div class="col-md-4 col-sm-6 col-6 mb-3">
-        <div class="card">
-            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ movie.img }}" class="card-img-top" alt="{{ movie.titlecz }}">
-            <div class="card-body">
-                <h5 class="card-title"><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></h5>
-                <p class="card-text">{{ movie.description|truncatewords:10 }}</p>
-                <a href="/film/{{ movie.url }}" class="btn btn-primary">{{ movie.title }}</a>
+        <div class="box-img">
+            <div class="box-i">
+                <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ movie.img }}">
+            </div>
+            <div class="box-content film">
+            <h4><a href="/film/{{ movie.url }}" class="film">{{ movie.titlecz }}</a></h4>
+                <p>{{ movie.description|truncatewords:10 }}</p>
             </div>
         </div>
-    </div>
         {% endfor %}
+    </section>
+
+
+
+    <section class="column">
+    <div class="box text bggreen"><h3>Seznam knih</h3></div>
+    
+            <div class="box">
+            <div style="width:35%;float:left">
+            <img src="https://div.cz/static/img/book/book.png" width="100" style="height:100%"><!--<img src="https://www.themoviedb.org/t/p/w300/{{ creator.img }}" style="height:100%" alt="{{ creator.lastname }}">-->
+            </div>
+            <div class="text">Knihy
+            
+            <p>V přípravě</p><br style="clear:both"></div>
+        </div>
+        
+        
+        <div class="box text">
+        <h4>České knihy</h4>
+            <ul>
+                <li>Babička - Božena Němcová</li>
+                <li>Osudy dobrého vojáka Švejka - Jaroslav Hašek</li>
+                <li>R.U.R. - Karel Čapek</li>
+                <li>Valčík na rozloučenou - Jiří Suchý</li>
+                <li>Smrt krásných srnců - Ota Pavel</li>
+            </ul>
         </div>
 
+        <div class="box text">
+            <h4>Ostatní knihy</h4>
+            <ul>
+                <li>1984 - George Orwell</li>
+                <li>Hobit - J.R.R. Tolkien</li>
+                <li>Harry Potter - J.K. Rowling</li>
+                <li>Alchymista - Paulo Coelho</li>
+                <li>Da Vinciho kód - Dan Brown</li>
+            </ul>
+        </div>
+    </section>
 
-<h2 class="mb-4">Výročí osobností</h2>
 
-<div class="row">
+    <section class="column">
+    <div class="box text">
+{% if user.is_authenticated %}
+    <h4>{{ user.username }}! </h4>
+    <p>Vítejte, {{ user.username }}! <a href="{% url 'logout' %}">Odhlásit se</a></p>
+{% else %}
+    <h4>Přihlášení</h4>
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        {{ form.username.label_tag }}
+        {{ form.username }}
+        {{ form.password.label_tag }}
+        {{ form.password }}
+        <button type="submit" class="btn btn-primary">Přihlásit se</button>
+    </form>
+    <div class="mt-3">
+        <p>Nemáte účet? <a href="{% url 'signup' %}">Registrace</a></p></div>
+{% endif %}
+    </div>
+
+
+        <div class="box text" id="8">
+        <h5>Statistika 17.3.24</h5>
+                <!--<p class="card-text">
+                  Počet komentářů: 
+                </p>-->
+            <ul>
+                <li>Filmů: 885.070</li>
+                <li>Knih: 10.000</li>
+                <li>Her: 0</li>
+                <li>Herců: 173.715</li>
+                <li>Spisovatelů: 139.089</li>
+                <li>Postav: 317.800</li>
+                <li>Lokalit: 44</li>
+                <li>Zemí: 337</li>
+                <li>Uživatelů: 215</li>
+                <li>Hodnocení: 322</li>
+            </ul></div>
+
+        <!--<div class="box">
+            <div style="width:33%;float:left"><img src="noperson.svg" style="height:100%"></div>
+            <div class="text"><a href="/user/">Martin 2</a><p>Počet hodnocení: 248</p></div>
+        </div>-->
+        
+        {% for user in users_list_4 %}
+        <div class="box">
+            <div style="width:30%;float:left"><img src="https://div.cz/static/img/creator/noperson.svg" style="height:100%"></div>
+            <div class="text"><a href="/uzivatel/{{ user.id }}">{{ user.username }}</a><p>Počet hodnocení: {{ user.rating_count }}</p></div>
+        </div>
+        {% endfor %}
+        
+        <div class="box text"><h3>Narozeniny slaví</h3></div>
         {% for creator in creators_list_8 %}
-    <div class="col-lg-3 col-md-3 col-sm-6 col-6 mb-3">
-      <div class="card">
-        <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ creator.img }}" class="card-img-top" alt="{{ creator.lastname }}">
-
-        <div class="card-body">
-          <h5 class="card-title">{{ creator.firstname }} {{ creator.lastname }}</h5>
-          <p class="card-text">
-            {% if creator.knownfordepartment == "Acting" %}
+        <div class="box">
+            <div style="width:30%;float:left">
+            <img src="https://div.cz/static/img/creator/noperson.svg" style="height:100%"><!--<img src="https://www.themoviedb.org/t/p/w300/{{ creator.img }}" style="height:100%" alt="{{ creator.lastname }}">-->
+            </div>
+            <div class="text"><a href="{% url 'creator_detail' creator.url %}">{{ creator.firstname }} {{ creator.lastname }}</a><p>{% if creator.knownfordepartment == "Acting" %}
             Herec
             {% elif creator.knownfordepartment == "Directing" %}
             Režisér
@@ -199,74 +285,29 @@ table {
             Scénárista
             {% else %}
             Těžko říct
-            {% endif %} - {{ creator.birthdate|date:"d.m.Y"  }}
-            </p>
-          <a href="{% url 'creator_detail' creator.url %}" class="btn btn-primary">{{ creator.lastname }}, {{ creator.firstname }}</a>
+            {% endif %} - {{ creator.birthdate|date:"d.m.Y"  }}</p></div>
         </div>
-      </div>
-    </div>
         {% endfor %}
-  </div>
 
+
+        <div class="box text">Objevujte s námi
+            Jsme váš spolehlivý průvodce světem popkultury. Ohodnoťte filmy, hry a knihy s námi. Registrace / přihlášení na DIV.cz.
+            <hr>
+            Spojte se s námi: info@div.cz
+            <hr>
+            <a href="https://www.toplist.cz"><script language="JavaScript" type="text/javascript" charset="utf-8">
+                <!--
+                document.write('<img src="https://toplist.cz/count.asp?id=467692&logo=btn&http='+
+                encodeURIComponent(document.referrer)+'&t='+encodeURIComponent(document.title)+'&l='+encodeURIComponent(document.URL)+
+                '&wi='+encodeURIComponent(window.screen.width)+'&he='+encodeURIComponent(window.screen.height)+'&cd='+
+                encodeURIComponent(window.screen.colorDepth)+'" width="80" height="15" border=0 alt="TOPlist" />');
+                //--></script><noscript><img src="https://toplist.cz/count.asp?id=467692&logo=btn&njs=1" border="0"
+                alt="TOPlist" width="80" height="15" /></noscript></a>
         </div>
-    </div>
-
-</main>
-
-
-{% include "inc/footer_movies.html" %}
+    </section>
+</div>
 
 
-<script>
-
-$(document).ready(function() {
-    // Initialize DataTable
-    var table = $('#moviesTable').DataTable();
-
-    // Apply the filter
-    $('#genresFilter, #ratingFilter').on('change', function() {
-        table.draw();
-    });
-
-    // Custom filtering function
-    $.fn.dataTable.ext.search.push(
-        function(settings, data, dataIndex) {
-            var genres = $('#genresFilter').val();
-            var minRating = $('#ratingFilter').val();
-
-            var rowGenres = data[2]; // Genres is in the second column
-            var rowRating = parseInt(data[3].split('/')[0]); // Extract rating from format "X/10"
-
-            if ((genres === "" || genres === rowGenres) && (minRating === "0" || rowRating >= minRating)) {
-                return true; // Show row
-            }
-            return false; // Hide row
-        }
-    );
-});
-
-$('#moviesTable').DataTable({
-    "language": {
-        "lengthMenu": "Zobrazit _MENU_ záznamů",
-        "zeroRecords": "Žádné záznamy nebyly nalezeny",
-        "info": "Strana _PAGE_ z _PAGES_",
-        "infoEmpty": "Žádné záznamy k dispozici",
-        "infoFiltered": "(vyfiltrováno z celkem _MAX_ záznamů)",
-        "search": "Hledat:",
-        "paginate": {
-            "first":      "První",
-            "last":       "Poslední",
-            "next":       "Další",
-            "previous":   "Předchozí"
-        },
-    },
-
-    "order": [[ 0, "desc" ]],
-    "pageLength": 25
-});
-
-
-</script>
 
 
 </body>
