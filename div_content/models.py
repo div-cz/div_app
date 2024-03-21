@@ -603,7 +603,7 @@ class Movie(models.Model):
     language = models.CharField(db_column='Language', max_length=5, null=True, blank=True)  # Field
     budget = models.IntegerField(db_column='Budget', null=True)
     adult = models.CharField(db_column='Adult',  max_length=1)
-    popularity = models.CharField(db_column='Popularity', max_length=6, null=True, db_index=True)
+    popularity = models.CharField(db_column='Popularity', max_length=7, null=True, db_index=True)
     idcsfd = models.CharField(db_column='ID_Csfd', max_length=16, null=True)
     idimdb = models.CharField(db_column='ID_Imdb', max_length=16, null=True)
     iddiv = models.CharField(db_column='ID_DIV', max_length=16, null=True)

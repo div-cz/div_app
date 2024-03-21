@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-(7wns0c0f-zk&jpy02dw*^k9iv-q8dg4ofd36tz_+&!o^g3u+q'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['46.28.109.39',
         'div.cz',
@@ -50,7 +50,7 @@ DEBUG_TOOLBAR_CONFIG = {
 
 def custom_show_toolbar(request):
     if hasattr(request, 'user') and request.user.is_authenticated:
-        return request.user.username == 'Martin2'
+        return request.user.username == 'Martin2dd'
     return False
  
 # Application definition
@@ -212,8 +212,10 @@ STATIC_URL = '/static/'
 #STATIC_ROOT = '/var/www/div/div_app/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-MEDIA_ROOT = '/var/www/div_app/img/'
 MEDIA_URL = '/img/'
+#MEDIA_ROOT = '/var/www/div_app/img/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'img')
+
 #STATIC_ROOT = '/var/www/div_app/static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

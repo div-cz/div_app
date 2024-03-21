@@ -21,10 +21,13 @@ from django.db.models import Count
 
 #Carouse = .values('title', 'titlecz', 'url', 'img', 'description')
 #List = .values('title', 'titlecz', 'url', 'img', 'description')
+def redirect_view(request):
+    # Zde můžete přidat logiku pro určení, kam přesměrovat
+    return redirect('https://www.startovac.cz/projekty/div-cz-databaze')
 
 def index(request):
         movies_carousel = Movie.objects.filter(releaseyear=2022).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:4]
-        movies_list_6 = Movie.objects.filter(special=1).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:6]
+        movies_list_6 = Movie.objects.filter(adult=0).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:6]
         movies = Movie.objects.all().order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:40]
         today = date.today()
         current_month = today.month
