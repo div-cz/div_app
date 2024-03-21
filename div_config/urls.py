@@ -19,7 +19,7 @@ from div_content.views.books import book_add, book_detail, books, books_search
 from div_content.views.creators import creator_detail, creators_list
 from div_content.views.games import game_detail, game_add, games
 from div_content.views.locations import locations, location_detail
-from div_content.views.movies import movie_detail, movies, index, search, MovieDetailView
+from div_content.views.movies import redirect_view, movie_detail, movies, index, search, MovieDetailView
 from div_content.views.users import contact_form, myuser_detail, rate_movie, add_to_list, ratings_profile, favorites_profile, iwantsee_profile, favorite_movies, rated_media, rated_movies, rated_books, rated_games, favorite_media, favorite_actors, favorite_books, favorite_drinks, favorite_foods, favorite_games, favorite_items, favorite_locations, user_lists, update_profile
 from django.conf import settings
 from django.conf.urls.static import static
@@ -35,6 +35,7 @@ from allauth.account.views import SignupView, LogoutView, LoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('podpora/', redirect_view),
     path('', index, name='index'),
     path('filmy/', movies, name='movies_index'),
     path('filmy/<int:year>', movies, name='movies_year'),
