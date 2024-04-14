@@ -12,3 +12,11 @@ def article_detail(request, article_url):
     return render(request, 'articles/article_detail.html', {'article': article, 'movie_list_6': movie_list_6, 'article_list': article_list})
 
 
+
+
+def article_index(request):
+    # Vybere poslední tři články typu "Článek", řazené podle data vytvoření sestupně
+    latest_articles = Article.objects.filter(typ='Článek').order_by('-created')[:3]
+
+    # Předání článků do šablony
+    return render(request, 'index.html', {'latest_articles': latest_articles})

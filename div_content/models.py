@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from star_ratings.models import AbstractBaseRating, Rating
 
 
+
 class AAChange(models.Model):
     id = models.IntegerField(db_column='ID', primary_key=True)
     description = models.TextField(db_column='Description')
@@ -58,7 +59,7 @@ class Book(models.Model):
     goodreads = models.CharField(db_column='GoodreadsID', max_length=12, blank=True, null=True)
     databazeknih = models.CharField(db_column='DatabazeKnih', max_length=16, blank=True, null=True)
     genreid = models.ForeignKey('Metagenre', models.DO_NOTHING, db_column='GenreID', null=True)
-    worldid = models.ForeignKey('Metaworld', models.DO_NOTHING, db_column='WorldID', null=True)
+    universumid = models.ForeignKey('Metauniversum', models.DO_NOTHING, db_column='UniversumID', null=True)
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True)
 
     class Meta:
@@ -177,8 +178,11 @@ class Charactermeta(models.Model):
     characterid = models.AutoField(db_column='CharacterID', primary_key=True)
     charactername = models.CharField(db_column='CharacterName', max_length=255, unique=True)
     characternamecz = models.CharField(db_column='CharacterNameCZ', max_length=255, null=True, blank=True)
+    characterimg = models.CharField(db_column='CharacterIMG', max_length=128, null=True)
     characterdescription = models.TextField(db_column='CharacterDescription', null=True, blank=True)
-    characterurl = models.URLField(db_column='CharacterURL', max_length=255, null=True, blank=True)  # Nový sloupec pro URL
+    characterurl = models.URLField(db_column='CharacterURL', max_length=255, null=True, blank=True) 
+    characterborn = models.CharField(db_column='CharacterBorn', max_length=16, null=True)
+    characterdeath = models.CharField(db_column='CharacterDeath', max_length=16, null=True)
     charactercount = models.IntegerField(db_column='CharacterCount', null=True, blank=True)
 
     class Meta:
@@ -219,6 +223,7 @@ class Creator(models.Model):
     firstname = models.CharField(db_column='FirstName', max_length=255)
     lastname = models.CharField(db_column='LastName', max_length=255)
     url = models.CharField(db_column='URL', max_length=512, null=True, blank=True, unique=True)
+    url2 = models.CharField(db_column='URL2', max_length=512, null=True, blank=True)
     birthdate = models.DateField(db_column='BirthDate', null=True, blank=True)
     deathdate = models.DateField(db_column='DeathDate', null=True, blank=True)
     imdbid = models.CharField(db_column='Imdb_id', max_length=16, null=True)
@@ -226,6 +231,7 @@ class Creator(models.Model):
     img = models.CharField(db_column='IMG', max_length=32, null=True)
     knownfordepartment = models.CharField(db_column='KnownForDepartment', max_length=255, null=True)
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True)
+    lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
 
     class Meta:
         db_table = 'Creator'
@@ -348,7 +354,7 @@ class Game(models.Model):
     platformid = models.ForeignKey('Gameplatform', models.DO_NOTHING, db_column='PlatformID', null=True, blank=True)
     publisherid = models.ForeignKey('Gamepublisher', models.DO_NOTHING, db_column='PublisherID', null=True, blank=True)
     genreid = models.ForeignKey('Metagenre', models.DO_NOTHING, db_column='GenreID', null=True, blank=True)
-    worldid = models.ForeignKey('Metaworld', models.DO_NOTHING, db_column='WorldID', null=True, blank=True)
+    universumid = models.ForeignKey('MetaUniversum', models.DO_NOTHING, db_column='UniversumID', null=True, blank=True)
     developerid = models.ForeignKey('Gamedevelopers', models.DO_NOTHING, db_column='DeveloperID', null=True, blank=True)
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True, blank=True)
     averageratinggame = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, db_column='AverageRatingGame')
@@ -574,16 +580,29 @@ class Metagenre(models.Model):
     def __str__(self):
         return self.genrenamecz
 
+class Metaindex(models.Model):
+    indexid = models.AutoField(db_column='IndexID', primary_key=True)
+    section = models.CharField(db_column='Section', max_length=8)  # Např. 'Movie', 'Book', 'Game'
+    item_id = models.IntegerField(db_column='ItemID')  # ID položky z příslušné sekce
+    title = models.CharField(db_column='Title', max_length=255)  # Název položky
+    description = models.CharField(db_column='Description', max_length=255, null=True)
+    popularity = models.CharField(db_column='Popularity', max_length=9, default=0)
+    img = models.CharField(db_column='IMG', max_length=255, null=True, blank=True)  # URL obrázku
+    url = models.CharField(db_column='URL', max_length=255, null=True, blank=True)  # URL pro detailní stránku položky
+    last_updated = models.DateField(db_column='LastUpdated', auto_now=True)  # Datum poslední aktualizace
 
-class Metaworld(models.Model):
-    worldid = models.IntegerField(db_column='WorldID', primary_key=True)
-    worldname = models.CharField(db_column='WorldName', max_length=255)
-    worldnamecz = models.CharField(db_column='WorldNameCZ', max_length=255, blank=True, null=True)
-    worlddescription = models.TextField(db_column='WorldDescription', null=True)
     class Meta:
-        db_table = 'MetaWorld'
+        db_table = 'MetaIndex'
+
+class Metauniversum(models.Model):
+    universumid = models.IntegerField(db_column='UniversumID', primary_key=True)
+    universumname = models.CharField(db_column='UniversumName', max_length=255)
+    universumnamecz = models.CharField(db_column='UniversumNameCZ', max_length=255, blank=True, null=True)
+    universumdescription = models.TextField(db_column='UniversumDescription', null=True)
+    class Meta:
+        db_table = 'MetaUniversum'
     def __str__(self):
-        return self.worldnamecz
+        return self.universumnamecz
 
 class MovieSpecialSort(models.TextChoices):
     TOP = '1', 'Top'
@@ -592,10 +611,11 @@ class MovieSpecialSort(models.TextChoices):
 class Movie(models.Model):
     movieid = models.IntegerField(db_column='MovieID', primary_key=True) 
     title = models.CharField(db_column='Title', max_length=255)
-    titlecz = models.CharField(db_column='TitleCZ', max_length=255, default='')    
+    titlecz = models.CharField(db_column='TitleCZ', max_length=255, default='', db_index=True)    
     special = models.IntegerField(choices=MovieSpecialSort.choices, db_column='Special', blank=True, null=True)
     url = models.CharField(db_column='URL', max_length=255, unique=True)
     oldurl = models.CharField(db_column='OldURL', max_length=255, null=True)
+    ChangeURL = models.CharField(db_column='ChangeURL', max_length=255, null=True)
     img = models.CharField(db_column='IMG', max_length=255, default='/static/img/filmy/nomovie.jpg')
     description = models.TextField(db_column='Description', null=True)
     releaseyear = models.CharField(db_column='ReleaseYear', max_length=4, null=True) 
@@ -603,11 +623,11 @@ class Movie(models.Model):
     language = models.CharField(db_column='Language', max_length=5, null=True, blank=True)  # Field
     budget = models.IntegerField(db_column='Budget', null=True)
     adult = models.CharField(db_column='Adult',  max_length=1)
-    popularity = models.CharField(db_column='Popularity', max_length=7, null=True, db_index=True)
+    popularity = models.CharField(db_column='Popularity', max_length=9, null=True, db_index=True)
     idcsfd = models.CharField(db_column='ID_Csfd', max_length=16, null=True)
     idimdb = models.CharField(db_column='ID_Imdb', max_length=16, null=True)
     iddiv = models.CharField(db_column='ID_DIV', max_length=16, null=True)
-    worldid = models.ForeignKey(Metaworld, models.DO_NOTHING, db_column='WorldID', null=True, blank=True)
+    universumid = models.ForeignKey(Metauniversum, models.DO_NOTHING, db_column='UniversumID', null=True, blank=True)
 #    ratings = models.ForeignKey(Rating, on_delete=models.CASCADE, related_name='movies', null=True, blank=True)
     averagerating = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, db_column='AverageRating')
     lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
@@ -649,6 +669,18 @@ class Moviecrew(models.Model):
         db_table = 'MovieCrew'
 
 
+class Movieduplicity(models.Model):
+    duplicityid = models.AutoField(db_column='DuplicityID', primary_key=True, unique=True) 
+    url = models.CharField(db_column='URL', max_length=255, unique=True)
+    description = models.TextField(db_column='Description', null=True)
+    public = models.IntegerField(db_column='Public', default=1)  # 1 pro 'zobraz'
+    duplicity = models.IntegerField(db_column='Duplicity', null=True) 
+    lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
+
+    class Meta:
+        db_table = 'MovieDuplicity'
+
+
 class Moviegenre(models.Model):
     movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')
     genreid = models.ForeignKey(Metagenre, models.DO_NOTHING, db_column='GenreID')
@@ -677,24 +709,48 @@ class Movieversions(models.Model):
     class Meta:
         db_table = 'MovieVersions'
 
+class Tvcrew(models.Model):
+    tvcrewid = models.AutoField(db_column='TVCrewID', primary_key=True)
+    tvshowid = models.ForeignKey('Tvshow', on_delete=models.DO_NOTHING, db_column='TVShowID')
+    roleid = models.ForeignKey(Creatorrole, models.DO_NOTHING, db_column='RoleID')
+    characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID', null=True, blank=True)
+    peopleid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='PeopleID')
+
+    class Meta:
+        db_table = 'TVCrew'
+
 
 class Tvepisode(models.Model):
     episodeid = models.IntegerField(db_column='EpisodeID', primary_key=True)
+    episodeurl = models.CharField(db_column='EpisodeURL', max_length=255, null=True, blank=True)
     episodenumber = models.IntegerField(db_column='EpisodeNumber')
-    title = models.CharField(db_column='Title', max_length=255)
+    title = models.CharField(db_column='Title', max_length=255, null=True, blank=True)
+    titlecz = models.CharField(db_column='TitleCZ', max_length=255, null=True, blank=True)
+    episodeimg = models.CharField(db_column='EpisodeIMG', max_length=255, null=True, blank=True)
     airdate = models.DateField(db_column='AirDate')
     description = models.TextField(db_column='Description')
-    sessionid = models.ForeignKey('Tvseason', models.DO_NOTHING, db_column='SessionID')
+    seasonid = models.ForeignKey('Tvseason', models.DO_NOTHING, db_column='SeasonID', null=True, blank=True)
 
     class Meta:
         db_table = 'TVEpisode'
 
+class Tvgenre(models.Model):
+    tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')
+    genreid = models.ForeignKey(Metagenre, models.DO_NOTHING, db_column='GenreID')
+
+    class Meta:
+        db_table = 'TVGenre'
+
 
 class Tvseason(models.Model):
-    sessionid = models.IntegerField(db_column='SessionID', primary_key=True)
+    seasonid = models.IntegerField(db_column='SeasonID', primary_key=True)
+    seasonurl = models.CharField(db_column='SeasonURL', max_length=255, null=True, blank=True)
     seasonnumber = models.IntegerField(db_column='SeasonNumber')
+    title = models.CharField(db_column='title', max_length=255, null=True, blank=True)
+    titlecz = models.CharField(db_column='titleCZ', max_length=255, null=True, blank=True)
+    seassonimg = models.CharField(db_column='SeasonIMG', max_length=255, null=True, blank=True)
+    seassonepisode = models.IntegerField(db_column='SeasonEpisode', null=True, blank=True)
     premieredate = models.DateField(db_column='PremiereDate')
-    enddate = models.DateField(db_column='EndDate')
     tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')
 
     class Meta:
@@ -703,13 +759,18 @@ class Tvseason(models.Model):
 
 class Tvshow(models.Model):
     tvshowid = models.IntegerField(db_column='TVShowID', primary_key=True)
-    title = models.CharField(db_column='Title', max_length=255)
-    description = models.TextField(db_column='Description')
+    title = models.CharField(db_column='Title', max_length=255, null=True, blank=True)
+    titlecz = models.CharField(db_column='TitleCZ', max_length=255, null=True, blank=True)
+    url = models.CharField(db_column='URL', max_length=255, null=True, blank=True)
+    description = models.TextField(db_column='Description', null=True, blank=True)
+    img = models.CharField(db_column='IMG', max_length=255, null=True, blank=True)
     premieredate = models.DateField(db_column='PremiereDate')
     enddate = models.DateField(db_column='EndDate')
-    rating = models.IntegerField(db_column='Rating')
-    genreid = models.ForeignKey(Metagenre, models.DO_NOTHING, db_column='GenreID')
+    popularity = models.CharField(db_column='Popularity', max_length=8, default=0)
+    popularity = models.CharField(db_column='Popularity', max_length=7, null=True, db_index=True)
+    language = models.CharField(db_column='Language', max_length=4, null=True, blank=True)
     countryid = models.ForeignKey(Metacountry, models.DO_NOTHING, db_column='CountryID')
+    universumid = models.ForeignKey(Metauniversum, models.DO_NOTHING, db_column='UniversumID', null=True, blank=True)
 
     class Meta:
         db_table = 'TVShow'

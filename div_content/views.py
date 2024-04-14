@@ -66,7 +66,7 @@ def update_profile(request):
 #List = .values('title', 'titlecz', 'url', 'img', 'description')
 
 def index(request):
-        movies_carousel = Movie.objects.filter(releaseyear=2022).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:4]
+        movies_carousel = Movie.objects.filter(releaseyear=2024).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:4]
         movies_list_6 = Movie.objects.filter(special=1).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:6]
         movies = Movie.objects.all().order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:40]
         today = date.today()

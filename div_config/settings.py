@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-(7wns0c0f-zk&jpy02dw*^k9iv-q8dg4ofd36tz_+&!o^g3u+q'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['46.28.109.39',
         'div.cz',
@@ -50,7 +50,7 @@ DEBUG_TOOLBAR_CONFIG = {
 
 def custom_show_toolbar(request):
     if hasattr(request, 'user') and request.user.is_authenticated:
-        return request.user.username == 'Martin2dd'
+        return request.user.username == 'Vesna' or request.user.username == 'IonnoStyle'
     return False
  
 # Application definition
@@ -160,6 +160,9 @@ DATABASES = {
         'PASSWORD': 'Han1cka+1a9', #'2*mP3jD6kW',
         'HOST': 'localhost', #'46.28.109.39',
         'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
     }
 }
 
@@ -247,4 +250,3 @@ LOGGING = {
         },
     },
 }"""
-
