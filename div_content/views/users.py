@@ -108,9 +108,13 @@ def add_to_list(request):
                 return JsonResponse({"success": True, "action": "removed"})
             else:
                 Userlistmovie.objects.create(movie_id=media_id, userlist=user_list)
+
+
         elif media_type == "book":
             book_instance = Book.objects.get(bookid=media_id)
             Userlistbook.objects.create(book=book_instance, userlist=user_list)
+
+
 
         elif media_type == "game":
             game_instance = Game.objects.get(gameid=media_id)
@@ -118,8 +122,39 @@ def add_to_list(request):
         else:
             return JsonResponse({"success": False, "error": "Unknown media type"})
 
+
+
         return JsonResponse({"success": True, "action": "added"})
     return JsonResponse({"success": False})
+
+
+
+#####
+def movie_detail(request, movie_id):
+    movie = get_object_or_404(Movie, movieid=movie_id)
+    user = request.user
+
+    is_favorite = False
+    is_want_to_see = False
+
+    if user.is_authenticated:
+        favorite_list = Userlist.objects.filter(user=user, namelist="Oblíbené").first()
+        if favorite_list:
+            is_favorite = Userlistmovie.objects.filter(userlist=favorite_list, movie=movie).exists()
+        
+        want_to_see_list = Userlist.objects.filter(user=user, namelist="Chci vidět").first()
+        if want_to_see_list:
+            is_want_to_see = Userlistmovie.objects.filter(userlist=want_to_see_list, movie=movie).exists()
+
+    # ostatní logika pro zobrazování detailů filmu...
+
+    return render(request, 'movies/movie_detail.html', {
+        'movie': movie,
+        'is_favorite': is_favorite,
+        'is_want_to_see': is_want_to_see,
+        # další kontextové proměnné
+    })
+
 
 
 
