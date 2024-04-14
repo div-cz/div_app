@@ -16,7 +16,8 @@ from div_content.models import (
 )
 from star_ratings.models import Rating, UserRating
 # for index
-from django.db.models import Count
+from django.db.models import Avg, Count
+import math
 
 
 #Carouse = .values('title', 'titlecz', 'url', 'img', 'description')
@@ -24,45 +25,6 @@ from django.db.models import Count
 def redirect_view(request):
     # Zde můžete přidat logiku pro určení, kam přesměrovat
     return redirect('https://www.startovac.cz/projekty/div-cz-databaze')
-
-def index(request):
-        movies_carousel = Movie.objects.filter(releaseyear=2022).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:4]
-        movies_list_6 = Movie.objects.filter(adult=0).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:6]
-        movies = Movie.objects.all().order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:40]
-        today = date.today()
-        current_month = today.month
-        current_day = today.day
-        creators_list_8 = Creator.objects.filter(birthdate__month=current_month, birthdate__day=current_day).order_by('-popularity')[:8]
-        users_list_4 = User.objects.annotate(
-            comment_count=Count('moviecomments'),
-            rating_count=Count('userrating'),
-            comment_rating_sum=Count('moviecomments')+Count('userrating')
-        ).order_by('-comment_count', '-rating_count')[:6]
-        
-        return render(request, 'index.html', {'movies': movies, 'movies_carousel': movies_carousel, 'movies_list_6': movies_list_6, 'creators_list_8': creators_list_8, 'users_list_4': users_list_4})
-
-
-def movies(request, year=None, genre_url=None, movie_url=None):
-    if year:
-        movies = Movie.objects.filter(releaseyear=year).order_by('-popularity')
-        movies_carousel = Movie.objects.filter(releaseyear=year,adult=0).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:3]
-        movies_list_30 = Movie.objects.filter(releaseyear=year,adult=0).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:30]
-        return render(request, 'movies/movies_year.html', {'movies': movies, 'movies_carousel': movies_carousel, 'movies_list_30': movies_list_30, 'year': year})
-    
-    elif genre_url:
-        genre = get_object_or_404(Metagenre, url=genre_url)
-        movies_for_genre = Movie.objects.filter(moviegenre__genreid=genre.genreid)
-        movies_carousel_genre = Movie.objects.filter(moviegenre__genreid=genre.genreid, adult=0).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:3]
-        
-        movies_list_30_genre = Movie.objects.filter(moviegenre__genreid=genre.genreid).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:30]
-
-        return render(request, 'movies/movies_genre.html', {'movies_for_genre': movies_for_genre, 'movies_carousel_genre': movies_carousel_genre, 'movies_list_30_genre': movies_list_30_genre, 'genre': genre})
-    
-    else:
-        movies_carousel = Movie.objects.filter(releaseyear=2023).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:4]
-        movies = Movie.objects.all().order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:50]
-        movies_list_30 = Movie.objects.filter(adult=0).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:30]
-        return render(request, 'movies/movies_list.html', {'movies': movies, 'movies_carousel': movies_carousel, 'movies_list_30': movies_list_30})
 
 
 
@@ -94,9 +56,23 @@ def movie_detail(request, movie_url):
         else:
             comment_form = CommentForm(request=request)  # Create an empty CommentForm regardless of the request type.
 
-    comments = Moviecomments.objects.filter(movieid=movie).order_by('-commentid')
 
-    actors_and_characters = Moviecrew.objects.filter(movieid=movie.movieid, roleid='378').select_related('peopleid', 'characterid')[:5]
+    # Výpočet průměrného hodnocení
+    average_rating_result = ratings.aggregate(average=Avg('score'))
+    average_rating = average_rating_result.get('average')
+
+    if average_rating is not None:
+        average_rating = math.ceil(average_rating)
+    else:
+        average_rating = 0  # nebo jakoukoliv defaultní hodnotu, kterou chcete nastavit
+
+
+
+    comments = Moviecomments.objects.filter(movieid=movie).order_by('-commentid')
+    
+
+    actors_and_characters = Moviecrew.objects.filter(movieid=movie.movieid, roleid='378').select_related('peopleid', 'characterid')
+    actors_and_characters_5 = actors_and_characters[:5]
     directors = Moviecrew.objects.filter(movieid=movie.movieid, roleid='383').select_related('peopleid')
     writers = Moviecrew.objects.filter(movieid=movie.movieid, roleid='12').select_related('peopleid')
     all_crew = Moviecrew.objects.filter(movieid=movie.movieid).select_related('peopleid')
@@ -106,12 +82,14 @@ def movie_detail(request, movie_url):
         'genres': genres,
         'countries': countries,
         'actors_and_characters': actors_and_characters,
+        'actors_and_characters_5': actors_and_characters_5,
         'directors': directors,
         'writers': writers,
         'user_rating': user_rating,
         'comments': comments,
         'comment_form': comment_form,
         'ratings': ratings, 
+        'average_rating': average_rating,
         'all_crew': all_crew
     })
 

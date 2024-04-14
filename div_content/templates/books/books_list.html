@@ -241,90 +241,34 @@ $(document).ready(function() {
             <tr>
                 <th>Název</th>
                 <th>Rok</th>
-                <th>Žánr</th>
-                <th>Hodnocení</th>
+                <th>Stránek</th>
                 <th>Autor</th>
+                <th>Hodnocení</th>
             </tr>
         </thead>
         <tbody>
-            <!-- Ukázková data -->
+            <!-- Ukázková data
         <tr>
             <td>To Kill a Mockingbird</td>
             <td>1960</td>
             <td>Roman</td>
             <td>9/10</td>
             <td>Harper Lee</td>
-        </tr>
-<tr>
-    <td>Vražda v Orient expresu</td>
-    <td>1934</td>
-    <td>Detektivka</td>
-    <td>9/10</td>
-    <td>Agatha Christie</td>
-</tr>
-<tr>
-    <td>1984</td>
-    <td>1949</td>
-    <td>Sci-fi</td>
-    <td>10/10</td>
-    <td>George Orwell</td>
-</tr>
-<tr>
-    <td>Hobit</td>
-    <td>1937</td>
-    <td>Fantasy</td>
-    <td>8/10</td>
-    <td>J.R.R. Tolkien</td>
-</tr>
-<tr>
-    <td>Sto let samoty</td>
-    <td>1967</td>
-    <td>Magický realismus</td>
-    <td>9/10</td>
-    <td>Gabriel García Márquez</td>
-</tr>
-<tr>
-    <td>Strach a hnus v Las Vegas</td>
-    <td>1971</td>
-    <td>Gonzo žurnalismus</td>
-    <td>8/10</td>
-    <td>Hunter S. Thompson</td>
-</tr>
-<tr>
-    <td>Jane Eyrová</td>
-    <td>1847</td>
-    <td>Romantika</td>
-    <td>9/10</td>
-    <td>Charlotte Brontë</td>
-</tr>
-<tr>
-    <td>Na cestě</td>
-    <td>1957</td>
-    <td>Beatnická literatura</td>
-    <td>8/10</td>
-    <td>Jack Kerouac</td>
-</tr>
-<tr>
-    <td>Strýček Tomův příbytek</td>
-    <td>1852</td>
-    <td>Historický román</td>
-    <td>9/10</td>
-    <td>Harriet Beecher Stowe</td>
-</tr>
-<tr>
-    <td>Alchymista</td>
-    <td>1988</td>
-    <td>Fantasy</td>
-    <td>7/10</td>
-    <td>Paulo Coelho</td>
-</tr>
-<tr>
-    <td>Da Vinciho kód</td>
-    <td>2003</td>
-    <td>Thriller</td>
-    <td>8/10</td>
-    <td>Dan Brown</td>
-</tr>
+        </tr>-->
+
+{% for book in all_books %}
+    <tr>
+        <td>{% if book.url %}<a href="{% url 'book_detail' book.url %}">{{ book.title }}</a>
+            {% else %}
+                {{ book.title }}
+            {% endif %}</td>
+        <td>{% if book.year %}{{ book.year }}{% else %} - {% endif %}</td>
+        <td>{% if book.pages %}{{ book.pages }}{% else %} - {% endif %}</td>
+        <td>{% if book.author %}{{ book.author }}{% else %} - {% endif %}</td>
+                <td>-</td>
+
+    </tr>
+{% endfor %}
 
 
         </tbody>
