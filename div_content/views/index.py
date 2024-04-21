@@ -32,7 +32,7 @@ def index(request): # hlavní strana
         
         #latest_articles = Article.objects.filter(typ='Článek').order_by('-created').values('url', 'title')[:3]
 
-        articles = Article.objects.exclude(typ='Site').order_by('-created').values('url', 'title', 'img400x250', 'perex')[:2]
+        articles = Article.objects.exclude(typ='Site').order_by('-created').values('url', 'title', 'img', 'img400x250', 'perex')[:2]
 
 
         movies = Movie.objects.all().order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:40]
