@@ -26,15 +26,19 @@ SECRET_KEY = 'django-insecure-(7wns0c0f-zk&jpy02dw*^k9iv-q8dg4ofd36tz_+&!o^g3u+q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['46.28.109.39',
+ALLOWED_HOSTS = [
+        '46.28.109.39',
         'div.cz',
         'www.div.cz',
+        'test.div.cz',
+        '46.28.109.13',    
         '2001:4860:7:20a::fd',
         'localhost', 
         '127.0.0.1',
         'localhost:8000']
 INTERNAL_IPS =  [
         '46.28.109.39',
+        '46.28.109.13',
         '193.179.123.10', 
         '2001:4860:7:20a::fd',
         '127.0.0.1',
@@ -50,7 +54,7 @@ DEBUG_TOOLBAR_CONFIG = {
 
 def custom_show_toolbar(request):
     if hasattr(request, 'user') and request.user.is_authenticated:
-        return request.user.username == 'Vesna' or request.user.username == 'IonnoStyle'
+        return request.user.username == 'Amoleta' or request.user.username == 'IonnoStyle'
     return False
  
 # Application definition
