@@ -13,10 +13,18 @@
     <meta name="author" content="{{ article.autor }}">
 
 
-    {% if article.img1600 %}
+
+    {% if article.img %}
+    <meta property="og:image" content="https://image.tmdb.org/t/p/w1066_and_h600_bestv2{{ article.img }}">
+    <meta property="og:image:alt" content="{{ article.alt }}">
+    {% elif article.img1600 %}
     <meta property="og:image" content="{{ article.img1600 }}">
     <meta property="og:image:alt" content="{{ article.alt }}">
-    {% endif %}
+{% else %}
+    
+{% endif %}
+
+
 
     <meta property="og:title" content="{{ article.h1 }}">
     <meta property="og:description" content="{{ article.perex }}">
@@ -49,8 +57,14 @@
     <!-- Left Column: Film Detail -->
     <div class="col-lg-8">
 
-    <img src="{{ article.img1600 }}" class="img-fluid rounded w-100" alt="{{ article.alt }}">
 
+{% if article.img %}
+    <img src="https://image.tmdb.org/t/p/w1066_and_h600_bestv2{{ article.img }}" class="img-fluid rounded w-100" alt="{{ article.alt }}">
+{% elif article.img1600 %}
+    <img src="{{ article.img1600 }}" class="img-fluid rounded w-100" alt="{{ article.alt }}">
+{% else %}
+    <!-- -->
+{% endif %}
             <h1>{{ article.h1 }}</h1> 
 
       <!-- Info Bar -->

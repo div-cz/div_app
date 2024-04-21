@@ -21,10 +21,26 @@
                 <div class="d-flex mb-3">
                     <div class="me-3 mr-4 flex-shrink-0" style="width:40%; max-width:200px">
                         <!-- Obrázek seriálu -->
-                        <img src="{% if tvshow.img %}https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ tvshow.img }}{% else %}/static/img/movie/w200/nomovie.jpg{% endif %}" alt="{{ tvshow.titlecz }}" class="img-fluid rounded">
+                        <img src="{% if tvshow.img and tvshow.img != 'noimg.png' %}
+    https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ tvshow.img }}
+{% else %}
+    /static/img/movie/w200/nomovie.jpg
+{% endif %}" alt="{{ tvshow.titlecz }}" class="img-fluid rounded">
                     </div>
                     <div class="flex-grow-1">
                         <!-- Popis a další informace o seriálu -->
+<!-- Další informace o seriálu -->
+<div class="flex-grow-1">
+    <ul class="list-unstyled">
+        <li><strong>Název:</strong> {{ tvshow.titlecz|default:"Název není k dispozici" }}</li>
+        <li><strong>Premiéra:</strong> {{ tvshow.premieredate|date:"d.m.Y"|default:"Datum premiéry není dostupné" }}</li>
+        <li><strong>Konec vysílání:</strong> {{ tvshow.enddate|date:"d.m.Y"|default:"Datum konce vysílání není dostupné" }}</li>
+        <li><strong>Země:</strong> {% if tvshow.countryid %}{{ tvshow.countryid.get_country_display }}{% else %}Neznámá{% endif %}</li>
+        <li><strong>Jazyk:</strong> {{ tvshow.language|default:"Jazyk není specifikován" }}</li>
+    </ul>
+</div>
+
+
                         <p>{{ tvshow.description|default:"Žádný popis není k dispozici. Máš informace o tomto seriálu? Pomoz nám doplnit popis."|safe }}
 </p>
                         <!-- Zobrazení sezón seriálu -->
@@ -32,6 +48,10 @@
                     </div>
                 </div>
             </div>
+
+
+
+
             <!-- Pravý sloupec: Další informace -->
             <div class="col-lg-4">
         <div class="card rounded mb-4">
