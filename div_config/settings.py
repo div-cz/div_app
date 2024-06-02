@@ -54,7 +54,7 @@ DEBUG_TOOLBAR_CONFIG = {
 
 def custom_show_toolbar(request):
     if hasattr(request, 'user') and request.user.is_authenticated:
-        return request.user.username == 'Amoleta' or request.user.username == 'IonnoStyle'
+        return request.user.username == 'Amoleta' or request.user.username == 'IonnoStyle'  or request.user.username == 'jirkha'
     return False
  
 # Application definition
@@ -160,9 +160,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'divDB',
-        'USER': 'martindb', #'editordb2',
-        'PASSWORD': 'Han1cka+1a9', #'2*mP3jD6kW',
-        'HOST': 'localhost', #'46.28.109.39',
+        'USER': 'martindb', #'e',
+        'PASSWORD': 'Han1cka+1a9', #,
+        'HOST': 'localhost', #'46.28.',
         'PORT': '3306',
         'OPTIONS': {
             'charset': 'utf8mb4',
@@ -226,6 +226,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'img')
 #STATIC_ROOT = '/var/www/div_app/static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
+
+LOGIN_REDIRECT_URL = '/ucet/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 """

@@ -6,7 +6,7 @@ from div_content.models import Moviecomments, Userprofile
 
 # use in movies/movie_detail.html
 class CommentForm(forms.ModelForm):
-    comment = forms.CharField(widget=forms.Textarea(attrs={'class': 'bg-dark text-white w-100',  'style': 'height:120px'}))
+    comment = forms.CharField(widget=forms.Textarea(attrs={'class': 'w-100',  'style': 'height:120px'})) #bg-dark text-white 
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)  # Remove 'request' from kwargs

@@ -1,7 +1,7 @@
 # VIEWS.AUTHORS.PY
 
 from django.shortcuts import get_object_or_404, render
-from div_content.models import Bookauthor
+from div_content.models import Book, Bookauthor, Bookwriters
 
 def authors_list(request):
     # Získání seznamu všech autorů
@@ -11,11 +11,14 @@ def authors_list(request):
 def author_detail(request, author_url):
     # Zobrazení detailu jednoho autora
     author = get_object_or_404(Bookauthor, url=author_url) 
+    
+    books = Book.objects.filter(bookwriters__author=author, bookwriters__book__language='cs')
+
         
     author_list_10 = Bookauthor.objects.values('firstname', 'lastname', 'url', 'birthyear')[:10]
     author_list_10_minus = Bookauthor.objects.values('firstname', 'lastname', 'url', 'birthyear')[:10]
 
-    return render(request, 'creators/author_detail.html', {'author': author, 'author_list_10': author_list_10, 'author_list_10_minus': author_list_10_minus})
+    return render(request, 'creators/author_detail.html', {'author': author, 'books': books, 'author_list_10': author_list_10, 'author_list_10_minus': author_list_10_minus})
 
 def author_add(request):
     # Logika pro přidání nového autora

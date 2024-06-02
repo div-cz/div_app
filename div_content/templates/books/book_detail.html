@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="{% static 'star-ratings/css/star-ratings.css' %}">
 <script type="text/javascript" src="{% static 'star-ratings/js/dist/star-ratings.min.js' %}"></script>
 
-<title>{{ book.title }} ({{ book.year }})</title>
+<title>{{ book.title }} {% if book.year %} ({{ book.year }}) {% endif %}</title>
 
 </head>
 
@@ -23,16 +23,15 @@
 <!-- Main Content -->
 <main class="container my-5">
   <div class="row">
-    <!-- Left Column -->
     <div class="col-lg-8">
-            <h2>{{ book.title }}  <small class="text-muted">({{ book.year }})</small></h2>
+            <h2>{{ book.title }}  <small class="text-muted">{% if book.year %} ({{ book.year }}) {% endif %}</small></h2>
 
 
 <!-- Info Bar -->
-<div class="bg-dark rounded-3 p-2 mb-3 d-flex">
+<div class="rounded-3 p-2 mb-3 d-flex" style="border:1px solid #ccc;round;border-radius:3px;">
     <!-- Kontrola, zda je k dispozici rok -->
     {% if book.year %}
-        <span class="me-3"><a href="https://div.cz/knihy/{{ book.year }}">{{ book.year }}</a></span>
+        <span class="me-3"><!--<a href="https://div.cz/knihy/{{ book.year }}">-->{{ book.year }}<!--</a>--></span>
         &nbsp;|&nbsp;
     {% endif %}
 
@@ -40,17 +39,22 @@
     {% if genres %}
         <span class="me-3">
             {% for book_genre in genres %}
-                <a href="https://div.cz/knihy/{{ book_genre.genreid.url }}">{{ book_genre.genreid.genrenamecz }}</a>{% if not forloop.last %}, {% endif %}
+                <!--<a href="https://div.cz/knihy/{{ book_genre.genreid.url }}">-->{{ book_genre.genreid.genrenamecz }}<!--</a>-->{% if not forloop.last %}, {% endif %}
             {% endfor %}
         </span>
         &nbsp;|&nbsp;
     {% endif %}
+    
 
     <!-- Kontrola, zda je k dispozici počet stran -->
     {% if book.pages %}
         <span> {{ book.pages }} stran</span>
     {% endif %}
+    
+
+    
 </div>
+
 
 
 
@@ -60,37 +64,69 @@
         <img src="/static/img/book/book.png" alt="Kniha {{ book.title }}" class="img-fluid rounded" style="max-width: 200px; object-fit: cover;">
 
         {% else %}
-    <img src="{{ book.img }}" alt="{{ book.title }}" class="img-fluid rounded" style="width: 100%; object-fit: cover;">
+    <img src="https://books.google.com/books/content?id={{ book.img }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.title }}" class="img-fluid rounded" style="width: 100%; object-fit: cover;">
         {% endif %}
     </div>
 
 
 
+
         <div class="flex-grow-1">
           <ul class="list-unstyled">
-              <li><strong>Žánr:</strong>{% for book_genre in genres %}
-              <a href="/knihy/{{ book_genre.genreid.url }}">{{ book_genre.genreid.genrenamecz }}</a>{% if not forloop.last %},{% endif %}
-              {% endfor %}</li>
+
+{% if genres %}
+    <li><strong>Žánr:</strong>
+            {% for book_genre in genres %}
+              <!--<a href="/knihy/{{ book_genre.genreid.url }}">-->{{ book_genre.genreid.genrenamecz }}<!--</a>-->
+              {% if not forloop.last %},{% endif %}
+            {% endfor %}
+    </li>
+{% endif %}
 
 
-            <li><strong>Země</strong>: 
+            <!--<li><strong>Země</strong>: 
 
-            </li>
-            <li><strong>Spisovatel:</strong> 
-                {{ book.author }}
+            </li>-->
+            <li><strong>Autor:</strong>
+                    {% for author in authors %}
+                        <a href="/autor/{{ author.url }}">{{ author.firstname }} {{ author.lastname }}</a>{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
                 </li>
+                
 
-                <!--<li><strong>Scénář:</strong> 
-                {% for writer in writers %}
-                    {{ writer.peopleid.firstname }}{% if not forloop.last %},{% endif %}
-                {% endfor %}
-                </li>-->
-                <li><strong>Postavy:</strong>
-                {% for actor in actors_and_characters %}
-                    <a href="/postava/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a> jako {{ actor.characterid.charactername }}{% if not forloop.last %},{% endif %}
-                {% endfor %}
-                </li>
+{% if characters_with_roles %}
+    <li><strong>Postavy:</strong>
+        <ul>
+            {% for character_with_role in characters_with_roles %}
+                {% with character=character_with_role.characterid %}
+                    <li>
+                        <a href="/postava/{{ character.characterurl }}">
+                            {% if character.characternamecz %}
+                                {{ character.characternamecz }}
+                            {% else %}
+                                {{ character.charactername }}
+                            {% endif %}
+                        </a>
+                        {% if character_with_role.characterrole %}
+                            - {{ character_with_role.characterrole }}
+                        {% endif %}
+                    </li>
+                {% endwith %}
+            {% endfor %}
+        </ul>
+    </li>
+{% endif %}
+
           </ul>
+
+
+
+    {% if book.language %}
+        <span>Jazyk: {{ book.language }} </span>
+    {% endif %}
+
+
+
         <!-- Tlačítka -->
 
 

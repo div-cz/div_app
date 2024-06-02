@@ -2,6 +2,7 @@
 <html lang="cs">
 <head>
 
+
     {% include "inc/head.html" %}
 
 
@@ -36,7 +37,51 @@
 <title>DIV.cz | Databáze filmů, her a knih DIV</title>
 
 
+
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"/>
+<script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
 <style>
+
+/* Světlý režim je výchozí */
+main {
+    background-color: #fff;
+    color: #f00;
+}
+
+/* Styly pro tmavý režim */
+@media (prefers-color-scheme: dark) {
+    main {
+        background-color: #333;
+        color: #fff;
+    }
+}
+
+        body {
+            background-color: #f6f6f6;
+            color: #333;
+        }
+        main {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Roboto", "Oxygen", "Ubuntu", "Helvetica Neue", Arial, sans-serif;
+        color:#333;background-color:#f6f6f6;text-shadow: 1px 1px 3px #ccc; 
+        }
+        .card {
+            background-color: #fff;
+            color: #000;
+        }
+
+
+.card2 {
+    height: 350px;
+    border: 1px solid #bbb;box-shadow: 2px 2px 3px #bbb;
+}
+/*
+a {color: #E31E24 !important}
+a:hover {color: #A52B21 !important}*/
+
+
+
 .banner {
     display: flex;
     flex-direction: column;
@@ -69,6 +114,53 @@
     font-size: 1.9rem;
 }
 
+
+
+
+.carousel-slide {
+    position: relative;
+    text-align: center;
+}
+.carousel-slide img {
+    width: 100%;
+    object-fit: cover; /* Zajistí, že obrázek pokryje celou oblast bez deformace */
+    height: 300px; /* Pevně nastavíme výšku obrázků */
+}
+.overlay {
+    position: absolute;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+    text-shadow: 1px 1px 3px #ccc;
+    width: 100%;
+    padding: 10px;
+    text-align: left;
+}
+.article-section {
+    padding: 0 15px;
+}
+.article-item {
+    display: flex;
+    margin-bottom: 10px;
+    /*background: #fff;*/
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.article-thumbnail {
+    width: 100px;
+    height: 150px;
+    margin:5px;
+}
+.article-content {
+    padding: 10px;
+    flex: 1;
+}
+.container-fluid {
+    max-width: 1200px; /* Omezuje max šířku obsahu */
+    margin: 0 auto; /* Centruje obsah na stránce */
+}
+
+
+
 @media (max-width: 768px) {
     .banner {
         flex-direction: column;
@@ -84,95 +176,86 @@
         .carousel-side-image {
         display: block;
     }
+    .carousel-slide img {
+    width: 100%;
+    object-fit: cover; /* Zajistí, že obrázek pokryje celou oblast bez deformace */
+    height: 200px; /* Pevně nastavíme výšku obrázků */
 }
-.card2 {
-    height: 350px;
 }
-/*
-a {color: #E31E24 !important}
-a:hover {color: #A52B21 !important}*/
 
 
 
 
 </style>
+
 </head>
 <body>
 
     {% include "inc/navbar.html" %}
 
 
-<main class="mb-5">
-    <section class="">
-     <!-- Carousel -->
+    
+<main>
+    <section class="container my-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <div id="image-slider" class="carousel">
+                    {% for movie in movies_carousel %}
+                    <div class="carousel-slide"><a href="/film/{{ movie.url }}">
+                        <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" alt="{{ movie.title }}">
+                        </a>
+                        <div class="overlay">
+                            <h2>{{ movie.title }}</h2>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
 
 
-<div id="random-banner-container">
-    {% for movie in movies_carousel %}
-<div class="banner" style="display:none; background-image: url('https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}');">
-    <!--<h1>VÍTEJ na testu DIV.cz</h1>-->
-    <div class="banner-caption">
-        <a href="/film/{{ movie.url }}" class="banner-link">{{ movie.title }}</a>
-    </div>
-</div>
-    {% endfor %}
-</div>
-
-
-
-<!--
-
-        <div class="carousel-item">
-            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//67VnQZG179QHYng2871xmtICKbB.jpg" class="d-block w-100" alt="Demon Slayer: Kimetsu No Yaiba – To the Hashira Training">
-            <div class="carousel-caption text-left text-white p-3">
-                <h5><a href="/film/demon-slayer-kimetsu-no-yaiba-to-the-hashira-training">Demon Slayer: Kimetsu No Yaiba – To the Hashira Training</a></h5>
-                <p></p>
+            <div class="col-lg-4 article-section">
+                {% for article in articles %}
+                <div class="article-item">
+                    <img class="article-thumbnail" src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ article.img }}');">
+                    <div class="article-content" style="margin-top:-10px">
+                        <a href="{{ article.url }}">{{ article.title }}</a>
+                        <p>{{ article.perex|truncatewords:9 }}</p>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
         </div>
-        
-        <div class="carousel-item ">
-            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//uhUO7vQQKvCTfQWubOt5MAKokbL.jpg" class="d-block w-100" alt="The Painter">
-            <div class="carousel-caption text-left text-white p-3">
-                <h5><a href="/film/duna-cast-druha">Duna: Část druhá</a> (2024)</h5>
-                <p>Sledujte mýtickou cestu Paula Atreida, který se spojí …</p>
-            </div>
-        </div>
-        
-        <div class="carousel-item">
-            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/dvpzY91fvfcWSYgb0Xlan2NNLLU.jpg" class="d-block w-100" alt="Opičí muž">
-            <div class="carousel-caption text-left text-white p-3">
-                <h5><a href="/film/opici-muz">Opičí muž</a> (2024)</h5>
-                <p>Příběh o pomstě, jehož protagonistou je obyčejný kluk …</p>
-            </div>
-        </div>
-        
-        <div class="carousel-item active">
-            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/uLhWh1pggjIiQ1DpL0DvaIgERQR.jpg" class="d-block w-100" alt="Království planeta opic">
-            <div class="carousel-caption text-left text-white p-3">
-                <h5><a href="/film/kralovstvi-planeta-opic">Království planeta opic</a> (2024)</h5>
-                <p>Příběh z Planety opic, který se odehrává několik generací …</p>
-            </div>
-        </div>
--->
-
     </section>
+<script>
+$(document).ready(function(){
+    $('#image-slider').slick({
+        infinite: true,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 3000,
+        dots: true,
+        arrows: false, // Skryjeme šipky, pokud nejsou potřeba
+        fade: true,
+        cssEase: 'linear'
+    });
+});
+</script>
 
 
-    </div>
-</div>
 
 
 
 
-<section class="container my-4">
+
+
+<section class="container my-5">
     <div class="row">
-
-        <!-- Hlavní sekce -->
         <div class="col-lg-8">
 
 
 <!--<h2 class="mb-4">Poslední články</h2>-->
-<!-- Sekce článků -->
+<!-- Sekce článků 
 <h2 class="mb-4">Seznam článků</h2>
 <div class="row">
     {% for article in articles %}
@@ -187,38 +270,33 @@ a:hover {color: #A52B21 !important}*/
         </div>
     </div>
     {% endfor %}
-</div>
+</div>-->
 
 
 
-<div class="row">
-    <div class="col-12">
-        <div class="card mb-4 p-4">
-<p>Chcete se zapojit do něčeho vzrušujícího? Právě teď máte možnost! Hodnoťte filmy na DIV.cz a za každých 50 ohodnocených filmů získáváte šanci vyhrát lístky do kina! Je to jednoduché - čím více filmů ohodnotíte, tím větší je vaše šance vyhrát!</p>
-
- {% if user.is_authenticated %}
-<p>Zapoj se {{ user.username }} a vyhraj! <a href="https://div.cz/soutez-o-listky-do-kina">Podmínky a podrobnosti soutěže</a>.</p><!--<a href="{% url 'logout' %}">Odhlásit se</a>-->
-    
 <!--{% if request.user.is_superuser %}
 <p>Já jsem superuser, už jsem vyhrál! :D</p>
 {% else %}
 {% endif %}-->
 
+
+{% if user.is_authenticated %}
 {% else %}
-
-<p>Nemáte účet? <a href="{% url 'signup' %}">Registruj se</a>, zabere jen deset vteřin! <a href="https://div.cz/soutez-o-listky-do-kina">Podmínky a podrobnosti soutěže</a>.</p>
-
-{% endif %}
-
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4 p-4">
+<p>DIV.cz je stránka, která propojuje knihy, filmy a hry skrze postavy, lokality a další prvky.</p>
         </div>
     </div>
 </div>
+{% endif %}
+
 
 
 
 
             <!-- Sekce filmů -->
-            <h2 class="mb-4">Seznam filmů</h2>
+            <h2 class="mb-4"><a href="https://div.cz/seznam-filmu">Seznam filmů</a>, <a href="/knihy/">knih</a> a her</h2>
             <div class="row">
                 {% for movie in movies_list_6 %}
                 <a href="/film/{{ movie.url }}"><div class="col-md-4 col-sm-6 col-6 mb-3">
@@ -235,7 +313,6 @@ a:hover {color: #A52B21 !important}*/
             </div>
  
             <!-- Sekce nejnovějších uživatelských komentářů k filmům -->
-
           <h2 class="mb-4">Nejnovější filmové komentáře</h2>
           <div class="row">
             {% for comment in movies_comments_9 %}
@@ -300,7 +377,7 @@ a:hover {color: #A52B21 !important}*/
             Těžko říct
             {% endif %} - {{ creator.birthdate|date:"d.m.Y"  }}
                             </p>
-                            <a href="{% url 'creator_detail' creator.url %}" class="btn btn-primary">{{ creator.lastname }}, {{ creator.firstname }}</a>
+                            <a href="/tvurce/{{ creator.url }}" class="btn btn-primary">{{ creator.lastname }}, {{ creator.firstname }}</a>
                         </div>
                     </div>
                 </div>
@@ -317,7 +394,7 @@ a:hover {color: #A52B21 !important}*/
                 <!-- Boční panel pro přihlášení a informace o vývoji -->
                 <div class="col-lg-4">
                     <!-- Sekce přihlášení uživatele -->
-                    <div class="card mb-4">
+                    <div class="card mb-4  article-section">
                         <div class="card-body">
 
 {% if user.is_authenticated %}
@@ -344,13 +421,27 @@ a:hover {color: #A52B21 !important}*/
 
 
 
+
+
+
+
+{% if user.is_authenticated %}
                     <div class="card mb-4">
                         <div class="card-body">
-                            <h5 class="card-title">Newsletter</h5>
-<p><script src="https://front.boldem.cz/boldem.js?uc=556801&wg=23372300-2592-4134-bfdb-413c5e8794ad&sc=0" type="text/javascript"></script></p>
+                            <h5 class="card-title">DIV.cz</h5>
+<p>Chcete se zapojit do něčeho vzrušujícího? Právě teď máte možnost! Hodnoťte filmy na DIV.cz a za každých 50 ohodnocených filmů získáváte šanci vyhrát lístky do kina! Je to jednoduché - čím více filmů ohodnotíte, tím větší je vaše šance vyhrát!</p>
+<p>Zapoj se <strong>{{ user.username }}</strong> a vyhraj! <a href="https://div.cz/soutez-o-listky-do-kina">Podmínky a podrobnosti soutěže</a>.</p>
                         </div>
                     </div>
-
+{% else %}
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">DIV.cz</h5>
+<p>DIV.cz je stránka, která propojuje <a href="/knihy/">knihy</a>, filmy a hry skrze postavy, lokality a další metadatabáze.</p>
+<p>Aktuálně je hotová filmová část a intenzivně se pracuje na knižní. Buď u zrodu a <a href="{% url 'signup' %}">zaregistruj se</a>. Zabere jen deset vteřin! Navíc můžeš vyhrát lístky do kina: <a href="https://div.cz/soutez-o-listky-do-kina">Podmínky a podrobnosti soutěže</a>
+                        </div>
+                    </div>
+{% endif %}
 
 
                     <div class="card mb-4">
@@ -386,18 +477,27 @@ a:hover {color: #A52B21 !important}*/
                     <!-- Sekce informace o vývoji -->
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h5 class="card-title">Statistika 1.4.24</h5>
+                        <h5 class="card-title">Statistika 20.5.24</h5>
                             <ul>
-              <li>Filmů: 986.383</li>
-                <li>Knih: 126.367</li>
-                <li>Her: 0</li>
-                <li>Herců: 724.752</li>
-                <li>Spisovatelů: 139.089</li>
-                <li>Postav: 317.800</li>
-                <li>Lokalit: 44</li>
-                <li>Zemí: 337</li>
-                <li>Uživatelů: 225</li>
-                <li>Hodnocení: 136232</li>
+              <li>Filmů: 1.022.007 <s style="font-size:90%">(986.383)</s></li>
+                <li>Knih: 775.547 <s style="font-size:90%">(126.367)</s></li>
+                <li>Her: 1 <s style="font-size:90%">0</s></li>
+                <li>Herců: 1.303.957 <s style="font-size:90%">(724.752)</s></li>
+                <li>Spisovatelů: 142.204 <s style="font-size:90%">(139.089)</s></li>
+                <li>Postav: 1.531.287  <s style="font-size:90%">(317.800)</s></li>
+                <li>Lokalit: 
+                        <ul>
+                            
+                            <li>Měst: 2506</li>
+                            <li>Lokalit: 45</li>
+                            <li>Zemí: 337</li>
+                            <li>Ulic: 1</li>
+                            <li>Universa: 1</li>
+                        </ul>
+                <s style="font-size:90%">44</s>
+                         </li>
+                <li>Uživatelů: 274 <s style="font-size:90%">225</s></li>
+                <li>Hodnocení: 435.466 <s style="font-size:90%">136.232</s></li>
                             </ul>
                      </div>
                 </div><!-- / card mb-4-->
@@ -411,7 +511,7 @@ a:hover {color: #A52B21 !important}*/
 </main>
 
 
-{% include "inc/footer_movies.html" %}
+{% include "inc/footer.html" %}
 
 <script>
 // == CAROUSE ===

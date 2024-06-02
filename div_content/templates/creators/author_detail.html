@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- TEST TEST --><!DOCTYPE html>
 <html lang="cs">
 <head>
 
@@ -14,7 +14,7 @@
 
 <body>
 
-    {% include "../inc/navbar.html" %}
+    {% include "../inc/navbar_books.html" %}
 
 
 <!-- Main Content -->
@@ -81,41 +81,35 @@
 
 
 
-<h3>Seznam knih</h3>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th></th>
-            <th>Film</th>
-            <th>Rok</th>
-            <th>Role</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for entry in filmography %}
-        <tr>
-            <td><a href="/film/{{ entry.movieid.url }}">
-                        {% if entry.movieid.img == "noimg.png" %}
-            <img src="/img/movie/w400/nomovie.png" alt="{{ entry.movieid.titlecz }}" width="150">
-            {% else %}
-            <img src="https://www.themoviedb.org/t/p/w400{{ entry.movieid.img }}" alt="{{ entry.movieid.titlecz }}" width="150">
-            {% endif %}</a>
-            </td>
-            <td><a href="/film/{{ entry.movieid.url }}">{{ entry.movieid.moviename }}{{ entry.movieid.titlecz }}</a></td>
-            <td><a href="/filmy/{{ entry.movieid.releaseyear }}">{{ entry.movieid.releaseyear }}</a></td>
-            <td>{{ entry.roleid.rolenamecz }}<!--
-                {% if entry.roleid.rolename == "Writing" %}
-                    Scénárista
-                {% elif entry.roleid.rolename == "Camera" %}
-                    Kamera
-                {% else %}
-                    {{ entry.roleid.rolenamecz }}
-                {% endif %}-->
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+                <h3>Seznam knih</h3>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Miniatura</th>
+                            <th>Kniha</th>
+                            <th>Rok</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for book in books %}
+                            <tr>
+                                <td>
+                                    <a href="/kniha/{{ book.url }}">
+                                        {% if book.img == "noimg.png" %}
+                                            <img src="/static/img/book/book.png" alt="Kniha {{ book.title }}" width="80">
+                                        {% else %}
+                                            <img src="https://books.google.com/books/content?id={{ book.img }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.title }}" width="80">
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="/kniha/{{ book.url }}">{{ book.title }}</a>
+                                </td>
+                                <td>{{ book.year }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
 
 
 
@@ -175,14 +169,14 @@
         <ul>
     {% for author in author_list_10 %}
         <li>
-           <a href="/spisovatel/{{ author.url }}"> {{ author.firstname }}  {{ author.lastname }}</a> 
+           <a href="/autor/{{ author.url }}"> {{ author.firstname }}  {{ author.lastname }}</a> 
         </li>
     {% endfor %}
-    {% for author in author_list_10_minus %}
+
         <li>
-           <a href="/spisovatel/{{ author.url }}"> {{ author.firstname }}  {{ author.lastname }}</a> ({{ author.birthyear }})
+           <a href="/autor/viktorie-hanisova">Viktorie Hanišová</a> (1980)
         </li>
-    {% endfor %}
+
         </ul>
         </div>
       </div>

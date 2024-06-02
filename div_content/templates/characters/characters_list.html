@@ -7,12 +7,12 @@
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
 
-<title>Filmové postavy | Databáze DIV</title>
+<title>FilmovÃ© postavy | DatabÃ¡ze DIV</title>
 
 <style>
 .carousel-image-container {
-    width: 100%; /* zajistí, aby kontejner zabral celou šíøku */
-    max-width: 1200px; /* nastaví maximální šíøku kontejneru */
+    width: 100%; /* zajistÃ­, aby kontejner zabral celou Å¡Ã­Å™ku */
+    max-width: 1200px; /* nastavÃ­ maximÃ¡lnÃ­ Å¡Ã­Å™ku kontejneru */
     margin: auto; /* centruje kontejner */
     display: flex;
     justify-content: center;
@@ -32,9 +32,9 @@
     display: none;
 }
 .carousel-caption {
-    background: rgba(0, 0, 0, 0.5); /* èerné pozadí s 50% prùhledností */
-    color: white; /* bílı text pro lepší kontrast */
-    padding: 10px; /* trochu paddingu pro lepší vzhled */
+    background: rgba(0, 0, 0, 0.5); /* ÄernÃ© pozadÃ­ s 50% prÅ¯hlednostÃ­ */
+    color: white; /* bÃ­lÃ½ text pro lepÅ¡Ã­ kontrast */
+    padding: 10px; /* trochu paddingu pro lepÅ¡Ã­ vzhled */
 }
 
 .card2 {
@@ -58,52 +58,32 @@
 <main class="mb-5">
 <section>
 <!-- Carousel -->
-<div id="carouselExampleIndicators" class="carousel slide mb-4" data-ride="carousel">
-  <ol class="carousel-indicators">
-    <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-    <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-    <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
-    <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
-    <!-- další indikátory -->
-  </ol>
 
 
-<div class="carousel-inner">
-    {% for movie in movies_carousel %}
-    <div class="carousel-item {% if forloop.first %}active{% endif %}">
-        <div class="carousel-image-container">
-            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" class="d-block carousel-side-image" alt="{{ movie.title }} 1">
-            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" class="d-block carousel-main-image" alt="{{ movie.title }} 2">
-            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" class="d-block carousel-side-image" alt="{{ movie.title }} 3">
-        </div>
-        <div class="carousel-caption text-left text-white p-3">
-            <h5><a href="/film/{{ movie.url }}">{{ movie.title }}</a></h5>
-            <p>{{ movie.description|truncatewords:10 }}</p>
-        </div>
-    </div>
-    {% endfor %}
-</div>
+<!--<div class="carousel-inner">
+
+</div>-->
 
 
-    <!-- další poloky carouselu -->
+    <!-- dalÅ¡Ã­ poloÅ¾ky carouselu -->
 
-  </div>
+<!--  </div>
   <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="sr-only">Pøedchozí</span>
+    <span class="sr-only">PÅ™edchozÃ­</span>
   </a>
   <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
     <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="sr-only">Další</span>
+    <span class="sr-only">DalÅ¡Ã­</span>
   </a>
 </div>
-</section>
+</section>-->
 
 
 
 
 
-<!-- Sekce odkazù na filmy -->
+<!-- Sekce odkazÅ¯ na filmy -->
 <div class="container my-4">
 
 
@@ -113,22 +93,26 @@
 
 
         <div class="row">
-            <!-- Hlavní obsah (Levı sloupec) -->
+            <!-- HlavnÃ­ obsah (LevÃ½ sloupec) -->
             <div class="col-md-8">
 
-                <!-- Seznam filmù -->
+                <!-- Seznam filmÅ¯ -->
                 <div class="row">
         {% for character in characters %}
     <div class="col-lg-3 col-md-3 col-sm-6 mb-3">
       <div class="card">
-        <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ character.characterimg }}" class="card-img-top" alt="{{ character.charactername }}">
+        {% if not character.characterimg %}
+            <a href="/postava/{{ character.characterurl }}"><img src="/static/img/creator/noperson.svg" class="card-img-top" alt="{{ creator.lastname }}"></a>
+        {% else %}
+            <a href="/postava/{{ character.characterurl }}"><img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ character.characterimg }}" class="card-img-top" alt="{{ character.charactername }}"></a>
+        {% endif %}
+        
 
         <div class="card-body">
-          <h5 class="card-title">{{ character.charactername }} <span class="text-muted">({{ character.birthdate|date:"Y"  }})</span></h5>
-          <p class="card-text"><!--{{ character.knownfordepartment }}-->
+          <h5 class="card-title">{{ character.charactername }} <!--<span class="text-muted">({{ character.birthdate|date:"Y"  }})</span>--></h5>
+          <p class="card-text">
 
         </p>
-          <a href="{% url 'character_detail' character.url %}" class="btn btn-primary">{{ character.charactername }}</a> 
         </div>
       </div>
     </div>
@@ -136,28 +120,28 @@
                 </div>
             </div>
 
-            <!-- Pravı sloupec -->
-            <div class="col-md-4"><!-- Pravı sloupec -->
+            <!-- PravÃ½ sloupec -->
+            <div class="col-md-4"><!-- PravÃ½ sloupec -->
 
 
                 <div class="card mb-4">
                         <div class="card-body">
-                            <h5 class="card-title">Pøihlášení uivatele</h5>
+                            <h5 class="card-title">PÅ™ihlÃ¡Å¡enÃ­ uÅ¾ivatele</h5>
 {% if user.is_authenticated %}
     <h4>{{ user.username }}! </h4>
-    <p>Vítejte, {{ user.username }}! <a href="{% url 'logout' %}">Odhlásit se</a></p>
+    <p>VÃ­tejte, {{ user.username }}! <a href="{% url 'logout' %}">OdhlÃ¡sit se</a></p>
 {% else %}
-    <h4>Pøihlášení</h4>
+    <h4>PÅ™ihlÃ¡Å¡enÃ­</h4>
     <form method="post" action="{% url 'login' %}">
         {% csrf_token %}
         {{ form.username.label_tag }}
         {{ form.username }}
         {{ form.password.label_tag }}
         {{ form.password }}
-        <button type="submit" class="btn btn-primary">Pøihlásit se</button>
+        <button type="submit" class="btn btn-primary">PÅ™ihlÃ¡sit se</button>
     </form>
     <div class="mt-3">
-        <p>Nemáte úèet? <a href="{% url 'signup' %}">Registrace</a></p>
+        <p>NemÃ¡te ÃºÄet? <a href="{% url 'signup' %}">Registrace</a></p>
     </div>
 {% endif %}
                         </div>
@@ -165,7 +149,7 @@
 
                     
 
-            </div><!-- // Pravı sloupec -->
+            </div><!-- // PravÃ½ sloupec -->
         </div><!-- // row -->
 
 

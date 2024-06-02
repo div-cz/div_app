@@ -34,7 +34,16 @@ def contact_form(request):
 
 
 
+def get_content_type_for_rating(rating):
+    content_object = rating.content_object
+    if content_object:
+        return ContentType.objects.get_for_model(content_object.__class__)
+    return None
+
+
+
 # USER
+"""
 def myuser_detail(request, user_id=None):
     # Pokud user_id není zadáno, použijte přihlášeného uživatele
     if user_id is None:
@@ -42,6 +51,10 @@ def myuser_detail(request, user_id=None):
 
     profile_user = get_object_or_404(User, id=user_id)
     user_ratings = UserRating.objects.filter(user_id=user_id).order_by('-modified')[:5]
+    all_ratings = UserRating.objects.filter(user_id=user_id).order_by('-modified')
+    movie_ratings = [rating for rating in all_ratings if get_content_type_for_rating(rating).model == 'movie']
+    book_ratings = [rating for rating in all_ratings if get_content_type_for_rating(rating).model == 'book']
+
 
     # Získání instance profilu uživatele
     user_profile = Userprofile.objects.get(user=profile_user)
@@ -61,7 +74,47 @@ def myuser_detail(request, user_id=None):
         'user_ratings': user_ratings, 
         'page': page, 
         'user_profile': user_profile,
+        'movie_ratings': movie_ratings,
+        'book_ratings': book_ratings,
     })
+"""
+
+
+def myuser_detail(request, user_id=None):
+    if user_id is None:
+        user_id = request.user.id
+
+    profile_user = get_object_or_404(User, id=user_id)
+
+    # Získání instance profilu uživatele
+    user_profile = Userprofile.objects.get(user=profile_user)  # Zajištění, že user_profile je definován
+
+    movie_content_type_id = 26  # Předpokládá se, že máte tento ID pro filmy
+    book_content_type_id = 8    # Předpokládá se, že máte tento ID pro knihy
+    # 7 = article, creator = 12, comments = 53, drink = 14, food = 15, game = 16, item = 20
+
+    movie_ratings = UserRating.objects.filter(user_id=user_id, rating__content_type_id=movie_content_type_id).order_by('-modified')[:5]
+    book_ratings = UserRating.objects.filter(user_id=user_id, rating__content_type_id=book_content_type_id).order_by('-modified')[:5]
+
+    items_per_page = 10
+    movie_paginator = Paginator(movie_ratings, items_per_page)
+    book_paginator = Paginator(book_ratings, items_per_page)
+
+    movie_page_number = request.GET.get('movie_page')
+    book_page_number = request.GET.get('book_page')
+
+    movie_page = movie_paginator.get_page(movie_page_number)
+    book_page = book_paginator.get_page(book_page_number)
+
+    template_name = 'user/my_profile.html' if profile_user == request.user else 'user/other_profile.html'
+
+    return render(request, template_name, {
+        'profile_user': profile_user,
+        'movie_ratings': movie_page,
+        'book_ratings': book_page,
+        'user_profile': user_profile,  # Ujistěte se, že tento objekt je zde předán
+    })
+
 
 
 

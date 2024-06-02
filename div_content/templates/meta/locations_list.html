@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+
+    {% include "../inc/head.html" %}
+
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<title>Seznam lokalit | Databáze DIV</title>
+
+<style>
+</style>
+
+</head>
+
+<body>
+
+    {% include "../inc/navbar.html" %}
+
+
+<main class="mb-5">
+    <section>
+    
+
+
+    </section>
+
+
+<!-- Sekce odkazů na filmy -->
+<!--<div class="container my-4">
+    <h2 class="mb-4">Seznam filmů</h2>-->
+<div class="container my-4 mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+        <h2 class="mb-4 mb-md-0">Seznam Lokalit z knih, her a filmů</h2>
+
+<form class="form-inline my-2 my-lg-0" action="/hledam/" method="get">
+    <input class="form-control form-control-sm mr-2" type="search" placeholder="Vyhledávání" aria-label="Vyhledávání" name="q" style="max-width: 150px;">
+    <button class="btn btn-outline-success btn-sm my-2 my-sm-0" type="submit">Hledat</button>
+</form>
+
+    </div>
+
+
+
+<div class="row mb-3">
+
+<h2>Města</h2>
+<div class="row">
+    {% for city in cities %}
+        <div class="col-md-4 col-sm-6 mb-3">
+            <div class="card">
+                <!-- Obrázek seriálu -->
+                <img src="https://div.cz/static/img/site/microsoft/div_310x150.png" alt="}" class="card-img-top">
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ city.cityid }}</h5>
+                    <p class="card-text"></p>
+         
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+</div>
+
+
+    <div class="row mb-3">
+
+<h2>Lokality</h2>
+
+<div class="row">
+    {% for loc in locations %}
+        <div class="col-md-4 col-sm-6 mb-3">
+            <div class="card">
+                <!-- Obrázek seriálu -->
+                <img src="https://div.cz/static/img/site/microsoft/div_310x150.png" alt="}" class="card-img-top">
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ loc.locationname }}</h5>
+                    <p class="card-text">{{ loc.locationdescription|truncatewords:10 }}</p>
+         
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+
+
+    </div>
+
+</div>
+
+</main>
+
+
+{% include "../inc/footer.html" %}
+
+
+</body>
+</html>

@@ -8,7 +8,7 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-<title>{{ genre.genrenamecz }} filmy | Databáze filmů DIV</title>
+<title>{{ genre.genrenamecz }} filmy | Databáze DIV.cz</title>
 
 <style>
 .carousel-image-container {
@@ -38,18 +38,88 @@
     padding: 10px; /* trochu paddingu pro lepší vzhled */
 }
 
+
+
+
+.carousel-slide {
+    position: relative;
+    text-align: center;
+}
+.carousel-slide img {
+    width: 100%;
+    object-fit: cover; /* Zajistí, že obrázek pokryje celou oblast bez deformace */
+    height: 300px; /* Pevně nastavíme výšku obrázků */
+}
+.overlay {
+    position: absolute;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+    text-shadow: 1px 1px 3px #ccc;
+    width: 100%;
+    padding: 10px;
+    text-align: left;
+}
+.article-section {
+    padding: 0 15px;
+}
+.article-item {
+    display: flex;
+    margin-bottom: 10px;
+    /*background: #fff;*/
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.article-thumbnail {
+    width: 100px;
+    height: 150px;
+    margin:5px;
+}
+.article-content {
+    padding: 10px;
+    flex: 1;
+}
+.container-fluid {
+    max-width: 1200px; /* Omezuje max šířku obsahu */
+    margin: 0 auto; /* Centruje obsah na stránce */
+}
+
+
+
+@media (max-width: 768px) {
+    .banner {
+        flex-direction: column;
+    }
+
+    .banner-caption {
+        position: static; /* Zruší absolutní pozicování */
+        align-self: center; /* Zarovná na střed */
+        width: 100%;
+        text-align: center;
+        margin-top: 10px; /* Přidá mezery mezi H1 a caption */
+    }
+        .carousel-side-image {
+        display: block;
+    }
+    .carousel-slide img {
+    width: 100%;
+    object-fit: cover; /* Zajistí, že obrázek pokryje celou oblast bez deformace */
+    height: 200px; /* Pevně nastavíme výšku obrázků */
+}
+    .kino  {display:none;}
+}
+@media (max-width: 992px) {
+    .kino  {display:none;}
+}
 .card2 {
     height: 350px;
 }
-
-@media (min-width: 768px) {
-    .carousel-side-image {
-        display: block;
-    }
-}
-
+/*
+a {color: #E31E24 !important}
+a:hover {color: #A52B21 !important}*/
 </style>
-
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"/>
+<script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
 </head>
 
 <body>
@@ -57,58 +127,13 @@
     {% include "../inc/navbar_movies.html" %}
 
 
-<main class="mb-5">
-    <section>
-     <!-- Carousel -->
-<div id="carouselExampleIndicators" class="carousel slide mb-4" data-ride="carousel">
-  <ol class="carousel-indicators">
-    <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-    <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-    <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
-    <!-- další indikátory -->
-  </ol>
+<main class="mb-5d">
 
-
-<div class="carousel-inner">
-                    <div class="position-absolute w-100 text-center text-white bg-dark py-2" style="top: 5%; z-index:10;">
-                        <h2>{{ genre.genrenamecz }} filmy</h2>
-                    </div>
-    {% for movie in movies_carousel_genre %}
-    <div class="carousel-item {% if forloop.first %}active{% endif %}">
-        <div class="carousel-image-container">
-            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" class="d-block carousel-side-image" alt="{{ movie.title }}">
-            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" class="d-block carousel-main-image" alt="{{ movie.title }}">
-            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" class="d-block carousel-side-image" alt="{{ movie.title }}">
-        </div>
-        <div class="carousel-caption text-left text-white p-3">
-            <h5><a href="/film/{{ movie.url }}">{{ movie.title }}</a></h5>
-            <p>{{ movie.description|truncatewords:10 }}</p>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-
-    <!-- další položky carouselu -->
-
-  </div>
-  <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="sr-only">Předchozí</span>
-  </a>
-  <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="sr-only">Další</span>
-  </a>
-</div>
-    </section>
 
 
 <!-- Sekce odkazů na filmy -->
 <div class="container my-4">
     <h2 class="mb-4">Seznam filmů žánru: {{ genre.genrenamecz  }}</h2>
-
-
-    
     
         <div class="row">
             <!-- Hlavní obsah (Levý sloupec) -->
@@ -119,13 +144,14 @@
         {% for movie in movies_list_30_genre %}
         <div class="col-md-4 col-sm-6 mb-3">
             <div class="card card2">
-
+                <a href="/film/{{ movie.url }}">
         {% if movie.img == "noimg.png" %}
         <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" class="card-img-top">
 
         {% else %}
     <img src="https://www.themoviedb.org/t/p/w400{{ movie.img }}" alt="{{ movie.titlecz }}" class="card-img-top">
         {% endif %}
+                </a>
 
 <!--            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ movie.img }}" class="card-img-top" alt="{{ movie.titlecz }}">-->
             <div class="card-body">
@@ -153,8 +179,8 @@
                         <div class="card-body">
                             <h5 class="card-title">Přihlášení uživatele</h5>
 {% if user.is_authenticated %}
-    <h4>{{ user.username }}! </h4>
-    <p>Vítejte, {{ user.username }}! <a href="{% url 'logout' %}">Odhlásit se</a></p>
+    <h4>{{ user.username }} </h4>
+    <p>Vítejte, {{ user.username }} <a href="{% url 'logout' %}">Odhlásit se</a></p>
 {% else %}
     <h4>Přihlášení</h4>
     <form method="post" action="{% url 'login' %}">
