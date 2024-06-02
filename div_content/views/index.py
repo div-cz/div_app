@@ -10,7 +10,7 @@ from django.views.generic import DetailView
 
 from div_content.forms.movies import CommentForm, SearchForm
 from div_content.models import (
-    Article, Book, Creator, Creatorbiography, Game, Location, Metagenre, Metaindex, 
+    Article, Book, Creator, Creatorbiography, Game, Metalocation, Metagenre, Metaindex, 
     Movie, Moviecomments, Moviecrew, Moviegenre, Movierating, User, Userlist,
     Userlistmovie, Userprofile
 )
@@ -27,7 +27,7 @@ def redirect_view(request):
     return redirect('https://www.startovac.cz/projekty/div-cz-databaze')
 
 def index(request): # hlavní strana
-        movies_carousel = Metaindex.objects.all().order_by('-popularity').values('title', 'url', 'img', 'description')[2:5]
+        movies_carousel = Metaindex.objects.filter(section='Movie').order_by('-popularity').values('title', 'url', 'img', 'description')[2:8]
         movies_list_6 = Metaindex.objects.filter(section='Movie').order_by('-indexid').values('title', 'url', 'img', 'description')[:6]
         
         #latest_articles = Article.objects.filter(typ='Článek').order_by('-created').values('url', 'title')[:3]

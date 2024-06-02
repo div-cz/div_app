@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+
+    {% include "../inc/head.html" %}
+
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<title>Seriály a TV poøady | Databáze filmù DIV</title>
+
+<style>
+.carousel-caption {
+    background-color: rgba(0, 0, 0, 0.5);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.carousel .carousel-inner .carousel-item {
+    height: 300px;
+    overflow: hidden;
+}
+
+.carousel .carousel-inner .carousel-item img {
+    min-height: 100%;
+    width: 100%;
+    object-fit: cover;
+}
+
+.table {
+    background-color: #333;
+    width:100% !important;
+}
+
+table {
+    width:100% !important;
+    border-collapse: collapse;
+}
+
+.table thead {
+    background-color: #444;
+}
+.table thead th {
+    color: #fff !important;
+}
+
+.table tbody tr {
+    background-color: #555;
+}
+
+.table tbody td {
+    color: #ddd;
+}
+#moviesTable tr:nth-child(even) {
+    background-color: #555 ;
+}
+
+
+.table tbody tr:hover {
+    background-color: #666 !important;
+}
+
+</style>
+
+</head>
+
+<body>
+
+    {% include "../inc/navbar.html" %}
+
+
+<main class="mb-5">
+    <section>
+    
+
+
+    </section>
+
+
+<!-- Sekce odkazù na filmy -->
+<!--<div class="container my-4">
+    <h2 class="mb-4">Seznam filmù</h2>-->
+<div class="container my-4 mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+        <h2 class="mb-4 mb-md-0">Seznam seriálù a TV poøadù</h2>
+
+<form class="form-inline my-2 my-lg-0" action="/hledam/" method="get">
+    <input class="form-control form-control-sm mr-2" type="search" placeholder="Vyhledávání" aria-label="Vyhledávání" name="q" style="max-width: 150px;">
+    <button class="btn btn-outline-success btn-sm my-2 my-sm-0" type="submit">Hledat</button>
+</form>
+
+    </div>
+
+
+
+
+
+    <div class="row mb-3">
+
+
+<div class="row">
+    {% for tvshow in tvshows_list %}
+        <div class="col-md-4 col-sm-6 mb-3">
+            <div class="card">
+                <!-- Obrázek seriálu -->
+                <img src="{% if tvshow.img != 'noimg.png' %}https://www.themoviedb.org/t/p/w533_and_h300_bestv2{{ tvshow.img }}{% else %}/static/img/nomovie_400.jpg{% endif %}" alt="{{ tvshow.titlecz }}" class="card-img-top">
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ tvshow.title }}</h5>
+                    <p class="card-text">{{ tvshow.description|truncatewords:10 }}</p>
+                    <a href="/serial/{{ tvshow.url }}" class="btn btn-primary">{{ tvshow.titlecz }}</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+
+
+    </div>
+
+</div>
+
+</main>
+
+
+{% include "../inc/footer.html" %}
+
+
+<script>
+
+$(document).ready(function() {
+    // Initialize DataTable
+    var table = $('#moviesTable').DataTable();
+
+    // Apply the filter
+    $('#genresFilter, #ratingFilter').on('change', function() {
+        table.draw();
+    });
+
+    // Custom filtering function
+    $.fn.dataTable.ext.search.push(
+        function(settings, data, dataIndex) {
+            var genres = $('#genresFilter').val();
+            var minRating = $('#ratingFilter').val();
+
+            var rowGenres = data[2]; // Genres is in the second column
+            var rowRating = parseInt(data[3].split('/')[0]); // Extract rating from format "X/10"
+
+            if ((genres === "" || genres === rowGenres) && (minRating === "0" || rowRating >= minRating)) {
+                return true; // Show row
+            }
+            return false; // Hide row
+        }
+    );
+});
+
+
+$('#moviesTable').DataTable({
+    "language": {
+        "lengthMenu": "Zobrazit _MENU_ záznamù",
+        "zeroRecords": "Žádné záznamy nebyly nalezeny",
+        "info": "Strana _PAGE_ z _PAGES_",
+        "infoEmpty": "Žádné záznamy k dispozici",
+        "infoFiltered": "(vyfiltrováno z celkem _MAX_ záznamù)",
+        "search": "Hledat:",
+        "paginate": {
+            "first":      "První",
+            "last":       "Poslední",
+            "next":       "Další",
+            "previous":   "Pøedchozí"
+        },
+    },
+
+    "order": [[ 0, "desc" ]], 
+    "pageLength": 25
+});
+
+
+</script>
+
+
+</body>
+</html>

@@ -18,11 +18,13 @@ from div_content.views.authors import authors_list, author_detail, author_add
 from div_content.views.books import book_add, book_detail, books, books_search
 from div_content.views.creators import creator_detail, creators_list
 from div_content.views.games import game_detail, game_add, games
+from div_content.views.characters import character_list, character_detail
 from div_content.views.index import index, movies
 
 from div_content.views.locations import locations, location_detail
 from div_content.views.movies import redirect_view, movie_detail, search, MovieDetailView
 from div_content.views.users import contact_form, myuser_detail, rate_movie, add_to_list, ratings_profile, favorites_profile, iwantsee_profile, favorite_movies, rated_media, rated_movies, rated_books, rated_games, favorite_media, favorite_actors, favorite_books, favorite_drinks, favorite_foods, favorite_games, favorite_items, favorite_locations, user_lists, update_profile
+from div_content.views.series import tv, tv_detail
 from div_content.views.tv import tv, tv_detail
 from django.conf import settings
 from django.conf.urls.static import static
@@ -49,21 +51,27 @@ urlpatterns = [
     path('film/<int:pk>/rate/', rate_movie, name='movie_rate'),
     path('film/add-to-list/', add_to_list, name='add_to_list'),
 
-
+    path('serialy/', tv, name='tv_index'),
+    path('serial/<str:tv_url>', tv_detail, name='tv_detail'),
 
     path('tv/', tv, name='tv_index'),
     path('tv/<str:tv_url>', tv_detail, name='tv_detail'),
 
-    
-    
+
     path('hry/', games, name='games_index'),
     path('hra/<str:game_url>', game_detail, name='game_detail'),
     path('hra/pridat/', game_add, name='game_add'),
+    path('hra/add-to-list/', add_to_list, name='add_to_list'),
 
+
+    path('autori/', authors_list, name='authors_list'),
+    path('autor/<str:author_url>', author_detail, name='author_detail'), 
+    path('autor/pridat/', author_add, name='author_add'),
     path('knihy/', books, name='books_index'),
     path('hledani-knih/', books_search, name='books_search'),
     path('kniha/<str:book_url>', book_detail, name='book_detail'),
     path('knihy/pridat/', book_add, name='book_add'),
+
     path('spisovatele/', authors_list, name='authors_list'),
     path('spisovatel/<str:author_url>', author_detail, name='author_detail'), 
     path('spisovatel/pridat/', author_add, name='author_add'),
@@ -73,10 +81,18 @@ urlpatterns = [
     path('lokalita/<str:location_url>', location_detail, name='location_detail'),
     path('osobnosti/', creators_list, name='creators_list'),
     path('osobnost/<str:creator_url>', creator_detail, name='creator_detail'),
+    path('postavy/', character_list, name='character_list'),
+    path('postava/<str:character_url>', character_detail, name='character_detail'),
+
     path('ratings/', include('star_ratings.urls', namespace='ratings')),
     path('hledam/', search, name='search'),
     path('<str:article_url>', article_detail, name='article_detail'),
 
+
+    path('tvurci/', creators_list, name='creators_list'),
+    path('tvurce/<str:creator_url>', creator_detail, name='creator_detail'),
+    
+    
     path('uzivatel/<int:user_id>/', myuser_detail, name='user_profile_with_profil'),
 
     path('ucet/', myuser_detail, name='myuser_detail'),
@@ -108,7 +124,8 @@ urlpatterns = [
     path('odhlaseni/', LogoutView.as_view(), name='logout'),
 
     path('ucet/', include('allauth.urls')),
-]#    path('ucet/hodnoceni/', views.ratings_profile, name='ratings_profile'),
+]
+#    path('ucet/hodnoceni/', views.ratings_profile, name='ratings_profile'),
 #    path('ucet/tochcividet/', users.iwantsee_profile, name='iwantsee_profile'),
 
 #    path('registrace/', include('allauth.urls')),  predelat na redirect

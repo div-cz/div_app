@@ -18,14 +18,16 @@
     <meta name="twitter:site" content="@DIV_cz">
     <meta name="twitter:title" content="{{ movie.titlecz }} ({{ movie.releaseyear }})">
     <meta name="twitter:description" content="{{ movie.description|striptags|truncatechars:200 }}">
-    <meta name="twitter:image" content="{% if movie.img == 'noimg.png' %}/static/img/movie/w200/nomovie.jpg{% else %}https://image.tmdb.org/t/p/w780{{ movie.img }}{% endif %}">
+    <meta name="twitter:image" content="{% if movie.imgposter and movie.imgposter != "noimg.png" %}https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ movie.imgposter }}{% else %}https://di.cz/static/img/movie/w200/nomovie.jpg{% endif %}">
+        
+
 
 
     <meta property="og:type" content="movie">
     <meta property="og:site_name" content="Databáze DIV">
     <meta property="og:title" content="{{ movie.titlecz }} ({{ movie.releaseyear }})">
     <meta property="og:description" content="{{ movie.description|striptags|truncatechars:180 }}">
-    <meta property="og:image" content="{% if movie.img == 'noimg.png' %}/static/img/movie/w200/nomovie.jpg{% else %}https://image.tmdb.org/t/p/w780{{ movie.img }}{% endif %}">
+    <meta property="og:image" content="{% if movie.imgposter and movie.imgposter != "noimg.png" %}https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ movie.imgposter }}{% else %}https://di.cz/static/img/movie/w200/nomovie.jpg{% endif %}">
     <meta property="og:url" content="https://div.cz/film/{{ movie.url }}">
 
     <!-- Meta Tags for Google -->
@@ -33,6 +35,27 @@
 
 
 <style>
+/* Změna barvy odkazů pro postavy */
+.character-link {
+    color: #007BFF; /* Modrá barva odkazů */
+    text-decoration: none; /* Bez podtržení */
+}
+
+.character-link:hover {
+    text-decoration: underline; /* Podtržení při najetí myší */
+}
+
+/* Případně s odlišným pozadím */
+.character-link {
+    background-color: #f0f0f0; /* Světlé pozadí */
+    color: #0056b3; /* Tmavší modrá */
+    padding: 2px 5px; /* Malý padding kolem textu */
+    border-radius: 3px; /* Zakulacené rohy */
+}
+
+
+
+
 @media (max-width: 768px) { /* Příklad pro zařízení s menší obrazovkou */
     .smaller-stars .star-ratings-rating-full, 
     .smaller-stars .star-ratings-rating-empty {
@@ -73,20 +96,22 @@
 
 
       <!-- Info Bar -->
-      <div class="bg-dark  rounded-3 p-2 mb-3 d-flex">
+      <div class="rounded-3 p-2 mb-3 d-flex" style="border:1px solid #ccc;round;border-radius:3px;">
         <span class="me-3"><a href="https://div.cz/filmy/{{ movie.releaseyear }}">{{ movie.releaseyear }}</a></span>&nbsp;|&nbsp;
         <span class="me-3">
                 {% for movie_genre in genres %}
                     <a href="https://div.cz/filmy/{{ movie_genre.genreid.url }}">{{ movie_genre.genreid.genrenamecz }}</a>{% if not forloop.last %},{% endif %}
                 {% endfor %}
-        </span>&nbsp;|&nbsp;
-        <span> {{ movie.duration }} minut </span>
+        </span>
+    {% if movie.duration != 0 %}
+        &nbsp;|&nbsp;<span>{{ movie.duration }} minut</span>
+    {% endif %}
       </div>
 
 
 
 
-
+<!--
 
     <div class="d-flex mb-3">
         <div class="me-3 mr-4 flex-shrink-0" style="width:40%; max-width:200px">
@@ -96,7 +121,23 @@
         {% else %}
     <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.img }}" alt="{{ movie.titlecz }}" class="img-fluid rounded" style="width: 100%; object-fit: cover;">
         {% endif %}
+    </div>-->
+
+
+<div class="d-flex mb-3">
+    <div class="me-3 mr-4 flex-shrink-0" style="width:40%; max-width:200px">
+{% if movie.imgposter == "noimg.png" %}
+    {% if movie.img == "noimg.png" %}
+        <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}" class="img-fluid rounded" style="width: 100%; object-fit: cover;">
+    {% else %}
+        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.img }}" alt="{{ movie.titlecz }}" class="img-fluid rounded" style="width: 100%; object-fit: cover;">
+    {% endif %}
+{% else %}
+    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.imgposter }}" alt="{{ movie.titlecz }}" class="img-fluid rounded" style="width: 100%; object-fit: cover;">
+{% endif %}
     </div>
+
+
 
 
 
@@ -157,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
 {% if directors %}
     <li><strong>Režie:</strong>
         {% for director in directors %}
-            <a href="/osobnost/{{ director.peopleid.url }}"> {{ director.peopleid.firstname }} {{ director.peopleid.lastname }}</a>{% if not forloop.last %}, {% endif %}
+            <a href="/tvurce/{{ director.peopleid.url }}"> {{ director.peopleid.firstname }} {{ director.peopleid.lastname }}</a>{% if not forloop.last %}, {% endif %}
         {% endfor %}
     </li>
 {% endif %}
@@ -170,10 +211,14 @@ document.addEventListener('DOMContentLoaded', function() {
     </li>
 {% endif %}
 
+
+
+<!--
+
 {% if actors_and_characters %}
     <li><strong>Hrají:</strong>
         {% for actor in actors_and_characters|slice:":12" %}
-            <a href="/osobnost/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a> jako 
+            <a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a> jako 
             {% if actor.characterid.characternamecz %}
                 {{ actor.characterid.characternamecz }}
             {% else %}
@@ -182,7 +227,37 @@ document.addEventListener('DOMContentLoaded', function() {
             {% if not forloop.last %}, {% endif %}
         {% endfor %}
     </li>
+{% endif %}-->
+
+
+
+
+{% if actors_and_characters %}
+<li><strong>Hrají:</strong>
+    {% for actor in actors_and_characters|slice:":12" %}
+        {% if forloop.first == False %}, {% endif %}
+        <a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a>
+        
+        {% if actor.characterid %}
+            {% if actor.characterid.characterbio %}
+            jako <a href="/postava/{{ actor.characterid.characterurl }}" class="character-link">{{ actor.characterid.characternamecz|default:actor.characterid.charactername }}</a>
+            {% elif actor.characterid.characternamecz %}
+            jako {{ actor.characterid.characternamecz }}
+            {% elif actor.characterid.charactername %}
+            jako {{ actor.characterid.charactername }}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+</li>
 {% endif %}
+
+
+
+
+
+
+
+
 
 
           </ul>
@@ -373,12 +448,14 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="card-body">
 
 {% if user.is_authenticated %}
-    <h4>{{ user.username }}! </h4>
-    <p>Vítejte, {{ user.username }}! ,<!--<a href="{% url 'logout' %}">Odhlásit se</a>--></p>
+    <h4>{{ user.username }} </h4>
+    <p>Vítejte, {{ user.username }} ,<!--<a href="{% url 'logout' %}">Odhlásit se</a>--></p>
     
 {% if request.user.is_superuser %}
 <p>I am superuser! 
-<ul><li><a href="https://fdk.cz/div/movies/tmdbManualMovie.php?id={{ movie.movieid }}">UPDATE filmu</a></li>
+<ul>
+<li><a href="https://fdk.cz/div/movies/tmdbManualMovie.php?id={{ movie.movieid }}">UPDATE filmu</a></li>
+<li><a href="https://fdk.cz/div/movies/tmdbGenres.php?id={{ movie.movieid }}">UPDATE žánrů</a></li>
 <li><a href="https://fdk.cz/div/movies/pridat-na-hlavni-stranu.php?id={{ movie.movieid }}">PŘIDAT NA HLAVNÍ STRANU</a></li>
 </ul>
 </p>
@@ -446,11 +523,11 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="card rounded mb-4 d-none d-lg-block">
         <div class="card-body">
           <h4>Odkazy</h4>
-            <a href="https://www.themoviedb.org/movie/{{ movie.movieid }}">
+            <a target="_blank" href="https://www.themoviedb.org/movie/{{ movie.movieid }}">
           <img src="data:image/webp;base64,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" alt="tmdb.org"></a>
 
         {% if film.id_imdb %}
-    <a href="https://www.imdb.com/title/{{ movie.id_imdb }}/"><img src="https://www.div.cz/img/ico/imdb.png" alt="Imdb"></a>
+    <a target="_blank" href="https://www.imdb.com/title/{{ movie.id_imdb }}/"><img src="https://www.div.cz/img/ico/imdb.png" alt="Imdb"></a>
         {% endif %}
         </div>
       </div>
@@ -462,7 +539,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <h4>Tagy</h4>
           <!-- Add tages -->
         {% for movie_genre in genres %}
-           <span class="badge bg-secondary"> {{ movie_genre.genreid.genrenamecz }}</span> {% if not forloop.last %} {% endif %}
+           <span class="badge bg-secondary" style="color:white"> <a href="https://div.cz/filmy/{{ movie_genre.genreid.url }}">{{ movie_genre.genreid.genrenamecz }}</a></span> {% if not forloop.last %} {% endif %}
         {% endfor %}
         </div>
       </div>

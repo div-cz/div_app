@@ -10,7 +10,7 @@ from django.views.generic import DetailView
 
 from div_content.forms.movies import CommentForm, SearchForm
 from div_content.models import (
-    Article, Book, Creator, Creatorbiography, Game, Location, Metagenre,
+    Article, Book, Creator, Creatorbiography, Game, Metalocation, Metagenre,
     Movie, Moviecomments, Moviecrew, Moviegenre, Movierating, User, Userlist,
     Userlistmovie, Userprofile
 )
@@ -72,9 +72,13 @@ def movie_detail(request, movie_url):
     
 
     actors_and_characters = Moviecrew.objects.filter(movieid=movie.movieid, roleid='378').select_related('peopleid', 'characterid')
+    
     actors_and_characters_5 = actors_and_characters[:5]
+    
     directors = Moviecrew.objects.filter(movieid=movie.movieid, roleid='383').select_related('peopleid')
+    
     writers = Moviecrew.objects.filter(movieid=movie.movieid, roleid='12').select_related('peopleid')
+    
     all_crew = Moviecrew.objects.filter(movieid=movie.movieid).select_related('peopleid')
 
     return render(request, 'movies/movie_detail.html', {

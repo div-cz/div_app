@@ -17,7 +17,7 @@
 
 {% block content %}
 <div class="container mt-5">
-  <div class="row">
+    <div class="row">
 
     {% if user.is_authenticated %}
 
@@ -51,6 +51,9 @@
     <p>O mně:<br><a href="/ucet/upravit/">Úvodní text si můžete upravit zde</a></p>
 {% endif %}
 
+
+
+<!--
         
                <p> Moje naposledy ohodnocené filmy: </p>
 <table class="table">
@@ -98,7 +101,102 @@
   </tbody>
 </table>
 
-    </div>
+    
+    --></div>
+
+
+
+<!-- NOVÝ POHLED -->
+
+<h3>Moje hodnocené filmy:</h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Miniatura</th>
+      <th>Název</th>
+      <th>Rok</th>
+      <th>Hodnocení</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user_rating in movie_ratings %}
+      <tr>
+        <td>
+          {% if user_rating.rating.content_object.img == "noimg.png" %}
+            <img src="/img/movie/w200/nomovie.jpg" alt="{{ user_rating.rating.content_object.title }}" width="50">
+          {% else %}
+            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ user_rating.rating.content_object.img }}" alt="{{ user_rating.rating.content_object.title }}" width="50">
+          {% endif %}
+        </td>
+        <td><a href="/film/{{ user_rating.rating.content_object.url }}">{{ user_rating.rating.content_object.titlecz }}</a></td>
+        <td>
+          <a href="/filmy/{{ user_rating.rating.content_object.releaseyear }}">{{ user_rating.rating.content_object.releaseyear }}</a>
+        </td>
+        <td>
+          {% with score=user_rating.score %}
+            <span class="text-warning h4">
+              {% for i in "12345" %}
+                {% if score >= forloop.counter %}
+                  &#9733;
+                {% else %}
+                  &#9734;
+                {% endif %}
+              {% endfor %}
+            </span>
+          {% endwith %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+
+<h3>Moje hodnocené knihy:</h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Obálka</th>
+      <th>Název</th>
+      <th>Rok</th>
+      <th>Hodnocení</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for rating in book_ratings %}
+      <tr>
+
+<td>
+  {% if rating.rating.content_object.img and rating.rating.content_object.img != "noimg.png" %}
+    <img src="https://books.google.com/books/content?id={{ rating.rating.content_object.img }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ rating.rating.content_object.title }}" width="50">
+  {% else %}
+    <img src="https://div.cz/static/img/book/book.png" alt="Bez obrazku" width="50">
+  {% endif %}
+</td>
+
+        <td><a href="/kniha/{{ rating.rating.content_object.url }}">{{ rating.rating.content_object.title }}</a></td>
+        <td>{{ rating.rating.content_object.year_published }}</td>
+        <td>
+          {% with score=rating.score %}
+            <span class="text-warning h4">
+              {% for i in "12345" %}
+                {% if score >= forloop.counter %}
+                  &#9733;
+                {% else %}
+                  &#9734;
+                {% endif %}
+              {% endfor %}
+            </span>
+          {% endwith %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+
+
 
 
     <div class="tab-pane" id="ratings">
@@ -139,6 +237,9 @@
     {% endfor %}
   </tbody>
 </table>
+
+
+
 <div class="pagination">
   <span class="step-links">
     {% if page.has_previous %}
@@ -151,8 +252,10 @@
       <a href="?page={{ page.paginator.num_pages }}">poslední &raquo;</a>
     {% endif %}
   </span>
-</div>
-    </div>
+</div><!-- // Paganation -->
+
+</div><!-- // tab ratings -->
+    
 
 <div class="tab-pane w-100" id="favorites">
     <p> Moje oblíbené filmy:</p>
@@ -285,16 +388,12 @@
       </p>
       <p>Filmy roku <a href="/filmy/2023">2023</a>, <a href="/filmy/2022">2022</a>, <a href="/filmy/2021">2021</a>, <a href="/filmy/akcni">akční</a>, <a href="/filmy/komedie">komedie</a>, <a href="/filmy/romanticky">romantické</a>, <a href="/filmy/fantasy">fantasy</a>, <a href="/osobnosti/">Osobnosti</a> a mnoho dalšího. Začít hodnotit můžeš kdekoliv.</p>
 
-
-
     {% endif %}
-
-
 
     {% else %}
     <p><a href="{% url 'account_login' %}">Přihlásit</a>. Nemáte učet? <a href="{% url 'signup' %}">Registrace</a>.</p>
     {% endif %}
 
-  </div>
-</div>
+    </div><!-- / row -->
+</div><!-- / container -->
 {% endblock content %}

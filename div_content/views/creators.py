@@ -42,4 +42,3 @@ def creator_detail(request, creator_url):
                 'filmography': filmography.items(),
 })
                 
-
