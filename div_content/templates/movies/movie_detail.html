@@ -454,8 +454,13 @@ document.addEventListener('DOMContentLoaded', function() {
 {% if request.user.is_superuser %}
 <p>I am superuser! 
 <ul>
-<li><a href="https://fdk.cz/div/movies/tmdbManualMovie.php?id={{ movie.movieid }}">UPDATE filmu</a></li>
-<li><a href="https://fdk.cz/div/movies/tmdbGenres.php?id={{ movie.movieid }}">UPDATE žánrů</a></li>
+<li><a href="https://api.themoviedb.org/3/movie/{{ movie.movieid }}?api_key=c4efc14c22a10ea59174b7bf4f94310b">API tmdb</a> (<a href="https://api.themoviedb.org/3/movie/{{ movie.movieid }}?api_key=c4efc14c22a10ea59174b7bf4f94310b&language=cs-CZ">CZ</a>) - <a href="https://test.div.cz/film/{{ movie.iddiv }}-{{ movie.url }}">TEST</a></li>
+<li>ID: {{ movie.movieid }}</li>
+<li><a href="https://fdk.cz/div/movies/pridat-do-kina.php?id={{ movie.movieid }}">Přidat film do kina</a></li>
+
+
+<li><a href="https://fdk.cz/div/movies/tmdbManualMovie.php?id={{ movie.movieid }}">UPDATE filmu</a> (pokud je změna TITLE cz - musíme změnit URL)</li>
+
 <li><a href="https://fdk.cz/div/movies/pridat-na-hlavni-stranu.php?id={{ movie.movieid }}">PŘIDAT NA HLAVNÍ STRANU</a></li>
 </ul>
 </p>
