@@ -233,6 +233,18 @@ class Bookpurchase(models.Model):
         db_table = 'BookPurchase'
 
 
+class BookQuotes(models.Model):
+    quoteid = models.AutoField(db_column='QuoteID', primary_key=True)
+    bookid = models.ForeignKey('Book', on_delete=models.CASCADE, db_column='BookID')
+    characterid = models.ForeignKey('Charactermeta', on_delete=models.CASCADE, db_column='CharacterID', null=True, blank=True)
+    authorid = models.ForeignKey('Bookauthor', on_delete=models.CASCADE, db_column='AuthorID', null=True, blank=True)
+    quote = models.TextField(db_column='Quote')
+    parentquoteid = models.ForeignKey('self', on_delete=models.CASCADE, db_column='ParentQuoteID', null=True, blank=True)
+
+    class Meta:
+        db_table = 'BookQuotes'
+
+
 class Bookrating(models.Model):
     ratingid = models.IntegerField(db_column='RatingID', primary_key=True)
     rating = models.IntegerField(db_column='Rating')
@@ -407,7 +419,9 @@ class Creatorrole(models.Model):
 class Drink(models.Model):
     drinkid = models.IntegerField(db_column='DrinkID', primary_key=True)
     drinkname = models.CharField(db_column='DrinkName', max_length=255)
+    drinkurl = models.CharField(db_column='DrinkURL', max_length=255, unique=True, null=True, blank=True)
     description = models.TextField(db_column='Description')
+    drinktype = models.CharField(db_column='DrinkType', max_length=255, null=True, blank=True)
 
     class Meta:
         db_table = 'Drink'
@@ -425,6 +439,7 @@ class Drinkmedia(models.Model):
 class Food(models.Model):
     foodid = models.IntegerField(db_column='FoodID', primary_key=True)
     foodname = models.CharField(db_column='FoodName', max_length=255)
+    foodurl = models.CharField(db_column='FoodURL', max_length=255, unique=True, null=True, blank=True)
     description = models.TextField(db_column='Description')
 
     class Meta:
@@ -687,6 +702,19 @@ class Metalocation(models.Model):
         db_table = 'MetaLocation'
 
 
+class Metasoundtrack(models.Model):
+    soundtrackid = models.AutoField(db_column='SoundtrackID', primary_key=True)
+    title = models.CharField(max_length=255, db_column='Title')
+    albumname = models.CharField(max_length=255, db_column='AlbumName', null=True, blank=True)
+    description = models.TextField(db_column='Description', null=True, blank=True)
+    release_date = models.DateField(db_column='ReleaseDate', null=True, blank=True)
+    img = models.CharField(db_column='IMG', max_length=255, default='n.png')
+    parentid = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, db_column='ParentID')
+
+    class Meta:
+        db_table = 'MetaSoundtrack'
+
+
 class Metastreet(models.Model):
     StreetID = models.AutoField(db_column='StreetID', primary_key=True)
     StreetName = models.CharField(db_column='StreetName', max_length=255)
@@ -748,10 +776,18 @@ class Movie(models.Model):
     averagerating = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, db_column='AverageRating')
     lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
 
-        
     class Meta:
         db_table = 'Movie'
 
+
+class Moviecinema(models.Model):
+    mcid = models.AutoField(db_column='ID', primary_key=True)
+    movieid = models.ForeignKey('Movie', on_delete=models.CASCADE, db_column='MovieID')
+    distributorid = models.ForeignKey('MovieDistributor', on_delete=models.CASCADE, db_column='DistributorID', null=True, blank=True)
+    releasedate = models.DateField(db_column='ReleaseDate', null=True, blank=True)
+
+    class Meta:
+        db_table = 'MovieCinema'
 
 
 class Moviecomments(models.Model):
@@ -785,6 +821,16 @@ class Moviecrew(models.Model):
         db_table = 'MovieCrew'
 
 
+class Moviedistributor(models.Model):
+    distributorid = models.AutoField(db_column='DistributorID', primary_key=True)
+    name = models.CharField(max_length=255, db_column='Name')
+    description = models.TextField(db_column='Description', null=True, blank=True)
+    countryid = models.ForeignKey('Metacountry', on_delete=models.DO_NOTHING, db_column='CountryID', null=True)
+
+    class Meta:
+        db_table = 'MovieDistributor'
+
+
 class Movieduplicity(models.Model):
     duplicityid = models.AutoField(db_column='DuplicityID', primary_key=True, unique=True) 
     url = models.CharField(db_column='URL', max_length=255, unique=True)
@@ -815,6 +861,33 @@ class Movielocation(models.Model):
         db_table = 'MovieLocation'  
 
 
+class Movieproduction(models.Model):
+    productionid = models.AutoField(db_column='ProductionID', primary_key=True)
+    name = models.CharField(max_length=255, db_column='Name')
+    description = models.TextField(db_column='Description', null=True, blank=True)
+    headquarters = models.CharField(max_length=255, db_column='Headquarters', null=True, blank=True)
+    homepage = models.URLField(db_column='Homepage', null=True, blank=True)
+    logopath = models.CharField(max_length=255, db_column='LogoPath', default='n.png')
+    origincountry = models.CharField(max_length=4, db_column='OriginCountry', null=True, blank=True)
+    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True, blank=True)
+    parentcompanyid = models.ForeignKey('self', on_delete=models.CASCADE, db_column='ParentCompanyID', null=True, blank=True)
+
+    class Meta:
+        db_table = 'MovieProduction'
+
+
+class Moviequotes(models.Model):
+    quoteid = models.AutoField(db_column='QuoteID', primary_key=True)
+    movie = models.ForeignKey('Movie', on_delete=models.CASCADE, db_column='MovieID')
+    character = models.ForeignKey('Charactermeta', on_delete=models.CASCADE, db_column='CharacterID', null=True, blank=True)
+    actor = models.ForeignKey('Creator', on_delete=models.CASCADE, db_column='ActorID', null=True, blank=True)
+    quote = models.TextField(db_column='Quote')
+    parentquote = models.ForeignKey('self', on_delete=models.CASCADE, db_column='ParentQuoteID', null=True, blank=True)
+
+    class Meta:
+        db_table = 'MovieQuotes'
+
+
 class Movierating(AbstractBaseRating, models.Model):
     ratingid = models.AutoField(db_column='RatingID', primary_key=True)
     rating = models.IntegerField(db_column='Rating')
@@ -824,6 +897,37 @@ class Movierating(AbstractBaseRating, models.Model):
     class Meta:
         db_table = 'MovieRating'
 
+
+class Moviesoundtrack(models.Model):
+    msid = models.AutoField(db_column='ID', primary_key=True)
+    movie = models.ForeignKey('Movie', on_delete=models.CASCADE, db_column='MovieID')
+    soundtrack = models.ForeignKey('MetaSoundtrack', on_delete=models.CASCADE, db_column='SoundtrackID')
+
+    class Meta:
+        db_table = 'MovieSoundtrack'
+
+
+class Movietrailer(models.Model):
+    trailerid = models.AutoField(db_column='TrailerID', primary_key=True)
+    movieid = models.ForeignKey('Movie', on_delete=models.CASCADE, db_column='MovieID')
+    youtubeurl = models.URLField(db_column='YoutubeURL')
+    duration = models.DurationField(db_column='Duration', null=True, blank=True)
+    date_added = models.DateField(db_column='DateAdded', auto_now_add=True)
+    views = models.IntegerField(db_column='Views', default=0)
+
+    class Meta:
+        db_table = 'MovieTrailer'
+
+class Movietrivia(models.Model):
+    triviaid = models.AutoField(db_column='TriviaID', primary_key=True)
+    trivia = models.TextField(db_column='Trivia')
+    movieid = models.ForeignKey('Movie', on_delete=models.CASCADE, db_column='MovieID')
+    creatorid = models.ForeignKey('Creator', on_delete=models.CASCADE, db_column='CreatorID', null=True, blank=True)
+    parenttriviaid = models.ForeignKey('self', on_delete=models.CASCADE, db_column='ParentTriviaID', null=True, blank=True)
+    userid = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID', null=True, blank=True)
+
+    class Meta:
+        db_table = 'MovieTrivia'
 
 class Movieversions(models.Model):
     movieversionid = models.IntegerField(db_column='MovieVersionID', primary_key=True)

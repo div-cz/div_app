@@ -16,14 +16,17 @@ def game_detail(request, game_url):
     return render(request, 'games/game_detail.html', {'game': game})
 
 
+
+
 def game_add(request):
     if request.method == "POST":
         form = GameForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('games/game_add_success.html')  # Přesměrování po úspěšném přidání
+            return redirect('games/game_add_success')  # Přesměrování po úspěšném přidání
     else:
         form = GameForm()
     return render(request, 'games/game_add.html', {'form': form})
+
 
 

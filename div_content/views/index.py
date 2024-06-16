@@ -11,7 +11,7 @@ from django.views.generic import DetailView
 from div_content.forms.movies import CommentForm, SearchForm
 from div_content.models import (
     Article, Book, Creator, Creatorbiography, Game, Metalocation, Metagenre, Metaindex, 
-    Movie, Moviecomments, Moviecrew, Moviegenre, Movierating, User, Userlist,
+    Movie, Moviecinema, Moviecomments, Moviecrew, Moviegenre, Movierating, User, Userlist,
     Userlistmovie, Userprofile
 )
 from star_ratings.models import Rating, UserRating
@@ -33,6 +33,10 @@ def index(request): # hlavní strana
         #latest_articles = Article.objects.filter(typ='Článek').order_by('-created').values('url', 'title')[:3]
 
         articles = Article.objects.exclude(typ='Site').order_by('-created').values('url', 'title', 'img', 'img400x250', 'perex')[:2]
+
+
+
+
 
 
         movies = Movie.objects.all().order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:40]
@@ -72,6 +76,7 @@ def movies(request, year=None, genre_url=None, movie_url=None):
         movies_carousel = Metaindex.objects.filter(section='Movie').order_by('-popularity').values('title', 'url', 'img', 'description')[:4]
         movies = Movie.objects.all().order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:50]
         movies_list_30 = Movie.objects.filter(adult=0).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:30]
+
         return render(request, 'movies/movies_list.html', {'movies': movies, 'movies_carousel': movies_carousel, 'movies_list_30': movies_list_30})
 
 
