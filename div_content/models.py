@@ -7,8 +7,9 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User 
 from star_ratings.models import AbstractBaseRating, Rating
+
 
 
 
@@ -19,6 +20,62 @@ class AAChange(models.Model):
     class Meta:
         db_table = 'AAChange'
 
+
+class AATask(models.Model):
+    id = models.AutoField(db_column='ID', primary_key=True)
+    parentid = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, db_column='ParentID', related_name='Subtasks')
+    title = models.CharField(db_column='Title', max_length=255)
+    description = models.TextField(db_column='Description')
+    comments = models.TextField(db_column='Comments', blank=True, null=True) 
+    assigned = models.CharField(db_column='Assigned', max_length=64, blank=True, null=True)
+    Creator = models.CharField(db_column='Creator', max_length=64, blank=True, null=True)
+    status = models.CharField(
+        db_column='Status',
+        max_length=16,
+        choices=[
+            ('Ke zpracování', 'Ke zpracování'),
+            ('Probíhá', 'Probíhá'),
+            ('Hotovo', 'Hotovo'),
+            ('Nice to have', 'Nice to have')
+        ],
+        default='Ke zpracování'
+    )
+    priority = models.CharField(
+        db_column='Priority',
+        max_length=16,
+        choices=[
+            ('Vysoká', 'Vysoká'),
+            ('Střední', 'Střední'),
+            ('Nízká', 'Nízká')
+        ],
+        default='Střední'
+    )
+    category = models.CharField(
+        db_column='Category',
+        max_length=16,
+        choices=[
+            ('Frontend', 'Frontend'),
+            ('Backend', 'Backend'),
+            ('Testování', 'Testování'),
+            ('Databáze', 'Databáze'),
+            ('Server', 'Server'),
+            ('iOS', 'iOS')
+        ],
+        default='Frontend'
+    )
+    IPaddress = models.CharField(db_column='IPaddress', max_length=64, null=True, blank=True)
+
+    updated = models.DateField(db_column='Updated', auto_now=True)
+    created = models.DateField(db_column='Created', auto_now_add=True)
+    duedate = models.DateField(db_column='DueDate', default='2025-10-10')
+
+    class Meta:
+        db_table = 'AATasks'
+        
+        
+
+
+
 class Article(models.Model):
     id = models.IntegerField(db_column='ID', primary_key=True)
     url = models.CharField(db_column='URL', max_length=255)
@@ -27,6 +84,7 @@ class Article(models.Model):
     h2 = models.CharField(db_column='H2', max_length=255)
     tagline = models.CharField(db_column='Tagline', max_length=64)
     content = models.TextField(db_column='Content')
+    menu = models.TextField(db_column='Menu', null=True, blank=True)
     youtube = models.CharField(db_column='Youtube', max_length=20, null=True, blank=True)
     img1600 = models.CharField(db_column='Img1600', max_length=255)
     img = models.CharField(db_column='IMG', max_length=32, null=True, blank=True)
@@ -45,10 +103,10 @@ class Article(models.Model):
 
 class Book(models.Model):
     bookid = models.AutoField(db_column='BookID', primary_key=True)
-    title = models.CharField(db_column='Title', max_length=255)
+    title = models.CharField(db_column='Title', max_length=255, db_index=True)
     year = models.IntegerField(db_column='Year', null=True, blank=True)
     pages = models.IntegerField(db_column='Pages', null=True, blank=True)
-    url = models.CharField(db_column='URL', max_length=255, blank=True, null=True)
+    url = models.CharField(db_column='URL', max_length=255, blank=True, null=True, db_index=True)
     img = models.CharField(db_column='IMG', max_length=255, default="noimg.png")
     subtitle = models.CharField(db_column='Subtitle', max_length=255, blank=True, null=True)
     author = models.CharField(db_column='Author', max_length=255)
@@ -58,12 +116,16 @@ class Book(models.Model):
     description = models.TextField(db_column='Description', blank=True, null=True)
     goodreads = models.CharField(db_column='GoodreadsID', max_length=12, blank=True, null=True)
     databazeknih = models.CharField(db_column='DatabazeKnih', max_length=16, blank=True, null=True)
-    genreid = models.ForeignKey('Metagenre', models.DO_NOTHING, db_column='GenreID', null=True)
+    language = models.CharField(db_column='Language', max_length=2, null=True, blank=True)
     universumid = models.ForeignKey('Metauniversum', models.DO_NOTHING, db_column='UniversumID', null=True)
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True)
+    lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
 
     class Meta:
         db_table = 'Book'
+
+        # indexes = [models.Index(fields=['url'], name='url_book_idx')] 
+
 
 class Bookauthor(models.Model):
     authorid = models.AutoField(db_column='AuthorID', primary_key=True)
@@ -88,6 +150,18 @@ class Bookauthor(models.Model):
     class Meta:
         db_table = 'BookAuthor'
 
+
+
+class Bookcharacter(models.Model):
+    bookcharacterid = models.IntegerField(db_column='BookCharacterID', primary_key=True)
+    charactermain = models.CharField(db_column='CharacterMain', max_length=2, null=True, blank=True)
+    characterid = models.ForeignKey('Charactermeta', models.DO_NOTHING, db_column='CharacterID')
+    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
+
+    class Meta:
+        db_table = 'BookCharacter'
+
+
 class Bookcomments(models.Model):
     commentid = models.IntegerField(db_column='CommentID', primary_key=True)
     comment = models.TextField(db_column='Comment')
@@ -107,19 +181,35 @@ class Bookcover(models.Model):
         db_table = 'BookCover'
 
 
+
+
+
+
 class Bookisbn(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='isbns')
-    isbn = models.CharField(max_length=13, unique=True)
-    edition = models.CharField(max_length=255, null=True, blank=True)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, db_column='BookID')
+    isbn = models.CharField(max_length=26, unique=True, db_column='ISBN')
+    ISBNtype = models.CharField(max_length=255, null=True, blank=True, db_column='ISBNtype')
     publisherid = models.ForeignKey('Bookpublisher', models.DO_NOTHING, db_column='PublisherID', null=True)
-    publicationyear = models.IntegerField(null=True, blank=True)
-    format = models.CharField(max_length=100, null=True, blank=True) # e.g., Hardcover, Paperback, eBook
-    language = models.CharField(max_length=100, null=True, blank=True) # e.g., English, Czech
-    description = models.TextField(null=True, blank=True)
-    coverimage = models.URLField(max_length=200, null=True, blank=True)
+    publicationyear = models.IntegerField(null=True, blank=True, db_column='PublicationYear')
+    format = models.CharField(max_length=100, null=True, blank=True, db_column='Format') # e.g., Hardcover, Paperback, eBook
+    language = models.CharField(max_length=100, null=True, blank=True, db_column='Language') # e.g., English, Czech
+    description = models.TextField(null=True, blank=True, db_column='Description')
+    coverimage = models.URLField(max_length=200, null=True, blank=True, db_column='CoverIMG')
     
     class Meta:
         db_table = 'BookISBN'
+
+
+class Booklocation(models.Model):
+    booklocationid = models.IntegerField(db_column='BookLocationID', primary_key=True)
+    locationrole = models.CharField(db_column='LocationRole', max_length=255)
+    locationid = models.ForeignKey('Metalocation', models.DO_NOTHING, db_column='LocationID', blank=True, null=True)
+    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
+
+    class Meta:
+        db_table = 'BookLocation'
+
+
 
 class Bookpublisher(models.Model):
     publisherid = models.IntegerField(db_column='PublisherID', primary_key=True)
@@ -143,6 +233,18 @@ class Bookpurchase(models.Model):
         db_table = 'BookPurchase'
 
 
+class BookQuotes(models.Model):
+    quoteid = models.AutoField(db_column='QuoteID', primary_key=True)
+    bookid = models.ForeignKey('Book', on_delete=models.CASCADE, db_column='BookID')
+    characterid = models.ForeignKey('Charactermeta', on_delete=models.CASCADE, db_column='CharacterID', null=True, blank=True)
+    authorid = models.ForeignKey('Bookauthor', on_delete=models.CASCADE, db_column='AuthorID', null=True, blank=True)
+    quote = models.TextField(db_column='Quote')
+    parentquoteid = models.ForeignKey('self', on_delete=models.CASCADE, db_column='ParentQuoteID', null=True, blank=True)
+
+    class Meta:
+        db_table = 'BookQuotes'
+
+
 class Bookrating(models.Model):
     ratingid = models.IntegerField(db_column='RatingID', primary_key=True)
     rating = models.IntegerField(db_column='Rating')
@@ -154,14 +256,49 @@ class Bookrating(models.Model):
         db_table = 'BookRating'
 
 
-class Characterbook(models.Model):
-    bookcharacterid = models.IntegerField(db_column='BookCharacterID', null=True, blank=True)
-    characterrole = models.CharField(db_column='CharacterRole', max_length=255)
-    characterid = models.ForeignKey('Charactermeta', models.DO_NOTHING, db_column='CharacterID')
-    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
+class Bookwriters(models.Model):
+    bookwriterid = models.AutoField(db_column='BookWriterID', primary_key=True)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, db_column='BookID')
+    author = models.ForeignKey(Bookauthor, on_delete=models.CASCADE, db_column='AuthorID')
 
     class Meta:
-        db_table = 'CharacterBook'
+        db_table = 'BookWriters'
+        unique_together = (('book', 'author'),)
+
+
+
+
+class Characterbiography(models.Model):
+    biographyid = models.AutoField(primary_key=True)
+    characterid = models.ForeignKey('Charactermeta', on_delete=models.CASCADE, db_column='CharacterID', related_name='biographies')
+    characterborn = models.CharField(db_column='CharacterBorn', max_length=16, null=True)
+    characterdeath = models.CharField(db_column='CharacterDeath', max_length=16, null=True)
+    biographytext = models.TextField(db_column='BiographyText', null=True, blank=True)
+    source = models.CharField(db_column='Source', max_length=255, blank=True)
+    lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
+    language = models.CharField(db_column='Language', max_length=10, default='en')
+    shortdescription = models.TextField(db_column='ShortDescription', blank=True)
+    externallink = models.URLField(db_column='ExternalLink', blank=True)
+    img = models.URLField(db_column='IMG', blank=True)
+    notes = models.TextField(db_column='Notes', blank=True)
+    author = models.CharField(db_column='Author', max_length=255, blank=True)
+    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
+    verificationstatus = models.CharField(
+        db_column='VerificationStatus',
+        max_length=10,
+        choices=[
+            ('Verified', 'Verified'),
+            ('Unverified', 'Unverified'),
+            ('Pending', 'Pending')
+        ],
+        default='Unverified'
+    )
+    is_primary = models.BooleanField(db_column='IsPrimary', default=False)
+
+    class Meta:
+        db_table = 'CharacterBiography'
+
+
 
 
 class Charactergame(models.Model):
@@ -179,10 +316,8 @@ class Charactermeta(models.Model):
     charactername = models.CharField(db_column='CharacterName', max_length=255, unique=True)
     characternamecz = models.CharField(db_column='CharacterNameCZ', max_length=255, null=True, blank=True)
     characterimg = models.CharField(db_column='CharacterIMG', max_length=128, null=True)
-    characterdescription = models.TextField(db_column='CharacterDescription', null=True, blank=True)
-    characterurl = models.URLField(db_column='CharacterURL', max_length=255, null=True, blank=True) 
-    characterborn = models.CharField(db_column='CharacterBorn', max_length=16, null=True)
-    characterdeath = models.CharField(db_column='CharacterDeath', max_length=16, null=True)
+    characterbio = models.CharField(db_column='CharacterBio', null=True, blank=True, max_length=1)
+    characterurl = models.URLField(db_column='CharacterURL', max_length=255, null=True, blank=True, unique=True) 
     charactercount = models.IntegerField(db_column='CharacterCount', null=True, blank=True)
 
     class Meta:
@@ -235,6 +370,9 @@ class Creator(models.Model):
 
     class Meta:
         db_table = 'Creator'
+        indexes = [
+            models.Index(fields=['url'], name='url_idx'),
+        ]
 
 
 class Creatorbiography(models.Model):
@@ -268,36 +406,6 @@ class Creatorbiography(models.Model):
 
 
 
-class Creatoringame(models.Model):
-    creatoringameid = models.IntegerField(db_column='CreatorInGameID', primary_key=True)
-    roleid = models.ForeignKey('Creatorrole', models.DO_NOTHING, db_column='RoleID')
-    gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID')
-    creatorid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='CreatorID')
-
-    class Meta:
-        db_table = 'CreatorInGame'
-
-
-class Creatorinmovie(models.Model):
-    creatorinmovieid = models.IntegerField(db_column='CreatorInMovieID', primary_key=True)
-    creatorid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='CreatorID')
-    roleid = models.ForeignKey('Creatorrole', models.DO_NOTHING, db_column='RoleID')
-    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')
-
-    class Meta:
-        db_table = 'CreatorInMovie'
-
-
-class Creatorintvshow(models.Model):
-    creatorintvshowid = models.IntegerField(db_column='CreatorInTVShowID', primary_key=True)
-    creatorid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='CreatorID')
-    roleid = models.ForeignKey('Creatorrole', models.DO_NOTHING, db_column='RoleID')
-    tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')
-
-    class Meta:
-        db_table = 'CreatorInTVShow'
-
-
 class Creatorrole(models.Model):
     roleid = models.IntegerField(db_column='RoleID', primary_key=True)
     rolename = models.CharField(db_column='RoleName', max_length=255)
@@ -311,7 +419,9 @@ class Creatorrole(models.Model):
 class Drink(models.Model):
     drinkid = models.IntegerField(db_column='DrinkID', primary_key=True)
     drinkname = models.CharField(db_column='DrinkName', max_length=255)
+    drinkurl = models.CharField(db_column='DrinkURL', max_length=255, unique=True, null=True, blank=True)
     description = models.TextField(db_column='Description')
+    drinktype = models.CharField(db_column='DrinkType', max_length=255, null=True, blank=True)
 
     class Meta:
         db_table = 'Drink'
@@ -329,6 +439,7 @@ class Drinkmedia(models.Model):
 class Food(models.Model):
     foodid = models.IntegerField(db_column='FoodID', primary_key=True)
     foodname = models.CharField(db_column='FoodName', max_length=255)
+    foodurl = models.CharField(db_column='FoodURL', max_length=255, unique=True, null=True, blank=True)
     description = models.TextField(db_column='Description')
 
     class Meta:
@@ -380,6 +491,17 @@ class Gamedevelopers(models.Model):
         db_table = 'GameDevelopers'
     def __str__(self):
         return self.developername 
+
+
+
+class Gamelocation(models.Model):
+    gamelocationid = models.IntegerField(db_column='GameLocationID', primary_key=True)
+    locationrole = models.CharField(db_column='LocationRole', max_length=255)
+    locationid = models.ForeignKey('Metalocation', models.DO_NOTHING, db_column='LocationID', blank=True, null=True)
+    gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')
+
+    class Meta:
+        db_table = 'GameLocation'
 
 
 
@@ -441,7 +563,7 @@ class Item(models.Model):
     itemname_cz = models.CharField(db_column='ItemNameCZ', max_length=255, blank=True)
     itemdescription = models.TextField(db_column='ItemDescription')
     itemtype = models.CharField(max_length=3, choices=Itemtype.choices, db_column='ItemType', null=True, blank=True)
-    locationid = models.ForeignKey('Location', models.DO_NOTHING, db_column='LocationID', blank=True, null=True)
+    locationid = models.ForeignKey('Metalocation', models.DO_NOTHING, db_column='LocationID', blank=True, null=True)
 
 
     class Meta:
@@ -499,54 +621,11 @@ class Itemmedia(models.Model):
         db_table = 'ItemMedia'
 
 
-
-class Location(models.Model):
-    locationid = models.IntegerField(db_column='LocationID', primary_key=True)
-    locationname = models.CharField(db_column='LocationName', max_length=255, unique=True)
-    locationtype = models.CharField(db_column='LocationType', max_length=50)
-    locationdescription = models.TextField(db_column='LocationDescription')
-    parentlocationid = models.IntegerField(db_column='ParentLocationID', blank=True, null=True)
-    locationadress = models.CharField(db_column='LocationAdress', max_length=255, blank=True, null=True)
-
-    class Meta:
-        db_table = 'Location'
-
-
-class Locationbook(models.Model):
-    booklocationid = models.IntegerField(db_column='BookLocationID', primary_key=True)
-    locationrole = models.CharField(db_column='LocationRole', max_length=255)
-    locationid = models.ForeignKey(Location, models.DO_NOTHING, db_column='LocationID')
-    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
-
-    class Meta:
-        db_table = 'LocationBook'
-
-
-class Locationgame(models.Model):
-    gamelocationid = models.IntegerField(db_column='GameLocationID', primary_key=True)
-    locationrole = models.CharField(db_column='LocationRole', max_length=255)
-    locationid = models.ForeignKey(Location, models.DO_NOTHING, db_column='LocationID')
-    gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')
-
-    class Meta:
-        db_table = 'LocationGame'
-
-
-class Locationmovie(models.Model):
-    movielocationid = models.IntegerField(db_column='MovieLocationID', primary_key=True)
-    locationrole = models.CharField(db_column='LocationRole', max_length=255)
-    locationid = models.ForeignKey(Location, models.DO_NOTHING, db_column='LocationID')
-    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')
-
-    class Meta:
-        db_table = 'LocationMovie'
-
-
 class Metacity(models.Model):
-    cityid = models.IntegerField(db_column='CityID', primary_key=True)
+    cityid = models.AutoField(db_column='CityID', primary_key=True)
     namecity = models.CharField(db_column='NameCity', max_length=255)
+    namecitycz = models.CharField(db_column='NameCityCZ', max_length=255, blank=True, null=True)
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')
-
     class Meta:
         db_table = 'MetaCity'
 
@@ -554,6 +633,8 @@ class Metacollection(models.Model):
     collectionid = models.IntegerField(db_column='CollectionID', primary_key=True)
     collectionname = models.CharField(db_column='CollectionName', max_length=255)
     collectiondescription = models.TextField(db_column='CollectionDescription')
+    img = models.CharField(db_column='IMG', max_length=64, null=True, blank=True)
+    imgposter = models.CharField(db_column='IMGposter', max_length=64, null=True, blank=True)
 
     class Meta:
         db_table = 'MetaCollection'
@@ -566,8 +647,7 @@ class Metacountry(models.Model):
     countrynamecz = models.CharField(db_column='CountryNameCZ', max_length=255)
     class Meta:
         db_table = 'MetaCountry'
-    def __str__(self):
-        return self.countrynamecz
+
 
 class Metagenre(models.Model):
     genreid = models.IntegerField(db_column='GenreID', primary_key=True)
@@ -585,6 +665,8 @@ class Metaindex(models.Model):
     section = models.CharField(db_column='Section', max_length=8)  # Např. 'Movie', 'Book', 'Game'
     item_id = models.IntegerField(db_column='ItemID')  # ID položky z příslušné sekce
     title = models.CharField(db_column='Title', max_length=255)  # Název položky
+    author = models.CharField(db_column='Author', max_length=255, null=True, blank=True) 
+    year = models.CharField(db_column='Year', max_length=255, null=True, blank=True) 
     description = models.CharField(db_column='Description', max_length=255, null=True)
     popularity = models.CharField(db_column='Popularity', max_length=9, default=0)
     img = models.CharField(db_column='IMG', max_length=255, null=True, blank=True)  # URL obrázku
@@ -593,6 +675,67 @@ class Metaindex(models.Model):
 
     class Meta:
         db_table = 'MetaIndex'
+
+
+class Bookgenre(models.Model):
+    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
+    genreid = models.ForeignKey(Metagenre, models.DO_NOTHING, db_column='GenreID')
+
+    class Meta:
+        db_table = 'BookGenre'
+
+
+class Metalocation(models.Model):
+    locationid = models.IntegerField(db_column='LocationID', primary_key=True)
+    locationname = models.CharField(db_column='LocationName', max_length=255, unique=True)
+    locationnamecz = models.CharField(db_column='LocationNameCZ', max_length=255, blank=True, null=True)
+    locationurl = models.CharField(db_column='LocationURL', max_length=255, unique=True)
+    locationtype = models.CharField(db_column='LocationType', max_length=50)
+    locationtypeid = models.ForeignKey('Metatype', models.DO_NOTHING, db_column='TypeID', blank=True, null=True)
+    locationdescription = models.TextField(db_column='LocationDescription')
+    parentlocationid = models.IntegerField(db_column='ParentLocationID', blank=True, null=True)
+    locationadress = models.CharField(db_column='LocationAdress', max_length=255, blank=True, null=True)
+    gpsx = models.CharField(db_column='gpsX', max_length=32, blank=True, null=True)
+    gpsy = models.CharField(db_column='gpsY', max_length=32, blank=True, null=True)
+
+    class Meta:
+        db_table = 'MetaLocation'
+
+
+class Metasoundtrack(models.Model):
+    soundtrackid = models.AutoField(db_column='SoundtrackID', primary_key=True)
+    title = models.CharField(max_length=255, db_column='Title')
+    albumname = models.CharField(max_length=255, db_column='AlbumName', null=True, blank=True)
+    description = models.TextField(db_column='Description', null=True, blank=True)
+    release_date = models.DateField(db_column='ReleaseDate', null=True, blank=True)
+    img = models.CharField(db_column='IMG', max_length=255, default='n.png')
+    parentid = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, db_column='ParentID')
+
+    class Meta:
+        db_table = 'MetaSoundtrack'
+
+
+class Metastreet(models.Model):
+    StreetID = models.AutoField(db_column='StreetID', primary_key=True)
+    StreetName = models.CharField(db_column='StreetName', max_length=255)
+    StreetNameCZ = models.CharField(db_column='StreetNameCZ', max_length=255, blank=True, null=True)
+    StreetNameURL = models.CharField(db_column='StreetNameURL', max_length=255, blank=True, null=True)
+    City = models.ForeignKey(Metacity, on_delete=models.CASCADE, blank=True, null=True)
+    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')
+    class Meta:
+        db_table = 'MetaStreet'
+
+
+
+class Metatype(models.Model):
+    typeid = models.IntegerField(db_column='TypeID', primary_key=True)
+    tablename = models.CharField(db_column='TableName', max_length=255)
+    typename = models.CharField(db_column='TypeName', max_length=255)
+    typenamecz = models.CharField(db_column='TypeNameCZ', max_length=255, blank=True, null=True)
+    typedescription = models.CharField(db_column='TypeDescription', max_length=1024)
+    class Meta:
+        db_table = 'MetaType'
+
 
 class Metauniversum(models.Model):
     universumid = models.IntegerField(db_column='UniversumID', primary_key=True)
@@ -633,10 +776,18 @@ class Movie(models.Model):
     averagerating = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, db_column='AverageRating')
     lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
 
-        
     class Meta:
         db_table = 'Movie'
 
+
+class Moviecinema(models.Model):
+    mcid = models.AutoField(db_column='ID', primary_key=True)
+    movieid = models.ForeignKey('Movie', on_delete=models.CASCADE, db_column='MovieID')
+    distributorid = models.ForeignKey('MovieDistributor', on_delete=models.CASCADE, db_column='DistributorID', null=True, blank=True)
+    releasedate = models.DateField(db_column='ReleaseDate', null=True, blank=True)
+
+    class Meta:
+        db_table = 'MovieCinema'
 
 
 class Moviecomments(models.Model):
@@ -670,6 +821,16 @@ class Moviecrew(models.Model):
         db_table = 'MovieCrew'
 
 
+class Moviedistributor(models.Model):
+    distributorid = models.AutoField(db_column='DistributorID', primary_key=True)
+    name = models.CharField(max_length=255, db_column='Name')
+    description = models.TextField(db_column='Description', null=True, blank=True)
+    countryid = models.ForeignKey('Metacountry', on_delete=models.DO_NOTHING, db_column='CountryID', null=True)
+
+    class Meta:
+        db_table = 'MovieDistributor'
+
+
 class Movieduplicity(models.Model):
     duplicityid = models.AutoField(db_column='DuplicityID', primary_key=True, unique=True) 
     url = models.CharField(db_column='URL', max_length=255, unique=True)
@@ -690,6 +851,43 @@ class Moviegenre(models.Model):
         db_table = 'MovieGenre'
 
 
+class Movielocation(models.Model):
+    movielocationid = models.IntegerField(db_column='MovieLocationID', primary_key=True)
+    locationrole = models.CharField(db_column='LocationRole', max_length=255)
+    locationid = models.ForeignKey('Metalocation', models.DO_NOTHING, db_column='LocationID', blank=True, null=True)
+    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')
+
+    class Meta:
+        db_table = 'MovieLocation'  
+
+
+class Movieproduction(models.Model):
+    productionid = models.AutoField(db_column='ProductionID', primary_key=True)
+    name = models.CharField(max_length=255, db_column='Name')
+    description = models.TextField(db_column='Description', null=True, blank=True)
+    headquarters = models.CharField(max_length=255, db_column='Headquarters', null=True, blank=True)
+    homepage = models.URLField(db_column='Homepage', null=True, blank=True)
+    logopath = models.CharField(max_length=255, db_column='LogoPath', default='n.png')
+    origincountry = models.CharField(max_length=4, db_column='OriginCountry', null=True, blank=True)
+    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True, blank=True)
+    parentcompanyid = models.ForeignKey('self', on_delete=models.CASCADE, db_column='ParentCompanyID', null=True, blank=True)
+
+    class Meta:
+        db_table = 'MovieProduction'
+
+
+class Moviequotes(models.Model):
+    quoteid = models.AutoField(db_column='QuoteID', primary_key=True)
+    movie = models.ForeignKey('Movie', on_delete=models.CASCADE, db_column='MovieID')
+    character = models.ForeignKey('Charactermeta', on_delete=models.CASCADE, db_column='CharacterID', null=True, blank=True)
+    actor = models.ForeignKey('Creator', on_delete=models.CASCADE, db_column='ActorID', null=True, blank=True)
+    quote = models.TextField(db_column='Quote')
+    parentquote = models.ForeignKey('self', on_delete=models.CASCADE, db_column='ParentQuoteID', null=True, blank=True)
+
+    class Meta:
+        db_table = 'MovieQuotes'
+
+
 class Movierating(AbstractBaseRating, models.Model):
     ratingid = models.AutoField(db_column='RatingID', primary_key=True)
     rating = models.IntegerField(db_column='Rating')
@@ -699,6 +897,37 @@ class Movierating(AbstractBaseRating, models.Model):
     class Meta:
         db_table = 'MovieRating'
 
+
+class Moviesoundtrack(models.Model):
+    msid = models.AutoField(db_column='ID', primary_key=True)
+    movie = models.ForeignKey('Movie', on_delete=models.CASCADE, db_column='MovieID')
+    soundtrack = models.ForeignKey('MetaSoundtrack', on_delete=models.CASCADE, db_column='SoundtrackID')
+
+    class Meta:
+        db_table = 'MovieSoundtrack'
+
+
+class Movietrailer(models.Model):
+    trailerid = models.AutoField(db_column='TrailerID', primary_key=True)
+    movieid = models.ForeignKey('Movie', on_delete=models.CASCADE, db_column='MovieID')
+    youtubeurl = models.URLField(db_column='YoutubeURL')
+    duration = models.DurationField(db_column='Duration', null=True, blank=True)
+    date_added = models.DateField(db_column='DateAdded', auto_now_add=True)
+    views = models.IntegerField(db_column='Views', default=0)
+
+    class Meta:
+        db_table = 'MovieTrailer'
+
+class Movietrivia(models.Model):
+    triviaid = models.AutoField(db_column='TriviaID', primary_key=True)
+    trivia = models.TextField(db_column='Trivia')
+    movieid = models.ForeignKey('Movie', on_delete=models.CASCADE, db_column='MovieID')
+    creatorid = models.ForeignKey('Creator', on_delete=models.CASCADE, db_column='CreatorID', null=True, blank=True)
+    parenttriviaid = models.ForeignKey('self', on_delete=models.CASCADE, db_column='ParentTriviaID', null=True, blank=True)
+    userid = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID', null=True, blank=True)
+
+    class Meta:
+        db_table = 'MovieTrivia'
 
 class Movieversions(models.Model):
     movieversionid = models.IntegerField(db_column='MovieVersionID', primary_key=True)
@@ -749,7 +978,7 @@ class Tvseason(models.Model):
     seasonnumber = models.IntegerField(db_column='SeasonNumber')
     title = models.CharField(db_column='title', max_length=255, null=True, blank=True)
     titlecz = models.CharField(db_column='titleCZ', max_length=255, null=True, blank=True)
-    seassonimg = models.CharField(db_column='SeasonIMG', max_length=255, null=True, blank=True)
+    img = models.CharField(db_column='IMG', max_length=255, null=True, blank=True)
     seassonepisode = models.IntegerField(db_column='SeasonEpisode', null=True, blank=True)
     premieredate = models.DateField(db_column='PremiereDate')
     tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')
@@ -764,7 +993,8 @@ class Tvshow(models.Model):
     titlecz = models.CharField(db_column='TitleCZ', max_length=255, null=True, blank=True)
     url = models.CharField(db_column='URL', max_length=255, null=True, blank=True)
     description = models.TextField(db_column='Description', null=True, blank=True)
-    img = models.CharField(db_column='IMG', max_length=255, null=True, blank=True)
+    img = models.CharField(db_column='IMG', max_length=64, null=True, blank=True)
+    imgposter = models.CharField(db_column='IMGposter', max_length=64, null=True, blank=True)
     premieredate = models.DateField(db_column='PremiereDate')
     enddate = models.DateField(db_column='EndDate')
     popularity = models.CharField(db_column='Popularity', max_length=8, default=0)
