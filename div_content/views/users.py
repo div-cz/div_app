@@ -86,11 +86,12 @@ def myuser_detail(request, user_id=None):
 
     profile_user = get_object_or_404(User, id=user_id)
 
-    # Získání instance profilu uživatele
-    user_profile = Userprofile.objects.get(user=profile_user)  # Zajištění, že user_profile je definován
+    # Get the user profile
+    user_profile = Userprofile.objects.get(user=profile_user)  
 
-    movie_content_type_id = 26  # Předpokládá se, že máte tento ID pro filmy
-    book_content_type_id = 8    # Předpokládá se, že máte tento ID pro knihy
+    # Assuming content_type_id for movies is defined
+    movie_content_type_id = 26
+    book_content_type_id = 8 
     # 7 = article, creator = 12, comments = 53, drink = 14, food = 15, game = 16, item = 20
 
     movie_ratings = UserRating.objects.filter(user_id=user_id, rating__content_type_id=movie_content_type_id).order_by('-modified')[:5]

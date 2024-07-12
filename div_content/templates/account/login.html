@@ -35,6 +35,20 @@ for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
 
 
 
+{% if form.errors %}
+  <div class="alert alert-danger">
+    {% for field in form %}
+      {% for error in field.errors %}
+        <p>{{ error }}</p>
+      {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+      <p>{{ error }}</p>
+    {% endfor %}
+  </div>
+{% endif %}
+
+
 <form class="login w-50 mx-auto" method="POST" action="{% url 'account_login' %}">
   {% csrf_token %}
   <div class="form-group">
