@@ -1017,6 +1017,16 @@ class Userprofile(models.Model):
     
     class Meta:
         db_table = 'UserProfile'
+
+
+class Userlisttype(models.Model):
+    userlisttypeid = models.AutoField(db_column='UserListTypeID', primary_key=True)
+    name = models.CharField(db_column='Name', max_length=255, blank=True, null=True)
+    description = models.TextField(db_column='Description', blank=True, null=True)
+
+    class Meta:
+        db_table = 'UserListType'
+
     
     
 class Userlist(models.Model):
@@ -1025,11 +1035,12 @@ class Userlist(models.Model):
     namelist = models.CharField(db_column='NameList', max_length=255)
     description = models.TextField(db_column='Description', blank=True, null=True)
     createdat = models.DateTimeField(db_column='CreatedAt', auto_now_add=True)
-
+    listtype = models.ForeignKey(Userlisttype, on_delete=models.CASCADE, db_column='ListTypeID', blank=True, null=True)
     class Meta:
         db_table = 'UserList'
     def __str__(self):
         return self.name    
+
     
     
 class Userlistmovie(models.Model):

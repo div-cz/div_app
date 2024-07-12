@@ -68,7 +68,8 @@ def movies(request, year=None, genre_url=None, movie_url=None):
         movies_for_genre = Movie.objects.filter(moviegenre__genreid=genre.genreid)
         movies_carousel_genre = Metaindex.objects.filter(section='Movie').order_by('-indexid').values('title', 'url', 'img', 'description')[:3]
 
-        movies_list_30_genre = Movie.objects.filter(moviegenre__genreid=genre.genreid).values('title', 'titlecz', 'url', 'img', 'description')[:30]
+        #movies_list_30_genre = Movie.objects.filter(moviegenre__genreid=genre.genreid).values('title', 'titlecz', 'url', 'img', 'description')[:30]
+        movies_list_30_genre = Movie.objects.filter(moviegenre__genreid=genre.genreid).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description', 'popularity')[:30]
 
         return render(request, 'movies/movies_genre.html', {'movies_for_genre': movies_for_genre, 'movies_carousel_genre': movies_carousel_genre, 'movies_list_30_genre': movies_list_30_genre, 'genre': genre})
 

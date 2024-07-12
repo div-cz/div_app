@@ -75,6 +75,51 @@
 }
 
 
+
+/* Tabs styling */
+.tab-container {
+    margin-top: 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+.tab-links {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.tab-links li {
+    margin-right: 5px;
+}
+
+.tab-links a {
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 5px 5px 0 0;
+    background-color: #f0f0f0;
+    color: #000;
+    display: inline-block;
+}
+
+.tab-links a.active {
+    background-color: #007bff;
+    color: #fff;
+    border: 1px solid #ccc;
+    border-bottom: none;
+}
+
+.tab-content {
+    display: none;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-top: none;
+    background-color: #fff;
+}
+
+.tab-content.active {
+    display: block;
+}
 </style>
 
 
@@ -266,83 +311,153 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Získáme CSRF token z vygenerovaného skrytého inputu
     var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
 
     document.querySelectorAll('.btn-action').forEach(function(button) {
         button.addEventListener('click', function(e) {
-            e.preventDefault(); // Zamezíme výchozí akci tlačítka, pokud je nějaká
+            e.preventDefault();
 
             var movieId = button.getAttribute('data-movie-id');
             var listType = button.getAttribute('data-list-type');
             var thankYouMessage = document.getElementById('add-thankyou');
+            var userIsAuthenticated = button.getAttribute('data-user-authenticated') === 'true';
 
-            // Odesílání požadavku na server
-            fetch("/film/add-to-list/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": csrfToken  // Přidání CSRF token
-                },
-                body: JSON.stringify({
-                    media_id: movieId,
-                    list_type: listType,
-                    media_type: "movie"
+            if (userIsAuthenticated) {
+                fetch("/film/add-to-list/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrfToken
+                    },
+                    body: JSON.stringify({
+                        media_id: movieId,
+                        list_type: listType,
+                        media_type: "movie"
+                    })
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if (data.action === "added") {
-                        thankYouMessage.textContent = button.getAttribute('data-message-added'); 
-                    } else if (data.action === "removed") {
-                        thankYouMessage.textContent = button.getAttribute('data-message-removed'); 
-                    }
-                    thankYouMessage.style.display = 'block';
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.action === "added") {
+                            thankYouMessage.textContent = button.getAttribute('data-message-added'); 
+                        } else if (data.action === "removed") {
+                            thankYouMessage.textContent = button.getAttribute('data-message-removed'); 
+                        }
+                        thankYouMessage.style.display = 'block';
 
-                    // Skryjeme hlášku po 4 sekundách
-                    setTimeout(function() {
-                        thankYouMessage.style.display = 'none';
-                    }, 4000);
-                } else {
-                    alert("Něco se pokazilo. Zkuste to prosím znovu.");
-                }
-            });
+                        setTimeout(function() {
+                            thankYouMessage.style.display = 'none';
+                        }, 4000);
+                    } else {
+                        alert("Něco se pokazilo. Zkuste to prosím znovu.");
+                    }
+                });
+            } else {
+                thankYouMessage.textContent = button.getAttribute('data-message');
+                thankYouMessage.style.display = 'block';
+
+                setTimeout(function() {
+                    thankYouMessage.style.display = 'none';
+                }, 4000);
+            }
         });
     });
 });
+
 
 </script>
 {% if user.is_authenticated %}
 {% csrf_token %}
 <div class="d-flex justify-content-end mt-3">
-<button class="btn btn-primary mb-2 mr-1 btn-action" data-movie-id="{{ movie.movieid }}" data-list-type="favorite" data-message-added="Film byl přidán k oblíbeným!" data-message-removed="Film byl odebrán z oblíbených!">
-    <i class="fa fa-heart{% if is_favorite %} text-danger{% else %}{% endif %}"></i> <span class="d-none d-md-inline">Oblíbené</span>
-</button>
-<button class="btn btn-secondary mb-2 mr-1 btn-action" data-movie-id="{{ movie.movieid }}" data-list-type="want-to-see" data-message-added="Film byl přidán do Chci vidět!" data-message-removed="Film byl odebrán z Chci vidět!">
-    <i class="fa fa-eye {% if is_want_to_see %}text-success{% else %}text-secondary{% endif %}"></i> <span class="d-none d-md-inline">Chci vidět!</span>
-</button>
-
+    <button class="btn btn-primary mb-2 mr-1 btn-action" data-movie-id="{{ movie.movieid }}" data-list-type="favorite" data-message-added="Film byl přidán k oblíbeným!" data-message-removed="Film byl odebrán z oblíbených!" data-user-authenticated="true">
+        <i class="fa fa-heart{% if is_favorite %} text-danger{% else %}{% endif %}"></i> <span class="d-none d-md-inline">Oblíbené</span>
+    </button>
+    <button class="btn btn-secondary mb-2 mr-1 btn-action" data-movie-id="{{ movie.movieid }}" data-list-type="want-to-see" data-message-added="Film byl přidán do Chci vidět!" data-message-removed="Film byl odebrán z Chci vidět!" data-user-authenticated="true">
+        <i class="fa fa-eye {% if is_want_to_see %}text-success{% else %}text-secondary{% endif %}"></i> <span class="d-none d-md-inline">Chci vidět!</span>
+    </button>
 </div>
-<div id="add-thankyou" class="alert alert-success" style="display: none;">Film přidán do seznamu!</div>
-
 {% else %}
 <div class="d-flex justify-content-end mt-3">
-    <button class="btn btn-primary mb-2 mr-1 btn-action" data-message="Pro přidání do seznamu se musíte přihlásit.">
+    <button class="btn btn-primary mb-2 mr-1 btn-action" data-message="Pro přidání do seznamu se musíte přihlásit." data-user-authenticated="false">
         <i class="fa fa-heart"></i> <span class="d-none d-md-inline">Oblíbené</span>
     </button>
-    <button class="btn btn-secondary mb-2 mr-1 btn-action"" data-message="Pro přidání do seznamu se musíte přihlásit.">
+    <button class="btn btn-secondary mb-2 mr-1 btn-action" data-message="Pro přidání do seznamu se musíte přihlásit." data-user-authenticated="false">
         <i class="fa fa-eye"></i> <span class="d-none d-md-inline">Chci vidět!</span>
     </button>
 </div>
-
-<div id="add-thankyou" class="alert alert-success" style="display: none;">Pro přidání do seznamu se musíte přihlásit.</div>
 {% endif %}
+<div id="add-thankyou" class="alert alert-success" style="display: none;">Film přidán do seznamu!</div>
+
     </div>
 </div>
 
 
           <p>{{ movie.description|safe }}</p>
+
+
+
+
+
+<!--
+<div class="tab-container">
+    <ul class="tab-links">
+        <li><a href="#tab1" class="active">Obsazení</a></li>
+        <li><a href="#tab2">Zajímavosti</a></li>
+        <li><a href="#tab3">Soundtrack</a></li>
+        <li><a href="#tab4">Hlášky z filmů</a></li>
+        <li><a href="#tab5">Postavy</a></li>
+        <li><a href="#tab6">Diskuze</a></li>
+        <li><a href="#tab7">Lokality</a></li>
+    </ul>
+
+    <div id="tab1" class="tab-content active">
+        <h3>Obsazení</h3>
+        <p>Informace o obsazení filmu.</p>
+    </div>
+    <div id="tab2" class="tab-content">
+        <h3>Zajímavosti</h3>
+        <p>Informace o zajímavostech filmu.</p>
+    </div>
+    <div id="tab3" class="tab-content">
+        <h3>Soundtrack</h3>
+        <p>Informace o soundtracku filmu.</p>
+    </div>
+    <div id="tab4" class="tab-content">
+        <h3>Hlášky</h3>
+        <p>Známé hlášky z filmu.</p>
+    </div>
+    <div id="tab5" class="tab-content">
+        <h3>Postavy</h3>
+        <p>Informace o postavách filmu.</p>
+    </div>
+    <div id="tab6" class="tab-content">
+        <h3>Diskuze</h3>
+        <p>Diskuze o filmu.</p>
+    </div>
+    <div id="tab7" class="tab-content">
+        <h3>Lokality</h3>
+        <p>Informace o natáčecích lokalitách.</p>
+    </div>
+</div>-->
+
+<script>
+$(document).ready(function(){
+    $('.tab-links a').on('click', function(e) {
+        e.preventDefault();
+        var currentAttrValue = $(this).attr('href');
+
+        // Show/Hide Tabs
+        $('.tab-content').removeClass('active');
+        $(currentAttrValue).addClass('active');
+
+        // Change/remove current tab to active
+        $('.tab-links a').removeClass('active');
+        $(this).addClass('active');
+    });
+});
+</script>
+
+
 
 
 
@@ -457,15 +572,34 @@ document.addEventListener('DOMContentLoaded', function() {
 <li><a href="https://api.themoviedb.org/3/movie/{{ movie.movieid }}?api_key=c4efc14c22a10ea59174b7bf4f94310b">API tmdb</a> (<a href="https://api.themoviedb.org/3/movie/{{ movie.movieid }}?api_key=c4efc14c22a10ea59174b7bf4f94310b&language=cs-CZ">CZ</a>) - <a href="https://test.div.cz/film/{{ movie.iddiv }}-{{ movie.url }}">TEST</a></li>
 <li>ID: {{ movie.movieid }}</li>
 <li><a href="https://fdk.cz/div/movies/pridat-do-kina.php?id={{ movie.movieid }}">Přidat film do kina</a></li>
-
-
-<li><a href="https://fdk.cz/div/movies/tmdbManualMovie.php?id={{ movie.movieid }}">UPDATE filmu</a> (pokud je změna TITLE cz - musíme změnit URL)</li>
-
 <li><a href="https://fdk.cz/div/movies/pridat-na-hlavni-stranu.php?id={{ movie.movieid }}">PŘIDAT NA HLAVNÍ STRANU</a></li>
 </ul>
 </p>
+{% elif request.user.username == "Sandra.K" %}
+<p>I am Sandra.K! 
+<ul>
+<li><a href="https://api.themoviedb.org/3/movie/{{ movie.movieid }}?api_key=c4efc14c22a10ea59174b7bf4f94310b">API tmdb</a> (<a href="https://api.themoviedb.org/3/movie/{{ movie.movieid }}?api_key=c4efc14c22a10ea59174b7bf4f94310b&language=cs-CZ">CZ</a>) - <a href="https://test.div.cz/film/{{ movie.iddiv }}-{{ movie.url }}">TEST</a></li>
+<li>ID: {{ movie.movieid }}</li>
+<li><a href="https://monitoring.fdk.cz/div/movies/pridat-do-kina.php?id={{ movie.movieid }}">Přidat film do kina</a></li>
+
+
+<li><a href="https://monitoring.fdk.cz/div/movies/tmdbManualMovie.php?id={{ movie.movieid }}">UPDATE filmu</a> 
+    <ol>
+    <li><a target="_blank" href="https://monitoring.fdk.cz/div/movies/update-filmu+rok.php?id={{ movie.movieid }}">nazev-rok</a></li>
+    <li><a target="_blank" href="https://monitoring.fdk.cz/div/movies/update-filmu-nocz.php?id={{ movie.movieid }}">neCZ nazev</a>)</li>
+    <li><a target="_blank" href="https://monitoring.fdk.cz/div/movies/update-filmu-nocz-rok.php?id={{ movie.movieid }}">neCZ nazev-rok</a></li>
+    <li><a target="_blank" href="https://monitoring.fdk.cz/div/movies/update-filmu-nocz-rok-2.php?id={{ movie.movieid }}">neCZ nazev-rok-2</a></li>
+    </ol></li>
+
+<li><a href="https://monitoring.fdk.cz/div/movies/pridat-na-hlavni-stranu.php?id={{ movie.movieid }}">PŘIDAT NA HLAVNÍ STRANU</a></li>
+</ul>
+</p>
+
+{% elif request.user.username == "bla" %}
+<p>I am user bla! </p>
 {% else %}
 {% endif %}
+
 
 {% else %}
     <h4>Přihlášení</h4>
