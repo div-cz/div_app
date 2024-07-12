@@ -162,7 +162,7 @@ DATABASES = {
         'NAME': 'divDB',
         'USER': 'martindb', #'e',
         'PASSWORD': 'Han1cka+1a9', #,
-        'HOST': 'localhost', #'46.28.',
+        'HOST': 'localhost', #'sss.',
         'PORT': '3306',
         'OPTIONS': {
             'charset': 'utf8mb4',
