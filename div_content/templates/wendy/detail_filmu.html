@@ -72,6 +72,13 @@
                 display: flex;
             }
 
+            .small {
+                width: 100%;
+            }
+
+            .img-fluid {
+                object-fit: cover
+            }
 
 
             @media (max-width: 991px) {
@@ -113,11 +120,7 @@
                 .smaller-stars .star-ratings-rating-empty:hover {
                     background-position: -32px 0;
                 }
-                
-                .small {
-                    margin-left: 40%;
-                    margin-top: -310px;
-                }
+            
 
                 .row {
                     display: flex;
@@ -140,7 +143,7 @@
                 }
 
                 .img-fluid {
-                    width: 100%;
+                    width: 40%;
                     height: auto;
                 }
 
@@ -159,6 +162,16 @@
 
                 .card {
                     margin-bottom: 20px;
+                }
+
+                .movie {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 10px;
+                }
+
+                .small {
+                    width: 100%;
                 }
 
             }
@@ -247,14 +260,6 @@
                 display: none !important;
             }
 
-            
-            @media (max-width: 520px) {
-                .small {
-                    margin-left: 42%;
-                    margin-top: -63%;
-                }
-            }
-
         </style>
 
     </head>
@@ -325,11 +330,57 @@
                     </div>
         
                     <div class="d-flex mb-3">
-                        <div class="me-3 mr-4 flex-shrink-0" style="width:40%; max-width:200px">
-                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2//8HWCaymY2FNwjC66jWDqT6FzEKr.jpg" alt="Pátý element" class="img-fluid rounded" style="width: 100%; object-fit: cover;">
-                        </div>
-                        <div class="flex-grow-1">
+                        <div class="me-3 mr-4 flex-shrink-0 movie">
+                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2//8HWCaymY2FNwjC66jWDqT6FzEKr.jpg" alt="Pátý element" class="img-fluid rounded">
                             <div class="d-lg-none mb-2 small">
+                                <div class="rating-stars" style="white-space: nowrap;">
+                                    <div class="smaller-stars"> <!--card ?-->
+                                        <style>
+                                            #dsrd127d491b94744d9bad459dd8e16bf83 .star-ratings-rating-full, #dsrd127d491b94744d9bad459dd8e16bf83 .star-ratings-rating-empty {
+                                                width: 32px;
+                                                height: 32px;
+                                                background: url(/static/star-ratings/images/stars.png) no-repeat;
+                                                background-size: 96px;
+                                            }
+        
+                                            #dsrd127d491b94744d9bad459dd8e16bf83 .star-ratings-rating-empty {
+                                                background-position: -32px 0;
+                                            }
+                                        </style>
+                                        <div id="dsrd127d491b94744d9bad459dd8e16bf83" class="star-ratings" data-max-rating="5" data-avg-rating="0,000">
+                                            <div class="circle mb-3 circle-grey">
+                                                <span class="circle-text">0%</span>
+                                            </div>
+                                            <div class="star-ratings-rating-stars-container">
+                                                <ul class="star-ratings-rating-background">
+                                                    <li><span class="star-ratings-rating-empty" title="Log in to rate"></span></li>
+                                                    <li><span class="star-ratings-rating-empty" title="Log in to rate"></span></li>
+                                                    <li><span class="star-ratings-rating-empty" title="Log in to rate"></span></li>
+                                                    <li><span class="star-ratings-rating-empty" title="Log in to rate"></span></li>
+                                                    <li><span class="star-ratings-rating-empty" title="Log in to rate"></span></li>
+                                                </ul>
+                                                <ul class="star-ratings-rating-foreground" style="width: 0%">
+                                                    <li><span class="star-ratings-rating-full" title="Log in to rate"></span></li>
+                                                    <li><span class="star-ratings-rating-full" title="Log in to rate"></span></li>
+                                                    <li><span class="star-ratings-rating-full" title="Log in to rate"></span></li>
+                                                    <li><span class="star-ratings-rating-full" title="Log in to rate"></span></li>
+                                                    <li><span class="star-ratings-rating-full" title="Log in to rate"></span></li>
+                                                </ul>
+                                            </div>
+                                            <div class="star-ratings-rating-average">Average: <span class='star-ratings-rating-value'>0</span></div>
+                                            <div class="star-ratings-rating-count">Rating Count: <span class='star-ratings-rating-value'>0</span></div>
+                                            <div class="star-ratings-rating-user">You Rated: <span class='star-ratings-rating-value' data-when-null="Not rated">Not rated</span></div>
+                                            <p>Please log in to rate.</p>
+                                            <div class="star-ratings-errors"></div>
+                                        </div>
+                                    </div>
+                                    <div id="rating-thankyou" class="alert alert-success" style="display: none;">Děkujeme za hodnocení!</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-grow-1">
+                            <!-- <div class="d-lg-none mb-2 small">
                                 <div class="rating-stars" style="white-space: nowrap;">
                                     <div class="card smaller-stars">
                                         <style>
@@ -373,7 +424,7 @@
                                     </div>
                                     <div id="rating-thankyou" class="alert alert-success" style="display: none;">Děkujeme za hodnocení!</div>
                                 </div>
-                            </div>
+                            </div> -->
                             <ul class="list-unstyled">
                                 <li><strong>Žánr:</strong>
                                     <a href="/filmy/dobrodruzny">Dobrodružný</a>, 
