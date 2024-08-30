@@ -5,6 +5,26 @@
 
     {% include "inc/head.html" %}
 
+<title>DIV.cz | Databáze filmů, her a knih DIV</title>
+
+<link href="/static/css/index.css" rel="stylesheet">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="DIV.cz | Databáze filmů, her a knih DIV">
+    <meta property="og:description" content="Objevujte a hodnoťte knihy, hry i filmy na DIV.cz. Připojte se k naší komunitě a získejte přístup k obsahu, recenzím a hodnocením.">
+    <meta property="og:image" content="https://div.cz/static/img/anim/10-nejlepsich-animovanych-filmu.jpg">
+    <meta property="og:url" content="https://div.cz">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="DIV.cz">
+    
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="DIV.cz | Databáze filmů, her a knih DIV">
+    <meta name="twitter:description" content="Objevujte a hodnoťte filmy, hry a knihy na DIV.cz. Připojte se k naší komunitě a získejte přístup k obsahu, recenzím a hodnocením.">
+    <meta name="twitter:image" content="https://div.cz/static/img/anim/10-nejlepsich-animovanych-filmu.jpg">
+    <meta name="twitter:site" content="@DIV_cz">
+    <meta name="twitter:creator" content="@DIV_cz">
+
 
 <link rel="apple-touch-icon" href="/static/img/site/apple-touch-icon.png">
 <link rel="apple-touch-icon" sizes="57x57" href="/static/img/site/apple/apple-touch-icon-57x57.png">
@@ -16,9 +36,6 @@
 <link rel="apple-touch-icon" sizes="152x152" href="/static/img/site/apple/apple-touch-icon-152x152.png">
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
 
 
 <meta name="msapplication-square70x70logo" content="/static/img/site/microsoft/div_70.png">
@@ -34,545 +51,297 @@
 
 
 
-<title>DIV.cz | Databáze filmů, her a knih DIV</title>
-
-
-
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css"/>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"/>
 <script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
-<style>
-
-/* Světlý režim je výchozí */
-main {
-    background-color: #fff;
-    color: #f00;
-}
-
-/* Styly pro tmavý režim */
-@media (prefers-color-scheme: dark) {
-    main {
-        background-color: #333;
-        color: #fff;
-    }
-}
-
-        body {
-            background-color: #f6f6f6;
-            color: #333;
-        }
-        main {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-        "Roboto", "Oxygen", "Ubuntu", "Helvetica Neue", Arial, sans-serif;
-        color:#333;background-color:#f6f6f6;text-shadow: 1px 1px 3px #ccc; 
-        }
-        .card {
-            background-color: #fff;
-            color: #000;
-        }
 
 
-.card2 {
-    height: 350px;
-    border: 1px solid #bbb;box-shadow: 2px 2px 3px #bbb;
-}
-/*
-a {color: #E31E24 !important}
-a:hover {color: #A52B21 !important}*/
+    {% include "inc/google.html" %}
 
 
-
-.banner {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* Rozloží obsah mezi horní a spodní částí */
-    align-items: flex-start;
-    background-size: cover;
-    background-position: center;
-    width: 100%;
-    max-width: 1200px;
-    height: 300px;
-    margin: 0 auto;
-    position: relative; /* Umožní absolutní pozicování vnitřních prvků */
-}
-
-.banner h1 {
-    margin: 10px;
-    background: rgba(255, 255, 255, 0.5);
-    padding: 5px 10px;
-    max-width: calc(100% - 20px);
-}
-
-.banner-caption {
-    position: absolute; /* Absolutní pozicování v rámci banneru */
-    bottom: 10px; /* Dolní okraj */
-    right: 10px; /* Pravý okraj */
-    background: rgba(0, 0, 0, 0.5);
-    color: rgba(0, 0, 0, 0.8);
-    padding: 15px 20px;
-    border: 1px solid rgba(255, 255, 255, 0.8);    
-    font-size: 1.9rem;
-}
-
-
-
-
-.carousel-slide {
-    position: relative;
-    text-align: center;
-}
-.carousel-slide img {
-    width: 100%;
-    object-fit: cover; /* Zajistí, že obrázek pokryje celou oblast bez deformace */
-    height: 300px; /* Pevně nastavíme výšku obrázků */
-}
-.overlay {
-    position: absolute;
-    bottom: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-    color: white;
-    text-shadow: 1px 1px 3px #ccc;
-    width: 100%;
-    padding: 10px;
-    text-align: left;
-}
-.article-section {
-    padding: 0 15px;
-}
-.article-item {
-    display: flex;
-    margin-bottom: 10px;
-    /*background: #fff;*/
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-.article-thumbnail {
-    width: 100px;
-    height: 150px;
-    margin:5px;
-}
-.article-content {
-    padding: 10px;
-    flex: 1;
-}
-.container-fluid {
-    max-width: 1200px; /* Omezuje max šířku obsahu */
-    margin: 0 auto; /* Centruje obsah na stránce */
-}
-
-
-
-@media (max-width: 768px) {
-    .banner {
-        flex-direction: column;
-    }
-
-    .banner-caption {
-        position: static; /* Zruší absolutní pozicování */
-        align-self: center; /* Zarovná na střed */
-        width: 100%;
-        text-align: center;
-        margin-top: 10px; /* Přidá mezery mezi H1 a caption */
-    }
-        .carousel-side-image {
-        display: block;
-    }
-    .carousel-slide img {
-    width: 100%;
-    object-fit: cover; /* Zajistí, že obrázek pokryje celou oblast bez deformace */
-    height: 200px; /* Pevně nastavíme výšku obrázků */
-}
-}
-
-
-
-
-</style>
-
+<!-- MailerLite Universal -->
+<script>
+    (function(w,d,e,u,f,l,n){w[f]=w[f]function(){(w[f].q=w[f].q[])
+    .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
+    n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
+    (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
+    ml('account', '1043690');
+</script>
+<!-- End MailerLite Universal -->
 </head>
-<body>
-
-    {% include "inc/navbar.html" %}
 
 
-    
-<main>
-    <section class="container my-5">
-        <div class="row">
-            <div class="col-lg-8">
-                <div id="image-slider" class="carousel">
-                    {% for movie in movies_carousel %}
-                    <div class="carousel-slide"><a href="/film/{{ movie.url }}">
-                        <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" alt="{{ movie.title }}">
-                        </a>
-                        <div class="overlay">
-                            <h2>{{ movie.title }}</h2>
+    <body class="bg-[#FFFFFF] text-[#0d0c0f] dark:bg-[#0d0c0f] dark:text-[#F9F9F9] d-flex flex-column min-vh-100">
+
+        {% include "inc/navbar_index.html" %}
+
+        <main class="flex-grow-1 max-w-[1440px] mx-auto">
+            <section class="text-[#0d0c0f] dark:text-[#F9F9F9] max-w-[1440px] mx-auto flex flex-col lg:flex-row">
+                <aside class="lg:min-w-[200px] max-h-full bg-light dark:bg-[#1A161F]" style="border-right: 1px solid white;">
+                    <div class="lg:min-w-[200px] max-h-full" style="border-right: 1px solid white;">
+                        <!-- Menu -->
+                        <div class="menu-section flex justify-center lg:flex-col lg:justify-normal lg:h-screen lg:block  dark:bg-[#1A161F]">
+                            <div class="" style="width: 100%;">
+                                <div class="after flex flex-wrap justify-between">
+                                <h3 class="ml-8 lg:pt-11 mb-2 font-bold sm:mt-4">Menu</h3>
+                                <div class="flex gap-4 mb-2 mr-4 items-end">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 sun cursor-pointer ">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 moon cursor-pointer ">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex sm:justify-center">
+                                <div class="w-full flex flex-col ml-8 items-center">
+                                    <div class="flex flex-col w-full">
+                                        <div class="sidebar-list">
+                                            <a href="/knihy/">Knižní novinky</a>
+                                            <a href="/filmy/">Filmové novinky</a>
+                                            <a href="/hry/">Herní novinky</a>
+                                            <!--<div class="flex items-center">-->
+                                                <a href="/forum/">Fórum</a> <!--<span class="number ml-2">4</span>-->
+                                            <!--</div>-->
+                                            <a href="/blogy/">Blogy</a>
+                                            <!--<a href="">-->Žebříčky<!--</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    {% endfor %}
-                </div>
-            </div>
+                </aside>
+                
+                <div class="row container my-4">
+                    <!-- LEVÁ STRANA-->
+                    <div class="col-lg-8">
+                        <!-- carousel -->
+                        <div class="carousel-container-index relative flex items-center mb-4">
+                            <div id="films-carousel" class="carousel-index carousel-fade">
+                                <div class="carousel-track-index" data-offset="0">
+                                    <!-- Movie Carousel Items -->
+                                    <div class="carousel-item-index w-full border rounded-1xl">
+                                        <a href="">
+                                            <img src="https://i.ibb.co/y6nfbvW/stephena-kinga.png" class="rounded-1xl w-full" alt="">
+                                            <h5 class="text-xl bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded"></h5>
+                                        </a>
+                                    </div>                                
+                                    <div class="carousel-item-index w-full border rounded-1xl">
+                                        <a href="">
+                                            <img src="https://i.ibb.co/4YVm506/game.png" class="rounded-1xl w-full" alt="">
+                                            <h5 class="text-xl bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded"></h5>
+                                        </a>
+                                    </div>
+                                    <div class="carousel-item-index w-full border rounded-1xl">
+                                        <a href="">
+                                            <img src="https://deadline.com/wp-content/uploads/2023/10/star-wars.jpg" class="rounded-1xl w-full" alt="">
+                                                <h5 class="text-xl bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded"></h5>
+                                        </a>
+                                    </div>
+                                    <div class="carousel-item-index w-full border rounded-1xl">
+                                        <a href="">
+                                            <img src="https://cdn1.epicgames.com/salesEvent/salesEvent/EGS_RiseoftheTombRaider20YearCelebration_CrystalDynamics_S1_2560x1440-3bd5b3c4c11d46cc2dcb06bdf2f77627" class="rounded-1xl w-full" alt="">
+                                            <h5 class="text-xl bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded"></h5>
+                                        </a>
+                                    </div>
+                                    <div class="carousel-item-index w-full border rounded-1xl">
+                                        <a href="">
+                                            <img src="https://www.kouzloslova.cz/wp-content/uploads/2020/12/unnamed.jpg" class="rounded-1xl w-full" alt="">
+                                            <h5 class="text-xl bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded">Poslední série je tu</h5>
+                                        </a>
+                                    </div>
+                                    <div class="carousel-item-index w-full border rounded-1xl">
+                                        <a href="">
+                                            <img src="https://prh.imgix.net/articles/top10-fiction-1600x800.jpg" class="rounded-1xl w-full" alt="">
+                                            <h5 class="text-xl bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded"></h5>
+                                        </a>
+                                    </div>
+                                    <div class="carousel-item-index w-full border rounded-1xl">
+                                        <a href="">
+                                            <img src="https://i.ibb.co/R66Zgzz/koc48dky-c3batoc48dc3ad-rec.webp" class="rounded-1xl w-full" alt="">
+                                            <h5 class="text-xl bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded"></h5>
+                                        </a>
+                                    </div>
+                                    <div class="carousel-item-index w-full border rounded-1xl">
+                                        <a href="">
+                                            <img src="https://ctfs.ceskatelevize.cz/porady-s3/64884c0340b628ecc30d009b/card/bod-obnovy-1692031353725.jpg" class="rounded-1xl w-full" alt="">
+                                            <h5 class="text-xl bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded"></h5>
+                                        </a>
+                                    </div>
+                                    <div class="carousel-item-index w-full border rounded-1xl">
+                                        <a href="">
+                                            <img src="https://basecamplive.com/wp-content/uploads/2023/02/books.jpeg" class="rounded-1xl w-full" alt="">
+                                            <h5 class="text-xl bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded"></h5>
+                                        </a>
+                                    </div>
+                                    <div class="carousel-item-index w-full border rounded-1xl">
+                                        <a href="/film/tancuj-matyldo">
+                                            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//xWuWxb6N3pwAMw1EqI7So8gHtcL.jpg" class="rounded-1xl w-full" alt="">
+                                            <h5 class="text-xl bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded">Tancuj Matydlo</h5>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                                
+                        <div class="grid grid-cols-1">
+                            <div class="card mb-4">
+                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                    <p class="text-center">
+                                        DIV.cz je stránka, která propojuje <a href="/knihy/">knihy</a>, <a href="/filmy/">filmy</a> a <a href="/hry/">hry</a> skrze postavy, lokality a
+                                        další prvky.
+                                    </p>
+                                </div>
+                            </div>
 
+                            <div class="card mb-4">
+                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                    <h3 class="card-title font-bold after-h3">V kinech</h3>
+                                    <table class="w-full text-left">
+                                    
+                                    {% for movie in movies_in_cinema %}
+                                        <tr>
+                                            <th><div>{% if movie.movieid__img == "noimg.png" %}
+        <img src="/static/img/nomovie_400.jpg" alt="{{ movie.movieid__img }}" style="float:left;width:75px;margin:0 5px 5px 0">
+        {% else %}
+        <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.movieid__img }}" alt="{{ movie.titlecz }}" style="float:left;width:75px;margin:0 5px 5px 0">
+        {% endif %}
+                <a href="https://div.cz/film/{{ movie.movieid__url }}">{{ movie.movieid__titlecz }}</a> 
+                
+        
+            </div> ({{ movie.releasedate }})</th>
+                                            <th>{{ movie.distributorid__name }}</th>
+                                        </tr>
+                                    {% endfor %}
+                                    </table>
+                                </div>
+                            </div>
 
-            <div class="col-lg-4 article-section">
-                {% for article in articles %}
+                            <div class="card mb-4">
+                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                    <h3 class="card-title font-bold after-h3">Novinky</h3>
+                                    <ul>
+                                    {% for news in articlenews %}
+                                        <li><strong>{{ news.title }}</strong>
+                                            <ul><li>{{ news.news|safe }} <small>({{ news.source }} - {{ news.created }})</small>
+                                                    
+                                                </li>
+                                            </ul><hr>
+                                        </li>
+
+                                    {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                    <h3 class="card-title font-bold after-h3">Dnes slaví narozeniny</h3>
+                                    <ul>
+                                        <li></li>
+                                        <li></li>
+                                        <li></li>
+                                        <li></li>
+                                        <li></li>
+                                        <li></li>
+                                        <li></li>
+                                        <li></li>
+                                        <li></li>
+                                        <li></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                    <h3 class="card-title font-bold after-h3">Nejnovější komentáře</h3>
+                                    <ul>        
+                                    {% for comment in movies_comments_9 %}
+                                    <li>Komentář u filmu <a href="/film/{{ comment.movieid__url }}">{{ comment.movieid__titlecz }}</a>
+                                    <ul><li>{{ comment.comment|truncatewords:20 }}</li>
+                                        <ul style="text-align:right"><li>Uživatel: <a href="/uzivatel/{{ comment.user }}">{{ comment.user__username }}</a><li></ul>
+                                    </ul><hr>
+                                    </li>
+                                    
+                                    {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- PRAVÁ STRANA -->
+                    <div class="col-lg-4 article-section">
+                        <!--<div class="card mb-4">
+                            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                <h3 class="card-title font-bold after-h3">Novinky v kinech</h3>
+                                <ul class="v-kinech">
+                                    {% for movie in movies_in_cinema %}
+                                    <li>
+                                        <a href="/film/{{ movie.movieid__url }}" class=" hover:underline">{{ movie.movieid__titlecz }}</a> 
+                                        <br> 
+                                        {{ movie.releasedate }}  - {{ movie.distributorid__name }}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                                <a class="flex justify-end">Další >></a>
+                            </div>
+                        </div>-->
+
+                        <div>
+                            
+                            <!-- PŘESUNOUT DO ŽEBŘÍČKŮ?? -->
+                        
+                            <!-- <div class="card mb-4">
+                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                    <h3 class="card-title font-bold after-h3">DIV.cz - STATS</h3>
+                                    <p>{% for user in users_list_4 %}
+                                        <div class="users">
+                                            <a href="/uzivatel/{{ user.id }}" class=" hover:underline">{{ user.username }}</a> 
+                                            <br>
+                                            (Počet komentářů: {{ user.comment_count }})
+                                            Počet hodnocení: {{ user.rating_count }}
+                                        </div>
+                                        {% endfor %}
+                                    </p>
+                                </div>
+                            </div> -->
+
+                            <div class="card mb-4">
+                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                <h3 class="card-title font-bold after-h3">Články</h3>
+                                {% for article in articles %}
+
                 <div class="article-item">
                     <img class="article-thumbnail" src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ article.img }}');">
-                    <div class="article-content" style="margin-top:-10px">
+                    <div class="article-content" style="margin-top:10px">
                         <a href="{{ article.url }}">{{ article.title }}</a>
                         <p>{{ article.perex|truncatewords:9 }}</p>
                     </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </section>
-<script>
-$(document).ready(function(){
-    $('#image-slider').slick({
-        infinite: true,
-        slidesToShow: 1,
-        slidesToScroll: 1,
-        autoplay: true,
-        autoplaySpeed: 3000,
-        dots: true,
-        arrows: false, // Skryjeme šipky, pokud nejsou potřeba
-        fade: true,
-        cssEase: 'linear'
-    });
-});
-</script>
+                </div><hr>
+                                
+                                {% endfor %}
+                                </div>
+                            </div>
 
 
+                            <div class="card mb-4">
+                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                    
+                                </div>
+                            </div>
 
-
-
-
-
-
-<section class="container my-5">
-    <div class="row">
-        <div class="col-lg-8">
-
-
-<!--<h2 class="mb-4">Poslední články</h2>-->
-<!-- Sekce článků 
-<h2 class="mb-4">Seznam článků</h2>
-<div class="row">
-    {% for article in articles %}
-    <div class="col-md-6 mb-3">
-        <div class="card">
-            <img src="https://image.tmdb.org/t/p/w300{{ article.img }}" class="card-img-top" alt="{{ article.title }}">
-            <div class="card-body">
-                <h5 class="card-title">{{ article.title }}</h5>
-                <p class="card-text">{{ article.perex|truncatewords:20 }}</p>
-                <a href="{{ article.url }}" class="btn btn-primary">Více informací</a>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>-->
-
-
-
-<!--{% if request.user.is_superuser %}
-<p>Já jsem superuser, už jsem vyhrál! :D</p>
-{% else %}
-{% endif %}-->
-
-
-{% if user.is_authenticated %}
-{% else %}
-<div class="row">
-    <div class="col-12">
-        <div class="card mb-4 p-4">
-<p>DIV.cz je stránka, která propojuje knihy, filmy a hry skrze postavy, lokality a další prvky.</p>
-        </div>
-    </div>
-</div>
-{% endif %}
-
-
-
-    
-
-
-            <!-- Sekce filmů -->
-            <h2 class="mb-4"><a href="https://div.cz/seznam-filmu">Seznam filmů</a>, <a href="/knihy/">knih</a> a her</h2>
-            <div class="row">
-                {% for movie in movies_list_6 %}
-                <a href="/film/{{ movie.url }}"><div class="col-md-4 col-sm-6 col-6 mb-3">
-                    <div class="card card2">
-                        <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ movie.img }}" class="card-img-top" alt="{{ movie.title }}">
-                        <div class="card-body">
-                            <h5 class="card-title"><a href="/film/{{ movie.url }}">{{ movie.title }}</a></h5>
-                            <p class="card-text">{{ movie.description|truncatewords:10 }}</p>
-                            <!--<a href="/film/{{ movie.url }}" class="btn btn-primary">{{ movie.title|truncatewords:3 }}</a>-->
-                        </div>
-                    </div>
-                </div></a>
-                {% endfor %}
-            </div>
- 
-            <!-- Sekce nejnovějších uživatelských komentářů k filmům -->
-          <h2 class="mb-4">Nejnovější filmové komentáře</h2>
-          <div class="row">
-            {% for comment in movies_comments_9 %}
-            <div class="col-md-4 col-sm-6 col-6 mb-3">
-              <div class="card">
-                <div class="card-body">
-                  <p class="card-text">
-                    Komentář u filmu:<br>
-                    <a href="/film/{{ comment.movieid__url }}">{{ comment.movieid__titlecz }}</a>
-                  </p>
-                  <p class="card-text"><i>{{ comment.comment|truncatewords:10 }}</i></p>
-                  Uživatel: <a href="/uzivatel/{{ comment.user }}">{{ comment.user__username }}</a>
-                </div>
-              </div>
-            </div>
-            {% endfor %}
-            </div>
-
-
-
-
-
-            <!-- Sekce uživatelů -->
-            <h2 class="mb-4">Nejaktivnější uživatelé</h2>
-            <div class="row">
-                {% for user in users_list_4 %}
-                <div class="col-md-4 col-sm-6 col-6 mb-3">
-                    <div class="card">
-                        <img src="https://div.cz/static/img/creator/noperson.svg" class="card-img-top" alt="{{ user.username }}" style="max-width: 100px; margin: 0 auto; display: block;">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <a href="/uzivatel/{{ user.id }}">{{ user.username }}</a>
-                            </h5>
-                            <p class="card-text">
-                                Počet hodnocení: {{ user.rating_count }}
-                            </p>
-                        </div>
                     </div>
                 </div>
-                {% endfor %}
-            </div>
-{% comment %}
-            <!-- Sekce výročí osobností -->
-            {<h2 class="mb-4">Výročí osobností</h2>
-            <div class="row">
-                {% for creator in creators_list_8 %}
-                <div class="col-lg-3 col-md-3 col-sm-6 col-6 mb-3">
-                    <div class="card">
-                        <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ creator.img }}" class="card-img-top" alt="{{ creator.lastname }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ creator.firstname }} {{ creator.lastname }}</h5>
-                            <p class="card-text">
-            {% if creator.knownfordepartment == "Acting" %}
-            Herec
-            {% elif creator.knownfordepartment == "Directing" %}
-            Režisér
-            {% elif creator.knownfordepartment == "Production" %}
-            Producent
-            {% elif creator.knownfordepartment == "Writing" %}
-            Scénárista
-            {% else %}
-            Těžko říct
-            {% endif %} - {{ creator.birthdate|date:"d.m.Y"  }}
-                            </p>
-                            <a href="/tvurce/{{ creator.url }}" class="btn btn-primary">{{ creator.lastname }}, {{ creator.firstname }}</a>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>}
-{% endcomment %}
-        </div>
+            </section>
+        </main>
 
+        {% include "inc/footer.html" %}
 
+        <script src="/static/js/index.js"></script>
+        <script src="/static/js/script.js"></script>
 
-
-
-
-                <!-- Boční panel pro přihlášení a informace o vývoji -->
-                <div class="col-lg-4">
-                    <!-- Sekce přihlášení uživatele -->
-                    <div class="card mb-4  article-section">
-                        <div class="card-body">
-
-{% if user.is_authenticated %}
-                            <h5 class="card-title">{{ user.username }}! </h5>
-
-    <p>Vítejte, {{ user.username }}! <!--<a href="{% url 'logout' %}">Odhlásit se</a>--></p>
-{% else %}
-                            <h5 class="card-title">Přihlášení uživatele</h5>
-    <h4>Přihlášení</h4>
-    <form method="post" action="{% url 'login' %}">
-        {% csrf_token %}
-        {{ form.username.label_tag }}
-        {{ form.username }}
-        {{ form.password.label_tag }}
-        {{ form.password }}
-        <button type="submit" class="btn btn-primary">Přihlásit se</button>
-    </form>
-    <div class="mt-3">
-        <p>Nemáte účet? <a href="{% url 'signup' %}">Registrace</a></p>
-    </div>
-{% endif %}
-                        </div>
-                    </div>
-
-
-
-
-
-
-
-{% if user.is_authenticated %}
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">DIV.cz</h5>
-<p>Chcete se zapojit do něčeho vzrušujícího? Právě teď máte možnost! Hodnoťte filmy na DIV.cz a za každých 50 ohodnocených filmů získáváte šanci vyhrát lístky do kina! Je to jednoduché - čím více filmů ohodnotíte, tím větší je vaše šance vyhrát!</p>
-<p>Zapoj se <strong>{{ user.username }}</strong> a vyhraj! <a href="https://div.cz/soutez-o-listky-do-kina">Podmínky a podrobnosti soutěže</a>.</p>
-                        </div>
-                    </div>
-{% else %}
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">DIV.cz</h5>
-<p>DIV.cz je stránka, která propojuje <a href="/knihy/">knihy</a>, filmy a hry skrze postavy, lokality a další metadatabáze.</p>
-<p>Aktuálně je hotová filmová část a intenzivně se pracuje na knižní. Buď u zrodu a <a href="{% url 'signup' %}">zaregistruj se</a>. Zabere jen deset vteřin! Navíc můžeš vyhrát lístky do kina: <a href="https://div.cz/soutez-o-listky-do-kina">Podmínky a podrobnosti soutěže</a>
-                        </div>
-                    </div>
-{% endif %}
-
-
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">O čem to je:</h5>
-<p>Vítejte na DIV.cz, unikátním místě, kde se propojují <strong><span class="white bgred">filmy</span></strong>, <strong><span class="white bggreen">knihy</span></strong> a <strong><span class="white bgblue">hry</span></strong>. Objevujte fascinující světy, postavy a příběhy napříč různými médii. Připojte se k naší komunitě nadšenců a objevujte, diskutujte a sdílejte své zážitky z filmů, knih a her.</p>
-                        </div>
-                    </div>
-
-
-
-                    <!-- Sekce informace o vývoji -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Kam směřujeme</h5>
-                            <ul>
-            <li><strike>04/2024 <a href="/filmy/">filmy</a></strike> (Téměř hotovo)</li>
-            <li>06/2024 knižní sekce</li>
-            <li>08/2024 herní sekce</li>
-            <li>10/2024 postavy</li>
-            <li>10/2024 lokality</li>
-            <li>Vývoj pro iOS a android</li>
-            <li>Program ambasadarů</li>
-            <li>Interní fórum</li>
-            <li>Uživatelské recenze</li>
-            <li>Soutěže a výzvy</li>
-            <li>Seriály (v přípravě)</li>
-                            </ul>
-                     </div>
-                </div><!-- / card mb-4-->
-
-
-                    <!-- Sekce informace o vývoji -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Statistika 20.5.24</h5>
-                            <ul>
-              <li>Filmů: 1.022.007 <s style="font-size:90%">(986.383)</s></li>
-                <li>Knih: 775.547 <s style="font-size:90%">(126.367)</s></li>
-                <li>Her: 1 <s style="font-size:90%">0</s></li>
-                <li>Herců: 1.303.957 <s style="font-size:90%">(724.752)</s></li>
-                <li>Spisovatelů: 142.204 <s style="font-size:90%">(139.089)</s></li>
-                <li>Postav: 1.531.287  <s style="font-size:90%">(317.800)</s></li>
-                <li>Lokalit: 
-                        <ul>
-                            
-                            <li>Měst: 2506</li>
-                            <li>Lokalit: 45</li>
-                            <li>Zemí: 337</li>
-                            <li>Ulic: 1</li>
-                            <li>Universa: 1</li>
-                        </ul>
-                <s style="font-size:90%">44</s>
-                         </li>
-                <li>Uživatelů: 274 <s style="font-size:90%">225</s></li>
-                <li>Hodnocení: 435.466 <s style="font-size:90%">136.232</s></li>
-                            </ul>
-                     </div>
-                </div><!-- / card mb-4-->
-
-
-
-
-        </div><!--/ boční panel -->
-    </div><!-- / row -->
-</section>
-</main>
-
-
-{% include "inc/footer.html" %}
-
-<script>
-// == CAROUSE ===
-document.addEventListener('DOMContentLoaded', function() {
-    var banners = document.querySelectorAll('#random-banner-container .banner');
-    var randomIndex = Math.floor(Math.random() * banners.length); // Generuje náhodný index
-    banners[randomIndex].style.display = 'block'; // Zobrazí náhodně vybraný banner
-});
-
-// === === ===
-
-$(document).ready(function() {
-    // Initialize DataTable
-    var table = $('#moviesTable').DataTable();
-
-    // Apply the filter
-    $('#genresFilter, #ratingFilter').on('change', function() {
-        table.draw();
-    });
-
-    // Custom filtering function
-    $.fn.dataTable.ext.search.push(
-        function(settings, data, dataIndex) {
-            var genres = $('#genresFilter').val();
-            var minRating = $('#ratingFilter').val();
-
-            var rowGenres = data[2]; // Genres is in the second column
-            var rowRating = parseInt(data[3].split('/')[0]); // Extract rating from format "X/10"
-
-            if ((genres === "" || genres === rowGenres) && (minRating === "0" || rowRating >= minRating)) {
-                return true; // Show row
-            }
-            return false; // Hide row
-        }
-    );
-});
-
-$('#moviesTable').DataTable({
-    "language": {
-        "lengthMenu": "Zobrazit _MENU_ záznamů",
-        "zeroRecords": "Žádné záznamy nebyly nalezeny",
-        "info": "Strana _PAGE_ z _PAGES_",
-        "infoEmpty": "Žádné záznamy k dispozici",
-        "infoFiltered": "(vyfiltrováno z celkem _MAX_ záznamů)",
-        "search": "Hledat:",
-        "paginate": {
-            "first":      "První",
-            "last":       "Poslední",
-            "next":       "Další",
-            "previous":   "Předchozí"
-        },
-    },
-
-    "order": [[ 0, "desc" ]],
-    "pageLength": 25
-});
-
-
-</script>
-
-
-</body>
+    </body>
 </html>

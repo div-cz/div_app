@@ -1,52 +1,58 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light dark-mode">
-    <div class="container">
-        
-        <a class="navbar-brand" href="/">
-        <img src="https://div.cz/static/img/site/microsoft/div_310x150.png" style="width:120px">
-        </a>
-        
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mr-auto">
-        
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Domů</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="/knihy/">Knihy</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/filmy/">Filmy</a>
-                </li>
-                <!--<li class="nav-item active">
-                    <a class="nav-link" href="/autori/">Autoři</a>
-                </li>-->
-                <!--<li class="nav-item">
-                    <a class="nav-link" href="/hry/">Hry</a>
-                </li>-->
-
-            </ul>
-
-            <!-- Sekce pro vyhledávací formulář a jméno uživatele -->
-            <div class="d-flex align-items-center">
-                <form class="form-inline my-2 my-lg-0" action="/hledani-knih/" method="get">
-                    <input class="form-control form-control-sm mr-2" type="search" placeholder="Vyhledávání knih" aria-label="Vyhledávání" name="q" style="max-width: 150px;">
-                    <button class="btn btn-outline-success btn-sm my-2 my-sm-0" type="submit">Hledat</button>
-                </form>
-
-                <!-- Zobrazení jména uživatele -->
-                {% if user.is_authenticated %}
-                <div class="ml-3">
-                    <a class="nav-link" href="/ucet/" style="font-size:80%">{{ user.username }}</a> 
-                    <a class="nav-link" href="/odhlaseni/" style="font-size:80%">Odhlásit!</a>
+<nav class="navbar w-full">
+    <div class="navbar1 max-w-[1340px] mx-auto">
+        <div class="part1">
+            <div class="part2">
+                <div class="logo">
+                    <a href="/">
+                        <img src="/static/img/site/microsoft/div_310x150-movies.png">
+                    </a>
                 </div>
-                {% else %}
-                <div class="ml-3">
-                    <a class="nav-link" href="/prihlaseni/">Přihlásit!</a>
+                <ul id="menu" class="hidden flex">
+                    <li><a class="nav-link hover:text-[#EB3F5E]" href="/filmy/">Filmy</a></li>
+                    <li><a class="nav-link hover:text-[#25DC37]" href="/knihy/">Knihy</a></li>
+                    <li><a class="nav-link hover:text-[#476acc]" href="/hry/">Hry</a></li>
+                </ul>
+            </div>
+
+            <div class="toggle">
+                <div id="menu-icon" class="cursor-pointer mr-10">
+                    <svg id="menu-open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                    <svg id="menu-close" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="hidden">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
                 </div>
-                {% endif %}
+            </div>
+        </div>
+
+        <div id="menu-section" class="nav-menu hidden sm:mt-4">
+            <form action="/hledani-knih/" method="get">
+                <input type="search" placeholder="Vyhledávání knih" aria-label="Vyhledávání" name="q">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 md:inline-block">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                </svg>
+            </form>
+            
+            <div class="account">
+                <div class="login">
+                    {% if user.is_authenticated %}
+                    <div class="user">
+                        <img class="rounded-full" src="{{ avatar_imgpath }}" style="width: 30px;" alt="avatar">
+                        <a class="nav-link" href="/ucet/" style="font-size:80%">{{ user.username }}</a> 
+                    </div>
+                    <div class="flex">
+                        <form id="logout-form" method="post" action="{% url 'account_logout' %}">
+                            {% csrf_token %}
+                            <button type="button" id="logout-btn" class="nav-link" style="font-size:80%; background: none; border: none; color: #007bff; cursor: pointer;">Odhlásit</button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div>
+                        <a class="nav-link" href="/prihlaseni/">Přihlásit</a>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
