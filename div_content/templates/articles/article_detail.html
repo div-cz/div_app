@@ -1,63 +1,84 @@
 <!DOCTYPE html>
 <html lang="cs">
-<head>
 
-    {% include "../inc/head.html" %}
+    <head>
 
-<title>{{ article.h1 }}</title>
+        {% include "../inc/head.html" %}
 
-    <meta name="description" content="{{ article.perex }}">
+        <title>{{ article.h1 }} | Databáze filmů a her DIV</title>
 
-    <meta name="keywords" content="články, databáze, knihy, hry, filmy, film, recenze, hodnocení, DIV.cz">
-
-    <meta name="author" content="{{ article.autor }}">
+        <link href="/static/css/index.css" rel="stylesheet">
+        <link href="/static/css/navbar.css" rel="stylesheet">
 
 
 
-    {% if article.img %}
+{% if article.img %}
     <meta property="og:image" content="https://image.tmdb.org/t/p/w1066_and_h600_bestv2{{ article.img }}">
     <meta property="og:image:alt" content="{{ article.alt }}">
-    {% elif article.img1600 %}
+{% elif article.img1600 %}
     <meta property="og:image" content="{{ article.img1600 }}">
     <meta property="og:image:alt" content="{{ article.alt }}">
 {% else %}
     
 {% endif %}
 
+<style>
+h2 {margin-top:15px;}
+p{margin-top:20px}
 
+</style>
 
-    <meta property="og:title" content="{{ article.h1 }}">
-    <meta property="og:description" content="{{ article.perex }}">
-    <meta property="og:url" content="https://div.cz/{{ article.url }}">
-    <meta property="og:type" content="article">
+    {% include "../inc/google.html" %}
+    </head>
 
+    <body class="bg-[#FFFFFF] text-[#0d0c0f] dark:bg-[#0d0c0f] dark:text-[#F9F9F9] d-flex flex-column min-vh-100">
 
+        {% include "../inc/navbar.html" %}
+        
+        <main class="flex-grow-1 max-w-[1440px] mx-auto">
+            <section class="text-[#0d0c0f] dark:text-[#F9F9F9] max-w-[1440px] mx-auto flex flex-col lg:flex-row">
+                <aside class="lg:min-w-[200px] max-h-full bg-light dark:bg-[#1A161F]" style="border-right: 1px solid white;">
+                    <div class="lg:min-w-[200px] max-h-full" style="border-right: 1px solid white;">
+                        <!-- Menu -->
+                        <div class="menu-section flex justify-center lg:flex-col lg:justify-normal lg:h-screen lg:block dark:bg-[#1A161F]">
+                            <div class="" style="width: 100%;">
+                                <div class="after flex flex-wrap justify-between">
+                                    <h3 class="ml-8 lg:pt-11 mb-2 font-bold sm:mt-4">Menu</h3>
+                                    <div class="flex gap-4 mb-2 mr-4 items-end">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 sun cursor-pointer ">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                                        </svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 moon cursor-pointer ">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex sm:justify-center">
+                                    <div class="w-full flex flex-col ml-8 items-center">
+                                        <div class="flex flex-col w-full">
+                                            <div class="sidebar-list">
+                                                <a href="">Novinky</a>
+                                                <a href="">Seznam knih</a>
+                                                <a href="">Žebříčky</a>
+                                                <a href="">Nakladatelství</a>
+                                                <a href="">Postavy</a>
+                                                <a href="/forum/knihy">Fórum</a>
+                                                <a href="">Přidat knihu</a>
+                                                <a href="">Přidat autora</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
 
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-
-
-
-</head>
-<body>
-
-    {% include "../inc/navbar.html" %}
-
-<!-- Image -->
-
-        {% if article.Img1600 == "" %}
-        <!-- no image -->
-        {% else %}
-
-        {% endif %}
-
-<!-- Main Content -->
-<main class="container my-5">
-  <div class="row">
-    <!-- Left Column: Film Detail -->
-    <div class="col-lg-8">
-
-
+                <div class="row container my-4">
+                    <!-- Levá strana -->
+                    <div class="col-lg-8">
+                    
+                    
 {% if article.img %}
     <img src="https://image.tmdb.org/t/p/w1066_and_h600_bestv2{{ article.img }}" class="img-fluid rounded w-100" alt="{{ article.alt }}">
 {% elif article.img1600 %}
@@ -65,59 +86,32 @@
 {% else %}
     <!-- -->
 {% endif %}
-            <h1>{{ article.h1 }}</h1> 
 
-      <!-- Info Bar -->
-
-          <p>{{ article.content|safe }}</p>
-
-    </div>
-
-    <!-- Right Column: Additional Information -->
-    <div class="col-lg-4">
+                            <h1>{{ article.h1 }}</h1>
+                            {{ article.content|safe }}
+                        
+                    </div>
 
 
 
-      <div class="card rounded mb-4">
-        <div class="card-body">
-{% if user.is_authenticated %}
-    <h4>{{ user.username }}! </h4>
-    <p>Vítejte, {{ user.username }}! <!--<a href="{% url 'logout' %}">Odhlásit se</a>--></p>
-{% else %}
-    <h4>Přihlášení</h4>
-    <form method="post" action="{% url 'login' %}">
-        {% csrf_token %}
-        {{ form.username.label_tag }}
-        {{ form.username }}
-        {{ form.password.label_tag }}
-        {{ form.password }}
-        <button type="submit" class="btn btn-primary">Přihlásit se</button>
-    </form>
-    <div class="mt-3">
-        <p>Nemáte účet? <a href="{% url 'signup' %}">Registrace</a></p>
-    </div>
-{% endif %}
-        </div>
-      </div>
-
-
-<!-- MENU -->
+                    <!-- Pravá strana -->
+                    <div class="col-lg-4 article-section">
+                        <div class="card mb-4">
+                            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
 {% if article.menu %}
-      <div class="card rounded mb-4">
-        <div class="card-body">
+        <h3 class="card-title font-bold after-h3">Menu</h3>
         {{ article.menu|safe }}
-        </div>
-      </div>
+
 {% else %}
 {% endif %}
+                            </div>
+                        </div>
 
 
-
-      <!-- Movie LIST -->
-      <div class="card rounded mb-4">
-        <div class="card-body">
+                        <div class="card mb-4">
+                            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
         {% if article.typ == "Článek" %}
-            <h4>Odkazy</h4>
+            <h3 class="card-title font-bold after-h3">Odkazy</h3>
         <ul>
             <!--<li><a href=""></a></li>-->
             <li><a href="https://div.cz/100-nejvlivnejsich-osobnosti-pro-rok-2024">100 nejvlivnějších osobností 2024</a></li>
@@ -126,13 +120,13 @@
 
 
         {% elif article.typ == "Movie" %}
-            <h4>Filmy</h4>
+            <h3 class="card-title font-bold after-h3">Filmy</h3>
         <ul>
             <li><a href="https://div.cz/soutez-o-listky-do-kina">Soutěž o lístky do kina</a></li>
 
         </ul>
         {% elif article.typ == "Filmy" %}
-            <h4>Filmy</h4>
+            <h3 class="card-title font-bold after-h3">Filmy</h3>
         <ul>
             <li><a href="https://div.cz/seznam-filmu">Seznam filmů</a></li>
             <li><a href="https://div.cz/akcni">Akční filmy</a></li>
@@ -140,7 +134,7 @@
 
         </ul>
         {% elif article.typ == "Film" %}
-            <h4>Filmy</h4>
+            <h3 class="card-title font-bold after-h3">Filmy</h3>
         <ul>
             <li><a href="https://div.cz/akcni">Akční filmy</a></li>
             <li><a href="https://div.cz/komedie">Komedie</a></li>
@@ -149,7 +143,7 @@
 
 
         {% elif article.typ == "Herec" %}
-            <h4>Filmy</h4>
+            <h3 class="card-title font-bold after-h3">Filmy</h3>
         <ul>
             <li><a href="https://div.cz/akcni">Akční filmy</a></li>
             <li><a href="https://div.cz/komedie">Komedie</a></li>
@@ -157,7 +151,7 @@
         </ul>
 
         {% elif article.typ == "Herečka" %}
-            <h4>Filmy</h4>
+            <h3 class="card-title font-bold after-h3">Filmy</h3>
         <ul>
             <li><a href="https://div.cz/libuse-safrankova">Libuše Šafránková</a></li>
             <li><a href="https://div.cz/akcni">Akční filmy</a></li>
@@ -167,7 +161,7 @@
 
 
         {% elif article.typ == "Book" %}
-            <h4>Knihy</h4>
+            <h3 class="card-title font-bold after-h3">Knihy</h3>
         <ul>
             <li><a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury">Magnésia Litera 2024</a></li>
             <li><a href="https://div.cz/odhaleni-kouzla-slova-nobelova-cena-za-literaturu">Nobelova cena za literaturu</a></li>
@@ -177,7 +171,7 @@
         </ul>
 
         {% elif article.typ == "Knihy" %}
-            <h4>Knihy</h4>
+            <h3 class="card-title font-bold after-h3">Knihy</h3>
         <ul>
             <li><a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury">Magnésia Litera 2024</a></li>
             <li><a href="https://div.cz/odhaleni-kouzla-slova-nobelova-cena-za-literaturu">Nobelova cena za literaturu</a></li>
@@ -187,7 +181,7 @@
 
 
         {% elif article.typ == "Game" %}
-            <h4>Hry</h4>
+            <h3 class="card-title font-bold after-h3">Hry</h3>
         <ul>
             <li><a href="https://div.cz/hry/">Seznam her</a></li>
 
@@ -195,52 +189,34 @@
 
 
         {% elif article.typ == "site" %}
-            <h4>Stránky</h4>
+            <h3 class="card-title font-bold after-h3">Stránky</h3>
         <ul>
             <li><a href="https://div.cz/podminky-pouziti">Podmínky použití</a></li>
             <li><a href="https://div.cz/ochrana-osobnich-udaju">Ochrana osobních údajů</a></li>
-
-            
 
         </ul>
 
 
         {% elif article.typ == "Site" %}
-            <h4>Stránky</h4>
+            <h3 class="card-title font-bold after-h3">Stránky</h3>
         <ul>
             <li><a href="https://div.cz/podminky-pouziti">Podmínky použití</a></li>
             <li><a href="https://div.cz/ochrana-osobnich-udaju">Ochrana osobních údajů</a></li>
             <li><a href="https://div.cz/soutez-o-listky-do-kina">Soutěž o lístky do kina</a> (2024)</li>
-            
 
         </ul>
 
-
         {% else %}
-            <h4>-</h4>
+            <h3 class="card-title font-bold after-h3">-</h3>
         {% endif %}
-
-        </div>
-      </div>
-
-
-        <!-- Člen týmu 7 
-        <div class="card rounded mb-4">
-        <div class="card-body">
-            <img src="https://div.cz/static/img/creator/noperson.svg" class="rounded-circle" alt="" style="width: 140px; height: 140px;">
-            <h3 style="font-size:110%">Chceš se podílet na div.cz?</h3>
-            <p>Napiš nám info@div.cz</p>
-        </div>
-        </div>-->
-        
-        
+                            </div>
+                        </div>
 
 
-      <div class="card rounded mb-4">
-        <div class="card-body">
-
-        <h5 class="card-title">Naše sociální sítě:</h5>
-
+                        <div>
+                            <div class="card mb-4">
+                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                    <h3 class="card-title font-bold after-h3">Naše sociální sítě</h3>
         <!-- Facebook Share Button -->
         <a href="https://www.facebook.com/div.cz/" class="btn btn-primary mb-2 mr-1" target="_blank">
             <i class="fab fa-facebook-f"></i>
@@ -265,18 +241,12 @@
         <a href="https://whatsapp.com/channel/0029VaajsWZHLHQZcSu1r83U" class="btn btn-success mb-2" target="_blank">
             <i class="fab fa-whatsapp"></i>
         </a>
-
-        </div>
-      </div>
-
-
-
-
-
-      <div class="card rounded mb-4">
-        <div class="card-body">
-
-        <h5 class="card-title">{{ article.h1 }}</h5>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                    <h3 class="card-title font-bold after-h3">{{ article.h1 }}</h3>
         <p class="card-text">Sdílet na:</p>
 
         <!-- Facebook Share Button -->
@@ -303,64 +273,22 @@
         <a href="https://wa.me/?text={{ article.h1 }} - https://div.cz/{{ article }}" class="btn btn-success mb-2" target="_blank">
             <i class="fab fa-whatsapp"></i>
         </a>
-
-        </div>
-      </div>
-
-
-      <!-- tmdb.org, imdb.org, div.cz, csfd.cz 
-      <div class="card rounded mb-4 d-none d-lg-block">
-        <div class="card-body">
-          <h4>Odkazy</h4>
-            https://www.hollywoodreporter.com/c/movies/
-            https://similarchannel.com/channel/UCZ8Sxmkweh65HetaZfR8YuA
-            https://www.joblo.com/
-            
-            https://similarchannel.com/channel/moviemaniacsde
-            
-            
-            
-            
-            https://time.com/6549005/most-anticipated-movies-2024/            
-            
-            https://magazin.aktualne.cz/kultura/film/
-            https://kinomaniak.cz/filmy/horrorscope
-            
-            
-            
-            <h2>Distribuční společnosti</h2>
-	          <p> - <a href="http://artcam.cz/">ArtCam</a></p>			
-			    	<p><a href="http://www.miriusfd.cz/">MirusFD</a></p>
-            <p><a href="http://www.aerofilms.cz/">Aerofilms.cz</a></p>
-            <p><a href="http://www.bontonfilm.cz/">Bontonfilm.cz</a></p>
+                                </div>
+                            </div>
+                        </div>
 
 
-            + <a href="http://www.bioscop.cz/_web/index.php">Bioscop.cz</a><br>
 
-            <p><a href="http://www.filmeurope.cz/">FilmEurope.cz</a></p>
-            <a href="http://www.freeman-ent.cz/">Freeman-ent.cz</a><br>
-            <p><a href="http://www.bohemiamp.cz/">Bohemia MP</a></p>
-            <p><a href="http://www.forumfilm.cz/">Forumfilm.cz</a></p>
+                    </div>
+                </div>
+            </section>
+        </main>
 
 
-            
-        </div>
-      </div>-->
+        {% include "../inc/footer.html" %}
 
-      <!--
-      <div class="card rounded mb-4 d-none d-lg-block">
-        <div class="card-body">
-          <h4>Tagy</h4>
-        <span class="badge bg-secondary">Animační</span>
-        <span class="badge bg-secondary">Rodinný</span>
-        <span class="badge bg-secondary">Akční</span>
-        </div>
-      </div>-->
+        <script src="/static/js/script.js"></script>
+        <script src="/static/js/index.js"></script>
 
-  </div>
-</main>
-
-{% include "../inc/footer.html" %}
-
-</body>
+    </body>
 </html>

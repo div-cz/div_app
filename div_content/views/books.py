@@ -7,7 +7,7 @@ import requests
 from django.shortcuts import get_object_or_404, render, redirect
 
 from div_content.forms.books import BookAddForm, SearchFormBooks
-from div_content.models import Book, Bookauthor, Bookcharacter, Bookcomments, Bookcover, Bookgenre, Bookisbn, Bookpublisher, Bookrating, Bookwriters, Charactermeta, Metagenre, Metaindex
+from div_content.models import Book, Bookauthor, Bookcharacter, Bookcomments, Bookcover, Bookgenre, Bookisbn, Bookpublisher, Bookrating, Bookwriters, Charactermeta, Metagenre, Metaindex, Metastats
 
 from div_content.utils.books import fetch_books_from_google, fetch_book_from_google_by_id 
 from dotenv import load_dotenv
@@ -32,8 +32,19 @@ def books(request):
     #except Exception as e:
         #all_books = []
         #api_test_message += " | Chyba při získávání dat z API: " + str(e)
+        
+    book_list_15 = Book.objects.filter(year__gt=2022)[:15]
 
-    return render(request, 'books/books_list.html', {'top_books': top_books,})
+
+    stats_book = Metastats.objects.filter(tablemodel='Book').first()
+    stats_writters = Metastats.objects.filter(tablemodel='BookAuthor').first()
+    
+
+    return render(request, 'books/books_list.html', {
+        'top_books': top_books,
+        'book_list_15': book_list_15,
+        'stats_book': stats_book,
+        'stats_writters': stats_writters})
 #'top_20_books': top_20_books, 'all_books': all_books, 'api_test_message': api_test_message
 
 

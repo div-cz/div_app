@@ -1,0 +1,30 @@
+{% extends "forum/base.html" %}
+{% block title %}
+Smazat komentář
+{% endblock title %}
+
+{% block content %}
+<h2><a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a> / <a class="hover:underline" href="{% url 'forum_section_detail' slug=topic.section.slug %}">{{ topic.section.title }}</a> / {{ topic.title }}</h2>
+{% if user.is_authenticated %}
+<section class="w-3/4">
+    <h2>Opravdu chceš smazat komentář?</h2>
+    <form method="post">
+        {% csrf_token %}
+        <p>{{ comment_to_delete.body|safe }}</p>
+        <button class="btn mb-4 mr-1 btn-action add" type="submit">Smazat</button>
+    </form>
+</section>
+{% endif %}
+
+<!-- {% for comment in comments %}
+<ol class="card card-body mb-4 w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+    <li class="after">{{ comment.body|safe }}</li>
+    <div class="flex justify-between">
+        <p><a href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">{{ comment.user }}</a> - {{ comment.createdat }}</p>
+        {% if user == comment.user %}
+        <p><a href="#">Upravit</a> | <a href="">Smazat</a></p>
+    </div>
+    {% endif %}
+</ol>
+{% endfor %} -->
+{% endblock content %}

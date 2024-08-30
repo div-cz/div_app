@@ -1,417 +1,236 @@
-{% comment %}
-cache: řádek 137
-{% endcomment %}<!DOCTYPE html>
+{% load humanize %}{% comment %} cache: řádek 137 {% endcomment %}<!DOCTYPE html>
 <html lang="cs">
-<head>
 
-    {% include "../inc/head.html" %}
+    <head>
 
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        {% include "../inc/head.html" %}
 
-<title>Filmy | Databáze DIV.cz</title>
+        <title>Filmy | Databáze DIV.cz</title>
 
-<style>
-.carousel-image-container {
-    width: 100%; /* zajistí, aby kontejner zabral celou šířku */
-    max-width: 1200px; /* nastaví maximální šířku kontejneru */
-    margin: auto; /* centruje kontejner */
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-}
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css"/>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"/>
+
+        <script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
+        
+        <link href="/static/css/movies.css" rel="stylesheet">
+        <link href="/static/css/navbar.css" rel="stylesheet">
 
 
-.carousel-main-image {
-    max-height: 400px;
-    width: auto;
-    margin: 0 auto;
-}
-
-.carousel-side-image {
-    width: 100px;
-    opacity: 0.5;
-    display: none;
-}
-.carousel-caption {
-    background: rgba(0, 0, 0, 0.5); /* černé pozadí s 50% průhledností */
-    color: white; /* bílý text pro lepší kontrast */
-    padding: 10px; /* trochu paddingu pro lepší vzhled */
-}
+<meta name="description" content="Databáze filmů a seriálů na DIV.cz. Objevte novinky, recenze, žebříčky, postavy a další informace o vašich oblíbených filmech.">
+<meta name="keywords" content="filmy, seriály, databáze filmů, recenze, novinky, žebříčky, postavy, kinohity, filmové novinky">
+<meta name="author" content="eKultura.eu">
+<meta property="og:title" content="Filmy | Databáze DIV.cz">
+<meta property="og:description" content="Prozkoumejte nejnovější filmy a seriály na DIV.cz. Aktuální recenze, novinky a žebříčky.">
+<meta property="og:image" content="https://div.cz/img/movie/filmovy-div.webp">
+<meta property="og:url" content="https://div.cz/filmy/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Filmy | Databáze DIV.cz">
+<meta name="twitter:description" content="Aktuální databáze filmů a seriálů na DIV.cz. Recenze, novinky, a více.">
+<meta name="twitter:image" content="https://div.cz/img/movie/filmovy-div.webp">
 
 
+        {% include "../inc/google.html" %}
+    </head>
 
+    <body class="bg-[#FFFFFF] text-[#0d0c0f] dark:bg-[#0d0c0f] dark:text-[#F9F9F9] d-flex flex-column min-vh-100">
 
-.carousel-slide {
-    position: relative;
-    text-align: center;
-}
-.carousel-slide img {
-    width: 100%;
-    object-fit: cover; /* Zajistí, že obrázek pokryje celou oblast bez deformace */
-    height: 300px; /* Pevně nastavíme výšku obrázků */
-}
-.overlay {
-    position: absolute;
-    bottom: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-    color: white;
-    text-shadow: 1px 1px 3px #ccc;
-    width: 100%;
-    padding: 10px;
-    text-align: left;
-}
-.article-section {
-    padding: 0 15px;
-}
-.article-item {
-    display: flex;
-    margin-bottom: 10px;
-    /*background: #fff;*/
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-.article-thumbnail {
-    width: 100px;
-    height: 150px;
-    margin:5px;
-}
-.article-content {
-    padding: 10px;
-    flex: 1;
-}
-.container-fluid {
-    max-width: 1200px; /* Omezuje max šířku obsahu */
-    margin: 0 auto; /* Centruje obsah na stránce */
-}
+        {% include "../inc/navbar_movies.html" %}
 
-
-
-@media (max-width: 768px) {
-    .banner {
-        flex-direction: column;
-    }
-
-    .banner-caption {
-        position: static; /* Zruší absolutní pozicování */
-        align-self: center; /* Zarovná na střed */
-        width: 100%;
-        text-align: center;
-        margin-top: 10px; /* Přidá mezery mezi H1 a caption */
-    }
-        .carousel-side-image {
-        display: block;
-    }
-    .carousel-slide img {
-    width: 100%;
-    object-fit: cover; /* Zajistí, že obrázek pokryje celou oblast bez deformace */
-    height: 200px; /* Pevně nastavíme výšku obrázků */
-}
-    .kino  {display:none;}
-}
-@media (max-width: 992px) {
-    .kino  {display:none;}
-}
-.card2 {
-    height: 350px;
-}
-/*
-a {color: #E31E24 !important}
-a:hover {color: #A52B21 !important}*/
-
-
-</style>
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css"/>
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"/>
-<script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
-</head>
-
-<body>
-
-    {% include "../inc/navbar_movies.html" %}
-
-{% load cache %}{% cache 604800 movies_index %}
-
-<main class="mb-5d">
-    <section class="container-fluid my-4">
-        <div class="row">
-            <div class="col-lg-8">
-                <div id="image-slider" class="carousel">
-                    {% for movie in movies_carousel %}
-                    <div class="carousel-slide"><a href="/film/{{ movie.url }}">
-                        <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" alt="{{ movie.title }}">
-                        </a>
-                        <div class="overlay">
-                            <h2>{{ movie.title }}</h2>
+        <main class="flex-grow-1 max-w-[1440px] mx-auto">
+            <section class="text-[#0d0c0f] dark:text-[#F9F9F9] max-w-[1440px] mx-auto flex flex-col lg:flex-row">
+                <aside class="lg:min-w-[200px] max-h-full bg-light dark:bg-[#1A161F]" style="border-right: 1px solid white;">
+                    <div class="lg:min-w-[200px] max-h-full" style="border-right: 1px solid white;">
+                        <!-- Menu -->
+                        <div class="menu-section flex justify-center lg:flex-col lg:justify-normal lg:h-screen lg:block dark:bg-[#1A161F]">
+                            <div class="" style="width: 100%;">
+                                <div class="after flex flex-wrap justify-between">
+                                    <h3 class="ml-8 lg:pt-11 mb-2 font-bold sm:mt-4">Menu</h3>
+                                    <div class="flex gap-4 mb-2 mr-4 items-end">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 sun cursor-pointer ">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                                        </svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 moon cursor-pointer ">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex sm:justify-center">
+                                    <div class="w-full flex flex-col ml-8 items-center">
+                                        <div class="flex flex-col w-full">
+                                            <div class="sidebar-list">
+                                                <a href="">Novinky</a>
+                                                <a href="/seznam-filmu">Seznam filmů</a>
+                                                <a href="">Žebříčky</a>
+                                                <a href="/postavy/">Postavy</a>
+                                                <a href="">Lokality</a>
+                                                <a href="/forum/filmy">Fórum</a>
+                                                <a href="">Ocenění</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="col-lg-4 article-section kino">
-                <div class="article-item ml-4">
-    <ul style="list-style-type:none">
-    
-    <li><h3>V kinech</h3></li>
-
-
-    <li><a href="https://div.cz/film/tady-havel-slysite-me">Tady Havel, slyšíte mě?</a></li>
-    <li><a href="https://div.cz/film/aristokratka-ve-varu">Aristokratka ve varu</a></li>
-
-
-    <li><a href="https://div.cz/film/abigail-2024">Abigail</a></li>
-    <li><a href="https://div.cz/film/duna-cast-druha">Duna: Část druhá</a></li>
-    <li><a href="https://div.cz/film/krotitele-duchu-rise-ledu">Krotitelé duchů: Říše ledu</a></li>
-    <li><a href="https://div.cz/film/gump-jsme-dvojka">Gump - jsme dvojka</a></li>
-    <li><a href="https://div.cz/film/kung-fu-panda-4">Kung Fu Panda 4</a></li>
-    <li><a href="https://div.cz/film/obcanska-valka">Občanská válka</a></li>
-
-    <li><a href="https://div.cz/film/godzilla-x-kong-nove-imperium">Godzilla x Kong: Nové impérium</a></li>
-</ul>
-
-                </div>
-            </div>
-        </div>
-    </section>
-<script>
-$(document).ready(function(){
-    $('#image-slider').slick({
-        infinite: true,
-        slidesToShow: 1,
-        slidesToScroll: 1,
-        autoplay: true,
-        autoplaySpeed: 3000,
-        dots: true,
-        arrows: false, // Skryjeme šipky, pokud nejsou potřeba
-        fade: true,
-        cssEase: 'linear'
-    });
-});
-</script>
-
-
-
-
-<!-- Sekce odkazů na filmy -->
-<!--<div class="container my-4">
-    <h2 class="mb-4">Seznam filmů</h2>-->
-<div class="container my-4 mb-4">
-    
-
-
-    
-
-
-
-
-
-    <div class="container my-4">
-        <div class="row">
-            <!-- Hlavní obsah (Levý sloupec) -->
-            <div class="col-md-8">
-
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
-<h2 class="mb-4 mb-md-0"><a href="https://div.cz/seznam-filmu">Seznam filmů</a></h2>
-<form class="form-inline my-2 my-lg-0" action="/hledam/" method="get">
-    <input class="form-control form-control-sm mr-2" type="search" placeholder="Vyhledávání" aria-label="Vyhledávání" name="q" style="max-width: 150px;">
-    <button class="btn btn-outline-success btn-sm my-2 my-sm-0" type="submit">Hledat</button>
-</form></div>
-
-                <!-- Seznam filmů -->
-                <div class="row">
-        {% for movie in movies_list_30 %}
-            <div class="col-md-4 col-sm-6 mb-3">
-                <div class="card card2">
-                <a href="/film/{{ movie.url }}">
-        {% if movie.img == "noimg.png" %}
-        <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" class="card-img-top">
-        {% else %}
-        <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" alt="{{ movie.titlecz }}" class="card-img-top">
-        {% endif %}
-                </a>
-
-                    <div class="card-body">
-                        <h5 class="card-title"><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></h5>
-                        <p class="card-text">{{ movie.description|truncatewords:10 }}</p>
-                        <!--<a href="/film/{{ movie.url }}" class="btn btn-primary">{{ movie.titlecz }}</a>-->
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
-                </div>
-            </div>
-
-
-
-{% endcache %}
-
-
-
-            <!-- Pravý sloupec -->
-            <div class="col-md-4"><!-- Pravý sloupec -->
-
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Přihlášení uživatele</h5>
-{% if user.is_authenticated %}
-    <h4>{{ user.username }} </h4>
-    <p>Vítejte, {{ user.username }} <a href="{% url 'logout' %}">Odhlásit se</a></p>
-{% else %}
-    <h4>Přihlášení</h4>
-    <form method="post" action="{% url 'login' %}">
-        {% csrf_token %}
-        {{ form.username.label_tag }}
-        {{ form.username }}
-        {{ form.password.label_tag }}
-        {{ form.password }}
-        <button type="submit" class="btn btn-primary">Přihlásit se</button>
-    </form>
-    <div class="mt-3">
-        <p>Nemáte účet? <a href="{% url 'signup' %}">Registrace</a></p>
-    </div>
-{% endif %}
+                </aside>
+               
+                <div class="row container my-4">
+                    <!-- LEVÁ STRANA -->
+                    <div class="col-lg-8">
+                        <!-- carousel - nejlépe hodnocené -->
+                        <div id="image-slider" class="carousel">
+                            {% for movie in movies_carousel %}
+                            <div class="carousel-slide">
+                                <a href="/film/{{ movie.url }}">
+                                    <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" alt="{{ movie.title }}">
+                                </a>
+                                <div class="overlay">
+                                    <h2>{{ movie.title }}</h2>
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
-                    </div>
 
-                    
-
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Žánry</h5>
-<nav>
-    <a href="/filmy/akcni">Akční</a> |
-    <a href="/filmy/animovany">Animovaný</a> |
-    <a href="/filmy/dobrodruzny">Dobrodružný</a> |
-    <a href="/filmy/dokumentarni">Dokumentární</a> |
-    <a href="/filmy/drama">Drama</a> |
-    <a href="/filmy/fantasy">Fantasy</a> |
-    <a href="/filmy/historicky">Historický</a> |
-    <a href="/filmy/horor">Horor</a> |
-    <a href="/filmy/hudebni">Hudební</a> |
-    <a href="/filmy/komedie">Komedie</a> |
-    <a href="/filmy/krimi">Krimi</a> |
-    <a href="/filmy/mysteriozni">Mysteriózní</a> |
-    <a href="/filmy/rodinny">Rodinný</a> |
-    <a href="/filmy/romanticky">Romantický</a> |
-    <a href="/filmy/sci-fi">Sci-fi</a> |
-    <a href="/filmy/televizni-film">TV film</a> |
-    <a href="/filmy/thriller">Thriller</a> |
-    <a href="/filmy/valecny">Válečný</a> |
-    <a href="/filmy/western">Western</a>
-</nav>
-
+                        <div>
+                            <div class="grid grid-cols-3 gap-2">
+                                {% for movie in movies_list_30 %} 
+                                <div class="card card2 w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                    <a href="/film/{{ movie.url }}">
+                                    {% if movie.img == "noimg.png" %}
+                                        <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" class="card-img-top rounded-1xl">
+                                        {% else %}
+                                        <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" alt="{{ movie.titlecz }}" class="card-img-top rounded-t-lg">
+                                    {% endif %}
+                                    </a>
+                                    <div class="card-body">
+                                        <h4 class="card-title"><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a> <!--({{ movie.popularity }})--></h4>
+                                        {% comment %}<p class="card-text">{{ movie.description|safe|truncatewords:10 }}</p>{% endcomment %}
+                                        <p class="card-text">{{ movie.description|safe }}</p>
+                                        <!--<a href="/film/{{ movie.url }}" class="btn btn-primary">{{ movie.titlecz }}</a>-->
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
 
 
 
 
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Roky</h5>
-<nav>
-    <a href="/filmy/2024">2024</a> |
-    <a href="/filmy/2023">2023</a> |
-    <a href="/filmy/2022">2022</a> |
-    <a href="/filmy/2021">2021</a> |
-    <a href="/filmy/2020">2020</a> |
-    <a href="/filmy/2019">2019</a> |
-    <a href="/filmy/2018">2018</a> |
-    <a href="/filmy/2017">2017</a> |
-    <a href="/filmy/2016">2016</a> |
-    <a href="/filmy/2015">2015</a> |
-    <a href="/filmy/2014">2014</a> |
-    <a href="/filmy/2013">2013</a> |
-    <a href="/filmy/2012">2012</a> |
-    <a href="/filmy/2011">2011</a> |
-    <a href="/filmy/2010">2010</a> |
-    <a href="/filmy/2009">2009</a> |
-    <a href="/filmy/2008">2008</a> |
-    <a href="/filmy/2007">2007</a> |
-    <a href="/filmy/2006">2006</a> |
-    <a href="/filmy/2005">2005</a> |
-    <a href="/filmy/2004">2004</a> |
-    <a href="/filmy/2003">2003</a> |
-    <a href="/filmy/2002">2002</a> |
-    <a href="/filmy/2001">2001</a> |
-    <a href="/filmy/2000">2000</a> |
-    <a href="/filmy/1999">1999</a>
-</nav>
+                    <!-- PRAVÁ STRANA -->
+                    <div class="col-lg-4 article-section">
+                        <div class="card mb-4">
+                            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                <h3 class="card-title font-bold after-h3">V kinech</h3>
+                                <ul class="w-full" style="list-style-type:none">
+                                
+                                {% for movie in movies_in_cinema %}
+                                    <li><a href="https://div.cz/film/{{ movie.movieid__url }}">{{ movie.movieid__titlecz }}</a></li>
+                                
+                                {% endfor %}
+                                    <li><a href="https://div.cz/film/tady-havel-slysite-me">Tady Havel, slyšíte mě?</a></li>
+                                    <li><a href="https://div.cz/film/aristokratka-ve-varu">Aristokratka ve varu</a></li>
+                                    <li><a href="https://div.cz/film/abigail-2024">Abigail</a></li>
+                                    <li><a href="https://div.cz/film/duna-cast-druha">Duna: Část druhá</a></li>
+                                    <li><a href="https://div.cz/film/krotitele-duchu-rise-ledu">Krotitelé duchů: Říše ledu</a></li>
+                                    <li><a href="https://div.cz/film/gump-jsme-dvojka">Gump - jsme dvojka</a></li>
+                                    <li><a href="https://div.cz/film/kung-fu-panda-4">Kung Fu Panda 4</a></li>
+                                    <li><a href="https://div.cz/film/obcanska-valka">Občanská válka</a></li>
+                                    <li><a href="https://div.cz/film/godzilla-x-kong-nove-imperium">Godzilla x Kong: Nové impérium</a></li>
+                                </ul>
+                            </div>
+                        </div>
 
+                        <div>
+                            <div class="card mb-4">
+                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                    <h3 class="card-title font-bold after-h3">Žánry</h3>
+                                    <nav>
+                                        <a href="/filmy/akcni">Akční</a> |
+                                        <a href="/filmy/animovany">Animovaný</a> |
+                                        <a href="/filmy/dobrodruzny">Dobrodružný</a> |
+                                        <a href="/filmy/dokumentarni">Dokumentární</a> |
+                                        <a href="/filmy/drama">Drama</a> |
+                                        <a href="/filmy/fantasy">Fantasy</a> |
+                                        <a href="/filmy/historicky">Historický</a> |
+                                        <a href="/filmy/horor">Horor</a> |
+                                        <a href="/filmy/hudebni">Hudební</a> |
+                                        <a href="/filmy/komedie">Komedie</a> |
+                                        <a href="/filmy/krimi">Krimi</a> |
+                                        <a href="/filmy/mysteriozni">Mysteriózní</a> |
+                                        <a href="/filmy/rodinny">Rodinný</a> |
+                                        <a href="/filmy/romanticky">Romantický</a> |
+                                        <a href="/filmy/sci-fi">Sci-fi</a> |
+                                        <a href="/filmy/televizni-film">TV film</a> |
+                                        <a href="/filmy/thriller">Thriller</a> |
+                                        <a href="/filmy/valecny">Válečný</a> |
+                                        <a href="/filmy/western">Western</a>
+                                    </nav>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                    <h3 class="card-title font-bold after-h3">Články</h3>
+
+
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                    <h3 class="card-title font-bold after-h3">Roky</h3>
+                                    <nav>
+                                        <a href="/filmy/2024">2024</a> |
+                                        <a href="/filmy/2023">2023</a> |
+                                        <a href="/filmy/2022">2022</a> |
+                                        <a href="/filmy/2021">2021</a> |
+                                        <a href="/filmy/2020">2020</a> |
+                                        <a href="/filmy/2019">2019</a> |
+                                        <a href="/filmy/2018">2018</a> |
+                                        <a href="/filmy/2017">2017</a> |
+                                        <a href="/filmy/2016">2016</a> |
+                                        <a href="/filmy/2015">2015</a> |
+                                        <a href="/filmy/2014">2014</a> |
+                                        <a href="/filmy/2013">2013</a> |
+                                        <a href="/filmy/2012">2012</a> |
+                                        <a href="/filmy/2011">2011</a> |
+                                        <a href="/filmy/2010">2010</a> |
+                                        <a href="/filmy/2009">2009</a> |
+                                        <a href="/filmy/2008">2008</a> |
+                                        <a href="/filmy/2007">2007</a> |
+                                        <a href="/filmy/2006">2006</a> |
+                                        <a href="/filmy/2005">2005</a> |
+                                        <a href="/filmy/2004">2004</a> |
+                                        <a href="/filmy/2003">2003</a> |
+                                        <a href="/filmy/2002">2002</a> |
+                                        <a href="/filmy/2001">2001</a> |
+                                        <a href="/filmy/2000">2000</a> |
+                                        <a href="/filmy/1999">1999</a>
+                                    </nav>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                    <h3 class="card-title font-bold after-h3">V databázi máme:</h3>
+                                    <ul>
+                                        <li>{{ stats_movie.value|intcomma }} filmů</li>
+                                        <li>{{ stats_tvshows.value|intcomma }} seriálů</li>
+                                        <li>{{ stats_moviecomments.value|intcomma }} filmových komentářů</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </div>
+            </section>
+        </main>
 
+        {% include "../inc/footer_movies.html" %}
 
+        <script src="/static/js/movies.js"></script>
+        <script src="/static/js/script.js"></script>
 
-
-
-
-            </div><!-- // Pravý sloupec -->
-        </div><!-- // row -->
-    </div><!-- // containter -->
-
-
-
-
-
-</main>
-
-
-{% include "../inc/footer_movies.html" %}
-
-
-<script>
-
-$(document).ready(function() {
-    // Initialize DataTable
-    var table = $('#moviesTable').DataTable();
-
-    // Apply the filter
-    $('#genresFilter, #ratingFilter').on('change', function() {
-        table.draw();
-    });
-
-    // Custom filtering function
-    $.fn.dataTable.ext.search.push(
-        function(settings, data, dataIndex) {
-            var genres = $('#genresFilter').val();
-            var minRating = $('#ratingFilter').val();
-
-            var rowGenres = data[2]; // Genres is in the second column
-            var rowRating = parseInt(data[3].split('/')[0]); // Extract rating from format "X/10"
-
-            if ((genres === "" || genres === rowGenres) && (minRating === "0" || rowRating >= minRating)) {
-                return true; // Show row
-            }
-            return false; // Hide row
-        }
-    );
-});
-
-
-$('#moviesTable').DataTable({
-    "language": {
-        "lengthMenu": "Zobrazit _MENU_ záznamů",
-        "zeroRecords": "Žádné záznamy nebyly nalezeny",
-        "info": "Strana _PAGE_ z _PAGES_",
-        "infoEmpty": "Žádné záznamy k dispozici",
-        "infoFiltered": "(vyfiltrováno z celkem _MAX_ záznamů)",
-        "search": "Hledat:",
-        "paginate": {
-            "first":      "První",
-            "last":       "Poslední",
-            "next":       "Další",
-            "previous":   "Předchozí"
-        },
-    },
-
-    "order": [[ 0, "desc" ]], 
-    "pageLength": 25
-});
-
-
-</script>
-
-
-</body>
+    </body>
 </html>
