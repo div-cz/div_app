@@ -370,13 +370,15 @@ class Bookpurchase(models.Model):
         db_table = 'BookPurchase'
 
 
-class BookQuotes(models.Model):
+class Bookquotes(models.Model):
     quoteid = models.AutoField(db_column='QuoteID', primary_key=True)
     bookid = models.ForeignKey('Book', on_delete=models.CASCADE, db_column='BookID')
     characterid = models.ForeignKey('Charactermeta', on_delete=models.CASCADE, db_column='CharacterID', null=True, blank=True)
     authorid = models.ForeignKey('Bookauthor', on_delete=models.CASCADE, db_column='AuthorID', null=True, blank=True)
     quote = models.TextField(db_column='Quote')
+    page_number = models.IntegerField(db_column='PageNumber', null=True, blank=True)  # Přidané pole pro stránku
     parentquoteid = models.ForeignKey('self', on_delete=models.CASCADE, db_column='ParentQuoteID', null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # Přidaný cizí klíč na uživatele
 
     class Meta:
         db_table = 'BookQuotes'

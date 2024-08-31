@@ -16,7 +16,10 @@ from django.urls import path, include
 from div_content.views.articles import article_detail
 from div_content.views.authors import authors_list, author_detail, author_add
 from div_content.views.blog import blog_add_post, blog_detail, blog_index, blog_list, blog_new, blog_post_detail, blog_section_detail
-from div_content.views.books import book_add, book_detail, books, books_search
+from div_content.views.books import (
+    book_add, book_detail, books, books_search, add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library,
+    remove_from_favourites_books, remove_from_readlist, remove_from_read_books, remove_from_book_library
+    )
 from div_content.views.creators import creator_detail, creators_list
 from div_content.views.forum import (
     forum, forum_section_detail, create_new_topic, forum_topic_detail, comment_edit, comment_delete, comment_reply, forum_search
@@ -107,8 +110,20 @@ urlpatterns = [
     
     path('knihy/', books, name='books_index'),
     path('hledani-knih/', books_search, name='books_search'),
+
+    path('kniha/pridat-do-oblibenych-<int:bookid>', add_to_favourite_books, name="add_to_favourite_books"),
+    path('kniha/chci-cist-<int:bookid>', add_to_readlist, name="add_to_readlist"),
+    path('kniha/precteno-<int:bookid>', add_to_read_books, name="add_to_read_books"),
+    path('kniha/do-knihovny-<int:bookid>', add_to_book_library, name="add_to_book_library"),
+
+    path('kniha/odebrat-z-oblibenych-<int:bookid>', remove_from_favourites_books, name="remove_from_favourites_books"),
+    path('kniha/odebrat-z-chci-cist-<int:bookid>', remove_from_readlist, name="remove_from_readlist"),
+    path('kniha/odebrat-z-precteno-<int:bookid>', remove_from_read_books, name="remove_from_read_books"),
+    path('kniha/odebrat-z-knihovny-<int:bookid>', remove_from_book_library, name="remove_from_book_library"),
+
     path('kniha/<str:book_url>', book_detail, name='book_detail'),
     path('knihy/pridat/', book_add, name='book_add'),
+
 
     path('spisovatele/', authors_list, name='authors_list'),
     path('spisovatel/<str:author_url>', author_detail, name='author_detail'), 
