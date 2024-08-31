@@ -1,0 +1,828 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+
+    <head>
+
+        <link rel="icon" href="/static/img/favicon.ico" type="image/x-icon">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        
+        <meta name="keywords" content="filmy, knihy, hry, herci, spisovatelé, databáze, ">
+        <meta name="description" content="Databáze filmů. Databáze knih. Novinky ve světě filmů a knih.">
+
+        <meta name="robots" content=" noindex, nofollow ">
+
+        <meta name="author" content="">
+
+        <!--<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">-->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="/static/css/style.css"> 
+        <link rel="stylesheet" href="/static/css/hodnoceni.css">
+        
+        <script src="https://cdn.jsdelivr.net/npm/cookie-bar@1.10.3/cookiebar-latest.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/cookie-bar@1.10.3/themes/cookiebar.min.css" rel="stylesheet">
+
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+        
+        <link rel="stylesheet" href="/static/star-ratings/css/star-ratings.css">
+        <script type="text/javascript" src="/static/star-ratings/js/dist/star-ratings.min.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css"/>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"/>
+        <script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
+
+        <title>Filmy  2024 | Databáze DIV.cz</title>
+
+        <style>
+            .carousel-image-container {
+                width: 100%; /* zajistí, aby kontejner zabral celou šířku */
+                max-width: 1200px; /* nastaví maximální šířku kontejneru */
+                margin: auto; /* centruje kontejner */
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+            }
+
+            .carousel-main-image {
+                max-height: 400px;
+                width: auto;
+                margin: 0 auto;
+            }
+
+            .carousel-side-image {
+                width: 100px;
+                opacity: 0.5;
+                display: none;
+            }
+
+            .carousel-caption {
+                background: rgba(0, 0, 0, 0.5); /* černé pozadí s 50% průhledností */
+                color: white; /* bílý text pro lepší kontrast */
+                padding: 10px; /* trochu paddingu pro lepší vzhled */
+            }
+
+            .carousel-slide {
+                position: relative;
+                text-align: center;
+            }
+
+            .carousel-slide img {
+                width: 100%;
+                object-fit: cover; /* Zajistí, že obrázek pokryje celou oblast bez deformace */
+                height: 300px; /* Pevně nastavíme výšku obrázků */
+            }
+
+            .overlay {
+                position: absolute;
+                bottom: 0;
+                background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+                color: white;
+                text-shadow: 1px 1px 3px #ccc;
+                width: 100%;
+                padding: 10px;
+                text-align: left;
+            }
+
+            .article-section {
+                padding: 0 15px;
+            }
+
+            .article-item {
+                display: flex;
+                margin-bottom: 10px;
+                /*background: #fff;*/
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+
+            .article-thumbnail {
+                width: 100px;
+                height: 150px;
+                margin:5px;
+            }
+
+            .article-content {
+                padding: 10px;
+                flex: 1;
+            }
+
+            .container-fluid {
+                max-width: 1200px; /* Omezuje max šířku obsahu */
+                margin: 0 auto; /* Centruje obsah na stránce */
+            }
+
+
+
+            @media (max-width: 768px) {
+                .banner {
+                    flex-direction: column;
+                }
+
+                .banner-caption {
+                    position: static; /* Zruší absolutní pozicování */
+                    align-self: center; /* Zarovná na střed */
+                    width: 100%;
+                    text-align: center;
+                    margin-top: 10px; /* Přidá mezery mezi H1 a caption */
+                }
+
+                .carousel-side-image {
+                    display: block;
+                }
+
+                .carousel-slide img {
+                    width: 100%;
+                    object-fit: cover; /* Zajistí, že obrázek pokryje celou oblast bez deformace */
+                    height: 200px; /* Pevně nastavíme výšku obrázků */
+                }
+
+                .kino  {
+                    display:none;
+                }
+            }
+
+            @media (max-width: 992px) {
+                .kino {
+                    display:none;
+                }
+            }
+
+            .card2 {
+                height: 350px;
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light dark-mode">
+            <div class="container">
+                <a class="navbar-brand" href="/">
+                <img src="https://div.cz/static/img/site/microsoft/div_310x150.png" style="width:120px">
+                </a>
+                
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mr-auto">
+                
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Domů</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" href="/knihy/">Knihy</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/filmy/">Filmy</a>
+                        </li>
+                        <!--<li class="nav-item">
+                            <a class="nav-link" href="/tvurci/">Tvůrci</a>
+                        </li>--><!--
+                        <li class="nav-item active">
+                            <a class="nav-link active" href="/hry/">Hry</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/knihy/">Knihy</a>
+                        </li>-->
+                    </ul>
+
+                    <div class="d-flex align-items-center">
+                        <form class="form-inline my-2 my-lg-0" action="/hledam/" method="get">
+                            <input class="form-control form-control-sm mr-2" type="search" placeholder="Název filmu" aria-label="Vyhledávání" name="q" style="max-width: 150px;">
+                            <button class="btn btn-outline-success btn-sm my-2 my-sm-0" type="submit">Hledat</button>
+                        </form>
+                        
+                        <div class="ml-3">
+                            <a class="nav-link" href="/prihlaseni/">Přihlásit!</a>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="mb-5">
+            <!-- Sekce odkazů na filmy -->
+            <div class="container my-4">
+                <h2 class="mb-4">Seznam filmů 2024</h2>
+                <div class="container my-4">
+                    <div class="row">
+                        <!-- Hlavní obsah (Levý sloupec) -->
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/v-hlave-2">
+                                            <img src="https://www.themoviedb.org/t/p/w400/stKGOm8UyhuLPR9sZLjs5AkmncA.jpg" alt="V hlavě 2" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//stKGOm8UyhuLPR9sZLjs5AkmncA.jpg" class="card-img-top" alt="V hlavě 2">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/v-hlave-2">V hlavě 2</a> ()</h5>
+                                            <p class="card-text">V hlavě čerstvé teenagerky Riley se dějí velké věci – …</p>
+                                            <!--<a href="/film/v-hlave-2" class="btn btn-primary">Inside Out 2</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/duna-cast-druha">
+                                            <img src="https://www.themoviedb.org/t/p/w400/uhUO7vQQKvCTfQWubOt5MAKokbL.jpg" alt="Duna: Část druhá" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//uhUO7vQQKvCTfQWubOt5MAKokbL.jpg" class="card-img-top" alt="Duna: Část druhá">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/duna-cast-druha">Duna: Část druhá</a> ()</h5>
+                                            <p class="card-text">Sledujte mýtickou cestu Paula Atreida, který se spojí s Chani …</p>
+                                            <!--<a href="/film/duna-cast-druha" class="btn btn-primary">Dune: Part Two</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/godzilla-x-kong-nove-imperium">
+                                            <img src="https://www.themoviedb.org/t/p/w400/sR0SpCrXamlIkYMdfz83sFn5JS6.jpg" alt="Godzilla x Kong: Nové imperium" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//sR0SpCrXamlIkYMdfz83sFn5JS6.jpg" class="card-img-top" alt="Godzilla x Kong: Nové imperium">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/godzilla-x-kong-nove-imperium">Godzilla x Kong: Nové imperium</a> ()</h5>
+                                            <p class="card-text">Epická bitva pokračuje! Film navazuje na explozivní souboj Godzilla vs. …</p>
+                                            <!--<a href="/film/godzilla-x-kong-nove-imperium" class="btn btn-primary">Godzilla x Kong: The New Empire</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/kung-fu-panda-4">
+                                            <img src="https://www.themoviedb.org/t/p/w400/1XDDXPXGiI8id7MrUxK36ke7gkX.jpg" alt="Kung Fu Panda 4" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//1XDDXPXGiI8id7MrUxK36ke7gkX.jpg" class="card-img-top" alt="Kung Fu Panda 4">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/kung-fu-panda-4">Kung Fu Panda 4</a> ()</h5>
+                                            <p class="card-text">Po už mnohokrát prokázal, že si titul „Dračí bojovník“ navzdory …</p>
+                                            <!--<a href="/film/kung-fu-panda-4" class="btn btn-primary">Kung Fu Panda 4</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/tiche-misto-prvni-den">
+                                            <img src="https://www.themoviedb.org/t/p/w400/6XjMwQTvnICBz6TguiDKkDVHvgS.jpg" alt="Tiché místo: První den" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//6XjMwQTvnICBz6TguiDKkDVHvgS.jpg" class="card-img-top" alt="Tiché místo: První den">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/tiche-misto-prvni-den">Tiché místo: První den</a> ()</h5>
+                                            <p class="card-text">Když je New York City napadeno mimozemskými tvory, kteří loví …</p>
+                                            <!--<a href="/film/tiche-misto-prvni-den" class="btn btn-primary">A Quiet Place: Day One</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/the-exorcism">
+                                            <img src="https://www.themoviedb.org/t/p/w400/8fNBsXpgMvqk75SPsZzTmIqSRxY.jpg" alt="The Exorcism" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//8fNBsXpgMvqk75SPsZzTmIqSRxY.jpg" class="card-img-top" alt="The Exorcism">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/the-exorcism">The Exorcism</a> ()</h5>
+                                            <p class="card-text">Po tragické události během natáčení temného hororu je do hlavní …</p>
+                                            <!--<a href="/film/the-exorcism" class="btn btn-primary">The Exorcism</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/nezlomni">
+                                            <img src="https://www.themoviedb.org/t/p/w400/vTlK3chwsEToSoQJYUcJaHlNhIf.jpg" alt="Nezlomní" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//vTlK3chwsEToSoQJYUcJaHlNhIf.jpg" class="card-img-top" alt="Nezlomní">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/nezlomni">Nezlomní</a> ()</h5>
+                                            <p class="card-text">Po devatenácti letech vytrvalostního závodění stojí Michael naposled na startovní …</p>
+                                            <!--<a href="/film/nezlomni" class="btn btn-primary">Arthur the King</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/obcanska-valka">
+                                            <img src="https://www.themoviedb.org/t/p/w400/fbpRZU7gH7wrNPypbBv3vkek75w.jpg" alt="Občanská válka" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//fbpRZU7gH7wrNPypbBv3vkek75w.jpg" class="card-img-top" alt="Občanská válka">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/obcanska-valka">Občanská válka</a> ()</h5>
+                                            <p class="card-text">Adrenalinová jízda po rozvrácené Americe blízké budoucnosti, která balancuje na …</p>
+                                            <!--<a href="/film/obcanska-valka" class="btn btn-primary">Civil War</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/predstava-o-tobe">
+                                            <img src="https://www.themoviedb.org/t/p/w400/6Xfj8wD7GoEysgcFayRKd6QLqai.jpg" alt="Představa o tobě" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//6Xfj8wD7GoEysgcFayRKd6QLqai.jpg" class="card-img-top" alt="Představa o tobě">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/predstava-o-tobe">Představa o tobě</a> ()</h5>
+                                            <p class="card-text">Představa o tobě, podle stejnojmenné oceňované moderní lovestory, se soustředí …</p>
+                                            <!--<a href="/film/predstava-o-tobe" class="btn btn-primary">The Idea of You</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/kralovstvi-planeta-opic">
+                                            <img src="https://www.themoviedb.org/t/p/w400/uLhWh1pggjIiQ1DpL0DvaIgERQR.jpg" alt="Království Planeta opic" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//uLhWh1pggjIiQ1DpL0DvaIgERQR.jpg" class="card-img-top" alt="Království Planeta opic">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/kralovstvi-planeta-opic">Království Planeta opic</a> ()</h5>
+                                            <p class="card-text">Příběh z Planety opic, který se odehrává několik generací v …</p>
+                                            <!--<a href="/film/kralovstvi-planeta-opic" class="btn btn-primary">Kingdom of the Planet of the Apes</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/twisters">
+                                            <img src="https://www.themoviedb.org/t/p/w400/7aPrv2HFssWcOtpig5G3HEVk3uS.jpg" alt="Twisters" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//7aPrv2HFssWcOtpig5G3HEVk3uS.jpg" class="card-img-top" alt="Twisters">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/twisters">Twisters</a> ()</h5>
+                                            <p class="card-text">Kate Coopero je bývalá lovkyně bouří, kterou pronásleduje ničivé setkání …</p>
+                                            <!--<a href="/film/twisters" class="btn btn-primary">Twisters</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/argylle-tajny-agent">
+                                            <img src="https://www.themoviedb.org/t/p/w400/xvk5AhfhgQcTuaCQyq3XqAnhEma.jpg" alt="Argylle: Tajný agent" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//xvk5AhfhgQcTuaCQyq3XqAnhEma.jpg" class="card-img-top" alt="Argylle: Tajný agent">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/argylle-tajny-agent">Argylle: Tajný agent</a> ()</h5>
+                                            <p class="card-text">Spisovatelka Elly Conway se proslavila sérií románů o tajném agentovi …</p>
+                                            <!--<a href="/film/argylle-tajny-agent" class="btn btn-primary">Argylle</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/deadpool-wolverine">
+                                            <img src="https://www.themoviedb.org/t/p/w400/dvBCdCohwWbsP5qAaglOXagDMtk.jpg" alt="Deadpool &amp; Wolverine" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//dvBCdCohwWbsP5qAaglOXagDMtk.jpg" class="card-img-top" alt="Deadpool &amp; Wolverine">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/deadpool-wolverine">Deadpool &amp; Wolverine</a> ()</h5>
+                                            <p class="card-text">Wolverine se zotavuje ze zranění, když se setká s hláškujícím …</p>
+                                            <!--<a href="/film/deadpool-wolverine" class="btn btn-primary">Deadpool &amp; Wolverine</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/no-time-to-spy-a-loud-house-movie">
+                                            <img src="https://www.themoviedb.org/t/p/w400/nL0q3UcNj4MOMluIUE42bc7PtW0.jpg" alt="No Time to Spy: A Loud House Movie" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//nL0q3UcNj4MOMluIUE42bc7PtW0.jpg" class="card-img-top" alt="No Time to Spy: A Loud House Movie">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/no-time-to-spy-a-loud-house-movie">No Time to Spy: A Loud House Movie</a> ()</h5>
+                                            <p class="card-text"><!--en-->Lincoln and the Louds are ecstatic to welcome their new …</p>
+                                            <!--<a href="/film/no-time-to-spy-a-loud-house-movie" class="btn btn-primary">No Time to Spy: A Loud House Movie</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/prvni-znameni-prichazi-satan">
+                                            <img src="https://www.themoviedb.org/t/p/w400/l4E2ZZGnmE4VbOLFwWsJwSpcNJe.jpg" alt="První znamení: Přichází satan!" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//l4E2ZZGnmE4VbOLFwWsJwSpcNJe.jpg" class="card-img-top" alt="První znamení: Přichází satan!">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/prvni-znameni-prichazi-satan">První znamení: Přichází satan!</a> ()</h5>
+                                            <p class="card-text">Když je mladá američanka poslána do Říma, aby začala sloužit …</p>
+                                            <!--<a href="/film/prvni-znameni-prichazi-satan" class="btn btn-primary">The First Omen</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/krotitele-duchu-rise-ledu">
+                                            <img src="https://www.themoviedb.org/t/p/w400/5cCfqeUH2f5Gnu7Lh9xepY9TB6x.jpg" alt="Krotitelé duchů: Říše ledu" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//5cCfqeUH2f5Gnu7Lh9xepY9TB6x.jpg" class="card-img-top" alt="Krotitelé duchů: Říše ledu">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/krotitele-duchu-rise-ledu">Krotitelé duchů: Říše ledu</a> ()</h5>
+                                            <p class="card-text">Rodina Spenglerových se vrací tam, kde to všechno začalo, tedy …</p>
+                                            <!--<a href="/film/krotitele-duchu-rise-ledu" class="btn btn-primary">Ghostbusters: Frozen Empire</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/abigail-2024">
+                                            <img src="https://www.themoviedb.org/t/p/w400/ySgY4jBvZ6qchrxKnBg4M8tZp8V.jpg" alt="Abigail" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//ySgY4jBvZ6qchrxKnBg4M8tZp8V.jpg" class="card-img-top" alt="Abigail">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/abigail-2024">Abigail</a> ()</h5>
+                                            <p class="card-text">Krást cizí děti je odporný zločin. Krást děti mocných zločinců …</p>
+                                            <!--<a href="/film/abigail-2024" class="btn btn-primary">Abigail</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/rodinna-afera">
+                                            <img src="https://www.themoviedb.org/t/p/w400/ngLxW9WqQAkTCBTcjOSt2Pnz5qZ.jpg" alt="Rodinná aféra" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//ngLxW9WqQAkTCBTcjOSt2Pnz5qZ.jpg" class="card-img-top" alt="Rodinná aféra">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/rodinna-afera">Rodinná aféra</a> ()</h5>
+                                            <p class="card-text">Co je horší než dělat asistentku slavnému herci, který má …</p>
+                                            <!--<a href="/film/rodinna-afera" class="btn btn-primary">A Family Affair</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/no-way-up">
+                                            <img src="https://www.themoviedb.org/t/p/w400/4woSOUD0equAYzvwhWBHIJDCM88.jpg" alt="No Way Up" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//4woSOUD0equAYzvwhWBHIJDCM88.jpg" class="card-img-top" alt="No Way Up">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/no-way-up">No Way Up</a> ()</h5>
+                                            <p class="card-text">Osoby z velmi odlišných prostředí se ocitnou pohromadě, když se …</p>
+                                            <!--<a href="/film/no-way-up" class="btn btn-primary">No Way Up</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/the-cult-2024">
+                                            <img src="/static/img/nomovie_400.jpg" alt="The Cult" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/noimg.png" class="card-img-top" alt="The Cult">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/the-cult-2024">The Cult</a> ()</h5>
+                                            <p class="card-text"></p>
+                                            <!--<a href="/film/the-cult-2024" class="btn btn-primary">The Cult</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/neposkvrnena">
+                                            <img src="https://www.themoviedb.org/t/p/w400/5Eip60UDiPLASyKjmHPMruggTc4.jpg" alt="Neposkvrněná" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//5Eip60UDiPLASyKjmHPMruggTc4.jpg" class="card-img-top" alt="Neposkvrněná">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/neposkvrnena">Neposkvrněná</a> ()</h5>
+                                            <p class="card-text">Zbožná Cecílie odjíždí na malebný italský venkov, kde jí byla …</p>
+                                            <!--<a href="/film/neposkvrnena" class="btn btn-primary">Immaculate</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/nevestina-mama">
+                                            <img src="https://www.themoviedb.org/t/p/w400/m0XCtFisSD0O6P55G1pUHdFccuL.jpg" alt="Nevěstina máma" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//m0XCtFisSD0O6P55G1pUHdFccuL.jpg" class="card-img-top" alt="Nevěstina máma">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/nevestina-mama">Nevěstina máma</a> ()</h5>
+                                            <p class="card-text">Matka vyrazí na tropický ostrov, kde se bude vdávat její …</p>
+                                            <!--<a href="/film/nevestina-mama" class="btn btn-primary">Mother of the Bride</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/mzda-za-strach">
+                                            <img src="https://www.themoviedb.org/t/p/w400/qekky2LbtT1wtbD5MDgQvjfZQ24.jpg" alt="Mzda za strach" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//qekky2LbtT1wtbD5MDgQvjfZQ24.jpg" class="card-img-top" alt="Mzda za strach">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/mzda-za-strach">Mzda za strach</a> ()</h5>
+                                            <p class="card-text">Výbuch na ropném vrtu ohrozí život stovek lidí. Parta dobrodruhů …</p>
+                                            <!--<a href="/film/mzda-za-strach" class="btn btn-primary">Le salaire de la peur</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/damaged-2024">
+                                            <img src="https://www.themoviedb.org/t/p/w400/fUC5VsQcU3m6zmYMD96R7RqPuMn.jpg" alt="Damaged" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//fUC5VsQcU3m6zmYMD96R7RqPuMn.jpg" class="card-img-top" alt="Damaged">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/damaged-2024">Damaged</a> ()</h5>
+                                            <p class="card-text">Chicagský detektiv se vydává do Skotska poté, co se objeví …</p>
+                                            <!--<a href="/film/damaged-2024" class="btn btn-primary">Damaged</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/at-vas-sila-na-den-matek-provazi">
+                                            <img src="https://www.themoviedb.org/t/p/w400/7IgL9NzlXSSHXyYoZHXVJEKQhkg.jpg" alt="Ať vás Síla na Den matek provází" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//7IgL9NzlXSSHXyYoZHXVJEKQhkg.jpg" class="card-img-top" alt="Ať vás Síla na Den matek provází">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/at-vas-sila-na-den-matek-provazi">Ať vás Síla na Den matek provází</a> ()</h5>
+                                            <p class="card-text">Je Den matek a Marge Simpsonová se přidává k mámám …</p>
+                                            <!--<a href="/film/at-vas-sila-na-den-matek-provazi" class="btn btn-primary">May the 12th Be with You</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/imaginarni-pratele">
+                                            <img src="https://www.themoviedb.org/t/p/w400/nxxCPRGTzxUH8SFMrIsvMmdxHti.jpg" alt="Imaginární přátelé" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//nxxCPRGTzxUH8SFMrIsvMmdxHti.jpg" class="card-img-top" alt="Imaginární přátelé">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/imaginarni-pratele">Imaginární přátelé</a> ()</h5>
+                                            <p class="card-text">Chodí mezi námi a nikdo je nevidí. Imaginární přátelé našeho …</p>
+                                            <!--<a href="/film/imaginarni-pratele" class="btn btn-primary">IF</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/rebel-moon-druha-cast-a-jizvonoska">
+                                            <img src="https://www.themoviedb.org/t/p/w400/tpiqEVTLRz2Mq7eLq5DT8jSrp71.jpg" alt="Rebel Moon: Druhá část – Jizvonoška" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//tpiqEVTLRz2Mq7eLq5DT8jSrp71.jpg" class="card-img-top" alt="Rebel Moon: Druhá část – Jizvonoška">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/rebel-moon-druha-cast-a-jizvonoska">Rebel Moon: Druhá část – Jizvonoška</a> ()</h5>
+                                            <p class="card-text">Rebelové se připravují na bitvu proti nemilosrdné armádě Mateřského světa …</p>
+                                            <!--<a href="/film/rebel-moon-druha-cast-a-jizvonoska" class="btn btn-primary">Rebel Moon - Part Two: The Scargiver</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/osudove-blizko">
+                                            <img src="https://www.themoviedb.org/t/p/w400/24r8W0t5ZR9FYF5MvtzFeUa2gmL.jpg" alt="Osudově blízko" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//24r8W0t5ZR9FYF5MvtzFeUa2gmL.jpg" class="card-img-top" alt="Osudově blízko">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/osudove-blizko">Osudově blízko</a> ()</h5>
+                                            <p class="card-text">Sedmnáctiletý Akito se dozví, že do roka zemře. Zbývající čas …</p>
+                                            <!--<a href="/film/osudove-blizko" class="btn btn-primary">余命一年の僕が、余命半年の君と出会った話。</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/land-of-bad">
+                                            <img src="https://www.themoviedb.org/t/p/w400/oBIQDKcqNxKckjugtmzpIIOgoc4.jpg" alt="Land of Bad" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//oBIQDKcqNxKckjugtmzpIIOgoc4.jpg" class="card-img-top" alt="Land of Bad">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/land-of-bad">Land of Bad</a> ()</h5>
+                                            <p class="card-text">Když se mise speciálních jednotek Delta Force strašlivě zvrtne, má …</p>
+                                            <!--<a href="/film/land-of-bad" class="btn btn-primary">Land of Bad</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card card2">
+                                        <a href="/film/megamind-vs-the-doom-syndicate">
+                                            <img src="https://www.themoviedb.org/t/p/w400/3Kzc6V4MWs3RXCmE5DhAYnfWL8F.jpg" alt="Megamind vs. the Doom Syndicate" class="card-img-top">
+                                        </a>
+                                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//3Kzc6V4MWs3RXCmE5DhAYnfWL8F.jpg" class="card-img-top" alt="Megamind vs. the Doom Syndicate">-->
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="/film/megamind-vs-the-doom-syndicate">Megamind vs. the Doom Syndicate</a> ()</h5>
+                                            <p class="card-text">Vrací se Megamyslův bývalý tým padouchů, Syndikát zkázy. Náš nově …</p>
+                                            <!--<a href="/film/megamind-vs-the-doom-syndicate" class="btn btn-primary">Megamind vs. the Doom Syndicate</a>-->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pravý sloupec -->
+                        <div class="col-md-4"><!-- Pravý sloupec -->
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">Přihlášení uživatele</h5>
+                                    <h4>Přihlášení</h4>
+                                    <form method="post" action="/prihlaseni/">
+                                        <input type="hidden" name="csrfmiddlewaretoken" value="9I5cGH8KV3Fu3X77CN2Wvj7vcnXeVE31RMcCri6D2AcaafdLo701POvmVnjgv5Yo">
+                                        <button type="submit" class="btn btn-primary">Přihlásit se</button>
+                                    </form>
+                                    <div class="mt-3">
+                                        <p>Nemáte účet? <a href="/registrace/">Registrace</a></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">Žánry</h5>
+                                    <nav>
+                                        <a href="/filmy/akcni">Akční</a> |
+                                        <a href="/filmy/animovany">Animovaný</a> |
+                                        <a href="/filmy/dobrodruzny">Dobrodružný</a> |
+                                        <a href="/filmy/dokumentarni">Dokumentární</a> |
+                                        <a href="/filmy/drama">Drama</a> |
+                                        <a href="/filmy/fantasy">Fantasy</a> |
+                                        <a href="/filmy/historicky">Historický</a> |
+                                        <a href="/filmy/horor">Horor</a> |
+                                        <a href="/filmy/hudebni">Hudební</a> |
+                                        <a href="/filmy/komedie">Komedie</a> |
+                                        <a href="/filmy/krimi">Krimi</a> |
+                                        <a href="/filmy/mysteriozni">Mysteriózní</a> |
+                                        <a href="/filmy/rodinny">Rodinný</a> |
+                                        <a href="/filmy/romanticky">Romantický</a> |
+                                        <a href="/filmy/sci-fi">Sci-fi</a> |
+                                        <a href="/filmy/televizni-film">TV film</a> |
+                                        <a href="/filmy/thriller">Thriller</a> |
+                                        <a href="/filmy/valecny">Válečný</a> |
+                                        <a href="/filmy/western">Western</a>
+                                    </nav>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">Roky</h5>
+                                    <nav>
+                                        <a href="/filmy/2024">2024</a> |
+                                        <a href="/filmy/2023">2023</a> |
+                                        <a href="/filmy/2022">2022</a> |
+                                        <a href="/filmy/2021">2021</a> |
+                                        <a href="/filmy/2020">2020</a> |
+                                        <a href="/filmy/2019">2019</a> |
+                                        <a href="/filmy/2018">2018</a> |
+                                        <a href="/filmy/2017">2017</a> |
+                                        <a href="/filmy/2016">2016</a> |
+                                        <a href="/filmy/2015">2015</a> |
+                                        <a href="/filmy/2014">2014</a> |
+                                        <a href="/filmy/2013">2013</a> |
+                                        <a href="/filmy/2012">2012</a> |
+                                        <a href="/filmy/2011">2011</a> |
+                                        <a href="/filmy/2010">2010</a> |
+                                        <a href="/filmy/2009">2009</a> |
+                                        <a href="/filmy/2008">2008</a> |
+                                        <a href="/filmy/2007">2007</a> |
+                                        <a href="/filmy/2006">2006</a> |
+                                        <a href="/filmy/2005">2005</a> |
+                                        <a href="/filmy/2004">2004</a> |
+                                        <a href="/filmy/2003">2003</a> |
+                                        <a href="/filmy/2002">2002</a> |
+                                        <a href="/filmy/2001">2001</a> |
+                                        <a href="/filmy/2000">2000</a> |
+                                        <a href="/filmy/1999">1999</a>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer mt-auto py-3">
+            <div class="container text-muted">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5>Objevujte s námi</h5>
+                        <p>Jsme váš spolehlivý průvodce světem popkultury. Ohodnoťte filmy, hry a knihy s námi. 
+                            <a href="/registrace/">Registrace</a> / <a href="/prihlaseni/">přihlášení</a>
+                        na DIV.cz.</p>
+                
+                        <p>Filmy: <a href="https://div.cz/akcni">Akční</a>, <a href="https://div.cz/komedie">komedie</a>
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Navigace</h5>
+                        <ul class="footer-links">
+                            <li><a href="/">Domů</a></li>
+                            <li><a href="/kontakt/">Kontakt</a></li>
+                            <li><a href="/podminky-pouziti">Podmínky použití</a></li>
+                            <li><a href="/ochrana-osobnich-udaju">Ochrana osobních údajů</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Spojte se s námi</h5>
+                        <p>Email: info(zavináč)div.cz<br>
+                        <a href="https://div.cz/pripojte-se" title="Připojte se k DIV.cz">Připojte se k nám</a></p>
+                        <a href="/nas-tym">Náš tým</a></p>
+                        <p>Telefon: +420 739 466 537 (Míša)<br>
+                        
+                        <a href="https://www.toplist.cz"><script language="JavaScript" type="text/javascript" charset="utf-8">
+                        <!--
+                        document.write('<img src="https://toplist.cz/count.asp?id=467692&logo=btn&http='+
+                        encodeURIComponent(document.referrer)+'&t='+encodeURIComponent(document.title)+'&l='+encodeURIComponent(document.URL)+
+                        '&wi='+encodeURIComponent(window.screen.width)+'&he='+encodeURIComponent(window.screen.height)+'&cd='+
+                        encodeURIComponent(window.screen.colorDepth)+'" width="80" height="15" border=0 alt="TOPlist" />');
+                        //--></script><noscript><img src="https://toplist.cz/count.asp?id=467692&logo=btn&njs=1" border="0"
+                        alt="TOPlist" width="80" height="15" /></noscript></a></p>
+
+                        <div class="footer-social-icons">
+                            <a href="https://www.facebook.com/div.cz" title="Sledujte nás na Facebooku"><i class="fa fa-facebook"></i></a>
+                            <a href="https://twitter.com/DIV_cz" title="Sledujte nás na Twitteru"><i class="fa fa-twitter"></i></a>
+                            <a href="https://www.instagram.com/filmovydiv" title="Sledujte nás na Instagramu"><i class="fa fa-instagram"></i></a>
+                            <a href="https://ask.fm/info3000" title="Zeptejte se nás na Ask.fm"><i class="fa fa-askfm"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p class="copyright text-muted">© 2023 DIV databáze | projekt <a href="https://pyliberec.cz">PyLiberec</a> & <strong><a href="https://ekultura.eu/">eKultura, z.s.</a></strong>  </p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <script>
+            $(document).ready(function() {
+                // Initialize DataTable
+                var table = $('#moviesTable').DataTable();
+
+                // Apply the filter
+                $('#genresFilter, #ratingFilter').on('change', function() {
+                    table.draw();
+                });
+
+                // Custom filtering function
+                $.fn.dataTable.ext.search.push(
+                    function(settings, data, dataIndex) {
+                        var genres = $('#genresFilter').val();
+                        var minRating = $('#ratingFilter').val();
+
+                        var rowGenres = data[2]; // Genres is in the second column
+                        var rowRating = parseInt(data[3].split('/')[0]); // Extract rating from format "X/10"
+
+                        if ((genres === "" || genres === rowGenres) && (minRating === "0" || rowRating >= minRating)) {
+                            return true; // Show row
+                        }
+                        return false; // Hide row
+                    }
+                );
+            });
+
+            $('#moviesTable').DataTable({
+                "language": {
+                    "lengthMenu": "Zobrazit _MENU_ záznamů",
+                    "zeroRecords": "Žádné záznamy nebyly nalezeny",
+                    "info": "Strana _PAGE_ z _PAGES_",
+                    "infoEmpty": "Žádné záznamy k dispozici",
+                    "infoFiltered": "(vyfiltrováno z celkem _MAX_ záznamů)",
+                    "search": "Hledat:",
+                    "paginate": {
+                        "first":      "První",
+                        "last":       "Poslední",
+                        "next":       "Další",
+                        "previous":   "Předchozí"
+                    },
+                },
+
+                "order": [[ 0, "desc" ]], 
+                "pageLength": 25
+            });
+        </script>
+
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    </body>
+</html>

@@ -1,0 +1,629 @@
+
+
+<!DOCTYPE html>
+<html lang="cs">
+
+    <head>
+        <meta charset="UTF-8">
+
+        <link rel="icon" href="/static/img/favicon.ico" type="image/x-icon">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        
+        <meta name="keywords" content="filmy, knihy, hry, herci, spisovatelé, databáze, ">
+        <meta name="description" content="Databáze filmů. Databáze knih. Novinky ve světě filmů a knih.">
+
+        <meta name="robots" content=" noindex, nofollow ">
+
+        <meta name="author" content="">
+
+        <!--<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">-->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="/static/css/style.css"> 
+        <link rel="stylesheet" href="/static/css/hodnoceni.css">
+        
+        <script src="https://cdn.jsdelivr.net/npm/cookie-bar@1.10.3/cookiebar-latest.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/cookie-bar@1.10.3/themes/cookiebar.min.css" rel="stylesheet">
+
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+        
+        <link rel="stylesheet" href="/static/star-ratings/css/star-ratings.css">
+        <script type="text/javascript" src="/static/star-ratings/js/dist/star-ratings.min.js"></script>
+        <title>Div.cz Stranka</title>
+
+    </head>
+
+    <body class="bg-[#FFFFFF]  text-[#0d0c0f] dark:bg-[#0d0c0f] dark:text-[#F9F9F9]">
+        <main class="grid grid-cols-1 main-grid">
+            <header class="">
+                <nav class="grid grid-cols-2 md:h-[72px] justify-between items-center max-w-[1920px] mx-auto">
+                    <div class="grid gap-2 md:grid-cols-6 md:gap-16 items-center">
+                        <div class="col-span-2">
+                            <img class="max-w-[120px] ml-14" src="https://div.cz/static/img/site/microsoft/div_310x150.png">
+                        </div>
+                        <ul id="menu" class="leading-8 md:space-x-2 md:col-span-4 md:gap-4 md:flex hidden ml-14 lg:ml-0">
+                            <!-- <li>
+                                <a class="nav-link" href="/">Domů</a>
+                            </li> -->
+                            
+                            <li>
+                                <a class="nav-link hover:text-[#EB3F5E]" href="/filmy/">Filmy</a>
+                            </li>
+                            <li>
+                                <a class="nav-link hover:text-[#25DC37]" href="/knihy/">Knihy</a>
+                            </li>
+                            <li>
+                                <a class="nav-link hover:text-[#476acc]" href="/knihy/">Hry</a>
+                            </li>
+                            <li>
+                                <a class="nav-link hover:text-[#25DC37] md:hidden" href="/prihlaseni/">Přihlásit!</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- hamburger -->
+                    <div class=" flex flex-col relative md:hidden ml-auto">
+                        <div id="menu-icon" class="cursor-pointer mr-10">
+                            <svg id="menu-open" xmlns="http://www.w3.org/2000/svg"  fill="none" viewBox="0 0 24 24" stroke-width="1.5"   stroke="currentColor" class="size-10 ">
+                                <path stroke-linecap="round" stroke-linejoin="round"    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                            </svg>
+                            <div class="absolute top-[-105px] right-10">
+                                <svg id="menu-close" xmlns="http://www.w3.org/2000/svg"     fill="none" viewBox="0 0 24 24" stroke-width="1.5"  stroke="currentColor" class="size-10  hidden">
+                                    <path stroke-linecap="round" stroke-linejoin="round"    d="M6 18 18 6M6 6l12 12" />
+                                </svg>
+                            </div>
+                        </div>
+                        <!-- <div class="absolute top-20 right-20 pb-4 self-end">
+                            <form class="flex items-center  mr-2 nav-link" action="/   hledani-knih/" method="get">
+                                <input class="p-2 rounded-3xl  sm:w-96  border text-black absolute right-3 top-1 " type="search" placeholder="Vyhledávání"   aria-label="Vyhledávání" name="q" >
+                            </form>
+                        </div> -->
+                    </div>
+                    <!-- END hamburger -->
+                    <div class="md:grid md:grid-cols-6 hidden ml-auto">
+                        <div class="col-span-6 flex gap-3 items-center">
+                            <form class="flex gap-3 justify-center items-center" action="/hledani-knih/" method="get">
+                                <input class="p-2 rounded-3xl md:w-32 lg:w-80 max-h-8 border text-black" type="search" placeholder="Vyhledávání" aria-label="Vyhledávání" name="q">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                </svg>
+                            </form>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-green-600 ml-2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                            </svg>
+                            <a class="nav-link mr-14 hover:text-[#25DC37]" href="/prihlaseni/">Přihlásit!</a>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+
+            <section class="h-full text-[#0d0c0f] dark:text-[#F9F9F9] max-w-[1920px] mx-auto flex flex-col lg:flex-row ">
+                <aside class="">
+                    <div class=" lg:min-w-[200px] max-h-full">
+                        <!-- menu section onClick-->
+                        <button id="menu-button" class="p-2 ml-7 hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 ">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+                            </svg>
+                        </button>
+                        <!-- Menu -->
+                        <div id="menu-section" class="menu-hidden flex justify-center lg:flex-col lg:justify-normal lg:h-screen lg:block bg-[#F9F9F9] dark:bg-[#1A161F]">
+                            <div class="">
+                                <h1 class="ml-8 lg:pt-11 border-b-2">Menu</h1>
+                                <div class="mt-4 flex sm:justify-center">
+                                    <div class="flex flex-col ml-8 mr-8 gap-3 items-center">
+                                        <div class="flex flex-col">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+                                            </svg>
+                                            <div class="flex pt-4 lg:flex-col lg:pl-3 gap-4">
+                                                <a href="#">Nyní v Kinech</a>
+                                                <a href="#">Knižní novinky</a>
+                                                <a href="#">Filmové novinky</a>
+                                                <a href="#">Herní novinky</a>
+                                            </div>
+                                        </div>
+                                        <div class="">
+                                            <div class="flex gap-4 mb-4 pt-4">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 sun cursor-pointer ">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                                                </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 moon cursor-pointer ">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+                <article class="flex flex-col  lg:flex-row ">
+                    <div class="flex flex-col h-screen  lg:flex-row ">
+                        <!-- stred -->
+                        <div class="flex flex-col">
+                            <div class=" text-wrap  ">
+                                <!-- <h1>STRED</h1> -->
+                                <div class="flex flex-col  lg:flex-row mx-auto">
+                                    <!-- flex flex-col justify-center items-center -->
+                                    <div class="grid grid-cols-1 lg:grid-cols-2 mx-4  gap-6 lg:flex-row">
+                                        <div class="w-full relative">
+                                            <div class="absolute  right-20 pb-4 self-end md:hidden">
+                                                <form class="flex items-center  mr-2 nav-link" action="/   hledani-knih/" method="get">
+                                                    <input class="p-2 rounded-3xl  sm:w-96  border text-black absolute right-3 top-1 " type="search" placeholder="Vyhledávání"   aria-label="Vyhledávání" name="q" >
+                                                </form>
+                                            </div>
+                                            <a class="" href="/film/tancuj-matyldo">
+                                                <img class="place-items-start w-full rounded-2xl " src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/xWuWxb6N3pwAMw1EqI7So8gHtcL.jpg" alt="Tancuj Matyldo">
+                                            </a>
+                                        </div>
+                                        <!--flex flex-col items-center sm:flex sm:flex-row sm:justify-center lg:flex-col lg:self-start 2xl:flex-row -->
+                                        <div class="grid grid-cols-1   sm:grid-cols-2 mt-4 ld:mt-0 lg:grid-cols-1 lg:auto-cols-max lg:place-items-stretch xl:grid-cols-2  gap-4">
+                                            <div class=" grid grid-cols-2">
+                                                <div class="place-self-center">
+                                                    <img class=" w-28 h-full rounded-2xl " src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/l6b9YZEokZl1nt7q0pprrur6btG.jpg">
+                                                </div>
+                                                <div class="place-self-center">
+                                                    <a class="text-[#25DC37] font-bold rounded-2xl" href="duna-proroctvi-novy-tv-spin-off">
+                                                        Duna: Proroctví - nový TV spin off
+                                                    </a>
+                                                    <p class="mt-4 dark:text-[#F9F9F9]">
+                                                        Duna: Proroctví se odehrává deset tisíc let před tím, …
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class=" grid grid-cols-2">
+                                                <div class="place-self-center">
+                                                    <img class=" w-28 h-full rounded-2xl " src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/l6b9YZEokZl1nt7q0pprrur6btG.jpg">
+                                                </div>
+                                                <div class="place-self-center">
+                                                    <a class="text-[#25DC37] font-bold rounded-2xl" href="duna-proroctvi-novy-tv-spin-off">
+                                                        Duna: Proroctví - nový TV spin off
+                                                    </a>
+                                                    <p class="mt-4 dark:text-[#F9F9F9]">
+                                                        Duna: Proroctví se odehrává deset tisíc let před tím, …
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class=" grid grid-cols-2 lg:hidden xl:grid">
+                                                <div class="place-self-center">
+                                                    <img class=" w-28 h-full rounded-2xl " src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/l6b9YZEokZl1nt7q0pprrur6btG.jpg">
+                                                </div>
+                                                <div class="place-self-center">
+                                                    <a class="text-[#25DC37] font-bold rounded-2xl" href="duna-proroctvi-novy-tv-spin-off">
+                                                        Duna: Proroctví - nový TV spin off
+                                                    </a>
+                                                    <p class="mt-4 dark:text-[#F9F9F9]">
+                                                        Duna: Proroctví se odehrává deset tisíc let před tím, …
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class=" grid grid-cols-2 lg:hidden xl:grid">
+                                                <div class="place-self-center">
+                                                    <img class=" w-28 h-full rounded-2xl " src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/l6b9YZEokZl1nt7q0pprrur6btG.jpg">
+                                                </div>
+                                                <div class="place-self-center">
+                                                    <a class="text-[#25DC37] font-bold rounded-2xl" href="duna-proroctvi-novy-tv-spin-off">
+                                                        Duna: Proroctví - nový TV spin off
+                                                    </a>
+                                                    <p class="mt-4 dark:text-[#F9F9F9]">
+                                                        Duna: Proroctví se odehrává deset tisíc let před tím, …
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mx-4 mt-8 lg:ml-8">
+                                <div class="grid grid-cols-1 ">
+                                    <div class="  border dark:border-[#f9f9f949] bg-[#F9F9F9] dark:bg-[#1A161F] p-3 rounded-3xl hidden">
+                                        <p class="text-center">
+                                            DIV.cz je stránka, která propojuje knihy, filmy a hry skrze postavy, lokality a další prvky.
+                                        </p>
+                                    </div>
+                                    <div class=" ">
+                                        <div class=" place-items-center gap-4">
+                                            <h2 class=" text-center md:text-2xl ">
+                                                <a class="text-[#25DC37] font-bold text-xl md:text-3xl " href="https://div.cz/seznam-filmu">Seznam filmů</a>,
+                                                <a class="text-[#25DC37]  text-xl md:text-3xl " href="/knihy/">knih</a>
+                                                a her
+                                            </h2>
+                                            <div class="mt-5 flex items-center  flex-wrap  md:flex-row gap-4">
+                                                <div class="w-full sm:w-[184px] bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl">
+                                                    <a href="/film/tancuj-matyldo">
+                                                        <div class="">
+                                                            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//xWuWxb6N3pwAMw1EqI7So8gHtcL.jpg" class=" rounded-t-lg" alt="Tancuj Matyldo">
+                                                            <div class="p-2 text-center">
+                                                                <h5 class="">
+                                                                    <a class="text-[#25DC37] text-xl" href="/film/tancuj-matyldo">
+                                                                        Tancuj Matyldo
+                                                                    </a>
+                                                                </h5>
+                                                                <p class="">
+                                                                    V příběhu inspirovaném skutečnou událostí žije  uzavřený Karel ve světě
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div class=" w-full sm:w-[184px] bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl">
+                                                    <a href="/film/tancuj-matyldo">
+                                                        <div class="">
+                                                            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//xWuWxb6N3pwAMw1EqI7So8gHtcL.jpg" class="rounded-t-lg" alt="Tancuj Matyldo">
+                                                            <div class="p-2 text-center">
+                                                                <h5 class="">
+                                                                    <a class="text-[#25DC37] text-xl" href="/film/tancuj-matyldo">
+                                                                        Tancuj Matyldo
+                                                                    </a>
+                                                                </h5>
+                                                                <p class="">
+                                                                    V příběhu inspirovaném skutečnou událostí žije  uzavřený Karel ve světě
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div class="w-full sm:w-[184px] bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl">
+                                                    <a href="/film/tancuj-matyldo">
+                                                        <div class="">
+                                                            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//xWuWxb6N3pwAMw1EqI7So8gHtcL.jpg" class="rounded-t-lg" alt="Tancuj Matyldo">
+                                                            <div class="p-2 text-center">
+                                                                <h5 class="">
+                                                                    <a class="text-[#25DC37] text-xl" href="/film/tancuj-matyldo">
+                                                                        Tancuj Matyldo
+                                                                    </a>
+                                                                </h5>
+                                                                <p class="">
+                                                                    V příběhu inspirovaném skutečnou událostí žije  uzavřený Karel ve světě
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div class="w-full sm:w-[184px] bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl">
+                                                    <a href="/film/tancuj-matyldo">
+                                                        <div class="">
+                                                            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//xWuWxb6N3pwAMw1EqI7So8gHtcL.jpg" class="rounded-t-lg" alt="Tancuj Matyldo">
+                                                            <div class="p-2 text-center">
+                                                                <h5 class="">
+                                                                    <a class="text-[#25DC37] text-xl" href="/film/tancuj-matyldo">
+                                                                        Tancuj Matyldo
+                                                                    </a>
+                                                                </h5>
+                                                                <p class="">
+                                                                    V příběhu inspirovaném skutečnou událostí žije  uzavřený Karel ve světě
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div class="w-full sm:w-[184px] bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl">
+                                                    <a href="/film/tancuj-matyldo">
+                                                        <div class="">
+                                                            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//xWuWxb6N3pwAMw1EqI7So8gHtcL.jpg" class="rounded-t-lg" alt="Tancuj Matyldo">
+                                                            <div class="p-2 text-center">
+                                                                <h5 class="">
+                                                                    <a class="text-[#25DC37] text-xl" href="/film/tancuj-matyldo">
+                                                                        Tancuj Matyldo
+                                                                    </a>
+                                                                </h5>
+                                                                <p class="">
+                                                                    V příběhu inspirovaném skutečnou událostí žije  uzavřený Karel ve světě
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div class="w-full sm:w-[184px] bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl">
+                                                    <a href="/film/tancuj-matyldo">
+                                                        <div class="">
+                                                            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2//xWuWxb6N3pwAMw1EqI7So8gHtcL.jpg" class="rounded-t-lg" alt="Tancuj Matyldo">
+                                                            <div class="p-2 text-center">
+                                                                <h5 class="">
+                                                                    <a class="text-[#25DC37] text-xl" href="/film/tancuj-matyldo">
+                                                                        Tancuj Matyldo
+                                                                    </a>
+                                                                </h5>
+                                                                <p class="">
+                                                                    V příběhu inspirovaném skutečnou událostí žije  uzavřený Karel ve světě
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-5 ">
+                                        <h2 class="text-[#F9F9F9] text-center font-bold text-xl md:text-3xl">
+                                            Nejnovější filmové komentáře
+                                        </h2>
+                                        <div class="mt-5 flex items-center justify-center flex-wrap  md:flex-row gap-4 ">
+                                            <div class=" w-full sm:w-52 sm:h-56 lg:w-[182px] bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl  p-2 self-start">
+                                                <p class="">
+                                                Komentář u filmu:<br>
+                                                    <a class="text-[#25DC37] hover:underline underline-offset-4" href="/film/machri">Machři</a>
+                                                </p>
+                                                <p class="">
+                                                    <i>Super film! ales</i>
+                                                </p>
+                                                Uživatel:
+                                                <a class="text-[#25DC37] hover:underline underline-offset-4" href="/uzivatel/261">Michaela</a>
+                                            </div>
+                                            <div class="w-full sm:w-52 sm:h-56 lg:w-[182px]  bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl  p-2 self-start ">
+                                                <p class="">
+                                                Komentář u filmu:<br>
+                                                    <a class="text-[#25DC37] hover:underline underline-offset-4" href="/film/avatar">Avatar</a>
+                                                </p>
+                                                <p class="">
+                                                    <i>Avatar je film, který měl na mě velký dojem, podobně …</i>
+                                                </p>
+                                                Uživatel:
+                                                <a class="text-[#25DC37] hover:underline underline-offset-4" href="/uzivatel/230">Luca</a>
+                                            </div>
+                                            <div class="w-full sm:w-52 sm:h-56 lg:w-[182px] bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl  p-2 self-start">
+                                                <p class="">
+                                                Komentář u filmu:<br>
+                                                    <a class="text-[#25DC37] hover:underline underline-offset-4" href="/film/noc-v-muzeu-2">Noc v muzeu 2</a>
+                                                </p>
+                                                <p class="">
+                                                    <i>Noc v muzeu 2 je přesně tím typem filmu, který …</i>
+                                                </p>
+                                                Uživatel:
+                                                <a class="text-[#25DC37] hover:underline underline-offset-4" href="/uzivatel/227">Vesna</a>
+                                            </div>
+                                            <div class="w-full sm:w-52 sm:h-56 lg:w-[182px] bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl  p-2 self-start">
+                                                <p class="">
+                                                Komentář u filmu:<br>
+                                                    <a class="text-[#25DC37] hover:underline underline-offset-4" href="/film/vlk-z-wall-street">Vlk z Wall Street</a>
+                                                </p>
+                                                <p class="">
+                                                    <i>Leonardo DiCaprio exceluje v roli Belforta s charismatickým výkonem, který …</i>
+                                                </p>
+                                                Uživatel:
+                                                <a class="text-[#25DC37] hover:underline underline-offset-4" href="/uzivatel/215">jirkha</a>
+                                            </div>
+                                            <div class="w-full sm:w-52 sm:h-56 lg:w-[182px] bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl  p-2 self-start">
+                                                <p class="">
+                                                Komentář u filmu:<br>
+                                                    <a class="text-[#25DC37] hover:underline underline-offset-4" href="/film/podvodnik-z-tinderu">Podvodník z Tinderu</a>
+                                                </p>
+                                                <p class="">
+                                                    <i>To by měla vidět každá uživatelka seznamek, aby si dávala …</i>
+                                                </p>
+                                                Uživatel:
+                                                <a class="text-[#25DC37] hover:underline underline-offset-4" href="/uzivatel/14">Elis</a>
+                                            </div>
+                                            <div class="w-full sm:w-52 sm:h-56 lg:w-[182px] bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl  p-2 self-start">
+                                                <p class="">
+                                                Komentář u filmu:<br>
+                                                    <a class="text-[#25DC37] hover:underline underline-offset-4" href="/film/avatar">Avatar</a>
+                                                </p>
+                                                <p class="">
+                                                    <i>James Cameron posouvá laťky o celé metry a jedině on …</i>
+                                                </p>
+                                                Uživatel:
+                                                <a class="text-[#25DC37] hover:underline underline-offset-4" href="/uzivatel/40">Amoleta</a>
+                                            </div>
+                                            <div class="w-full sm:w-52 sm:h-56 lg:w-[182px] bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl  p-2 self-start">
+                                                <p class="">
+                                                Komentář u filmu:<br>
+                                                    <a class="text-[#25DC37] hover:underline underline-offset-4" href="/film/indiana-jones-a-dobyvatele-ztracene-archy">Indiana Jones a Dobyvatelé ztracené archy</a>
+                                                </p>
+                                                <p class="">
+                                                    <i>Indiana Jones je živoucí legenda a předchůdce všech novodobých dobrodružných …</i>
+                                                </p>
+                                                Uživatel:
+                                                <a class="text-[#25DC37] hover:underline underline-offset-4" href="/uzivatel/44">Alegoris</a>
+                                            </div>
+                                            <div class="w-full sm:w-52 sm:h-56 lg:w-[182px] bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl  p-2 self-start">
+                                                <p class="">
+                                                Komentář u filmu:<br>
+                                                    <a class="text-[#25DC37] hover:underline underline-offset-4" href="/film/rambo-prvni-krev">Rambo: První krev</a>
+                                                </p>
+                                                <p class="">
+                                                    <i>&quot;Rambo&quot; je filmová klasika, která definuje akční žánr, a pro …</i>
+                                                </p>
+                                                Uživatel:
+                                                <a class="text-[#25DC37] hover:underline underline-offset-4" href="/uzivatel/44">Alegoris</a>
+                                            </div>
+                                            <div class="w-full sm:w-52 sm:h-56 lg:w-[182px] bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl  p-2 self-start">
+                                                <p class="">
+                                                Komentář u filmu:<br>
+                                                    <a class="text-[#25DC37] hover:underline underline-offset-4" href="/film/nymfomanka-cast-ii">Nymfomanka, část II.</a>
+                                                </p>
+                                                <p class="">
+                                                    <i>Rád bych napsal komentář k filmu &quot;Nymfomanka, část II&quot;. Tento …</i>
+                                                </p>
+                                                Uživatel:
+                                                <a class="text-[#25DC37] hover:underline underline-offset-4" href="/uzivatel/None">None</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="ml-3 grid grid-cols-1 sm:grid-cols-2 place-content-center place-items-center text-center lg:grid-cols-1 lg:self-start xl:place-items-center xl:grid-cols-2 gap-4">
+                                    <!-- <h1>PRAVA STRANA</h1> -->
+                                    <div class="border dark:border-[#f9f9f949] self-stretch xl:place-self-start border-[#0d0c0f2a] shadow shadow-orange-400 w-full h-[178px] p-2 rounded-2xl leading-8 hidden">
+                                        <h4 class="font-semibold">Přihlášení uživatele</h4>
+                                        <form method="post" action="/prihlaseni/">
+                                            <input type="hidden" name="csrfmiddlewaretoken" value="qYTmkNA1A09NJ9Fdd8t9tztuAP4auC9v3RVY08p2PKISREQHDmn6pvqcacCUm3Cd">
+                                            <button type="submit" class="bg-cyan-500 p-2 my-2 rounded-2xl">Přihlásit se</button>
+                                        </form>
+                                        <div class="grid grid-cols-2">
+                                            <p>
+                                                Nemáte účet?
+                                            </p>
+                                            <a class="text-[#25DC37] pl-2" href="/registrace/">Registrace</a>
+                                        </div>
+                                    </div>
+                                    <div class="bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl p-4">
+                                        <h5 class="text-xl font-bold">DIV.cz</h5><br>
+                                        <p>
+                                            DIV.cz je stránka, která propojuje <span class="text-[#25DC37]">knihy, filmy a hry</span> skrze postavy, lokality a další metadatabáze.
+                                        </p><br>
+                                        <p>
+                                            Aktuálně je hotová filmová část a intenzivně se pracuje na knižní. Buď u zrodu a
+                                            <a class="text-[#25DC37]" href="/registrace/">
+                                                zaregistruj se
+                                            </a>
+                                            . Zabere jen deset vteřin! Navíc můžeš vyhrát lístky do kina:<br>
+                                            <a class="text-[#25DC37] animate-pulse" href="https://div.cz/soutez-o-listky-do-kina">
+                                                Podmínky a podrobnosti soutěže
+                                            </a>
+                                        </p>
+                                    </div>
+                                    <div class="bg-[#F9F9F9] h-full dark:bg-[#1A161F] border border-[#f9f9f91f] xl:place-self-start rounded-2xl p-4">
+                                        <h5 class="text-xl font-bold">O čem to je:</h5><br>
+                                        <p>
+                                            Vítejte na DIV.cz, unikátním místě, kde se propojují
+                                        </p>
+                                        <strong>
+                                            <span class="font-bold">filmy</span>,
+                                        </strong>
+                                        <strong>
+                                            <span class="font-bold">knihy</span>
+                                        </strong> a
+                                        <strong>
+                                            <span class="font-bold">
+                                                hry
+                                            </span>
+                                        </strong>.
+                                        Objevujte fascinující světy, postavy a příběhy napříč různými médii. Připojte se k naší komunitě nadšenců a objevujte, diskutujte a sdílejte své zážitky z filmů, knih a her.
+                                    </div>
+                                    <div class=" w-full h-full bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl p-4">
+                                        <h5 class="text-xl font-bold">Kam směřujeme</h5>
+                                        <ul class="mt-2 leading-relaxed">
+                                            <li>
+                                                <strike>
+                                                    04/2024
+                                                    <a class="text-[#25DC37]" href="/filmy/">
+                                                        filmy
+                                                    </a>
+                                                </strike> (Téměř hotovo)
+                                            </li>
+                                            <li>06/2024 knižní sekce</li>
+                                            <li>08/2024 herní sekce</li>
+                                            <li>10/2024 postavy</li>
+                                            <li>10/2024 lokality</li>
+                                            <li>Vývoj pro iOS a android</li>
+                                            <li>Program ambasadarů</li>
+                                            <li>Interní fórum</li>
+                                            <li>Uživatelské recenze</li>
+                                            <li>Soutěže a výzvy</li>
+                                            <li>Seriály (v přípravě)</li>
+                                        </ul>
+                                    </div>
+                                    <div class="w-full  bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f] rounded-2xl p-4">
+                                        <h5 class="text-xl font-bold">Právě v kinech</h5>
+                                        <ul class="mt-2 leading-relaxed">
+                                            <li>Hodnocení: 136232</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </section>
+        </main>
+
+        <footer class="bg-[#F9F9F9] dark:bg-[#1A161F] border border-[#f9f9f91f]">
+            <div class="flex flex-col items-center justify-center gap-4 mt-4 sm:flex sm:flex-row md:mt-2 text-[#6c757d] text-left">
+                <div class="w-80 mt-8 sm:self-start sm:ml-5 md:ml-0 ">
+                    <h5 class="font-bold text-xl md:text-3xl">
+                        Objevujte s námi
+                    </h5>
+                    <p>
+                        Jsme váš spolehlivý průvodce světem popkultury. Ohodnoťte filmy, hry a knihy s námi.
+                        <a class="text-[#F9F9F9] hover:text-[#25dc37]" href="/registrace/">Registrace</a> / <a class="text-[#F9F9F9] hover:text-[#25dc37]" href="/prihlaseni/">přihlášení</a>
+                    </p>
+                </div>
+                <div class="w-80 mt-8 sm:self-start">
+                    <h5 class="font-bold text-xl md:text-3xl">Navigace</h5>
+                    <ul class="text-[#F9F9F9]">
+                        <li><a class="hover:underline underline-offset-4" href="/">Domů</a></li>
+                        <li><a class="hover:underline underline-offset-4" href="/kontakt/">Kontakt</a></li>
+                        <li><a class="hover:underline underline-offset-4" href="/podminky-pouziti">Podmínky použití</a></li>
+                        <li><a class="hover:underline underline-offset-4" href="/ochrana-osobnich-udaju">Ochrana osobních údajů</a></li>
+                    </ul>
+                </div>
+                <div class="w-80 mt-8 sm:self-start">
+                    <h5 class="font-bold text-xl md:text-3xl">Spojte se s námi</h5>
+                    <p>Email: info@div.cz<br>
+                        <a class="text-[#F9F9F9] hover:text-[#25dc37] hover:underline underline-offset-4" href="https://div.cz/pripojte-se" title="Připojte se k DIV.cz">Připojte se k nám</a><br>
+                        <a href="/nas-tym">Náš tým</a>
+                    </p>
+                        <p>Telefon: +420 739 466 537 (Míša)<br>
+                            <a href="https://www.toplist.cz">
+                                <script language="JavaScript" type="text/javascript" charset="utf-8">
+                                <!--
+                                document.write('<img src="https://toplist.cz/count.asp?id=467692&logo=btn&http='+
+                                encodeURIComponent(document.referrer)+'&t='+encodeURIComponent(document.title)+'&l='+encodeURIComponent(document.URL)+
+                                '&wi='+encodeURIComponent(window.screen.width)+'&he='+encodeURIComponent(window.screen.height)+'&cd='+
+                                encodeURIComponent(window.screen.colorDepth)+'" width="80" height="15" border=0 alt="TOPlist" />');
+                                //--></script><noscript><img src="https://toplist.cz/count.asp?id=467692&logo=btn&njs=1" border="0"
+                                alt="TOPlist" width="80" height="15" /></noscript>
+                            </a>
+                        </p>
+                        <div class="mt-3 text-3xl">
+                            <a href="https://www.facebook.com/div.cz" title="Sledujte nás na Facebooku">
+                                <ion-icon name="logo-facebook"></ion-icon>
+                            </a>
+                            <a href="https://twitter.com/DIV_cz" title="Sledujte nás na Twitteru">
+                                <ion-icon name="logo-twitter"></ion-icon>
+                            </a>
+                            <a href="https://www.instagram.com/filmovydiv" title="Sledujte nás na Instagramu">
+                                <ion-icon name="logo-instagram"></ion-icon>
+                            </a>
+                        </div>
+                </div>
+            </div>
+        </footer>
+       
+        <!-- Code injected by live-server -->
+        <script>
+            // <![CDATA[  <-- For SVG support
+            if ('WebSocket' in window) {
+                (function () {
+                    function refreshCSS() {
+                        var sheets = [].slice.call(document.getElementsByTagName("link"));
+                        var head = document.getElementsByTagName("head")[0];
+                        for (var i = 0; i < sheets.length; ++i) {
+                            var elem = sheets[i];
+                            var parent = elem.parentElement || head;
+                            parent.removeChild(elem);
+                            var rel = elem.rel;
+                            if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+                                var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+                                elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+                            }
+                            parent.appendChild(elem);
+                        }
+                    }
+                    var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+                    var address = protocol + window.location.host + window.location.pathname + '/ws';
+                    var socket = new WebSocket(address);
+                    socket.onmessage = function (msg) {
+                        if (msg.data == 'reload') window.location.reload();
+                        else if (msg.data == 'refreshcss') refreshCSS();
+                    };
+                    if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+                        console.log('Live reload enabled.');
+                        sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+                    }
+                })();
+            }
+            else {
+                console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+            }
+            // ]]>
+        </script>
+
+        <script src="/static/ales/script.js"></script>
+
+    </body>
+</html>
