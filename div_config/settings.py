@@ -54,7 +54,7 @@ DEBUG_TOOLBAR_CONFIG = {
 
 def custom_show_toolbar(request):
     if hasattr(request, 'user') and request.user.is_authenticated:
-        return request.user.username == 'Amoleta' or request.user.username == 'IonnoStyle'  or request.user.username == 'jirkha'
+        return request.user.username == 'Amoleta' or request.user.username == 'IonnoStyle'  or request.user.username == 'Martin'
     return False
  
 # Application definition
@@ -65,13 +65,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'debug_toolbar',
     'div_content',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.instagram',
     'allauth.socialaccount.providers.microsoft',
     'star_ratings'
@@ -143,6 +144,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.request',
+                'div_content.utils.context_processors.get_userprofile_avatar',
 
             ],
         },

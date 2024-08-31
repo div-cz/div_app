@@ -1,0 +1,65 @@
+{% extends "blog/base.html" %}
+
+
+{% block content %}
+
+{% if user.is_authenticated %}
+    <!-- Autorizován -->
+
+<h2>Uživatelské blogy</h2>
+
+<a href="{% url 'blog_new' %}" class="cta mt-4">
+    <span class="text-[#0d0c0f] dark:text-[#F9F9F9]">Založit nový blog</span>
+    <svg width="15px" height="10px" viewBox="0 0 13 10">
+        <path d="M1,5 L11,5"></path>
+        <polyline points="8 1 12 5 8 9"></polyline>
+    </svg>
+</a>
+
+
+{% endif %}
+    <!-- Neautorizován -->
+
+{% if book_blogs %}
+    <h2 class="mt-4">Knižní blogy</h2>
+    <ul>
+        {% for blog in book_blogs %}
+                <li><a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a></li>
+
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{% if movie_blogs %}
+    <h2 class="mt-4">Filmové blogy</h2>
+    <ul>
+        {% for blog in movie_blogs %}
+            {% if blog.blog_type == 'movie' %}
+                <li><a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a></li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{% if game_blogs %}
+    <h2 class="mt-4">Herní blogy</h2>
+        <ul>
+            {% for blog in game_blogs %}
+                {% if blog.blog_type == 'game' %}
+                    <li><a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+{% endif %}
+
+{% if general_blogs %}
+    <h2 class="mt-4">Obecné blogy</h2>
+        <ul>
+            {% for blog in general_blogs %}
+                {% if blog.blog_type == 'general' %}
+                    <li><a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+{% endif %}
+{% endblock content %}

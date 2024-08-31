@@ -1,4 +1,4 @@
-{% extends "inc/base.html" %}
+{% extends "./base.html" %}
 
 {% load i18n %}
 {% load account socialaccount %}
@@ -9,24 +9,29 @@
 
 {% block content %}
 
-
 {% get_providers as socialaccount_providers %}
 
 {% if socialaccount_providers %}
-<p>
-  {% blocktrans with site.name as site_name %}
-    Prosím, prihlaš se s existujícím účtem třetích stran,
-    anebo se <a href="{{ signup_url }}">zaregistruj</a> 
-    na stránce {{ site_name }} a prihlaš se dole.
-  {% endblocktrans %}</p>
+
+<p>{% blocktrans with site.name as site_name %}
+    Prosím, přihlaste se pomocí účtu třetích stran. Nebo se, <a href="{{ signup_url }}">zaregistrujte</a>.<!-- lépe zformulovat-->
+{% endblocktrans %}</p>
 
 <div class="socialaccount_ballot">
+    <ul class="socialaccount_providers">
+        {% comment %}{% include "socialaccount/snippets/provider_list.html" with process="login" %}{% endcomment %}
+        <li>
+            <a href="/ucet/facebook/login/?process=login" class="google" title="google">
+                <span><i class="fab fa-google"></i></span>
+            </a>
+        <li>  
+            <a href="/ucet/google/login/?process=login" class="facebook" title="facebook">
+                <span><i class="fab fa-facebook-f"></i></span>
+            </a>
+        </li>
+    </ul>
 
-  <ul class="socialaccount_providers">
-    {% include "socialaccount/snippets/provider_list.html" with process="login" %}
-  </ul>
-
-  <!--<div class="login-or">{% trans 'or' %}</div>-->
+    <!--<div class="login-or">{% trans 'or' %}</div>-->
 </div>
 
 {% include "socialaccount/snippets/login_extra.html" %}
@@ -36,74 +41,114 @@
 <a href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</p>
 {% endif %}
 
-
-
 {% if form.errors %}
-  <div class="alert alert-danger">
-    {% for field in form %}
-      {% for error in field.errors %}
-        <p>{{ error }}</p>
-      {% endfor %}
+<div class="alert alert-danger">
+{% for field in form %}
+    {% for error in field.errors %}
+    <p>{{ error }}</p>
     {% endfor %}
-    {% for error in form.non_field_errors %}
-      <p>{{ error }}</p>
-    {% endfor %}
-  </div>
+{% endfor %}
+{% for error in form.non_field_errors %}
+    <p>{{ error }}</p>
+{% endfor %}
+</div>
 {% endif %}
 
 
-<form class="login w-50 mx-auto" method="POST" action="{% url 'account_login' %}">
-  {% csrf_token %}
-  <div class="form-group">
-    <label for="{{ form.login.id_for_label }}">{{ form.login.label }}</label><br>
-            <span style="color:red">{{ form.email.errors }}</span><br>
-    <input type="text" name="{{ form.login.name }}" id="{{ form.login.id_for_label }}" class="form-control pt-1 pb-1" placeholder="{{ form.login.label }}">
-  </div>
-  <div class="form-group">
-    <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label><br>
+<form class="w-50 mt-4 mx-auto" method="POST" action="{% url 'account_login' %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="{{ form.login.id_for_label }}">{{ form.login.label }}</label>
             <span style="color:red">{{ form.email.errors }}</span>
-    <div class="input-group">
-      <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" class="form-control pt-1 pb-1" placeholder="{{ form.password.label }}">
-      <div class="input-group-append">
-        <button id="toggleLoginPassword" type="button" class="btn btn-outline-secondary">
-          <i class="fa fa-eye" id="toggleLoginPasswordIcon"></i>
-        </button>
-      </div>
+        <input type="text" name="{{ form.login.name }}" id="{{ form.login.id_for_label }}" class="form-control pt-1 pb-1" placeholder="{{ form.login.label }}">
     </div>
-  </div>
-  {% if form.remember %}
-    <div class="form-check">
-      {{ form.remember }}
-      <label for="{{ form.remember.id_for_label }}" class="form-check-label">{{ form.remember.label }}</label>
+    
+    <div class="form-group">
+        <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+        <span style="color:red">{{ form.email.errors }}</span>
+        <div class="password-field">
+            <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" placeholder="{{ form.password.label }}">
+            <input class="clear" type="text" placeholder="Password">
+            <button type="button">
+                <svg viewBox="0 0 21 21">
+                    <circle class="eye" cx="10.5" cy="10.5" r="2.25" />
+                    <path class="top" d="M2 10.5C2 10.5 6.43686 5.5 10.5 5.5C14.5631 5.5 19 10.5 19 10.5" />
+                    <path class="bottom" d="M2 10.5C2 10.5 6.43686 15.5 10.5 15.5C14.5631 15.5 19 10.5 19 10.5" />
+                    <g class="lashes">
+                        <path d="M10.5 15.5V18" />
+                        <path d="M14.5 14.5L15.25 17" />
+                        <path d="M6.5 14.5L5.75 17" />
+                        <path d="M3.5 12.5L2 15" />
+                        <path d="M17.5 12.5L19 15" />
+                    </g>
+                </svg>
+            </button>
+        </div>
     </div>
-  {% endif %}
-  <button class="primaryAction btn btn-primary mt-3" type="submit">{% trans "Sign In" %}</button>
+        {% if form.remember %}
+        <div class="form-check">
+            {{ form.remember }}
+            <label for="{{ form.remember.id_for_label }}" class="form-check-label">{{ form.remember.label }}</label>
+        </div>
+        {% endif %}
+    <button class="primaryAction btn mt-3 add" type="submit">{% trans "Sign In" %}</button>
 </form>
 
-
 <script>
-  function togglePasswordVisibility(passwordFieldId, iconElementId) {
-    const passwordField = document.getElementById(passwordFieldId);
-    const togglePasswordIcon = document.getElementById(iconElementId);
 
-    if (passwordField.type === 'password') {
-      passwordField.type = 'text';
-      togglePasswordIcon.classList.remove('fa-eye');
-      togglePasswordIcon.classList.add('fa-eye-slash');
-    } else {
-      passwordField.type = 'password';
-      togglePasswordIcon.classList.remove('fa-eye-slash');
-      togglePasswordIcon.classList.add('fa-eye');
-    }
-  }
+    const { to, set, timeline } = gsap;
 
-  document.getElementById('toggleLoginPassword').addEventListener('click', function() {
-    togglePasswordVisibility('{{ form.password.id_for_label }}', 'toggleLoginPasswordIcon');
-  });
+    document.querySelectorAll('.password-field').forEach(field => {
+        let input = field.querySelectorAll('input'),
+            button = field.querySelector('button'),
+            time = timeline({
+                paused: true
+            }).to(field.querySelector('svg .top'), {
+                // Příklad základní transformace namísto MorphSVG
+                scale: 0.8,
+                duration: .2
+            }).to(field, {
+                keyframes: [{
+                    '--eye-s': 0,
+                    '--eye-background': 1,
+                    duration: .2
+                }, {
+                    '--eye-offset': '0px',
+                    duration: .15
+                }]
+            }, 0);
+
+        button.addEventListener('click', e => {
+            if (field.classList.contains('show')) {
+                field.classList.remove('show');
+                time.reverse(0);
+                return;
+            }
+            field.classList.add('show');
+            time.play(0);
+        });
+
+        field.addEventListener('pointermove', e => {
+            const rect = button.getBoundingClientRect();
+            const fullWidth = rect.width;
+            const halfWidth = fullWidth / 2;
+            const fullHeight = rect.height;
+            const halfHeight = fullHeight / 2;
+            let x = e.clientX - rect.left - halfWidth,
+                y = e.clientY - rect.top - halfHeight;
+
+            field.style.setProperty('--eye-x', (x < -halfWidth ? -halfWidth : x > fullWidth ? fullWidth : x) / 15 + 'px');
+            field.style.setProperty('--eye-y', (y < -halfHeight ? -halfHeight : y > fullHeight ? fullHeight : y) / 25 + 'px');
+        });
+
+        field.addEventListener('pointerleave', e => {
+            field.style.setProperty('--eye-x', '0px');
+            field.style.setProperty('--eye-y', '0px');
+        });
+
+        input.forEach(single => single.addEventListener('input', e => input.forEach(i => i.value = e.target.value)));
+    });
 </script>
-
-
-
 
 
 

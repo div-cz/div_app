@@ -9,7 +9,8 @@
 from django.db import models
 from django.contrib.auth.models import User 
 from star_ratings.models import AbstractBaseRating, Rating
-
+from django.utils.text import slugify
+from django.utils import timezone
 
 
 
@@ -99,6 +100,142 @@ class Article(models.Model):
 
     class Meta:
         db_table = 'Article'
+
+
+# ArticleBlog - Tabulka pro blogy
+class Articleblog(models.Model):
+    BLOG_TYPE_CHOICES = [
+        ('book', 'Knižní'),
+        ('game', 'Herní'),
+        ('movie', 'Filmový'),
+        ('general', 'Obecný'),
+    ]
+
+    articleblogid = models.AutoField(db_column='ArticleBlogID', primary_key=True)
+    name = models.CharField(db_column='Name', max_length=255)
+    description = models.TextField(db_column='Description', null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID', related_name='blogs')
+    slug = models.SlugField(db_column='Slug', unique=True, max_length=255)
+    blog_type = models.CharField(db_column='BlogType', max_length=10, choices=BLOG_TYPE_CHOICES, default='general')
+    created_at = models.DateTimeField(db_column='CreatedAt', auto_now_add=True)
+    updated_at = models.DateTimeField(db_column='UpdatedAt', auto_now=True)
+
+    class Meta:
+        db_table = 'ArticleBlog'
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self.generate_unique_slug()
+        super().save(*args, **kwargs)
+
+    def generate_unique_slug(self):
+        slug = slugify(self.name)
+        unique_slug = slug
+        num = 1
+        while Articleblog.objects.filter(slug=unique_slug).exists():
+            unique_slug = f'{slug}-{num}'
+            num += 1
+        return unique_slug
+
+
+# ArticleBlogPost - Tabulka pro příspěvky v blogu
+class Articleblogpost(models.Model):
+    articleblogpostid = models.AutoField(db_column='ArticleBlogPostID', primary_key=True)
+    articleblog = models.ForeignKey(Articleblog, on_delete=models.CASCADE, db_column='ArticleBlogID', related_name='posts')
+    title = models.CharField(db_column='Title', max_length=255)
+    slug = models.SlugField(db_column='Slug', max_length=255, null=True, blank=True, unique=True)
+    content = models.TextField(db_column='Content')
+    category = models.CharField(db_column='Category', max_length=100, null=True, blank=True)
+    published_at = models.DateTimeField(db_column='PublishedAt', auto_now_add=True)
+    tags = models.CharField(db_column='Tags', max_length=255, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID', null=True, blank=True)
+    created_at = models.DateTimeField(db_column='CreatedAt', auto_now_add=True)
+    updated_at = models.DateTimeField(db_column='UpdatedAt', auto_now=True)
+    is_public = models.BooleanField(db_column='IsPublic', default=True)
+
+    class Meta:
+        db_table = 'ArticleBlogPost'
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
+
+# ArticleBlogComment - Tabulka pro komentáře k blogovým příspěvkům
+class Articleblogcomment(models.Model):
+    articleblogcommentid = models.AutoField(db_column='ArticleBlogCommentID', primary_key=True)
+    articleblogpost = models.ForeignKey(Articleblogpost, on_delete=models.CASCADE, db_column='ArticleBlogPostID', related_name='comments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID', null=True, blank=True)
+    content = models.TextField(db_column='Content')
+    created_at = models.DateTimeField(db_column='CreatedAt', auto_now_add=True)
+
+    class Meta:
+        db_table = 'ArticleBlogComment'
+
+    def __str__(self):
+        return f'Comment by {self.user.username}'
+
+
+# ArticleInteraction - Tabulka pro interakce s příspěvky (např. lajky, sdílení)
+class Articleinteraction(models.Model):
+    articleinteractionid = models.AutoField(db_column='ArticleInteractionID', primary_key=True)
+    articleblogpost = models.ForeignKey(Articleblogpost, on_delete=models.CASCADE, db_column='ArticleBlogPostID', related_name='interactions')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID')
+    interaction_type = models.CharField(db_column='InteractionType', max_length=50)  # Typ interakce (like 1, dislike 2, etc.)
+    created_at = models.DateTimeField(db_column='CreatedAt', auto_now_add=True)
+
+    class Meta:
+        db_table = 'ArticleInteraction'
+
+    def __str__(self):
+        return f'{self.interaction_type} by {self.user.username}'
+
+
+class Articlenews(models.Model):
+    id = models.AutoField(db_column='ID', primary_key=True)
+    url = models.CharField(db_column='URL', max_length=255)
+    title = models.CharField(db_column='Title', max_length=255)
+    news = models.CharField(db_column='News', max_length=1024)
+    img = models.CharField(db_column='IMG', max_length=32, null=True, blank=True)
+    alt = models.CharField(db_column='Alt', max_length=64)
+    perex = models.CharField(db_column='Perex', max_length=128)
+    source = models.CharField(db_column='Source', max_length=32)
+    typ = models.CharField(db_column='Typ', max_length=16)
+    counter = models.IntegerField(db_column='Counter')
+    created = models.DateField(db_column='Created', auto_now_add=True)
+    updated = models.DateField(db_column='Updated', auto_now=True)
+    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', blank=True, null=True)
+
+    class Meta:
+        db_table = 'ArticleNews'
+
+
+class Articlenewsassociation(models.Model):
+    news = models.ForeignKey(Articlenews, on_delete=models.CASCADE, db_column='NewsID')
+    contenttype = models.CharField(max_length=50, db_column='ContentType')
+    objectid = models.IntegerField(db_column='ObjectID')
+    
+    class Meta:
+        db_table = 'ArticleNewsAssociation'
+        unique_together = ('news', 'contenttype', 'objectid')
+
+
+
+class Avatar(models.Model):
+    avatarid = models.AutoField(db_column='AvatarID', primary_key=True)
+    imagepath = models.CharField(db_column='ImagePath', max_length=255)
+    name = models.CharField(db_column='Name', max_length=100)
+    class Meta:
+        db_table = 'Avatar'
+    def __str__(self):
+        return str(self.name)
 
 
 class Book(models.Model):
@@ -233,13 +370,15 @@ class Bookpurchase(models.Model):
         db_table = 'BookPurchase'
 
 
-class BookQuotes(models.Model):
+class Bookquotes(models.Model):
     quoteid = models.AutoField(db_column='QuoteID', primary_key=True)
     bookid = models.ForeignKey('Book', on_delete=models.CASCADE, db_column='BookID')
     characterid = models.ForeignKey('Charactermeta', on_delete=models.CASCADE, db_column='CharacterID', null=True, blank=True)
     authorid = models.ForeignKey('Bookauthor', on_delete=models.CASCADE, db_column='AuthorID', null=True, blank=True)
     quote = models.TextField(db_column='Quote')
+    page_number = models.IntegerField(db_column='PageNumber', null=True, blank=True)  # Přidané pole pro stránku
     parentquoteid = models.ForeignKey('self', on_delete=models.CASCADE, db_column='ParentQuoteID', null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # Přidaný cizí klíč na uživatele
 
     class Meta:
         db_table = 'BookQuotes'
@@ -313,7 +452,7 @@ class Charactergame(models.Model):
 
 class Charactermeta(models.Model):
     characterid = models.AutoField(db_column='CharacterID', primary_key=True)
-    charactername = models.CharField(db_column='CharacterName', max_length=255, unique=True)
+    charactername = models.CharField(db_column='CharacterName', max_length=255, null=True, blank=True)
     characternamecz = models.CharField(db_column='CharacterNameCZ', max_length=255, null=True, blank=True)
     characterimg = models.CharField(db_column='CharacterIMG', max_length=128, null=True)
     characterbio = models.CharField(db_column='CharacterBio', null=True, blank=True, max_length=1)
@@ -453,6 +592,55 @@ class Foodmedia(models.Model):
 
     class Meta:
         db_table = 'FoodMedia'
+
+
+class Forumsection(models.Model):
+    forumsectionid = models.AutoField(db_column='ForumSectionID', primary_key=True)
+    title = models.CharField(db_column='Title', max_length=255, unique=True)
+    description = models.TextField(db_column='Description', blank=True, null=True)
+    slug = models.SlugField(db_column='Slug', max_length=255, unique=True, blank=True, null=True)
+    imageurl = models.CharField(db_column='ImageURL', max_length=200, blank=True, null=True, help_text="Image URL")
+
+    class Meta:
+        db_table = 'ForumSection'
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
+
+class Forumtopic(models.Model):
+    forumtopicid = models.AutoField(db_column='ForumTopicID', primary_key=True)
+    section = models.ForeignKey(Forumsection, on_delete=models.CASCADE)
+    title = models.CharField(db_column='Title', max_length=255, unique=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    createdat = models.DateTimeField(db_column='Created_at', auto_now_add=True)
+    topicurl = models.SlugField(db_column='URL', max_length=255, unique=True)
+
+    class Meta:
+        db_table = 'ForumTopic'
+    
+    def save(self, *args, **kwargs):
+        self.url = slugify(self.title)
+        super().save(*args, **kwargs)
+
+class Forumcomment(models.Model):
+    forumcommentid = models.AutoField(db_column='ForumCommentID', primary_key=True)
+    topic = models.ForeignKey(Forumtopic, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    body = models.TextField()
+    createdat = models.DateTimeField(db_column='Created_at', auto_now_add=True)
+    lasteditedat = models.DateTimeField(db_column='LastEditedAt', null=True, blank=True)
+    parentcommentid = models.IntegerField(db_column='ParentCommentID', blank=True, null=True)
+    isdeleted = models.BooleanField(db_column='IsDeleted', default=False)
+
+    class Meta:
+        db_table = 'ForumComment'
+
+    def secret_delete(self):
+        self.isdeleted = True
+        self.save()
 
 
 class Game(models.Model):
@@ -685,6 +873,40 @@ class Bookgenre(models.Model):
         db_table = 'BookGenre'
 
 
+class Metakeywords(models.Model):
+    keywordid = models.AutoField(db_column='KeywordID', primary_key=True)
+    tmdbid = models.IntegerField(db_column='TmdbID', blank=True, null=True)
+    keyword = models.CharField(db_column='Keyword', max_length=255, unique=True)
+    keywordcz = models.CharField(db_column='KeywordCZ', max_length=255, blank=True, null=True)
+    keywordurl = models.CharField(db_column='KeywordURL', max_length=255, blank=True, null=True)
+    class Meta:
+        db_table = 'MetaKeywords'
+
+class Moviekeywords(models.Model):
+    moviekeywordid = models.AutoField(db_column='MovieKeywordID', primary_key=True)
+    movieid = models.ForeignKey('Movie', on_delete=models.CASCADE, db_column='MovieID')
+    keywordid = models.ForeignKey('Metakeywords', on_delete=models.CASCADE, db_column='KeywordID')
+    class Meta:
+        db_table = 'MovieKeywords'
+        unique_together = [['movieid', 'keywordid']]
+class Bookkeywords(models.Model):
+    bookkeywordid = models.AutoField(db_column='BookKeywordID', primary_key=True)
+    bookid = models.ForeignKey('Book', on_delete=models.CASCADE, db_column='BookID')
+    keywordid = models.ForeignKey('Metakeywords', on_delete=models.CASCADE, db_column='KeywordID')
+
+    class Meta:
+        db_table = 'BookKeywords'
+        unique_together = [['bookid', 'keywordid']]
+class Gamekeywords(models.Model):
+    gamekeywordid = models.AutoField(db_column='GameKeywordID', primary_key=True)
+    gameid = models.ForeignKey('Game', on_delete=models.CASCADE, db_column='GameID')
+    keywordid = models.ForeignKey('Metakeywords', on_delete=models.CASCADE, db_column='KeywordID')
+
+    class Meta:
+        db_table = 'GameKeywords'
+        unique_together = [['gameid', 'keywordid']]
+
+
 class Metalocation(models.Model):
     locationid = models.IntegerField(db_column='LocationID', primary_key=True)
     locationname = models.CharField(db_column='LocationName', max_length=255, unique=True)
@@ -702,6 +924,22 @@ class Metalocation(models.Model):
         db_table = 'MetaLocation'
 
 
+class Metaproduction(models.Model):
+    metaproductionid = models.AutoField(db_column='MetaProductionID', primary_key=True)
+    tmdbid = models.IntegerField(db_column='TmdbID', blank=True, null=True)
+    name = models.CharField(max_length=255, db_column='Name')
+    description = models.TextField(db_column='Description', null=True, blank=True)
+    headquarters = models.CharField(max_length=255, db_column='Headquarters', null=True, blank=True)
+    homepage = models.URLField(db_column='Homepage', null=True, blank=True)
+    logopath = models.CharField(max_length=255, db_column='LogoPath', default='n.png')
+    origincountry = models.CharField(max_length=4, db_column='OriginCountry', null=True, blank=True)
+    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True, blank=True)
+    parentcompanyid = models.ForeignKey('self', on_delete=models.CASCADE, db_column='ParentCompanyID', null=True, blank=True)
+
+    class Meta:
+        db_table = 'MetaProduction'
+
+
 class Metasoundtrack(models.Model):
     soundtrackid = models.AutoField(db_column='SoundtrackID', primary_key=True)
     title = models.CharField(max_length=255, db_column='Title')
@@ -713,6 +951,20 @@ class Metasoundtrack(models.Model):
 
     class Meta:
         db_table = 'MetaSoundtrack'
+
+
+class Metastats(models.Model):
+    metastatsid = models.AutoField(db_column='MetaStatsID', primary_key=True) 
+    statname = models.CharField(db_column='StatName', max_length=255, unique=True)
+    tablemodel = models.CharField(db_column='TableModel', max_length=255, null=True, blank=True)
+    value = models.IntegerField(db_column='Value', default=0)
+    updatedat = models.DateTimeField(db_column='UpdatedAt', auto_now=True)
+
+    class Meta:
+        db_table = 'MetaStats'
+
+    def __str__(self):
+        return f'{self.statname}: {self.value}'
 
 
 class Metastreet(models.Model):
@@ -741,7 +993,11 @@ class Metauniversum(models.Model):
     universumid = models.IntegerField(db_column='UniversumID', primary_key=True)
     universumname = models.CharField(db_column='UniversumName', max_length=255)
     universumnamecz = models.CharField(db_column='UniversumNameCZ', max_length=255, blank=True, null=True)
+    universumurl = models.CharField(db_column='UniversumURL', max_length=255, blank=True, null=True)
     universumdescription = models.TextField(db_column='UniversumDescription', null=True)
+    universumimg = models.CharField(db_column='UniversumIMG', max_length=64, null=True, blank=True)
+    universumimgposter = models.CharField(db_column='UniversumIMGposter', max_length=64, null=True, blank=True)
+    universumcounter = models.CharField(db_column='UniversumCounter', max_length=64, null=True, blank=True)
     class Meta:
         db_table = 'MetaUniversum'
     def __str__(self):
@@ -755,7 +1011,7 @@ class Movie(models.Model):
     movieid = models.IntegerField(db_column='MovieID', primary_key=True) 
     title = models.CharField(db_column='Title', max_length=255)
     titlecz = models.CharField(db_column='TitleCZ', max_length=255, default='', db_index=True)    
-    special = models.IntegerField(choices=MovieSpecialSort.choices, db_column='Special', blank=True, null=True)
+    special = models.IntegerField(choices=MovieSpecialSort.choices, db_column='Special', db_index=True, blank=True, null=True)
     url = models.CharField(db_column='URL', max_length=255, unique=True)
     oldurl = models.CharField(db_column='OldURL', max_length=255, null=True)
     ChangeURL = models.CharField(db_column='ChangeURL', max_length=255, null=True)
@@ -767,7 +1023,7 @@ class Movie(models.Model):
     language = models.CharField(db_column='Language', max_length=5, null=True, blank=True)  # Field
     budget = models.IntegerField(db_column='Budget', null=True)
     adult = models.CharField(db_column='Adult',  max_length=1)
-    popularity = models.CharField(db_column='Popularity', max_length=9, null=True, db_index=True)
+    popularity = models.FloatField(db_column='Popularity', null=True, db_index=True)
     idcsfd = models.CharField(db_column='ID_Csfd', max_length=16, null=True)
     idimdb = models.CharField(db_column='ID_Imdb', max_length=16, null=True)
     iddiv = models.CharField(db_column='ID_DIV', max_length=16, null=True)
@@ -796,7 +1052,7 @@ class Moviecomments(models.Model):
     movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True) 
 #    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
-
+    dateadded = models.DateTimeField(db_column='DateAdded', auto_now_add=True)
     class Meta:
         db_table = 'MovieComments'
 
@@ -824,7 +1080,7 @@ class Moviecrew(models.Model):
 class Moviedistributor(models.Model):
     distributorid = models.AutoField(db_column='DistributorID', primary_key=True)
     name = models.CharField(max_length=255, db_column='Name')
-    description = models.TextField(db_column='Description', null=True, blank=True)
+    description = models.CharField(db_column='Description', max_length=512, null=True, blank=True)
     countryid = models.ForeignKey('Metacountry', on_delete=models.DO_NOTHING, db_column='CountryID', null=True)
 
     class Meta:
@@ -850,6 +1106,21 @@ class Moviegenre(models.Model):
     class Meta:
         db_table = 'MovieGenre'
 
+class Movielinks(models.Model):
+    linkid = models.AutoField(db_column='LinkID', primary_key=True, unique=True) 
+    link = models.CharField(db_column='Link', max_length=255, unique=True)
+    linktext = models.CharField(max_length=255, db_column='LinkText', null=True, blank=True)
+    linkdescription = models.CharField(max_length=5125, db_column='LinkDescription', null=True, blank=True)
+    linkautor = models.CharField(max_length=255, db_column='LinkAuthor', null=True, blank=True)
+    linkType = models.CharField(max_length=255, db_column='LinkType')
+    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')
+    userid = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID', null=True, blank=True)
+    date_added = models.DateField(db_column='DateAdded', auto_now_add=True)
+#    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
+
+    class Meta:
+        db_table = 'MovieLinks'
+
 
 class Movielocation(models.Model):
     movielocationid = models.IntegerField(db_column='MovieLocationID', primary_key=True)
@@ -861,19 +1132,15 @@ class Movielocation(models.Model):
         db_table = 'MovieLocation'  
 
 
-class Movieproduction(models.Model):
-    productionid = models.AutoField(db_column='ProductionID', primary_key=True)
-    name = models.CharField(max_length=255, db_column='Name')
-    description = models.TextField(db_column='Description', null=True, blank=True)
-    headquarters = models.CharField(max_length=255, db_column='Headquarters', null=True, blank=True)
-    homepage = models.URLField(db_column='Homepage', null=True, blank=True)
-    logopath = models.CharField(max_length=255, db_column='LogoPath', default='n.png')
-    origincountry = models.CharField(max_length=4, db_column='OriginCountry', null=True, blank=True)
-    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True, blank=True)
-    parentcompanyid = models.ForeignKey('self', on_delete=models.CASCADE, db_column='ParentCompanyID', null=True, blank=True)
+
+class Movieproductions(models.Model):
+    movieproductiondid = models.AutoField(db_column='MovieProductionID', primary_key=True)
+    productionid = models.ForeignKey('Metaproduction', on_delete=models.CASCADE, db_column='MetaProductionID')
+    movieid = models.ForeignKey('Movie', on_delete=models.CASCADE, db_column='MovieID')
 
     class Meta:
-        db_table = 'MovieProduction'
+        db_table = 'MovieProductions'
+        unique_together = [['productionid', 'movieid']]
 
 
 class Moviequotes(models.Model):
@@ -1007,13 +1274,49 @@ class Tvshow(models.Model):
         db_table = 'TVShow'
 
 
+class Userdivcoins(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    totaldivcoins = models.DecimalField(db_column='TotalDivCoins', max_digits=10, decimal_places=2, default=0.00)
+    weeklydivcoins = models.DecimalField(db_column='WeeklyDivCoins', max_digits=10, decimal_places=2, default=0.00)
+    monthlydivcoins = models.DecimalField(db_column='MonthlyDivCoins', max_digits=10, decimal_places=2, default=0.00)
+    yearlydivcoins = models.DecimalField(db_column='YearlyDivCoins', max_digits=10, decimal_places=2, default=0.00)
+    lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
+
+    class Meta:
+        db_table = 'UserDivCoins'
+    def __str__(self):
+        return f"{self.user.username} - {self.total_points} DIVcoins"
+
+    def update_points(self, points):
+        self.totaldivcoins += points
+        now = timezone.now()       
+        if now - self.last_updated < timedelta(weeks=1):
+            self.weeklydivcoins += points
+        else:
+            self.weeklydivcoins = points
+
+        if now - self.last_updated < timedelta(days=30):
+            self.monthlydivcoins += points
+        else:
+            self.monthlydivcoins = points
+
+        if now - self.last_updated < timedelta(days=365):
+            self.yearlydivcoins += points
+        else:
+            self.yearlydivcoins = points
+
+        self.last_updated = now
+        self.save()
+
+
 class Userprofile(models.Model):
     userprofileid = models.AutoField(db_column='UserProfileID', primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    bio = models.TextField(db_column='Bio', default="", blank=True)
+    bio = models.TextField(db_column='Bio', default="", null=True, blank=True)
     profilepicture = models.ImageField(db_column='ProfilePicture', upload_to='profiles/2023/', blank=True, null=True)
     location = models.CharField(db_column='Location', max_length=255, null=True, blank=True)
     birthdate = models.DateField(db_column='BirthDate', null=True, blank=True)
+    avatar = models.ForeignKey(Avatar, db_column='Avatar', null=True, blank=True, on_delete=models.SET_NULL)
     
     class Meta:
         db_table = 'UserProfile'
