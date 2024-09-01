@@ -31,24 +31,46 @@ class CommentFormBook(forms.ModelForm):
 
 
 class Bookquoteform(forms.ModelForm):
-    characterid = forms.ModelChoiceField(
-        queryset=Bookcharacter.objects.all(),
+    bookcharacter = forms.ModelChoiceField(
+        queryset=Bookcharacter.objects.none(),
         required=False,
         label="Postava"
     )
-    page_number = forms.IntegerField(
+    chapter = forms.IntegerField(
         required=False,
-        label="Strana"
+        label="Kapitola"
     )
     
     class Meta:
         model = Bookquotes
-        fields = ['quote', 'characterid', 'page_number']
+        fields = ['quote', 'bookcharacter', 'chapter']  # Změna názvu pole zde
         labels = {
             'quote': 'Citát',
-            'characterid': 'Postava',
-            'page_number': 'Strana',
+            'bookcharacter': 'Postava',  # Změna názvu pole zde
+            'chapter': 'Kapitola',
         }
         widgets = {
             'quote': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
         }
+
+    def __init__(self, *args, **kwargs):
+        bookid = kwargs.pop('bookid', None)  # Získáme `bookid` z kwargs
+        super().__init__(*args, **kwargs)
+        if bookid:
+            self.fields['bookcharacter'].queryset = Bookcharacter.objects.filter(bookid=bookid)
+
+    def save(self, commit=True):
+        instance = super(Bookquoteform, self).save(commit=False)
+        # Nastavení správné instance Charactermeta na základě výběru z Bookcharacter
+        bookcharacter = self.cleaned_data.get('bookcharacter', None)
+        if bookcharacter:
+            instance.characterid = bookcharacter.characterid
+        else:
+            instance.characterid = None  # Nastavení prázdného řetězce, pokud není vybrána postava
+
+        # Automatické vyplnění AuthorID na základě knihy
+        instance.authorid = instance.bookid.authorid
+
+        if commit:
+            instance.save()
+        return instance

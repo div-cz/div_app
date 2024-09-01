@@ -297,6 +297,8 @@ class Bookcharacter(models.Model):
 
     class Meta:
         db_table = 'BookCharacter'
+    def __str__(self):
+        return self.characterid.charactername
 
 
 class Bookcomments(models.Model):
@@ -376,12 +378,13 @@ class Bookquotes(models.Model):
     characterid = models.ForeignKey('Charactermeta', on_delete=models.CASCADE, db_column='CharacterID', null=True, blank=True)
     authorid = models.ForeignKey('Bookauthor', on_delete=models.CASCADE, db_column='AuthorID', null=True, blank=True)
     quote = models.TextField(db_column='Quote')
-    page_number = models.IntegerField(db_column='PageNumber', null=True, blank=True)  # Přidané pole pro stránku
+    chapter = models.IntegerField(db_column='Chapter', null=True, blank=True)  # Přidané pole pro stránku
     parentquoteid = models.ForeignKey('self', on_delete=models.CASCADE, db_column='ParentQuoteID', null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # Přidaný cizí klíč na uživatele
 
     class Meta:
         db_table = 'BookQuotes'
+
 
 
 class Bookrating(models.Model):
