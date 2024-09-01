@@ -77,15 +77,16 @@ def book_detail(request, book_url):
     # Initialize the quote form
     if user.is_authenticated:
         if request.method == 'POST' and 'quote' in request.POST:
-            quote_form = Bookquoteform(request.POST)
+            quote_form = Bookquoteform(request.POST, bookid=book.bookid)
             if quote_form.is_valid():
                 new_quote = quote_form.save(commit=False)
                 new_quote.bookid = book
                 new_quote.user = request.user
+                new_quote.authorid = book.authorid 
                 new_quote.save()
                 return redirect('book_detail', book_url=book_url)
         else:
-            quote_form = Bookquoteform()
+            quote_form = Bookquoteform(bookid=book.bookid)
     else:
         quote_form = None
 
