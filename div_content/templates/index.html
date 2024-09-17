@@ -104,7 +104,7 @@
                                                 <a href="/forum/">Fórum</a> <!--<span class="number ml-2">4</span>-->
                                             <!--</div>-->
                                             <a href="/blogy/">Blogy</a>
-                                            <!--<a href="">-->Žebříčky<!--</a>-->
+                                            <!--<a href="">--><!--Žebříčky--><!--</a>-->
                                         </div>
                                     </div>
                                 </div>
@@ -203,7 +203,7 @@
                                     {% for movie in movies_in_cinema %}
                                         <tr>
                                             <th><div>{% if movie.movieid__img == "noimg.png" %}
-        <img src="/static/img/nomovie_400.jpg" alt="{{ movie.movieid__img }}" style="float:left;width:75px;margin:0 5px 5px 0">
+        <img src="/static/img/nomovie_400.jpg" alt="Bez obrázku - {{ movie.movieid__img }}" style="float:left;width:75px;margin:0 5px 5px 0">
         {% else %}
         <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.movieid__img }}" alt="{{ movie.titlecz }}" style="float:left;width:75px;margin:0 5px 5px 0">
         {% endif %}
@@ -235,23 +235,12 @@
                                 </div>
                             </div>
 
-                            <div class="card mb-4">
+                            <!--<div class="card mb-4">
                                 <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                    <h3 class="card-title font-bold after-h3">Dnes slaví narozeniny</h3>
-                                    <ul>
-                                        <li></li>
-                                        <li></li>
-                                        <li></li>
-                                        <li></li>
-                                        <li></li>
-                                        <li></li>
-                                        <li></li>
-                                        <li></li>
-                                        <li></li>
-                                        <li></li>
-                                    </ul>
+                                    <h3 class="card-title font-bold after-h3"></h3>
+
                                 </div>
-                            </div>
+                            </div>-->
                             
                             <div class="card mb-4">
                                 <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
@@ -290,7 +279,37 @@
                             </div>
                         </div>-->
 
-                        <div>
+
+                            <div class="card mb-4">
+                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                <h3 class="card-title font-bold after-h3">Narozeniny slaví</h3>
+{% load cache %}
+{% cache 57600 creators_list_birth %}
+        {% for creator in creators_list_8 %}
+        <img src="https://www.themoviedb.org/t/p/w300/{{ creator.img }}" class="" alt="{{ creator.lastname }}" style="width:30%;float:left;margin-right:5px;">
+
+          <a href="{% url 'creator_detail' creator.url %}" class="mb-4">{{ creator.lastname }}, {{ creator.firstname }}</a>
+          <p class="card-text">{{ creator.birthdate|date:"d.m.Y"  }}</p>
+          <p class="card-text">
+            {% if creator.knownfordepartment == "Acting" %}
+            Herec
+            {% elif creator.knownfordepartment == "Directing" %}
+            Režisér
+            {% elif creator.knownfordepartment == "Production" %}
+            Producent
+            {% elif creator.knownfordepartment == "Writing" %}
+            Scénárista
+            {% else %}
+            Těžko říct
+            {% endif %}
+            </p>
+          
+        <hr style="clear:both;">
+        {% endfor %}
+{% endcache %}                 
+                                </div>
+                            </div>
+
                             
                             <!-- PŘESUNOUT DO ŽEBŘÍČKŮ?? -->
                         
@@ -320,18 +339,17 @@
                         <a href="{{ article.url }}">{{ article.title }}</a>
                         <p>{{ article.perex|truncatewords:9 }}</p>
                     </div>
-                </div><hr>
-                                
+                </div><hr>                
                                 {% endfor %}
                                 </div>
                             </div>
 
 
-                            <div class="card mb-4">
+                            <!--<div class="card mb-4">
                                 <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
                                     
                                 </div>
-                            </div>
+                            </div>-->
 
                     </div>
                 </div>

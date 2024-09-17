@@ -381,10 +381,13 @@ class Bookquotes(models.Model):
     chapter = models.IntegerField(db_column='Chapter', null=True, blank=True)  # Přidané pole pro stránku
     parentquoteid = models.ForeignKey('self', on_delete=models.CASCADE, db_column='ParentQuoteID', null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # Přidaný cizí klíč na uživatele
+    thumbsup = models.IntegerField(default=0, db_column='ThumbsUp')
+    thumbsdown = models.IntegerField(default=0, db_column='ThumbsDown')
 
     class Meta:
         db_table = 'BookQuotes'
-
+    def __str__(self):
+        return self.quote
 
 
 class Bookrating(models.Model):
@@ -508,6 +511,7 @@ class Creator(models.Model):
     img = models.CharField(db_column='IMG', max_length=32, null=True)
     knownfordepartment = models.CharField(db_column='KnownForDepartment', max_length=255, null=True)
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True)
+    gender = models.IntegerField(db_column='Gender', null=True, blank=True, default=0) 
     lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
 
     class Meta:
