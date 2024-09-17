@@ -1,23 +1,29 @@
 # VIEWS.BOOKS.PY
 
 # https://console.cloud.google.com/welcome?project=knihy-div
+import datetime
 import os
 import requests
 
-from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.views.decorators.http import require_POST
 
-from div_content.forms.books import BookAddForm, Bookquoteform, SearchFormBooks, CommentFormBook
+from dotenv import load_dotenv
+
+from div_content.forms.books import BookAddForm, Bookquoteform, CommentFormBook, SearchFormBooks
 from div_content.models import (
     Book, Bookauthor, Bookcharacter, Bookcomments, Bookcover, Bookgenre, Bookisbn, 
     Bookpublisher, Bookquotes, Bookrating, Bookwriters, Charactermeta, Metagenre, Metaindex, Metastats,
-    Userlisttype, Userlist, Userlistbook
-                                )
-
-from div_content.utils.books import fetch_books_from_google, fetch_book_from_google_by_id 
-from dotenv import load_dotenv
+    Userlist, Userlistbook, Userlisttype
+)
+from div_content.utils.books import fetch_book_from_google_by_id, fetch_books_from_google
 
 load_dotenv()
+
+
 
 def books(request):
     #api_key = os.getenv('GOOGLE_API_KEY')
@@ -164,6 +170,34 @@ def book_detail(request, book_url):
         })
 #    top_20_books = Book.objects.order_by('-bookrating').all()[:20]  # Define top_20_books here
     #'top_20_books': top_20_books
+
+
+
+@require_POST
+def ratequote(request, quote_id):
+    quote = get_object_or_404(Bookquotes, pk=quote_id)
+    action = request.POST.get('action')
+
+    # Zkontroluje cookies
+    cookie_name = f'voted_{quote_id}'
+    if request.COOKIES.get(cookie_name):
+        return JsonResponse({'error': 'Již jste hlasoval/a.'})
+
+    # Pokud uživatel nehlasoval, zvýšíme hlas a nastavíme cookie
+    if action == 'thumbsup':
+        quote.thumbsup += 1
+    elif action == 'thumbsdown':
+        quote.thumbsdown += 1
+
+    quote.save()
+
+    response = JsonResponse({'thumbsup': quote.thumbsup, 'thumbsdown': quote.thumbsdown})
+    
+    # Nastaví cookie na týden
+    expires = timezone.now() + datetime.timedelta(days=7)
+    response.set_cookie(cookie_name, 'voted', expires=expires)
+    
+    return response
 
 
 

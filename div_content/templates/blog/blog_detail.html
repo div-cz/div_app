@@ -23,14 +23,18 @@
         {% endif %}
 <hr>
 
-<a href="/blog/novy-prispevek" class="cta mt-4">
-    <span class="text-[#0d0c0f] dark:text-[#F9F9F9]">Nový příspěvek</span>
-    <svg width="15px" height="10px" viewBox="0 0 13 10">
-        <path d="M1,5 L11,5"></path>
-        <polyline points="8 1 12 5 8 9"></polyline>
-    </svg>
-</a>
-<hr>
+    {% if blog.user == user %}
+    <!-- Zobrazit pouze vlastníkovi blogu -->
+    <a href="/blog/novy-prispevek" class="cta mt-4">
+        <span class="text-[#0d0c0f] dark:text-[#F9F9F9]">Nový příspěvek</span>
+        <svg width="15px" height="10px" viewBox="0 0 13 10">
+            <path d="M1,5 L11,5"></path>
+            <polyline points="8 1 12 5 8 9"></polyline>
+        </svg>
+    </a>
+    <hr>
+    {% endif %}
+
 
     {% if page_obj %}
         <ul>

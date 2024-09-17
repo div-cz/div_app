@@ -32,7 +32,7 @@ class CommentFormBook(forms.ModelForm):
 
 class Bookquoteform(forms.ModelForm):
     bookcharacter = forms.ModelChoiceField(
-        queryset=Bookcharacter.objects.none(),
+        queryset=Bookcharacter.objects.all(),
         required=False,
         label="Postava"
     )
@@ -45,7 +45,7 @@ class Bookquoteform(forms.ModelForm):
         model = Bookquotes
         fields = ['quote', 'bookcharacter', 'chapter']  # Změna názvu pole zde
         labels = {
-            'quote': 'Citát',
+            'quote': '',
             'bookcharacter': 'Postava',  # Změna názvu pole zde
             'chapter': 'Kapitola',
         }
@@ -59,7 +59,7 @@ class Bookquoteform(forms.ModelForm):
         if bookid:
             self.fields['bookcharacter'].queryset = Bookcharacter.objects.filter(bookid=bookid)
 
-    def save(self, commit=True):
+    def save(self, commit=True, book=None):
         instance = super(Bookquoteform, self).save(commit=False)
         # Nastavení správné instance Charactermeta na základě výběru z Bookcharacter
         bookcharacter = self.cleaned_data.get('bookcharacter', None)
@@ -68,8 +68,10 @@ class Bookquoteform(forms.ModelForm):
         else:
             instance.characterid = None  # Nastavení prázdného řetězce, pokud není vybrána postava
 
-        # Automatické vyplnění AuthorID na základě knihy
-        instance.authorid = instance.bookid.authorid
+        # Nastavení bookid a následně authorid
+        if book:
+            instance.bookid = book
+            instance.authorid = book.authorid
 
         if commit:
             instance.save()

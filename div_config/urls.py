@@ -17,8 +17,7 @@ from div_content.views.articles import article_detail
 from div_content.views.authors import authors_list, author_detail, author_add
 from div_content.views.blog import blog_add_post, blog_detail, blog_index, blog_list, blog_new, blog_post_detail, blog_section_detail
 from div_content.views.books import (
-    book_add, book_detail, books, books_search, add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library,
-    remove_from_favourites_books, remove_from_readlist, remove_from_read_books, remove_from_book_library
+    book_add, book_detail, books, books_search, add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, ratequote, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, remove_from_book_library
     )
 from div_content.views.creators import creator_detail, creators_list
 from div_content.views.forum import (
@@ -136,6 +135,8 @@ urlpatterns = [
     path('osobnost/<str:creator_url>', creator_detail, name='creator_detail'),
     path('postavy/', character_list, name='character_list'),
     path('postava/<str:character_url>', character_detail, name='character_detail'),
+
+    path('quote/<int:quote_id>/rate/', ratequote, name='ratequote'),
 
     path('ratings/', include('star_ratings.urls', namespace='ratings')),
     path('hledam/', search, name='search'),
