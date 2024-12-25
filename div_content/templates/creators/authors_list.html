@@ -1,13 +1,11 @@
-<!DOCTYPE html>
-<html lang="cs">
-<head>
+{% extends "books/base.html" %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
 
-    {% include "inc/head.html" %}
+{% block title %} {{ book.title }} | DIV.cz{% endblock %}
 
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-
-
-<title>Spisovatelé | Databáze filmů a knih DIV</title>
+{% block content %}
 
 <style>
 .carousel-caption {
@@ -40,37 +38,30 @@
 
 
 <!-- Sekce odkazů na filmy -->
-<div class="container my-4">
+<div class="row container my-5">
 
 
-<h2 class="mb-4">Spisovatelé</h2>
+  <h2 class="mb-4">Spisovatelé</h2>
 
-<div class="row">
-        {% for author in authors %}
-    <div class="col-lg-3 col-md-3 col-sm-6 mb-3">
-      <div class="card">
-        <img src="/img/noimg.png" class="card-img-top" alt="{{ author.lastname }}">
+  <div class="row">
+          {% for author in authors %}
+      <div class="col-lg-3 col-md-3 col-sm-6 mb-3">
+        <div class="card">
+          <img src="/img/noimg.png" class="card-img-top" alt="{{ author.lastname }}">
 
-        <div class="card-body">
-          <h5 class="card-title">{{ author.firstname }} {{ author.lastname }} <span class="text-muted">({{ author.birthyear  }})</span></h5>
-          <p class="card-text"><!--{{ creator.knownfordepartment }}-->
+          <div class="card-body">
+            <h5 class="card-title">{{ author.firstname }} {{ author.lastname }} <span class="text-muted">({{ author.birthyear  }})</span></h5>
+            <p class="card-text"><!--{{ creator.knownfordepartment }}-->
 
-        </p>
-          <a href="{% url 'author_detail' author.url %}" class="btn btn-primary">{{ author.lastname }}, {{ author.firstname }}</a> 
+          </p>
+            <a href="{% url 'author_detail' author.url %}" class="btn btn-primary">{{ author.lastname }}, {{ author.firstname }}</a> 
+          </div>
         </div>
       </div>
+          {% endfor %}
     </div>
-        {% endfor %}
-  </div>
 
         </div>
     </div>
 
-</main>
-
-
-{% include "inc/footer.html" %}
-
-
-</body>
-</html>
+{% endblock %}
