@@ -1,6 +1,16 @@
 # VIEWS.TV.PY čaj
+### ### ### ### ###
+### ### ### ### ### 
+### SERIES SE POUŽÍVÁ PRO SERIALY ### ### ### 
+### ### ### ### ### 
+### ### ### ### ### 
+
+
 from django.shortcuts import render, get_object_or_404
 from div_content.models import Tvseason, Tvshow
+from div_content.views.login import custom_login_view
+
+
 def tv(request):
 
 
