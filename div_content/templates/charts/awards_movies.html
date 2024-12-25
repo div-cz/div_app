@@ -1,0 +1,17 @@
+<!-- charts/awards_movies.html -->
+{% extends "charts/base.html" %}
+
+{% block content %}
+<h1>Filmová Ocenění</h1>
+
+<ul>
+    {% for movie_award in movie_awards %}
+        <li>{{ movie_award.metaAwardid.awardname }} ({{ movie_award.metaAwardid.year }})
+            - <a href="{{ movie_award.movieid.url }}">{{ movie_award.movieid.title }}</a>
+            {% if movie_award.winner %} <strong>- Výherce</strong> {% else %}- Nominace {% endif %}
+        </li>
+    {% empty %}
+        <li>Žádná filmová ocenění nebyla nalezena.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

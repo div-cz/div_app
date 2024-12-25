@@ -1,7 +1,8 @@
 #  VIEWS.CHARACTERS.PY
 
 
-from div_content.forms.characters import FavoriteFormCharacter
+from django.db.models import Exists, OuterRef
+from div_content.forms.characters import FavoriteFormCharacter, CharacterBiographyForm
 from django.contrib.contenttypes.models import ContentType
 from div_content.models import (
     Characterbiography, Charactermeta, Favorite, Moviecrew, Userlisttype, Userlist, Userlistitem, 
@@ -18,7 +19,10 @@ from collections import defaultdict
 
 # Konstant
 USERLISTTYPE_FAVORITE_CHARACTER_ID = 24
+USERLISTTYPE_WATCHED_MOVIES = 3 # Shlédnuto
+
 CONTENT_TYPE_CHARACTERMETA_ID = 13
+CONTENTTYPE_MOVIE_ID = 33
 
 
 def character_list(request):
@@ -34,21 +38,31 @@ def character_list(request):
     return render(request, 'characters/characters_list.html', {'characters': characters})
 
 
-
-
-
 def character_detail(request, character_url):
     character = get_object_or_404(Charactermeta, characterurl=character_url)
     characterbiography = Characterbiography.objects.filter(characterid=character, verificationstatus="Verified").first()
-    
+    user = request.user
+
+    movie_content_type = ContentType.objects.get(id=CONTENTTYPE_MOVIE_ID)
+    userlisttype = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_WATCHED_MOVIES)
+
     filmography_query = Moviecrew.objects.filter(
         characterid=character.characterid
-    ).select_related('movieid', 'peopleid').order_by('-movieid__releaseyear')[:40]
+    ).select_related('movieid', 'peopleid').order_by('-movieid__releaseyear').annotate(
+    is_watched=Exists(
+        Userlistitem.objects.filter(
+            userlist__user=user,
+            userlist__listtype=userlisttype,
+            object_id=OuterRef('movieid'),
+            content_type=movie_content_type
+        )
+    ))[:40]
 
     filmography = defaultdict(list)
     for entry in filmography_query:
         # Zde předpokládám, že model osob má atributy firstname a lastname
         actor_name = f"{entry.peopleid.firstname} {entry.peopleid.lastname}" if entry.peopleid else "Neznámý herec"
+        entry.movieid.is_watched = entry.is_watched
         filmography[entry.movieid].append(actor_name)
 
     # Ověření, zda je postava v oblíbených
@@ -85,6 +99,18 @@ def character_detail(request, character_url):
         content_type=content_type
     ).select_related("userlist")
 
+    # Formulář pro přidání popisu postavy
+    if request.method == 'POST':
+        form = CharacterBiographyForm(request.POST)
+        if form.is_valid():
+            biography = form.save(commit=False)
+            biography.userid = request.user
+            biography.characterid = character
+            biography.save()
+            return redirect('character_detail', character_url=character.characterurl)
+
+    else:
+        form = CharacterBiographyForm(initial={'characterid': character})
 
     return render(request, 'characters/characters_detail.html', {
         'character': character, 
@@ -92,6 +118,7 @@ def character_detail(request, character_url):
         'filmography': dict(filmography),
         'is_favorite': is_favorite,
         'fans': fans,
+        'form': form,
     })
 
 

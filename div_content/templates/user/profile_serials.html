@@ -1,0 +1,493 @@
+{% extends "user/base.html" %}
+
+{% load i18n %}
+
+{% block title %}Profil  {{ profile_user.username }} {% endblock title %}
+
+{% block h1 %}{{ profile_user.username }}{% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+
+<style>
+    .nav-tabs .nav-tabs-link.active {
+        background-color: #A52B21;
+        color: #ffffff;
+    }
+</style>
+
+<div class="mt-5">
+    <!-- Sekce záložek pro filmy, seriály, knihy, hry, statistiky -->
+    <div class="flex overflow-scroll">
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-film mr-2"></i>
+            <a class="movies" href="{% url 'profile_movies_section' profile_user.id %}">Filmy</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center bg-[#f0f0f0]" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-video mr-2"></i>
+            <a class="movies" href="{% url 'profile_series_section' profile_user.id %}">Seriály</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;">
+            <i class="fa-solid fa-book mr-2"></i>
+            <a class="books" href="{% url 'profile_books_section' profile_user.id %}">Knihy</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-gamepad mr-2"></i>
+            <a class="games" href="{% url 'profile_games_section' profile_user.id %}">Hry</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fas fa-star mr-2"></i>
+            <a class="stats" href="{% url 'profile_stats_section' profile_user.id %}">Statistiky</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-trophy mr-2"></i> 
+            <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
+        </div>
+
+        <!-- <a class="border rounded-1xl mr-2 users" 
+           style="padding: .5rem 1rem;" 
+           href="">Uživatelé</a> -->
+    </div>
+    
+    <!-- Podkategorie záložek (hodnocení, oblíbené atd.) -->
+    <div class="row mt-5">
+        <ul class="nav nav-tabs overflow-scroll">
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link border active {% if category == 'hodnoceni' %}active{% endif %}" href="#" id="tab-hodnoceni">Hodnocení</a>
+            </li>
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link border {% if category == 'oblibene' %}active{% endif %}" href="#" id="tab-oblibene">Oblíbené</a>
+            </li>
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link border {% if category == 'recenze' %}active{% endif %}" href="#" id="tab-recenze">Recenze</a>
+            </li>
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link border {% if category == 'chci-videt' %}active{% endif %}" href="#" id="tab-chci-videt">Chci vidět</a>
+            </li>
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link border {% if category == 'shlednuto' %}active{% endif %}" href="#" id="tab-shlednuto">Shlédnuto</a>
+            </li>
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link border {% if category == 'serialoteka' %}active{% endif %}" href="#" id="tab-serialoteka">Seriálotéka</a>
+            </li>
+        </ul>
+
+        <div class="tab-content w-full mb-3 bg-[#F9F9F9] dark:bg-[#1A161F]">
+            <!-- Tab Hodnocení -->
+            <div id="hodnoceni" class="tab-show w-full active {% if category == 'hodnoceni' %}active{% endif %}">
+                <h3 class="after-h3 padding">Hodnocení seriálů</h3>
+                <div class="table lg:pr-5">
+                    <div class="grid my-grid bg-[#c0c0c0]">
+                        <!-- <div>Miniatura</div> -->
+                        <div class="font-bold p-1">Název</div>
+                        <div class="text-center font-bold p-1">Hodnocení</div>
+                        <div class="text-center font-bold p-1">Datum</div>
+                    </div>
+                    <div class="">
+                        {% for user_rating in series_page_obj %}
+                        <div class="grid border my-grid sudy">
+                            <!-- <div>
+                                {% if user_rating.rating.content_object.img %}
+                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ user_rating.rating.content_object.img }}" alt="{{ user_rating.rating.content_object.title }}" width="50">
+                                {% endif %}
+                            </div> -->
+                            <div class="p-1">
+                                <a href="/serial/{{ user_rating.rating.content_object.url }}">
+                                    {% if user_rating.rating.content_object.titlecz %}{{ user_rating.rating.content_object.titlecz }} {% else %} {{ user_rating.rating.content_object.title }} {% endif %}
+                                </a> ({{ user_rating.rating.content_object.premieredate|date:"Y" }}–{{ user_rating.rating.content_object.enddate|date:"Y" }})
+                            </div>
+                            <div class="text-center p-1">
+                                {% with rating=user_rating.score %}
+                                <span class="text-warning h4 movies">
+                                    {% for i in "12345" %}
+                                        {% if rating >= forloop.counter %}
+                                            &#9733;
+                                        {% else %}
+                                            &#9734;
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                                {% endwith %}
+                            </div>
+                            <div class="text-center p-1"> {{ user_rating.modified|date:"j. n. Y" }} </div> <!-- datum -->
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+                        {% if series_page_obj.has_previous %}
+                        <div>
+                            <a href="?page=1">&laquo; první</a>
+                            <a href="?page={{ series_page_obj.previous_page_number }}#hodnoceni">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <span class="current-page mx-4">
+                            Stránka {{ series_page_obj.number }} / {{ series_page_obj.paginator.num_pages }}</span>
+
+                        {% if series_page_obj.has_next %}
+                        <div>
+                            <a href="?page={{ series_page_obj.next_page_number }}#hodnoceni">další</a>
+                            <a href="?page={{ series_page_obj.paginator.num_pages }}#hodnoceni">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Tab Oblíbené -->
+            <div id="oblibene" class="tab-show w-full {% if category == 'oblibene' %}active{% endif %}">
+                <h3 class="after-h3 padding">Oblíbené seriály</h3>
+                {% if favorite_page_obj %}
+                <div class="table lg:pr-5">
+                    <div class="grid favorite-grid bg-[#c0c0c0]">
+                        <!-- <div>Miniatura</div> -->
+                        <div class="font-bold p-1">Název</div>
+                        <div class="text-center font-bold p-1">Datum</div>
+                    </div>
+                    <div class="">
+                        {% for favorite in favorite_page_obj %}
+                        <div class="grid border favorite-grid sudy">
+                            <!-- <td>
+                                {% if favorite.movie.img %}
+                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ favorite.movie.img }}" alt="{{ favorite.movie.title }}" width="50">
+                                {% endif %}
+                            </td> -->
+                            <div class="p-1">
+                                <a href="/serial/{{ favorite.tvshow.url }}">
+                                    {{ favorite.tvshow.titlecz }}
+                                </a> ({{ favorite.tvshow.premieredate|date:"Y" }}–{{favorite.tvshow.enddate|date:"Y" }})
+                            </div>
+                            <div class="text-center p-1">{{ favorite.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+                        {% if favorite_page_obj.has_previous %}
+                        <div>
+                            <a href="?favorite_page=1">&laquo; první</a>
+                            <a href="?favorite_page={{ favorite_page_obj.previous_page_number }}#oblibene">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <span class="current-page mx-4">
+                            Stránka {{ favorite_page_obj.number }} / {{ favorite_page_obj.paginator.num_pages }}</span>
+
+                        {% if favorite_page_obj.has_next %}
+                        <div>
+                            <a href="?favorite_page={{ favorite_page_obj.next_page_number }}#oblibene">další</a>
+                            <a href="?favorite_page={{ favorite_page_obj.paginator.num_pages }}#oblibene">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>
+                {% else %}
+                <p>Nemáte žádné oblíbené seriály.</p>
+                {% endif %}
+
+                <hr>
+                
+                <h3 class="after-h3 padding">Oblíbení tvůrci</h3>
+                {% if fav_creators %}
+                    <div class="flex flex-wrap w-full">
+                        {% for creator in fav_creators %}
+                        <div class="mt-5" style="width: 150px">
+                            <div class="p-1 w-full">
+                                {% if not creator.img or creator.img == "" %}
+                                    <img src="/static/img/creator/noperson.svg" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                                {% else %}
+                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ creator.img }}" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                                {% endif %}
+                            </div>
+                            <div class="p-1 w-full text-center">
+                                <a href="/tvurce/{{ creator.url }}">{{ creator.firstname }} {{ creator.lastname }}</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>Nemáte žádné oblíbené herce.</p>
+                {% endif %}
+
+                <hr>
+                
+                <h3 class="after-h3 padding">Postavy</h3>
+                {% if fav_characters %}
+                    <div class="flex flex-wrap w-full">
+                        {% for character in fav_characters %}
+                        <div class="mt-5" style="width: 150px">
+                            <div class="p-1 w-full">
+                                {% if not character.characterimg or character.characterimg == "" %}
+                                    <img src="/static/img/creator/noperson.svg" alt="{{ character.charactername }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                                {% else %}
+                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ character.characterimg }}" alt="{{ character.name }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                                {% endif %}
+                            </div>
+                            <div class="p-1 w-full text-center">
+                                <a href="/postava/{{ character.characterurl }}">{{ character.charactername }}</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>Nemáte žádné postavy.</p>
+                {% endif %}
+
+            </div>
+
+            <!-- Tab Recenze -->
+            <div id="recenze" class="tab-show w-full {% if category == 'recenze' %}active{% endif %}">
+                <h3 class="after-h3 padding">Recenze seriálů</h3>
+                <div class="table lg:pr-5">
+                    {% if reviews %}
+                    {% for review in reviews %}
+                    <div class="flex border sudy">
+                        <div class="p-1">
+                            {% if review.tvshowid.img %}
+                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ review.tvshowid.imgposter }}" alt="{{ review.movie.titlecz }}" style="object-fit: cover; width: 50px; height: auto;">
+                            {% else %}
+                                <img src="/static/img/tvshow/w200/nomovie.jpg" alt="{{ review.tvshowid.titlecz }}" style="object-fit: cover; width: 50px; height: auto;">
+                            {% endif %}
+                        </div>
+                        <div class="w-full">
+                            <div class="flex justify-between w-full">
+                                <div class="p-1">
+                                    <a href="/film/{{ review.movieid.url }}">{{ review.tvshowid.titlecz }}</a>
+                                </div>
+                                <div class="text-center p-1">
+                                    {{ review.dateadded|date:"j. n Y" }}  <!-- KDY RECENZOVÁNO -->
+                                </div>
+                            </div>
+                            <div class="p-1">
+                                {{ review.comment|truncatewords:10 }} <!-- RECENZE -->
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Nemáte žádné recenze.</p>
+                {% endif %}
+                </div>
+
+                <!-- <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+
+                        <div>
+                            <a href="">&laquo; první</a>
+                            <a href="">předchozí</a>
+                        </div>
+
+
+                        <span class="current-page mx-4">
+                            Stránka  / </span>
+
+
+                        <div>
+                            <a href="">další</a>
+                            <a href="">poslední &raquo;</a>
+                        </div>
+
+                    </span>
+                </div> -->
+            </div>
+
+            <!-- Tab Chci vidět -->
+            <div id="chci-videt" class="tab-show w-full {% if category == 'chci-videt' %}active{% endif %}">
+                <h3 class="after-h3 padding">Seriály, které chci vidět</h3>
+                {% if wantsee_page_obj %}
+                <div class="table lg:pr-5">
+                    <div class="grid favorite-grid bg-[#c0c0c0]">
+                        <!-- <div>Miniatura</div> -->
+                        <div class="font-bold p-1">Název</div>
+                        <div class="text-center font-bold p-1">Datum</div>
+                    </div>
+                    <div class="">
+                        {% for tvshow in wantsee_page_obj %}
+                        <div class="grid border favorite-grid sudy">
+                            <!-- <div>
+                                {% if movie.movie.img %}
+                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ movie.movie.img }}" alt="{{ movie.movie.title }}" width="50">
+                                {% endif %}
+                            </div> -->
+                            <div class="p-1">
+                                <a class="movies" href="/film/{{ tvshow.tvshow.url }}">{{ tvshow.tvshow.titlecz }}</a> ({{ tvshow.tvshow.releaseyear }})
+                            </div>
+                            <div class="text-center p-1">{{ movie.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+                        {% if wantsee_page_obj.has_previous %}
+                        <div>
+                            <a href="?wantsee_page=1">&laquo; první</a>
+                            <a href="?wantsee_page={{ wantsee_page_obj.previous_page_number }}#chci-videt">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <span class="current-page mx-4">
+                            Stránka {{ wantsee_page_obj.number }} / {{ wantsee_page_obj.paginator.num_pages }}</span>
+
+                        {% if wantsee_page_obj.has_next %}
+                        <div>
+                            <a href="?wantsee_page={{ wantsee_page_obj.next_page_number }}#chci-videt">další</a>
+                            <a href="?wantsee_page={{ wantsee_page_obj.paginator.num_pages }}#chci-videt">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>
+                {% else %}
+                <p>Nemáte žádné seriály označené jako "Chci vidět".</p>
+                {% endif %}
+            </div>
+
+            <!-- Tab Shlédnuto -->
+            <div id="shlednuto" class="tab-show w-full {% if category == 'shlednuto' %}active{% endif %}">
+                <h3 class="after-h3 padding">Shlédnuté seriály</h3>
+                {% if watched_page_obj %}
+                <div class="table lg:pr-5">
+                    <div class="grid favorite-grid bg-[#c0c0c0]">
+                        <!-- <div>Miniatura</div> -->
+                        <div class="font-bold p-1">Název</div>
+                        <div class="text-center font-bold p-1">Datum</div>
+                    </div>
+                    <div class="">
+                        {% for movie in watched_page_obj %}
+                        <div class="grid border favorite-grid sudy">
+                            <!-- <div>
+                                {% if movie.movie.img %}
+                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ movie.movie.img }}" alt="{{ movie.movie.title }}" width="50">
+                                {% endif %}
+                            </div> -->
+                            <div class="p-1">
+                                <a class="movies" href="/film/{{ movie.movie.url }}">{{ movie.movie.titlecz }}</a> ({{ movie.movie.releaseyear }})
+                            </div>
+                            <div class="text-center p-1">{{ movie.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+                        {% if watched_page_obj.has_previous %}
+                        <div>
+                            <a href="?watched_page=1">&laquo; první</a>
+                            <a href="?watched_page={{ watched_page_obj.previous_page_number }}#shlednuto">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <span class="current-page mx-4">
+                            Stránka {{ watched_page_obj.number }} / {{ watched_page_obj.paginator.num_pages }}</span>
+
+                        {% if watched_page_obj.has_next %}
+                        <div>
+                            <a href="?watched_page={{ watched_page_obj.next_page_number }}#shlednuto">další</a>
+                            <a href="?watched_page={{ watched_page_obj.paginator.num_pages }}#shlednuto">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>
+                {% else %}
+                <p>Nemáte žádné shlédnuté seriály.</p>
+                {% endif %}
+            </div>
+
+            <!-- Tab Seriálotéka -->
+            <div id="serialoteka" class="tab-show w-full {% if category == 'serialoteka' %}active{% endif %}">
+                <h3 class="after-h3 padding">Seriálotéka</h3>
+                {% if serialoteka_page_obj %}
+                <div class="table lg:pr-5">
+                    <div class="grid favorite-grid bg-[#c0c0c0]">
+                        <!-- <div>Miniatura</div> -->
+                        <div class="font-bold p-1">Název</div>
+                        <div class="text-center font-bold p-1">Datum</div>
+                    </div>
+                    <div class="">
+                        {% for movie in serialoteka_page_obj %}
+                        <div class="grid border favorite-grid sudy">
+                            <!-- <td>
+                                {% if movie.movie.img %}
+                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ movie.movie.img }}" alt="{{ movie.movie.title }}" width="50">
+                                {% endif %}
+                            </td> -->
+                            <div class="p-1">
+                                <a class="movies" href="/film/{{ movie.movie.url }}">{{ movie.movie.titlecz }}</a> ({{ movie.movie.releaseyear }})
+                            </div>
+                            <div class="text-center p-1">{{ movie.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+                        {% if serialoteka_page_obj.has_previous %}
+                        <div>
+                            <a href="?serialoteka_page=1">&laquo; první</a>
+                            <a href="?serialoteka_page={{ serialoteka_page_obj.previous_page_number }}#serialoteka">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <span class="current-page mx-4">
+                            Stránka {{ serialoteka_page_obj.number }} / {{ serialoteka_page_obj.paginator.num_pages }}</span>
+
+                        {% if serialoteka_page_obj.has_next %}
+                        <div>
+                            <a href="?serialoteka_page={{ serialoteka_page_obj.next_page_number }}#serialoteka">další</a>
+                            <a href="?serialoteka_page={{ serialoteka_page_obj.paginator.num_pages }}#serialoteka">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>
+                {% else %}
+                <p>Nemáte žádné seriály v seriálotéce.</p>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Funkce na aktivaci konkrétního tabu
+        function activateTab(tabId) {
+            document.querySelectorAll('.tab-show').forEach(tabContent => {
+                tabContent.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tabs-link').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            const targetTab = tabId.replace('tab-', '');
+            document.getElementById(targetTab).classList.add('active');
+            document.getElementById('tab-' + targetTab).classList.add('active');
+        }
+
+        // Kontrola, jestli je v URL fragment (část po #)
+        const hash = window.location.hash.substring(1);  // Získá fragment bez #
+        if (hash) {
+            activateTab('tab-' + hash);  // Aktivuje příslušný tab
+        }
+
+        // Přepínání tabů po kliknutí
+        document.querySelectorAll('.nav-tabs-link').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetTab = this.getAttribute('id');
+                activateTab(targetTab);
+                // Aktualizace URL bez reloadu stránky
+                history.pushState(null, null, '#' + targetTab.replace('tab-', ''));
+            });
+        });
+    });
+</script>
+
+{% endblock content %}

@@ -98,6 +98,7 @@
             {% endif %}
         </div>
 
+        <!-- INFO -->
         <div class="d-flex mb-3 mt-4">
             <div class="me-3 mr-4 flex-shrink-0 sm-flex lg:w-max sm:w-130 lg:w-40%">
             {% if not creator.img or creator.img == "" %}
@@ -111,17 +112,18 @@
                 <ul class="list-unstyled">
                     <li><strong>Role:</strong> 
                     {% if creator.knownfordepartment == "Acting" %}
-                    Herec
+                        Herec
                     {% elif creator.knownfordepartment == "Directing" %}
-                    Režisér
+                        Režisér
                     {% elif creator.knownfordepartment == "Production" %}
-                    Producent
+                        Producent
                     {% elif creator.knownfordepartment == "Writing" %}
-                    Scénárista
+                        Scénárista
                     {% else %}
-                    Těžko říct
+                        Těžko říct
                     {% endif %}
                     </li>
+
                     {% if creator.birthdate %}
                     <li><strong>Datum narození:</strong> {{ creator.birthdate }}</li>
                     {% endif %}
@@ -129,6 +131,13 @@
                     {% if creator.deathdate %}
                     <li><strong>Datum úmrtí:</strong> {{ creator.deathdate }}</li>
                     {% endif %}
+
+                    {% if creator.countryid %}
+                    <li><strong>Místo narození:</strong> {{ creator.countryid.countryname }}</li>
+                    {% endif %}
+
+                    <li><strong>Nominace:</strong></li>
+
                     <!--<li>ID: {{ creator.creatorid }}</li>-->
                     <!--<li>{{ creator.popularity }}</li>-->
                 </ul>
@@ -138,13 +147,13 @@
         <!-- BIOGRAFIE -->
         {% if creatorbiography.verificationstatus == "Verified" %}
         <div class="creator-biography w-full">
-            {% if creatorbiography.shortdescription %}
-            <p class="short-description">{{ creatorbiography.shortdescription }}</p>
-            {% endif %}
 
-            {% if creatorbiography.biographytext %}
+            {% if creatorbiography.biographytextcz %}
             <div class="biography-text">
-                {{ creatorbiography.biographytext }}
+                <p id="biography-text">
+                    {{ creatorbiography.biographytextcz|safe }}
+                </p>
+                <p><a id="toggle-biography">Více...</a></p>
             </div>
             {% endif %}
 
@@ -199,7 +208,7 @@
                         <div class="flex items-center justify-between">
                             <a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a>
                             {% if movie.is_watched %}
-                            <i class="fas fa-eye" title="viděno"></i>
+                                <i class="fas fa-eye" title="viděno"></i>
                             {% endif %}
                         </div>
                         <div class="text-center p-1">{{ movie.releaseyear }}</div>
@@ -329,5 +338,30 @@
 
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const bioElement = document.getElementById("biography-text");
+    const toggleButton = document.getElementById("toggle-biography");
+
+    const fullText = bioElement.innerText; // Store the full biography text
+    const truncatedText = fullText.substring(0, 500); // First 500 characters
+
+    // Initialize with truncated text
+    bioElement.innerText = truncatedText + "...";
+
+    // Toggle functionality
+    toggleButton.addEventListener("click", function () {
+        if (bioElement.innerText === truncatedText + "...") {
+            bioElement.innerText = fullText; // Show full text
+            toggleButton.innerText = "...Méně"; // Update button text
+        } else {
+            bioElement.innerText = truncatedText + "..."; // Show truncated text
+            toggleButton.innerText = "Více..."; // Update button text
+        }
+    });
+});
+
+</script>
 
 {% endblock %}

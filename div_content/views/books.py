@@ -117,13 +117,13 @@ def books(request):
         #top_20_books = Book.objects.order_by('-bookrating').all()[:20]
         #top_20_books = Book.objects.order_by('-bookrating').values('bookid', 'img', 'url')[:20]
 
-    top_books = Metaindex.objects.filter(section='Book').order_by('-popularity')[:20]
+    top_books = Book.objects.order_by('-divrating')[:10]
         #all_books = books_from_api + list(top_20_books)
     #except Exception as e:
         #all_books = []
         #api_test_message += " | Chyba při získávání dat z API: " + str(e)
     
-    book_list_15 = Book.objects.filter(year__gt=2022).order_by('-divrating')[:15]
+    book_list_15 = Book.objects.filter(year__gt=2022).order_by('-divrating')[10:35]
 
     # Knihy podle popularity
     # book_list_15 = Metaindex.objects.filter(year__gt=2018).order_by("-popularity").values('title', 'url', 'img', 'description')[:15]
