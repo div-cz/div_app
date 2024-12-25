@@ -2,6 +2,7 @@
 
 from django.shortcuts import get_object_or_404, render
 from div_content.models import Metacity, Metalocation
+from div_content.views.login import custom_login_view
 
 
 

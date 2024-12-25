@@ -1,5 +1,17 @@
+
+### ### ### ### ###
+### ### ### ### ### 
+### SERIES SE POUŽÍVÁ PRO SERIALY ### ### ### 
+### ### ### ### ### 
+### ### ### ### ### 
+
+"""
 from django.shortcuts import render, get_object_or_404
 from div_content.models import Tvseason, Tvshow, Movie
+from div_content.views.login import custom_login_view
+
+
+
 def tv(request):
 
 
@@ -11,3 +23,4 @@ def tv(request):
 def tv_detail(request, tvshow_url):
     tvser = get_object_or_404(Tvshow, url=tvshow_url)
     return render(request, 'tv/tv_detail.html', {'tvser': tvser})
+"""
