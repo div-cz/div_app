@@ -88,6 +88,7 @@
             <span> {{ author.deathdate|date:"Y" }} </span>
         </div>-->
 
+        <!-- INFO -->
         <div class="d-flex mb-3 mt-4">
             <div class="me-3 mr-4 flex-shrink-0 sm-flex lg:w-max sm:w-130 lg:w-40%">
             {% if not author.img or author.img == "" %}
@@ -109,25 +110,27 @@
                 <!--<li>ID: {{ author.creatorid }}</li>-->
                 <!--<li>{{ author.popularity }}</li>-->
                 </ul>
-
-            {% if author.description %}
-                <p>{{ author.description|safe }}</p>
-
-                {% else %}
-                <div class="flex flex-wrap items-center">
-                    <details>
-                        <summary>Přidej vlastní popis, zatím tu žádný není!</summary>
-                        <form action="">
-                            <textarea id="w3review" name="w3review" rows="3" cols="50"></textarea>
-                            <br>
-                            <input class="add" type="submit" value="Přidat">
-                        </form>
-                    </details>
-                </div>
-            {% endif %}
             </div>
         </div>
 
+        <!-- BIOGRAFIE -->
+        {% if author.description %}
+        <p>{{ author.description|safe }}</p>
+
+        {% else %}
+        <div class="flex flex-wrap items-center">
+            <details>
+                <summary>Přidej vlastní popis, zatím tu žádný není!</summary>
+                <form action="">
+                    <textarea id="w3review" name="w3review" rows="3" cols="50"></textarea>
+                    <br>
+                    <input class="add" type="submit" value="Přidat">
+                </form>
+            </details>
+        </div>
+        {% endif %}
+
+        <!-- SEZNAM KNIH -->
         <div class="card mb-4 d-none d-lg-block">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="card-title font-bold after-h3">Seznam knih</h3>

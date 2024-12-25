@@ -1,0 +1,753 @@
+{% extends "charts/base.html" %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
+
+{% block title %}Žebříčky filmů | DIV.cz{% endblock %}
+
+{% block content %}
+
+<style>
+    .navbar, footer {
+        background: linear-gradient(90deg, #330000 10%, #A52B21 90%);
+    }
+
+    .tab-show.hidden {
+        display: none;
+    }
+
+    .tab-show.active {
+        display: block;
+    }
+
+    .stats-container {
+        padding: 20px;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .label {
+        width: 100px;
+        font-weight: bold;
+    }
+
+    .bar-container {
+        flex-grow: 1;
+        background-color: #d3d3d3; 
+        border-radius: 5px;
+        margin-left: 10px;
+    }
+
+    .bar-movie {
+        height: 20px;
+        background-color: #A52B21;
+        border-radius: 5px;
+    }
+
+    #action-header {
+        cursor: pointer;
+        border-radius: .25rem;
+        padding: 5px 10px;
+        border: 1px solid black;
+    }
+
+    #action-header:is(.dark *) {
+        border: 1px solid #ffffff;
+    }
+
+    .custom-select {
+        position: relative;
+        display: flex;
+        justify-content: flex-end;
+        margin: 10px;
+        text-align: center;
+        min-width: 175px;
+    }
+
+    .select-options {
+        flex-wrap: wrap;
+        position: absolute;
+        background-color: #f9f9f9;
+        box-shadow: 0px 0px 10px 0px #9E9E9E;
+        border-radius: 10px;
+        z-index: 1;
+        right: 0;
+        margin-top: 35px;
+        text-align: left;
+        font-size: small;
+        width: 130px;
+        overflow: scroll;
+        max-height: 400px;
+    }
+
+    .select-options a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        cursor: pointer;
+        width: 100%;
+        transition: 0s;
+    }
+
+    .select-options a:hover {
+        background-color: #A52B21;
+        color: white;
+    }
+
+</style>
+
+<h2 class="w-full"><a href="{% url 'charts_index' %}">Žebříčky</a> / Filmy</h2>
+
+<!-- Podkategorie záložek (hodnocení, herci atd.) -->
+<div class="row mt-5">
+    <ul class="nav nav-tabs overflow-scroll">
+        <li class="nav-tabs-item">
+            <a class="nav-tabs-link border {% if not hash or hash == 'filmy' %}active{% endif %}" href="#filmy" id="tab-filmy">Filmy</a>
+        </li>
+        <li class="nav-tabs-item">
+            <a class="nav-tabs-link border {% if hash == 'serialy' %}active{% endif %}" href="#serialy" id="tab-serialy">Seriály</a>
+        </li>
+        <li class="nav-tabs-item">
+            <a class="nav-tabs-link border {% if hash == 'rezie' %}active{% endif %}" href="#rezie" id="tab-rezie">Režiséři</a>
+        </li>
+        <li class="nav-tabs-item">
+            <a class="nav-tabs-link border {% if hash == 'herci' %}active{% endif %}" href="#herci" id="tab-herci">Herci</a>
+        </li>
+        <li class="nav-tabs-item">
+            <a class="nav-tabs-link border {% if hash == 'zeme' %}active{% endif %}" href="#zeme" id="tab-zeme">Země</a>
+        </li>
+        <li class="nav-tabs-item">
+            <a class="nav-tabs-link border {% if hash == 'zanry' %}active{% endif %}" href="#zanry" id="tab-zanry">Žánry</a>
+        </li>
+    </ul>
+
+    <div class="tab-content w-full mb-3 bg-[#F9F9F9] dark:bg-[#1A161F]">
+
+        <!-- Tab Hodnocení filmů -->
+        <div id="filmy" class="tab-show w-full sx:p-0 {% if not hash or hash == 'filmy' %}active{% else %}hidden{% endif %}">
+            <h3 class="after-h3 sx:padding">Nejlépe hodnocené filmy</h3>
+            <div class="table lg:pr-5">
+                {% for movie in top_movies %}
+                <div class="grid items-center p-1 border charts-grid sudy">
+                    <div>
+                        {% if movie.imgposter %}
+                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.imgposter }}" alt="{{ movie.titlecz }}" style="width: 60px;">
+                        {% else %}
+                        <img src="/static/img/movies/nomovie.jpg" alt="{{ movie.titlecz }}" style="width: 60px;">
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h3 class="p-1">
+                            {{ forloop.counter }}. <a href="{% url 'movie_detail' movie.movieid %}">{{ movie.titlecz }}</a> ({{ movie.releaseyear }})
+                        </h3>
+                        <p class="p-1">Režie: 
+                        {% for director in directors %}
+                            {% if director.movieid.movieid == movie.movieid %}
+                            <a href="{% url 'creator_detail' director.peopleid.url %}">
+                                {{ director.peopleid.firstname }} {{ director.peopleid.lastname }}
+                            </a><!--{% if not forloop.last %}, {% endif %}-->
+                            {% endif %}
+                        {% endfor %}
+                        </p>
+                        <p class="p-1">Země: 
+                        {% for country in countries %}
+                            {% if country.movieid.movieid == movie.movieid %}
+                                {{ country.countryid.countrynamecz }}<!--{% if not forloop.last %}, {% endif %}-->
+                            {% endif %}
+                        {% endfor %}
+                        </p>
+                    </div>
+                    <div class="text-center">
+                        <p>99%</p> <!-- % FILMU-->
+                        <p>10.000</p> <!-- POČET HODNOCENÍ -->
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Tab Hodnocení seriálů -->
+        <div id="serialy" class="tab-show w-full sx:p-0 {% if hash == 'serialy' %}active{% else %}hidden{% endif %}">
+            <h3 class="after-h3 sx:padding">Nejlépe hodnocené seriály</h3>
+            <div class="table lg:pr-5">
+                {% for series in top_series %}
+                <div class="grid items-center p-1 border charts-grid sudy">
+                    <div>
+                    {% if not series.imgposter or series.imgposter == "" %}
+                        <img src="/static/img/creator/noperson.svg" alt="{{ series.title }}" style="width: 60px;">
+                        {% else %}
+                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ series.imgposter }}" alt="{{ series.title }}" style="width: 60px;">
+                    {% endif %}
+                    </div>
+                    <div>
+                        <h3 class="p-1">{{ forloop.counter }}. <a href="{% url 'serie_detail' series.url %}">{{ series.titlecz }}</a> ({{ series.premieredate|date:"Y" }})</h3>
+                        <p class="p-1">Režie: </p>
+                        <p class="p-1">Země: </p>
+                        <!-- <p class="p-1">Průměrné hodnocení: {{series.avg_rating|floatformat:1 }}</p> -->
+                    </div>
+                    <div class="text-center">
+                        <p>99%</p> <!-- % SERIÁLU -->
+                        <p>{{ series.rating_count }}</p> <!-- POČET HODNOCENÍ -->
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Tab Režiséři -->
+        <div id="rezie" class="tab-show w-full sx:p-0 {% if hash == 'rezie' %}active{% else %}hidden{% endif %}">
+            <div class="w-full flex flex-wrap justify-between sx:p-0">
+                <!-- Nejoblíbenější režiséři -->
+                <div class="w-1/2 sm:w-full pr-4 lg:stats-container">
+                    <h3 class="after-h3 sx:padding">Nejoblíbenější režiséři</h3>
+                    <div class="table lg:pr-5">
+                        {% for director in popular_directors %}
+                        <div class="flex items-center p-1 border sudy">
+                            <div>
+                            {% if director.img %}
+                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ director.img }}" alt="{{ director.firstname }} {{ director.lastname }}" style="width: 60px;">
+                            {% else %}
+                                <img src="/static/img/creator/noperson.svg" alt="{{ director.firstname }} {{ director.lastname }}" style="width: 60px;">
+                            {% endif %}
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="p-1">{{ forloop.counter }}. <a href="{% url 'creator_detail' director.url %}">{{ director.firstname }} {{ director.lastname }}</a></h3>
+                                <p class="p-1">Země: {{ director.countryid.countrynamecz }}</p>
+                                <p class="p-1">Počet fanoušků</p>
+                                <!-- <p class="p-1">Popularita: {{ director.popularity }}</p> -->
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Nejoblíbenější režisérky -->
+                <div class="w-1/2 sm:w-full pl-4 sm:mt-10 lg:pl-5">
+                    <h3 class="after-h3 sx:padding">Nejoblíbenější režisérky</h3>
+                    <div class="table lg:pr-5">
+                        {% for director in popular_directresses %}
+                        <div class="flex items-center p-1 border sudy">
+                            <div>
+                                {% if director.img == "noimg.png" %}
+                                    <img src="/static/img/creator/noperson.svg" alt="{{ director.firstname }} {{ director.lastname }}" style="width: 60px;">
+                                {% else %}
+                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ director.img }}" alt="{{ director.firstname }} {{ director.lastname }}" style="width: 60px;">
+                                {% endif %}
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="p-1">{{ forloop.counter }}. <a href="{% url 'creator_detail' director.url %}">{{ director.firstname }} {{ director.lastname }}</a></h3>
+                                <p class="p-1">Země: {{ director.countryid.countrynamecz }}</p>
+                                <p class="p-1">Počet fanoušků</p>
+                                <!-- <p class="p-1">Popularita: {{ director.popularity }}</p> -->
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Herci -->
+        <div id="herci" class="tab-show w-full sx:p-0 {% if hash == 'herci' %}active{% else %}hidden{% endif %}">
+            <div class="w-full flex flex-wrap justify-between sx:p-0">
+                <!-- Levý sloupec: Nejoblíbenější herci -->
+                <div class="w-1/2 sm:w-full pr-4 lg:stats-container">
+                    <h3 class="after-h3 sx:padding">Nejoblíbenější herci</h3>
+                    <div class="table lg:pr-5">
+                        {% for actor in popular_actors %}
+                        <div class="flex items-center p-1 border sudy">
+                            <div>
+                                {% if not actor.img or actor.img == "" %}
+                                <img src="/static/img/creator/noperson.svg" alt="{{ actor.firstname }} {{ actor.lastname }}" style="width: 60px;">
+                                {% else %}
+                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ actor.img }}" alt="{{ actor.firstname }} {{ actor.lastname }}" style="width: 60px;">
+                                {% endif %}
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="p-1">{{ forloop.counter }}. <a href="{% url 'creator_detail' actor.creatorid %}">{{ actor.firstname }} {{ actor.lastname }}</a></h3>
+                                <p class="p-1">Země: {{ actor.countryid.countrynamecz }}</p>
+                                <p class="p-1">Počet fanoušků</p>
+                                <!-- <p class="p-1">Popularita: {{ actor.popularity }}</p> -->
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Pravý sloupec: Nejoblíbenější herečky -->
+                <div class="w-1/2 sm:w-full pl-4 sm:mt-10 lg:pl-5">
+                    <h3 class="after-h3 sx:padding">Nejoblíbenější herečky</h3>
+                    <div class="table lg:pr-5">
+                        {% for actress in popular_actresses %}
+                        <div class="flex items-center p-1 border sudy">
+                            <div>
+                                {% if not actress.img or actress.img == "" %}
+                                <img src="/static/img/creator/noperson.svg" alt="{{ actress.firstname }} {{ actress.lastname }}" style="width: 60px;">
+                                {% else %}
+                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ actress.img }}" alt="{{ actress.firstname }} {{ actress.lastname }}" style="width: 60px;">
+                                {% endif %}
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="p-1">{{ forloop.counter }}. <a href="{% url 'creator_detail' actress.creatorid %}">{{ actress.firstname }} {{ actress.lastname }}</a></h3>
+                                <p class="p-1">Země: {{ actress.countryid.countrynamecz }}</p>
+                                <p class="p-1">Počet fanoušků</p>
+                                <!-- <p class="p-1">Popularita: {{ actress.popularity }}</p> -->
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Země -->
+        <div id="zeme" class="tab-show w-full sx:p-0 {% if hash == 'zeme' %}active{% else %}hidden{% endif %}">
+            <div class="w-full flex flex-wrap justify-between sm:p-5">
+                <!-- Levý sloupec: Nejoblíbenější země -->
+                <div class="w-1/2 sm:w-full pr-4 lg:stats-container">
+                    <h3 class="after-h3">Nejoblíbenější země</h3>
+                    <div class="table lg:pr-5">
+                        <div class="stat-item">
+                            <span class="label">USA</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">60%</p>
+                                <div class="bar-movie" style="width: 60%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Francie</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">12%</p>
+                                <div class="bar-movie" style="width: 12%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Německo</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">10%</p>
+                                <div class="bar-movie" style="width: 10%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Japonsko</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">9%</p>
+                                <div class="bar-movie" style="width: 9%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Velká Británie</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">9%</p>
+                                <div class="bar-movie" style="width: 9%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Španělsko</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">7%</p>
+                                <div class="bar-movie" style="width: 7%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Indie</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">5%</p>
+                                <div class="bar-movie" style="width: 5%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Kanada</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">5%</p>
+                                <div class="bar-movie" style="width: 5%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Itálie</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">5%</p>
+                                <div class="bar-movie" style="width: 5%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Brazílie</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">4%</p>
+                                <div class="bar-movie" style="width: 4%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pravý sloupec: Země podle počtu filmů -->
+                <div class="w-1/2 sm:w-full pl-4 sm:mt-10 flex flex-wrap content-start">
+                    <h3 class="after-h3 lg:pl-5 w-full">Země podle počtu filmů</h3>
+                    <div class="table lg:pr-5 w-full lg:pl-5">
+                        <div class="stat-item">
+                            <span class="label">USA</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">529953</p>
+                                <div class="bar-movie" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Francie</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">65869</p>
+                                <div class="bar-movie" style="width: 12%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Německo</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">54872</p>
+                                <div class="bar-movie" style="width: 10%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Japonsko</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">51021</p>
+                                <div class="bar-movie" style="width: 9%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Velká Británie</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">48853</p>
+                                <div class="bar-movie" style="width: 9%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Španělsko</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">36197</p>
+                                <div class="bar-movie" style="width: 7%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Indie</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">27067</p>
+                                <div class="bar-movie" style="width: 5%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Kanada</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">26000</p>
+                                <div class="bar-movie" style="width: 5%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Itálie</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">25676</p>
+                                <div class="bar-movie" style="width: 5%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Brazílie</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">24186</p>
+                                <div class="bar-movie" style="width: 4%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Žánry -->
+        <div id="zanry" class="tab-show w-full sx:p-0 {% if hash == 'zanry' %}active{% else %}hidden{% endif %}">
+            <div class="w-full flex flex-wrap justify-between sx:p-0">
+                <!-- Levý sloupec: Nejoblíbenější -->
+                <div class="w-1/2 sm:w-full pr-4 lg:stats-container">
+                    <h3 class="after-h3 sx:padding">Top 10 ze žánru</h3>
+                    <div class="table lg:pr-5">
+
+                        <!-- Výběr žánru -->
+                        <div class="custom-select" style="min-width: auto; margin: 10px;" onclick="toggleDropdown(event)">
+                            <span id="action-header" style="padding: 0 5px;">Vyber žánr<i style="font-size: small;" class="fas fa-chevron-down ml-2"></i></span>
+                            <div id="action-dropdown" class="select-options" style="display: none;">
+                                {% for genre, movies in genre_movies.items %}
+                                <a href="javascript:void(0);" onclick="filterMovies('{{ genre }}')">{{ genre }}</a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Filmy podle žánru -->
+                        <div id="movies-list">
+                            {% for genre, movies in genre_movies.items %}
+                                <div id="movies-{{ genre }}" class="movie-group hidden">
+                                    {% for movie in movies %}
+                                    <div class="flex items-center p-1 border sudy">
+                                        <div>
+                                            {% if movie.imgposter %}
+                                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.imgposter }}" alt="{{ movie.title }}" style="width: 60px;">
+                                            {% else %}
+                                            <img src="/static/img/movie/nomovie.jpg" alt="{{ movie.title }}" style="width: 60px;">
+                                            {% endif %}
+                                        </div>
+                                        <div class="ml-3">
+                                            <h3>
+                                                <a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a>
+                                            </h3>
+                                            <h4 class="p-1">{{ movie.releaseyear }}</h4>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <script>
+                            // Skript pro změnu obsahu podle žánru
+                            function filterMovies(genre) {
+                                document.querySelectorAll('.movie-group').forEach(group => group.classList.add('hidden'));
+                                document.getElementById(`movies-${genre}`).classList.remove('hidden');
+                                document.getElementById('action-header').textContent = genre; // Aktualizace zobrazeného žánru
+                            }
+                        
+                            // Nastavit výchozí zobrazení
+                            document.addEventListener('DOMContentLoaded', () => {
+                                const defaultGenre = "Akční"; // Nastaví první žánr jako výchozí
+                                filterMovies(defaultGenre);
+                            });
+                        
+                            // Zobrazení/skrývání dropdown menu
+                            function toggleDropdown(event) {
+                                const dropdown = document.getElementById('action-dropdown');
+                                dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+                                event.stopPropagation();
+                            }
+                        
+                            // Zavřít dropdown, když uživatel klikne mimo
+                            document.addEventListener('click', function () {
+                                const dropdown = document.getElementById('action-dropdown');
+                                if (dropdown) dropdown.style.display = 'none';
+                            });
+                        </script>
+
+                    </div>
+                </div>
+
+                <!-- Pravý sloupec: Nejvíce filmů -->
+                <div class="w-1/2 sm:w-full sm:p-5 pl-4 sm:mt-10 flex flex-wrap content-start">
+                    <h3 class="after-h3 lg:pl-5 w-full">Žánry podle počtu filmů</h3>
+                    <div class="table lg:pr-5 w-full lg:pl-5">
+                        <div class="stat-item">
+                            <span class="label">Drama</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">240912</p>
+                                <div class="bar-movie" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Dokumentární</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">177245</p>
+                                <div class="bar-movie" style="width: 73%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Komedie</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">145968</p>
+                                <div class="bar-movie" style="width: 61%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Rodinný</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">29017</p>
+                                <div class="bar-movie" style="width: 12%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Fantasy</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">24364</p>
+                                <div class="bar-movie" style="width: 10%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Akční</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">45457</p>
+                                <div class="bar-movie" style="width: 19%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Krimi</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">35545</p>
+                                <div class="bar-movie" style="width: 15%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Animovaný</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">60223</p>
+                                <div class="bar-movie" style="width: 25%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Dobrodružný</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">24143</p>
+                                <div class="bar-movie" style="width: 10%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Historický</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">18036</p>
+                                <div class="bar-movie" style="width: 8%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-full mt-10 lg:pl-5">
+                        <h3 class="after-h3">Nejoblíbenější žánry</h3>
+                        <div class="table lg:pr-5">
+                            <div class="stat-item">
+                                <span class="label">Drama</span>
+                                <div class="bar-container flex justify-between flex-row-reverse">
+                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">85%</p>
+                                    <div class="bar-movie" style="width: 85%;"></div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="label">Komedie</span>
+                                <div class="bar-container flex justify-between flex-row-reverse">
+                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">78%</p>
+                                    <div class="bar-movie" style="width: 78%;"></div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="label">Akční</span>
+                                <div class="bar-container flex justify-between flex-row-reverse">
+                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">72%</p>
+                                    <div class="bar-movie" style="width: 72%;"></div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="label">Krimi</span>
+                                <div class="bar-container flex justify-between flex-row-reverse">
+                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">66%</p>
+                                    <div class="bar-movie" style="width: 66%;"></div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="label">Fantasy</span>
+                                <div class="bar-container flex justify-between flex-row-reverse">
+                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">62%</p>
+                                    <div class="bar-movie" style="width: 62%;"></div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="label">Thriller</span>
+                                <div class="bar-container flex justify-between flex-row-reverse">
+                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">59%</p>
+                                    <div class="bar-movie" style="width: 59%;"></div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="label">Sci-fi</span>
+                                <div class="bar-container flex justify-between flex-row-reverse">
+                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">54%</p>
+                                    <div class="bar-movie" style="width: 54%;"></div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="label">Romantika</span>
+                                <div class="bar-container flex justify-between flex-row-reverse">
+                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">50%</p>
+                                    <div class="bar-movie" style="width: 50%;"></div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="label">Horor</span>
+                                <div class="bar-container flex justify-between flex-row-reverse">
+                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">45%</p>
+                                    <div class="bar-movie" style="width: 45%;"></div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="label">Historický</span>
+                                <div class="bar-container flex justify-between flex-row-reverse">
+                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">40%</p>
+                                    <div class="bar-movie" style="width: 40%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Funkce na aktivaci konkrétního tabu
+            function activateTab(tabId) {
+                document.querySelectorAll('.tab-show').forEach(tabContent => {
+                    tabContent.classList.add('hidden'); // Schovat všechny taby
+                    tabContent.classList.remove('active'); // Deaktivovat všechny taby
+                });
+                document.querySelectorAll('.nav-tabs-link').forEach(tab => {
+                    tab.classList.remove('active'); // Deaktivovat všechny odkazy
+                });
+                const targetTab = tabId.replace('tab-', '');
+                document.getElementById(targetTab).classList.add('active');
+                document.getElementById(targetTab).classList.remove('hidden');
+                document.getElementById('tab-' + targetTab).classList.add('active');
+            }
+
+        // Kontrola, jestli je v URL fragment (část po #)
+        const hash = window.location.hash.substring(1);  // Získá fragment bez #
+        if (hash) {
+            activateTab('tab-' + hash);  // Aktivuje příslušný tab
+        }
+
+        // Přepínání tabů po kliknutí
+        document.querySelectorAll('.nav-tabs-link').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetTab = this.getAttribute('id');
+                activateTab(targetTab);
+                // Aktualizace URL bez reloadu stránky
+                history.pushState(null, null, '#' + targetTab.replace('tab-', ''));
+            });
+        });
+    });
+
+    // Funkce pro zobrazení/skrytí roletového menu po kliknutí na text "Akce"
+    function toggleDropdown(event) {
+        var dropdown = document.getElementById('action-dropdown');
+        dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+        
+        // Zastavíme šíření události, abychom zabránili jejímu zachycení dokumentem
+        event.stopPropagation();
+    }
+
+    // Funkce pro zavření nabídky, pokud uživatel klikne někam mimo pole
+    document.addEventListener('click', function(event) {
+        var dropdown = document.getElementById('action-dropdown');
+        if (!dropdown.contains(event.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+</script>
+
+{% endblock %}

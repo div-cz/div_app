@@ -20,6 +20,7 @@ from collections import defaultdict
 USERLISTTYPE_FAV_CREATOR_ID = 25 # Oblíbený tvůrce
 USERLISTTYPE_WATCHED_MOVIES = 3 # Shlédnuto
 CONTENTTYPE_CREATOR_ID = 15
+CONTENTTYPE_MOVIE_ID = 33
 
 
 def creators_list(request):
@@ -32,7 +33,9 @@ def creators_list(request):
 def creator_detail(request, creator_url):
     creator = get_object_or_404(Creator, url=creator_url)
 
-    current_creator = Creator.objects.get(url=creator_url)
+    # current_creator = Creator.objects.get(url=creator_url)
+    current_creator = Creator.objects.select_related("countryid").get(url=creator_url)
+
     creatorbiography = Creatorbiography.objects.filter(creator=creator, verificationstatus="Verified").first()
     
     top_10_creators = Creator.objects.all().order_by('-popularity')[:10]
@@ -70,7 +73,7 @@ def creator_detail(request, creator_url):
         content_type=content_type
     ).select_related("userlist")
 
-    movie_content_type = ContentType.objects.get(id=33)
+    movie_content_type = ContentType.objects.get(id=CONTENTTYPE_MOVIE_ID)
     userlisttype = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_WATCHED_MOVIES)
 
     filmography_query = Moviecrew.objects.filter(

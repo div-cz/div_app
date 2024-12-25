@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+    <head>
+
+        {% include "inc/head.html" %}
+
+        <title>Chat</title>
+
+        <link href="/static/css/chat.css" rel="stylesheet" type="text/css">
+        <link href="/static/css/navbar_other.css" rel="stylesheet">
+
+    </head>
+
+    <body class="bg-[#FFFFFF] text-[#0d0c0f] dark:bg-[#0d0c0f] dark:text-[#F9F9F9] d-flex flex-column min-vh-100">
+
+        {% include "inc/navbar.html" %}
+
+        <main class="flex-grow-1">
+            <aside class="lg:min-w-[200px] max-h-full bg-light dark:bg-[#1A161F] hidden">
+                <div class="">
+                    <div class="flex gap-4 mb-3 py-4">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 sun cursor-pointer ">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                        </svg>
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 moon cursor-pointer ">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                        </svg>
+                    </div>
+                </div>
+            </aside>
+    
+            <div class="row w-4/5 sm:my-4 sm:my-0 mx-auto">
+                <div class="col-lg-4 px-0">
+                    <div class="users-container">
+                        <div class="chat-search-box">
+                            <div class="input-group flex justify-center">
+                                <input placeholder="Search">
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-info">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <ul class="users flex lg:flex-wrap">
+                            {% for chat_session in all_chat_sessions %}
+                                {% if chat_session.messages.last %}
+                                    {% if chat_session.user1 == request.user %}
+                                    <a 
+                                    class="person w-full {% if chat_session.user2.id == receiver.id %}active-user{% endif %}" 
+                                    href="{% url 'chat_message' user_id=chat_session.user2.id %}">
+                                        <li class="flex items-center" data-chat="person1">
+                                            <div class="msg-user">
+                                                <img src="/static/img/avatar/{{ chat_session.user2.userprofile.avatar.imagepath}}" alt="Avatar">
+                                            </div>
+                                            <div class="name-time flex flex-wrap w-full">
+                                                <div class="flex justify-between w-full">
+                                                    <p class="name w-full">{{ chat_session.user2.username }}</p>
+                                                    {% if not chat_session.messages.last.isread and request.user != chat_session.messages.last.sender  %}
+                                                    <i class="fa-regular fa-envelope" style="color: red; font-size: 20px; margin: 0;"></i>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="flex flex-wrap lg:w-full justify-between">
+                                                    <p class="date w-full">{{ chat_session.messages.last.sentat|date:"j. F Y" }}</p>
+                                                    <p class="time w-full">{{ chat_session.messages.last.sentat | time:"H:i" }}</p>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </a>
+                                    {% else %}
+                                    <a 
+                                    class="person w-full {% if chat_session.user2.id == receiver.id %}active-user{% endif %}" 
+                                    href="{% url 'chat_message' user_id=chat_session.user1.id %}">
+                                        <li class="flex items-center" data-chat="person1">
+                                            <div class="msg-user">
+                                                <img src="/static/img/avatar/{{ chat_session.user1.userprofile.avatar.imagepath}}" alt="Avatar">
+                                            </div>
+                                            <div class="name-time flex flex-wrap w-full">
+                                                <div class="flex justify-between w-full">
+                                                    <p class="name w-full">{{ chat_session.user1.username }}</p>
+                                                    {% if not chat_session.messages.last.isread and request.user != chat_session.messages.last.sender  %}
+                                                    <i class="fa-regular fa-envelope" style="color: red; font-size: 20px; margin: 0;"></i>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="flex flex-wrap lg:w-full justify-between">
+                                                    <p class="date w-full">{{ chat_session.messages.last.sentat|date:"j. F Y" }}</p>
+                                                    <p class="time w-full">{{ chat_session.messages.last.sentat | time:"H:i" }}</p>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </a>    
+                                    {% endif %}
+                                {% endif %}                    
+                            {% endfor %}
+
+                        </ul>
+                    </div>
+                </div>
+    
+                <div class="col-lg-8 px-0">
+                    <div class="flex items-center selected-user sm:hidden">
+                        <div class="chat-avatar">
+                            <!-- <img src="/static/img/avatar/avatar03.jpg" alt="Avatar"> -->
+                        </div>
+                        <span class="name"></span>
+                    </div>
+                    <div class="chat-container pr-0">
+                        <img src="/static/img/chat/bg-chat.webp" alt="logo div" style="height: 100%; margin: 0 auto; filter: blur(2px);">
+                    </div>
+                </div>
+            </div>
+        </main>
+    
+        {% include "inc/footer.html" %}
+    
+        <script src="/static/js/script.js"></script>
+    
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const users = document.querySelectorAll('.person');
+                const chatBoxes = document.querySelectorAll('.chat-box');
+            
+                users.forEach(user => {
+                    user.addEventListener('click', function () {
+                        // Zrušení aktuálního aktivního stavu
+                        document.querySelector('.person.active-user')?.classList.remove('active-user');
+                        document.querySelector('.chat-box.active-chat')?.classList.remove('active-chat');
+            
+                        // Nastavení nového aktivního stavu
+                        this.classList.add('active-user');
+                        const chatId = this.getAttribute('data-chat');
+                        const chatBox = document.querySelector(`.chat-box[data-chat="${chatId}"]`);
+                        chatBox.classList.add('active-chat');
+                    });
+                });
+            });
+        </script>
+
+    </body>
+</html>
