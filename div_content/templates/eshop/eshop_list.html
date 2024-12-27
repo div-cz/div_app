@@ -1,0 +1,262 @@
+{% extends "eshop/base.html" %}
+{% load humanize %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
+
+{% block title %}Eshop | DIV.cz{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"/>
+
+<script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
+
+<div class="row container my-4">
+    <!-- Hlavní obsah (Levý sloupec) -->
+    <div class="w-full px-4"> <!-- col-lg-8 -->
+        
+        <h1>e-shop v přípravě</h1>
+
+        <h2 class="card-title">Nejprodávanější</h2>
+
+        <div class="flex flex-wrap gap-2">
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <img src="https://books.google.com/books/content?id=a8T5EAAAQBAJ&printsec=frontcover&img=1&zoom=3&edge=curl&source=gbs_api">
+                    </div>
+                    <div class="flip-card-back">
+                        <div>
+                            <h1 class="title">Martin Úbl</h1>
+                            <h3>Stezka Českem</h3>
+                            <h4>2024</h4>
+                        </div>
+                        <div class="card-footer">
+                            <span class="text-title">99.99,- Kč</span>
+                            <a class="card-button">
+                                <svg class="svg-icon" viewBox="0 0 20 20">
+                                <path d="M17.72,5.011H8.026c-0.271,0-0.49,0.219-0.49,0.489c0,0.271,0.219,0.489,0.49,0.489h8.962l-1.979,4.773H6.763L4.935,5.343C4.926,5.316,4.897,5.309,4.884,5.286c-0.011-0.024,0-0.051-0.017-0.074C4.833,5.166,4.025,4.081,2.33,3.908C2.068,3.883,1.822,4.075,1.795,4.344C1.767,4.612,1.962,4.853,2.231,4.88c1.143,0.118,1.703,0.738,1.808,0.866l1.91,5.661c0.066,0.199,0.252,0.333,0.463,0.333h8.924c0.116,0,0.22-0.053,0.308-0.128c0.027-0.023,0.042-0.048,0.063-0.076c0.026-0.034,0.063-0.058,0.08-0.099l2.384-5.75c0.062-0.151,0.046-0.323-0.045-0.458C18.036,5.092,17.883,5.011,17.72,5.011z"></path>
+                                <path d="M8.251,12.386c-1.023,0-1.856,0.834-1.856,1.856s0.833,1.853,1.856,1.853c1.021,0,1.853-0.83,1.853-1.853S9.273,12.386,8.251,12.386z M8.251,15.116c-0.484,0-0.877-0.393-0.877-0.874c0-0.484,0.394-0.878,0.877-0.878c0.482,0,0.875,0.394,0.875,0.878C9.126,14.724,8.733,15.116,8.251,15.116z"></path>
+                                <path d="M13.972,12.386c-1.022,0-1.855,0.834-1.855,1.856s0.833,1.853,1.855,1.853s1.854-0.83,1.854-1.853S14.994,12.386,13.972,12.386z M13.972,15.116c-0.484,0-0.878-0.393-0.878-0.874c0-0.484,0.394-0.878,0.878-0.878c0.482,0,0.875,0.394,0.875,0.878C14.847,14.724,14.454,15.116,13.972,15.116z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <img src="https://books.google.com/books/content?id=a8T5EAAAQBAJ&printsec=frontcover&img=1&zoom=3&edge=curl&source=gbs_api">
+                    </div>
+                    <div class="flip-card-back">
+                        <div>
+                            <h1 class="title">Martin Úbl</h1>
+                            <h3>Stezka Českem</h3>
+                            <h4>2024</h4>
+                        </div>
+                        <div class="card-footer">
+                            <span class="text-title">99.99,- Kč</span>
+                            <a class="card-button">
+                                <svg class="svg-icon" viewBox="0 0 20 20">
+                                <path d="M17.72,5.011H8.026c-0.271,0-0.49,0.219-0.49,0.489c0,0.271,0.219,0.489,0.49,0.489h8.962l-1.979,4.773H6.763L4.935,5.343C4.926,5.316,4.897,5.309,4.884,5.286c-0.011-0.024,0-0.051-0.017-0.074C4.833,5.166,4.025,4.081,2.33,3.908C2.068,3.883,1.822,4.075,1.795,4.344C1.767,4.612,1.962,4.853,2.231,4.88c1.143,0.118,1.703,0.738,1.808,0.866l1.91,5.661c0.066,0.199,0.252,0.333,0.463,0.333h8.924c0.116,0,0.22-0.053,0.308-0.128c0.027-0.023,0.042-0.048,0.063-0.076c0.026-0.034,0.063-0.058,0.08-0.099l2.384-5.75c0.062-0.151,0.046-0.323-0.045-0.458C18.036,5.092,17.883,5.011,17.72,5.011z"></path>
+                                <path d="M8.251,12.386c-1.023,0-1.856,0.834-1.856,1.856s0.833,1.853,1.856,1.853c1.021,0,1.853-0.83,1.853-1.853S9.273,12.386,8.251,12.386z M8.251,15.116c-0.484,0-0.877-0.393-0.877-0.874c0-0.484,0.394-0.878,0.877-0.878c0.482,0,0.875,0.394,0.875,0.878C9.126,14.724,8.733,15.116,8.251,15.116z"></path>
+                                <path d="M13.972,12.386c-1.022,0-1.855,0.834-1.855,1.856s0.833,1.853,1.855,1.853s1.854-0.83,1.854-1.853S14.994,12.386,13.972,12.386z M13.972,15.116c-0.484,0-0.878-0.393-0.878-0.874c0-0.484,0.394-0.878,0.878-0.878c0.482,0,0.875,0.394,0.875,0.878C14.847,14.724,14.454,15.116,13.972,15.116z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <img src="https://books.google.com/books/content?id=a8T5EAAAQBAJ&printsec=frontcover&img=1&zoom=3&edge=curl&source=gbs_api">
+                    </div>
+                    <div class="flip-card-back">
+                        <div>
+                            <h1 class="title">Martin Úbl</h1>
+                            <h3>Stezka Českem</h3>
+                            <h4>2024</h4>
+                        </div>
+                        <div class="card-footer">
+                            <span class="text-title">99.99,- Kč</span>
+                            <a class="card-button">
+                                <svg class="svg-icon" viewBox="0 0 20 20">
+                                <path d="M17.72,5.011H8.026c-0.271,0-0.49,0.219-0.49,0.489c0,0.271,0.219,0.489,0.49,0.489h8.962l-1.979,4.773H6.763L4.935,5.343C4.926,5.316,4.897,5.309,4.884,5.286c-0.011-0.024,0-0.051-0.017-0.074C4.833,5.166,4.025,4.081,2.33,3.908C2.068,3.883,1.822,4.075,1.795,4.344C1.767,4.612,1.962,4.853,2.231,4.88c1.143,0.118,1.703,0.738,1.808,0.866l1.91,5.661c0.066,0.199,0.252,0.333,0.463,0.333h8.924c0.116,0,0.22-0.053,0.308-0.128c0.027-0.023,0.042-0.048,0.063-0.076c0.026-0.034,0.063-0.058,0.08-0.099l2.384-5.75c0.062-0.151,0.046-0.323-0.045-0.458C18.036,5.092,17.883,5.011,17.72,5.011z"></path>
+                                <path d="M8.251,12.386c-1.023,0-1.856,0.834-1.856,1.856s0.833,1.853,1.856,1.853c1.021,0,1.853-0.83,1.853-1.853S9.273,12.386,8.251,12.386z M8.251,15.116c-0.484,0-0.877-0.393-0.877-0.874c0-0.484,0.394-0.878,0.877-0.878c0.482,0,0.875,0.394,0.875,0.878C9.126,14.724,8.733,15.116,8.251,15.116z"></path>
+                                <path d="M13.972,12.386c-1.022,0-1.855,0.834-1.855,1.856s0.833,1.853,1.855,1.853s1.854-0.83,1.854-1.853S14.994,12.386,13.972,12.386z M13.972,15.116c-0.484,0-0.878-0.393-0.878-0.874c0-0.484,0.394-0.878,0.878-0.878c0.482,0,0.875,0.394,0.875,0.878C14.847,14.724,14.454,15.116,13.972,15.116z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <img src="https://books.google.com/books/content?id=a8T5EAAAQBAJ&printsec=frontcover&img=1&zoom=3&edge=curl&source=gbs_api">
+                    </div>
+                    <div class="flip-card-back">
+                        <div>
+                            <h1 class="title">Martin Úbl</h1>
+                            <h3>Stezka Českem</h3>
+                            <h4>2024</h4>
+                        </div>
+                        <div class="card-footer">
+                            <span class="text-title">99.99,- Kč</span>
+                            <a class="card-button">
+                                <svg class="svg-icon" viewBox="0 0 20 20">
+                                <path d="M17.72,5.011H8.026c-0.271,0-0.49,0.219-0.49,0.489c0,0.271,0.219,0.489,0.49,0.489h8.962l-1.979,4.773H6.763L4.935,5.343C4.926,5.316,4.897,5.309,4.884,5.286c-0.011-0.024,0-0.051-0.017-0.074C4.833,5.166,4.025,4.081,2.33,3.908C2.068,3.883,1.822,4.075,1.795,4.344C1.767,4.612,1.962,4.853,2.231,4.88c1.143,0.118,1.703,0.738,1.808,0.866l1.91,5.661c0.066,0.199,0.252,0.333,0.463,0.333h8.924c0.116,0,0.22-0.053,0.308-0.128c0.027-0.023,0.042-0.048,0.063-0.076c0.026-0.034,0.063-0.058,0.08-0.099l2.384-5.75c0.062-0.151,0.046-0.323-0.045-0.458C18.036,5.092,17.883,5.011,17.72,5.011z"></path>
+                                <path d="M8.251,12.386c-1.023,0-1.856,0.834-1.856,1.856s0.833,1.853,1.856,1.853c1.021,0,1.853-0.83,1.853-1.853S9.273,12.386,8.251,12.386z M8.251,15.116c-0.484,0-0.877-0.393-0.877-0.874c0-0.484,0.394-0.878,0.877-0.878c0.482,0,0.875,0.394,0.875,0.878C9.126,14.724,8.733,15.116,8.251,15.116z"></path>
+                                <path d="M13.972,12.386c-1.022,0-1.855,0.834-1.855,1.856s0.833,1.853,1.855,1.853s1.854-0.83,1.854-1.853S14.994,12.386,13.972,12.386z M13.972,15.116c-0.484,0-0.878-0.393-0.878-0.874c0-0.484,0.394-0.878,0.878-0.878c0.482,0,0.875,0.394,0.875,0.878C14.847,14.724,14.454,15.116,13.972,15.116z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <img src="https://books.google.com/books/content?id=a8T5EAAAQBAJ&printsec=frontcover&img=1&zoom=3&edge=curl&source=gbs_api">
+                    </div>
+                    <div class="flip-card-back">
+                        <div>
+                            <h1 class="title">Martin Úbl</h1>
+                            <h3>Stezka Českem</h3>
+                            <h4>2024</h4>
+                        </div>
+                        <div class="card-footer">
+                            <span class="text-title">99.99,- Kč</span>
+                            <a class="card-button">
+                                <svg class="svg-icon" viewBox="0 0 20 20">
+                                <path d="M17.72,5.011H8.026c-0.271,0-0.49,0.219-0.49,0.489c0,0.271,0.219,0.489,0.49,0.489h8.962l-1.979,4.773H6.763L4.935,5.343C4.926,5.316,4.897,5.309,4.884,5.286c-0.011-0.024,0-0.051-0.017-0.074C4.833,5.166,4.025,4.081,2.33,3.908C2.068,3.883,1.822,4.075,1.795,4.344C1.767,4.612,1.962,4.853,2.231,4.88c1.143,0.118,1.703,0.738,1.808,0.866l1.91,5.661c0.066,0.199,0.252,0.333,0.463,0.333h8.924c0.116,0,0.22-0.053,0.308-0.128c0.027-0.023,0.042-0.048,0.063-0.076c0.026-0.034,0.063-0.058,0.08-0.099l2.384-5.75c0.062-0.151,0.046-0.323-0.045-0.458C18.036,5.092,17.883,5.011,17.72,5.011z"></path>
+                                <path d="M8.251,12.386c-1.023,0-1.856,0.834-1.856,1.856s0.833,1.853,1.856,1.853c1.021,0,1.853-0.83,1.853-1.853S9.273,12.386,8.251,12.386z M8.251,15.116c-0.484,0-0.877-0.393-0.877-0.874c0-0.484,0.394-0.878,0.877-0.878c0.482,0,0.875,0.394,0.875,0.878C9.126,14.724,8.733,15.116,8.251,15.116z"></path>
+                                <path d="M13.972,12.386c-1.022,0-1.855,0.834-1.855,1.856s0.833,1.853,1.855,1.853s1.854-0.83,1.854-1.853S14.994,12.386,13.972,12.386z M13.972,15.116c-0.484,0-0.878-0.393-0.878-0.874c0-0.484,0.394-0.878,0.878-0.878c0.482,0,0.875,0.394,0.875,0.878C14.847,14.724,14.454,15.116,13.972,15.116z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row my-4">
+            <div class="grid grid-cols-1 gap-2">
+
+            aaa
+
+            </div>
+        </div>
+
+    </div>
+    
+    <!-- Pravý sloupec -->
+    <!-- <div class="col-lg-4 article-section mt-5">
+        <div class="card mb-4">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                <h3 class="card-title after-h3 font-bold">Nejprodávanější</h3>
+                <ul class="w-full" style="list-style-type:none">
+                    <li><a href="https://test.div.cz/kniha/sikmy-kostel-3">Šikmý kostel 3</a></li>
+                    <li><a href="https://test.div.cz/kniha/ctvrte-kridlo">Čtvrté křídlo</a></li>
+                    <li><a href="https://test.div.cz/kniha/murtagh">Murtagh</a></li>
+                    <li>Duše národa</li>
+                    <li>Lovec přízraků</li>
+                    <li>Sedm schodů k moci</li>
+                    <li>Duna - retro vydání</li>
+                </ul>
+            </div>
+        </div>
+
+        <div>
+            <div class="card mb-4">
+                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                    <h3 class="card-title font-bold after-h3">Články</h3>
+                    <ul>
+                        <li><a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury">Magnesia Litera 2024</a></li>
+                        <li><a href="https://div.cz/literarni-cena-skleneny-klic-glasnyckeln">Skleněný klíč</a></li>
+                        <li><a href="/odhaleni-kouzla-slova-nobelova-cena-za-literaturu">Nobelova cena za literaturu</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                    <h3 class="card-title font-bold after-h3">Autoři měsíce</h3>
+                    <ul>
+                        <li><a href="https://test.div.cz/autor/karin-lednicka">Karin Lednická</a></li>
+                        <li><a href="https://test.div.cz/autor/christopher-paolini">Christopher Paolini</a></li>
+                        <li><a href="https://test.div.cz/autor/jo-nesbo">Jo Nesbø</a></li>
+                        <li><a href="https://test.div.cz/autor/rebecca-yarros">Rebecca Yarros</a></li>
+                        <li><a href="https://test.div.cz/autor/robert-bryndza">Robert Bryndza</a></li>
+                        <li><a href="https://test.div.cz/autor/orson-welles">Orson Welles</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                    <h3 class="card-title font-bold after-h3">Žánry</h3>
+                    <div>
+                        <a href="/knihy/biografie">Biografie</a> |
+                        <a href="/knihy/cestovni">Cestovní</a> |
+                        <a href="/knihy/detektivni">Detektivní</a> |
+                        <a href="/knihy/dobrodruzne">Dobrodružné</a> |
+                        <a href="/knihy/duchovni literatura">Duchovní literatura</a> |
+                        <a href="/knihy/detske">Dětské</a> |
+                        <a href="/knihy/eroticke">Erotické</a> |
+                        <a href="/knihy/fantasy">Fantasy</a> | 
+                        <a href="/knihy/historie">Historie</a> | 
+                        <a href="/knihy/horor">Horor</a> |
+                        <a href="/knihy/humorne">Humorné</a> |
+                        <a href="/knihy/komiks">Komiks</a> |
+                        <a href="/knihy/literatura faktu">Literatura faktu</a> |
+                        <a href="/knihy/naucna">Naučná</a> |
+                        <a href="/knihy/odborna">Odborná</a> |
+                        <a href="/knihy/poezie">Poezie</a> |
+                        <a href="/knihy/pohadky">Pohádky</a> |
+                        <a href="/knihy/popularne naucne">Populárně-naučné</a> |
+                        <a href="/knihy/povidky">Povídky</a> |
+                        <a href="/knihy/pro mladez">Pro mládež</a> |
+                        <a href="/knihy/psychologicky">Psychologický</a> |
+                        <a href="/knihy/romanticke">Romantické</a> |
+                        <a href="/knihy/roman">Román</a> |
+                        <a href="/knihy/sci-fi">Sci-fi</a> |
+                        <a href="/knihy/sportovni">Sportovní</a> |
+                        <a href="/knihy/thriller">Thriller</a> |
+                        <a href="/knihy/umeni">Umění</a> |
+                        <a href="/knihy/valecne">Válečné</a> |
+                        <a href="/knihy/western">Western</a> |
+                        <a href="/knihy/young adult">Young adult</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                    <h3 class="card-title font-bold after-h3">V databázi máme:</h3>
+                    <ul>
+                        <li><p>{{ stats_book.value|intcomma }} knih</p></li>
+                        <li><p>{{ stats_writters.value|intcomma }} spisovatelů</p></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div> -->
+</div>
+
+
+
+{% endblock %}

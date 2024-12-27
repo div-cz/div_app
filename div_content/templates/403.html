@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+    <head>
+
+        {% include "inc/head.html" %}
+
+        <title>Přístup odepřen</title>
+
+        <link href="/static/css/index.css" rel="stylesheet">
+
+        <style>
+            main {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+
+            .warning-card {
+                display: flex;
+                flex-wrap: wrap;
+                width: 400px;
+                border: 4px solid #000;
+                border-radius: 10px;
+                background-color: #fff;
+                padding: 1.5rem;
+                box-shadow: 0 0 25px rgba(255, 0, 0, 0.6);
+                font-family: "Arial", sans-serif;
+                animation: blink 1s infinite;
+            }
+
+            /* @keyframes definující blikání */
+            @keyframes blink {
+                0% {
+                    box-shadow: 0 0 20px rgba(219, 0, 0, 0.6);
+                }
+                50% {
+                    box-shadow: 0 0 40px rgba(219, 0, 0, 0.9);
+                }
+                100% {
+                    box-shadow: 0 0 20px rgba(219, 0, 0, 0.6);
+                }
+            }
+
+            .warning-card__header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 1rem;
+                margin-bottom: 1rem;
+                border-bottom: 2px solid #000;
+                padding-bottom: 1rem;
+            }
+
+            .warning-card__icon {
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #000;
+                padding: 0.5rem;
+            }
+
+            .warning-card__icon svg {
+                height: 1.5rem;
+                width: 1.5rem;
+                fill: #fff;
+            }
+
+            .warning-card__alert {
+                font-weight: 900;
+                color: #000;
+                font-size: 2rem;
+                text-transform: uppercase;
+            }
+
+            .warning-card__message {
+                margin-top: 1rem;
+                color: #000;
+                font-size: 1.4rem;
+                line-height: 1.4;
+                border-bottom: 2px solid #000;
+                padding-bottom: 1rem;
+                font-weight: 600;
+                text-align: center;
+            }
+
+        </style>
+
+    </head>
+
+    <body class="bg-[#FFFFFF] text-[#0d0c0f] dark:bg-[#0d0c0f] dark:text-[#F9F9F9] d-flex flex-column min-vh-100">
+
+        {% include "inc/navbar.html" %}
+
+        <main class="flex-grow-1 max-w-[1440px] mx-auto">
+            <section class="text-[#0d0c0f] dark:text-[#F9F9F9] max-w-[1440px] mx-auto flex flex-col lg:flex-row">
+                <aside class="lg:min-w-[200px] max-h-full bg-light dark:bg-[#1A161F] hidden">
+                    <div class="">
+                        <div class="flex gap-4 mb-3 pt-4">
+                            <svg fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="size-6 sun cursor-pointer">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                            </svg>
+                            <svg fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="size-6 moon cursor-pointer">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                            </svg>
+                        </div>
+                    </div>
+                </aside>
+
+                <div class="warning-card">
+                    <div class="warning-card__header w-full">
+                        <div class="warning-card__icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+                                ></path>
+                            </svg>
+                        </div>
+                        <div class="warning-card__alert">Varování</div>
+                        <div class="warning-card__icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+                                ></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="warning-card__message w-full">
+                    Sem nemáš přístup.
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        {% include "inc/footer.html" %}
+
+        <script src="/static/js/script.js"></script>
+
+    </body>
+</html>
+
+
+  

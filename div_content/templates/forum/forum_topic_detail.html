@@ -1,0 +1,30 @@
+{% extends "forum/base.html" %}
+{% load forum_comments_tags %}
+
+{% block title %}
+{{ topic.title }}
+{% endblock title %}
+
+{% block content %}
+<h2><a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a> / <a class="hover:underline" href="{% url 'forum_section_detail' slug=topic.section.slug %}">{{ topic.section.title }}</a> / {{ topic.title }}</h2>
+{% if user.is_authenticated %}
+<section class="w-3/4">
+    <h2>Přidat komentář</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn mb-4 mr-1 btn-action add" type="submit">Přidat</button>
+    </form>
+</section>
+{% else %}
+<p class="my-4">Pro přidání komentáře se prosím <a href="{% url 'login' %}">přihlašte</a>.</p>
+{% endif %}
+
+<!-- komentáře se načítají v šabloně níže -->
+{% include "forum/load_all_comments.html" %}
+
+{% endblock content %}
+
+{% block script %}
+<script src="/static/js/forum-comment-summernote.js"></script>
+{% endblock script %}

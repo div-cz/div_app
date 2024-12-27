@@ -1,0 +1,111 @@
+{% extends "blog/base.html" %}
+
+{% load i18n %}
+
+{% block title %}Blog{% endblock title %}
+{% block h1 %}{{ blog.name }} {% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+
+
+
+{% if user.is_authenticated %}
+<hr>
+    {% if blog.blog_type == 'movie' %}
+        <small>Můj filmový blog - <a href="/uzivatel/{{ blog.user.id }}/">{{ blog.user.username }}</a></small>
+    {% elif blog.blog_type == 'book' %}
+        <small>Můj knižní blog - <a href="/uzivatel/{{ blog.user.id }}/">{{ blog.user.username }}</a></small>
+    {% elif blog.blog_type == 'game' %}
+        <small>Můj herní blog - <a href="/uzivatel/{{ blog.user.id }}/">{{ blog.user.username }}</a></small>
+    {% else %}
+        <small>Můj blog o všem - <a href="/uzivatel/{{ blog.user.id }}/">{{ blog.user.username }}</a></small>
+    {% endif %}
+<hr>
+
+{% if blog.user == user %}
+<!-- Zobrazit pouze vlastníkovi blogu -->
+<a href="/blog/novy-prispevek" class="cta mt-4">
+    <span class="text-[#0d0c0f] dark:text-[#F9F9F9]">Nový příspěvek</span>
+    <svg width="15px" height="10px" viewBox="0 0 13 10">
+        <path d="M1,5 L11,5"></path>
+        <polyline points="8 1 12 5 8 9"></polyline>
+    </svg>
+</a>
+
+<hr>
+{% endif %}
+
+{% if page_obj %}
+<ul>
+    {% for post in page_obj %}
+    <li class="card-body border mb-2 rounded-1xl">
+        <h3><a href="/blog/{{ blog.slug }}/{{ post.slug }}">{{ post.title }}</a></h3><!---->
+        <p>{{ post.content|striptags|truncatewords:21 }}</p>
+        <small>Vydáno: {{ post.published_at }}</small>
+    </li>
+    {% endfor %}
+</ul>
+
+<!-- Stránkování -->
+<div class="pagination mt-8">
+    <span class="step-links flex justify-center">
+        {% if page_obj.has_previous %}
+        <div class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">předchozí</a>
+        </div>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <div class="page-item active">
+                    <span class="page-link">Stránka {{ num }}</span>
+                </div>
+            {% else %}
+                <div class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <div class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">další</a>
+        </div>
+        {% endif %}
+    </span>
+</div>
+
+<hr>
+
+<a href="/blogy/">Všechny blogy</a> | <a href="/forum/">Diskuzní fórum</a>
+
+<hr>
+
+{% else %}
+    <p>Zatím žádné příspěvky.</p>
+{% endif %}
+
+{% else %}
+
+<!-- NE přihlášen -->
+<small style="color:silver">Po přihlášení si můžeš založit blog</small>
+
+<hr>
+
+<ul>
+    {% for post in page_obj %}
+    <li class="card-body border mb-2 rounded-1xl">
+        <h3><a href="/blog/{{ blog.slug }}/{{ post.slug }}">{{ post.title }}</a></h3>
+        <p>{{ post.content|striptags|truncatewords:21 }}</p>
+        <small>Vydáno: {{ post.published_at }}</small>
+    </li>
+    {% endfor %}
+</ul>
+        
+<hr>
+<a href="/blogy/">Všechny blogy</a> | <a href="/forum/">Diskuzní fórum</a>
+<hr>
+        
+{% endif %}
+{% endblock content %}

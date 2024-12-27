@@ -1,0 +1,70 @@
+{% extends "blog/base.html" %}
+
+{% load i18n %}
+
+{% block title %}Blog{% endblock title %}
+{% block h1 %}Můj blog{% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+    <!-- Autorizován -->
+
+    <a href="{% url 'blog_new' %}" class="cta mt-4">
+        <span class="text-[#0d0c0f] dark:text-[#F9F9F9]">Založit nový blog</span>
+        <svg width="15px" height="10px" viewBox="0 0 13 10">
+            <path d="M1,5 L11,5"></path>
+            <polyline points="8 1 12 5 8 9"></polyline>
+        </svg>
+    </a>
+
+    {% if user_blogs %}
+        <h2>Knižní blogy</h2>
+        <ul>
+            {% for blog in user_blogs %}
+                {% if blog.blog_type == 'book' %}
+                    <li><a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+
+        <h2>Herní blogy</h2>
+        <ul>
+            {% for blog in user_blogs %}
+                {% if blog.blog_type == 'game' %}
+                    <li><a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+
+        <h2>Filmové blogy</h2>
+        <ul>
+            {% for blog in user_blogs %}
+                {% if blog.blog_type == 'movie' %}
+                    <li><a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+
+        <h2>Obecné blogy</h2>
+        <ul>
+            {% for blog in user_blogs %}
+                {% if blog.blog_type == 'general' %}
+                    <li><a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>Nemáte žádné blogy. Založte si <a href="/blog/novy-blog">nový blog</a>!</p>
+    {% endif %}
+    
+        <hr>
+        <a href="/blogy/">Všechny blogy</a> | <a href="/forum/">Diskuzní fórum</a>
+        <hr>
+        {% else %}
+        <!-- Neautorizován -->
+        <p class="mt-2"><small style="color:silver">Po přihlášení si můžeš založit nebo spravovat blog.</small></p>
+    {% endif %}
+
+{% endblock content %}

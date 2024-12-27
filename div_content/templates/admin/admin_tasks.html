@@ -1,0 +1,71 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Správa úkolů DIV.cz{% endblock title %}
+{% block h1 %}Správa úkolů{% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+
+
+<!-- admin/admin_tasks.html -->
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Správa úkolů</h1>
+        <a href="{% url 'admin_task_create' %}" class="bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded btn btn-info">
+            Nový úkol
+        </a>
+    </div>
+
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <table class="min-w-full">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-6 py-3 text-left">Název</th>
+                    <th class="px-6 py-3 text-left">Přiřazeno</th>
+                    <th class="px-6 py-3 text-left">Priorita</th>
+                    <th class="px-6 py-3 text-left">Status</th>
+                    <th class="px-6 py-3 text-left">Termín</th>
+                    <th class="px-6 py-3 text-left">Akce</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for task in tasks %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                        <div class="font-medium text-gray-900">{{ task.title }}</div>
+                        <div class="text-sm text-gray-500">{{ task.description|truncatechars:100 }}</div>
+                        {% for subtask in task.Subtasks.all %}
+                        <div class="ml-6 mt-2 text-sm border-l-2 border-gray-200 pl-2">
+                            <a href="{% url 'admin_task_detail' subtask.id %}" class="text-blue-600 hover:text-blue-800">
+                                {{ subtask.title }}
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </td>
+                    <td class="px-6 py-4">{{ task.assigned }}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded text-white text-sm
+                            {% if task.priority == 'Vysoká' %}bg-red-500
+                            {% elif task.priority == 'Střední' %}bg-orange-500
+                            {% else %}bg-green-500{% endif %}">
+                            {{ task.priority }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">{{ task.status }}</td>
+                    <td class="px-6 py-4">{{ task.duedate|date:"d.m.Y" }}</td>
+                    <td class="px-6 py-4">
+                        <a href="{% url 'admin_task_detail' task.id %}" class="text-blue-600 hover:text-blue-900 mr-3">
+                            Detail
+                        </a>
+                        <a href="{% url 'admin_task_edit' task.id %}" class="text-green-600 hover:text-green-900">
+                            Upravit
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

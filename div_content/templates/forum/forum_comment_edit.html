@@ -1,0 +1,41 @@
+{% extends "forum/base.html" %}
+{% block title %}
+Upravit {{ topic.title }}
+{% endblock title %}
+
+{% block content %}
+<h2><a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a> / <a class="hover:underline" href="{% url 'forum_section_detail' slug=topic.section.slug %}">{{ topic.section.title }}</a> / {{ topic.title }}</h2>
+
+{% if user.is_authenticated %}
+    <section class="w-3/4">
+        <h2>Upravit komentář</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn mb-4 mr-1 btn-action add" type="submit">Upravit</button>
+        </form>
+    </section>
+
+{% endif %}
+<!-- komentáře se načítají v šabloně níže -->
+{% include "forum/load_all_comments.html" %}
+
+{% comment %}
+{% for comment in comments %}
+    <ol class="card card-body mb-4 w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <li class="after">{{ comment.body|safe }}</li>
+        <div class="flex justify-between">
+            <p><a href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">{{ comment.user }}</a> - {{ comment.createdat }} {% if comment.lasteditedat %}<i><small>(Upraveno {{ comment.lasteditedat }})</small></i>{% endif %}</p>
+            {% if user == comment.user or user.is_staff %}
+            <!-- <p><a href="#">Upravit</a> | <a href="">Smazat</a></p> -->
+        </div>
+        {% endif %}
+    </ol>
+{% endfor %}
+{% endcomment %}
+
+{% endblock content %}
+
+{% block script %}
+<script src="/static/js/forum-comment-summernote.js"></script>
+{% endblock script %}
