@@ -1,0 +1,46 @@
+{% extends "forum/base.html" %}
+{% block title %}
+Div.cz | Diskuzní fórum
+{% endblock title %}
+
+
+{% block meta %}
+<meta name="description" content="Připojte se k diskuzím na fóru DIV.cz. Diskutujte o filmech, knihách, hrách a dalších tématech v naší komunitě.">
+<meta name="keywords" content="fórum, diskuse, filmy, knihy, hry, obecné, komunita, DIV.cz">
+<meta name="author" content="DIV.cz">
+<meta property="og:title" content="Fórum | Diskuze o filmech, knihách a hrách | DIV.cz">
+<meta property="og:description" content="Zapojte se do diskuze na fóru DIV.cz. Diskutujte o filmech, knihách, hrách a dalších tématech.">
+<meta property="og:image" content="https://div.cz/img/site/forum.webp">
+<meta property="og:url" content="https://div.cz/forum">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Fórum | Diskuze o filmech, knihách a hrách | DIV.cz">
+<meta name="twitter:description" content="Připojte se k diskuzi na fóru DIV.cz a sdílejte své názory na filmy, knihy, hry a další témata.">
+<meta name="twitter:image" content="https://div.cz/img/site/forum.webp">
+{% endblock meta %}
+
+
+{% block content %}
+<h2 class="w-full">Diskuzní fórum</h2>
+<form class="d-flex mt-4" style="max-width: 400px;" role="search" action="{% url 'forum_search' %}" method="get">
+    <input class="password-field" type="type" placeholder="Hledat na fóru" aria-label="Search" name="q" id="search-input">
+    <button class="mb-4 btn-action add" style="margin: 0 5px;" type="submit">Hledat</button>
+</form>
+
+<div class="grid gap-5 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 mt-5">
+{% for section in all_forum_sections %}
+    <div class="card-body w-full items-center text-center" style="background-image: url(https://i.ibb.co/HB09C25/bubble-1.png); background-size: 100% 100%;">
+        <a href="{% url 'forum_section_detail' slug=section.slug %}">
+            <img src="/static/img/forum/{{section.imageurl}}">
+            <h3>{{ section.title }}</h3>
+        </a>
+        {% if section.description %}
+        <p>{{ section.description }}</p>
+        {% endif %}
+    </div>
+{% endfor %}
+</div>
+{% endblock content %}
+
+{% block script %}
+<script src="/static/js/forum-comment-summernote.js"></script>
+{% endblock script %}

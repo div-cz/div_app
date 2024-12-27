@@ -1,0 +1,43 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Blogy{% endblock title %}
+
+{% block content %}
+<h2 class="w-full">Blogy{% if user.is_authenticated %}<small style="font-size:60%;"> / <a href="https://div.cz/blog/">Můj blog</a></small>{% endif %}</h2>
+
+
+
+<div class="grid gap-5 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 mt-5">
+    <div class="card-body w-full items-center text-center" style="background-image: url(https://div.cz/static/img/site/blogy.webp);
+    background-size: 100% 100%;">
+        <a href="{% url 'blog_section_detail' section='filmove' %}">
+            <img src="/static/img/forum/movie.webp">
+            <h3>Filmové blogy</h3>
+        </a>
+    </div>
+
+    <div class="card-body w-full items-center text-center" style="background-image: url(https://div.cz/static/img/site/blogy.webp);
+    background-size: 100% 100%;">
+        <a href="{% url 'blog_section_detail' section='knizni' %}">
+            <img src="/static/img/forum/book.webp">
+            <h3>Knižní blogy</h3>
+        </a>
+    </div>
+
+    <div class="card-body w-full items-center text-center" style="background-image: url(https://div.cz/static/img/site/blogy.webp);
+    background-size: 100% 100%;">
+        <a href="{% url 'blog_section_detail' section='herni' %}">
+            <img src="/static/img/forum/game.webp">
+            <h3>Herní blogy</h3>
+        </a>
+    </div>
+
+    <div class="card-body w-full items-center text-center" style="background-image: url(https://div.cz/static/img/site/blogy.webp);
+    background-size: 100% 100%;">
+        <a href="{% url 'blog_section_detail' section='obecne' %}">
+            <img src="/static/img/forum/other.webp">
+            <h3>Obecné blogy</h3>
+        </a>
+    </div>
+</div>
+{% endblock content %}
