@@ -1,0 +1,52 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Správa filmů{% endblock title %}
+{% block h1 %}Správa filmů{% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+
+<form method="get" class="form-inline mb-3">
+    <input type="text" name="title" placeholder="Název filmu" value="{{ request.GET.title }}" class="form-control mb-2 mr-2">
+    <input type="text" name="year" placeholder="Rok" value="{{ request.GET.year }}" class="form-control mb-2 mr-2">
+    <input type="text" name="movieid_gt" placeholder="MovieID >" value="{{ request.GET.movieid_gt }}" class="form-control mb-2 mr-2">
+    <input type="text" name="movieid_lt" placeholder="MovieID <" value="{{ request.GET.movieid_lt }}" class="form-control mb-2 mr-2">
+    <button type="submit" class="btn btn-primary mb-2">Vyhledat</button>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Název</th>
+            <th>Název CZ</th>
+            <th>Rok vydání</th>
+            <th>Last Updated</th>
+            <th>Popis</th>
+            <th>Testovací DB - Název</th>
+            <th>Testovací DB - Název CZ</th>
+            <th>Testovací DB - Rok vydání</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for movie in movies %}
+        <tr>
+            <td>{{ movie.title }}</td>
+            <td>{{ movie.titlecz }}</td>
+            <td>{{ movie.releaseyear }}</td>
+            <td>{{ movie.lastupdated }}</td>
+            <td>{{ movie.description|truncatewords:10 }}</td>
+
+            <!-- Testovací databáze -->
+            {% for test_movie in test_movies %}
+                {% if test_movie.movieid == movie.movieid %}
+                <td>{{ test_movie.title }}</td>
+                <td>{{ test_movie.titlecz }}</td>
+                <td>{{ test_movie.releaseyear }}</td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock content %}

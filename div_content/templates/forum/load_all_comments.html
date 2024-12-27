@@ -1,0 +1,71 @@
+{% load forum_comments_tags %}
+{% for comment in page.object_list %}
+<ol class="card card-body mb-4 w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl w-3/4">
+
+    {% if comment.parentcommentid is not None %}
+    <div class="border rounded-1xl p-2 ml-5 mb-4 bg-[#e7e7e7] dark:bg-[#1A161F]">
+        {% with parent_comment=comments|get_parent_comment:comment.parentcommentid %}
+        <li class="underline"><i>Napsal/a {% if parent_comment.user %}{{ parent_comment.user }}{% else %}Smazaný uživatel{% endif %}:</li></i>
+            {% if parent_comment.isdeleted == False %}
+        <li class="ml-6"><i>{{ parent_comment.body|safe }}</li></i>
+            {% else %}
+        <li class="ml-6"><i><strike>Tento komentář byl smazán.</strike></i></li>
+            {% endif %}
+        {% endwith %}
+    </div>
+    {% endif %}
+    <div class="after flex flex-wrap justify-between">
+        <!-- Tady se vypíše komentář uživatele -->
+        {% if comment.isdeleted == False %}
+            <li class="w-4/5">{{ comment.body|safe }}</li>
+        {% else %}
+            <li><strike>Tento komentář byl smazán.</strike></li>
+        {% endif %}
+        <!-- Pokud komentář není reakce na někoho jiného, tak ukaž tlačítko "Odpovědět"-->
+        {% if comment.parentcommentid is None %}
+            {% if user.is_authenticated %}
+                {% if not comment.isdeleted %}
+                <p><a href="{% url 'comment_reply' slug=topic.section.slug topicurl=topic.topicurl forumcommentid=comment.forumcommentid  %}">Odpovědět</a></p>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    </div>
+    <div class="flex justify-between sm:flex-wrap">
+        <div class="mb-0 flex items-center">
+            <div class="avatar mr-2">
+                <img class="rounded-full" style="max-width: 30px; height: 30px;" src="{% get_user_avatar comment.user %}" alt="avatar">
+            </div>
+            <div class="flex flex-wrap">
+                <div class="flex w-full">
+                    <a class="mr-2" href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">{{ comment.user }}</a>
+                    <p> - {{ comment.createdat }}</p> 
+                </div>
+                {% if comment.lasteditedat %}
+                <i><small>(Upraveno {{ comment.lasteditedat }})</small></i>
+                {% endif %}
+            </div>
+            
+        </div>
+        <!-- Udělí adminům možnost mazat komentáře -->
+        {% if user == comment.user and not comment.isdeleted or user.is_staff %}
+        <p class="mb-0" style="width: 140px;">
+            <a href="{% url 'comment_edit' slug=topic.section.slug topicurl=topic.topicurl forumcommentid=comment.forumcommentid  %}">Upravit</a> | <a href="{% url 'comment_delete' slug=topic.section.slug topicurl=topic.topicurl forumcommentid=comment.forumcommentid  %}">Smazat</a>
+        </p>
+    </div>
+    {% endif %}
+</ol>
+{% endfor %}
+
+<div class="pagination">
+    <span class="step-links">
+    {% if page.has_previous %}
+        <a href="?page=1">&laquo; první</a>
+        <a href="?page={{ page.previous_page_number }}">předchozí</a>
+    {% endif %}
+    <span class="current-page">{{ page.number }}/{{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}
+        <a href="?page={{ page.next_page_number }}">další</a>
+        <a href="?page={{ page.paginator.num_pages }}">poslední &raquo;</a>
+    {% endif %}
+    </span>
+</div>

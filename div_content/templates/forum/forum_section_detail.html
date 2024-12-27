@@ -1,0 +1,60 @@
+{% extends "forum/base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+Div.cz | {{ title }}
+{% endblock title %}
+
+{% block content %}
+<h2>
+    <a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a> / {{ title }}
+</h2>
+{% if user.is_authenticated %}
+    <a href="{% url 'create_new_topic' slug=section.slug %}" class="cta mt-4">
+        <span class="text-[#0d0c0f] dark:text-[#F9F9F9]">Přidat nový příspěvek</span>
+        <svg width="15px" height="10px" viewBox="0 0 13 10">
+            <path d="M1,5 L11,5"></path>
+            <polyline points="8 1 12 5 8 9"></polyline>
+        </svg>
+    </a>
+{% else %}
+    <p class="my-4">Pro založení nového příspěvku se prosím <a href="{% url 'login' %}">přihlašte</a>.</p>
+{% endif %}
+
+<section class="my-4 w-3/4">
+    {% if topics %}
+        {% for topic in page.object_list %}
+        <ol class="border mb-2">
+            <li class="flex justify-between">
+                <a class="hover:underline" href="{% url 'forum_topic_detail' slug=section.slug topicurl=topic.topicurl %}">{{ topic.title }}</a> 
+                <span><small>Počet příspěvků: </small><strong>{{ topic.comment_count }}</strong></span>
+            </li>
+            <hr style="width: 98%; margin: 0 auto;">
+            {% if topic.latest_user %}
+            <li><small><strong>Poslední aktivita:</strong> {{ topic.latest_activity }} - <a href="{% url 'user_profile_with_profil' user_id=topic.latest_user_id %}">{% if topic.latest_user %}{{ topic.latest_user }}{% else %}Smazaný uživatel{% endif %}</small></a></li>
+            {% else %}
+            <li><small>Zatím žádné komentáře</small></li>
+            {% endif %}
+        </ol>
+        {% endfor %}
+    {% else %}
+        <p>Žádné příspěvky.</p>
+    {% endif %}
+</section>
+
+<div class="pagination">
+    <span class="step-links">
+    {% if page.has_previous %}
+        <a href="?page=1">&laquo; první</a>
+        <a href="?page={{ page.previous_page_number }}">předchozí</a>
+    {% endif %}
+    <span class="current-page">{{ page.number }}/{{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}
+        <a href="?page={{ page.next_page_number }}">další</a>
+        <a href="?page={{ page.paginator.num_pages }}">poslední &raquo;</a>
+    {% endif %}
+    </span>
+</div>
+
+{% endblock content %}

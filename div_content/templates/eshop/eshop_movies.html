@@ -1,0 +1,13 @@
+{% extends "eshop/base.html" %}
+{% block content %}
+<h1>Filmová sekce</h1>
+<div class="grid">
+    {% for movie in movies %}
+    <div class="movie-item">
+        <h3><a href="/film/{% url 'movie_detail' movie.url %}">{{ movie.title }}</a></h3>
+        <p>{{ movie.releaseyear }}</p>
+        <p>Cena: {{ movie.price }} Kč</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

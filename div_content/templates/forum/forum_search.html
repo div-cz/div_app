@@ -1,0 +1,54 @@
+{% extends "forum/base.html" %}
+
+{% load forum_comments_tags %}
+{% load i18n %}
+
+{% block title %}
+Výsledky hledání {{ query }}
+{% endblock title %}
+
+{% block content %}
+<h2 class="w-full">Výsledky hledání pro "<span style="background-color:#CABAC8;">{{ query }}</span>"</h2>
+<h3 style="margin: 25px 0;">Názvy diskuzních vláken</h3>
+{% if topics %}
+    {% for topic in topics %}
+        <ol class="card card-body mb-4 w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl w-3/4">
+        
+        <li><a href="{% url 'forum_topic_detail' slug=topic.section.slug topicurl=topic.topicurl %}">Diskuzní fórum/{{ topic.section.title }}/{{ topic.title|safe|highlight_search:query }}</a></li>
+        </ol>
+    {% endfor %}
+       
+{% else %}
+    <p>Žádný název vlákna</p>
+{% endif %}
+
+<h3 style="margin: 25px 0;">Komentáře uživatelů</h3>
+{% if comments %}
+        {% for comment in comments %}
+        <ol class="card card-body mb-4 w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl w-3/4">
+            <div class="after">
+                <li>
+                    <a href="{% url 'forum_topic_detail' slug=comment.topic.section.slug topicurl=comment.topic.topicurl %}">
+                        Diskuzní fórum/{{ comment.topic.section.title }}/{{ comment.topic.title }}
+                    </a>
+                </li>
+                <li class="w-full">
+                    {{ comment.body|safe|highlight_search:query }}
+                </li>
+            </div>
+            <div class="flex justify-between">
+                <p class="mb-0">
+                    <span class="flex flex-wrap">
+                        <a class="mr-2" href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">{{ comment.user }}</a> - {{ comment.createdat }} {% if comment.lasteditedat %}<i class="ml-2"><small>(Upraveno {{ comment.lasteditedat }})</small></i>
+                    </span>
+                    {% endif %}
+                </p>
+            </div>
+        </ol>
+        {% endfor %}
+{% else %}
+    <p>Žádné komentáře</p>
+{% endif %}
+
+
+{% endblock content %}

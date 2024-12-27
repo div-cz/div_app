@@ -1,0 +1,53 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Nový příspěvek do blogu{% endblock title %}
+
+
+{% block meta %}
+<!-- BLOG -->
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <link href="/static/tam-emoji/css/emoji.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <script src="/static/tam-emoji/js/config.js"></script>
+    <script src="/static/tam-emoji/js/tam-emoji.min.js"></script>
+<!-- /BLOG -->
+{% endblock %}
+
+
+{% block content %}
+
+
+    <h2>Přidej nový příspěvek</h2>
+    <section class="">
+
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn mb-4 mr-1 btn-action add">Přidat příspěvek</button>
+        </form>
+
+        <script>
+            $('#summernote').summernote({
+                placeholder: 'Můj příspěvek do blogu',
+                tabsize: 2,
+                height: 120,
+                toolbar: [
+                
+                ['font', ['bold', 'underline']],
+                // ['color', ['color']],
+                ['insert', ['link']],
+                ['emoji', ['emoji']]
+                ]
+            });
+        </script>
+
+        <hr>
+        <a href="/blogy/">Všechny blogy</a> | <a href="/forum/">Diskuzní fórum</a>
+        <hr>
+
+    </section>
+
+
+{% endblock content %}
+

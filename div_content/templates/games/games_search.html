@@ -1,0 +1,67 @@
+{% extends 'games/base.html' %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
+
+{% block content %}
+
+<div class="row container w-full my-4 my-6 grow">
+    <h2 class="mb-4">Vyhledávání: {% if request.GET.q %} {{ request.GET.q }} {% endif %}</h2>
+    <div class="row mb-3 w-full">
+ 
+        <div class="table">
+            <div class="grid search-grid bg-[#c0c0c0]">
+                <div class="text-center font-bold p-1">Miniatura</div>
+                <div class="font-bold p-1">Název</div>
+                <div class="text-center font-bold p-1">Rok</div>
+                <div class="text-center font-bold p-1">Hodnocení</div>
+            </div>
+            <div>
+
+                <div class="grid items-center border search-grid sudy">
+                        <div>
+                            <a href="{{ game.url }}">
+                           
+                                <img src="/static/img/game/game.png" alt="hra {{ game.title }}" style="max-width: 100px; object-fit: cover;">
+                          
+                                <img src="https://games.google.com/games/content?id={{ game.googleid }}&printsec=frontcover&img=1&zoom=3&edge=curl&source=gbs_api" alt="{{ game.title }}" style="max-width: 100px; object-fit: cover;">
+                           
+                            </a>
+                        </div>
+                        <div class="flex flex-wrap ml-2">
+                            <a class="w-full" href="/hra/{{ game.url }}">{{ game.title }}</a> 
+                            <a href="/autor/{{ game.authorid__url }}">{{ game.authorid__firstname }} {{ game.authorid__lastname }}</a>
+                        </div>
+                        <div>
+                            <a href="https://div.cz/hry/{{ game.year }}">{{ game.year }}</a>
+                        </div>
+                        <div class="text-center p-1 stars">
+
+                            <span class="text-warning h4">
+                                {% if score == "1" %}
+                                &#9733;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;
+                                {% elif score == "2" %}
+                                &#9733;&nbsp;&#9733;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;
+                                {% elif score == "3" %}
+                                &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9734;&nbsp;&#9734;
+                                {% elif score == "4" %}
+                                &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9734;
+                                {% elif score == "5" %}
+                                &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;
+                                {% endif %}
+                            </span>
+
+                            <span class="text-sm stars">Nehodnoceno</span>
+
+                        </div>
+                    </div>
+
+            </div>
+        </div>
+
+        <p>Žádné hry nenalezeny.</p>
+
+    </div>
+</div>
+
+{% endblock %}
