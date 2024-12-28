@@ -1,0 +1,20 @@
+{% extends "games/base.html" %}
+
+{% block title %}Hry od {{ developer.developer }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2>Hry od vývojáře: {{ developer.developer }}</h2>
+    {% if games %}
+        <ul>
+            {% for game in games %}
+                <li>
+                    <a href="{% url 'game_detail' game_url=game.url %}">{{ game.titlecz|default:game.title }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Tento vývojář zatím nemá žádné hry v databázi.</p>
+    {% endif %}
+</div>
+{% endblock %}

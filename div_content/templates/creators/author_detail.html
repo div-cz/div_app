@@ -1,221 +1,240 @@
-<!-- TEST TEST --><!DOCTYPE html>
-<html lang="cs">
-<head>
+{% extends "books/base.html" %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
 
-    {% include "../inc/head.html" %}
+{% block title %} {{ book.titlecz }} | DIV.cz{% endblock %}
 
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <!-- Font Awesome for stars rating-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+        <link href="/static/css/navbar_other.css" rel="stylesheet">
+        <link href="/static/css/books.css" rel="stylesheet">
 
-<title>{{ author.firstname }} ({{ author.lastname }})</title>
+        <style>
+            .cta2 {
+                position: relative;
+                padding: 3px 0 3px 10px;
+                transition: all 0.2s ease;
+                border: none;
+                background: none;
+                cursor: pointer;
+            }
 
-    {% include "../inc/google.html" %}
+            .cta2:hover {
+                text-decoration: none;
+            }
 
-</head>
+            .cta2:before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                display: block;
+                border-radius: 50px;
+                background: #b1dae7;
+                width: 30px;
+                height: 30px;
+                transition: all 0.3s ease;
+            }
 
-<body>
+            .cta2 span {
+                position: relative;
+                font-size: 14px;
+                font-weight: 700;
+                letter-spacing: 0.05em;
+                color: #234567;
+            }
 
-    {% include "../inc/navbar_books.html" %}
+            .cta2:hover:before {
+                width: 100%;
+                background: #b1dae7;
+            }
 
+            .cta2:active {
+                transform: scale(0.95);
+            }
+        </style>
 
-<!-- Main Content -->
-<main class="container my-5">
-  <div class="row">
-    <!-- Left Column: Film Detail -->
+{% block content %}
+
+<div class="row container my-5">
+    <!-- LEVÁ STRANA -->
     <div class="col-lg-8">
-            <h2>{{ author.lastname }},  {{ author.firstname }} 
+        <div class="rounded-3 justify-between items-center p-2 mb-3 flex w-full bg-[#F9F9F9] dark:bg-[#1A161F] border-[#ccc] rounded-1xl">
+            <h2 class="w-full mb-0">
+                {{ author.firstname }} {{ author.lastname }} 
+                {% if author.birthyear %}
+                <small class="text-muted">({{ author.birthyear }})</small>
+                {% endif %}
+            </h2>
 
-{% if author.birthyear %}
-    <small class="text-muted">({{ author.birthyear }})</small>
-{% endif %}
-</h2>
+            <!-- FAVORITE by xSilence8x -->
+            {% if user.is_authenticated %}
+            <div class="heart">
+                {% if not is_favorite %}
+                <a href="{% url 'add_to_favourite_authors' authorid=author.authorid %}" class="flex relative">
+                    <i class="far fa-regular fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} unset {% endif %}" title="přidat do oblíbených"></i>
+                {% else %}
+                <a href="{% url 'remove_from_favourite_authors' authorid=author.authorid %}" class="flex relative">
+                    <i class="fas fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} unset {% endif %}" title="odebrat z oblíbených"></i>
+                {% endif %}
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Info Bar --><!--
+        <div class="bg-dark  rounded-3 p-2 mb-3 d-flex">
+            <span class="me-3">{{ author.birthdate|date:"Y" }}</span>,&nbsp;
 
+            <span> {{ author.deathdate|date:"Y" }} </span>
+        </div>-->
 
-      <!-- Info Bar --><!--
-      <div class="bg-dark  rounded-3 p-2 mb-3 d-flex">
-        <span class="me-3">{{ author.birthdate|date:"Y" }}</span>,&nbsp;
+        <!-- INFO -->
+        <div class="d-flex mb-3 mt-4">
+            <div class="me-3 mr-4 flex-shrink-0 sm-flex lg:w-max sm:w-130 lg:w-40%">
+            {% if not author.img or author.img == "" %}
+                <img src="/static/img/creator/noperson.svg" alt="{{ author.firstname }} {{ author.lastname }}" class="img-fluid rounded" style="object-fit: cover;">
+                {% else %}
+                <img src="/img/{{ author.img }}" alt="{{ author.firstname }} {{ author.lastname }}" class="img-fluid rounded" style="object-fit: cover;">
+            {% endif %}
+            </div>
 
-        <span> {{ author.deathdate|date:"Y" }} </span>
-      </div>-->
+            <div class="flex flex-wrap content-between flex-grow-1 w-full lg:w-55">
+                <ul class="list-unstyled">
+                {% if author.birthdate %}
+                    <li><strong>Datum narození:</strong> {{ author.birthdate }}</li>
+                {% endif %}
 
-    <div class="d-flex">
-        <div class="me-3 mr-4 mb-3 flex-shrink-0" style="width:200px">
-        {% if not author.img or author.img == "" %}
-        <img src="/static/img/creator/noperson.svg" alt="{{ author.firstname }} {{ author.lastname }}" class="img-fluid rounded" style="max-width: 200px; object-fit: cover;">
+                {% if author.deathdate %}
+                    <li><strong>Datum úmrtí:</strong> {{ author.deathdate }}</li>
+                {% endif %}
+                <!--<li>ID: {{ author.creatorid }}</li>-->
+                <!--<li>{{ author.popularity }}</li>-->
+                </ul>
+            </div>
+        </div>
 
-        {% else %}
-    <img src="/img/{{ author.img }}" alt="{{ author.firstname }} {{ author.lastname }}" class="img-fluid rounded" style="width: 100%; object-fit: cover;">
-        {% endif %}
-    </div>
-
-        <div class="flex-grow-1">
-          <ul class="list-unstyled">
-        {% if author.birthdate %}
-            <li><strong>Datum narození:</strong> {{ author.birthdate }}</li>
-        {% endif %}
-
-        {% if author.deathdate %}
-            <li><strong>Datum úmrtí:</strong> {{ author.deathdate }}</li>
-        {% endif %}
-    <!--<li>ID: {{ author.creatorid }}</li>-->
-    <!--<li>{{ author.popularity }}</li>-->
-          </ul>
-          
-          
-          
+        <!-- BIOGRAFIE -->
         {% if author.description %}
-    <p>
-            {{ author.description|safe }}
-    </p>
+        <p>{{ author.description|safe }}</p>
+
         {% else %}
-    
-        Přidej vlastní popis, zatím tu žádný není!
-{% endif %}
-
-
+        <div class="flex flex-wrap items-center">
+            <details>
+                <summary>Přidej vlastní popis, zatím tu žádný není!</summary>
+                <form action="">
+                    <textarea id="w3review" name="w3review" rows="3" cols="50"></textarea>
+                    <br>
+                    <input class="add" type="submit" value="Přidat">
+                </form>
+            </details>
         </div>
-      </div>
+        {% endif %}
 
-
-
-
-
-
-
-                <h3>Seznam knih</h3>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Miniatura</th>
-                            <th>Kniha</th>
-                            <th>Rok</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for book in books %}
-                            <tr>
-                                <td>
-                                    <a href="/kniha/{{ book.url }}">
-                                        {% if book.img == "noimg.png" %}
-                                            <img src="/static/img/book/book.png" alt="Kniha {{ book.title }}" width="80">
-                                        {% else %}
-                                            <img src="https://books.google.com/books/content?id={{ book.img }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.title }}" width="80">
-                                        {% endif %}
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="/kniha/{{ book.url }}">{{ book.title }}</a>
-                                </td>
-                                <td>{{ book.year }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-
-
-
+        <!-- SEZNAM KNIH -->
+        <div class="card mb-4 d-none d-lg-block">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title font-bold after-h3">Seznam knih</h3>
+                <p class="mb-4">Série: 
+                    <a href="">série jedna</a>
+                    &nbsp;|&nbsp;
+                    <a href="">série dva</a>
+                    &nbsp;|&nbsp;
+                    <a href="">série tři</a>
+                </p>
+                <p>
+                    <a href="">všechny knihy</a> (21) <!--počet knih-->
+                </p>
+                <div class="flex flex-wrap">
+                    {% for book in books %}
+                    <hr>
+                    <div class="flex items-start w-full">
+                        <a href="/kniha/{{ book.url }}">
+                        {% if book.img == "noimg.png" %}
+                            <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
+                            <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz }}" class="w-full rounded" style="object-fit: cover; width: 80px;">
+                            {% elif book.img == "GoogleID" %}
+                            <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
+                            <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="w-full rounded" style="min-width: 80px;">
+                            {% else %}
+                            <!-- Jinak zobraz vlastní nahraný obrázek -->
+                            <img src="/static/kniha/{{ book.img }}" alt="{{ book.titlecz }}" class="w-full rounded" style="object-fit: cover; width: 80px;">
+                        {% endif %}
+                        </a>
+                        <div class="flex flex-wrap ml-4 w-full">
+                            <div class="flex items-center justify-between w-full">
+                                <p><a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz }}</a> <span>({{ book.year }})</span></p>
+                                {% if book.is_read %}
+                                    <i class="fas fa-book mr-4" title="přečteno"></i>
+                                {% endif %}
+                            </div>
+                            <p>Série: <a href="">série tři</a></p> <!-- NASTAVENÍ SÉRIÉ POKUD MÁ -->
+                            <p class="card-text">{{ book.description|safe|truncatewords:40 }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Right Column -->
+    <!-- PRAVÁ STRANA -->
     <div class="col-lg-4">
-      <!--<div class="card rounded mb-4">
-        <div class="card-body">
-          <h4>Hodnocení</h4>
-          <span class="text-warning">★</span>
-          <span class="text-warning">★</span>
-          <span class="text-warning">★</span>
-          <span class="text-warning">☆</span>
-          <span class="text-warning">☆</span>
+
+        <!-- FANOUŠCI -->
+        <div class="card mb-4 box-shadow">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl ">
+                <h3 class="card-title font-bold after-h3">Fanoušci</h3>
+                <div class="flex flex-wrap">
+                    {% if fans %}
+                        {% for fan in fans %}
+                            <a class="w-full" href="{% url 'myuser_detail' fan.userlist.user.id %}">{{ fan.userlist.user.username }}</a>
+                        {% endfor %}
+                    {% else %}
+                        <p>Zatím žádní fanoušci.</p>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-      </div>-->
 
+        <!-- <div class="card mb-4 box-shadow">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
 
+            </div>
+        </div> -->
 
-      <!--<div class="card rounded mb-4">
-        <div class="card-body">
-
+        <div class="card mb-4 box-shadow">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title font-bold after-h3">Další spisovatelé</h3>
+                <ul>
+                {% for author in author_list_10 %}
+                    <li>
+                        <a href="/autor/{{ author.url }}"> {{ author.firstname }}  {{ author.lastname }}</a> 
+                    </li>
+                {% endfor %}
+                    <li>
+                        <a href="/autor/viktorie-hanisova">Viktorie Hanišová</a> (1980)
+                    </li>
+                </ul>
+            </div>
         </div>
-      </div>-->
 
-      <div class="card rounded mb-4">
-        <div class="card-body">
+        <!-- Tags  -->
+        <div class="card mb-3 box-shadow">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title font-bold after-h3">Tagy</h3>
+                <div class="flex flex-wrap gap-1">
 
-{% if user.is_authenticated %}
-    <h4>{{ user.username }}! </h4>
-    <p>Vítejte, {{ user.username }}! <a href="{% url 'logout' %}">Odhlásit se</a></p>
-{% else %}
-    <h4>Přihlášení</h4>
-    <form method="post" action="{% url 'login' %}">
-        {% csrf_token %}
-        {{ form.username.label_tag }}
-        {{ form.username }}
-        {{ form.password.label_tag }}
-        {{ form.password }}
-        <button type="submit" class="btn btn-primary">Přihlásit se</button>
-    </form>
-    <div class="mt-3">
-        <p>Nemáte účet? <a href="{% url 'signup' %}">Registrace</a></p>
+
+                <span class="rounded bg-secondary p-1">
+                    <a href=""></a>
+                </span>
+
+                </div>
+            </div>
+        </div>
+
     </div>
-{% endif %}
+</div>
 
-        </div>
-      </div>
-
-
-
-      <div class="card rounded mb-4 d-none d-lg-block">
-        <div class="card-body">
-          <h4>Další spisovatelé</h4>
-        <ul>
-    {% for author in author_list_10 %}
-        <li>
-           <a href="/autor/{{ author.url }}"> {{ author.firstname }}  {{ author.lastname }}</a> 
-        </li>
-    {% endfor %}
-
-        <li>
-           <a href="/autor/viktorie-hanisova">Viktorie Hanišová</a> (1980)
-        </li>
-
-        </ul>
-        </div>
-      </div>
-
-
-      <!-- tmdb.org, imdb.org, div.cz, csfd.cz  -->
-      <div class="card rounded mb-4 d-none d-lg-block">
-        <div class="card-body">
-          <h4>Odkazy</h4>
-            <a href="https://www.themoviedb.org/"">
-          <img src="data:image/webp;base64,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" alt="tmdb.org"></a>
-
-
-    <a href="https://www.imdb.com/"><img src="https://www.div.cz/img/ico/imdb.png" alt="Imdb"></a>
-
-        </div>
-      </div>
-
-
-      <!-- Tags 
-      <div class="card rounded mb-4 d-none d-lg-block">
-        <div class="card-body">
-          <h4>Tagy</h4>
-
-           <span class="badge bg-secondary">abc</span>, <span class="badge bg-secondary">def</span> 
-
-        </div>
-      </div>-->
-
-
-  </div>
-</main>
-
-
-
-{% include "../inc/footer.html" %}
-
-</body>
-</html>
+{% endblock %}
 

@@ -1,0 +1,113 @@
+{% extends "articles/base.html" %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
+
+{% block title %}Články | Databáze DIV{% endblock title %}
+
+{% block content %}
+
+<link href="/static/css/navbar_together.css" rel="stylesheet">
+
+<style>
+    .articles {
+        display: grid;
+        padding-left: 0;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 5px #c0c0c0;
+    }
+
+    .custom-select {
+        position: relative;
+        display: flex;
+        justify-content: flex-end;
+        margin: 10px;
+        text-align: center;
+        min-width: 175px;
+    }
+
+    .select-options {
+        flex-wrap: wrap;
+        position: absolute;
+        background-color: #f9f9f9;
+        box-shadow: 0px 0px 10px 0px #9E9E9E;
+        border-radius: 10px;
+        z-index: 1;
+        right: 0;
+        margin-top: 35px;
+        text-align: left;
+        font-size: small;
+    }
+
+    .select-options a {
+        color: black;
+        padding: 12px 16px;
+        display: block;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .select-options a:hover {
+        background-color: #f1f1f1;
+        text-decoration: none;
+    }
+
+</style>
+
+<h2 class="w-full">Články</h2>
+
+<div class="grid gap-5 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 mt-5">
+    <div class="card-body w-full items-center text-center" style="background-image: url(/static/img/articles/article.webp);
+    background-size: 100% 100%;">
+        <a href="/clanky/filmy/">
+            <img src="/static/img/forum/movie.webp">
+            <h3>Filmové články</h3>
+        </a>
+    </div>
+
+    <div class="card-body w-full items-center text-center" style="background-image: url(/static/img/articles/article.webp);
+    background-size: 100% 100%;">
+        <a href="/clanky/serialy/">
+            <img src="/static/img/forum/serie.webp">
+            <h3>Seriálové články</h3>
+        </a>
+    </div>
+
+    <div class="card-body w-full items-center text-center" style="background-image: url(/static/img/articles/article.webp);
+    background-size: 100% 100%;">
+        <a href="/clanky/knihy/">
+            <img src="/static/img/forum/book.webp">
+            <h3>Knižní články</h3>
+        </a>
+    </div>
+
+    <div class="card-body w-full items-center text-center" style="background-image: url(/static/img/articles/article.webp);
+    background-size: 100% 100%;">
+        <a href="/clanky/hry/">
+            <img src="/static/img/forum/game.webp">
+            <h3>Herní články</h3>
+        </a>
+    </div>
+</div>
+
+<script>
+    // Funkce pro zobrazení/skrytí roletového menu po kliknutí na text "Akce"
+    function toggleDropdown(event) {
+        var dropdown = document.getElementById('action-dropdown');
+        dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+        
+        // Zastavíme šíření události, abychom zabránili jejímu zachycení dokumentem
+        event.stopPropagation();
+    }
+
+    // Funkce pro zavření nabídky, pokud uživatel klikne někam mimo pole
+    document.addEventListener('click', function(event) {
+        var dropdown = document.getElementById('action-dropdown');
+        if (!dropdown.contains(event.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+</script>
+
+{% endblock %}

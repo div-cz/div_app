@@ -1,0 +1,25 @@
+<!-- search_books.html -->
+{% extends 'inc/base.html' %}
+
+{% block content %}
+<h1>Vyhledávání tvùrcù</h1>
+<form method="get" action="{% url 'creators_search' %}">
+    {{ form.q }}
+    <button type="submit">Hledat</button>
+</form>
+
+{% if creators %}
+<ul>
+    {% for creator in creators %}
+    <li>
+        <a href="{{ creator.url }}">
+            <img src="{{ creator.img }}" alt="{{ creator.firstname }} {{ creator.lastname }}">
+            {{ creator.firstname }} {{ creator.lastname }}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>Žádné výsledky nebyly nalezeny.</p>
+{% endif %}
+{% endblock %}

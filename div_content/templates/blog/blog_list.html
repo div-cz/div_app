@@ -7,6 +7,7 @@
 {% block text_muted %} na DIV.cz{% endblock text_muted %}
 
 {% block content %}
+
 {% if user.is_authenticated %}
     <!-- Autorizován -->
 
@@ -54,15 +55,16 @@
                 {% endif %}
             {% endfor %}
         </ul>
-    {% else %}
+        {% else %}
         <p>Nemáte žádné blogy. Založte si <a href="/blog/novy-blog">nový blog</a>!</p>
     {% endif %}
     
-<hr>
-<a href="/blogy/">Všechny blogy</a> | <a href="/forum/">Diskuzní fórum</a>
-<hr>
-{% else %}
-    <!-- Neautorizován -->
-    <p class="mt-2"><small style="color:silver">Po přihlášení si můžeš založit nebo spravovat blog.</small></p>
-{% endif %}
+        <hr>
+        <a href="/blogy/">Všechny blogy</a> | <a href="/forum/">Diskuzní fórum</a>
+        <hr>
+        {% else %}
+        <!-- Neautorizován -->
+        <p class="mt-2"><small style="color:silver">Po přihlášení si můžeš založit nebo spravovat blog.</small></p>
+    {% endif %}
+
 {% endblock content %}

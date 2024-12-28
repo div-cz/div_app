@@ -1,0 +1,119 @@
+{% extends "articles/base.html" %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
+
+<title>{{ category }} články | Databáze DIV</title>
+
+
+{% block content %}
+
+<link href="/static/css/navbar_other.css" rel="stylesheet">
+
+<style>
+    .articles {
+        display: grid;
+        padding-left: 0;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 5px #c0c0c0;
+    }
+
+    .custom-select {
+        position: relative;
+        display: flex;
+        justify-content: flex-end;
+        margin: 10px;
+        text-align: center;
+        min-width: 175px;
+    }
+
+    .select-options {
+        flex-wrap: wrap;
+        position: absolute;
+        background-color: #f9f9f9;
+        box-shadow: 0px 0px 10px 0px #9E9E9E;
+        border-radius: 10px;
+        z-index: 1;
+        right: 0;
+        margin-top: 35px;
+        text-align: left;
+        font-size: small;
+    }
+
+    .select-options a {
+        color: black;
+        padding: 12px 16px;
+        display: block;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .select-options a:hover {
+        background-color: #f1f1f1;
+        text-decoration: none;
+    }
+
+</style>
+
+<h1>Nejnovější {{ category }} články</h1>
+<div style="margin-top: 30px;">
+    <div>
+    {% if user.is_authenticated %}
+        <a href="" class="cta mt-4">
+            <span class="text-[#0d0c0f] dark:text-[#F9F9F9]">Přidat nový článek</span>
+            <svg width="15px" height="10px" viewBox="0 0 13 10">
+                <path d="M1,5 L11,5"></path>
+                <polyline points="8 1 12 5 8 9"></polyline>
+            </svg>
+        </a>
+    {% else %}
+        <p class="my-4">Pro založení nového příspěvku se prosím <a href="{% url 'login' %}">přihlašte</a>.</p>
+    {% endif %}
+    </div>
+
+<!-- START -->
+    {% for article in articles|slice:":10" %}
+    <div class="articles w-full mt-5 flex items-center">
+        <div class="w-full flex justify-between items-center">
+            <h3><a href="{% url 'article_detail' article.url %}">{{ article.title }}</a></h3> 
+            <div class="custom-select m-0" style="min-width: auto;" onclick="toggleDropdown(event)">
+                <span id="action-header" style="padding: 0 5px;"><i style="font-size: small;" class="fas fa-chevron-down"></i></span>
+                <div id="action-dropdown" class="select-options" style="display: none;">
+                    <a style="border-bottom: 1px solid #9E9E9E; border-radius: 10px 10px 0 0;" href="">Upravit</a>
+                    <a href="" style="border-radius: 0 0 10px 10px;">Smazat</a>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-wrap w-full after">
+            <div class="flex">
+                <a href="#" class="mr-2">{{ article.autor }}</a> - <p class="ml-2">{{ article.created|date:"d.m.Y" }}</p>
+            </div>
+        </div>
+        <p>{{ article.perex|truncatechars:150 }}</p>
+    </div>
+    {% endfor %}
+<!-- / START -->
+</div>
+
+    
+<script>
+    // Funkce pro zobrazení/skrytí roletového menu po kliknutí na text "Akce"
+    function toggleDropdown(event) {
+        var dropdown = document.getElementById('action-dropdown');
+        dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+        
+        // Zastavíme šíření události, abychom zabránili jejímu zachycení dokumentem
+        event.stopPropagation();
+    }
+
+    // Funkce pro zavření nabídky, pokud uživatel klikne někam mimo pole
+    document.addEventListener('click', function(event) {
+        var dropdown = document.getElementById('action-dropdown');
+        if (!dropdown.contains(event.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+</script>
+
+{% endblock %}

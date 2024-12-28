@@ -1,0 +1,21 @@
+<!-- charts/awards_books.html -->
+{% extends "books/base.html" %}
+
+{% block content %}
+
+<div class="row container my-5">
+    <h1 class="w-full mb-8">Knižní Ocenění</h1>
+
+    <ul class="ml-6">
+        {% for book_award in book_awards %}
+            <li>{{ book_award.metaAwardid.awardname }} ({{ book_award.metaAwardid.year }})
+                - {{ book_award.bookid.title }}
+                {% if book_award.winner %} <strong>- Výherce</strong> {% endif %}
+            </li>
+        {% empty %}
+            <li>Žádná knižní ocenění nebyla nalezena.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}
