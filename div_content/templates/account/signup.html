@@ -1,4 +1,4 @@
-{% extends "inc/base.html" %}
+{% extends "./base.html" %}
 
 {% load i18n %}
 
@@ -9,79 +9,130 @@
 {% block content %}
 
 
-      <p><!--{% blocktrans %}Already have an account? Please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}--> Už máš účet? <a href="{{ login_url }}">Přihlásit</a></p>
+<p><!--{% blocktrans %}Already have an account? Please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}--> Už máš účet? <a href="{{ login_url }}">Přihlásit</a></p>
 
-
-<form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
+<form class="signup w-50 mt-4 mx-auto" id="signup_form" method="post" action="{% url 'account_signup' %}">
     {% csrf_token %}
     <div class="form-group">
-        <label for="{{ form.username.id_for_label }}" class="form-label text-right">{% trans "Username" %}</label><br>
+        <label for="{{ form.username.id_for_label }}" class="form-label text-right">{% trans "Username" %}</label>
         <span style="color:red">{{ form.username.errors }}</span>
         <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" class="form-control rounded w-75 w-md-50" value="{{ form.username.value|default:'' }}" placeholder="Uživatelské nebo skutečné jméno" required>
     </div>
+
     <div class="form-group">
-        <label for="{{ form.email.id_for_label }}" class="form-label text-right">{% trans "Email" %}</label><br>
+        <label for="{{ form.email.id_for_label }}" class="form-label text-right">{% trans "Email" %}</label>
         <span style="color:red">{{ form.email.errors }}</span>
         <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="form-control rounded w-75 w-md-50" value="{{ form.email.value|default:'' }}" placeholder="Tvůj e-mail" required>
     </div>
+
     <div class="form-group">
         <label for="{{ form.password1.id_for_label }}" class="form-label text-right">{% trans "Password" %}</label>
         <span style="color:red">{{ form.password1.errors }}</span>
-        <div class="input-group w-75 w-md-50">
-            <input type="password" name="{{ form.password1.name }}" id="{{ form.password1.id_for_label }}" class="form-control" value="{{ form.password1.value|default:'' }}" placeholder="Zadej heslo"  required>
-            <div class="input-group-append">
-                <button id="togglePassword1" type="button" class="btn btn-outline-secondary">
-                    <i class="fa fa-eye" id="togglePasswordIcon1"></i>
-                </button>
-            </div>
+        <div class="password-field">
+            <input type="password" name="{{ form.password1.name }}" id="{{ form.password1.id_for_label }}" placeholder="{{ form.password1.label }}">
+            <input class="clear" type="text" placeholder="Password">
+            <button type="button">
+                <svg viewBox="0 0 21 21">
+                    <circle class="eye" cx="10.5" cy="10.5" r="2.25" />
+                    <path class="top" d="M2 10.5C2 10.5 6.43686 5.5 10.5 5.5C14.5631 5.5 19 10.5 19 10.5" />
+                    <path class="bottom" d="M2 10.5C2 10.5 6.43686 15.5 10.5 15.5C14.5631 15.5 19 10.5 19 10.5" />
+                    <g class="lashes">
+                        <path d="M10.5 15.5V18" />
+                        <path d="M14.5 14.5L15.25 17" />
+                        <path d="M6.5 14.5L5.75 17" />
+                        <path d="M3.5 12.5L2 15" />
+                        <path d="M17.5 12.5L19 15" />
+                    </g>
+                </svg>
+            </button>
         </div>
     </div>
+
     <div class="form-group">
         <label for="{{ form.password2.id_for_label }}" class="form-label text-right">Potvrdit {% trans "Password" %}</label>
         <span style="color:red">{{ form.password2.errors }}</span>
-        <div class="input-group w-75 w-md-50">
-            <input type="password" name="{{ form.password2.name }}" id="{{ form.password2.id_for_label }}" class="form-control" value="{{ form.password2.value|default:'' }}" placeholder="Znovu heslo" required>
-            <div class="input-group-append">
-                <button id="togglePassword2" type="button" class="btn btn-outline-secondary">
-                    <i class="fa fa-eye" id="togglePasswordIcon2"></i>
-                </button>
-            </div>
+        <div class="password-field">
+            <input type="password" class="password-input" name="{{ form.password2.name }}" id="{{ form.password2.id_for_label }}" placeholder="{{ form.password2.label }}">
+            <input class="clear" type="text" placeholder="Password">
+            <button type="button">
+                <svg viewBox="0 0 21 21">
+                    <circle class="eye" cx="10.5" cy="10.5" r="2.25" />
+                    <path class="top" d="M2 10.5C2 10.5 6.43686 5.5 10.5 5.5C14.5631 5.5 19 10.5 19 10.5" />
+                    <path class="bottom" d="M2 10.5C2 10.5 6.43686 15.5 10.5 15.5C14.5631 15.5 19 10.5 19 10.5" />
+                    <g class="lashes">
+                        <path d="M10.5 15.5V18" />
+                        <path d="M14.5 14.5L15.25 17" />
+                        <path d="M6.5 14.5L5.75 17" />
+                        <path d="M3.5 12.5L2 15" />
+                        <path d="M17.5 12.5L19 15" />
+                    </g>
+                </svg>
+            </button>
         </div>
     </div>
+
     {% if redirect_field_value %}
     <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
     {% endif %}
     <p>Registrací souhlasíte s <a href="/podminky-pouziti">podmínkami použití</a>.</p>
-    <button type="submit" class="btn btn-primary">{% trans "Sign Up" %} &raquo;</button>
+    <button type="submit" class="btn add">{% trans "Sign Up" %}</button>
 </form>
 
 <script>
-    function togglePasswordVisibility(passwordFieldId, iconElementId) {
-        const passwordField = document.getElementById(passwordFieldId);
-        const togglePasswordIcon = document.getElementById(iconElementId);
+    const { to, set, timeline } = gsap;
 
-        if (passwordField.type === 'password') {
-            passwordField.type = 'text';
-            togglePasswordIcon.classList.remove('fa-eye');
-            togglePasswordIcon.classList.add('fa-eye-slash');
-        } else {
-            passwordField.type = 'password';
-            togglePasswordIcon.classList.remove('fa-eye-slash');
-            togglePasswordIcon.classList.add('fa-eye');
-        }
-    }
+    document.querySelectorAll('.password-field').forEach(field => {
+        let input = field.querySelectorAll('input'),
+            button = field.querySelector('button'),
+            time = timeline({
+                paused: true
+            }).to(field.querySelector('svg .top'), {
+                // Příklad základní transformace namísto MorphSVG
+                scale: 0.8,
+                duration: .2
+            }).to(field, {
+                keyframes: [{
+                    '--eye-s': 0,
+                    '--eye-background': 1,
+                    duration: .2
+                }, {
+                    '--eye-offset': '0px',
+                    duration: .15
+                }]
+            }, 0);
 
-    document.getElementById('togglePassword1').addEventListener('click', function() {
-        togglePasswordVisibility('{{ form.password1.id_for_label }}', 'togglePasswordIcon1');
+        button.addEventListener('click', e => {
+            if (field.classList.contains('show')) {
+                field.classList.remove('show');
+                time.reverse(0);
+                return;
+            }
+            field.classList.add('show');
+            time.play(0);
+        });
+
+        field.addEventListener('pointermove', e => {
+            const rect = button.getBoundingClientRect();
+            const fullWidth = rect.width;
+            const halfWidth = fullWidth / 2;
+            const fullHeight = rect.height;
+            const halfHeight = fullHeight / 2;
+            let x = e.clientX - rect.left - halfWidth,
+                y = e.clientY - rect.top - halfHeight;
+
+            field.style.setProperty('--eye-x', (x < -halfWidth ? -halfWidth : x > fullWidth ? fullWidth : x) / 15 + 'px');
+            field.style.setProperty('--eye-y', (y < -halfHeight ? -halfHeight : y > fullHeight ? fullHeight : y) / 25 + 'px');
+        });
+
+        field.addEventListener('pointerleave', e => {
+            field.style.setProperty('--eye-x', '0px');
+            field.style.setProperty('--eye-y', '0px');
+        });
+
+        input.forEach(single => single.addEventListener('input', e => input.forEach(i => i.value = e.target.value)));
     });
 
-    document.getElementById('togglePassword2').addEventListener('click', function() {
-        togglePasswordVisibility('{{ form.password2.id_for_label }}', 'togglePasswordIcon2');
-    });
 </script>
-
-
-
 
 
 {% endblock content %}
