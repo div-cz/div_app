@@ -14,19 +14,36 @@
 {% if socialaccount_providers %}
 
 <p>{% blocktrans with site.name as site_name %}
-    Prosím, přihlaste se pomocí účtu třetích stran. Nebo se, <a href="{{ signup_url }}">zaregistrujte</a>.<!-- lépe zformulovat-->
+    Prosím, prihlaste se pomocí účtu třetích stran. Nebo se, <a href="{{ signup_url }}">zaregistrujte</a>.<!-- lépe zformulovat-->
 {% endblocktrans %}</p>
 
 <div class="socialaccount_ballot">
     <ul class="socialaccount_providers">
         {% comment %}{% include "socialaccount/snippets/provider_list.html" with process="login" %}{% endcomment %}
         <li>
-            <a href="/ucet/facebook/login/?process=login" class="google" title="google">
-                <span><i class="fab fa-google"></i></span>
+            <a href="/ucet/google/login/?process=login " class="google" title="google">
+                <span>
+                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.1" x="0px" y="0px" class="google-icon" viewBox="0 0 48 48" height="2em" width="2em">
+                      <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12 c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24 c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path>
+                      <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657 C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path>
+                      <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36 c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path>
+                      <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571 c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path>
+                    </svg>
+                </span>
             </a>
+        </li>
         <li>  
-            <a href="/ucet/google/login/?process=login" class="facebook" title="facebook">
-                <span><i class="fab fa-facebook-f"></i></span>
+            <a href="/ucet/facebook/login/?process=login" class="facebook" title="facebook">
+                <span>
+                    <svg version="1.1" viewBox="0 0 64 64" height="2.5em" width="2.5em">
+                        <g fill-rule="evenodd" fill="none" stroke-width="1" stroke="none">
+                            <g fill-rule="nonzero" transform="translate(3.000000, 3.000000)">
+                                <!-- <circle r="29.4882047" cy="29.4927506" cx="29.5091719" fill="#3C5A9A"></circle> -->
+                                <path fill="#3C5A9A" d="M39.0974944,9.05587273 L32.5651312,9.05587273 C28.6886088,9.05587273 24.3768224,10.6862851 24.3768224,16.3054653 C24.395747,18.2634019 24.3768224,20.1385313 24.3768224,22.2488655 L19.8922122,22.2488655 L19.8922122,29.3852113 L24.5156022,29.3852113 L24.5156022,49.9295284 L33.0113092,49.9295284 L33.0113092,29.2496356 L38.6187742,29.2496356 L39.1261316,22.2288395 L32.8649196,22.2288395 C32.8649196,22.2288395 32.8789377,19.1056932 32.8649196,18.1987181 C32.8649196,15.9781412 35.1755132,16.1053059 35.3144932,16.1053059 C36.4140178,16.1053059 38.5518876,16.1085101 39.1006986,16.1053059 L39.1006986,9.05587273 L39.0974944,9.05587273 L39.0974944,9.05587273 Z"></path>
+                            </g>
+                        </g>
+                    </svg>
+                </span>
             </a>
         </li>
     </ul>
@@ -37,22 +54,23 @@
 {% include "socialaccount/snippets/login_extra.html" %}
 
 {% else %}
-<p>{% blocktrans %}If you have not created an account yet, then please
-<a href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</p>
+<p>Prihlas
+<a href="{{ signup_url }}">prihlas</a> </p>
 {% endif %}
 
 {% if form.errors %}
 <div class="alert alert-danger">
-{% for field in form %}
-    {% for error in field.errors %}
-    <p>{{ error }}</p>
+    {% for field in form %}
+        {% for error in field.errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
     {% endfor %}
-{% endfor %}
-{% for error in form.non_field_errors %}
-    <p>{{ error }}</p>
-{% endfor %}
+    {% for error in form.non_field_errors %}
+        <p>{{ error }}</p>
+    {% endfor %}
 </div>
 {% endif %}
+
 
 
 <form class="w-50 mt-4 mx-auto" method="POST" action="{% url 'account_login' %}">

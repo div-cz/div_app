@@ -18,7 +18,7 @@
             <form method="post" action="{% url 'account_email' %}">
                 {% csrf_token %}
                 <input type="hidden" name="email" value="{{ new_emailaddress.email }}">
-                <button class="add" type="submit" name="action_send">{% trans 'Re-send Verification' %}</button>
+                <button type="submit" name="action_send">{% trans 'Re-send Verification' %}</button>
             </form>
         {% endif %}
     {% else %}
@@ -28,6 +28,6 @@
     <form method="post" action="{% url 'account_email' %}">
         {% csrf_token %}
         {{ form.as_p }}
-        <button name="action_add" class="add" type="submit">{% trans "Change Email" %}</button>
+        <button name="action_add" type="submit">{% trans "Change Email" %}</button>
     </form>
 {% endblock content %}
