@@ -10,8 +10,8 @@ from django.views.generic import DetailView
 
 from div_content.forms.movies import CommentForm, SearchForm
 from div_content.models import (
-    Article, Book, Creator, Creatorbiography, Game, Metalocation, Metagenre, Metaindex, 
-    Movie, Moviecinema, Moviecomments, Moviecrew, Moviegenre, Movierating, User, Userlist,
+    Article, Articlenews, Book, Creator, Creatorbiography, Game, Metalocation, Metagenre, Metaindex, Metastats, 
+    Movie, Moviecinema, Moviedistributor, Moviecomments, Moviecrew, Moviegenre, Movierating, Movietrailer, Movietrivia, User, Userlist,
     Userlistmovie, Userprofile
 )
 from star_ratings.models import Rating, UserRating
@@ -24,19 +24,17 @@ import math
 #List = .values('title', 'titlecz', 'url', 'img', 'description')
 def redirect_view(request):
     # Zde můžete přidat logiku pro určení, kam přesměrovat
-    return redirect('https://www.startovac.cz/projekty/div-cz-databaze')
+    return redirect('https://div.cz/') #https://www.startovac.cz/projekty/div-cz-databaze
 
 def index(request): # hlavní strana
-        movies_carousel = Metaindex.objects.filter(section='Movie').order_by('-popularity').values('title', 'url', 'img', 'description')[2:8]
+        movies_carousel = Metaindex.objects.filter(section='Movie').order_by('-indexid').values('title', 'url', 'img', 'description')[1:8]
         movies_list_6 = Metaindex.objects.filter(section='Movie').order_by('-indexid').values('title', 'url', 'img', 'description')[:6]
         
         #latest_articles = Article.objects.filter(typ='Článek').order_by('-created').values('url', 'title')[:3]
 
-        articles = Article.objects.exclude(typ='Site').order_by('-created').values('url', 'title', 'img', 'img400x250', 'perex')[:2]
-
-
-
-
+        articles = Article.objects.exclude(typ='Site').order_by('-created').values('url', 'title', 'img', 'img400x250', 'perex')[:9]
+        
+        articlenews = Articlenews.objects.all().order_by('-id').values('title', 'news', 'source', 'img', 'created')[:8]
 
 
         movies = Movie.objects.all().order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:40]
@@ -48,12 +46,19 @@ def index(request): # hlavní strana
             comment_count=Count('moviecomments'),
             rating_count=Count('userrating'),
             comment_rating_sum=Count('moviecomments')+Count('userrating')
-        ).order_by('-rating_count')[:9]
-        
+        ).order_by('-rating_count')[:9]   
+
         movies_comments_9 = Moviecomments.objects.select_related('movieid', 'user').order_by(
             '-commentid').values('comment', 'movieid__titlecz', 'movieid__url', 'movieid', 'user', 'user__username')[:12]
-        
-        return render(request, 'index.html', {'movies': movies, 'movies_carousel': movies_carousel, 'movies_list_6': movies_list_6, 'articles': articles, 'creators_list_8': creators_list_8, 'users_list_4': users_list_4, 'movies_comments_9': movies_comments_9})
+
+
+    # Filmy v kinech
+        movies_in_cinema = Moviecinema.objects.select_related('movieid', 'distributorid').order_by('-releasedate').values(
+        'movieid__title', 'movieid__titlecz', 'movieid__img', 'releasedate', 'distributorid__name', 'movieid__url')[:10]
+
+
+ 
+        return render(request, 'index.html', {'movies': movies, 'movies_carousel': movies_carousel, 'movies_list_6': movies_list_6, 'articles': articles, 'articlenews': articlenews, 'creators_list_8': creators_list_8, 'users_list_4': users_list_4, 'movies_comments_9': movies_comments_9, 'movies_in_cinema': movies_in_cinema})
 
 
 def movies(request, year=None, genre_url=None, movie_url=None):
@@ -84,7 +89,7 @@ def movies(request, year=None, genre_url=None, movie_url=None):
 
 
 
-
+# nasazeno z movies.py
 def search(request):
     movies = None
     if 'q' in request.GET:
@@ -92,7 +97,7 @@ def search(request):
         if form.is_valid():
             query = form.cleaned_data['q']
             movies = (Movie.objects.filter(titlecz__icontains=query, adult=0)
-                .values('title', 'titlecz', 'url', 'img', 'description', 'releaseyear', 'averagerating')[:50])
+                .values('title', 'titlecz', 'url', 'img', 'description', 'popularity', 'releaseyear', 'averagerating').order_by('-popularity')[:50])
     else:
         form = SearchForm()
 

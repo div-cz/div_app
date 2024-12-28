@@ -1,18 +1,29 @@
 # VIEWS.BOOKS.PY
 
 # https://console.cloud.google.com/welcome?project=knihy-div
+import datetime
 import os
 import requests
 
-from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.views.decorators.http import require_POST
 
-from div_content.forms.books import BookAddForm, SearchFormBooks
-from div_content.models import Book, Bookauthor, Bookcharacter, Bookcomments, Bookcover, Bookgenre, Bookisbn, Bookpublisher, Bookrating, Bookwriters, Charactermeta, Metagenre, Metaindex
-
-from div_content.utils.books import fetch_books_from_google, fetch_book_from_google_by_id 
 from dotenv import load_dotenv
 
+from div_content.forms.books import BookAddForm, Bookquoteform, CommentFormBook, SearchFormBooks
+from div_content.models import (
+    Book, Bookauthor, Bookcharacter, Bookcomments, Bookcover, Bookgenre, Bookisbn, 
+    Bookpublisher, Bookquotes, Bookrating, Bookwriters, Charactermeta, Metagenre, Metaindex, Metastats,
+    Userlist, Userlistbook, Userlisttype
+)
+from div_content.utils.books import fetch_book_from_google_by_id, fetch_books_from_google
+
 load_dotenv()
+
+
 
 def books(request):
     #api_key = os.getenv('GOOGLE_API_KEY')
@@ -32,8 +43,21 @@ def books(request):
     #except Exception as e:
         #all_books = []
         #api_test_message += " | Chyba při získávání dat z API: " + str(e)
+    
+    book_list_15 = Book.objects.filter(year__gt=2022)[:15]
 
-    return render(request, 'books/books_list.html', {'top_books': top_books,})
+    # Knihy podle popularity
+    # book_list_15 = Metaindex.objects.filter(year__gt=2018).order_by("-popularity").values('title', 'url', 'img', 'description')[:15]
+
+    stats_book = Metastats.objects.filter(tablemodel='Book').first()
+    stats_writters = Metastats.objects.filter(tablemodel='BookAuthor').first()
+
+    return render(request, 'books/books_list.html', {
+        'top_books': top_books,
+        "book_list_15": book_list_15,
+        'stats_book': stats_book,
+        'stats_writters': stats_writters
+        })
 #'top_20_books': top_20_books, 'all_books': all_books, 'api_test_message': api_test_message
 
 
@@ -41,6 +65,8 @@ def books(request):
 
 def book_detail(request, book_url):
     book = get_object_or_404(Book, url=book_url)
+    user = request.user
+    comment_form = None
 
     genres = book.bookgenre_set.all()[:3]
     
@@ -48,17 +74,130 @@ def book_detail(request, book_url):
     authors = Bookauthor.objects.filter(
         authorid__in=Bookwriters.objects.filter(book_id=book.bookid).values_list('author_id', flat=True)
     )
-
-
-
      #Fetch characters associated with the book
     characters_with_roles = Bookcharacter.objects.filter(bookid=book.bookid).select_related('characterid')
 
+    # Fetch quotes associated with the book
+    quotes = Bookquotes.objects.filter(bookid=book)
 
+    # Initialize the quote form
+    if user.is_authenticated:
+        if request.method == 'POST' and 'quote' in request.POST:
+            quote_form = Bookquoteform(request.POST, bookid=book.bookid)
+            if quote_form.is_valid():
+                new_quote = quote_form.save(commit=False)
+                new_quote.bookid = book
+                new_quote.user = request.user
+                new_quote.authorid = book.authorid 
+                new_quote.save()
+                return redirect('book_detail', book_url=book_url)
+        else:
+            quote_form = Bookquoteform(bookid=book.bookid)
+    else:
+        quote_form = None
+
+    # Zjistí, jestli má uživatel knihu v seznamu Oblíbené
+    if user.is_authenticated:
+        try:
+            favourites_type = Userlisttype.objects.get(userlisttypeid=4)
+            favourites_list = Userlist.objects.get(user=user, listtype=favourites_type)
+            is_in_favourites = Userlistbook.objects.filter(book__bookid=book.bookid, userlist=favourites_list).exists()
+        except Exception as e:
+            is_in_favourites = False
+    else:
+        is_in_favourites = False
+
+    # Zjistí, jestli má uživatel knihu v seznamu Chci číst
+    if user.is_authenticated:
+        try:
+            readlist_type = Userlisttype.objects.get(userlisttypeid=5)
+            readlist_list = Userlist.objects.get(user=user, listtype=readlist_type)
+            is_in_readlist = Userlistbook.objects.filter(book__bookid=book.bookid, userlist=readlist_list).exists()
+        except Exception as e:
+            is_in_readlist = False
+    else:
+        is_in_readlist = False
+
+    # Zjistí, jestli má uživatel knihu v seznamu Přečteno
+    if user.is_authenticated:
+        try:
+            read_type = Userlisttype.objects.get(userlisttypeid=6)
+            read_list = Userlist.objects.get(user=user, listtype=read_type)
+            is_in_read_books = Userlistbook.objects.filter(book__bookid=book.bookid, userlist=read_list).exists()
+        except Exception as e:
+            is_in_read_books = False
+    else:
+        is_in_read_books = False
     
-    return render(request, 'books/book_detail.html', {'book': book,'authors': authors, 'genres': genres, 'characters_with_roles': characters_with_roles})
+    # Zjistí, jestli má uživatel knihu v seznamu Knihovna
+    if user.is_authenticated:
+        try:
+            library_type = Userlisttype.objects.get(userlisttypeid=10)
+            library_list = Userlist.objects.get(user=user, listtype=library_type)
+            is_in_book_library = Userlistbook.objects.filter(book__bookid=book.bookid, userlist=library_list).exists()
+        except Exception as e:
+            is_in_book_library = False
+    else:
+        is_in_book_library = False
+    
+    if user.is_authenticated:
+        if 'comment' in request.POST:
+                comment_form = CommentFormBook(request.POST)
+                if comment_form.is_valid():
+                    comment = comment_form.cleaned_data['comment']
+                    Bookcomments.objects.create(comment=comment, bookid=book, user=request.user)
+                    return redirect('book_detail', book_url=book_url)
+                else:
+                    print(comment_form.errors)
+        else:
+            comment_form = CommentFormBook(request=request)
+
+    comments = Bookcomments.objects.filter(bookid=book).order_by('-commentid')
+
+    return render(request, 'books/book_detail.html', {
+        'book': book,
+        'authors': authors, 
+        'genres': genres, 
+        "comment_form": comment_form,
+        "comments": comments,
+        'characters_with_roles': characters_with_roles,
+        'quotes': quotes,
+        'quote_form': quote_form,
+        "is_in_favourites": is_in_favourites,
+        "is_in_readlist": is_in_readlist,
+        "is_in_read_books": is_in_read_books,
+        "is_in_book_library": is_in_book_library
+        })
 #    top_20_books = Book.objects.order_by('-bookrating').all()[:20]  # Define top_20_books here
     #'top_20_books': top_20_books
+
+
+
+@require_POST
+def ratequote(request, quote_id):
+    quote = get_object_or_404(Bookquotes, pk=quote_id)
+    action = request.POST.get('action')
+
+    # Zkontroluje cookies
+    cookie_name = f'voted_{quote_id}'
+    if request.COOKIES.get(cookie_name):
+        return JsonResponse({'error': 'Již jste hlasoval/a.'})
+
+    # Pokud uživatel nehlasoval, zvýšíme hlas a nastavíme cookie
+    if action == 'thumbsup':
+        quote.thumbsup += 1
+    elif action == 'thumbsdown':
+        quote.thumbsdown += 1
+
+    quote.save()
+
+    response = JsonResponse({'thumbsup': quote.thumbsup, 'thumbsdown': quote.thumbsdown})
+    
+    # Nastaví cookie na týden
+    expires = timezone.now() + datetime.timedelta(days=7)
+    response.set_cookie(cookie_name, 'voted', expires=expires)
+    
+    return response
 
 
 
@@ -104,5 +243,109 @@ def book_add(request):
     })
 
 
+# Přidat do sezanmu: Oblíbené knihy
+@login_required
+def add_to_favourite_books(request, bookid):
+    book = get_object_or_404(Book, bookid=bookid)
+    favourite_type = Userlisttype.objects.get(userlisttypeid=4)
+    favourites_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=favourite_type)
+
+    if Userlistbook.objects.filter(userlist=favourites_list, book=book).exists():
+        print("already in favourites")
+    else:
+        Userlistbook.objects.create(userlist=favourites_list, book=book)
+        print("new list created")
+    
+    return redirect("book_detail", book_url=book.url)
+
+# # Přidat do seznamu: Chci číst
+@login_required
+def add_to_readlist(request, bookid):
+    book = get_object_or_404(Book, bookid=bookid)
+    readlist_type = Userlisttype.objects.get(userlisttypeid=5)
+    readlist_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=readlist_type)
+
+    if Userlistbook.objects.filter(userlist=readlist_list, book=book).exists():
+        print("already in favourites")
+    else:
+        Userlistbook.objects.create(userlist=readlist_list, book=book)
+        print("new list created")
+    
+    return redirect("book_detail", book_url=book.url)   
+
+# Přidat do seznamu: Přečteno
+@login_required
+def add_to_read_books(request, bookid):
+    book = get_object_or_404(Book, bookid=bookid)
+    read_type = Userlisttype.objects.get(userlisttypeid=6)
+    read_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=read_type)
+
+    if Userlistbook.objects.filter(userlist=read_list, book=book).exists():
+        print("already in favourites")
+    else:
+        Userlistbook.objects.create(userlist=read_list, book=book)
+        print("new list created")
+    
+    return redirect("book_detail", book_url=book.url)   
+
+# Přidat do seznamu: Knihovna
+@login_required
+def add_to_book_library(request, bookid):
+    book = get_object_or_404(Book, bookid=bookid)
+    library_type = Userlisttype.objects.get(userlisttypeid=10)
+    library_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=library_type)
+
+    if Userlistbook.objects.filter(userlist=library_list, book=book).exists():
+        print("already in favourites")
+    else:
+        Userlistbook.objects.create(userlist=library_list, book=book)
+        print("new list created")
+    
+    return redirect("book_detail", book_url=book.url) 
 
 
+# Smazat ze seznamu: Oblíbené
+@login_required
+def remove_from_favourites_books(request, bookid):
+    book = get_object_or_404(Book, bookid=bookid)
+    favourite_type = Userlisttype.objects.get(userlisttypeid=4)
+    favourites_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=favourite_type)
+    userlistbook = Userlistbook.objects.get(book=book, userlist=favourites_list)
+    userlistbook.delete()
+    
+    return redirect("book_detail", book_url=book.url)
+
+# Smazat ze seznamu: Chci číst
+@login_required
+def remove_from_readlist(request, bookid):
+    book = get_object_or_404(Book, bookid=bookid)
+    readlist_type = Userlisttype.objects.get(userlisttypeid=5)
+    readlist_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=readlist_type)
+    userlistbook = Userlistbook.objects.get(book=book, userlist=readlist_list)
+    userlistbook.delete()
+    
+    return redirect("book_detail", book_url=book.url)
+
+
+# Smazat ze seznamu: Přečteno
+@login_required
+def remove_from_read_books(request, bookid):
+    book = get_object_or_404(Book, bookid=bookid)
+    read_type = Userlisttype.objects.get(userlisttypeid=6)
+    read_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=read_type)
+    userlistbook = Userlistbook.objects.get(book=book, userlist=read_list)
+    userlistbook.delete()
+    
+    return redirect("book_detail", book_url=book.url)
+
+
+# Smazat ze seznamu: Knihovna
+@login_required
+def remove_from_book_library(request, bookid):
+    book = get_object_or_404(Book, bookid=bookid)
+    library_type = Userlisttype.objects.get(userlisttypeid=10)
+    library_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=library_type)
+    userlistbook = Userlistbook.objects.get(book=book, userlist=library_list)
+    userlistbook.delete()
+    
+    return redirect("book_detail", book_url=book.url)

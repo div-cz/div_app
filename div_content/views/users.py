@@ -177,7 +177,6 @@ def add_to_list(request):
             return JsonResponse({"success": False, "error": "Unknown media type"})
 
 
-
         return JsonResponse({"success": True, "action": "added"})
     return JsonResponse({"success": False})
 
