@@ -1,0 +1,1238 @@
+{% extends "user/base.html" %}
+
+{% load i18n %}
+
+{% block title %}Profil  {{ profile_user.username }} {% endblock title %}
+
+{% block h1 %}{{ profile_user.username }}{% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+
+<style>
+
+    #vitrina {
+        display: flex;
+        flex-wrap: wrap;
+        width: auto;
+        max-width: 600px;
+        background-color: #727271;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+        border: 2px solid #444;
+    }
+
+    #vitrina:is(.dark *) {
+        background-color: #2c2c34;
+    }
+
+    .patro {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 15px 0;
+        background: #cccccc;
+        box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2);
+        border-radius: 10px;
+        margin-bottom: 10px;
+        width: 100%;
+    }
+
+    .patro:is(.dark *) {
+        background: linear-gradient(90deg, #3a3a42, #44444d);
+    }
+
+    h3 {
+        margin-left: 20px;
+        text-decoration: underline;
+    }
+
+    .odznaky {
+        display: flex;
+        justify-content: space-evenly;
+        width: 100%;
+        gap: 10px; 
+        padding: 10px;
+    }
+
+    .badge {
+        perspective: 1000px; /* Perspektiva pro 3D efekt */
+        flex: 1 1 calc(25% - 10px); /* 25 % šířky rodiče minus mezera */
+        max-width: 120px; /* Maximální šířka pro velké obrazovky */
+        aspect-ratio: 1 / 1; /* Zachování čtvercového formátu */
+        position: relative;
+        border-radius: 50%;
+    }
+
+    .badge-inner {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        text-align: center;
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+        transform-origin: center;
+    }
+
+    .badge-inner.flipped {
+        transform: rotateY(180deg); /* Otočení na zadní stranu */
+    }
+
+    .badge-front, .badge-back {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden; /* Skryje zadní stranu, když není viditelná */
+        border-radius: 50%; /* Zaoblení pro odznaky */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    }
+    
+    .badge-front {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #e9e9e9;
+        z-index: 2; /* Přední strana má vyšší prioritu */
+    }
+
+    .badge-front:is(.dark *) {
+        background-color: #555;
+    }
+
+    .badge-front img {
+        width: 100%;
+        height: 100%;
+        filter: grayscale(100%); /* Šedý efekt pro uzamčené odznaky */
+        transition: transform 0.3s, box-shadow 0.3s;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    .badge-front.unlocked img {
+        filter: none; /* Barevný efekt pro odemčené odznaky */
+    }
+
+    .badge-back {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #444;
+        color: white;
+        transform: rotateY(180deg); /* Zadní strana otočená */
+        font-size: 0.9em;
+        padding: 10px;
+        text-align: center;
+    }
+
+    /* Responsivní chování */
+    @media (max-width: 768px) {
+        .badge {
+            flex: 1 1 calc(33.33% - 10px); /* Tři odznaky na řádek na tabletu */
+            max-width: none; /* Zruší pevnou maximální šířku */
+        }
+    }
+
+    @media (max-width: 480px) {
+        .badge {
+            flex: 1 1 calc(50% - 10px); /* Dva odznaky na řádek na mobilu */
+            max-width: none; /* Zruší pevnou maximální šířku */
+        }
+    }
+
+</style>
+
+<div class="mt-5">
+
+    <!-- Sekce záložek pro filmy, knihy, hry, statistiky -->
+    <div class="flex overflow-scroll">
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-film mr-2"></i>
+            <a class="movies" href="{% url 'profile_movies_section' profile_user.id %}">Filmy</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-video mr-2"></i>
+            <a class="movies" href="{% url 'profile_series_section' profile_user.id %}">Seriály</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;">
+            <i class="fa-solid fa-book mr-2"></i>
+            <a class="books" href="{% url 'profile_books_section' profile_user.id %}">Knihy</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-gamepad mr-2"></i>
+            <a class="games" href="{% url 'profile_games_section' profile_user.id %}">Hry</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fas fa-star mr-2"></i>
+            <a class="stats" href="{% url 'profile_stats_section' profile_user.id %}">Statistiky</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center bg-[#f0f0f0]" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-trophy mr-2"></i> 
+            <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
+        </div>
+
+        <!-- <a class="border rounded-1xl mr-2 users" 
+           style="padding: .5rem 1rem;" 
+           href="">Uživatelé</a> -->
+    </div>
+
+    <div class="row mt-5 w-full">
+        <div class="flex overflow-scroll mb-4">
+            <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;">
+                <a href="">Filmy</a>
+            </div>
+            <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;">
+                <a href="">Seriály</a>
+            </div>
+            <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;">
+                <a href="">Knihy</a>
+            </div>
+            <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;">
+                <a href="">Hry</a>
+            </div>
+            <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;">
+                <a href="">Ostatní</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FILMY -->
+    <div id="vitrina">
+        <h2>FILMY</h2>
+        <!-- filmový kritik -->
+        <div class="patro">
+            <h3>Filmový kritik</h3>
+            <span class="ml-2">za napsané recenze</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový filmový kritik</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný filmový kritik</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý filmový kritik</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super filmový kritik</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TV maniak -->
+        <div class="patro">
+            <h3>TV maniak</h3>
+            <span class="ml-2">za shlédnutí a ohodnocení filmu</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový TV maniak</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný TV maniak</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý TV maniak</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super TV maniak</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- kinemaniak -->
+        <div class="patro">
+            <h3>Kinemaniak</h3>
+            <span class="ml-2">sběratel filmů ve své DB</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový kinemaniak</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný kinemaniak</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý kinemaniak</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super kinemaniak</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SERIÁLY -->
+    <div id="vitrina">
+        <h2>SERIÁLY</h2>
+        <!-- Seriálový kritik -->
+        <div class="patro">
+            <h3>Seriálový kritik</h3>
+            <span class="ml-2">za napsané recenze</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový seriálový kritik</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný seriálový kritik</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý seriálový kritik</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super seriálový kritik</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seriálník -->
+        <div class="patro">
+            <h3>Seriálník</h3>
+            <span class="ml-2">sběratel seriálů ve své DB</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový seriálník</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný seriálník</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý seriálník</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super seriálník</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KNIHY -->
+    <div id="vitrina">
+        <h2>KNIHY</h2>
+        <!-- Knižní kritik -->
+        <div class="patro">
+            <h3>Knižní kritik</h3>
+            <span class="ml-2">za napsané recenze</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový knižní kritik</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný knižní kritik</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý knižní kritik</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super knižní kritik</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bibliofil -->
+        <div class="patro">
+            <h3>Bibliofil</h3>
+            <span class="ml-2">sběratel knih v knihovně</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový bibliofil</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný bibliofil</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý bibliofil</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super bibliofil</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Knihomol -->
+        <div class="patro">
+            <h3>Knihomol</h3>
+            <span class="ml-2">za přečtení a ohodnocení různých žánrů knih</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový knihomol</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný knihomol</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý knihomol</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super knihomol</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Knihovník -->
+        <div class="patro">
+            <h3>Knihovník</h3>
+            <span class="ml-2">editor knih</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový knihovník</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný knihovník</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý knihovník</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super knihovník</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HRY -->
+    <div id="vitrina">
+        <h2>HRY</h2>
+        <!-- Herní kritik -->
+        <div class="patro">
+            <h3>Herní kritik</h3>
+            <span class="ml-2">za napsané recenze</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový herní kritik</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný herní kritik</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý herní kritik</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super herní kritik</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gamer -->
+        <div class="patro">
+            <h3>Gamer</h3>
+            <span class="ml-2">za dohrání a ohodnocení hry</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový gamer</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný gamer</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý gamer</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super gamer</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OSTATNÍ -->
+    <div id="vitrina">
+        <h2>OSTATNÍ</h2>
+        <!-- Bloger -->
+        <div class="patro">
+            <h3>Bloger</h3>
+            <span class="ml-2">za psaní blogů</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový bloger</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný bloger</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý bloger</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super bloger</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diskutér -->
+        <div class="patro">
+            <h3>Diskutér</h3>
+            <span class="ml-2">za příspěvky ve forech</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový diskutér</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný diskutér</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý diskutér</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super diskutér</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DIVcoiner -->
+        <div class="patro">
+            <h3>DIVcoiner</h3>
+            <span class="ml-2">sběratel DIVcoinů</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový DIVcoiner</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný DIVcoiner</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý DIVcoiner</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super DIVcoiner</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DIVer -->
+        <div class="patro">
+            <h3>DIVer</h3>
+            <span class="ml-2">věrný uživatel</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový DIVer</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný DIVer</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý DIVer</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super DIVer</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mistr slova -->
+        <div class="patro">
+            <h3>Mistr slova</h3>
+            <span class="ml-2">za určitý počet 'lajků' od ostatních uživatelů</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový mistr slova</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný mistr slova</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý mistr slova</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super mistr slova</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Průzkumník -->
+        <div class="patro">
+            <h3>Průzkumník</h3>
+            <span class="ml-2">za hodnocení nebo recenze u nových titulů</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový průzkumník</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný průzkumník</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý průzkumník</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super průzkumník</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stalker -->
+        <div class="patro">
+            <h3>Stalker</h3>
+            <span class="ml-2">sledující uživatele</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový stalker</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný stalker</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý stalker</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super stalker</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Zakladatel -->
+        <div class="patro">
+            <h3>Zakladatel</h3>
+            <span class="ml-2">knih, filmů, her,...</span>
+            <div class="odznaky">
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Bronzový zakladatel</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Stříbrný zakladatel</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Zlatý zakladatel</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+                <div class="badge">
+                    <div class="badge-inner">
+                        <div class="badge-front">
+                            <img src="/static/img/badge/otaznik.webp" alt="">
+                        </div>
+                        <div class="badge-back">
+                            <p>Super zakladatel</p>
+                            <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const badges = document.querySelectorAll('.badge'); // Výběr všech odznaků
+
+        badges.forEach((badge) => {
+            badge.addEventListener('click', () => {
+                const inner = badge.querySelector('.badge-inner');
+
+                // Nejprve otočíme všechny ostatní odznaky zpět na přední stranu
+                badges.forEach((otherBadge) => {
+                    const otherInner = otherBadge.querySelector('.badge-inner');
+                    if (otherInner && otherInner !== inner) {
+                        otherInner.classList.remove('flipped'); // Vrátí všechny ostatní na front
+                    }
+                });
+
+                // Přepneme aktuální odznak
+                if (inner) {
+                    inner.classList.toggle('flipped'); // Otočí aktuální odznak
+                }
+            });
+        });
+    });
+
+</script>
+
+{% endblock content %}

@@ -1,16 +1,16 @@
-{% extends "movies/base.html" %}
+{% extends "series/base.html" %}
 {% load i18n %}
 {% load ratings %}
 {% load static %}
 
-{% block title %}{{ movie.titlecz }} ({{ movie.releaseyear }}) | DIV.cz{% endblock %}
+{% block title %}Výsledky hledání pro "{{ request.GET.q }}" | DIV.cz{% endblock %}
 
 {% block content %}
 
 <div class="row container w-full my-4 my-6 grow">
     <h2 class="mb-4">Vyhledávání: {% if request.GET.q %} {{ request.GET.q }} {% endif %}</h2>
     <div class="row mb-3 w-full">
-        {% if movies %}
+        {% if series %}
         <div class="table">
             <div class="grid search-grid bg-[#c0c0c0]">
                 <div class="text-center font-bold p-1">Miniatura</div>
@@ -19,26 +19,26 @@
                 <div class="text-center font-bold p-1">Hodnocení</div>
             </div>
             <div>
-                {% for movie in movies %}
+                {% for serie in series %}
                 <div class="grid items-center border search-grid sudy">
                     <div>
-                        <a href="/film/{{ movie.URL }}">
-                            {% if movie.IMG == "noimg.png" %}
-                            <img src="/static/img/movie/w400/noimg.png" alt="{{ movie.TitleCZ }}" style="max-width: 100px; object-fit: cover;">
+                        <a href="/serial/{{ serie.URL }}">
+                            {% if serie.img == "noimg.png" %}
+                            <img src="/static/img/movie/w400/noimg.png" alt="{{ serie.titlecz }}" style="max-width: 100px; object-fit: cover;">
                             {% else %}
-                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.IMG }}" alt="{{ movie.TitleCZ }}"  style="max-width: 100px; object-fit: cover;">
+                            <img src="https://www.themoviedb.org/t/p/w400{{ serie.img }}" alt="{{ serie.TitleCZ }}"  style="max-width: 100px; object-fit: cover;">
                             {% endif %}
                         </a>
                     </div>
                     <div class="p-1">
-                        <a href="/film/{{ movie.URL }}">{{ movie.TitleCZ }}</a>
+                        <a href="/serial/{{ serie.url }}">{{ serie.titlecz }}</a>
                     </div>
                     <div class="text-center p-1">
-                        <a href="/filmy/{{ movie.ReleaseYear }}">{{ movie.ReleaseYear }}</a>
+                        <a href="/serial/{{ serie.premieredate }}">{{ serie.premieredate|date:"Y" }}</a>
                     </div>
                     <div class="text-center p-1 stars">
-                        {% if movie.AverageRating %}
-                        {% with score=movie.AverageRating|floatformat:0 %}
+                        {% if serie.AverageRating %}
+                        {% with score=serie.AverageRating|floatformat:0 %}
                         <span class="text-warning h4">
                             {% if score == "1" %}
                             &#9733;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;
