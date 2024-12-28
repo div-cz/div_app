@@ -1,168 +1,43 @@
-<!DOCTYPE html>
-<html lang="cs">
-<head>
+{% extends "characters/base.html" %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
 
-    {% include "inc/head.html" %}
+{% block title %}{{ character.charactername }} | DIV.cz{% endblock %}
+     
+{% include "inc/sidebar.html" %}
 
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+{% block content %}
 
+<div class="container my-4 px-4">
+    <h2 class="mb-4">Postavy</h2>
+    <div class="row container my-5">
 
-<title>Filmové postavy | Databáze DIV</title>
-
-<style>
-.carousel-image-container {
-    width: 100%; /* zajistí, aby kontejner zabral celou šířku */
-    max-width: 1200px; /* nastaví maximální šířku kontejneru */
-    margin: auto; /* centruje kontejner */
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-}
-
-
-.carousel-main-image {
-    max-height: 400px;
-    width: auto;
-    margin: 0 auto;
-}
-
-.carousel-side-image {
-    width: 100px;
-    opacity: 0.5;
-    display: none;
-}
-.carousel-caption {
-    background: rgba(0, 0, 0, 0.5); /* černé pozadí s 50% průhledností */
-    color: white; /* bílý text pro lepší kontrast */
-    padding: 10px; /* trochu paddingu pro lepší vzhled */
-}
-
-.card2 {
-    height: 350px;
-}
-
-@media (min-width: 768px) {
-    .carousel-side-image {
-        display: block;
-    }
-}
-
-</style>
-
-    {% include "../inc/google.html" %}
-
-</head>
-
-<body>
-
-    {% include "inc/navbar.html" %}
-
-<main class="mb-5">
-<section>
-<!-- Carousel -->
+            <!-- Seznam filmů -->
+            <div class="row w-full">
+                <div class="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-colums-3 sm:grid-colums-2 gap-4 w-full mb-3">
+                    {% for character in characters %}
+                    <div class="card box-shadow bg-[#F9F9F9] dark:bg-[#1A161F] ">
+                        {% if not character.characterimg or character.characterimg == "" %}
+                        <img src="/static/img/creator/noperson.svg" alt="{{ character.charactername }}" class="rounded" style="object-fit: cover;">
+                        {% else %}
+                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ character.characterimg }}" alt="{{ character.charactername }}" class="rounded" style="object-fit: cover;">
+                    {% endif %}
 
 
-<!--<div class="carousel-inner">
+                        <div class="text-center">
+                            <a href="/postava/{{ character.characterurl }}">
+                            <h4 class="card-title">{{ character.charactername }} <!--<span class="text-muted">({{ character.birthdate|date:"Y"  }})</span>--></h4></a>
 
-</div>-->
-
-
-    <!-- další položky carouselu -->
-
-<!--  </div>
-  <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="sr-only">Předchozí</span>
-  </a>
-  <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="sr-only">Další</span>
-  </a>
-</div>
-</section>-->
-
-
-
-
-
-<!-- Sekce odkazů na filmy -->
-<div class="container my-4">
-
-
-
-<h2 class="mb-4">Postavy</h2>
-
-
-
-        <div class="row">
-            <!-- Hlavní obsah (Levý sloupec) -->
-            <div class="col-md-8">
-
-                <!-- Seznam filmů -->
-                <div class="row">
-        {% for character in characters %}
-    <div class="col-lg-3 col-md-3 col-sm-6 mb-3">
-      <div class="card">
-        {% if not character.characterimg %}
-            <a href="/postava/{{ character.characterurl }}"><img src="/static/img/creator/noperson.svg" class="card-img-top" alt="{{ creator.lastname }}"></a>
-        {% else %}
-            <a href="/postava/{{ character.characterurl }}"><img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ character.characterimg }}" class="card-img-top" alt="{{ character.charactername }}"></a>
-        {% endif %}
-        
-
-        <div class="card-body">
-          <h5 class="card-title">{{ character.charactername }} <!--<span class="text-muted">({{ character.birthdate|date:"Y"  }})</span>--></h5>
-          <p class="card-text">
-
-        </p>
-        </div>
-      </div>
-    </div>
-        {% endfor %}
-                </div>
-            </div>
-
-            <!-- Pravý sloupec -->
-            <div class="col-md-4"><!-- Pravý sloupec -->
-
-
-                <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Přihlášení uživatele</h5>
-{% if user.is_authenticated %}
-    <h4>{{ user.username }}! </h4>
-    <p>Vítejte, {{ user.username }}! <a href="{% url 'logout' %}">Odhlásit se</a></p>
-{% else %}
-    <h4>Přihlášení</h4>
-    <form method="post" action="{% url 'login' %}">
-        {% csrf_token %}
-        {{ form.username.label_tag }}
-        {{ form.username }}
-        {{ form.password.label_tag }}
-        {{ form.password }}
-        <button type="submit" class="btn btn-primary">Přihlásit se</button>
-    </form>
-    <div class="mt-3">
-        <p>Nemáte účet? <a href="{% url 'signup' %}">Registrace</a></p>
-    </div>
-{% endif %}
                         </div>
                     </div>
+                    {% endfor %}
+                </div>
+                
+            </div>
+        </div>
 
-                    
+    </div>
+</div>
 
-            </div><!-- // Pravý sloupec -->
-        </div><!-- // row -->
-
-
-
-</div><!--// container -->
-
-</main>
-
-
-{% include "inc/footer.html" %}
-
-
-</body>
-</html>
+{% endblock %}

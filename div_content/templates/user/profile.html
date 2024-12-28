@@ -1,0 +1,94 @@
+{% extends "user/base.html" %}
+
+{% load i18n %}
+
+{% block title %}Profil  {{ profile_user.username }} {% endblock title %}
+
+{% block h1 %}{{ profile_user.username }}{% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+
+<div class="mt-5">
+    <!-- Sekce záložek pro filmy, knihy, hry, statistiky -->
+    <div class="flex overflow-scroll">
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-film mr-2"></i>
+            <a class="movies" href="{% url 'profile_movies_section' profile_user.id %}">Filmy</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-video mr-2"></i>
+            <a class="movies" href="{% url 'profile_series_section' profile_user.id %}">Seriály</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;">
+            <i class="fa-solid fa-book mr-2"></i>
+            <a class="books" href="{% url 'profile_books_section' profile_user.id %}">Knihy</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-gamepad mr-2"></i>
+            <a class="games" href="{% url 'profile_games_section' profile_user.id %}">Hry</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fas fa-star mr-2"></i>
+            <a class="stats" href="{% url 'profile_stats_section' profile_user.id %}">Statistiky</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-trophy mr-2"></i> 
+            <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
+        </div>
+        
+        <!-- <a class="border rounded-1xl mr-2 users" 
+           style="padding: .5rem 1rem;" 
+           href="">Uživatelé</a> -->
+    </div>
+    
+    <!-- Podkategorie záložek (hodnocení, oblíbené atd.) -->
+    <div class="row mt-5">
+        <div class="tab-content w-full mb-3 p-4 bg-[#F9F9F9] dark:bg-[#1A161F]">
+            <!-- Tab Uživatelé -->
+            <div id="uzivatele" style="display: flex;" class="tab-show flex flex-wrap active {% if category == 'uzivatele' %}active{% endif %}">
+                <div class="w-50 sm:w-full">
+                    <h3>Oblíbení uživatelé</h3>
+                    {% if favorite_users %}
+                    {% for profile in favorite_users %}
+                    <ul>
+                        <li><a href="{% url 'myuser_detail' profile.user.id %}">{{ profile.user }}</a></li>
+                    </ul>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="w-50 sm:w-full sm:mt-5">
+                    <h3>Mají mě v oblíbených</h3>
+                    {% if im_favorite_user %}
+                    {% for profile in im_favorite_user %}
+                    <ul>
+                        <li><a href="{% url 'myuser_detail' profile.user.id %}">{{ profile.user }}</a></li>                    
+                    </ul>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.nav-tabs-link').forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.tab-show').forEach(tabContent => {
+                tabContent.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tabs-link').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            const targetTab = this.getAttribute('id').replace('tab-', '');
+            document.getElementById(targetTab).classList.add('active');
+            this.classList.add('active');
+        });
+    });
+</script>
+
+{% endblock content %}

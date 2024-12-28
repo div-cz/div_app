@@ -1,0 +1,23 @@
+{% extends "universum/base.html" %}
+{% block title %}Seznam světů | DIV.cz{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1>Seznam světů</h1>
+    <ul class="list-group">
+        {% for universum in universa %}
+        <li class="list-group-item">
+            {% if universum.url %}
+            <a href="{% url 'universum_detail' universum_url=universum.url %}">
+                {{ universum.universumname }} ({{ universum.universumnamecz }})
+            </a>
+            {% else %}
+            <span>
+                {{ universum.universumname }} ({{ universum.universumnamecz }})
+            </span>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

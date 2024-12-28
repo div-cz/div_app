@@ -1,236 +1,227 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Manage Book</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/add_book.css' %}">
-</head>
-<body>
-    <div class="container">
-        <h1>Manage Book</h1>
+{% extends "books/base.html" %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
 
-        <!-- Záložky -->
-        <div class="tab">
-            <button class="tablinks" onclick="openTab(event, 'isbn-tab')" id="defaultOpen">Add by ISBN</button>
-            <button class="tablinks" onclick="openTab(event, 'manual-tab')">Manual Entry</button>
-            <button class="tablinks" onclick="openTab(event, 'update-tab')">Update Book</button>
-        </div>
+{% block title %} {{ book.titlecz }} | DIV.cz{% endblock %}
 
-        <!-- První záložka: Přidání pomocí ISBN -->
-        <div id="isbn-tab" class="tabcontent">
-            <form method="post" action="{% url 'add_book' %}" id="isbn-form">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="isbn1">ISBN 1:</label>
-                    <input type="text" id="isbn1" name="isbn1">
-                    <button type="button" id="isbn-fetch-book-details-btn">Fetch Book Details</button>
-                </div>
-                <div id="isbn-details" style="display: none;">
-                    <div class="form-group">
-                        <label for="isbn-title">Title: ( musí být vyplněno )</label>
-                        <input type="text" id="isbn-title" name="title" class="readonly">
-                    </div>
-                    <div class="form-group">
-                        <label for="isbn-author">Author: ( musí být vyplněno a ověřeno)</label>
-                        <input type="text" id="isbn-author" name="author" class="readonly">
-                        <button type="button" id="isbn-verify-author-btn">Verify Author</button>
-                        <button type="button" id="isbn-create-author-btn">Create Author</button>
-                        <span id="isbn-author-status" class="author-status"></span>
-                        <input type="hidden" id="isbn-authorid" name="authorid" class="readonly">
-                        <input type="text" id="isbn-authorid-display" class="readonly" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="isbn-year">Year: ( musí být vyplněno ) </label>
-                        <input type="text" id="isbn-year" name="year" class="readonly">
-                    </div>
-                    <div class="form-group">
-                        <label for="isbn-pages">Pages: ( musí být vyplněno )</label>
-                        <input type="text" id="isbn-pages" name="pages" class="readonly">
-                    </div>
-                    <div class="form-group">
-                        <label for="isbn-subtitle">Subtitle:</label>
-                        <input type="text" id="isbn-subtitle" name="subtitle" class="readonly">
-                    </div>
-                    <div class="form-group">
-                        <label for="isbn-description">Description:</label>
-                        <textarea id="isbn-description" name="description" class="readonly"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="isbn-language">Language:</label>
-                        <input type="text" id="isbn-language" name="language" class="readonly">
-                    </div>
-                    <div class="form-group">
-                        <label for="isbn-img">IMG:</label>
-                        <input type="text" id="isbn-img" name="img" class="readonly">
-                    </div>
-                    <div class="form-group">
-                        <label for="isbn-googleid">GoogleID:</label>
-                        <input type="text" id="isbn-googleid" name="googleid" class="readonly">
-                    </div>
-                    <div class="form-group">
-                        <label for="isbn-genre-search">Genre:( zadejte 3 znaky pro nápovědu ) - lze více žánrů</label>
-                        <input type="text" id="isbn-genre-search">
-                        <ul id="isbn-genre-results" class="list-group"></ul>
-                        <ul id="isbn-selected-genres" class="list-group"></ul>
-                    </div>
-                    <div class="form-group">
-                        <label for="isbn-publisher-search">Publisher:( zadejte 3 znaky pro nápovědu ) - maximalne 1 vydavatel</label>
-                        <input type="text" id="isbn-publisher-search">
-                        <ul id="isbn-publisher-results" class="list-group"></ul>
-                        <input type="hidden" id="isbn-publisherid" name="publisherid" class="readonly">
-                        <ul id="isbn-selected-publisher" class="list-group"></ul>
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" id="isbn-form-submit">Add Book</button>
-                    </div>
-                </div>
-            </form>
-        </div>
+{% block content %}
 
-        <!-- Druhá záložka: Manuální zadání -->
-        <div id="manual-tab" class="tabcontent">
-            <form method="post" action="{% url 'add_book' %}" id="manual-form">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="manual-title">Title: ( musí být vyplněno )</label>
-                    <input type="text" id="manual-title" name="title" required>
-                </div>
-                <div class="form-group">
-                    <label for="manual-author">Author: ( musí být vyplněno a ověřeno )</label>
-                    <input type="text" id="manual-author" name="author" required>
-                    <button type="button" id="manual-verify-author-btn">Verify Author</button>
-                    <button type="button" id="manual-create-author-btn">Create Author</button>
-                    <span id="manual-author-status" class="author-status"></span>
-                    <input type="hidden" id="manual-authorid" name="authorid" class="readonly">
-                    <input type="text" id="manual-authorid-display" class="readonly" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="manual-year">Year: ( musí být vyplněno )</label>
-                    <input type="text" id="manual-year" name="year" required>
-                </div>
-                <div class="form-group">
-                    <label for="manual-pages">Pages: ( musí být vyplněno )</label>
-                    <input type="text" id="manual-pages" name="pages" class="required-input" required>
-                </div>
-                <div class="form-group">
-                    <label for="manual-subtitle">Subtitle:</label>
-                    <input type="text" id="manual-subtitle" name="subtitle">
-                </div>
-                <div class="form-group">
-                    <label for="manual-description">Description:</label>
-                    <textarea id="manual-description" name="description"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="manual-language">Language:</label>
-                    <input type="text" id="manual-language" name="language">
-                </div>
-                <div class="form-group">
-                    <label for="manual-img">IMG:</label>
-                    <input type="text" id="manual-img" name="img">
-                </div>
-                <div class="form-group">
-                    <label for="manual-googleid">GoogleID:</label>
-                    <input type="text" id="manual-googleid" name="googleid">
-                </div>
-                <div class="form-group">
-                    <label for="manual-genre-search">Genre: ( zadejte 3 znaky pro nápovědu )</label>
-                    <input type="text" id="manual-genre-search">
-                    <ul id="manual-genre-results" class="list-group"></ul>
-                    <ul id="manual-selected-genres" class="list-group"></ul>
-                </div>
-                <div class="form-group">
-                    <label for="manual-publisher-search">Publisher:( zadejte 3 znaky pro nápovědu )</label>
-                    <input type="text" id="manual-publisher-search">
-                    <ul id="manual-publisher-results" class="list-group"></ul>
-                    <input type="hidden" id="manual-publisherid" name="publisherid" class="readonly">
-                    <ul id="manual-selected-publisher" class="list-group"></ul>
-                </div>
-                <div class="form-group">
-                    <button type="submit" id="manual-form-submit">Add Book</button>
-                </div>
-            </form>
-        </div>
+<link rel="stylesheet" href="/static/css/add_book.css">
 
-        <!-- Třetí záložka: Aktualizace knihy podle ID -->
-        <div id="update-tab" class="tabcontent">
-            <form method="post" action="#" id="update-form">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="book-id">Book ID:</label>
-                    <input type="text" id="book-id" name="book_id">
-                </div>
-                <div class="form-group">
-                    <button type="button" id="fetch-book-details-btn">Fetch Book Details</button>
-                </div>
+<div class="row container my-5">
+    <h1 class="w-full mb-8">Přidat knihu</h1>
 
-                <div id="update-details">
-                    <div class="form-group">
-                        <label for="update-title">Title:</label>
-                        <input type="text" id="update-title" name="title">
-                    </div>
-                    <div class="form-group">
-                        <label for="update-author">Author:</label>
-                        <input type="text" id="update-author" name="author">
-                        <button type="button" id="update-verify-author-btn">Verify Author</button>
-                        <button type="button" id="update-create-author-btn">Create Author</button>
-                        <span id="update-author-status" class="author-status"></span>
-                        <input type="hidden" id="update-authorid" name="authorid" class="readonly">
-                        <input type="text" id="update-authorid-display" class="readonly" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="update-year">Year:</label>
-                        <input type="text" id="update-year" name="year">
-                    </div>
-                    <div class="form-group">
-                        <label for="update-pages">Pages:</label>
-                        <input type="text" id="update-pages" name="pages">
-                    </div>
-                    <div class="form-group">
-                        <label for="update-subtitle">Subtitle:</label>
-                        <input type="text" id="update-subtitle" name="subtitle">
-                    </div>
-                    <div class="form-group">
-                        <label for="update-description">Description:</label>
-                        <textarea id="update-description" name="description"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="update-language">Language:</label>
-                        <input type="text" id="update-language" name="language">
-                    </div>
-                    <div class="form-group">
-                        <label for="update-img">IMG:</label>
-                        <input type="text" id="update-img" name="img">
-                    </div>
-                    <div class="form-group">
-                        <label for="update-googleid">GoogleID:</label>
-                        <input type="text" id="update-googleid" name="googleid">
-                    </div>
-                    <div class="form-group">
-                        <label for="update-genre-search">Genre:( zadejte 3 znaky pro nápovědu ) - lze více žánrů</label>
-                        <input type="text" id="update-genre-search">
-                        <ul id="update-genre-results" class="list-group"></ul>
-                        <ul id="update-selected-genres" class="list-group"></ul>
-                    </div>
-                    
-		    <div class="form-group">
-    <label for="update-author-search">Another authors:</label>
-    <input type="text" id="update-author-search">
-    <ul id="update-author-results" class="list-group"></ul>
-    <ul id="update-authors" class="list-group"></ul>
-</div>
-                    
-                </div>
-            </form>
-        </div>
+    <!-- Záložky -->
+    <div class="tab w-full w-4/5" style="margin: 0 auto;">
+        <button class="tablinks" onclick="openTab(event, 'isbn-tab')" id="defaultOpen">Přidat pomocí ISBN</button>
+        <button class="tablinks" onclick="openTab(event, 'manual-tab')">Ruční vložení</button>
     </div>
-    <script src="{% static 'js/main.js' %}"></script>
-    <script src="{% static 'js/add_book.js' %}"></script>
-    <script src="{% static 'js/authors.js' %}"></script>
-    <script src="{% static 'js/utils.js' %}"></script>
-    <script src="{% static 'js/publisher.js' %}"></script>
-    <script src="{% static 'js/genres.js' %}"></script>
-    <script src="{% static 'js/fetchBookDetails.js' %}"></script>
-    <script src="{% static 'js/getBookDetails.js' %}"></script>
-</body>
-</html>
+
+    <!-- První záložka: Přidání pomocí ISBN -->
+    <div id="isbn-tab" class="tabcontent w-full">
+        <form class="w-4/5 flex-col" style="margin: 0 auto;" method="post" action="{% url 'add_book' %}" id="isbn-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="isbn1">ISBN 1:</label>
+                <input type="text" id="isbn1" name="isbn1">
+                <button class="add" type="button" id="isbn-fetch-book-details-btn">Načíst podrobnosti knihy</button>
+            </div>
+            <div id="isbn-details" style="display: none;">
+                <div class="form-group">
+                    <label for="isbn-title">Název knihy: ( musí být vyplněno )</label>
+                    <input type="text" id="isbn-title" name="title" class="readonly">
+                </div>
+                <div class="form-group">
+                    <label for="isbn-author">Autor: ( musí být vyplněno )</label>
+                    <input type="text" id="isbn-author" name="author" class="readonly">
+                    <input type="hidden" id="isbn-authorid" name="authorid" class="readonly">
+                </div>
+                <div class="form-group">
+                    <label for="isbn-year">Rok: </label>
+                    <input type="text" id="isbn-year" name="year" class="readonly">
+                </div>
+                <div class="form-group">
+                    <label for="isbn-pages">Počet stránek: </label>
+                    <input type="text" id="isbn-pages" name="pages" class="readonly">
+                </div>
+                <div class="form-group">
+                    <label for="isbn-subtitle">Podtitul:</label>
+                    <input type="text" id="isbn-subtitle" name="subtitle" class="readonly">
+                </div>
+                <div class="form-group">
+                    <label for="isbn-description">Popis knihy: ( max 1800 znaků )</label>
+                    <textarea id="isbn-description" name="description" class="readonly"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="isbn-language">Jazyk: ( 2 znaky -> cs:čestina, en:angličtina, jp:japonština .. )</label>
+                    <input type="text" id="isbn-language" name="language" class="readonly">
+                </div>
+                <div class="form-group">
+                    <label>Vyberte způsob přidání obrázku:</label>
+                    <div class="radio-group mt-3">
+                        <div class="flex">
+                            <input type="radio" id="isbn-google-id-option" name="isbn-img-option" value="google-id">
+                            <label class="ml-2 mb-0" for="isbn-google-id-option">Použít Google ID</label>
+                        </div>
+                        <div class="flex">
+                            <input type="radio" id="isbn-no-img-option" name="isbn-img-option" value="no-img" checked>
+                            <label class="ml-2 mb-0" for="isbn-no-img-option">Použít výchozí obrázek (noimg.png)</label>
+                        </div>
+                        <div class="flex">
+                            <input type="radio" id="isbn-upload-img-option" name="isbn-img-option" value="upload-img">
+                            <label class="ml-2 mb-0" for="isbn-upload-img-option">Nahrát vlastní obrázek</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kontejner pro nahrávání obrázku -->
+                <div class="form-group" id="update-img-file-container" style="display: ;">
+                    <label class="mb-0" for="update-img-file">Vyberte obrázek:</label>
+                    <input type="file" id="update-img-file" name="img-file" accept="image/*">
+                    <input type="text" id="update-img" readonly>
+                </div>
+
+                <!-- Kontejner pro Google ID -->
+                <div class="form-group">
+                    <label for="isbn-googleid">GoogleID:</label>
+                    <input type="text" id="isbn-googleid" name="googleid" class="readonly">
+                </div>
+                <div class="form-group">
+                    <label for="isbn-genre-search">Genre:( zadejte 3 znaky pro nápovědu ) - lze více žánrů</label>
+                    <input type="text" id="isbn-genre-search">
+                    <ul id="isbn-genre-results" class="list-group"></ul>
+                    <ul id="isbn-selected-genres" class="list-group"></ul>
+                </div>
+
+                <!-- Pole pro zadání ISBN a typu ISBN -->
+                <div id="isbn-isbn-fields-container">
+                    <!-- Dynamicky generovaná pole pro ISBN a typ ISBN budou vložena sem -->
+                </div>
+                <div class="form-group">
+                    <label for="isbn-publisher-search">Vydavatel: ( zadejte 3 znaky pro nápovědu ) - pouze jeden vydavatel pro všechna ISBN</label>
+                    <input type="text" id="isbn-publisher-search">
+                    <ul id="isbn-publisher-results" class="list-group"></ul>
+                    <input type="hidden" id="isbn-publisherid" name="publisherid" class="readonly">
+                    <ul id="isbn-selected-publisher" class="list-group"></ul>
+                </div>
+                <div class="form-group">
+                    <button class="add" type="submit" id="isbn-form-submit">Přidat knihu</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Druhá záložka: Manuální zadání -->
+    <div id="manual-tab" class="tabcontent w-full">
+        <form class="w-4/5 flex-col" style="margin: 0 auto;" method="post" action="{% url 'add_book' %}" id="manual-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="manual-title">Název knihy: ( musí být vyplněno )</label>
+                <input type="text" id="manual-title" name="title">
+            </div>
+            <!-- <div class="form-group">
+                <label for="manual-title">Originální název: ( musí být vyplněno )</label>
+                <input type="text" id="manual-title" name="title" placeholder="House of Secrets (2016)">
+            </div> -->
+            <div class="form-group">
+                <label for="manual-author">Autor: ( musí být vyplněno )</label>
+                <input type="text" id="manual-author" name="author" class="readonly">
+                <ul id="manual-author-results" class="list-group"></ul>
+            </div>
+            <!-- ROZBALOVACÍ MENU? POKUD TO MÁ SÉRIE -->
+            <!-- <div class="form-group">
+                <label for="manual-author">Série: </label>
+                <input type="text" id="manual-author" name="author">
+                <ul id="manual-author-results" class="list-group"></ul>
+            </div> -->          
+            <div class="form-group">
+                <label for="manual-year">Rok: </label>
+                <input type="text" id="manual-year" name="year" >
+            </div>
+            <div class="form-group">
+                <label for="manual-pages">Počet stránek: </label>
+                <input type="text" id="manual-pages" name="pages" class="required-input" >
+            </div>
+            <div class="form-group">
+                <label for="manual-subtitle">Podtitul:</label>
+                <input type="text" id="manual-subtitle" name="subtitle">
+            </div>
+            <div class="form-group">
+                <label for="manual-description">Popis knihy: ( max 1800 znaků )</label>
+                <textarea id="manual-description" name="description"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="manual-language">Jazyk: ( 2 znaky -> cs:čestina, en:angličtina, jp:japonština .. )</label>
+                <input type="text" id="manual-language" name="language">
+            </div>
+            <div class="form-group">
+                <label for="manual-googleid">GoogleID:</label>
+                <input type="text" id="manual-googleid" name="googleid">
+            </div>
+            <div class="form-group">
+                <label>Vyberte způsob přidání obrázku:</label>
+                <div class="radio-group mt-3">
+                    <div class="flex">
+                        <input type="radio" id="manual-google-id-option" name="manual-img-option" value="google-id">
+                        <label class="ml-2 mb-0" for="manual-google-id-option">Použít Google ID</label>
+                    </div>
+                    <div class="flex">
+                        <input type="radio" id="manual-no-img-option" name="manual-img-option" value="no-img" checked>
+                        <label class="ml-2 mb-0" for="manual-no-img-option">Použít výchozí obrázek (noimg.png)</label>
+                    </div>
+                    <div class="flex">
+                        <input type="radio" id="manual-upload-img-option" name="manual-img-option" value="upload-img">
+                        <label class="ml-2 mb-0" for="manual-upload-img-option">Nahrát vlastní obrázek</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kontejner pro nahrávání obrázku -->
+            <!-- <div class="form-group" id="update-img-file-container" style="display: ;">
+                <label class="mb-0" for="update-img-file">Vyberte obrázek:</label>
+                <input type="file" id="update-img-file" name="img-file" accept="image/*">
+                <input type="text" id="update-img" readonly>
+            </div> -->
+
+            <div class="form-group">
+                <label for="manual-genre-search">Žánry: ( zadejte 3 znaky pro nápovědu ) lze přidat více žánrů</label>
+                <input type="text" id="manual-genre-search">
+                <ul id="manual-genre-results" class="list-group"></ul>
+                <ul id="manual-selected-genres" class="list-group"></ul>
+            </div>
+
+            <!-- Pole pro zadání ISBN a typu ISBN -->
+            <div id="manual-isbn-fields-container">
+                <!-- Dynamicky generovaná pole pro ISBN a typ ISBN budou vložena sem -->
+            </div>
+            <div class="form-group">
+                <button type="button" class="add-isbn-btn add" data-tab="manual">Přidat ISBN</button>
+            </div>
+            <div class="form-group">
+                <label for="manual-publisher-search">Vydavatel: ( zadejte 3 znaky pro nápovědu ) - pouze jeden vydavatel pro všechna ISBN</label>
+                <input type="text" id="manual-publisher-search">
+                <ul id="manual-publisher-results" class="list-group"></ul>
+                <input type="hidden" id="manual-publisherid" name="publisherid" class="readonly">
+                <ul id="manual-selected-publisher" class="list-group"></ul>
+            </div>
+            <div class="form-group">
+                <button class="add" type="submit" id="manual-form-submit">Přidat Knihu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+    <!-- Ziskani dat a ulozeni dat-->
+    <script src="{% static 'js/add_book/add_book.js' %}"></script>
+    <script src="{% static 'js/add_book/fetch_book.js' %}"></script>
+    
+    <!-- Prace s autory -->
+    <script src="{% static 'js/add_book/authors.js' %}"></script>
+    <script src="{% static 'js/add_book/metadata.js' %}"></script>
+    <script src="{% static 'js/add_book/utils.js' %}"></script>
+
+    <!-- Ulozeni obrazku -->
+    <script src="{% static 'js/add_book/add_image.js' %}"></script>
+
+{% endblock %}

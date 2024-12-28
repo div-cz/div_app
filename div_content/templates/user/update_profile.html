@@ -1,4 +1,4 @@
-{% extends "inc/base.html" %}
+{% extends "user/base.html" %}
 
 {% load i18n %}
 
@@ -16,97 +16,92 @@
 {% block text_muted %} na DIV.cz{% endblock text_muted %}
 
 {% block content %}
-<div class="container mt-5">
-  <div class="row">
+    
+    <div class="row mt-5">
 
-    {% if user.is_authenticated %}
+        {% if user.is_authenticated %}
 
-    <ul class="nav nav-tabs bg-secondary">
-    <li class="nav-item">
-        <a class="nav-link" href="/ucet/" id="profile">O mně</a>
-    </li>
-    <li class="nav-item"><!--id="/ucet/ohodnocene/" #ratings-->
-        <a class="nav-link" href="/ucet/hodnoceni/">Moje hodnocení</a>
-    </li>
-    <li class="nav-item"><!--id="/ucet/oblibene/" #favorites--> 
-        <a class="nav-link" href="/ucet/seznamy/oblibene/">Oblíbené</a>
-    </li>
-    <li class="nav-item"><!--id="/ucet/seznamy/to-chci-videt/" #iwantsee--> 
-        <a class="nav-link" href="/ucet/seznamy/chci-videt/">To chci vidět!</a>
-    </li>
-    <li class="nav-item active"><!--id="/ucet/seznamy/to-chci-videt"--> 
-        <a class="nav-link active" href="/ucet/upravit/#edit">Upravit</a>
-    </li>
-    </ul>
+        <div class="tab-content w-full mb-3 w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
+            <div class="mt-4">
+                <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
 
+                    <div class="grid grid-cols-1 lg:grid-cols-2">
+                    <!-- Pole Bio -->
+                        <div class="form-group">
+                            <label class="font-bold" for="id_bio">O mně:</label>
+                            <textarea name="bio" id="id_bio" class="form-control">{{ form.bio.value }}</textarea>
+                            {% if form.bio.errors %}
+                            <small class="text-danger">
+                            {% for error in form.bio.errors %}
+                            {{ error }}
+                            {% endfor %}
+                            </small>
+                        {% endif %}
+                        </div>
+                        
+                        <div class="flex flex-wrap lg:ml-4">
+                            <!-- Pole Birthdate -->
+                            <div class="form-group w-full">
+                                <label class="font-bold" for="id_birthdate">Datum narození (např.: 2000-05-05):</label>
+                                <input type="text" name="birthdate" id="id_birthdate" value="{{ form.birthdate.value|date:"Y-m-d"|default:'' }}" class="form-control" placeholder="2010-01-01">
 
-<div class="tab-content mt-3 mb-3">
-<div class="container mt-4">
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
+                                {% if form.birthdate.errors %}
+                                <small class="text-danger">
+                                    {% for error in form.birthdate.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </small>
+                                {% endif %}
+                            </div>
 
-        <!-- Pole Bio -->
-        <div class="form-group">
-            <label for="id_bio">O mně:</label>
-            <textarea name="bio" cols="40" rows="10" id="id_bio" class="form-control">{{ form.bio.value }}</textarea>
-            {% if form.bio.errors %}
-            <small class="text-danger">
-                {% for error in form.bio.errors %}
-                {{ error }}
-                {% endfor %}
-            </small>
-            {% endif %}
+                            <!-- Pole Location -->
+                            <div class="form-group w-full">
+                                <label class="font-bold" for="id_location">Bydliště (město):</label>
+                                <input type="text" name="location" maxlength="255" id="id_location" value="{{ form.location.value }}" class="form-control" placeholder="Nepovinné">
+                                {% if form.location.errors %}
+                                <small class="text-danger">
+                                    {% for error in form.location.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>  
+
+                    <!-- Pole Profile Picture -->
+                    <div class="form-group avatar-selection">
+                        <label class="font-bold" for="id_profilepicture">Profilový obrázek:</label><br>
+                        {% for avatar in avatars %}
+                        <div class="avatar-container {% if user_profile.avatar.avatarid == avatar.avatarid %}selected{% endif %}" id="avatarContainer_{{ avatar.avatarid }}">
+                            <input type="radio" name="avatar" id="avatar_{{ avatar.avatarid }}" value="{{ avatar.avatarid }}"
+                                {% if user_profile.avatar.avatarid == avatar.avatarid %} checked {% endif %}
+                                style="position: absolute; opacity: 0;">
+                            <label for="avatar_{{ avatar.avatarid }}" onclick="selectAvatar('{{ avatar.avatarid }}')">
+                                <img src="/static/img/avatar/{{ avatar.imagepath }}" alt="{{ avatar.name }}" width="100" height="100">
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary add"><i class="fa fa-save mr-2"></i> Uložit</button>
+                </form>
+            </div>
         </div>
 
-        <!-- Pole Profile Picture -->
-        <div class="form-group">
-            <label for="id_profilepicture">Profilový obrázek:</label>
-            <input type="file" name="profilepicture" accept="image/*" id="id_profilepicture" class="form-control-file">
-            {% if form.profilepicture.errors %}
-            <small class="text-danger">
-                {% for error in form.profilepicture.errors %}
-                {{ error }}
-                {% endfor %}
-            </small>
-            {% endif %}
-        </div>
+        {% endif %}
 
-        <!-- Pole Birthdate -->
-        <div class="form-group">
-            <label for="id_birthdate">Datum narození (např.: 2000-05-05):</label>
-            <input type="text" name="birthdate" id="id_birthdate" value="{{ form.birthdate.value|date:"Y-m-d"|default:'' }}" class="form-control" placeholder="2010-01-01">
-
-            {% if form.birthdate.errors %}
-            <small class="text-danger">
-                {% for error in form.birthdate.errors %}
-                {{ error }}
-                {% endfor %}
-            </small>
-            {% endif %}
-        </div>
-
-        <!-- Pole Location -->
-        <div class="form-group">
-            <label for="id_location">Bydliště (město):</label>
-            <input type="text" name="location" maxlength="255" id="id_location" value="{{ form.location.value }}" class="form-control" placeholder="Nepovinné">
-            {% if form.location.errors %}
-            <small class="text-danger">
-                {% for error in form.location.errors %}
-                {{ error }}
-                {% endfor %}
-            </small>
-            {% endif %}
-        </div>
-
-        <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Uložit změny</button>
-    </form>
-</div>
-
-</div>
-
-    {% endif %}
-
-
-  </div>
-</div>
+    </div>
+    <script>
+        // Function to mark the selected avatar
+        function selectAvatar(avatarId) {
+            // Remove 'selected' class from all avatar containers
+            document.querySelectorAll('.avatar-container').forEach(function (avatar) {
+                avatar.classList.remove('selected');
+            });
+            // Add 'selected' class to the chosen avatar container
+            document.getElementById('avatarContainer_' + avatarId).classList.add('selected');
+        }
+    </script>
 {% endblock content %}

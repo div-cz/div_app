@@ -1,0 +1,42 @@
+<!-- charts/award_detail.html -->
+{% extends "charts/base.html" %}
+
+{% block content %}
+
+
+
+<h1>{{ award.awardname }} - {{ award.year }}</h1>
+<p>{{ award.description }}</p>
+
+
+<h2>Filmová Ocenění</h2>
+<ul>
+    {% for movie_award in movie_awards %}
+        <li>{{ movie_award.movieid.title }} {% if movie_award.winner %} - Výherce {% endif %}</li>
+    {% empty %}
+        <li>Žádná filmová ocenění.</li>
+    {% endfor %}
+</ul>
+
+
+
+<h2>Knižní Ocenění</h2>
+<ul>
+    {% for book_award in book_awards %}
+        <li>{{ book_award.bookid.title }} {% if book_award.winner %} - Výherce {% endif %}</li>
+    {% empty %}
+        <li>Žádná knižní ocenění.</li>
+    {% endfor %}
+</ul>
+
+
+
+<h2>Herní Ocenění</h2>
+<ul>
+    {% for game_award in game_awards %}
+        <li>{{ game_award.gameid.title }} {% if game_award.winner %} - Výherce {% endif %}</li>
+    {% empty %}
+        <li>Žádná herní ocenění.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

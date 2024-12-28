@@ -1,0 +1,269 @@
+{% extends "games/base.html" %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
+
+{% block title %} | DIV.cz{% endblock %}
+
+{% block content %}
+
+<div class="row w-full my-4">
+    <div class="col-lg-8">
+
+        <!-- Filtry pro tabulku -->
+        <div class="container mt-4">
+            <h2 class="mb-4">Seznam her</h2>
+            <h3 style="color:red">V přípravě ..</h3>
+            <input type="text" id="searchBox" placeholder="Hledat...">
+            
+            <div class="row mb-3">
+                <div class="col-md-4 mb-3">
+                    <label for="platformFilter">Platforma:</label>
+                    <select id="platformFilter" class="form-control">
+                        <option value="">Vše</option>
+                        <option value="Playstation 5">Playstation 5</option>
+                        <option value="Xbox">Xbox</option>
+                        <option value="PC">PC</option>
+                        <option value="Deskova">Desková hra</option>
+                        <!-- další platformy -->
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="yearFilter">Rok:</label>
+                    <select id="yearFilter" class="form-control">
+                        <option value="">Vše</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="ratingFilter">Hodnocení:</label>
+                    <select id="ratingFilter" class="form-control">
+                        <option value="0">Všechno</option>
+                        <option value="10">jen 10</option>
+                        <option value="9">9 a víc</option>
+                        <option value="8">8 a víc</option>
+                        <option value="7">7 a víc</option>
+                    </select>
+                </div>
+
+                <!-- Tabulka s hrami -->
+                <div class="w-100">
+                    <table class="table table-striped  hover" id="gamesTable">
+                        <thead>
+                            <tr>
+                                <th>Název</th>
+                                <th>Platforma</th>
+                                <th>Rok</th>
+                                <th>Hodnocení</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Ukázková data -->
+                            <tr>
+                                <td><a href="">The Last of Us Part II</a></td>
+                                <td><a href="">Playstation 5</a></td>
+                                <td>2020</td>
+                                <td>9/10</td>
+                            </tr>
+                            <tr>
+                                <td>Cyberpunk 2077</td>
+                                <td>PC</td>
+                                <td><a href="">2020</a></td>
+                                <td>8/10</td>
+                            </tr>
+                            <tr>
+                                <td>Catan</td>
+                                <td>Deskova</td>
+                                <td>1995</td>
+                                <td>8/10</td>
+                            </tr>
+                            <tr>
+                                <td>Red Dead Redemption 2</td>
+                                <td>Playstation 5</td>
+                                <td>2018</td>
+                                <td>10/10</td>
+                            </tr>
+                            <tr>
+                                <td>Star Wars: Jedi Fallen Order</td>
+                                <td>PC</td>
+                                <td>2019</td>
+                                <td>8/10</td>
+                            </tr>
+                            <tr>
+                                <td>Carpe Diem</td>
+                                <td>Deskova</td>
+                                <td>2019</td>
+                                <td>7/10</td>
+                            </tr>
+                            <tr>
+                                <td>Ghost of Tsushima</td>
+                                <td>Playstation 5</td>
+                                <td>2020</td>
+                                <td>9/10</td>
+                            </tr>
+                            <tr>
+                                <td>Control</td>
+                                <td>PC</td>
+                                <td>2019</td>
+                                <td>8/10</td>
+                            </tr>
+                            <tr>
+                                <td>Pandemic</td>
+                                <td>Deskova</td>
+                                <td>2008</td>
+                                <td>8/10</td>
+                            </tr>
+                            <tr>
+                                <td>Death Stranding</td>
+                                <td>Playstation 5</td>
+                                <td>2019</td>
+                                <td>7/10</td>
+                            </tr>
+                            <tr>
+                                <td>Assassin's Creed Valhalla</td>
+                                <td>PC</td>
+                                <td>2020</td>
+                                <td>8/10</td>
+                            </tr>
+                            <tr>
+                                <td>Ticket to Ride</td>
+                                <td>Deskova</td>
+                                <td>2004</td>
+                                <td>8/10</td>
+                            </tr>
+                            <tr>
+                                <td>Final Fantasy VII Remake</td>
+                                <td>Playstation 5</td>
+                                <td>2020</td>
+                                <td>9/10</td>
+                            </tr>
+                            <tr>
+                                <td>DOOM Eternal</td>
+                                <td>PC</td>
+                                <td>2020</td>
+                                <td>9/10</td>
+                            </tr>
+                            <tr>
+                                <td>7 Wonders</td>
+                                <td>Deskova</td>
+                                <td>2010</td>
+                                <td>8/10</td>
+                            </tr>
+                            <tr>
+                                <td>Spider-Man: Miles Morales</td>
+                                <td>Playstation 5</td>
+                                <td>2020</td>
+                                <td>9/10</td>
+                            </tr>
+                            <tr>
+                                <td>Baldur's Gate 3</td>
+                                <td>PC</td>
+                                <td>2021</td>
+                                <td>9/10</td>
+                            </tr>
+                            <tr>
+                                <td>Carcassonne</td>
+                                <td>Deskova</td>
+                                <td>2000</td>
+                                <td>8/10</td>
+                            </tr>
+                            <tr>
+                                <td>Resident Evil Village</td>
+                                <td>Playstation 5</td>
+                                <td>2021</td>
+                                <td>8/10</td>
+                            </tr>
+                            <tr>
+                                <td>Half-Life: Alyx</td>
+                                <td>PC</td>
+                                <td>2020</td>
+                                <td>10/10</td>
+                            </tr>
+                            <tr>
+                                <td>Dominion</td>
+                                <td>Deskova</td>
+                                <td>2008</td>
+                                <td>8/10</td>
+                            </tr>
+                            <tr>
+                                <td>Hra 1</td>
+                                <td>Playstation 5</td>
+                                <td>2023</td>
+                                <td>8/10</td>
+                            </tr>
+                            <tr>
+                                <td>Hra 2</td>
+                                <td>PC</td>
+                                <td>2022</td>
+                                <td>9/10</td>
+                            </tr>
+                            <tr>
+                                <td>Hra 3</td>
+                                <td>Deskova</td>
+                                <td>2021</td>
+                                <td>7/10</td>
+                            </tr>
+                            <tr>
+                                <td>Horizon Zero Dawn</td>
+                                <td>Playstation 5</td>
+                                <td>2017</td>
+                                <td>9/10</td>
+                            </tr>
+                            <tr>
+                                <td>The Witcher 3: Wild Hunt</td>
+                                <td>PC</td>
+                                <td>2015</td>
+                                <td>10/10</td>
+                            </tr>
+                            <tr>
+                                <td>Twilight Struggle</td>
+                                <td>Deskova</td>
+                                <td>2005</td>
+                                <td>9/10</td>
+                            </tr>
+                            <tr>
+                                <td>God of War</td>
+                                <td>Playstation 5</td>
+                                <td>2018</td>
+                                <td>10/10</td>
+                            </tr>
+                            <tr>
+                                <td>Dark Souls III</td>
+                                <td>PC</td>
+                                <td>2016</td>
+                                <td>9/10</td>
+                            </tr>
+                            <tr>
+                                <td>Agricola</td>
+                                <td>Deskova</td>
+                                <td>2007</td>
+                                <td>8/10</td>
+                            </tr>
+                            <tr>
+                                <td>Bloodborne</td>
+                                <td>Playstation 5</td>
+                                <td>2015</td>
+                                <td>9/10</td>
+                            </tr>
+                            <tr>
+                                <td>Stardew Valley</td>
+                                <td>PC</td>
+                                <td>2016</td>
+                                <td>9/10</td>
+                            </tr>
+                            <tr>
+                                <td>Viticulture</td>
+                                <td>Deskova</td>
+                                <td>2013</td>
+                                <td>8/10</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div><!--/w-100-->
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

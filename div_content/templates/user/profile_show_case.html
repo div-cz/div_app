@@ -1,0 +1,491 @@
+{% extends "user/base.html" %}
+
+{% load i18n %}
+
+{% block title %}Profil  {{ profile_user.username }} {% endblock title %}
+
+{% block h1 %}{{ profile_user.username }}{% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+
+<style>
+
+    #vitrina {
+        display: flex;
+        flex-wrap: wrap;
+        width: auto;
+        max-width: 600px;
+        background-color: #727271;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+        border: 2px solid #444;
+    }
+
+    #vitrina:is(.dark *) {
+        background-color: #2c2c34;
+    }
+
+    .patro {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 15px 0;
+        background: #cccccc;
+        box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2);
+        border-radius: 10px;
+        margin-bottom: 10px;
+        width: 100%;
+    }
+
+    .patro:is(.dark *) {
+        background: linear-gradient(90deg, #3a3a42, #44444d);
+    }
+
+    h3 {
+        margin-left: 20px;
+        text-decoration: underline;
+    }
+
+    .odznaky {
+        display: flex;
+        justify-content: space-evenly;
+        width: 100%;
+        gap: 10px; 
+        padding: 10px;
+    }
+
+    .badge {
+        perspective: 1000px; /* Perspektiva pro 3D efekt */
+        flex: 1 1 calc(25% - 10px); /* 25 % šířky rodiče minus mezera */
+        max-width: 120px; /* Maximální šířka pro velké obrazovky */
+        aspect-ratio: 1 / 1; /* Zachování čtvercového formátu */
+        position: relative;
+        border-radius: 50%;
+    }
+
+    .badge-inner {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        text-align: center;
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+        transform-origin: center;
+    }
+
+    .badge-inner.flipped {
+        transform: rotateY(180deg); /* Otočení na zadní stranu */
+    }
+
+    .badge-front, .badge-back {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden; /* Skryje zadní stranu, když není viditelná */
+        border-radius: 50%; /* Zaoblení pro odznaky */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    }
+    
+    .badge-front {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #e9e9e9;
+        z-index: 2; /* Přední strana má vyšší prioritu */
+    }
+
+    .badge-front:is(.dark *) {
+        background-color: #555;
+    }
+
+    .badge-front img {
+        width: 100%;
+        height: 100%;
+        filter: grayscale(100%); /* Šedý efekt pro uzamčené odznaky */
+        transition: transform 0.3s, box-shadow 0.3s;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    .badge-front.unlocked img {
+        filter: none; /* Barevný efekt pro odemčené odznaky */
+    }
+
+    .badge-back {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #444;
+        color: white;
+        transform: rotateY(180deg); /* Zadní strana otočená */
+        font-size: 0.9em;
+        padding: 10px;
+        text-align: center;
+    }
+
+    /* Responsivní chování */
+    @media (max-width: 768px) {
+        .badge {
+            flex: 1 1 calc(33.33% - 10px); /* Tři odznaky na řádek na tabletu */
+            max-width: none; /* Zruší pevnou maximální šířku */
+        }
+    }
+
+    @media (max-width: 480px) {
+        .badge {
+            flex: 1 1 calc(50% - 10px); /* Dva odznaky na řádek na mobilu */
+            max-width: none; /* Zruší pevnou maximální šířku */
+        }
+    }
+
+
+</style>
+
+<div class="mt-5">
+
+    <!-- Sekce záložek pro filmy, knihy, hry, statistiky -->
+    <div class="flex overflow-scroll">
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-film mr-2"></i>
+            <a class="movies" href="{% url 'profile_movies_section' profile_user.id %}">Filmy</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-video mr-2"></i>
+            <a class="movies" href="{% url 'profile_series_section' profile_user.id %}">Seriály</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;">
+            <i class="fa-solid fa-book mr-2"></i>
+            <a class="books" href="{% url 'profile_books_section' profile_user.id %}">Knihy</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-gamepad mr-2"></i>
+            <a class="games" href="{% url 'profile_games_section' profile_user.id %}">Hry</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fas fa-star mr-2"></i>
+            <a class="stats" href="{% url 'profile_stats_section' profile_user.id %}">Statistiky</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center bg-[#f0f0f0]" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-trophy mr-2"></i> 
+            <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
+        </div>
+
+        <!-- <a class="border rounded-1xl mr-2 users" 
+           style="padding: .5rem 1rem;" 
+           href="">Uživatelé</a> -->
+    </div>
+
+    <div class="row mt-5 w-full">
+        <div id="vitrina">
+            
+            <!-- GENERUJE JS -->
+
+            {% comment %}
+                {% for award in awards %}
+                    <div class="patro">
+                        <div class="badge {% if award.unlocked %}unlocked{% endif %}">
+                            <img src="{{ award.icon }}" alt="{{ award.name }}">
+                            <span>{{ award.name }}</span>
+                        </div>
+                    </div>
+                {% empty %}
+                    <!-- <p>Uživatel zatím nemá žádná ocenění.</p> -->
+                {% endfor %}
+            {% endcomment %}
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    const badgeTypes = [
+
+        // FILMY
+        {
+            title: "Filmový kritik",
+            description: "za napsané recenze",
+            badges: [
+                { level: "Bronzový filmový kritik", unlocked: false, image: "../../../static/img/badge/bronzovy_filmovy_kritik.webp" },
+                { level: "Stříbrný filmový kritik", unlocked: false, image: "../../../static/img/badge/stribrny_filmovy_kritik.webp" },
+                { level: "Zlatý filmový kritik", unlocked: false, image: "../../../static/img/badge/zlaty_filmovy_kritik.webp" },
+                { level: "Super filmový kritik", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+        {
+            title: "TV maniak",
+            description: "za shlédnutí a ohodnocení filmu",
+            badges: [
+                { level: "Bronzový TV maniak", unlocked: false, image: "../../../static/img/badge/bronzovy_TV_maniak.webp" },
+                { level: "Stříbrný TV maniak", unlocked: false, image: "../../../static/img/badge/stribrny_TV_maniak.webp" },
+                { level: "Zlatý TV maniak", unlocked: false, image: "../../../static/img/badge/zlaty_TV_maniak.webp" },
+                { level: "Super TV maniak", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+        {
+            title: "Kinemaniak",
+            description: "sběratel filmů ve své DB",
+            badges: [
+                { level: "Bronzový kinemaniak", unlocked: false, image: "../../../static/img/badge/bronzovy_kinemaniak.webp" },
+                { level: "Stříbrný kinemaniak", unlocked: false, image: "../../../static/img/badge/stribrny_kinemaniak.webp" },
+                { level: "Zlatý kinemaniak", unlocked: false, image: "../../../static/img/badge/zlaty_kinemaniak.webp" },
+                { level: "Super kinemaniak", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+
+        // SERIÁLY
+        {
+            title: "Seriálový kritik",
+            description: "za napsané recenze",
+            badges: [
+                { level: "Bronzový seriálový kritik", unlocked: false, image: "../../../static/img/badge/bronzovy_serialovy_kritik.webp" },
+                { level: "Stříbrný seriálový kritik", unlocked: false, image: "../../../static/img/badge/stribrny_serialovy_kritik.webp" },
+                { level: "Zlatý seriálový kritik", unlocked: false, image: "../../../static/img/badge/zlaty_serialovy_kritik.webp" },
+                { level: "Super seriálový kritik", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+        {
+            title: "Seriálník",
+            description: "sběratel seriálů ve své DB",
+            badges: [
+                { level: "Bronzový seriálník", unlocked: false, image: "../../../static/img/badge/bronzovy_serialnik.webp" },
+                { level: "Stříbrný seriálník", unlocked: false, image: "../../../static/img/badge/stribrny_serialnik.webp" },
+                { level: "Zlatý seriálník", unlocked: false, image: "../../../static/img/badge/zlaty_serialnik.webp" },
+                { level: "Super seriálník", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+        
+        // KNIHY
+        {
+            title: "Knižní kritik",
+            description: "za napsané recenze",
+            badges: [
+                { level: "Bronzový knižní kritik", unlocked: false, image: "../../../static/img/badge/bronzovy_knizni_kritik.webp" },
+                { level: "Stříbrný knižní kritik", unlocked: false, image: "../../../static/img/badge/stribrny_knizni_kritik.webp" },
+                { level: "Zlatý knižní kritik", unlocked: false, image: "../../../static/img/badge/zlaty_knizni_kritik.webp" },
+                { level: "Super knižní kritik", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+        {
+            title: "Bibliofil",
+            description: "sběratel knih v knihovně",
+            badges: [
+                { level: "Bronzový bibliofil", unlocked: false, image: "../../../static/img/badge/bronzovy_bibliofil.webp" },
+                { level: "Stříbrný bibliofil", unlocked: false, image: "../../../static/img/badge/stribrny_bibliofil.webp" },
+                { level: "Zlatý bibliofil", unlocked: false, image: "../../../static/img/badge/zlaty_bibliofil.webp" },
+                { level: "Super bibliofil", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+        {
+            title: "Knihomol",
+            description: "za přečtení a ohodnocení různých žánrů knih",
+            badges: [
+                { level: "Bronzový knihomol", unlocked: false, image: "../../../static/img/badge/bronzovy_knihomol.webp" },
+                { level: "Stříbrný knihomol", unlocked: false, image: "../../../static/img/badge/stribrny_knihomol.webp" },
+                { level: "Zlatý knihomol", unlocked: false, image: "../../../static/img/badge/zlaty_knihomol.webp" },
+                { level: "Super knihomol", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+        {
+            title: "Knihovník",
+            description: "editor knih",
+            badges: [
+                { level: "Bronzový knihovník", unlocked: false, image: "../../../static/img/badge/bronzovy_knihovnik.webp" },
+                { level: "Stříbrný knihovník", unlocked: false, image: "../../../static/img/badge/stribrny_knihovnik.webp" },
+                { level: "Zlatý knihovník", unlocked: false, image: "../../../static/img/badge/zlaty_knihovnik.webp" },
+                { level: "Super knihovník", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+
+        // HRY
+        {
+            title: "Herní kritik",
+            description: "za napsané recenze",
+            badges: [
+                { level: "Bronzový herní kritik", unlocked: false, image: "../../../static/img/badge/bronzovy_herni_kritik.webp" },
+                { level: "Stříbrný herní kritik", unlocked: false, image: "../../../static/img/badge/stribrny_herni_kritik.webp" },
+                { level: "Zlatý herní kritik", unlocked: false, image: "../../../static/img/badge/zlaty_herni_kritik.webp" },
+                { level: "Super herní kritik", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+        {
+            title: "Gamer",
+            description: "za dohrání a ohodnocení hry",
+            badges: [
+                { level: "Bronzový gamer", unlocked: false, image: "../../../static/img/badge/bronzovy_gamer.webp" },
+                { level: "Stříbrný gamer", unlocked: false, image: "../../../static/img/badge/stribrny_gamer.webp" },
+                { level: "Zlatý gamer", unlocked: false, image: "../../../static/img/badge/zlaty_gamer.webp" },
+                { level: "Super gamer", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+
+        // OSTATNÍ
+        {
+            title: "Bloger",
+            description: "za psaní blogů",
+            badges: [
+                { level: "Bronzový bloger", unlocked: false, image: "../../../static/img/badge/bronzovy_bloger.webp" },
+                { level: "Stříbrný bloger", unlocked: false, image: "../../../static/img/badge/stribrny_bloger.webp" },
+                { level: "Zlatý bloger", unlocked: false, image: "../../../static/img/badge/zlaty_bloger.webp" },
+                { level: "Super bloger", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+        {
+            title: "Diskutér",
+            description: "za příspěvky ve forech",
+            badges: [
+                { level: "Bronzový diskutér", unlocked: false, image: "../../../static/img/badge/bronzovy_diskuter.webp" },
+                { level: "Stříbrný diskutér", unlocked: false, image: "../../../static/img/badge/stribrny_diskuter.webp" },
+                { level: "Zlatý diskutér", unlocked: false, image: "../../../static/img/badge/zlaty_diskuter.webp" },
+                { level: "Super diskutér", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+        {
+            title: "DIVcoiner",
+            description: "sběratel DIVcoinů",
+            badges: [
+                { level: "Bronzový DIVcoiner", unlocked: false, image: "../../../static/img/badge/bronzovy_DIVcoiner.webp" },
+                { level: "Stříbrný DIVcoiner", unlocked: false, image: "../../../static/img/badge/stribrny_DIVcoiner.webp" },
+                { level: "Zlatý DIVcoiner", unlocked: false, image: "../../../static/img/badge/zlaty_DIVcoiner.webp" },
+                { level: "Super DIVcoiner", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+        {
+            title: "DIVer",
+            description: "Věrný uživatel",
+            badges: [
+                { level: "Bronzový DIVer", unlocked: false, image: "../../../static/img/badge/bronzovy_DIVer.webp" },
+                { level: "Stříbrný DIVer", unlocked: false, image: "../../../static/img/badge/stribrny_DIVer.webp" },
+                { level: "Zlatý DIVer", unlocked: false, image: "../../../static/img/badge/zlaty_DIVer.webp" },
+                { level: "Super DIVer", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+        {
+            title: "Mistr slova",
+            description: "za určitý počet 'lajků' od ostatních uživatelů",
+            badges: [
+                { level: "Bronzový mistr slova", unlocked: false, image: "../../../static/img/badge/bronzovy_mistr_slova.webp" },
+                { level: "Stříbrný mistr slova", unlocked: false, image: "../../../static/img/badge/stribrny_mistr_slova.webp" },
+                { level: "Zlatý mistr slova", unlocked: false, image: "../../../static/img/badge/zlaty_mistr_slova.webp" },
+                { level: "Super mistr slova", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+        {
+            title: "Průzkumník",
+            description: "za hodnocení nebo recenze u nových titulů",
+            badges: [
+                { level: "Bronzový průzkumník", unlocked: false, image: "../../../static/img/badge/bronzovy_pruzkumnik.webp" },
+                { level: "Stříbrný průzkumník", unlocked: false, image: "../../../static/img/badge/stribrny_pruzkumnik.webp" },
+                { level: "Zlatý průzkumník", unlocked: false, image: "../../../static/img/badge/zlaty_pruzkumnik.webp" },
+                { level: "Super průzkumník", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+        {
+            title: "Stalker",
+            description: "sledující uživatele",
+            badges: [
+                { level: "Bronzový stalker", unlocked: false, image: "../../../static/img/badge/bronzovy_stalker.webp" },
+                { level: "Stříbrný stalker", unlocked: false, image: "../../../static/img/badge/stribrny_stalker.webp" },
+                { level: "Zlatý stalker", unlocked: false, image: "../../../static/img/badge/zlaty_stalker.webp" },
+                { level: "Super stalker", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+        {
+            title: "Zakladatel",
+            description: "knih, filmů, her,...",
+            badges: [
+                { level: "Bronzový zakladatel", unlocked: false, image: "../../../static/img/badge/bronzovy_zakladatel.webp" },
+                { level: "Stříbrný zakladatel", unlocked: false, image: "../../../static/img/badge/stribrny_zakladatel.webp" },
+                { level: "Zlatý zakladatel", unlocked: false, image: "../../../static/img/badge/zlaty_zakladatel.webp" },
+                { level: "Super zakladatel", unlocked: false, image: "../../../static/img/badge/pohar.webp" },
+            ],
+            unlock: { image: "../../../static/img/badge/otaznik.webp" },
+        },
+    ];
+
+    badgeTypes.forEach((patroData) => { 
+        const patro = document.createElement('div'); // vytvoří nové patro
+        patro.classList.add('patro'); // použije existující třídu z CSS
+
+        const patroContent = `
+            <h3>${patroData.title}</h3>
+            <p class="ml-2">${patroData.description}</p>
+            <div class="odznaky">
+                ${patroData.badges
+                    .map(
+                        (medal) => `
+                        <div class="badge">
+                            <div class="badge-inner">
+                                <div class="badge-front ${medal.unlocked ? 'unlocked' : ''}">
+                                    <img src="${medal.unlocked ? medal.image : patroData.unlock.image}" alt="${medal.level}">
+                                </div>
+                                <div class="badge-back">
+                                    <p>${medal.level}</p>
+                                    <p>počet bodů</p> <!-- nějaký aktuální počet bodů? -->
+                                </div>
+                            </div>
+                        </div>
+                        `
+                    )
+                    .join('')}
+                    
+                </div>
+            </div>
+        `;
+
+        // Přidáme obsah do patra
+        patro.innerHTML = patroContent;
+
+        // Přidáme patro do vitríny
+        document.getElementById('vitrina').appendChild(patro);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const badges = document.querySelectorAll('.badge'); // Výběr všech odznaků
+
+        badges.forEach((badge) => {
+            badge.addEventListener('click', () => {
+                const inner = badge.querySelector('.badge-inner');
+
+                // Nejprve otočíme všechny ostatní odznaky zpět na přední stranu
+                badges.forEach((otherBadge) => {
+                    const otherInner = otherBadge.querySelector('.badge-inner');
+                    if (otherInner && otherInner !== inner) {
+                        otherInner.classList.remove('flipped'); // Vrátí všechny ostatní na front
+                    }
+                });
+
+                // Přepneme aktuální odznak
+                if (inner) {
+                    inner.classList.toggle('flipped'); // Otočí aktuální odznak
+                }
+            });
+        });
+    });
+
+</script>
+
+{% endblock content %}

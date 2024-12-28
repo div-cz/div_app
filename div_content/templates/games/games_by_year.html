@@ -1,0 +1,49 @@
+{% extends 'games/base.html' %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
+
+{% block title %}Vydavatelé her | DIV.cz{% endblock %}
+
+{% block content %}
+
+<div class="my-6 container mx-auto row">
+    <div class="mb-3 px-4 w-full">
+        <div class="mt-5">
+            <h2 class="w-full">Hry vydané v roce {{ year }}</h2>
+            <ul class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 ml-6 mt-6">
+                {% for game in games %}
+                    <li>
+                        <a href="{% url 'game_detail' game_url=game.url %}">{{ game.title }}</a>
+                    </li>
+                {% empty %}
+                    <li>Žádné hry vydané v tomto roce.</li>
+                {% endfor %}
+            </ul>
+
+            <hr>
+
+            {% if games.has_other_pages %}
+            <div class="pagination mt-6 text-center">
+                <span class="step-links">
+                    {% if games.has_previous %}
+                        <a href="?page=1">&laquo; První</a>
+                        <a href="?page={{ games.previous_page_number }}" class="ml-2">Předchozí</a>
+                    {% endif %}
+
+                    <span class="current ml-2">
+                        Stránka {{ games.number }} z {{ games.paginator.num_pages }}
+                    </span>
+
+                    {% if games.has_next %}
+                        <a href="?page={{ games.next_page_number }}" class="ml-2">Další</a>
+                        <a href="?page={{ games.paginator.num_pages }}" class="ml-2">Poslední &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

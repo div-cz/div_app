@@ -2,7 +2,22 @@
 
 from django import forms
 from django.contrib.auth.models import User
-from div_content.models import Moviecomments, Userprofile
+from div_content.models import Movie, Moviecomments, Movietrailer, Userprofile
+
+
+
+class MovieDivRatingForm(forms.ModelForm):
+    class Meta:
+        model = Movie
+        fields = ['divrating']
+        widgets = {
+            'divrating': forms.NumberInput(attrs={'class': 'form-control', 'step': '1'}),
+        }
+        labels = {
+            'divrating': 'DIV Rating (0-9999)',
+        }
+
+
 
 # use in movies/movie_detail.html
 class CommentForm(forms.ModelForm):
@@ -22,6 +37,17 @@ class CommentForm(forms.ModelForm):
 # use in movie section
 class SearchForm(forms.Form):
     q = forms.CharField(label='Hledat', max_length=255)
+
+
+class TrailerForm(forms.ModelForm):
+    class Meta:
+        model = Movietrailer
+        fields = ['youtubeurl']
+
+    def __init__(self, *args, **kwargs):
+        super(TrailerForm, self).__init__(*args, **kwargs)
+        self.fields['youtubeurl'].widget.attrs.update({'class': 'form-control'})
+
 
 """
 # Use in profile

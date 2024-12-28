@@ -38,7 +38,7 @@ class Articleblogpostform(forms.ModelForm):
         labels = {
             'articleblog': 'Vyber blog',
             'title': 'Nadpis',
-            'content': 'Obsah',
+            'content': '',
             'category': 'Kategorie',
             'tags': 'Klíčová slova',
         }

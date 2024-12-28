@@ -1,4 +1,12 @@
+{% extends "movies/base.html" %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
+
+{% block title %}{{ creator.firstname }} {{ creator.lastname }}  | DIV.cz{% endblock %}
+
 {% comment %}
+
 "Writing" → "Scénárista"
 "Camera" → "Kamera"
 "Editing" → "Střih"
@@ -11,291 +19,352 @@
 "Visual Effects" → "Vizuální efekty"
 "Crew" → "Štáb"
 "Lighting" → "Osvětlení"
-{% endcomment %}<!DOCTYPE html>
-<html lang="cs">
-<head>
 
-    {% include "../inc/head.html" %}
+{% endcomment %}
 
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <!-- Font Awesome for stars rating-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<style>
+    .cta2 {
+        position: relative;
+        padding: 3px 0 3px 10px;
+        transition: all 0.2s ease;
+        border: none;
+        background: none;
+        cursor: pointer;
+    }
 
-<title>{{ creator.firstname }} ({{ creator.lastname }}) | Databáze filmů DIV</title>
-
-    {% include "../inc/google.html" %}
-
-</head>
-
-<body>
-
-    {% include "../inc/navbar.html" %}
+    .cta2:hover {
+        text-decoration: none;
+    }
 
 
-<!-- Main Content -->
-<main class="container my-5">
-  <div class="row">
-    <!-- Left Column: Film Detail -->
+    .cta2:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: block;
+        border-radius: 50px;
+        background: #b1dae7;
+        width: 30px;
+        height: 30px;
+        transition: all 0.3s ease;
+    }
+
+
+    .cta2 span {
+        position: relative;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        color: #234567;
+    }
+
+    .cta2:hover:before {
+        width: 100%;
+        background: #b1dae7;
+    }
+
+    .cta2:active {
+        transform: scale(0.95);
+    }
+
+    .fa-heart:is(.dark *) {
+        color: #ffffff;
+    }
+</style>
+
+{% block content %}
+
+<div class="row container my-5">
+    <!-- LEVÁ STRANA -->
     <div class="col-lg-8">
-            <h2>{{ creator.lastname }},  {{ creator.firstname }} 
+        <div class="rounded-3 justify-between items-center p-2 mb-3 flex w-full bg-[#F9F9F9] dark:bg-[#1A161F] border-[#ccc] rounded-1xl">
+            <h2 class="w-full mb-0"> {{ creator.firstname }} {{ creator.lastname }} 
+                {% if creator.birthdate %}
+                <small class="text-muted">({{ creator.birthdate|date:"Y" }})</small>
+                {% endif %}
+            </h2>
 
-{% if creator.birthdate %}
-    <small class="text-muted">({{ creator.birthdate|date:"Y" }})</small>
-{% endif %}
-</h2>
-
-
-      <!-- Info Bar --><!--
-      <div class="bg-dark  rounded-3 p-2 mb-3 d-flex">
-        <span class="me-3">{{ creator.birthdate|date:"Y" }}</span>,&nbsp;
-
-        <span> {{ creator.deathdate|date:"Y" }} </span>
-      </div>-->
-
-    <div class="d-flex">
-        <div class="me-3 mr-4 mb-3 flex-shrink-0" style="width:200px">
-        {% if not creator.img or creator.img == "" %}
-        <img src="/static/img/creator/noperson.svg" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="max-width: 200px; object-fit: cover;">
-
-        {% else %}
-    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ creator.img }}" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="max-width: 200px; object-fit: cover;">
-        {% endif %}
-    </div>
-
-        <div class="flex-grow-1">
-          <ul class="list-unstyled">
-            <li><strong>Role:</strong> 
-        {% if creator.knownfordepartment == "Acting" %}
-    Herec
-        {% elif creator.knownfordepartment == "Directing" %}
-    Režisér
-        {% elif creator.knownfordepartment == "Production" %}
-    Producent
-        {% elif creator.knownfordepartment == "Writing" %}
-    Scénárista
-        {% else %}
-    Těžko říct
-        {% endif %}
-        </li>
-        {% if creator.birthdate %}
-            <li><strong>Datum narození:</strong> {{ creator.birthdate }}</li>
-        {% endif %}
-
-        {% if creator.deathdate %}
-            <li><strong>Datum úmrtí:</strong> {{ creator.deathdate }}</li>
-        {% endif %}
-    <!--<li>ID: {{ creator.creatorid }}</li>-->
-    <!--<li>{{ creator.popularity }}</li>-->
-          </ul>
-          
-          
-          
-{% if creatorbiography.verificationstatus == "Verified" %}
-    <div class="creator-biography">
-        {% if creatorbiography.shortdescription %}
-            <p class="short-description">
-                {{ creatorbiography.shortdescription }}
-            </p>
-        {% endif %}
-
-        {% if creatorbiography.biographytext %}
-            <div class="biography-text">
-                {{ creatorbiography.biographytext }}
+            <!-- FAVORITE by xSilence8x -->
+            {% if user.is_authenticated %}
+            <div class="heart">
+                {% if not is_favorite %}
+                <a href="{% url 'add_creator_to_favourites' creatorid=creator.creatorid %}" class="flex relative">
+                    <i class="far fa-regular fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} unset {% endif %};" title="přidat do oblíbených"></i>
+                {% else %}
+                <a href="{% url 'remove_creator_from_favourites' creatorid=creator.creatorid %}" class="flex relative">
+                    <i class="fas fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} unset {% endif %}" title="odebrat z oblíbených"></i>
+                {% endif %}
+                </a>
             </div>
-        {% endif %}
+            {% endif %}
+        </div>
 
-        {% if creatorbiography.externallink %}
+        <!-- INFO -->
+        <div class="d-flex mb-3 mt-4">
+            <div class="me-3 mr-4 flex-shrink-0 sm-flex lg:w-max sm:w-130 lg:w-40%">
+            {% if not creator.img or creator.img == "" %}
+                <img src="/static/img/creator/noperson.svg" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid img-size w-full rounded" style="object-fit: cover;">
+                {% else %}
+                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ creator.img }}" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid img-size w-full rounded" style="object-fit: cover;">
+            {% endif %}
+            </div>
+
+            <div class="flex flex-wrap content-between flex-grow-1 w-full lg:w-55">
+                <ul class="list-unstyled">
+                    <li><strong>Role:</strong> 
+                    {% if creator.knownfordepartment == "Acting" %}
+                        Herec
+                    {% elif creator.knownfordepartment == "Directing" %}
+                        Režisér
+                    {% elif creator.knownfordepartment == "Production" %}
+                        Producent
+                    {% elif creator.knownfordepartment == "Writing" %}
+                        Scénárista
+                    {% else %}
+                        Těžko říct
+                    {% endif %}
+                    </li>
+
+                    {% if creator.birthdate %}
+                    <li><strong>Datum narození:</strong> {{ creator.birthdate }}</li>
+                    {% endif %}
+
+                    {% if creator.deathdate %}
+                    <li><strong>Datum úmrtí:</strong> {{ creator.deathdate }}</li>
+                    {% endif %}
+
+                    {% if creator.countryid %}
+                    <li><strong>Místo narození:</strong> {{ creator.countryid.countryname }}</li>
+                    {% endif %}
+
+                    <li><strong>Nominace:</strong></li>
+
+                    <!--<li>ID: {{ creator.creatorid }}</li>-->
+                    <!--<li>{{ creator.popularity }}</li>-->
+                </ul>
+            </div>
+        </div>
+
+        <!-- BIOGRAFIE -->
+        {% if creatorbiography.verificationstatus == "Verified" %}
+        <div class="creator-biography w-full">
+
+            {% if creatorbiography.biographytextcz %}
+            <div class="biography-text">
+                <p id="biography-text">
+                    {{ creatorbiography.biographytextcz|safe }}
+                </p>
+                <p><a id="toggle-biography">Více...</a></p>
+            </div>
+            {% endif %}
+
+            {% if creatorbiography.externallink %}
             <p class="external-link">
                 <a href="{{ creatorbiography.externallink }}" target="_blank">Více informací</a>
             </p>
-        {% endif %}
+            {% endif %}
 
-        {% if creatorbiography.author %}
-            <p class="author">
-                Autor: {{ creatorbiography.author }}
-            </p>
-        {% endif %}
+            {% if creatorbiography.author %}
+            <p class="author">Autor: {{ creatorbiography.author }}</p>
+            {% endif %}
 
-        {% if creatorbiography.source %}
-            <p class="source">
-                Zdroj: {{ creatorbiography.source }}
-            </p>
-        {% endif %}
-    </div>{% else %}
-    
-        Přidej vlastní popis, zatím tu žádný není!
-    {% endif %}
-
-
+            {% if creatorbiography.source %}
+            <p class="source">Zdroj: {{ creatorbiography.source }}</p>
+            {% endif %}
         </div>
-      </div>
 
+        {% else %}
+        <div class="flex flex-wrap items-center">
+            <details>
+                <summary>Přidej vlastní popis, zatím tu žádný není!</summary>
+                <form action="">
+                    <textarea id="w3review" name="w3review" rows="3" cols="50"></textarea>
+                    <br>
+                    <input class="add" type="submit" value="Přidat">
+                </form>
+            </details>
+        </div>
+        {% endif %}
 
-
-
-
-
-
-<h3>Filmografie {{ creator.firstname }} {{ creator.lastname }}</h3>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th></th>
-            <th>Film</th>
-            <th>Rok</th>
-            <th>Role</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for movie, roles in filmography %}
-        <tr>
-            <td style="width:60px">{% if movie.img == "noimg.png" %}
-                        <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" style="width: 50px; height: auto;">
-                    {% else %}
-                        <img src="https://www.themoviedb.org/t/p/w400{{ movie.img }}" alt="{{ movie.titlecz }}" style="width: 50px; height: auto;">
-                    {% endif %}</td>
-            <td><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></td>
-            <td>{{ movie.releaseyear }}</td>
-            <td>{{ roles|join:", " }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-
-
-
-
+        <!-- FILMOGRAFIE -->
+        <div class="mt-5">
+            <h3>Filmografie</h3>
+            <div class="table box-shadow">
+                <div class="grid creator-grid p-1 bg-[#c0c0c0]">
+                    <div></div>
+                    <div class="font-bold">Film</div>
+                    <div class="text-center font-bold">Rok</div>
+                    <div class="text-center font-bold">Role</div>
+                </div>
+                <div class="">
+                    {% for movie, roles in filmography %}
+                    <div class="grid items-center border p-1 creator-grid sudy">
+                        <div>
+                        {% if movie.img == "noimg.png" %}
+                            <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" style="width: 50px; height: auto;">
+                            {% else %}
+                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.img }}" alt="{{ movie.titlecz }}" style="width: 50px; height: auto;">
+                        {% endif %}
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a>
+                            {% if movie.is_watched %}
+                                <i class="fas fa-eye" title="viděno"></i>
+                            {% endif %}
+                        </div>
+                        <div class="text-center p-1">{{ movie.releaseyear }}</div>
+                        <div class="text-center p-1">{{ roles|join:", " }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Right Column -->
+    <!-- PRAVÁ STRANA -->
     <div class="col-lg-4">
-      <!--<div class="card rounded mb-4">
-        <div class="card-body">
-          <h4>Hodnocení</h4>
-          <span class="text-warning">★</span>
-          <span class="text-warning">★</span>
-          <span class="text-warning">★</span>
-          <span class="text-warning">☆</span>
-          <span class="text-warning">☆</span>
+        <!-- FANOUŠCI -->
+        <div class="card mb-4 box-shadow">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title font-bold after-h3">Fanoušci</h3>
+                <div class="flex flex-wrap">
+                    {% if fans %}
+                        {% for fan in fans %}
+                            <a class="w-full" href="{% url 'myuser_detail' fan.userlist.user.id %}">{{ fan.userlist.user.username }}</a>
+                        {% endfor %}
+                    {% else %}
+                        <p>Zatím žádní fanoušci.</p>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-      </div>-->
 
-
-
-      <!--<div class="card rounded mb-4">
-        <div class="card-body">
-
+        {% if request.user.is_superuser %}
+        <div class="card box-shadow mb-3">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title">Upravit DIV Rating</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ creator_div_rating_form.as_p }} 
+                    <button type="submit" name="update_divrating" class="btn btn-primary mt-2">Uložit</button>
+                </form>
+            </div>
         </div>
-      </div>-->
 
-      <div class="card rounded mb-4">
-        <div class="card-body">
-
-{% if user.is_authenticated %}
-    <h4>{{ user.username }} </h4>
-    <p>Vítejte, {{ user.username }} <a href="{% url 'logout' %}">Odhlásit se</a></p>
-{% else %}
-    <h4>Přihlášení</h4>
-    <form method="post" action="{% url 'login' %}">
-        {% csrf_token %}
-        {{ form.username.label_tag }}
-        {{ form.username }}
-        {{ form.password.label_tag }}
-        {{ form.password }}
-        <button type="submit" class="btn btn-primary">Přihlásit se</button>
-    </form>
-    <div class="mt-3">
-        <p>Nemáte účet? <a href="{% url 'signup' %}">Registrace</a></p>
-    </div>
-{% endif %}
-
-        </div>
-      </div>
-
-
-
-      <div class="card rounded mb-4 d-none d-lg-block">
-        <div class="card-body">
-          <h4>Další osobnosti</h4>
-        <ul>
-    <li>
-       <a href="https://div.cz/tvurce/libuse-safrankova">Libuše Šafránková</a>
-    </li>
-
-    <li>
-       <a href="https://div.cz/tvurce/ondrej-vetchy">Ondřej Vetchý</a>
-    </li>
-
-    <li>
-       <a href="https://div.cz/tvurce/ivana-chylkova">Ivana Chýlková</a>
-    </li>
-
-    <li>
-       <a href="https://div.cz/tvurce/david-prachar">David Prachař</a>
-    </li>
-
-    <li>
-       <a href="/tvurce/colleen-brennan"> Colleen Brennan</a>
-    </li>
-
-    <li>
-       <a href="/tvurce/matt-letscher"> Matt Letscher</a>
-    </li>
-
-    <li>
-       <a href="/tvurce/alexandra-jimenez"> Alexandra Jiménez</a>
-    </li>
-
-    <li>
-       <a href="/tvurce/barbara-sukowa"> Barbara Sukowa</a>
-    </li>
-
-    <li>
-       <a href="/tvurce/yoko-honna"> Yoko Honna</a>
-    </li>
-
-    <li>
-       <a href="/tvurce/mel-ferrer"> Mel Ferrer</a>
-    </li>
-
-        </ul>
-        </div>
-      </div>
-
-
-      <!-- tmdb.org, imdb.org, div.cz, csfd.cz  -->
-      <div class="card rounded mb-4 d-none d-lg-block">
-        <div class="card-body">
-          <h4>Odkazy</h4>
-            <a href="https://www.themoviedb.org/person/{{ creator.creatorid }}"">
-          <img src="data:image/webp;base64,UklGRtQFAABXRUJQVlA4WAoAAAAQAAAARwAALwAAQUxQSOIDAAABkIVt29lI758U45l2bBvX2rZt27Zt27Zt27Ztzsx6i+9g5s/mz+61xxExAfgvZq7egSEhQX5mh7/Io+6cS98tVq7F8mr3wNzac2u7+Q2pe2VGcS05jSeh73JJWmnyjkQfcNRGC9Lgz2AttCFNPtKA8wclqVe3je9cr0KpEqWrNu077+hDJbRc3CDi/+ieL0tCdERocGBgYGBQSHhMcr5tCmxZJFEW3p4cseF+JhdHo0Gv1+sNRkcXD1+feh851MsgKCtxT8VHejnqJAaFjMkO5mq8PU6SmIYce+NIdxkqSmwv57m7LKYPx5rFS4a6JTh2T4OYUZx0fyeo7MMhHwcx4zmvvQxqmXi+TmJGcn6YVTPz/AX14lhjVCvH+R0gqC7HXs+o1kXOo0BHMQkcuuesUh3ibg8yisE3Dj32U4OVJn7fIL2gFjxKW5n3T/Qtz5PCAt6yGOb6hJdx79A6+RPj4+KzlGoz5w4pnh3qysRAV1KZ+udT/A0QzHT1f2uhToSLJAqSa87XGujuJUO85Bo05KawSe5MA5CcfMMLrPhms/+Z3Wa1ZrbSJGkBTOfi7R9WtHHvyWsOnLv14Mmzx3evntyxeGSnWnkKb8pku5esCYDJDq5eAaERkVFRUdEZYzJGhQX5BTT8QER7fLUCgEk6o6Orm4fZy8vb28vT0+Tm6mTUy0ZTTJuntNZPQ5kzxqTMGUNGJjv5+FfJ66s5VZnO2cvPRdJESnkxAJN1UnBdfc1IYUPvC/hSDZlXtZhSO4mZew7D1GIAJpfklLeYUtsqYGqs/DK879uD9WEce6ooRkzcUf1Uc8gTjxdwX4miPZqsSHZadjgbonYf/Wn6eORwNgCG0adKot2UbYYFe7q7KUob14/GU5HFd7tTbTq+lkZaGx97OpLyU969p2pR0zPnhpEhdeuR76YPD2dRFmDMp/FUhh40PP5wNrVQdB/DHoPafDw47NdwS59EwsMVX0fgVfdL6z4NwueWb3b2pBjyqGgxpXY22hoDVybiS48vY/WvBoPyK1n+EEPvgzp+PDF/bnVL3yyE+2u+DJNedB1so9gMBxcsiCCXShZTantHazPg2mh86fV1rMPrfqACSjpZyw1+COq260DOqrD1y0J4uOj20YpU0ofuA2nNbm3MVwLUc5ElxLqvCZXfXW329SpU+9s4du1wA2UYc6nFcTzqYr7way3udoh9jQNTzdd/jmM42Ba4XD3pxbcxrGLqlRtBG6/9HGl4O9L1zO+FuNoPYU9eUEFFkMEYGGAEwAAGBhjBlQADACYDgAEAAwwAJCA+jOKU/bW1iW45/hOQpawX/k8BVlA4IMwBAAAwCwCdASpIADAAPtlapEyoJSOiMzOdUQAbCWMNuuJQa1nbZmmAbzMv1EAEqibaHyKqB9u1GtwVbSSYm5P8ZRiWvg1r2uHVI+IdgGidzrMfHUTYJOzSi84McUAAKgLqXbxSwAD9yQYdn2t9Mr9XIwn29Ow7H2kV9hRbS53Z/HwFXR24ZL37o3U1pJxaKosFKltab1aYYMgoyDvB95CktmmKNKes06XWpRUGoVIyhO8F4hGQxWxK/c561ogMP4xOSoy+y6/nNcqHUuJXzIUoOIk1DLGCn3g1UjsQAq0ntLbslBLq2n90TuvE8QHn54G2MFQGQga/G0LlPsbXsjRdghMRAEyA9lhm6pgEGcLtqv+o3kO8vx8Odt8gWaDsNqWWiqrFYHiHgIhUEjZLllakBZQ8fJCp+VAC7BHXsydwSALcgHiL3BIl6O9J7/eSOXsz+tK/iDubFZHk7Ht8MgTLJo4kaKj+Xj4qbRa19zxSApWRGaQWw12G9HW6nHvm3Ih9BIIGl83o96+PsalXGYRZ0pXoL42g86h42BftLQ3RpwJf9gzmmdd2f7stVgQtBseeuDi7+w7kLJndV3nodjH8d1oharH/Yt71sSkAAAAA" alt="tmdb.org"></a>
-
-        {% if creator.imdb_id %}
-    <a href="https://www.imdb.com/name/{{ creator.imdb.id }}/"><img src="https://www.div.cz/img/ico/imdb.png" alt="Imdb"></a>
         {% endif %}
+
+        {% comment %}
+        <div class="card mb-4 box-shadow">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title font-bold after-h3">{{  }}</h3>
+                <p class="card-text">Sdílet na:</p>
+                <!-- Facebook Share Button -->
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/film/{{  }}" class="btn btn-primary mb-2 mr-1" target="_blank" title="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+
+                <!-- Twitter Share Button -->
+                <a href="https://twitter.com/intent/tweet?url=https://div.cz/film/{{  }}&text={{  }}" class="btn btn-info mb-2 mr-1" target="_blank" title="Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+
+                <!-- E-mail Share Button -->
+                <a href="mailto:?subject={{  }}&body=Podívej se na https://div.cz/film/{{  }}" class="btn btn-dark mb-2 mr-1" title="E-mail">
+                    <i class="fas fa-envelope"></i>
+                </a>
+
+                <!-- WhatsApp Share Button -->
+                <a href="https://wa.me/?text={{  }} - https://div.cz/film/{{  }}" class="btn btn-success mb-2" target="_blank" title="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
         </div>
-      </div>
+        {% endcomment %}
 
+        <!-- <div class="card mb-4 box-shadow">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
 
-      <!-- Tags 
-      <div class="card rounded mb-4 d-none d-lg-block">
-        <div class="card-body">
-          <h4>Tagy</h4>
+            </div>
+        </div> -->
 
-           <span class="badge bg-secondary">abc</span>, <span class="badge bg-secondary">def</span> 
-
+        <div class="card mb-4 mt-4 box-shadow">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title font-bold after-h3">Další osobnosti</h3>
+                <ul>
+                    <li>
+                    <a href="https://div.cz/tvurce/libuse-safrankova">Libuše Šafránková</a>
+                    </li>
+                    <li>
+                        <a href="https://div.cz/tvurce/ondrej-vetchy">Ondřej Vetchý</a>
+                    </li>
+                    <li>
+                        <a href="https://div.cz/tvurce/ivana-chylkova">Ivana Chýlková</a>
+                    </li>
+                    <li>
+                        <a href="https://div.cz/tvurce/david-prachar">David Prachař</a>
+                    </li>
+                    <li>
+                        <a href="/tvurce/colleen-brennan"> Colleen Brennan</a>
+                    </li>
+                    <li>
+                        <a href="/tvurce/matt-letscher"> Matt Letscher</a>
+                    </li>
+                    <li>
+                        <a href="/tvurce/alexandra-jimenez"> Alexandra Jiménez</a>
+                    </li>
+                    <li>
+                        <a href="/tvurce/barbara-sukowa"> Barbara Sukowa</a>
+                    </li>
+                    <li>
+                        <a href="/tvurce/119264-yoko-honna"> Yoko Honna</a>
+                    </li>
+                    <li>
+                        <a href="/tvurce/mel-ferrer"> Mel Ferrer</a>
+                    </li>
+                </ul>
+            </div>
         </div>
-      </div>-->
+    
+        <!-- Tags -->
+        <div class="card mb-3 d-none d-lg-block box-shadow">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title font-bold after-h3">Tagy</h3>
+                <div class="flex gap-1">
 
 
-  </div>
-</main>
+                <span class="rounded bg-secondary"></span>
+                
+                </div>
+            </div>
+        </div>
 
+    </div>
+</div>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const bioElement = document.getElementById("biography-text");
+    const toggleButton = document.getElementById("toggle-biography");
 
-{% include "../inc/footer.html" %}
+    const fullText = bioElement.innerText; // Store the full biography text
+    const truncatedText = fullText.substring(0, 500); // First 500 characters
 
-</body>
-</html>
+    // Initialize with truncated text
+    bioElement.innerText = truncatedText + "...";
 
+    // Toggle functionality
+    toggleButton.addEventListener("click", function () {
+        if (bioElement.innerText === truncatedText + "...") {
+            bioElement.innerText = fullText; // Show full text
+            toggleButton.innerText = "...Méně"; // Update button text
+        } else {
+            bioElement.innerText = truncatedText + "..."; // Show truncated text
+            toggleButton.innerText = "Více..."; // Update button text
+        }
+    });
+});
+
+</script>
+
+{% endblock %}

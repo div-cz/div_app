@@ -1,0 +1,13 @@
+{% extends "eshop/base.html" %}
+{% block content %}
+<h1>Herní sekce</h1>
+<div class="grid">
+    {% for game in games %}
+    <div class="game-item">
+        <h3><a href="{% url 'game_detail' game.url %}">{{ game.title }}</a></h3>
+        <p>Platforma: {{ game.platform }}</p>
+        <p>Cena: {{ game.price }} Kč</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
