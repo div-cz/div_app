@@ -1,15 +1,18 @@
 {% load forum_comments_tags %}
 {% for comment in page.object_list %}
-<ol class="card card-body mb-4 w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start w-3/4">
+
+<ol class="card card-body mb-4 w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl w-3/4">
 
     {% if comment.parentcommentid is not None %}
     <div class="border rounded-1xl p-2 ml-5 mb-4 bg-[#e7e7e7] dark:bg-[#1A161F]">
         {% with parent_comment=comments|get_parent_comment:comment.parentcommentid %}
-        <li><i>Napsal/a {% if parent_comment.user %}{{ parent_comment.user }}{% else %}Smazaný uživatel{% endif %}:</li></i>
+
+        <li class="underline"><i>Napsal/a {% if parent_comment.user %}{{ parent_comment.user }}{% else %}Smazaný uživatel{% endif %}:</li></i>
             {% if parent_comment.isdeleted == False %}
-        <li><i>{{ parent_comment.body|safe }}</li></i>
+        <li class="ml-6"><i>{{ parent_comment.body|safe }}</li></i>
             {% else %}
-        <li><i><strike>Tento komentář byl smazán.</strike></i></li>
+        <li class="ml-6"><i><strike>Tento komentář byl smazán.</strike></i></li>
+
             {% endif %}
         {% endwith %}
     </div>

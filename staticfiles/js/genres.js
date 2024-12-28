@@ -1,3 +1,7 @@
+
+let addedGenres = new Set();
+
+
 async function searchGenres(tab) {
 
     const query = document.getElementById(`${tab}-genre-search`).value;
@@ -21,19 +25,13 @@ async function searchGenres(tab) {
 
 function addGenre(tab, id, name) {
     const selectedGenres = document.getElementById(`${tab}-selected-genres`);
-    const li = document.createElement('li');
-    li.classList.add('list-group-item');
-    li.textContent = name;
-    const removeButton = document.createElement('button');
-    removeButton.textContent = 'Remove';
-    removeButton.onclick = () => selectedGenres.removeChild(li);
-    li.appendChild(removeButton);
-    selectedGenres.appendChild(li);
+    // Kontrola, zda bylo přidáno maximálně 5 žánrů
+    if (addedGenres.size >= 5) {
+        alert('You can only add up to 5 genres.');
+        return;
+    }
+    const genre = { id: id, name: name };
+    addItemToList(genre, selectedGenres, 'genres[]', addedGenres);
+    document.getElementById(`${tab}-genre-search`).value = '';  // Vyčištění pole pro vyhledávání žánrů
 
-    const hiddenInput = document.createElement('input');
-    hiddenInput.type = 'hidden';
-    hiddenInput.name = 'genres';
-    hiddenInput.value = id;
-    li.appendChild(hiddenInput);
-    document.getElementById(`${tab}-genre-search`).value = '';
 }

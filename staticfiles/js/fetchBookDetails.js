@@ -1,4 +1,5 @@
 async function fetchBookDetails(tab) {
+
     console.log('Fetching book details...');
 
     const isbnInputId = tab === 'isbn' ? 'isbn1' : 'manual-isbn1';
@@ -69,42 +70,16 @@ async function fetchBookDetails(tab) {
                     });
                 }
 
-                // Přidání žánrů
+
                 if (data.genres) {
-                    const genreResults = document.getElementById(genreResultsId);
-                    if (genreResults) {
-                        genreResults.innerHTML = '';  // Vyčistí předchozí výsledky
-                        data.genres.forEach(genre => {
-                            const li = document.createElement('li');
-                            li.classList.add('list-group-item');
-                            li.textContent = genre.name;
-                            genreResults.appendChild(li);
-
-                            const hiddenInput = document.createElement('input');
-                            hiddenInput.type = 'hidden';
-                            hiddenInput.name = 'genres';
-                            hiddenInput.value = genre.id;
-                            genreResults.appendChild(hiddenInput);
-                        });
-                    }
+                    data.genres.forEach(genre => {
+                        addGenre('isbn',genre.id, genre.name);
+                    });
                 }
-
-                // Přidání vydavatele
+                      
                 if (data.publisher) {
-                    const publisherResults = document.getElementById(publisherResultsId);
-                    if (publisherResults) {
-                        publisherResults.innerHTML = '';  // Vyčistí předchozí výsledky
-                        const li = document.createElement('li');
-                        li.classList.add('list-group-item');
-                        li.textContent = data.publisher.name;
-                        publisherResults.appendChild(li);
+                    addPublisher('isbn', data.publisher.id || null, data.publisher.name);
 
-                        const hiddenInput = document.createElement('input');
-                        hiddenInput.type = 'hidden';
-                        hiddenInput.name = 'publisherid';
-                        hiddenInput.value = data.publisher.id;
-                        publisherResults.appendChild(hiddenInput);
-                    }
                 }
 
             } else {

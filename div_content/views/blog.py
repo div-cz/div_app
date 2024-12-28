@@ -12,6 +12,7 @@ from django.views.generic import DetailView
 
 from div_content.forms.blog import Articleblogform, Articleblogpostform, Articleblogcommentform
 from div_content.models import Articleblog, Articleblogpost, Articleblogcomment, Movie
+from div_content.views.login import custom_login_view
 
 
 
@@ -20,6 +21,12 @@ def blog_add_post(request):
         form = Articleblogpostform(request.POST, user=request.user)
         if form.is_valid():
             post = form.save(commit=False)
+            
+            blog = post.articleblog  
+            # Ověření, že uživatel vlastní blog
+            if blog.user != request.user:
+                return HttpResponse("Nemáte oprávnění přidávat příspěvky do tohoto blogu.", status=403)
+
             post.user = request.user
             post.save()
             return redirect('blog_post_detail', blog_slug=post.articleblog.slug, post_slug=post.slug)

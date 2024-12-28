@@ -3,54 +3,42 @@ document.getElementById('fetch-book-details-btn').addEventListener('click', asyn
 
     if (bookId) {
         try {
-            console.log(bookId);
-            const response = await fetch(`/scripts/get_book_details/${bookId}/`);
+
+            const response = await fetch(`/scripts/get-book-details/${bookId}/`);
+
             const data = await response.json();
 
             if (data.error) {
                 alert(data.error);
             } else {
+
+                // Zobrazí sekci update-details
+                document.getElementById('update-details').style.display = 'block';
+
                 // Vyplnění formuláře získanými daty
-                document.getElementById('title').value = data.title || '';
-                document.getElementById('author').value = data.author || '';
-                document.getElementById('year').value = data.year || '';
-                document.getElementById('pages').value = data.pages || '';
-                document.getElementById('subtitle').value = data.subtitle || '';
-                document.getElementById('description').value = data.description || '';
-                document.getElementById('language').value = data.language || '';
-                document.getElementById('img').value = data.img || '';
-                document.getElementById('googleid').value = data.googleid || '';
+                document.getElementById('update-title').value = data.title || '';
+                document.getElementById('update-author').value = data.author || '';
+                document.getElementById('update-year').value = data.year || '';
+                document.getElementById('update-pages').value = data.pages || '';
+                document.getElementById('update-subtitle').value = data.subtitle || '';
+                document.getElementById('update-description').value = data.description || '';
+                document.getElementById('update-language').value = data.language || '';
+                document.getElementById('update-img').value = data.img || '';
+                document.getElementById('update-googleid').value = data.googleid || '';
 
-                // Genres
-                const genreList = document.getElementById('selected-genres');
-                genreList.innerHTML = '';
-                data.genres.forEach(genre => {
-                    const li = document.createElement('li');
-                    li.classList.add('list-group-item');
-                    li.textContent = genre.name;
-                    genreList.appendChild(li);
+                // Přidání autorů
+                if (data.writers) {
+                    data.writers.forEach(author => {
+                        addAuthor('update', author.id, author.name);
+                    });
+                }
 
-                    const hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.name = 'genres';
-                    hiddenInput.value = genre.id;
-                    genreList.appendChild(hiddenInput);
-                });
+                // Přidání žánrů
+                if (data.genres) {
+                    data.genres.forEach(genre => {
+                        addGenre('update', genre.id, genre.name);
+                    });
 
-                // Publisher
-                if (data.publisher) {
-                    const publisherList = document.getElementById('selected-publisher');
-                    publisherList.innerHTML = '';
-                    const li = document.createElement('li');
-                    li.classList.add('list-group-item');
-                    li.textContent = data.publisher.name;
-                    publisherList.appendChild(li);
-
-                    const hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.name = 'publisherid';
-                    hiddenInput.value = data.publisher.id;
-                    publisherList.appendChild(hiddenInput);
                 }
             }
         } catch (error) {
@@ -60,4 +48,6 @@ document.getElementById('fetch-book-details-btn').addEventListener('click', asyn
     } else {
         alert('Please enter a Book ID.');
     }
+
 });
+

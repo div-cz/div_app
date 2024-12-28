@@ -1,0 +1,444 @@
+{% extends "charts/base.html" %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
+
+{% block title %} | DIV.cz{% endblock %}
+
+{% block content %}
+
+<style>    
+    .navbar, .footer {
+        background: linear-gradient(90deg, #001933 10%, #0A76A9 90%);
+    }
+
+    .tab-show.hidden {
+        display: none;
+    }
+
+    .tab-show.active {
+        display: block;
+    }
+
+    .stats-container {
+        padding: 20px;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .label {
+        width: 100px;
+        font-weight: bold;
+    }
+
+    .bar-container {
+        flex-grow: 1;
+        background-color: #d3d3d3; 
+        border-radius: 5px;
+        margin-left: 10px;
+    }
+
+    .bar-movie {
+        height: 20px;
+        background-color: #0A76A9;
+        border-radius: 5px;
+    }
+
+    #action-header {
+        cursor: pointer;
+        border-radius: .25rem;
+        padding: 5px 10px;
+        border: 1px solid black;
+    }
+
+    #action-header:is(.dark *) {
+        border: 1px solid #ffffff;
+    }
+
+    .custom-select {
+        position: relative;
+        display: flex;
+        justify-content: flex-end;
+        margin: 10px;
+        text-align: center;
+        min-width: 175px;
+    }
+
+    .select-options {
+        flex-wrap: wrap;
+        position: absolute;
+        background-color: #f9f9f9;
+        box-shadow: 0px 0px 10px 0px #9E9E9E;
+        border-radius: 10px;
+        z-index: 1;
+        right: 0;
+        margin-top: 35px;
+        text-align: left;
+        font-size: small;
+        width: 130px;
+        overflow: scroll;
+        max-height: 400px;
+    }
+
+    .select-options a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        cursor: pointer;
+        width: 100%;
+        transition: 0s;
+    }
+
+    .select-options a:hover {
+        background-color: #0A76A9;
+        color: white;
+    }
+
+</style>
+
+<h2 class="w-full"><a href="{% url 'charts_index' %}">Žebříčky</a> / Hry</h2>
+
+<!-- Podkategorie záložek (hodnocení, herci atd.) -->
+<div class="row mt-5">
+    <ul class="nav nav-tabs overflow-scroll">
+        <li class="nav-tabs-item">
+            <a class="nav-tabs-link border active" 
+            href="#hry" id="tab-hry">Nejlepší</a>
+        </li>
+        <li class="nav-tabs-item">
+            <a class="nav-tabs-link border" 
+            href="#zeme" id="tab-zeme">Země</a>
+        </li>
+        <li class="nav-tabs-item">
+            <a class="nav-tabs-link border" 
+            href="#vydavatele" id="tab-vydavatele">Vydavatelé</a>
+        </li>
+        <!-- <li class="nav-tabs-item">
+            <a class="nav-tabs-link border" 
+            href="#" id="tab-"></a>
+        </li>
+        <li class="nav-tabs-item">
+            <a class="nav-tabs-link border" 
+            href="#" id="tab-"></a>
+        </li>
+        <li class="nav-tabs-item">
+            <a class="nav-tabs-link border" 
+            href="#" id="tab-"></a>
+        </li> -->
+    </ul>
+
+    <div class="tab-content w-full mb-3 bg-[#F9F9F9] dark:bg-[#1A161F]">
+
+        <!-- Tab Hodnocení her -->
+        <div id="hry" class="tab-show w-full sx:p-0 active {% if not hash or hash == 'hry' %}active{% else %}hidden{% endif %}">
+            <h3 class="after-h3 sx:padding">Nejlépe hodnocené hry</h3>
+            <div class="table lg:pr-5">
+                {% for game in top_games %}
+                <div class="grid items-center p-1 border charts-grid sudy">
+                    <div>
+                        <img src="https://test.div.cz/static/img/game/game.png" alt="{{ game.title }}" style="width: 60px;">
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="p-1">{{ forloop.counter }}. 
+                            <a href="{% url 'game_detail' game.url %}">{{ game.title }}</a> ({{ game.year }})
+                        </h3>
+                        <p class="p-1">Vydavatel: 
+                                {{ game.publisherid.name }}
+                        </p>
+                        <p class="p-1">{{ game.countryid.name }}</p>
+                    </div>
+                    <div class="text-center">
+                        <p>99%</p> <!-- % HRY-->
+                        <p>10.000</p> <!-- POČET HODNOCENÍ -->
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Tab Země -->
+        <div id="zeme" class="tab-show w-full sx:p-0 {% if hash == 'zeme' %}active{% else %}hidden{% endif %}">
+            <div class="w-full flex flex-wrap justify-between sx:p-0">
+                <!-- Levý sloupec: Nejoblíbenější země -->
+                <div class="w-1/2 sm:w-full pr-4 lg:stats-container">
+                    <h3 class="after-h3 sx:padding">Země ze kterých hry vycházejí</h3>
+                    <div class="table lg:pr-5">
+                        {% for country in top_countries %}
+                        <div class="grid items-center p-1 border sudy">
+                            <div class="ml-3">
+                                <h3 class="p-1">{{ forloop.counter }}. {{ country.countrynamecz }}</h3>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Pravý sloupec: Země podle počtu her -->
+                <div class="w-1/2 sm:w-full sm:p-5 pl-4 sm:mt-10 flex flex-wrap content-start">
+                    <h3 class="after-h3 lg:pl-5 w-full">Země podle počtu her</h3>
+                    <div class="table lg:pr-5 w-full lg:pl-5 mb-4">
+                        <div class="stat-item">
+                            <span class="label">USA</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">529953</p>
+                                <div class="bar-movie" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Francie</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">65869</p>
+                                <div class="bar-movie" style="width: 12%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Německo</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">54872</p>
+                                <div class="bar-movie" style="width: 10%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Japonsko</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">51021</p>
+                                <div class="bar-movie" style="width: 9%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Velká Británie</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">48853</p>
+                                <div class="bar-movie" style="width: 9%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Španělsko</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">36197</p>
+                                <div class="bar-movie" style="width: 7%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Indie</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">27067</p>
+                                <div class="bar-movie" style="width: 5%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Kanada</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">26000</p>
+                                <div class="bar-movie" style="width: 5%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Itálie</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">25676</p>
+                                <div class="bar-movie" style="width: 5%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Brazílie</span>
+                            <div class="bar-container flex justify-between flex-row-reverse">
+                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">24186</p>
+                                <div class="bar-movie" style="width: 4%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Vydavatelství -->
+        <div id="vydavatele" class="tab-show w-full sx:p-0 {% if hash == 'vydavatele' %}active{% else %}hidden{% endif %}">
+            <div class="w-full flex flex-wrap justify-between sx:p-0">
+                <!-- Levý sloupec: Oblíbené na konzoli -->
+                <div class="w-1/2 sm:w-full pr-4 lg:stats-container">
+                    <h3 class="after-h3 sx:padding">Oblíbené na konzoli</h3>
+                    <div class="table lg:pr-5">
+                        <div class="custom-select" style="min-width: auto; margin: 20px;" onclick="toggleDropdown(event)">
+                            <span id="action-header" style="padding: 0 5px;">Vyber konzoli<i style="font-size: small;" class="fas fa-chevron-down ml-2"></i></span>
+                            <div id="action-dropdown" class="select-as" style="display: none;">
+                                <a href="" value="PS4">PS4</a>
+                                <a href="" value="PS5">PS5</a>
+                                <a href="" value="X box">X box</a>
+                                <a href="" value="PC">PC</a>
+                            </div>
+                        </div>
+
+                        <div id="dropdown" class="">
+                            <div class="flex items-center p-1 border sudy">
+                                <div>
+                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="p-1">GTA 5</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-1 border sudy">
+                                <div>
+                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="p-1">Warcraft</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-1 border sudy">
+                                <div>
+                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="p-1">Hogwarts legacy</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-1 border sudy">
+                                <div>
+                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="p-1">Need for speed</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-1 border sudy">
+                                <div>
+                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="p-1">Uncharted</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-1 border sudy">
+                                <div>
+                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="p-1">NHL</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-1 border sudy">
+                                <div>
+                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="p-1">FIFA</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-1 border sudy">
+                                <div>
+                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="p-1">Tetris</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-1 border sudy">
+                                <div>
+                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="p-1">Mario</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-1 border sudy">
+                                <div>
+                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="p-1">Zimní hry</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Pravý sloupec: Oblíbené deskové -->
+                <div class="w-1/2 sm:w-full pl-4 sm:mt-10 flex flex-wrap content-start">
+                    <h3 class="after-h3 lg:pl-5 w-full sx:padding">Nejoblíbenější vydavatelé</h3>
+                    <div class="table lg:pr-5 w-full lg:pl-5 mb-4">
+                        {% for publisher in top_publishers %}
+                        <div class="grid items-center p-1 border sudy">
+                            <div class="ml-3">
+                                <h3 class="p-1">{{ forloop.counter }}. {{ publisher.name }}</h3>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="w-full sm:mt-10 lg:pl-5">
+                        <h3 class="after-h3 sx:padding">Oblíbené deskové</h3>
+                        <div class="table lg:pr-5">
+                            <div class="flex items-center p-1 border sudy">
+                                <div class="ml-3">
+                                    <h3 class="p-1">1. Blackfire</h3>
+                                    <h3 class="p-1">2. Ravensburger</h3>
+                                    <h3 class="p-1">3. Mindok</h3>
+                                    <h3 class="p-1">4. CGE</h3>
+                                    <h3 class="p-1">5. Albi</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Funkce na aktivaci konkrétního tabu
+    function activateTab(tabId) {
+        // Schovejte všechny taby
+        document.querySelectorAll('.tab-show').forEach(tabContent => {
+            tabContent.classList.add('hidden');
+            tabContent.classList.remove('active');
+        });
+
+        // Deaktivujte všechny odkazy
+        document.querySelectorAll('.nav-tabs-link').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        // Aktivujte cílový tab
+        const targetTab = tabId.replace('tab-', '');
+        const targetContent = document.getElementById(targetTab);
+        if (targetContent) {
+            targetContent.classList.add('active');
+            targetContent.classList.remove('hidden');
+        }
+
+        // Aktivujte odkaz
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    // Kontrola, jestli je v URL fragment (část po #)
+    const hash = window.location.hash.substring(1);  // Získá fragment bez #
+    if (hash) {
+        activateTab('tab-' + hash);  // Aktivuje příslušný tab
+    }
+
+    // Přepínání tabů po kliknutí
+    document.querySelectorAll('.nav-tabs-link').forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetTab = this.getAttribute('id');
+            activateTab(targetTab);
+            // Aktualizace URL bez reloadu stránky
+            history.pushState(null, null, '#' + targetTab.replace('tab-', ''));
+        });
+    });
+});
+</script>
+
+{% endblock %}

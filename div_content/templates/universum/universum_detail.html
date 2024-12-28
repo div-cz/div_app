@@ -1,0 +1,104 @@
+{% extends "universum/base.html" %}
+{% block title %}{{ universum.universumnamecz }} | DIV.cz{% endblock %}
+
+{% block content %}
+
+<div class="container my-5 relative">
+    <!-- Use the first movie image as the background -->
+    
+    {% if movies|length > 0 %}
+
+    <div class="w-full relative" style="top: 0; left: 0; height: 100vh;">
+        <div style="background-image: url('https://image.tmdb.org/t/p/original/{{ movies.0.img }}'); background-size: cover; background-position: center; height: 100%; opacity: 0.2;"></div>
+
+        <div class="row container my-4 absolute w-full h-full p-6" style="top: 0; left: 0;">
+
+            <!-- LEVÁ STRANA -->
+            <div class="col-lg-8">
+            {% endif %}
+                <h1>{{ universum.universumnamecz|default:universum.universumname }}</h1>
+                <p>{{ universum.universumdescription }}</p>
+                <div class="ml-8 mt-8">
+                    <h2>Filmy ze stejného světa</h2>
+                    <ul class="list-group ml-8">
+                        {% for movie in movies %}
+                        <li class="list-group-item">
+                            <a class="movies" href="{% url 'movie_detail' movie_url=movie.url %}">
+                                {{ movie.titlecz }} ({{ movie.releaseyear }})
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="ml-8 mt-8">
+                    <h2>Knihy ze stejného světa</h2>
+                    <ul class="list-group ml-8">
+                        {% for book in books %}
+                        <li class="list-group-item">
+                            <a class="books" href="{% url 'book_detail' book_url=book.url %}">
+                                {{ book.title }} ({{ book.year }})
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="ml-8 mt-8">
+                    <h2>Hry ze stejného světa</h2>
+                    <ul class="list-group ml-8">
+                        <li class="list-group-item">
+                            <a class="games"></a>
+                            <!-- Add games section here -->
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- PRAVÁ STRANA -->
+            <div class="col-lg-4 article-section">
+                <div class="mb-4">
+                    <div class="card-body w-full">
+                        <h3 class="card-title font-bold after-h3">Lokality</h3>
+                        <ul class="w-full" style="list-style-type:none">
+                            <li><a href="">Bradavice</a></li>
+                            <li><a href="">Nádraží King Cross</a></li>
+                            <li><a href="">Kvikálkov</a></li>
+                            <li><a href="">Most</a></li>
+                            <li><a href="">Sovinec</a></li>
+                            <li><a href="">Prasinky</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="card-body w-full">
+                        <h3 class="card-title font-bold after-h3">Postavy</h3>
+                        <ul class="w-full" style="list-style-type:none">
+                            <li><a href="">Harry Potter</a></li>
+                            <li><a href="">Hagrid</a></li>
+                            <li><a href="">Ron</a></li>
+                            <li><a href="">Snape</a></li>
+                            <li><a href="">Draco Malfoy</a></li>
+                            <li><a href="">Skorobezhlavý Nick</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="card-body w-full">
+                        <h3 class="card-title font-bold after-h3">Jídlo</h3>
+                        <ul class="w-full" style="list-style-type:none">
+                            <li><a href="">Máslový ležák</a></li>
+                            <li><a href="">Bertíkovy fazolky</a></li>
+                            <li><a href="">Čokoládové žabky</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

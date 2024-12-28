@@ -7,6 +7,9 @@ from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Max, OuterRef, Subquery, Count
 from django.core.paginator import Paginator
+from div_content.views.login import custom_login_view
+
+
 
 # index
 def forum(request):
@@ -256,4 +259,5 @@ def forum_search(request):
         'comments': comments,
         "query": query,
         "topics": topics,
+
         })

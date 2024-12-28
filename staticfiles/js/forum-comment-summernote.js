@@ -7,8 +7,9 @@ $(document).ready(function() {
         height: 120,
         toolbar: [
             ['font', ['bold', 'underline']],
-            ['color', ['color']],
-            ['para', ['ul', 'ol', 'paragraph']],
+
+            // ['color', ['color']],
+            ['insert', ['link']],
             ['emoji', ['emoji']], // ensure correct toolbar options
         ],
         callbacks: {

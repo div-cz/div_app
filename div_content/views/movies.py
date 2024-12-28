@@ -1,19 +1,27 @@
-# VIEWS.MOVIES.PY
+# VIEWS.MOVIES.PY TEST
 
 from datetime import date
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
+
+from django.core.paginator import Paginator
+
+
 from django.db import connection
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+
+from django.views.decorators.cache import cache_page
 from django.views.generic import DetailView
 
-from div_content.forms.movies import CommentForm, SearchForm
+from div_content.forms.movies import CommentForm, MovieDivRatingForm, SearchForm, TrailerForm
 from div_content.models import (
     Article, Book, Creator, Creatorbiography, Game, Metalocation, Metagenre,
-    Movie, Moviecomments, Moviecrew, Moviegenre, Movierating, User, Userprofile, Moviekeywords,
-    Userlisttype, Userlist, Userlistmovie
+
+    Movie, Moviecomments, Moviecrew, Moviegenre, Movielocation, Movierating, Movietrailer, User, Userprofile, Moviekeywords,
+    Userlisttype, Userlist, Userlistmovie, FavoriteSum, Userlistitem
+
 )
 from star_ratings.models import Rating, UserRating
 # for index
@@ -21,6 +29,14 @@ from django.db.models import Avg, Count
 import math
 from django.contrib import messages
 
+
+# Konstanty
+USERLISTTYPE_FAVORITE_MOVIE_ID = 1 # Oblíbený film
+USERLISTTYPE_WATCHLIST_ID = 2 # Chci vidět
+USERLISTTYPE_WATCHED_ID = 3 # Shlédnuto
+USERLISTTYPE_MOVIE_LIBRARY_ID = 11 # Filmotéka
+
+CONTENT_TYPE_MOVIE_ID = 33
 
 #Carouse = .values('title', 'titlecz', 'url', 'img', 'description')
 #List = .values('title', 'titlecz', 'url', 'img', 'description')
@@ -36,6 +52,9 @@ def movie_detail(request, movie_url):
     genres = movie.moviegenre_set.all()[:3]
     countries = movie.moviecountries_set.all()
 
+    movie_trailer = Movietrailer.objects.filter(movieid=movie.movieid).first()
+
+
     user = request.user
     user_rating = None
     comment_form = None  # Default value
@@ -44,9 +63,11 @@ def movie_detail(request, movie_url):
 
     if user.is_authenticated:
         try:
-            favourites_type = Userlisttype.objects.get(userlisttypeid=1)
+
+            favourites_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_FAVORITE_MOVIE_ID)
             favourites_list = Userlist.objects.get(user=user, listtype=favourites_type)
-            is_in_favourites = Userlistmovie.objects.filter(movie__movieid=movie.movieid, userlist=favourites_list).exists()
+            is_in_favourites = Userlistitem.objects.filter(object_id=movie.movieid, userlist=favourites_list).exists()
+
         except Exception as e:
             is_in_favourites = False
     else:
@@ -54,9 +75,11 @@ def movie_detail(request, movie_url):
 
     if user.is_authenticated:
         try:
-            watchlist_type = Userlisttype.objects.get(userlisttypeid=2)
+
+            watchlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_WATCHLIST_ID)
             watchlist_list = Userlist.objects.get(user=user, listtype=watchlist_type)
-            is_in_watchlist = Userlistmovie.objects.filter(movie__movieid=movie.movieid, userlist=watchlist_list).exists()
+            is_in_watchlist = Userlistitem.objects.filter(object_id=movie.movieid, userlist=watchlist_list).exists()
+
         except Exception as e:
             is_in_watchlist = False
     else:
@@ -64,9 +87,11 @@ def movie_detail(request, movie_url):
 
     if user.is_authenticated:
         try:
-            watched_type = Userlisttype.objects.get(userlisttypeid=3)
+
+            watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_WATCHED_ID)
             watched_list = Userlist.objects.get(user=user, listtype=watched_type)
-            is_in_watched = Userlistmovie.objects.filter(movie__movieid=movie.movieid, userlist=watched_list).exists()
+            is_in_watched = Userlistitem.objects.filter(object_id=movie.movieid, userlist=watched_list).exists()
+
         except Exception as e:
             is_in_watched = False
     else:
@@ -74,9 +99,11 @@ def movie_detail(request, movie_url):
     
     if user.is_authenticated:
         try:
-            movie_library_type = Userlisttype.objects.get(userlisttypeid=11)
+
+            movie_library_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_MOVIE_LIBRARY_ID)
             movie_library_list = Userlist.objects.get(user=user, listtype=movie_library_type)
-            is_in_movie_library = Userlistmovie.objects.filter(movie__movieid=movie.movieid, userlist=movie_library_list).exists()
+            is_in_movie_library = Userlistitem.objects.filter(object_id=movie.movieid, userlist=movie_library_list).exists()
+
         except Exception as e:
             is_in_movie_library = False
     else:
@@ -123,6 +150,61 @@ def movie_detail(request, movie_url):
     writers = Moviecrew.objects.filter(movieid=movie.movieid, roleid='12').select_related('peopleid')
     
     all_crew = Moviecrew.objects.filter(movieid=movie.movieid).select_related('peopleid')
+    
+    
+    # # Fetch locations associated with the book
+    # locations = Movielocation.objects.filter(movielocationid=movie)
+
+    # # Initialize the locations form
+    # if user.is_authenticated:
+    #     if request.method == 'POST' and 'quote' in request.POST:
+    #         location_form = Movielocationform(request.POST, movielocationid=movie.movieid)
+    #         if location_form.is_valid():
+    #             new_quote = location_form.save(commit=False)
+    #             new_quote.bookid = movie
+    #             new_quote.user = request.user
+    #             new_quote.authorid = movie.authorid 
+    #             new_quote.save()
+    #             return redirect('movie_detail', movie_url=movie_url)
+    #     else:
+    #         location_form = Movielocationform(movielocationid=movie.movieid)
+    # else:
+    #     location_form = None
+        
+        
+# xsilence8x keywords pro meta tags
+    keywords = Moviekeywords.objects.filter(movieid=movie)
+    keywordsEN = [keyword.keywordid.keyword for keyword in keywords if keyword.keywordid.keyword]
+    keywordsCZ = [keyword.keywordid.keywordcz for keyword in keywords if keyword.keywordid.keywordcz]
+
+# xsilence8x přidán context keywordsCZ, EN 
+
+# Martin trailer
+    if request.method == 'POST' and 'youtubeurl' in request.POST:
+        trailer_form = TrailerForm(request.POST)
+        if trailer_form.is_valid():
+            trailer = trailer_form.save(commit=False)
+            trailer.movieid = movie
+            trailer.save()
+            return redirect('movie_detail', movie_url=movie.url)
+    else:
+        trailer_form = TrailerForm()
+
+    universum = movie.universumid if movie.universumid else None
+    same_universe_movies = Movie.objects.filter(universumid=movie.universumid).exclude(movieid=movie.movieid).filter(universumid__gt=1)[:20]
+
+
+    # Formulář pro úpravu DIV Ratingu
+    div_rating_form = None
+    if request.user.is_superuser:
+        if request.method == 'POST' and 'update_divrating' in request.POST:
+            div_rating_form = MovieDivRatingForm(request.POST, instance=movie)
+            if div_rating_form.is_valid():
+                div_rating_form.save()
+                return redirect('movie_detail', movie_url=movie_url)
+        else:
+            div_rating_form = MovieDivRatingForm(instance=movie)
+
 
 # xsilence8x keywords pro meta tags
     keywords = Moviekeywords.objects.filter(movieid=movie)
@@ -150,6 +232,13 @@ def movie_detail(request, movie_url):
         "is_in_watchlist": is_in_watchlist,
         "is_in_watched": is_in_watched,
         "is_in_movie_library": is_in_movie_library,
+
+        'movie_trailer': movie_trailer,
+        'trailer_form': trailer_form, 
+        'same_universe_movies': same_universe_movies,
+        'universum': universum,
+        'div_rating_form': div_rating_form,
+
     })
 
 
@@ -191,6 +280,32 @@ class MovieDetailView(DetailView):
 
 
 
+@cache_page(60 * 60 * 30)
+def movies_alphabetical(request, letter='A'):
+    letter = letter.upper()
+
+    # Filtrování filmů podle počátečního písmene nebo čísel
+    if letter == '0-9':
+        movies = Movie.objects.filter(titlecz__regex=r'^[0-9]', adult=0).order_by('titlecz')
+    else:
+        movies = Movie.objects.filter(titlecz__istartswith=letter, adult=0).order_by('titlecz')
+
+    # Anotace pro výpočet průměrného hodnocení z UserRating (stejně jako ve funkci search)
+    movies_with_ratings = movies.annotate(AverageRating=Avg('movierating__rating'))
+
+    # Nastavení stránkování - zobrazíme 50 filmů na jednu stránku
+    paginator = Paginator(movies_with_ratings, 50)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'movies/movies_alphabetical.html', {
+        'page_obj': page_obj,  # Předáme objekt paginatoru do šablony
+        'letter': letter
+    })
+
+
+
+
 #def rate_movie(request, movie_id):
         # viz users.py
 
@@ -199,17 +314,24 @@ class MovieDetailView(DetailView):
 @login_required
 def add_to_favourites(request, movieid):
     movie = get_object_or_404(Movie, movieid=movieid)
-    favourite_type = Userlisttype.objects.get(userlisttypeid=1)
-    favourites_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=favourite_type)
-    # favourites_list = Userlist.objects.get(user=request.user, listtype__userlisttypeid=1)
 
-    if Userlistmovie.objects.filter(userlist=favourites_list, movie=movie).exists():
-        messages.info(request, f"{movie.title} už máš v Oblíbených.")
-        print("already in favourites")
+    favourite_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_FAVORITE_MOVIE_ID)
+    favourites_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=favourite_type)
+
+    if Userlistitem.objects.filter(userlist=favourites_list, object_id=movieid).exists():
+        pass
     else:
-        Userlistmovie.objects.create(userlist=favourites_list, movie=movie)
-        messages.success(request, f"{movie.title} byl přidán do Oblíbených")
-        print("new list created")
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_MOVIE_ID)
+        Userlistitem.objects.create(
+            userlist=favourites_list, 
+            content_type = content_type,
+            object_id=movieid
+            )
+
+        favourite_sum, _ = FavoriteSum.objects.get_or_create(content_type=content_type, object_id=movieid)
+        favourite_sum.favorite_count += 1
+        favourite_sum.save()
+
     
     return redirect("movie_detail", movie_url=movie.url)
 
@@ -217,17 +339,20 @@ def add_to_favourites(request, movieid):
 @login_required
 def add_to_watchlist(request, movieid):
     movie = get_object_or_404(Movie, movieid=movieid)
-    watchlist_type = Userlisttype.objects.get(userlisttypeid=2)
-    watchlist_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watchlist_type)
-    # favourites_list = Userlist.objects.get(user=request.user, listtype__userlisttypeid=1)
 
-    if Userlistmovie.objects.filter(userlist=watchlist_list, movie=movie).exists():
-        messages.info(request, f"{movie.title} už máš v Oblíbených.")
-        print("already in favourites")
+    watchlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_WATCHLIST_ID)
+    watchlist_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watchlist_type)
+
+    if Userlistitem.objects.filter(userlist=watchlist_list, object_id=movieid).exists():
+        pass
     else:
-        Userlistmovie.objects.create(userlist=watchlist_list, movie=movie)
-        messages.success(request, f"{movie.title} byl přidán do Oblíbených")
-        print("new list created")
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_MOVIE_ID)
+        Userlistitem.objects.create(
+            userlist=watchlist_list, 
+            content_type=content_type,
+            object_id=movieid
+            )
+
     
     return redirect("movie_detail", movie_url=movie.url)    
 
@@ -235,15 +360,20 @@ def add_to_watchlist(request, movieid):
 @login_required
 def add_to_watched(request, movieid):
     movie = get_object_or_404(Movie, movieid=movieid)
-    watched_type = Userlisttype.objects.get(userlisttypeid=3)
-    watched_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watched_type)
-    # favourites_list = Userlist.objects.get(user=request.user, listtype__userlisttypeid=1)
 
-    if Userlistmovie.objects.filter(userlist=watched_list, movie=movie).exists():
-        messages.info(request, f"{movie.title} už máš v Oblíbených.")
+    watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_WATCHED_ID)
+    watched_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watched_type)
+
+    if Userlistitem.objects.filter(userlist=watched_list, object_id=movieid).exists():
+        pass
     else:
-        Userlistmovie.objects.create(userlist=watched_list, movie=movie)
-        messages.success(request, f"{movie.title} byl přidán do Oblíbených")
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_MOVIE_ID)
+        Userlistitem.objects.create(
+            userlist=watched_list, 
+            content_type=content_type,
+            object_id=movieid
+            )
+
     
     return redirect("movie_detail", movie_url=movie.url)
 
@@ -252,17 +382,21 @@ def add_to_watched(request, movieid):
 @login_required
 def add_to_movie_library(request, movieid):
     movie = get_object_or_404(Movie, movieid=movieid)
-    movie_library_type = Userlisttype.objects.get(userlisttypeid=11)
+
+    movie_library_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_MOVIE_LIBRARY_ID)
     movie_library_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=movie_library_type)
     # favourites_list = Userlist.objects.get(user=request.user, listtype__userlisttypeid=1)
 
-    if Userlistmovie.objects.filter(userlist=movie_library_list, movie=movie).exists():
-        messages.info(request, f"{movie.title} už máš v Oblíbených.")
-        print("already in favourites")
+    if Userlistitem.objects.filter(userlist=movie_library_list, object_id=movieid).exists():
+        pass
     else:
-        Userlistmovie.objects.create(userlist=movie_library_list, movie=movie)
-        messages.success(request, f"{movie.title} byl přidán do Oblíbených")
-        print("new list created")
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_MOVIE_ID)
+        Userlistitem.objects.create(
+            userlist=movie_library_list, 
+            content_type=content_type,
+            object_id=movieid
+            )
+
     
     return redirect("movie_detail", movie_url=movie.url)
 
@@ -270,10 +404,17 @@ def add_to_movie_library(request, movieid):
 @login_required
 def remove_from_favourites(request, movieid):
     movie = get_object_or_404(Movie, movieid=movieid)
-    favourite_type = Userlisttype.objects.get(userlisttypeid=1)
-    favourites_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=favourite_type)
-    userlistmovie = Userlistmovie.objects.get(movie=movie, userlist=favourites_list)
+
+    favourite_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_FAVORITE_MOVIE_ID)
+    favourites_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=favourite_type)
+    userlistmovie = Userlistitem.objects.get(object_id=movieid, userlist=favourites_list)
     userlistmovie.delete()
+
+    content_type = ContentType.objects.get(id=CONTENT_TYPE_MOVIE_ID)
+    favourite_sum, _ = FavoriteSum.objects.get_or_create(content_type=content_type, object_id=movieid)
+    favourite_sum.favorite_count -= 1
+    favourite_sum.save()
+
     
     return redirect("movie_detail", movie_url=movie.url)
 
@@ -281,9 +422,11 @@ def remove_from_favourites(request, movieid):
 @login_required
 def remove_from_watchlist(request, movieid):
     movie = get_object_or_404(Movie, movieid=movieid)
-    watchlist_type = Userlisttype.objects.get(userlisttypeid=2)
+
+    watchlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_WATCHLIST_ID)
     watchlist_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watchlist_type)
-    userlistmovie = Userlistmovie.objects.get(movie=movie, userlist=watchlist_list)
+    userlistmovie = Userlistitem.objects.get(object_id=movieid, userlist=watchlist_list)
+
     userlistmovie.delete()
     
     return redirect("movie_detail", movie_url=movie.url)
@@ -293,9 +436,11 @@ def remove_from_watchlist(request, movieid):
 @login_required
 def remove_from_watched(request, movieid):
     movie = get_object_or_404(Movie, movieid=movieid)
-    watched_type = Userlisttype.objects.get(userlisttypeid=3)
+
+    watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_WATCHED_ID)
     watched_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watched_type)
-    userlistmovie = Userlistmovie.objects.get(movie=movie, userlist=watched_list)
+    userlistmovie = Userlistitem.objects.get(object_id=movieid, userlist=watched_list)
+
     userlistmovie.delete()
     
     return redirect("movie_detail", movie_url=movie.url)
@@ -305,9 +450,11 @@ def remove_from_watched(request, movieid):
 @login_required
 def remove_from_movie_library(request, movieid):
     movie = get_object_or_404(Movie, movieid=movieid)
-    movie_library_type = Userlisttype.objects.get(userlisttypeid=11)
+
+    movie_library_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_MOVIE_LIBRARY_ID)
     movie_library_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=movie_library_type)
-    userlistmovie = Userlistmovie.objects.get(movie=movie, userlist=movie_library_list)
+    userlistmovie = Userlistitem.objects.get(object_id=movieid, userlist=movie_library_list)
+
     userlistmovie.delete()
     
     return redirect("movie_detail", movie_url=movie.url)

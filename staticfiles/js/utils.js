@@ -60,3 +60,86 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+
+function addItemToList(item, listElement, inputName, set) {
+    // Ověření, zda `listElement` existuje
+    if (!listElement) {
+        console.error(`Element with id ${listElement} does not exist.`);
+        return;
+    }
+
+    const itemId = parseInt(item.id, 10); // Zajistíme, že ID je správného typu
+
+    // Zkontrolujeme, jestli ID již není v Setu
+    if (!set.has(itemId)) {
+        set.add(itemId);  // Přidáme ID vydavatele do Setu
+        console.log(`Added publisher with ID ${itemId} to Set`);
+
+        const li = document.createElement('li');
+        li.classList.add('list-group-item');
+        li.textContent = item.name;
+        li.setAttribute('data-id', itemId);  // Nastavení atributu data-id
+
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove';
+        removeButton.onclick = () => {
+            listElement.removeChild(li);
+            set.delete(itemId);  // Odstranění z množiny při smazání
+            console.log(`Removed publisher with ID ${itemId} from Set`);
+            console.log('Current Set content after manual removal:', Array.from(set));
+        };
+        li.appendChild(removeButton);
+        listElement.appendChild(li);
+
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = inputName;
+        hiddenInput.value = itemId;
+        listElement.appendChild(hiddenInput);
+        
+        // Ladicí výpis pro kontrolu obsahu Setu po přidání
+        console.log('Current Set content after addition:', Array.from(set));
+    } else {
+        console.log(`Item with ID ${itemId} already added.`);
+    }
+}
+
+
+
+function clearForm(tab) {
+    const forms = ['isbn', 'manual', 'update'];
+
+    forms.forEach((formTab) => {
+        const form = document.getElementById(`${formTab}-form`);
+        if (form) {
+            form.reset();
+        }
+
+        const genresElement = document.getElementById(`${formTab}-selected-genres`);
+        if (genresElement) {
+            genresElement.innerHTML = '';
+        }
+
+        const publisherElement = document.getElementById(`${formTab}-selected-publisher`);
+        if (publisherElement) {
+            publisherElement.innerHTML = '';
+        }
+
+        const detailsElement = document.getElementById(`${formTab}-details`);
+        if (detailsElement) {
+            detailsElement.style.display = 'none'; // Skrytí detailů
+        }
+    });
+
+    addedGenres.clear();
+    addedPublisher.clear();
+}
+
+document.querySelectorAll('.tablinks').forEach(button => {
+    button.addEventListener('click', function(event) {
+        const currentTab = event.target.id.replace('-tab-btn', ''); // Extrahuje název aktuální záložky
+        clearForm(currentTab); // Vymaže všechny formuláře a množiny při přepnutí záložky
+    });
+});
+

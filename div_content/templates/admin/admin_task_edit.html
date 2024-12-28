@@ -1,0 +1,68 @@
+<!-- admin/admin_task_edit.html -->
+{% extends "blog/base.html" %}
+
+{% block title %}Editace úkolu DIV.cz{% endblock title %}
+{% block h1 %}Editace úkolů{% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block meta %}
+        <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+        <link href="/static/tam-emoji/css/emoji.css" rel="stylesheet">
+
+        <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+        <script src="/static/tam-emoji/js/config.js"></script>
+        <script src="/static/tam-emoji/js/tam-emoji.min.js"></script>
+{% endblock meta %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="px-6 py-4">
+            <h1 class="text-2xl font-bold mb-6">
+                {% if task %}Upravit úkol{% else %}Nový úkol{% endif %}
+            </h1>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for field in form %}
+                    <div class="{% if field.name == 'description' %}col-span-2{% endif %}">
+                        <label class="block text-sm font-medium text-gray-700">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-3">
+                    <a href="{% if task %}{% url 'admin_task_detail' task.id %}{% else %}{% url 'admin_tasks' %}{% endif %}" 
+                       class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                        Zrušit
+                    </a>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 btn btn-info font-bold py-2 px-4 rounded">
+                        Uložit
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        $('#summernote').summernote({
+            height: 300, // Výška editoru
+            lang: 'cs-CZ', // Jazyk
+            toolbar: [
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['font', ['strikethrough', 'superscript', 'subscript']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['height', ['height']]
+            ]
+        });
+    });
+</script>
+{% endblock %}

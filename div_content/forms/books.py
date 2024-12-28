@@ -1,8 +1,9 @@
-# FORMS.BOOKS.PY
+# FORMS.BOOKS.PY TEST
 # forms.books.py
 from django import forms
 from django.contrib.auth.models import User
-from div_content.models import Bookcomments, Bookcharacter, Bookquotes, Userprofile
+from div_content.models import Book, Bookcomments, Bookcharacter, Bookquotes, Userprofile
+
 
 class BookAddForm(forms.Form):
     identifier = forms.CharField(label='ISBN nebo Google ID', max_length=255)
@@ -28,6 +29,37 @@ class CommentFormBook(forms.ModelForm):
         widgets = {
             'comment': forms.Textarea(attrs={'class': 'form-control'}),
         }
+
+
+class BookCharacterForm(forms.ModelForm):
+    class Meta:
+        model = Bookcharacter
+        fields = ['characterid', 'charactermain']
+        widgets = {
+            'characterid': forms.HiddenInput(),
+            'charactermain': forms.Select(choices=[
+                ('1', 'Hlavní postava'),
+                ('0', 'Vedlejší postava'),
+                ('3', 'Hlavní v části knihy'),
+            ], attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'characterid': 'Postava',
+            'charactermain': 'Typ postavy',
+        }
+
+
+class BookDivRatingForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ['divrating']
+        widgets = {
+            'divrating': forms.NumberInput(attrs={'class': 'form-control', 'step': '1'}),
+        }
+        labels = {
+            'divrating': 'DIV Rating (0-99)',
+        }
+
 
 
 class Bookquoteform(forms.ModelForm):

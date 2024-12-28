@@ -1,0 +1,463 @@
+{% extends "user/base.html" %}
+
+{% load i18n %}
+
+{% block title %}Profil  {{ profile_user.username }} {% endblock title %}
+
+{% block h1 %}{{ profile_user.username }}{% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+
+<style>
+    .nav-tabs .nav-tabs-link.active {
+        background-color: #61872B;
+        color: #ffffff;
+    }
+</style>
+
+<div class="mt-5">
+    <!-- Sekce záložek pro filmy, knihy, hry, statistiky -->
+    <div class="flex overflow-scroll">
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-film mr-2"></i>
+            <a class="movies" href="{% url 'profile_movies_section' profile_user.id %}">Filmy</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-video mr-2"></i>
+            <a class="movies" href="{% url 'profile_series_section' profile_user.id %}">Seriály</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center bg-[#f0f0f0]" style="padding: .5rem 1rem;">
+            <i class="fa-solid fa-book mr-2"></i>
+            <a class="books" href="{% url 'profile_books_section' profile_user.id %}">Knihy</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-gamepad mr-2"></i>
+            <a class="games" href="{% url 'profile_games_section' profile_user.id %}">Hry</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fas fa-star mr-2"></i>
+            <a class="stats" href="{% url 'profile_stats_section' profile_user.id %}">Statistiky</a>
+        </div>
+        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
+            <i class="fa-solid fa-trophy mr-2"></i> 
+            <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
+        </div>
+        <!-- <a class="border rounded-1xl mr-2 users" 
+           style="padding: .5rem 1rem;" 
+           href="">Uživatelé</a> -->
+    </div>
+    
+    <!-- Podkategorie záložek (hodnocení, oblíbené atd.) -->
+    <div class="row mt-5">
+        <ul class="nav nav-tabs overflow-scroll">
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link border active {% if category == 'hodnoceni' %}active{% endif %}" 
+                   href="#" id="tab-hodnoceni">Hodnocení</a>
+            </li>
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link border {% if category == 'oblibene' %}active{% endif %}" 
+                   href="#" id="tab-oblibene">Oblíbené</a>
+            </li>
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link border {% if category == 'recenze' %}active{% endif %}" 
+                   href="#" id="tab-recenze">Recenze</a>
+            </li>
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link border {% if category == 'chci-cist' %}active{% endif %}" 
+                   href="#" id="tab-chci-cist">Chci číst</a>
+            </li>
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link border {% if category == 'precteno' %}active{% endif %}" 
+                   href="#" id="tab-precteno">Přečteno</a>
+            </li>
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link border {% if category == 'knihovna' %}active{% endif %}" 
+                   href="#" id="tab-knihovna">Knihovna</a>
+            </li>
+        </ul>
+
+        <div class="tab-content w-full mb-3 bg-[#F9F9F9] dark:bg-[#1A161F]">
+            <!-- Tab Hodnocení -->
+            <div id="hodnoceni" class="tab-show w-full active {% if category == 'hodnoceni' %}active{% endif %}">
+                <h3 class="after-h3 padding">Hodnocení knih</h3>
+                {% if book_ratings %}
+                <div class="table lg:pr-5">
+                    <div class="grid my-grid bg-[#c0c0c0]">
+                        <!-- <div>Obálka</div> -->
+                        <div class="font-bold p-1">Název</div>
+                        <div class="text-center font-bold p-1">Hodnocení</div>
+                        <div class="text-center font-bold p-1">Datum</div>
+                    </div>
+                    <div class="">
+                        {% for rating in book_page_obj.object_list %}
+                        <div class="grid border my-grid sudy">
+                            <!-- <div>
+                            {% if rating.rating.content_object.img and rating.rating.content_object.img != "noimg.png" %}
+                                <img src="https://books.google.com/books/content?id={{ rating.rating.content_object.img }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ rating.rating.content_object.title }}" width="50">
+                            {% else %}
+                                <img src="https://div.cz/static/img/book/book.png" alt="Bez obrazku" width="50">
+                            {% endif %}
+                            </div> -->
+                            <div class="p-1">
+                                <a class="books" href="/kniha/{{ rating.rating.content_object.url }}">{{ rating.rating.content_object.title }}</a> ({{ rating.rating.content_object.year }})
+                            </div>
+                            <div class="text-center p-1">
+                            {% with score=rating.score %}
+                                <span class="text-warning h4 books">
+                                {% for i in "12345" %}
+                                    {% if score >= forloop.counter %}
+                                    &#9733;
+                                    {% else %}
+                                    &#9734;
+                                    {% endif %}
+                                {% endfor %}
+                                </span>
+                            {% endwith %}
+                            </div>
+                            <div class="text-center p-1"> {{ rating.modified|date:"j. n. Y" }} </div> <!-- datum -->
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>       
+
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+                        {% if book_page_obj.has_previous %}
+                        <div>
+                            <a href="?page=1">&laquo; první</a>
+                            <a href="?page={{ book_page_obj.previous_page_number }}#hodnoceni">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <span class="current-page mx-4">
+                        Stránka {{ book_page_obj.number }} / {{ book_page_obj.paginator.num_pages }}
+                        </span>
+
+                        {% if book_page_obj.has_next %}
+                        <div>
+                            <a href="?page={{ book_page_obj.next_page_number }}#hodnoceni">další</a>
+                            <a href="?page={{ book_page_obj.paginator.num_pages }}#hodnoceni">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div> 
+                {% else %}
+                    <p>Nemáte žádné ohodnocené knihy.</p>
+                {% endif %}                         
+            </div>
+
+            <!-- Tab Oblíbené -->
+            <div id="oblibene" class="tab-show w-full {% if category == 'oblibene' %}active{% endif %}">
+                <h3 class="after-h3 padding">Oblíbené knihy</h3>
+                {% if favorite_books %}
+                <div class="table lg:pr-5">
+                    <div class="grid favorite-grid bg-[#c0c0c0]">
+                        <!-- <div>Miniatura</div> -->
+                        <div class="font-bold p-1">Název</div>
+                        <div class="text-center font-bold p-1">Datum</div>
+                    </div>
+                    <div class="">
+                    {% for book in favorite_books %}
+                        <div class="grid border favorite-grid sudy">
+                            <div class="p-1">
+                                <a class="books" href="/kniha/{{ book.book.url }}">{{ book.book.title }}</a> ({{ book.book.year }}) <!-- KNIHA a rok -->
+                            </div>
+                            <div class="text-center p-1"> {{ book.addedat|date:"j. n. Y" }} </div> <!-- datum -->
+                        </div>
+                    {% endfor %}
+
+                    </div>
+                </div>
+
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+                        {% if favorite_page_obj.has_previous %}
+                        <div>
+                            <a href="?page=1">&laquo; první</a>
+                            <a href="?page={{ favorite_page_obj.previous_page_number }}#hodnoceni">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <span class="current-page mx-4">
+                        Stránka {{ favorite_page_obj.number }} / {{ favorite_page_obj.paginator.num_pages }}
+                        </span>
+
+                        {% if favorite_page_obj.has_next %}
+                        <div>
+                            <a href="?page={{ favorite_page_obj.next_page_number }}#hodnoceni">další</a>
+                            <a href="?page={{ favorite_page_obj.paginator.num_pages }}#hodnoceni">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>                          
+                {% else %}
+                    <p>Nemáté žádné oblíbené knihy.</p>
+                {% endif %}
+                <hr>
+                
+                <h3 class="after-h3 padding">Oblíbení autoři</h3>
+
+                <div class="flex flex-wrap w-full">
+                {% if favorite_authors %}
+                {% for favorite in favorite_authors %}
+                    <div class="" style="width: 150px">
+                        <div class="p-1 w-full">
+                            {% if favorite.content_object.img %}
+                                <img src="{{ favorite.content_object.img }}" alt="{{ favorite.content_object.firstname }}" class="img-fluid rounded" style="object-fit: cover; width: 50px; height: auto; margin: 0 auto">
+                            {% else %}
+                                <img src="/static/img/creator/noperson.svg" alt="{{ favorite.content_object.firstname }}" class="img-fluid rounded" style="object-fit: cover; width: 50px; height: auto; margin: 0 auto">
+                            {% endif %}
+                        </div>
+                        <div class="p-1 w-full text-center">
+                            <a href="/autor/{{ favorite.content_object.url }}">{{ favorite.content_object.firstname }} {{ favorite.content_object.lastname }}</a>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                {% else %}
+                    <p>Nemáte žádné oblíbené autory.</p>
+                {% endif %}
+
+                </div>
+            </div>
+
+            <!-- Tab Recenze -->
+            <div id="recenze" class="tab-show w-full {% if category == 'recenze' %}active{% endif %}">
+                <h3 class="after-h3 padding">Recenze knih</h3>
+                <div class="table lg:pr-5">
+                {% if book_comments %}
+                {% for comment in book_comments %}
+                    <div class="flex border sudy">
+                        <div class="p-1">
+                            {% if comment.bookid.img %}
+                                <img src="https://books.google.com/books/content?id={{ comment.bookid.img }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ comment.bookid.title }}" style="object-fit: cover; width: 50px; height: auto;">
+                            {% else %}
+                                <img src="/static/img/book/book.png" alt="{{ comment.bookid.title }}" style="object-fit: cover; width: 50px; height: auto;">
+                            {% endif %}
+                        </div>
+                        <div class="w-full">
+                            <div class="flex justify-between w-full">
+                                <div class="p-1">
+                                    <a class="books" href="/kniha/{{ comment.bookid.url }}">{{ comment.bookid.title }}</a>
+                                </div>
+                                <div class="text-center p-1">
+                                    {{ comment.dateadded|date:"j. n. Y" }}
+                                </div> 
+                            </div>
+                            <div class="p-1">
+                                {{ comment.comment|truncatewords:10 }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Nemáte žádné recenze.</p>
+                {% endif %}
+                </div>
+
+                <!-- <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+
+                        <div>
+                            <a href="">&laquo; první</a>
+                            <a href="">předchozí</a>
+                        </div>
+
+
+                        <span class="current-page mx-4">
+                            Stránka  / </span>
+
+
+                        <div>
+                            <a href="">další</a>
+                            <a href="">poslední &raquo;</a>
+                        </div>
+
+                    </span>
+                </div> -->
+            </div>
+
+            <!-- Tab Chci číst -->
+            <div id="chci-cist" class="tab-show w-full {% if category == 'chci-cist' %}active{% endif %}">
+                <h3 class="after-h3 padding">Knihy, které chci číst</h3>
+                {% if wantsee_books %}
+                <div class="table lg:pr-5">
+                    <div class="grid favorite-grid bg-[#c0c0c0]">
+                        <!-- <div>Miniatura</div> -->
+                        <div class="font-bold p-1">Název</div>
+                        <div class="text-center font-bold p-1">Datum</div>
+                    </div>
+                    <div class="">
+                        {% for book in wantsee_books %}
+                            <div class="grid border favorite-grid sudy">
+                                <div class="p-1">
+                                    <a class="books" href="/kniha/{{ book.book.url }}">{{ book.book.title }}</a> ({{ book.book.year }}) <!-- KNIHA a rok -->
+                                </div>
+                                <div class="text-center p-1">{{ book.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+                        {% if wantsee_page_obj.has_previous %}
+                        <div>
+                            <a href="?page=1">&laquo; první</a>
+                            <a href="?page={{ wantsee_page_obj.previous_page_number }}#hodnoceni">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <span class="current-page mx-4">
+                        Stránka {{ wantsee_page_obj.number }} / {{ wantsee_page_obj.paginator.num_pages }}
+                        </span>
+
+                        {% if wantsee_page_obj.has_next %}
+                        <div>
+                            <a href="?page={{ wantsee_page_obj.next_page_number }}#hodnoceni">další</a>
+                            <a href="?page={{ wantsee_page_obj.paginator.num_pages }}#hodnoceni">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div> 
+                {% else %}
+                    <p>Nemáte žádné knihy v seznamu "Chci číst".</p>
+                {% endif %}                         
+            </div>
+
+            <!-- Tab Přečtené knihy -->
+            <div id="precteno" class="tab-show w-full {% if category == 'precteno' %}active{% endif %}">
+                <h3 class="after-h3 padding">Přečtené knihy</h3>
+                {% if read_books %}
+                <div class="table lg:pr-5">
+                    <div class="grid favorite-grid bg-[#c0c0c0]">
+                        <!-- <div>Miniatura</div> -->
+                        <div class="font-bold p-1">Název</div>
+                        <div class="text-center font-bold p-1">Datum</div>
+                    </div>
+                    <div class="">
+                        {% for book in read_books %}
+                            <div class="grid border favorite-grid sudy">
+                                <div class="p-1">
+                                    <a class="books" href="/kniha/{{ book.book.url }}">{{ book.book.title }}</a> ({{ book.book.year }}) <!-- KNIHA a rok -->
+                                </div>
+                                <div class="text-center p-1">{{ book.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+                        {% if read_page_obj.has_previous %}
+                        <div>
+                            <a href="?page=1">&laquo; první</a>
+                            <a href="?page={{ read_page_obj.previous_page_number }}#hodnoceni">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <span class="current-page mx-4">
+                        Stránka {{ read_page_obj.number }} / {{ read_page_obj.paginator.num_pages }}
+                        </span>
+
+                        {% if read_page_obj.has_next %}
+                        <div>
+                            <a href="?page={{ read_page_obj.next_page_number }}#hodnoceni">další</a>
+                            <a href="?page={{ read_page_obj.paginator.num_pages }}#hodnoceni">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div> 
+                {% else %}
+                    <p>Nemáte žádné knihy v seznamu "Chci číst".</p>
+                {% endif %}
+            </div>
+
+            <!-- Tab Knihovna -->
+            <div id="knihovna" class="tab-show w-full {% if category == 'knihovna' %}active{% endif %}">
+                <h3 class="after-h3 padding">Moje knihovna</h3>
+                {% if library_books %}
+                <div class="table lg:pr-5">
+                    <div class="grid favorite-grid bg-[#c0c0c0]">
+                        <!-- <div>Miniatura</div> -->
+                        <div class="font-bold p-1">Název</div>
+                        <div class="text-center font-bold p-1">Datum</div>
+                    </div>
+                    <div class="">
+                        {% for book in library_books %}
+                            <div class="grid border favorite-grid sudy">
+                                <div class="p-1">
+                                    <a class="books" href="/kniha/{{ book.book.url }}">{{ book.book.title }}</a> ({{ book.book.year }}) <!-- KNIHA a rok -->
+                                </div>
+                                <div class="text-center p-1">{{ book.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+                        {% if library_page_obj.has_previous %}
+                        <div>
+                            <a href="?page=1">&laquo; první</a>
+                            <a href="?page={{ library_page_obj.previous_page_number }}#hodnoceni">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <span class="current-page mx-4">
+                        Stránka {{ library_page_obj.number }} / {{ library_page_obj.paginator.num_pages }}
+                        </span>
+
+                        {% if library_page_obj.has_next %}
+                        <div>
+                            <a href="?page={{ library_page_obj.next_page_number }}#hodnoceni">další</a>
+                            <a href="?page={{ library_page_obj.paginator.num_pages }}#hodnoceni">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div> 
+                {% else %}
+                    <p>Nemáte žádné knihy v seznamu "Chci číst".</p>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Funkce na aktivaci konkrétního tabu
+        function activateTab(tabId) {
+            document.querySelectorAll('.tab-show').forEach(tabContent => {
+                tabContent.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tabs-link').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            const targetTab = tabId.replace('tab-', '');
+            document.getElementById(targetTab).classList.add('active');
+            document.getElementById('tab-' + targetTab).classList.add('active');
+        }
+
+        // Kontrola, jestli je v URL fragment (část po #)
+        const hash = window.location.hash.substring(1);  // Získá fragment bez #
+        if (hash) {
+            activateTab('tab-' + hash);  // Aktivuje příslušný tab
+        }
+
+        // Přepínání tabů po kliknutí
+        document.querySelectorAll('.nav-tabs-link').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetTab = this.getAttribute('id');
+                activateTab(targetTab);
+                // Aktualizace URL bez reloadu stránky
+                history.pushState(null, null, '#' + targetTab.replace('tab-', ''));
+            });
+        });
+    });
+</script>
+
+{% endblock content %}

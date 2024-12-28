@@ -1,54 +1,65 @@
 const panels = document.querySelectorAll('.panel');
-let currentIndex = 0; // Index aktu√°lnƒõ aktivn√≠ho panelu
 
-function removeActiveClasses() {
-    panels.forEach(panel => {
-        panel.classList.remove('active');
-    });
-}
 
-function setActivePanel(index) {
-    removeActiveClasses();
-    panels[index].classList.add('active');
-}
+if (panels.length > 0) {
+    let currentIndex = 0; // Index aktu·lnÏ aktivnÌho panelu
 
-// Nastaven√≠ inici√°ln√≠ho panelu jako aktivn√≠ho
-setActivePanel(currentIndex);
+    function removeActiveClasses() {
+        panels.forEach(panel => {
+            panel.classList.remove('active');
+        });
+    }
 
-// Automatick√© p≈ôep√≠n√°n√≠ panel≈Ø po 10 sekund√°ch (10000 ms)
-setInterval(() => {
-    currentIndex = (currentIndex + 1) % panels.length; // Posun na dal≈°√≠ panel a zpƒõt na prvn√≠ po posledn√≠m
+    function setActivePanel(index) {
+        removeActiveClasses();
+        panels[index].classList.add('active');
+    }
+
+    // NastavenÌ inici·lnÌho panelu jako aktivnÌho
     setActivePanel(currentIndex);
-}, 5000);
 
-// Zajist√≠me, ≈æe ruƒçn√≠ kliknut√≠ na panel p≈ôep√≠≈°e automatick√Ω p≈ôep√≠naƒç
-panels.forEach((panel, index) => {
-    panel.addEventListener('click', () => {
-        currentIndex = index; // Nastav√≠ aktu√°ln√≠ panel na index kliknut√©ho panelu
+    // AutomatickÈ p¯epÌn·nÌ panel˘ po 10 sekund·ch (10000 ms)
+    setInterval(() => {
+        currentIndex = (currentIndex + 1) % panels.length; // Posun na dalöÌ panel a zpÏt na prvnÌ po poslednÌm
         setActivePanel(currentIndex);
+    }, 5000);
+
+    // ZajistÌme, ûe ruËnÌ kliknutÌ na panel p¯epÌöe automatick˝ p¯epÌnaË
+    panels.forEach((panel, index) => {
+        panel.addEventListener('click', () => {
+            currentIndex = index; // NastavÌ aktu·lnÌ panel na index kliknutÈho panelu
+            setActivePanel(currentIndex);
+        });
     });
-});
+}
+
 
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Z√≠sk√°me CSRF token z vygenerovan√©ho skryt√©ho inputu
+
+    // ZÌsk·me CSRF token z vygenerovanÈho skrytÈho inputu
+
     var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
 
     document.querySelectorAll('.btn-action').forEach(function(button) {
         button.addEventListener('click', function(e) {
-            e.preventDefault(); // Zamez√≠me v√Ωchoz√≠ akci tlaƒç√≠tka, pokud je nƒõjak√°
 
-            var movieId = button.getAttribute('data-game-id');
+            e.preventDefault(); // ZamezÌme v˝chozÌ akci tlaËÌtka, pokud je nÏjak·
+
+            var gameId = button.getAttribute('data-game-id');
             var listType = button.getAttribute('data-list-type');
             var thankYouMessage = document.getElementById('add-thankyou');
 
-            // Odes√≠l√°n√≠ po≈æadavku na server
+            // OdesÌl·nÌ poûadavku na server
+
             fetch("/hra/add-to-list/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRFToken": csrfToken  // P≈ôid√°n√≠ CSRF token
+
+                    "X-CSRFToken": csrfToken  // P¯id·nÌ CSRF token
+
                 },
                 body: JSON.stringify({
                     media_id: gameId,
@@ -66,14 +77,42 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     thankYouMessage.style.display = 'block';
 
-                    // Skryjeme hl√°≈°ku po 4 sekund√°ch
+
+                    // Skryjeme hl·öku po 4 sekund·ch
+
                     setTimeout(function() {
                         thankYouMessage.style.display = 'none';
                     }, 4000);
                 } else {
-                    alert("Nƒõco se pokazilo. Zkuste to pros√≠m znovu.");
+
+                    alert("NÏco se pokazilo. Zkuste to prosÌm znovu.");
+
                 }
             });
         });
     });
+
 });
+
+
+
+
+
+console.log("Script running!");
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Script running!");
+    document.querySelectorAll('.star-ratings-rate-action').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            var thankYouMessage = document.getElementById('rating-thankyou2');
+            thankYouMessage.style.display = 'block';
+            location.reload();
+
+            // Skryjte hl·öku po 3 sekund·ch
+            setTimeout(function() {
+                thankYouMessage.style.display = 'none';
+                
+            }, 3000);
+        });
+    });
+});
+

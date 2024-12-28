@@ -1,0 +1,13 @@
+{% extends "eshop/base.html" %}
+{% block content %}
+<h1>Knižní sekce</h1>
+<div class="grid">
+    {% for book in books %}
+    <div class="book-item">
+        <h3><a href="{% url 'book_detail' book.url %}">{{ book.title }}</a></h3>
+        <p>{{ book.author }}</p>
+        <p>Cena: {{ book.price }} Kč</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
