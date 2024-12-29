@@ -1,0 +1,51 @@
+<!-- NOVÉ OD WENDY -->
+{% extends "books/base.html" %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
+
+{% block title %} Přidání autora knih | DIV.cz{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="/static/css/add_book.css">
+
+<div class="row container my-5">
+    <h1 class="w-full mb-8">Přidat autora knih</h1>
+    <!-- Přidání autora -->
+    <form class="w-4/5 flex-col" style="margin: 0 auto;" action="/submit-author" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="first-name">Jméno (povinné):</label>
+            <input type="text" id="first-name" name="first_name" required>
+        </div>
+        <div class="form-group">
+            <label for="middle-name">Prostřední jméno:</label>
+            <input type="text" id="middle-name" name="middle_name">
+        </div>
+        <div class="form-group">
+            <label for="last-name">Příjmení (povinné):</label>
+            <input type="text" id="last-name" name="last_name" required>
+        </div>
+        <div class="form-group">
+            <label for="birth-date">Datum narození:</label>
+            <input type="date" id="birth-date" name="birth_date">
+        </div>
+        <div class="form-group">
+            <label for="birth-place">Místo narození:</label>
+            <input type="text" id="birth-place" name="birth_place">
+        </div>
+        <div class="form-group">
+            <label for="biography">Biografie:</label>
+            <textarea id="biography" name="biography" rows="5"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="photo">Fotka:</label>
+            <input type="file" id="photo" name="photo" accept="image/*">
+        </div>
+        <div class="form-group">
+            <button class="add" type="submit">Přidat autora</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,256 +1,314 @@
-{% load humanize %}<!DOCTYPE html>
-<html lang="cs">
-    
-    <head>
+{% extends "books/base.html" %}
+{% load humanize %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
 
-        {% include "../inc/head.html" %}
+{% block title %}Knihy | DIV.cz{% endblock %}
 
-        <title>Knihy | Databáze DIV</title>
+{% block content %}
 
-        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css"/>
-        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"/>
-        
-        <script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"/>
 
-        <link href="/static/css/books.css" rel="stylesheet">
-        <link href="/static/css/navbar.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
 
+<style>
 
-<meta name="description" content="Databáze knih na DIV.cz. Objevte novinky, recenze, žebříčky, autory a další informace o vašich oblíbených knihách.">
-<meta name="keywords" content="knihy, literatura, databáze knih, recenze, novinky, žebříčky, autoři, knižní novinky">
-<meta name="author" content="DIV.cz">
-<meta property="og:title" content="Knihy | Databáze DIV.cz">
-<meta property="og:description" content="Prozkoumejte nejnovější knihy na DIV.cz. Aktuální recenze, novinky a žebříčky.">
-<meta property="og:image" content="https://div.cz/img/book/knizni-div.webp">
-<meta property="og:url" content="https://div.cz">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Knihy | Databáze DIV.cz">
-<meta name="twitter:description" content="Aktuální databáze knih na DIV.cz. Recenze, novinky, a více.">
-<meta name="twitter:image" content="https://div.cz/img/book/knizni-div.webp">
+    .bar-container {
+        flex-grow: 1;
+        background-color: #d3d3d3; 
+        border-radius: 5px;
+    }
 
+    .bar-book {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 20px;
+        background-color: #61872B;
+        border-radius: 5px;
+    }
+</style>
 
-    {% include "inc/google.html" %}
+<div class="row container my-4">
+    <!-- Hlavní obsah (Levý sloupec) -->
+    <div class="col-lg-8">
+        <!-- carousel -->
+        <div class="w-100">
+            {% comment %}{% load cache %}{% cache 604800 books_index %}{% endcomment %}
+            <div class="book-slider">
+                {% for book in top_books %}
+                <div style="margin:0 auto">
+                    <a href="/kniha/{{ book.url }}">
+                        <div id="img" style="width:145px;height:225px;border:0px solid blue;margin:0 auto">
+                        <img style="max-width: 140px; height: 205px; margin:0 auto" src="{% if book.img == 'noimg.png' %}https://div.cz/static/img/book/book.png{% else %}/static/kniha/{{ book.img }}{% endif %}" alt="{{ book.titlecz }}">
+                    </a>
+                </div>
 
-    </head>
+                <a href="/kniha/{{ book.url }}">
+                    <h3 class="white-background">{{ book.titlecz }}</h3>
+                </a>
+                <p>{{ book.author }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% comment %}{% endcache %}{% endcomment %}
+    </div>
 
-    <body class="bg-[#FFFFFF] text-[#0d0c0f] dark:bg-[#0d0c0f] dark:text-[#F9F9F9] d-flex flex-column min-vh-100">
+    <div class="row my-4">
+        <div class="grid grid-cols-1 gap-2">
+            {% for book in book_list_15 %} 
+            <div class="book-card grid w-full bg-[#F9F9F9] dark:bg-[#1A161F] border rounded-1xl">
+                <a href="/kniha/{{ book.url }}" class="w-auto">
+                {% if book.img == "noimg.png" %}
+                    <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
+                    <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz }}" class="card-img-top rounded-l-lg">
+                    {% elif book.img == "GoogleID" %}
+                    <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
+                    <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="card-img-top rounded-l-lg">
+                    {% else %}
+                    <!-- Jinak zobraz vlastní nahraný obrázek -->
+                    <img src="/static/kniha/{{ book.img }}" alt="{{ book.titlecz }}" class="card-img-top rounded-l-lg">
+                {% endif %}   
+                </a>
 
-        {% include "../inc/navbar_books.html" %}
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <a href="/kniha/{{ book.url }}">
+                        {% if book.titlecz %}
+                        {{ book.titlecz }}
+                        {% else %}
+                        {{ book.title }}
+                        {% endif %}
+                        </a>
+                    </h4>
+                    <h5 class="card-title">
+                        {% if book.authorid and book.authorid.url %}
+                            <a href="{% url 'author_detail' author_url=book.authorid.url %}">{{ book.author }}</a>
+                        {% else %}
+                            {{ book.author }}
+                        {% endif %}
+                    </h5>
+                    <p class="card-text">{{ book.description|safe|truncatewords:40 }}</p>
+                    <!--<a href="/film/{{ movie.url }}" class="btn btn-primary">{{ movie.titlecz }}</a>-->
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 
-        <main class="flex-grow-1 max-w-[1440px] mx-auto">
-            <section class="text-[#0d0c0f] dark:text-[#F9F9F9] max-w-[1440px] mx-auto flex flex-col lg:flex-row">
-                <aside class="lg:min-w-[200px] max-h-full bg-light dark:bg-[#1A161F]" style="border-right: 1px solid white;">
-                    <div class="lg:min-w-[200px] max-h-full" style="border-right: 1px solid white;">
-                        <!-- Menu -->
-                        <div class="menu-section flex justify-center lg:flex-col lg:justify-normal lg:h-screen lg:block dark:bg-[#1A161F]">
-                            <div class="" style="width: 100%;">
-                                <div class="after flex flex-wrap justify-between">
-                                    <h3 class="ml-8 lg:pt-11 mb-2 font-bold sm:mt-4">Menu</h3>
-                                    <div class="flex gap-4 mb-2 mr-4 items-end">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 sun cursor-pointer ">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
-                                        </svg>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 moon cursor-pointer ">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div class="mt-4 flex sm:justify-center">
-                                    <div class="w-full flex flex-col ml-8 items-center">
-                                        <div class="flex flex-col w-full">
-                                            <div class="sidebar-list">
-                                                <!--<a href="">Novinky</a>-->
-                                                <!--<a href="">Seznam knih</a>-->
-                                                <!--<a href="">Žebříčky</a>-->
-                                                <!--<a href="">Nakladatelství</a>-->
-                                                <a href="/postavy/">Postavy</a>
-                                                <a href="/forum/knihy">Fórum</a>
-                                                <a href="/blogy/knizni-blogy">Knižní blogy</a>
-                                                <!--<a href="">Přidat knihu</a>-->
-                                                <!--<a href="">Přidat autora</a>-->
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    <div class="card box-shadow mb-4">
+        <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+            <h3 class="card-title font-bold after-h3">Má komunita</h3>
+            <div>   
+                <div class="flex">
+                    <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}" style="width: 15%;">   
+                    <div class="flex flex-wrap content-start ml-2" style="width: 83%;">
+                        <a class="w-full" href="/knihy/">Dekameron</a> <!-- název knihy -->
+                        <p class="w-full">Komentář, který jsem napsala ke knize je zde :)</p>
                     </div>
-                </aside>
-
-                <div class="row container my-4">
-                    <!-- Hlavní obsah (Levý sloupec) -->
-                    <div class="col-lg-8">
-                        <!-- carousel - nejlépe hodnocené -->
-                        <div class="w-100"><!--<a href="https://div.cz/hledani-knih/">Hledání knih</a>-->
-                            {% comment %}{% load cache %}{% cache 604800 books_index %}{% endcomment %}
-                            <div class="book-slider">
-                                {% for book in top_books %}
-                                <div style="margin:0 auto">
-                                    <a href="/kniha/{{ book.url }}">
-                                        <div id="img" style="width:145px;height:225px;border:0px solid blue;margin:0 auto">
-                                        <img style="max-width: 140px;margin:0 auto" src="{% if book.img == 'noimg.png' %}https://div.cz/static/img/book/book_150.png{% else %}http://books.google.com/books/content?id={{ book.img }}&printsec=frontcover&img=1&zoom=1&source=gbs_api{% endif %}" alt="{{ book.title }}">
-                                    </a>
-                                </div>
-
-                                <a href="/kniha/{{ book.url }}">
-                                    <h3 class="white-background">{{ book.title }}</h3>
-                                </a>
-                                <p>{{ book.author }}</p>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% comment %}{% endcache %}{% endcomment %}
-                    </div>
-
-                    <div class="row container my-4">
-                        <div class="grid grid-cols-1 gap-2">
-                            {% for book in book_list_15 %} 
-                            <div class="book-card grid w-full bg-[#F9F9F9] dark:bg-[#1A161F] border rounded-1xl self-start">
-                                <a href="/kniha/{{ book.url }}" class="w-auto">
-                                    <img src="{% if book.img == 'noimg.png' %}https://div.cz/static/img/book/book_150.png{% else %}http://books.google.com/books/content?id={{ book.img }}&printsec=frontcover&img=1&zoom=1&source=gbs_api{% endif %}" alt="{{ book.title }}" class="card-img-top rounded-l-lg">
-                        
-                                </a>
-                                <div class="card-body">
-                                    <h4 class="card-title"><a href="/kniha/{{ book.url }}">{{ book.title }}</a></h4>
-                                    <h5 class="card-title"><a href=" {% url 'author_detail' author_url=book.authorid.url %}">{{ book.author }}</a></h5>
-                                    <p class="card-text">{{ book.description|safe }}</p>
-                                    <!--<a href="/film/{{ movie.url }}" class="btn btn-primary">{{ movie.titlecz }}</a>-->
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    </div> <!-- nechápu?? kde má <div> -->
                     
-                    <!-- Pravý sloupec -->
-                    <div class="col-lg-4 article-section ">
-                        <div class="card mb-4">
-                            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                <h3 class="card-title after-h3 font-bold">Právě vyšlo</h3>
-                                <ul class="w-full" style="list-style-type:none">
-                                    <li><a href="https://test.div.cz/kniha/sikmy-kostel-3">Šikmý kostel 3</a></li>
-                                    <li><a href="https://test.div.cz/kniha/ctvrte-kridlo">Čtvrté křídlo</a></li>
-                                    <li><a href="https://test.div.cz/kniha/murtagh">Murtagh</a></li>
-                                    <!--<li>Duše národa</li>-->
-                                    <li><a href="/kniha/lovec-prizraku">Lovec přízraků</a></li>
-                                    <!--<li>Sedm schodů k moci</li>
-                                    <li>Duna - retro vydání</li>-->
-                                </ul>
-                            </div>
+                </div>  
+                <p class="flex justify-end">Uživatel: <a href="/uzivatel/" class="ml-2">VendaCiki</a></p>
+            </div>
+        </div>
+    </div>
+
+    </div> <!-- nechápu?? kde má <div> -->
+    
+    <!-- Pravý sloupec -->
+    <div class="col-lg-4 article-section ">
+        <div class="card box-shadow mb-4">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title after-h3 font-bold">Právě vyšlo</h3>
+                <ul class="w-full" style="list-style-type:none">
+                    <li><a href="https://test.div.cz/kniha/sikmy-kostel-3">Šikmý kostel 3</a></li>
+                    <li><a href="https://test.div.cz/kniha/ctvrte-kridlo">Čtvrté křídlo</a></li>
+                    <li><a href="https://test.div.cz/kniha/murtagh">Murtagh</a></li>
+                    <li>Duše národa</li>
+                    <li>Lovec přízraků</li>
+                    <li>Sedm schodů k moci</li>
+                    <li>Duna - retro vydání</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Čtenářský cíl přečtených knih -->
+        <!-- by Martin -->
+        <div class="card box-shadow mb-4">
+        {% if user.is_authenticated %}
+            {% if reading_goal %}
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="after-h3 mb-0 font-bold">Cíl čtení pro rok {{ reading_goal.goalyear }}</h3>
+                <div class="flex flex-wrap items-center mb-4">
+                    <span class="w-full my-4">
+                        Přečtených {{ reading_goal.booksread }} / {{ reading_goal.goal }} knih
+                    </span>
+                    <div class="bar-container w-full flex justify-content-start">
+                        <div style="width: {% if reading_goal.progress > 100 %}100{% else %}{{ reading_goal.progress }}{% endif %}%" class="shadow-none flex flex-col text-center whitespace-nowrap justify-center 
+                            {% if reading_goal.progress < 50 %}
+                            {% elif reading_goal.progress < 75 %}
+                            {% elif reading_goal.progress < 100 %}
+                            {% endif %}">
+                            <span class="bar-book inline-block px-2">
+                            {{ reading_goal.progress|floatformat:1 }}%
+                            </span>
                         </div>
-
-                        <div>
-                            <div class="card mb-4">
-                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                    <h3 class="card-title font-bold after-h3">Články</h3>
-                                    <ul>
-                                        <li><a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury">Magnesia Litera 2024</a></li>
-                                        <li><a href="https://div.cz/literarni-cena-skleneny-klic-glasnyckeln">Skleněný klíč</a></li>
-                                        <li><a href="/odhaleni-kouzla-slova-nobelova-cena-za-literaturu">Nobelova cena za literaturu</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="card mb-4">
-                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                    <h3 class="card-title font-bold after-h3">Autoři měsíce</h3>
-                                    <ul>
-                                        <li><a href="https://test.div.cz/autor/karin-lednicka">Karin Lednická</a></li>
-                                        <li><a href="https://test.div.cz/autor/christopher-paolini">Christopher Paolini</a></li>
-                                        <li><a href="https://test.div.cz/autor/jo-nesbo">Jo Nesbø</a></li>
-                                        <li><a href="https://test.div.cz/autor/rebecca-yarros">Rebecca Yarros</a></li>
-                                        <li><a href="https://test.div.cz/autor/robert-bryndza">Robert Bryndza</a></li>
-                                        <li><a href="https://test.div.cz/autor/orson-welles">Orson Welles</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="card mb-4">
-                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                    <h3 class="card-title font-bold after-h3">Žánry</h3>
-                                    <nav>
-                                        <a href="/knihy/biografie">Biografie</a> |
-                                        <a href="/knihy/cestovni">Cestovní</a> |
-                                        <a href="/knihy/detektivni">Detektivní</a> |
-                                        <a href="/knihy/dobrodruzne">Dobrodružné</a> |
-                                        <a href="/knihy/duchovni literatura">Duchovní literatura</a> |
-                                        <a href="/knihy/detske">Dětské</a> |
-                                        <a href="/knihy/eroticke">Erotické</a> |
-                                        <a href="/knihy/fantasy">Fantasy</a> | 
-                                        <a href="/knihy/historie">Historie</a> | 
-                                        <a href="/knihy/horor">Horor</a> |
-                                        <a href="/knihy/humorne">Humorné</a> |
-                                        <a href="/knihy/komiks">Komiks</a> |
-                                        <a href="/knihy/literatura faktu">Literatura faktu</a> |
-                                        <a href="/knihy/naucna">Naučná</a> |
-                                        <a href="/knihy/odborna">Odborná</a> |
-                                        <a href="/knihy/poezie">Poezie</a> |
-                                        <a href="/knihy/pohadky">Pohádky</a> |
-                                        <a href="/knihy/popularne naucne">Populárně-naučné</a> |
-                                        <a href="/knihy/povidky">Povídky</a> |
-                                        <a href="/knihy/pro mladez">Pro mládež</a> |
-                                        <a href="/knihy/psychologicky">Psychologický</a> |
-                                        <a href="/knihy/romanticke">Romantické</a> |
-                                        <a href="/knihy/roman">Román</a> |
-                                        <a href="/knihy/sci-fi">Sci-fi</a> |
-                                        <a href="/knihy/sportovni">Sportovní</a> |
-                                        <a href="/knihy/thriller">Thriller</a> |
-                                        <a href="/knihy/umeni">Umění</a> |
-                                        <a href="/knihy/valecne">Válečné</a> |
-                                        <a href="/knihy/western">Western</a> |
-                                        <a href="/knihy/young adult">Young adult</a>
-                                    </nav>
-                                </div>
-                            </div>
-
-                            <div class="card mb-4">
-                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                    <h3 class="card-title font-bold after-h3">V databázi máme:</h3>
-                                    <ul>
-                                        <li><p>{{ stats_book.value|intcomma }} knih</p></li>
-                                        <li><p>{{ stats_writters.value|intcomma }} spisovatelů</p></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                        {% if reading_goal.progress == 0 %}
+                        <span class="text-xs">0%</span>
+                        {% endif %}
                     </div>
                 </div>
-            </section>
-        </main>
 
-        {% include "../inc/footer.html" %}
+                {% if reading_goal.progress >= 100 %}
+                <div class="mt-2 text-center">
+                    Gratulujeme! Splnili jste svuj ctenarsky cil!
+                </div>
+                {% endif %}
 
-        <script>
-            $(document).ready(function(){
-                $('.book-slider').slick({
-                    infinite: true, // nekonečný scroll
-                    slidesToShow: 3, // počet obrázků na stránce
-                    slidesToScroll: 1, // posun o 1 obrázek
-                    autoplay: true, // automatické přehrávání
-                    autoplaySpeed: 2000, // rychlost automatického posouvání v milisekundách
-                    dots: true, // navigační tečky
-                    arrows: false, // Zakáže boční šipky
-                    responsive: [
-                        {
-                            breakpoint: 768,
-                            settings: {
-                                slidesToShow: 1
-                            }
-                        },
-                        {
-                            breakpoint: 1024,
-                            settings: {
-                                slidesToShow: 2
-                            }
-                        }
-                    ]
-                });
-            });
-        </script>
+                <hr>
 
-        <script src="/static/js/books.js"></script>
-        <script src="/static/js/script.js"></script>
+                <form id="goalForm" class="flex flex-wrap justify-center text-center" method="POST" action="{% url 'set_reading_goal' %}">
+                    {% csrf_token %}
+                    <div class="flex-1 w-full">
+                        <label for="goal" class="w-full mt-0 mb-1">Upravit cil pro rok {{ reading_goal.goalyear }}</label>
+                        <div class="relative">
+                            <input type="number" name="goal" id="goal" min="1" value="{{ reading_goal.goal }}" class="mt-1 w-full pl-3 pr-12">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary add mb-0"><i class="fa fa-save mr-2"></i> Uložit</button>
+                </form>
+            </div>
 
-    </body>
-</html>
+            {% else %}
+            <div class="text-center py-4">
+                <p class="mb-4">Nastavte si svuj prvni ctenarsky cil!</p>
+                <form id="goalForm" class="max-w-sm mx-auto" method="POST" action="{% url 'set_reading_goal' %}">
+                    {% csrf_token %}
+                    <div class="flex gap-4">
+                        <div class="relative flex-1">
+                            <input type="number" name="goal" placeholder="Napr. 12"min="1" class="w-full pl-3 pr-12">
+                            <div class="absolute flex items-center pr-3">
+                            knih
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary add mb-0">Začít</button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+
+            {% else %}
+
+            <p class="text-gray-600">Pro nastavení vlastního čtenářského cíle se prosím <a href="/prihlaseni/">přihlašte</a>.</p>
+        {% endif %}
+        </div>
+
+        <!-- ČLÁNKY -->
+        <div class="card box-shadow mb-4">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title font-bold after-h3">Články</h3>
+                <ul>
+                    <li><a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury">Magnesia Litera 2024</a></li>
+                    <li><a href="https://div.cz/literarni-cena-skleneny-klic-glasnyckeln">Skleněný klíč</a></li>
+                    <li><a href="/odhaleni-kouzla-slova-nobelova-cena-za-literaturu">Nobelova cena za literaturu</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- AUTOŘI -->
+        <div class="card box-shadow mb-4">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title font-bold after-h3">Autoři měsíce</h3>
+                <ul>
+                    <li><a href="https://test.div.cz/autor/karin-lednicka">Karin Lednická</a></li>
+                    <li><a href="https://test.div.cz/autor/christopher-paolini">Christopher Paolini</a></li>
+                    <li><a href="https://test.div.cz/autor/jo-nesbo">Jo Nesbø</a></li>
+                    <li><a href="https://test.div.cz/autor/rebecca-yarros">Rebecca Yarros</a></li>
+                    <li><a href="https://test.div.cz/autor/robert-bryndza">Robert Bryndza</a></li>
+                    <li><a href="https://test.div.cz/autor/orson-welles">Orson Welles</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ŽÁNRY -->
+        <div class="card box-shadow mb-4">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title font-bold after-h3">Žánry</h3>
+                <div>
+                    <a href="/knihy/biografie">Biografie</a> |
+                    <a href="/knihy/cestovni">Cestovní</a> |
+                    <a href="/knihy/detektivni">Detektivní</a> |
+                    <a href="/knihy/dobrodruzne">Dobrodružné</a> |
+                    <a href="/knihy/duchovni literatura">Duchovní literatura</a> |
+                    <a href="/knihy/detske">Dětské</a> |
+                    <a href="/knihy/eroticke">Erotické</a> |
+                    <a href="/knihy/fantasy">Fantasy</a> | 
+                    <a href="/knihy/historie">Historie</a> | 
+                    <a href="/knihy/horor">Horor</a> |
+                    <a href="/knihy/humorne">Humorné</a> |
+                    <a href="/knihy/komiks">Komiks</a> |
+                    <a href="/knihy/literatura faktu">Literatura faktu</a> |
+                    <a href="/knihy/naucna">Naučná</a> |
+                    <a href="/knihy/odborna">Odborná</a> |
+                    <a href="/knihy/poezie">Poezie</a> |
+                    <a href="/knihy/pohadky">Pohádky</a> |
+                    <a href="/knihy/popularne naucne">Populárně-naučné</a> |
+                    <a href="/knihy/povidky">Povídky</a> |
+                    <a href="/knihy/pro mladez">Pro mládež</a> |
+                    <a href="/knihy/psychologicky">Psychologický</a> |
+                    <a href="/knihy/romanticke">Romantické</a> |
+                    <a href="/knihy/roman">Román</a> |
+                    <a href="/knihy/sci-fi">Sci-fi</a> |
+                    <a href="/knihy/sportovni">Sportovní</a> |
+                    <a href="/knihy/thriller">Thriller</a> |
+                    <a href="/knihy/umeni">Umění</a> |
+                    <a href="/knihy/valecne">Válečné</a> |
+                    <a href="/knihy/western">Western</a> |
+                    <a href="/knihy/young adult">Young adult</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card box-shadow mb-4">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title font-bold after-h3">V databázi máme:</h3>
+                <ul>
+                    <li><p>{{ stats_book.value|intcomma }} knih</p></li>
+                    <li><p>{{ stats_writters.value|intcomma }} spisovatelů</p></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $('.book-slider').slick({
+            infinite: true, // nekonečný scroll
+            slidesToShow: 3, // počet obrázků na stránce
+            slidesToScroll: 1, // posun o 1 obrázek
+            autoplay: true, // automatické přehrávání
+            autoplaySpeed: 2000, // rychlost automatického posouvání v milisekundách
+            dots: true, // navigační tečky
+            arrows: false, // Zakáže boční šipky
+            responsive: [
+                {
+                    breakpoint: 768,
+                    settings: {
+                        slidesToShow: 1
+                    }
+                },
+                {
+                    breakpoint: 1024,
+                    settings: {
+                        slidesToShow: 2
+                    }
+                }
+            ]
+        });
+    });
+</script>
+
+{% endblock %}
