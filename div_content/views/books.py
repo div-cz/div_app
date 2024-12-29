@@ -86,6 +86,9 @@ def get_reading_goal(request):
         else:
             user_goal.progress = 0
     
+     # Zajistíme správný formát s tečkou
+        user_goal.progress = f"{user_goal.progress:.1f}".replace(",", ".")
+
     return user_goal
 
 @login_required
