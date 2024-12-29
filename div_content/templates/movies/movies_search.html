@@ -1,101 +1,70 @@
-<!DOCTYPE html>
-<html lang="cs">
-    <head>
+{% extends "movies/base.html" %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
 
-        {% include "../inc/head.html" %}
+{% block title %}{{ movie.titlecz }} ({{ movie.releaseyear }}) | DIV.cz{% endblock %}
 
-        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+{% block content %}
 
-        <title>Vyhledávání {% if request.GET.q %} {{ request.GET.q }} {% endif %} v databázi filmů DIV</title>
-
-        <link rel="stylesheet" href="/static/css/movies.css">
-
-<style>
-.text-warning {
-        color: Goldenrod !important;
-    }
-</style>
-    {% include "../inc/google.html" %}
-
-    </head>
-
-    <body>
-
-        {% include "../inc/navbar_movies.html" %}
-
-        <main class="mb-5">
-            <!-- Sekce odkazů na filmy -->
-            <div class="container my-4">
-                <h2 class="mb-4">Vyhledávání {% if request.GET.q %} {{ request.GET.q }} {% endif %}</h2>
-                <div class="row mb-3">
-                    <form method="get">
-                        {{ form.q.label_tag }} {{ form.q }}
-                        <input type="submit" value="Hledat">
-                    </form>
-                    {% if movies %}
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Miniatura</th>
-                                <th>Název</th>
-                                <th>Rok</th>
-                                <th>Hodnocení</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for movie in movies %}
-                            <tr>
-                                <td>
-                                    <!--<img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ movie.img }}" alt="{{ movie.title }}">-->
-                                    <a href="/film/{{ movie.URL }}">
-                                        {% if movie.IMG == "noimg.png" %}
-                                        <img src="/static/img/movie/w400/nomovie.png" alt="{{ movie.TitleCZ }}" width="150">
-                                        {% else %}
-                                        <img src="https://www.themoviedb.org/t/p/w400{{ movie.IMG }}" alt="{{ movie.TitleCZ }}" width="150">
-                                        {% endif %}
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="/film/{{ movie.URL }}">{{ movie.TitleCZ }}</a>
-                                </td>
-                                <td>
-                                    <a href="/filmy/{{ movie.ReleaseYear }}">{{ movie.ReleaseYear }}</a>
-                                </td>
-                                <td>
-                                    {% if movie.AverageRating %}
-                                    {% with score=movie.AverageRating|floatformat:0 %}
-                                    <span class="text-warning h4">
-                                        {% if score == "1" %}
-                                        &#9733;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;
-                                        {% elif score == "2" %}
-                                        &#9733;&nbsp;&#9733;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;
-                                        {% elif score == "3" %}
-                                        &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9734;&nbsp;&#9734;
-                                        {% elif score == "4" %}
-                                        &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9734;
-                                        {% elif score == "5" %}
-                                        &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;
-                                        {% endif %}
-                                    </span>
-                                    {% endwith %}
-                                    {% else %}
-                                    <span>Nehodnoceno</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    {% endif %}
+<div class="row container w-full my-4 my-6 grow">
+    <h2 class="mb-4">Vyhledávání: {% if request.GET.q %} {{ request.GET.q }} {% endif %}</h2>
+    <div class="row mb-3 w-full">
+        {% if movies %}
+        <div class="table">
+            <div class="grid search-grid bg-[#c0c0c0]">
+                <div class="text-center font-bold p-1">Miniatura</div>
+                <div class="font-bold p-1">Název</div>
+                <div class="text-center font-bold p-1">Rok</div>
+                <div class="text-center font-bold p-1">Hodnocení</div>
+            </div>
+            <div>
+                {% for movie in movies %}
+                <div class="grid items-center border search-grid sudy">
+                    <div>
+                        <a href="/film/{{ movie.URL }}">
+                            {% if movie.IMG == "noimg.png" %}
+                            <img src="/static/img/movie/w400/noimg.png" alt="{{ movie.TitleCZ }}" style="max-width: 100px; object-fit: cover;">
+                            {% else %}
+                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.IMG }}" alt="{{ movie.TitleCZ }}"  style="max-width: 100px; object-fit: cover;">
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="p-1">
+                        <a href="/film/{{ movie.URL }}">{{ movie.TitleCZ }}</a>
+                    </div>
+                    <div class="text-center p-1">
+                        <a href="/filmy/{{ movie.ReleaseYear }}">{{ movie.ReleaseYear }}</a>
+                    </div>
+                    <div class="text-center p-1 stars">
+                        {% if movie.AverageRating %}
+                        {% with score=movie.AverageRating|floatformat:0 %}
+                        <span class="text-warning h4">
+                            {% if score == "1" %}
+                            &#9733;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;
+                            {% elif score == "2" %}
+                            &#9733;&nbsp;&#9733;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;
+                            {% elif score == "3" %}
+                            &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9734;&nbsp;&#9734;
+                            {% elif score == "4" %}
+                            &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9734;
+                            {% elif score == "5" %}
+                            &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;
+                            {% endif %}
+                        </span>
+                        {% endwith %}
+                        {% else %}
+                        <span class="text-sm stars">Nehodnoceno</span>
+                        {% endif %}
+                    </div>
                 </div>
-            </div><!--/container -->
-        </main>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <p>Žádné filmy nenalezeny.</p>
+        {% endif %}
+    </div>
+</div>
 
-        {% include "../inc/footer_movies.html" %}
-
-        <script src="/static/js/movies.js"></script>
-
-    </body>
-</html>
+{% endblock %}

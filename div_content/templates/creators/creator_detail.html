@@ -36,7 +36,6 @@
         text-decoration: none;
     }
 
-
     .cta2:before {
         content: "";
         position: absolute;
@@ -49,7 +48,6 @@
         height: 30px;
         transition: all 0.3s ease;
     }
-
 
     .cta2 span {
         position: relative;
@@ -135,7 +133,7 @@
                     {% endif %}
 
                     {% if creator.countryid %}
-                    <li><strong>Místo narození:</strong> {{ creator.countryid.countryname }}</li>
+                    <li><strong>Místo narození:</strong> {{ creator.countryid.countrynamecz }}</li>
                     {% endif %}
 
                     <li><strong>Nominace:</strong></li>
@@ -251,7 +249,6 @@
                 </form>
             </div>
         </div>
-
         {% endif %}
 
         {% comment %}
@@ -344,26 +341,26 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-    const bioElement = document.getElementById("biography-text");
-    const toggleButton = document.getElementById("toggle-biography");
+        const bioElement = document.getElementById("biography-text");
+        const toggleButton = document.getElementById("toggle-biography");
 
-    const fullText = bioElement.innerText; // Store the full biography text
-    const truncatedText = fullText.substring(0, 500); // First 500 characters
+        const fullText = bioElement.innerText; // Store the full biography text
+        const truncatedText = fullText.substring(0, 500); // First 500 characters
 
-    // Initialize with truncated text
-    bioElement.innerText = truncatedText + "...";
+        // Initialize with truncated text
+        bioElement.innerText = truncatedText + "...";
 
-    // Toggle functionality
-    toggleButton.addEventListener("click", function () {
-        if (bioElement.innerText === truncatedText + "...") {
-            bioElement.innerText = fullText; // Show full text
-            toggleButton.innerText = "...Méně"; // Update button text
-        } else {
-            bioElement.innerText = truncatedText + "..."; // Show truncated text
-            toggleButton.innerText = "Více..."; // Update button text
-        }
+        // Toggle functionality
+        toggleButton.addEventListener("click", function () {
+            if (bioElement.innerText === truncatedText + "...") {
+                bioElement.innerText = fullText; // Show full text
+                toggleButton.innerText = "...Méně"; // Update button text
+            } else {
+                bioElement.innerText = truncatedText + "..."; // Show truncated text
+                toggleButton.innerText = "Více..."; // Update button text
+            }
+        });
     });
-});
 
 </script>
 
