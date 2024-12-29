@@ -6,7 +6,6 @@ import os
 import requests
 
 from django.contrib.auth.decorators import login_required
-
 from django.contrib.contenttypes.models import ContentType
 
 
@@ -26,7 +25,6 @@ from div_content.models import (
     Userlist, Userlistbook, Userlisttype, FavoriteSum, Userbookgoal, Userlistitem
 )
 #from div_content.utils.books import fetch_book_from_google_by_id, fetch_books_from_google
-
 
 load_dotenv()
 from div_content.views.login import custom_login_view
@@ -86,7 +84,7 @@ def get_reading_goal(request):
         else:
             user_goal.progress = 0
     
-     # Zajistíme správný formát s tečkou
+        # Zajistíme správný formát s tečkou
         user_goal.progress = f"{user_goal.progress:.1f}".replace(",", ".")
 
     return user_goal
@@ -109,8 +107,6 @@ def set_reading_goal(request):
         
     return redirect('books_index')  # Ujistěte se, že 'books' je správný name v urls.py
 
-
-
 def books(request):
     #api_key = os.getenv('GOOGLE_API_KEY')
     #api_test_message = "API klíč není nastaven" if not api_key else "API klíč je nastaven"
@@ -130,9 +126,7 @@ def books(request):
         #all_books = []
         #api_test_message += " | Chyba při získávání dat z API: " + str(e)
     
-
-    book_list_15 = Book.objects.filter(year__gt=2022).order_by('-divrating')[10:35]
-
+    book_list_15 = Book.objects.filter(year__gt=2022).order_by('-divrating')[20:35]
 
     # Knihy podle popularity
     # book_list_15 = Metaindex.objects.filter(year__gt=2018).order_by("-popularity").values('title', 'url', 'img', 'description')[:15]
@@ -141,25 +135,23 @@ def books(request):
     stats_writters = Metastats.objects.filter(tablemodel='BookAuthor').first()
 
 
-
     reading_goal = None
     if request.user.is_authenticated:
         reading_goal = get_reading_goal(request)
     
 
-
     return render(request, 'books/books_list.html', {
         'top_books': top_books,
         "book_list_15": book_list_15,
         'stats_book': stats_book,
-
         'stats_writters': stats_writters,
         'reading_goal': reading_goal
-
         })
 #'top_20_books': top_20_books, 'all_books': all_books, 'api_test_message': api_test_message
 
 
+def books_alphabetical(request):
+    return render(request, "books/books_alphabetical.html")
 
 
 def book_detail(request, book_url):
@@ -198,11 +190,9 @@ def book_detail(request, book_url):
     # Zjistí, jestli má uživatel knihu v seznamu Oblíbené
     if user.is_authenticated:
         try:
-
             favourites_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_FAVORITE_BOOK_ID)
             favourites_list = Userlist.objects.get(user=user, listtype=favourites_type)
             is_in_favourites = Userlistitem.objects.filter(object_id=book.bookid, userlist=favourites_list).exists()
-
         except Exception as e:
             is_in_favourites = False
     else:
@@ -211,11 +201,9 @@ def book_detail(request, book_url):
     # Zjistí, jestli má uživatel knihu v seznamu Chci číst
     if user.is_authenticated:
         try:
-
             readlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_READLIST_ID)
             readlist_list = Userlist.objects.get(user=user, listtype=readlist_type)
             is_in_readlist = Userlistitem.objects.filter(object_id=book.bookid, userlist=readlist_list).exists()
-
         except Exception as e:
             is_in_readlist = False
     else:
@@ -224,11 +212,9 @@ def book_detail(request, book_url):
     # Zjistí, jestli má uživatel knihu v seznamu Přečteno
     if user.is_authenticated:
         try:
-
             read_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_READ_BOOKS_ID)
             read_list = Userlist.objects.get(user=user, listtype=read_type)
             is_in_read_books = Userlistitem.objects.filter(object_id=book.bookid, userlist=read_list).exists()
-
         except Exception as e:
             is_in_read_books = False
     else:
@@ -237,11 +223,9 @@ def book_detail(request, book_url):
     # Zjistí, jestli má uživatel knihu v seznamu Knihovna
     if user.is_authenticated:
         try:
-
             library_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_BOOK_LIBRARY_ID)
             library_list = Userlist.objects.get(user=user, listtype=library_type)
             is_in_book_library = Userlistitem.objects.filter(object_id=book.bookid, userlist=library_list).exists()
-
         except Exception as e:
             is_in_book_library = False
     else:
@@ -260,7 +244,6 @@ def book_detail(request, book_url):
             comment_form = CommentFormBook(request=request)
 
     comments = Bookcomments.objects.filter(bookid=book).order_by('-commentid')
-
 
 
 
@@ -332,17 +315,14 @@ def book_detail(request, book_url):
         "is_in_favourites": is_in_favourites,
         "is_in_readlist": is_in_readlist,
         "is_in_read_books": is_in_read_books,
-
         "is_in_book_library": is_in_book_library,
         'ratings': ratings,
         'average_rating': average_rating,
         'user_rating': user_rating,
         'book_div_rating_form': book_div_rating_form,
-
         })
 #    top_20_books = Book.objects.order_by('-bookrating').all()[:20]  # Define top_20_books here
     #'top_20_books': top_20_books
-
 
 
 
@@ -364,6 +344,7 @@ def rate_book(request, book_id):
     else:
         # Zobrazte formulář pro hodnocení
         return render(request, 'book/book_detail.html', {'book_id': book_id})
+
 
 
 
@@ -445,7 +426,6 @@ def book_add(request):
 @login_required
 def add_to_favourite_books(request, bookid):
     book = get_object_or_404(Book, bookid=bookid)
-
     favourite_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_FAVORITE_BOOK_ID)
     favourites_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=favourite_type)
 
@@ -462,7 +442,6 @@ def add_to_favourite_books(request, bookid):
         favourite_sum, _ = FavoriteSum.objects.get_or_create(content_type=content_type, object_id=bookid)
         favourite_sum.favorite_count += 1
         favourite_sum.save()
-
     
     return redirect("book_detail", book_url=book.url)
 
@@ -470,7 +449,6 @@ def add_to_favourite_books(request, bookid):
 @login_required
 def add_to_readlist(request, bookid):
     book = get_object_or_404(Book, bookid=bookid)
-
     readlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_READLIST_ID)
     readlist_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=readlist_type)
 
@@ -483,7 +461,6 @@ def add_to_readlist(request, bookid):
             content_type=content_type,
             object_id=bookid
             )
-
         print("new list created")
     
     return redirect("book_detail", book_url=book.url)   
@@ -492,7 +469,6 @@ def add_to_readlist(request, bookid):
 @login_required
 def add_to_read_books(request, bookid):
     book = get_object_or_404(Book, bookid=bookid)
-
     read_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_READ_BOOKS_ID)
     read_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=read_type)
 
@@ -505,7 +481,6 @@ def add_to_read_books(request, bookid):
             content_type=content_type,
             object_id=bookid
             )
-
     
     return redirect("book_detail", book_url=book.url)   
 
@@ -513,7 +488,6 @@ def add_to_read_books(request, bookid):
 @login_required
 def add_to_book_library(request, bookid):
     book = get_object_or_404(Book, bookid=bookid)
-
     library_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_BOOK_LIBRARY_ID)
     library_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=library_type)
 
@@ -525,7 +499,6 @@ def add_to_book_library(request, bookid):
             userlist=library_list, 
             content_type=content_type,
             object_id=bookid)
-
     
     return redirect("book_detail", book_url=book.url) 
 
@@ -534,7 +507,6 @@ def add_to_book_library(request, bookid):
 @login_required
 def remove_from_favourites_books(request, bookid):
     book = get_object_or_404(Book, bookid=bookid)
-
     favourite_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_FAVORITE_BOOK_ID)
     favourites_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=favourite_type)
     userlistbook = Userlistitem.objects.get(object_id=bookid, userlist=favourites_list)
@@ -544,7 +516,6 @@ def remove_from_favourites_books(request, bookid):
     favourite_sum, _ = FavoriteSum.objects.get_or_create(content_type=content_type, object_id=bookid)
     favourite_sum.favorite_count -= 1
     favourite_sum.save()
-
     
     return redirect("book_detail", book_url=book.url)
 
@@ -552,11 +523,9 @@ def remove_from_favourites_books(request, bookid):
 @login_required
 def remove_from_readlist(request, bookid):
     book = get_object_or_404(Book, bookid=bookid)
-
     readlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_READLIST_ID)
     readlist_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=readlist_type)
     userlistbook = Userlistitem.objects.get(object_id=bookid, userlist=readlist_list)
-
     userlistbook.delete()
     
     return redirect("book_detail", book_url=book.url)
@@ -566,11 +535,9 @@ def remove_from_readlist(request, bookid):
 @login_required
 def remove_from_read_books(request, bookid):
     book = get_object_or_404(Book, bookid=bookid)
-
     read_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_READ_BOOKS_ID)
     read_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=read_type)
     userlistbook = Userlistitem.objects.get(object_id=bookid, userlist=read_list)
-
     userlistbook.delete()
     
     return redirect("book_detail", book_url=book.url)
@@ -580,11 +547,9 @@ def remove_from_read_books(request, bookid):
 @login_required
 def remove_from_book_library(request, bookid):
     book = get_object_or_404(Book, bookid=bookid)
-
     library_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_BOOK_LIBRARY_ID)
     library_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=library_type)
     userlistbook = Userlistitem.objects.get(object_id=bookid, userlist=library_list)
-
     userlistbook.delete()
     
     return redirect("book_detail", book_url=book.url)
