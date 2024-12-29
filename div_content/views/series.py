@@ -11,31 +11,37 @@ from div_content.forms.series import SearchForm, TVShowDivRatingForm, CommentFor
 from django.db import connection
 from div_content.models import (
     Tvcountries, Tvcrew, Tvgenre, Tvkeywords, Tvproductions, Tvseason, Tvshow, Tvepisode, Userlisttype, 
-    Userlist, Userlisttvshow, Userlisttvseason, Userlisttvepisode, FavoriteSum, Tvshowcomments
+    Userlist, Userlistitem, Userlisttvshow, Userlisttvseason, Userlisttvepisode, FavoriteSum, Tvshowcomments
 )
 
 # Konstanty
-CONTENT_TYPE_SERIES_ID = 40
+CONTENT_TYPE_SERIES_ID = 40 # tvshow
+CONTENT_TYPE_TVSEASON_ID = 41 # tvseason
+CONTENT_TYPE_TVEPISODE_ID = 43 # tvepisode
 
 # Userlisttype pro seriály na testu
-userlisttype_oblibeny = 13
-userlisttype_chci_videt = 14
-userlisttype_serialnuto = 15
-userlisttype_serialoteka = 16
+USERLISTTYPE_OBLIBENY = 13
+USERLISTTYPE_CHCI_VIDET = 14
+USERLISTTYPE_SERIALNUTO = 15
+USERLISTTYPE_SERIALOTEKA = 16
 # pro sezóny
-userlisttype_oblibena_sezona = 17
-userlisttype_chci_videt_sezonu = 18
-userlisttype_shlednuta_sezona = 19
+USERLISTTYPE_OBLIBENA_SEZONA = 17
+USERLISTTYPE_CHCI_VIDET_SEZONU = 18
+USERLISTTYPE_SHLEDNUTA_SEZONA = 19
 # pro díly
-userlisttype_oblibeny_dil = 20
-userlisttype_chci_videt_dil = 21
-userlisttype_shlednuty_dil = 22
+USERLISTTYPE_OBLIBENY_DIL = 20
+USERLISTTYPE_CHCI_VIDET_DIL = 21
+USERLISTTYPE_SHLEDNUTY_DIL = 22
 
 
 def series_list(request):
 
     tvshows_list = Tvshow.objects.all().order_by('-divrating').values('title', 'titlecz', 'description', 'url', 'img')[:15] 
     return render(request, 'series/series_list.html', {'tvshows_list': tvshows_list})
+
+
+def series_alphabetical(request):
+    return render(request, "series/series_alphabetical.html")
 
 
 def serie_detail(request, tv_url):
@@ -90,9 +96,9 @@ def serie_detail(request, tv_url):
     # Zjistí, jestli má uživatel seriál v seznamu Oblíbené
     if user.is_authenticated:
         try:
-            favourites_type = Userlisttype.objects.get(userlisttypeid=userlisttype_oblibeny)
+            favourites_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_OBLIBENY)
             favourites_list = Userlist.objects.get(user=user, listtype=favourites_type)
-            is_in_favourites = Userlisttvshow.objects.filter(tvshow__tvshowid=tvshow.tvshowid, userlist=favourites_list).exists()
+            is_in_favourites = Userlistitem.objects.filter(object_id=tvshow.tvshowid, userlist=favourites_list).exists()
         except Exception as e:
             is_in_favourites = False
     else:
@@ -101,9 +107,9 @@ def serie_detail(request, tv_url):
     # Zjistí, jestli má uživatel seriál v seznamu Chci vidět
     if user.is_authenticated:
         try:
-            watchlist_type = Userlisttype.objects.get(userlisttypeid=userlisttype_chci_videt)
+            watchlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_CHCI_VIDET)
             watchlist_list = Userlist.objects.get(user=user, listtype=watchlist_type)
-            is_in_watchlist = Userlisttvshow.objects.filter(tvshow__tvshowid=tvshow.tvshowid, userlist=watchlist_list).exists()
+            is_in_watchlist = Userlistitem.objects.filter(object_id=tvshow.tvshowid, userlist=watchlist_list).exists()
         except Exception as e:
             is_in_watchlist = False
     else:
@@ -112,9 +118,9 @@ def serie_detail(request, tv_url):
     # Zjistí, jestli má uživatel seriál v seznamu Seriálnuto(=shlédnuto)
     if user.is_authenticated:
         try:
-            watched_type = Userlisttype.objects.get(userlisttypeid=userlisttype_serialnuto)
+            watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SERIALNUTO)
             watched_list = Userlist.objects.get(user=user, listtype=watched_type)
-            is_in_watched = Userlisttvshow.objects.filter(tvshow__tvshowid=tvshow.tvshowid, userlist=watched_list).exists()
+            is_in_watched = Userlistitem.objects.filter(object_id=tvshow.tvshowid, userlist=watched_list).exists()
         except Exception as e:
             is_in_watched = False
     else:
@@ -123,9 +129,9 @@ def serie_detail(request, tv_url):
     # Zjistí, jestli má uživatel seriál v seznamu Seriálotéka
     if user.is_authenticated:
         try:
-            library_type = Userlisttype.objects.get(userlisttypeid=userlisttype_serialoteka)
+            library_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SERIALOTEKA)
             library_list = Userlist.objects.get(user=user, listtype=library_type)
-            is_in_library = Userlisttvshow.objects.filter(tvshow__tvshowid=tvshow.tvshowid, userlist=library_list).exists()
+            is_in_library = Userlistitem.objects.filter(object_id=tvshow.tvshowid, userlist=library_list).exists()
         except Exception as e:
             is_in_library = False
     else:
@@ -219,14 +225,19 @@ def search_tvshow(request):
 @login_required
 def add_to_favourite_tvshow(request, tvshowid):
     tvshow = get_object_or_404(Tvshow, tvshowid=tvshowid)
-    favourite_type = Userlisttype.objects.get(userlisttypeid=userlisttype_oblibeny)
+    favourite_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_OBLIBENY)
     favourites_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=favourite_type)
 
-    if Userlisttvshow.objects.filter(userlist=favourites_list, tvshow=tvshow).exists():
+    if Userlistitem.objects.filter(userlist=favourites_list, object_id=tvshowid).exists():
         pass
     else:
-        Userlisttvshow.objects.create(userlist=favourites_list, tvshow=tvshow)
         content_type = ContentType.objects.get(id=CONTENT_TYPE_SERIES_ID)
+        Userlistitem.objects.create(
+            userlist=favourites_list, 
+            content_type=content_type,
+            object_id=tvshowid
+            )
+
         favourite_sum, _ = FavoriteSum.objects.get_or_create(content_type=content_type, object_id=tvshowid)
         favourite_sum.favorite_count += 1
         favourite_sum.save()
@@ -238,13 +249,18 @@ def add_to_favourite_tvshow(request, tvshowid):
 @login_required
 def add_to_tvshow_watchlist(request, tvshowid):
     tvshow = get_object_or_404(Tvshow, tvshowid=tvshowid)
-    watchlist_type = Userlisttype.objects.get(userlisttypeid=userlisttype_chci_videt)
+    watchlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_CHCI_VIDET)
     watchlist_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watchlist_type)
 
-    if Userlisttvshow.objects.filter(userlist=watchlist_list, tvshow=tvshow).exists():
+    if Userlistitem.objects.filter(userlist=watchlist_list, object_id=tvshowid).exists():
        pass
     else:
-        Userlisttvshow.objects.create(userlist=watchlist_list, tvshow=tvshow)
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_SERIES_ID)
+        Userlistitem.objects.create(
+            userlist=watchlist_list, 
+            content_type=content_type,
+            object_id=tvshowid
+            )
     
     return redirect("serie_detail", tv_url=tvshow.url) 
 
@@ -253,13 +269,18 @@ def add_to_tvshow_watchlist(request, tvshowid):
 @login_required
 def add_to_watched_tvshows(request, tvshowid):
     tvshow = get_object_or_404(Tvshow, tvshowid=tvshowid)
-    watched_type = Userlisttype.objects.get(userlisttypeid=userlisttype_serialnuto)
+    watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SERIALNUTO)
     watched_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watched_type)
 
-    if Userlisttvshow.objects.filter(userlist=watched_list, tvshow=tvshow).exists():
+    if Userlistitem.objects.filter(userlist=watched_list, object_id=tvshowid).exists():
        pass
     else:
-        Userlisttvshow.objects.create(userlist=watched_list, tvshow=tvshow)
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_SERIES_ID)
+        Userlistitem.objects.create(
+            userlist=watched_list, 
+            content_type=content_type,
+            object_id=tvshowid
+            )
     
     return redirect("serie_detail", tv_url=tvshow.url) 
 
@@ -268,13 +289,18 @@ def add_to_watched_tvshows(request, tvshowid):
 @login_required
 def add_to_tvshow_library(request, tvshowid):
     tvshow = get_object_or_404(Tvshow, tvshowid=tvshowid)
-    library_type = Userlisttype.objects.get(userlisttypeid=userlisttype_serialoteka)
+    library_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SERIALOTEKA)
     library_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=library_type)
 
-    if Userlisttvshow.objects.filter(userlist=library_list, tvshow=tvshow).exists():
+    if Userlistitem.objects.filter(userlist=library_list, object_id=tvshowid).exists():
         pass
     else:
-        Userlisttvshow.objects.create(userlist=library_list, tvshow=tvshow)
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_SERIES_ID)
+        Userlistitem.objects.create(
+            userlist=library_list, 
+            content_type=content_type,
+            object_id=tvshowid
+            )
     
     return redirect("serie_detail", tv_url=tvshow.url) 
 
@@ -283,9 +309,9 @@ def add_to_tvshow_library(request, tvshowid):
 @login_required
 def remove_from_favourite_tvshow(request, tvshowid):
     tvshow = get_object_or_404(Tvshow, tvshowid=tvshowid)
-    favourite_type = Userlisttype.objects.get(userlisttypeid=userlisttype_oblibeny)
-    favourites_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=favourite_type)
-    userlisttvshow = Userlisttvshow.objects.get(tvshow=tvshow, userlist=favourites_list)
+    favourite_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_OBLIBENY)
+    favourites_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=favourite_type)
+    userlisttvshow = Userlistitem.objects.get(object_id=tvshowid, userlist=favourites_list)
     userlisttvshow.delete()
 
     content_type = ContentType.objects.get(id=CONTENT_TYPE_SERIES_ID)
@@ -299,9 +325,9 @@ def remove_from_favourite_tvshow(request, tvshowid):
 @login_required
 def remove_from_tvshow_watchlist(request, tvshowid):
     tvshow = get_object_or_404(Tvshow, tvshowid=tvshowid)
-    watchlist_type = Userlisttype.objects.get(userlisttypeid=userlisttype_chci_videt)
-    watchlist_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watchlist_type)
-    userlisttvshow = Userlisttvshow.objects.get(tvshow=tvshow, userlist=watchlist_list)
+    watchlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_CHCI_VIDET)
+    watchlist_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=watchlist_type)
+    userlisttvshow = Userlistitem.objects.get(object_id=tvshowid, userlist=watchlist_list)
     userlisttvshow.delete()
     
     return redirect("serie_detail", tv_url=tvshow.url)
@@ -311,9 +337,9 @@ def remove_from_tvshow_watchlist(request, tvshowid):
 @login_required
 def remove_from_watched_tvshows(request, tvshowid):
     tvshow = get_object_or_404(Tvshow, tvshowid=tvshowid)
-    watched_type = Userlisttype.objects.get(userlisttypeid=userlisttype_serialnuto)
+    watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SERIALNUTO)
     watched_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watched_type)
-    userlisttvshow = Userlisttvshow.objects.get(tvshow=tvshow, userlist=watched_list)
+    userlisttvshow = Userlistitem.objects.get(object_id=tvshowid, userlist=watched_list)
     userlisttvshow.delete()
     
     return redirect("serie_detail", tv_url=tvshow.url)
@@ -323,9 +349,9 @@ def remove_from_watched_tvshows(request, tvshowid):
 @login_required
 def remove_from_tvshow_library(request, tvshowid):
     tvshow = get_object_or_404(Tvshow, tvshowid=tvshowid)
-    library_type = Userlisttype.objects.get(userlisttypeid=userlisttype_serialoteka)
+    library_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SERIALOTEKA)
     library_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=library_type)
-    userlisttvshow = Userlisttvshow.objects.get(tvshow=tvshow, userlist=library_list)
+    userlisttvshow = Userlistitem.objects.get(object_id=tvshowid, userlist=library_list)
     userlisttvshow.delete()
     
     return redirect("serie_detail", tv_url=tvshow.url)
@@ -362,9 +388,9 @@ def serie_season(request, tv_url, seasonurl):
     # Zjistí, jestli má uživatel sezónu v seznamu Oblíbené
     if user.is_authenticated:
         try:
-            favourites_type = Userlisttype.objects.get(userlisttypeid=userlisttype_oblibena_sezona)
+            favourites_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_OBLIBENA_SEZONA)
             favourites_list = Userlist.objects.get(user=user, listtype=favourites_type)
-            is_in_favourites = Userlisttvseason.objects.filter(tvseason__seasonid=season.seasonid, userlist=favourites_list).exists()
+            is_in_favourites = Userlistitem.objects.filter(object_id=season.seasonid, userlist=favourites_list).exists()
         except Exception as e:
             is_in_favourites = False
     else:
@@ -373,9 +399,9 @@ def serie_season(request, tv_url, seasonurl):
     # Zjistí, jestli má uživatel sezónu v seznamu Chci vidět
     if user.is_authenticated:
         try:
-            watchlist_type = Userlisttype.objects.get(userlisttypeid=userlisttype_chci_videt_sezonu)
+            watchlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_CHCI_VIDET_SEZONU)
             watchlist_list = Userlist.objects.get(user=user, listtype=watchlist_type)
-            is_in_watchlist = Userlisttvseason.objects.filter(tvseason__seasonid=season.seasonid, userlist=watchlist_list).exists()
+            is_in_watchlist = Userlistitem.objects.filter(object_id=season.seasonid, userlist=watchlist_list).exists()
         except Exception as e:
             is_in_watchlist = False
     else:
@@ -384,9 +410,9 @@ def serie_season(request, tv_url, seasonurl):
     # Zjistí, jestli má uživatel sezónu v seznamu Shlédnuto
     if user.is_authenticated:
         try:
-            watched_type = Userlisttype.objects.get(userlisttypeid=userlisttype_shlednuta_sezona)
+            watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SHLEDNUTA_SEZONA)
             watched_list = Userlist.objects.get(user=user, listtype=watched_type)
-            is_in_watched = Userlisttvseason.objects.filter(tvseason__seasonid=season.seasonid, userlist=watched_list).exists()
+            is_in_watched = Userlistitem.objects.filter(object_id=season.seasonid, userlist=watched_list).exists()
         except Exception as e:
             is_in_watched = False
     else:
@@ -413,14 +439,22 @@ def serie_season(request, tv_url, seasonurl):
 @login_required
 def add_to_favourite_tvseason(request, tv_url, tvseasonid):
     tvseason = get_object_or_404(Tvseason, seasonid=tvseasonid)
-    favourite_type = Userlisttype.objects.get(userlisttypeid=userlisttype_oblibena_sezona)
-    favourites_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=favourite_type)
+    favourite_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_OBLIBENA_SEZONA)
+    favourites_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=favourite_type)
 
-    if Userlisttvseason.objects.filter(userlist=favourites_list, tvseason=tvseason).exists():
+    if Userlistitem.objects.filter(userlist=favourites_list, object_id=tvseasonid).exists():
         pass
     else:
-        Userlisttvseason.objects.create(userlist=favourites_list, tvseason=tvseason)
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_TVSEASON_ID)
+        Userlistitem.objects.create(
+            userlist=favourites_list, 
+            content_type=content_type,
+            object_id=tvseasonid
+            )
 
+        favourite_sum, _ = FavoriteSum.objects.get_or_create(content_type=content_type, object_id=tvseasonid)
+        favourite_sum.favorite_count += 1
+        favourite_sum.save()
     
     return redirect("serie_season", tv_url=tvseason.tvshowid.url, seasonurl=tvseason.seasonurl)
 
@@ -429,13 +463,18 @@ def add_to_favourite_tvseason(request, tv_url, tvseasonid):
 @login_required
 def add_to_tvseason_watchlist(request, tv_url, tvseasonid):
     tvseason = get_object_or_404(Tvseason, seasonid=tvseasonid)
-    watchlist_type = Userlisttype.objects.get(userlisttypeid=userlisttype_chci_videt_sezonu)
-    watchlist_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watchlist_type)
+    watchlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_CHCI_VIDET_SEZONU)
+    watchlist_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=watchlist_type)
 
-    if Userlisttvseason.objects.filter(userlist=watchlist_list, tvseason=tvseason).exists():
+    if Userlistitem.objects.filter(userlist=watchlist_list, object_id=tvseasonid).exists():
        pass
     else:
-        Userlisttvseason.objects.create(userlist=watchlist_list, tvseason=tvseason)
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_TVSEASON_ID)
+        Userlistitem.objects.create(
+            userlist=watchlist_list, 
+            content_type=content_type,
+            object_id=tvseasonid
+            )
     
     return redirect("serie_season", tv_url=tvseason.tvshowid.url, seasonurl=tvseason.seasonurl) 
 
@@ -444,13 +483,18 @@ def add_to_tvseason_watchlist(request, tv_url, tvseasonid):
 @login_required
 def add_to_watched_tvseasons(request, tv_url, tvseasonid):
     tvseason = get_object_or_404(Tvseason, seasonid=tvseasonid)
-    watched_type = Userlisttype.objects.get(userlisttypeid=userlisttype_shlednuta_sezona)
-    watched_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watched_type)
+    watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SHLEDNUTA_SEZONA)
+    watched_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=watched_type)
 
-    if Userlisttvseason.objects.filter(userlist=watched_list, tvseason=tvseason).exists():
+    if Userlistitem.objects.filter(userlist=watched_list, object_id=tvseasonid).exists():
        pass
     else:
-        Userlisttvseason.objects.create(userlist=watched_list, tvseason=tvseason)
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_TVSEASON_ID)
+        Userlistitem.objects.create(
+            userlist=watched_list, 
+            content_type=content_type,
+            object_id=tvseasonid
+            )
     
     return redirect("serie_season", tv_url=tvseason.tvshowid.url, seasonurl=tvseason.seasonurl) 
 
@@ -459,10 +503,15 @@ def add_to_watched_tvseasons(request, tv_url, tvseasonid):
 @login_required
 def remove_from_favourite_tvseasons(request, tv_url, tvseasonid):
     tvseason = get_object_or_404(Tvseason, seasonid=tvseasonid)
-    favourite_type = Userlisttype.objects.get(userlisttypeid=userlisttype_oblibena_sezona)
-    favourites_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=favourite_type)
-    userlisttvseason = Userlisttvseason.objects.get(tvseason=tvseason, userlist=favourites_list)
+    favourite_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_OBLIBENA_SEZONA)
+    favourites_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=favourite_type)
+    userlisttvseason = Userlistitem.objects.get(object_id=tvseasonid, userlist=favourites_list)
     userlisttvseason.delete()
+
+    content_type = ContentType.objects.get(id=CONTENT_TYPE_TVSEASON_ID)
+    favourite_sum, _ = FavoriteSum.objects.get_or_create(content_type=content_type, object_id=tvseasonid)
+    favourite_sum.favorite_count -= 1
+    favourite_sum.save()
     
     return redirect("serie_season", tv_url=tvseason.tvshowid.url, seasonurl=tvseason.seasonurl)
 
@@ -471,9 +520,9 @@ def remove_from_favourite_tvseasons(request, tv_url, tvseasonid):
 @login_required
 def remove_from_tvseason_watchlist(request, tv_url, tvseasonid):
     tvseason = get_object_or_404(Tvseason, seasonid=tvseasonid)
-    watchlist_type = Userlisttype.objects.get(userlisttypeid=userlisttype_chci_videt_sezonu)
+    watchlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_CHCI_VIDET_SEZONU)
     watchlist_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watchlist_type)
-    userlisttvseason = Userlisttvseason.objects.get(tvseason=tvseason, userlist=watchlist_list)
+    userlisttvseason = Userlistitem.objects.get(object_id=tvseasonid, userlist=watchlist_list)
     userlisttvseason.delete()
     
     return redirect("serie_season", tv_url=tvseason.tvshowid.url, seasonurl=tvseason.seasonurl)
@@ -483,9 +532,9 @@ def remove_from_tvseason_watchlist(request, tv_url, tvseasonid):
 @login_required
 def remove_from_watched_tvseasons(request, tv_url, tvseasonid):
     tvseason = get_object_or_404(Tvseason, seasonid=tvseasonid)
-    watched_type = Userlisttype.objects.get(userlisttypeid=userlisttype_shlednuta_sezona)
+    watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SHLEDNUTA_SEZONA)
     watched_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watched_type)
-    userlisttvseason = Userlisttvseason.objects.get(tvseason=tvseason, userlist=watched_list)
+    userlisttvseason = Userlistitem.objects.get(object_id=tvseasonid, userlist=watched_list)
     userlisttvseason.delete()
     
     return redirect("serie_season", tv_url=tvseason.tvshowid.url, seasonurl=tvseason.seasonurl)
@@ -515,34 +564,34 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
 
     user = request.user
 
-    # Zjistí, jestli má uživatel sezónu v seznamu Oblíbené
+    # Zjistí, jestli má uživatel díl v seznamu Oblíbené
     if user.is_authenticated:
         try:
-            favourites_type = Userlisttype.objects.get(userlisttypeid=userlisttype_oblibeny_dil)
+            favourites_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_OBLIBENY_DIL)
             favourites_list = Userlist.objects.get(user=user, listtype=favourites_type)
-            is_in_favourites = Userlisttvepisode.objects.filter(tvepisode__episodeid=episode.episodeid, userlist=favourites_list).exists()
+            is_in_favourites = Userlistitem.objects.filter(object_id=episode.episodeid, userlist=favourites_list).exists()
         except Exception as e:
             is_in_favourites = False
     else:
         is_in_favourites = False
 
-    # Zjistí, jestli má uživatel sezónu v seznamu Chci vidět
+    # Zjistí, jestli má uživatel díl v seznamu Chci vidět
     if user.is_authenticated:
         try:
-            watchlist_type = Userlisttype.objects.get(userlisttypeid=userlisttype_chci_videt_dil)
+            watchlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_CHCI_VIDET_DIL)
             watchlist_list = Userlist.objects.get(user=user, listtype=watchlist_type)
-            is_in_watchlist = Userlisttvepisode.objects.filter(tvepisode__episodeid=episode.episodeid, userlist=watchlist_list).exists()
+            is_in_watchlist = Userlistitem.objects.filter(object_id=episode.episodeid, userlist=watchlist_list).exists()
         except Exception as e:
             is_in_watchlist = False
     else:
         is_in_watchlist = False
 
-    # Zjistí, jestli má uživatel sezónu v seznamu Shlédnuto
+    # Zjistí, jestli má uživatel díl v seznamu Shlédnuto
     if user.is_authenticated:
         try:
-            watched_type = Userlisttype.objects.get(userlisttypeid=userlisttype_shlednuty_dil)
+            watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SHLEDNUTY_DIL)
             watched_list = Userlist.objects.get(user=user, listtype=watched_type)
-            is_in_watched = Userlisttvepisode.objects.filter(tvepisode__episodeid=episode.episodeid, userlist=watched_list).exists()
+            is_in_watched = Userlistitem.objects.filter(object_id=episode.episodeid, userlist=watched_list).exists()
         except Exception as e:
             is_in_watched = False
     else:
@@ -570,13 +619,22 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
 @login_required
 def add_to_favourite_tvepisodes(request, tv_url, seasonurl, tvepisodeid):
     tvepisode = get_object_or_404(Tvepisode, episodeid=tvepisodeid)
-    favourite_type = Userlisttype.objects.get(userlisttypeid=userlisttype_oblibeny_dil)
-    favourites_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=favourite_type)
+    favourite_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_OBLIBENY_DIL)
+    favourites_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=favourite_type)
 
-    if Userlisttvepisode.objects.filter(userlist=favourites_list, tvepisode=tvepisode).exists():
+    if Userlistitem.objects.filter(userlist=favourites_list, object_id=tvepisodeid).exists():
         pass
     else:
-        Userlisttvepisode.objects.create(userlist=favourites_list, tvepisode=tvepisode)
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_TVEPISODE_ID)
+        Userlistitem.objects.create(
+            userlist=favourites_list, 
+            content_type = content_type,
+            object_id=tvepisodeid
+            )
+
+        favourite_sum, _ = FavoriteSum.objects.get_or_create(content_type=content_type, object_id=tvepisodeid)
+        favourite_sum.favorite_count += 1
+        favourite_sum.save()
     
     return redirect("serie_episode", tv_url=tvepisode.seasonid.tvshowid.url, seasonurl=tvepisode.seasonid.seasonurl, episodeurl=tvepisode.episodeurl)
 
@@ -585,13 +643,18 @@ def add_to_favourite_tvepisodes(request, tv_url, seasonurl, tvepisodeid):
 @login_required
 def add_to_tvepisode_watchlist(request, tv_url, seasonurl, tvepisodeid):
     tvepisode = get_object_or_404(Tvepisode, episodeid=tvepisodeid)
-    watchlist_type = Userlisttype.objects.get(userlisttypeid=userlisttype_chci_videt_dil)
-    watchlist_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watchlist_type)
+    watchlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_CHCI_VIDET_DIL)
+    watchlist_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=watchlist_type)
 
-    if Userlisttvepisode.objects.filter(userlist=watchlist_list, tvepisode=tvepisode).exists():
+    if Userlistitem.objects.filter(userlist=watchlist_list, object_id=tvepisodeid).exists():
        pass
     else:
-        Userlisttvepisode.objects.create(userlist=watchlist_list, tvepisode=tvepisode)
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_TVEPISODE_ID)
+        Userlistitem.objects.create(
+            userlist=watchlist_list, 
+            content_type=content_type,
+            object_id=tvepisodeid
+            )
     
     return redirect("serie_episode", tv_url=tvepisode.seasonid.tvshowid.url, seasonurl=tvepisode.seasonid.seasonurl, episodeurl=tvepisode.episodeurl)
 
@@ -600,13 +663,18 @@ def add_to_tvepisode_watchlist(request, tv_url, seasonurl, tvepisodeid):
 @login_required
 def add_to_watched_tvepisode(request, tv_url, seasonurl, tvepisodeid):
     tvepisode = get_object_or_404(Tvepisode, episodeid=tvepisodeid)
-    watched_type = Userlisttype.objects.get(userlisttypeid=userlisttype_shlednuty_dil)
-    watched_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watched_type)
+    watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SHLEDNUTY_DIL)
+    watched_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=watched_type)
 
-    if Userlisttvepisode.objects.filter(userlist=watched_list, tvepisode=tvepisode).exists():
+    if Userlistitem.objects.filter(userlist=watched_list, object_id=tvepisodeid).exists():
        pass
     else:
-        Userlisttvepisode.objects.create(userlist=watched_list, tvepisode=tvepisode)
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_TVEPISODE_ID)
+        Userlistitem.objects.create(
+            userlist=watched_list, 
+            content_type=content_type,
+            object_id=tvepisodeid
+            )
     
     return redirect("serie_episode", tv_url=tvepisode.seasonid.tvshowid.url, seasonurl=tvepisode.seasonid.seasonurl, episodeurl=tvepisode.episodeurl)
 
@@ -615,10 +683,15 @@ def add_to_watched_tvepisode(request, tv_url, seasonurl, tvepisodeid):
 @login_required
 def remove_from_favourite_tvepisodes(request, tv_url, seasonurl, tvepisodeid):
     tvepisode = get_object_or_404(Tvepisode, episodeid=tvepisodeid)
-    favourite_type = Userlisttype.objects.get(userlisttypeid=userlisttype_oblibeny_dil)
+    favourite_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_OBLIBENY_DIL)
     favourites_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=favourite_type)
-    userlisttvepisode = Userlisttvepisode.objects.get(tvepisode=tvepisode, userlist=favourites_list)
+    userlisttvepisode = Userlistitem.objects.get(object_id=tvepisodeid, userlist=favourites_list)
     userlisttvepisode.delete()
+
+    content_type = ContentType.objects.get(id=CONTENT_TYPE_TVEPISODE_ID)
+    favourite_sum, _ = FavoriteSum.objects.get_or_create(content_type=content_type, object_id=tvepisodeid)
+    favourite_sum.favorite_count -= 1
+    favourite_sum.save()
     
     return redirect("serie_episode", tv_url=tvepisode.seasonid.tvshowid.url, seasonurl=tvepisode.seasonid.seasonurl, episodeurl=tvepisode.episodeurl)
 
@@ -626,9 +699,9 @@ def remove_from_favourite_tvepisodes(request, tv_url, seasonurl, tvepisodeid):
 @login_required
 def remove_from_tvepisode_watchlist(request, tv_url, seasonurl, tvepisodeid):
     tvepisode = get_object_or_404(Tvepisode, episodeid=tvepisodeid)
-    watchlist_type = Userlisttype.objects.get(userlisttypeid=userlisttype_chci_videt_dil)
+    watchlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_CHCI_VIDET_DIL)
     watchlist_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watchlist_type)
-    userlisttvepisode = Userlisttvepisode.objects.get(tvepisode=tvepisode, userlist=watchlist_list)
+    userlisttvepisode = Userlistitem.objects.get(object_id=tvepisodeid, userlist=watchlist_list)
     userlisttvepisode.delete()
     
     return redirect("serie_episode", tv_url=tvepisode.seasonid.tvshowid.url, seasonurl=tvepisode.seasonid.seasonurl, episodeurl=tvepisode.episodeurl)
@@ -638,9 +711,9 @@ def remove_from_tvepisode_watchlist(request, tv_url, seasonurl, tvepisodeid):
 @login_required
 def remove_from_watched_tvepisodes(request, tv_url, seasonurl, tvepisodeid):
     tvepisode = get_object_or_404(Tvepisode, episodeid=tvepisodeid)
-    watched_type = Userlisttype.objects.get(userlisttypeid=userlisttype_shlednuty_dil)
-    watched_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=watched_type)
-    userlisttvepisode = Userlisttvepisode.objects.get(tvepisode=tvepisode, userlist=watched_list)
+    watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SHLEDNUTY_DIL)
+    watched_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=watched_type)
+    userlisttvepisode = Userlistitem.objects.get(object_id=tvepisodeid, userlist=watched_list)
     userlisttvepisode.delete()
     
     return redirect("serie_episode", tv_url=tvepisode.seasonid.tvshowid.url, seasonurl=tvepisode.seasonid.seasonurl, episodeurl=tvepisode.episodeurl)

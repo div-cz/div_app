@@ -1,237 +1,275 @@
-{% load humanize %}{% comment %} cache: řádek 137 {% endcomment %}<!DOCTYPE html>
-<html lang="cs">
+{% extends "movies/base.html" %}
+{% load humanize %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
 
-    <head>
+{% block title %}Filmy | DIV.cz{% endblock %}
 
-        {% include "../inc/head.html" %}
-
-        <title>Filmy | Databáze DIV.cz</title>
-
-        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css"/>
-        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"/>
-
-        <script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
-        
-        <link href="/static/css/movies.css" rel="stylesheet">
-        <link href="/static/css/navbar.css" rel="stylesheet">
-
-
-<meta name="description" content="Databáze filmů a seriálů na DIV.cz. Objevte novinky, recenze, žebříčky, postavy a další informace o vašich oblíbených filmech.">
-<meta name="keywords" content="filmy, seriály, databáze filmů, recenze, novinky, žebříčky, postavy, kinohity, filmové novinky">
-<meta name="author" content="eKultura.eu">
-<meta property="og:title" content="Filmy | Databáze DIV.cz">
-<meta property="og:description" content="Prozkoumejte nejnovější filmy a seriály na DIV.cz. Aktuální recenze, novinky a žebříčky.">
-<meta property="og:image" content="https://div.cz/img/movie/filmovy-div.webp">
-<meta property="og:url" content="https://div.cz/filmy/">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Filmy | Databáze DIV.cz">
-<meta name="twitter:description" content="Aktuální databáze filmů a seriálů na DIV.cz. Recenze, novinky, a více.">
-<meta name="twitter:image" content="https://div.cz/img/movie/filmovy-div.webp">
-
-
-        {% include "../inc/google.html" %}
-    </head>
-
-    <body class="bg-[#FFFFFF] text-[#0d0c0f] dark:bg-[#0d0c0f] dark:text-[#F9F9F9] d-flex flex-column min-vh-100">
-
-        {% include "../inc/navbar_movies.html" %}
-
-        <main class="flex-grow-1 max-w-[1440px] mx-auto">
-            <section class="text-[#0d0c0f] dark:text-[#F9F9F9] max-w-[1440px] mx-auto flex flex-col lg:flex-row">
-                <aside class="lg:min-w-[200px] max-h-full bg-light dark:bg-[#1A161F]" style="border-right: 1px solid white;">
-                    <div class="lg:min-w-[200px] max-h-full" style="border-right: 1px solid white;">
-                        <!-- Menu -->
-                        <div class="menu-section flex justify-center lg:flex-col lg:justify-normal lg:h-screen lg:block dark:bg-[#1A161F]">
-                            <div class="" style="width: 100%;">
-                                <div class="after flex flex-wrap justify-between">
-                                    <h3 class="ml-8 lg:pt-11 mb-2 font-bold sm:mt-4">Menu</h3>
-                                    <div class="flex gap-4 mb-2 mr-4 items-end">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 sun cursor-pointer ">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
-                                        </svg>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 moon cursor-pointer ">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div class="mt-4 flex sm:justify-center">
-                                    <div class="w-full flex flex-col ml-8 items-center">
-                                        <div class="flex flex-col w-full">
-                                            <div class="sidebar-list">
-                                                <!--<a href="">Novinky</a>-->
-                                                <a href="/seznam-filmu">Seznam filmů</a>
-                                                <!--<a href="">Žebříčky</a>-->
-                                                <a href="/postavy/">Postavy</a>
-                                                <!--<a href="">Lokality</a>-->
-                                                <a href="/forum/filmy">Fórum</a>
-                                                <a href="/blogy/filmove-blogy">Filmové blogy</a>
-                                                <!--<a href="">Ocenění</a>-->
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </aside>
+{% block content %}
                
-                <div class="row container my-4">
-                    <!-- LEVÁ STRANA -->
-                    <div class="col-lg-8">
-                        <!-- carousel - nejlépe hodnocené -->
-                        <div id="image-slider" class="carousel">
-                            {% for movie in movies_carousel %}
-                            <div class="carousel-slide">
-                                <a href="/film/{{ movie.url }}">
-                                    <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" alt="{{ movie.title }}">
-                                </a>
-                                <div class="overlay">
-                                    <h2>{{ movie.title }}</h2>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-
-                        <div>
-                            <div class="grid grid-cols-3 gap-2">
-                                {% for movie in movies_list_30 %} 
-                                <div class="card card2 w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                    <a href="/film/{{ movie.url }}">
-                                    {% if movie.img == "noimg.png" %}
-                                        <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" class="card-img-top rounded-1xl">
-                                        {% else %}
-                                        <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" alt="{{ movie.titlecz }}" class="card-img-top rounded-t-lg">
-                                    {% endif %}
-                                    </a>
-                                    <div class="card-body">
-                                        <h4 class="card-title"><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a> <!--({{ movie.popularity }})--></h4>
-                                        {% comment %}<p class="card-text">{{ movie.description|safe|truncatewords:10 }}</p>{% endcomment %}
-                                        <p class="card-text">{{ movie.description|safe }}</p>
-                                        <!--<a href="/film/{{ movie.url }}" class="btn btn-primary">{{ movie.titlecz }}</a>-->
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-
-
-
-
-                    <!-- PRAVÁ STRANA -->
-                    <div class="col-lg-4 article-section">
-                        <div class="card mb-4">
-                            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                <h3 class="card-title font-bold after-h3">V kinech</h3>
-                                <ul class="w-full" style="list-style-type:none">
-                                
-                                {% for movie in movies_in_cinema %}
-                                    <li><a href="https://div.cz/film/{{ movie.movieid__url }}">{{ movie.movieid__titlecz }}</a></li>
-                                
-                                {% endfor %}
-                                    <li><a href="https://div.cz/film/tady-havel-slysite-me">Tady Havel, slyšíte mě?</a></li>
-                                    <li><a href="https://div.cz/film/aristokratka-ve-varu">Aristokratka ve varu</a></li>
-                                    <li><a href="https://div.cz/film/abigail-2024">Abigail</a></li>
-                                    <li><a href="https://div.cz/film/duna-cast-druha">Duna: Část druhá</a></li>
-                                    <li><a href="https://div.cz/film/krotitele-duchu-rise-ledu">Krotitelé duchů: Říše ledu</a></li>
-                                    <li><a href="https://div.cz/film/gump-jsme-dvojka">Gump - jsme dvojka</a></li>
-                                    <li><a href="https://div.cz/film/kung-fu-panda-4">Kung Fu Panda 4</a></li>
-                                    <li><a href="https://div.cz/film/obcanska-valka">Občanská válka</a></li>
-                                    <li><a href="https://div.cz/film/godzilla-x-kong-nove-imperium">Godzilla x Kong: Nové impérium</a></li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="card mb-4">
-                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                    <h3 class="card-title font-bold after-h3">Žánry</h3>
-                                    <nav>
-                                        <a href="/filmy/akcni">Akční</a> |
-                                        <a href="/filmy/animovany">Animovaný</a> |
-                                        <a href="/filmy/dobrodruzny">Dobrodružný</a> |
-                                        <a href="/filmy/dokumentarni">Dokumentární</a> |
-                                        <a href="/filmy/drama">Drama</a> |
-                                        <a href="/filmy/fantasy">Fantasy</a> |
-                                        <a href="/filmy/historicky">Historický</a> |
-                                        <a href="/filmy/horor">Horor</a> |
-                                        <a href="/filmy/hudebni">Hudební</a> |
-                                        <a href="/filmy/komedie">Komedie</a> |
-                                        <a href="/filmy/krimi">Krimi</a> |
-                                        <a href="/filmy/mysteriozni">Mysteriózní</a> |
-                                        <a href="/filmy/rodinny">Rodinný</a> |
-                                        <a href="/filmy/romanticky">Romantický</a> |
-                                        <a href="/filmy/sci-fi">Sci-fi</a> |
-                                        <a href="/filmy/televizni-film">TV film</a> |
-                                        <a href="/filmy/thriller">Thriller</a> |
-                                        <a href="/filmy/valecny">Válečný</a> |
-                                        <a href="/filmy/western">Western</a>
-                                    </nav>
-                                </div>
-                            </div>
-
-                            <div class="card mb-4">
-                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                    <h3 class="card-title font-bold after-h3">Články</h3>
-
-
-                                </div>
-                            </div>
-
-                            <div class="card mb-4">
-                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                    <h3 class="card-title font-bold after-h3">Roky</h3>
-                                    <nav>
-                                        <a href="/filmy/2024">2024</a> |
-                                        <a href="/filmy/2023">2023</a> |
-                                        <a href="/filmy/2022">2022</a> |
-                                        <a href="/filmy/2021">2021</a> |
-                                        <a href="/filmy/2020">2020</a> |
-                                        <a href="/filmy/2019">2019</a> |
-                                        <a href="/filmy/2018">2018</a> |
-                                        <a href="/filmy/2017">2017</a> |
-                                        <a href="/filmy/2016">2016</a> |
-                                        <a href="/filmy/2015">2015</a> |
-                                        <a href="/filmy/2014">2014</a> |
-                                        <a href="/filmy/2013">2013</a> |
-                                        <a href="/filmy/2012">2012</a> |
-                                        <a href="/filmy/2011">2011</a> |
-                                        <a href="/filmy/2010">2010</a> |
-                                        <a href="/filmy/2009">2009</a> |
-                                        <a href="/filmy/2008">2008</a> |
-                                        <a href="/filmy/2007">2007</a> |
-                                        <a href="/filmy/2006">2006</a> |
-                                        <a href="/filmy/2005">2005</a> |
-                                        <a href="/filmy/2004">2004</a> |
-                                        <a href="/filmy/2003">2003</a> |
-                                        <a href="/filmy/2002">2002</a> |
-                                        <a href="/filmy/2001">2001</a> |
-                                        <a href="/filmy/2000">2000</a> |
-                                        <a href="/filmy/1999">1999</a>
-                                    </nav>
-                                </div>
-                            </div>
-
-                            <div class="card mb-4">
-                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                    <h3 class="card-title font-bold after-h3">V databázi máme:</h3>
-                                    <ul>
-                                        <li>{{ stats_movie.value|intcomma }} filmů</li>
-                                        <li>{{ stats_tvshows.value|intcomma }} seriálů</li>
-                                        <li>{{ stats_moviecomments.value|intcomma }} filmových komentářů</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+<div class="row container my-4">
+    <!-- LEVÁ STRANA -->
+    <div class="col-lg-8">
+        <!-- carousel - V kinech -->
+        <div id="image-slider" class="carousel">
+            {% for movie in carousel_cinema %}
+            <div class="carousel-slide">
+                <a href="/film/{{ movie.movieid__url }}">
+                    <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.movieid__img }}" alt="{{ movie.movieid__titlecz }}">
+                </a>
+                <div class="overlay">
+                    <h2>{{ movie.movieid__titlecz }}</h2>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="mb-4">
+            <div class="grid grid-cols-3 gap-2">
+                {% for movie in movies_list_15 %} 
+                <div class="card card2 w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                    {% if movie.img == "noimg.png" %}
+                    <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" class="card-img-top rounded-t-lg">
+                    {% else %}
+                    <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" alt="{{ movie.titlecz }}" class="card-img-top rounded-t-lg">
+                    {% endif %}
+                    <div class="card-body">
+                        <h4 class="card-title"><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></h4>
+                        <p class="card-text">{{ movie.description|safe|truncatewords:40 }}</p>
                     </div>
                 </div>
-            </section>
-        </main>
+                {% endfor %}
+            </div>
+        </div>
 
-        {% include "../inc/footer_movies.html" %}
+        <div class="card box-shadow mb-4">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title font-bold after-h3">Má komunita</h3>
+                <div>   
+                    <div class="flex">
+                        <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}" style="width: 15%;">   
+                        <div class="flex flex-wrap content-start ml-2" style="width: 83%;">
+                            <a class="w-full" href="/filmy/">Batman</a> <!-- název filmu -->
+                            <p class="w-full">Komentář, který jsem napsala k filmu je zde :)</p>
+                        </div>
+                        
+                    </div>  
+                    <p class="flex justify-end">Uživatel: <a href="/uzivatel/" class="ml-2">VendaCiki</a></p>
+                </div>
+            </div>
+        </div>
 
-        <script src="/static/js/movies.js"></script>
-        <script src="/static/js/script.js"></script>
+    </div>
 
-    </body>
-</html>
+
+    <!-- PRAVÁ STRANA -->
+    <div class="col-lg-4 article-section">
+        <div class="card box-shadow mb-4">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title font-bold after-h3">V kinech</h3>
+                <ul class="w-full" style="list-style-type:none">
+                    <li><a href="https://div.cz/film/tady-havel-slysite-me">Tady Havel, slyšíte mě?</a></li>
+                    <li><a href="https://div.cz/film/aristokratka-ve-varu">Aristokratka ve varu</a></li>
+                    <li><a href="https://div.cz/film/abigail-2024">Abigail</a></li>
+                    <li><a href="https://div.cz/film/duna-cast-druha">Duna: Část druhá</a></li>
+                    <li><a href="https://div.cz/film/krotitele-duchu-rise-ledu">Krotitelé duchů: Říše ledu</a></li>
+                    <li><a href="https://div.cz/film/gump-jsme-dvojka">Gump - jsme dvojka</a></li>
+                    <li><a href="https://div.cz/film/kung-fu-panda-4">Kung Fu Panda 4</a></li>
+                    <li><a href="https://div.cz/film/obcanska-valka">Občanská válka</a></li>
+                    <li><a href="https://div.cz/film/godzilla-x-kong-nove-imperium">Godzilla x Kong: Nové impérium</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div>
+            <div class="card box-shadow mb-4">
+                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                    <h3 class="card-title font-bold after-h3">Žánry</h3>
+                    <div>
+                        <a href="/filmy/akcni">Akční</a> |
+                        <a href="/filmy/animovany">Animovaný</a> |
+                        <a href="/filmy/dobrodruzny">Dobrodružný</a> |
+                        <a href="/filmy/dokumentarni">Dokumentární</a> |
+                        <a href="/filmy/drama">Drama</a> |
+                        <a href="/filmy/fantasy">Fantasy</a> |
+                        <a href="/filmy/historicky">Historický</a> |
+                        <a href="/filmy/horor">Horor</a> |
+                        <a href="/filmy/hudebni">Hudební</a> |
+                        <a href="/filmy/komedie">Komedie</a> |
+                        <a href="/filmy/krimi">Krimi</a> |
+                        <a href="/filmy/mysteriozni">Mysteriózní</a> |
+                        <a href="/filmy/rodinny">Rodinný</a> |
+                        <a href="/filmy/romanticky">Romantický</a> |
+                        <a href="/filmy/sci-fi">Sci-fi</a> |
+                        <a href="/filmy/televizni-film">TV film</a> |
+                        <a href="/filmy/thriller">Thriller</a> |
+                        <a href="/filmy/valecny">Válečný</a> |
+                        <a href="/filmy/western">Western</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card box-shadow mb-4">
+                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                    <h3 class="card-title font-bold after-h3">Články</h3>
+
+
+                </div>
+            </div>
+
+            <div class="card box-shadow mb-4">
+                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                    <h3 class="card-title font-bold after-h3">Roky</h3>
+                    <div>
+                        <a href="/filmy/2024">2024</a> |
+                        <a href="/filmy/2023">2023</a> |
+                        <a href="/filmy/2022">2022</a> |
+                        <a href="/filmy/2021">2021</a> |
+                        <a href="/filmy/2020">2020</a> |
+                        <a href="/filmy/2019">2019</a> |
+                        <a href="/filmy/2018">2018</a> |
+                        <a href="/filmy/2017">2017</a> |
+                        <a href="/filmy/2016">2016</a> |
+                        <a href="/filmy/2015">2015</a> |
+                        <a href="/filmy/2014">2014</a> |
+                        <a href="/filmy/2013">2013</a> |
+                        <a href="/filmy/2012">2012</a> |
+                        <a href="/filmy/2011">2011</a> |
+                        <a href="/filmy/2010">2010</a> |
+                        <a href="/filmy/2009">2009</a> |
+                        <a href="/filmy/2008">2008</a> |
+                        <a href="/filmy/2007">2007</a> |
+                        <a href="/filmy/2006">2006</a> |
+                        <a href="/filmy/2005">2005</a> |
+                        <a href="/filmy/2004">2004</a> |
+                        <a href="/filmy/2003">2003</a> |
+                        <a href="/filmy/2002">2002</a> |
+                        <a href="/filmy/2001">2001</a> 
+
+                        <details>
+                            <summary>Další roky</summary>
+                            <a href="/filmy/2000">2000</a> |
+                            <a href="/filmy/1999">1999</a> |
+                            <a href="/filmy/1998">1998</a> |
+                            <a href="/filmy/1997">1997</a> |
+                            <a href="/filmy/1996">1996</a> |
+                            <a href="/filmy/1995">1995</a> |
+                            <a href="/filmy/1994">1994</a> |
+                            <a href="/filmy/1993">1993</a> |
+                            <a href="/filmy/1992">1992</a> |
+                            <a href="/filmy/1991">1991</a> |
+                            <a href="/filmy/1990">1990</a> |
+                            <a href="/filmy/1989">1989</a> |
+                            <a href="/filmy/1988">1988</a> |
+                            <a href="/filmy/1987">1987</a> |
+                            <a href="/filmy/1986">1986</a> |
+                            <a href="/filmy/1985">1985</a> |
+                            <a href="/filmy/1984">1984</a> |
+                            <a href="/filmy/1983">1983</a> |
+                            <a href="/filmy/1982">1982</a> |
+                            <a href="/filmy/1981">1981</a> |
+                            <a href="/filmy/1980">1980</a> |
+                            <a href="/filmy/1979">1979</a> |
+                            <a href="/filmy/1978">1978</a> |
+                            <a href="/filmy/1977">1977</a> |
+                            <a href="/filmy/1976">1976</a> |
+                            <a href="/filmy/1975">1975</a> |
+                            <a href="/filmy/1974">1974</a> |
+                            <a href="/filmy/1973">1973</a> |
+                            <a href="/filmy/1972">1972</a> |
+                            <a href="/filmy/1971">1971</a> |
+                            <a href="/filmy/1970">1970</a> |
+                            <a href="/filmy/1969">1969</a> |
+                            <a href="/filmy/1968">1968</a> |
+                            <a href="/filmy/1967">1967</a> |
+                            <a href="/filmy/1966">1966</a> |
+                            <a href="/filmy/1965">1965</a> |
+                            <a href="/filmy/1964">1964</a> |
+                            <a href="/filmy/1963">1963</a> |
+                            <a href="/filmy/1962">1962</a> |
+                            <a href="/filmy/1961">1961</a> |
+                            <a href="/filmy/1960">1960</a> |
+                            <a href="/filmy/1959">1959</a> |
+                            <a href="/filmy/1958">1958</a> |
+                            <a href="/filmy/1957">1957</a> |
+                            <a href="/filmy/1956">1956</a> |
+                            <a href="/filmy/1955">1955</a> |
+                            <a href="/filmy/1954">1954</a> |
+                            <a href="/filmy/1953">1953</a> |
+                            <a href="/filmy/1952">1952</a> |
+                            <a href="/filmy/1951">1951</a> |
+                            <a href="/filmy/1950">1950</a> |
+                            <a href="/filmy/1949">1949</a> |
+                            <a href="/filmy/1948">1948</a> |
+                            <a href="/filmy/1947">1947</a> |
+                            <a href="/filmy/1946">1946</a> |
+                            <a href="/filmy/1945">1945</a> |
+                            <a href="/filmy/1944">1944</a> |
+                            <a href="/filmy/1943">1943</a> |
+                            <a href="/filmy/1942">1942</a> |
+                            <a href="/filmy/1941">1941</a> |
+                            <a href="/filmy/1940">1940</a> |
+                            <a href="/filmy/1939">1939</a> |
+                            <a href="/filmy/1938">1938</a> |
+                            <a href="/filmy/1937">1937</a> |
+                            <a href="/filmy/1936">1936</a> |
+                            <a href="/filmy/1935">1935</a> |
+                            <a href="/filmy/1934">1934</a> |
+                            <a href="/filmy/1933">1933</a> |
+                            <a href="/filmy/1932">1932</a> |
+                            <a href="/filmy/1931">1931</a> |
+                            <a href="/filmy/1930">1930</a> |
+                            <a href="/filmy/1929">1929</a> |
+                            <a href="/filmy/1928">1928</a> |
+                            <a href="/filmy/1927">1927</a> |
+                            <a href="/filmy/1926">1926</a> |
+                            <a href="/filmy/1925">1925</a> |
+                            <a href="/filmy/1924">1924</a> |
+                            <a href="/filmy/1923">1923</a> |
+                            <a href="/filmy/1922">1922</a> |
+                            <a href="/filmy/1921">1921</a> |
+                            <a href="/filmy/1920">1920</a> |
+                            <a href="/filmy/1919">1919</a> |
+                            <a href="/filmy/1918">1918</a> |
+                            <a href="/filmy/1917">1917</a> |
+                            <a href="/filmy/1916">1916</a> |
+                            <a href="/filmy/1915">1915</a> |
+                            <a href="/filmy/1914">1914</a> |
+                            <a href="/filmy/1913">1913</a> |
+                            <a href="/filmy/1912">1912</a> |
+                            <a href="/filmy/1911">1911</a> |
+                            <a href="/filmy/1910">1910</a> |
+                            <a href="/filmy/1909">1909</a> |
+                            <a href="/filmy/1908">1908</a> |
+                            <a href="/filmy/1907">1907</a> |
+                            <a href="/filmy/1906">1906</a> |
+                            <a href="/filmy/1905">1905</a> |
+                            <a href="/filmy/1904">1904</a> |
+                            <a href="/filmy/1903">1903</a> |
+                            <a href="/filmy/1902">1902</a> |
+                            <a href="/filmy/1901">1901</a> |
+                            <a href="/filmy/1900">1900</a> |
+                            <a href="/filmy/1899">1899</a> |
+                            <a href="/filmy/1898">1898</a> |
+                            <a href="/filmy/1897">1897</a> 
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card box-shadow mb-4">
+                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                    <h3 class="card-title font-bold after-h3">V databázi máme:</h3>
+                    <ul>
+                        <li>{{ stats_movie.value|intcomma }} filmů</li>
+                        <li>{{ stats_moviecomments.value|intcomma }} filmových komentářů</li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+            
+{% endblock %}
