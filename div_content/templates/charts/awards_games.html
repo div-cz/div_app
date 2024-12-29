@@ -1,17 +1,21 @@
 <!-- charts/awards_games.html -->
-{% extends "charts/base.html" %}
+{% extends "games/base.html" %}
 
 {% block content %}
-<h1>Herní Ocenění</h1>
 
-<ul>
-    {% for game_award in game_awards %}
-        <li>{{ game_award.metaawardid.awardname }} ({{ game_award.metaawardid.year }})
-            - {{ game_award.gameid.title }}
-            {% if game_award.winner %} <strong>- Výherce</strong> {% endif %}
-        </li>
-    {% empty %}
-        <li>Žádná herní ocenění nebyla nalezena.</li>
-    {% endfor %}
-</ul>
+<div class="row container my-5">
+    <h1 class="w-full mb-8">Herní Ocenění</h1>
+
+    <ul class="ml-6">
+        {% for game_award in game_awards %}
+            <li>{{ game_award.metaawardid.awardname }} ({{ game_award.metaawardid.year }})
+                - {{ game_award.gameid.title }}
+                {% if game_award.winner %} <strong>- Výherce</strong> {% endif %}
+            </li>
+        {% empty %}
+            <li>Žádná herní ocenění nebyla nalezena.</li>
+        {% endfor %}
+    </ul>
+</div>
+
 {% endblock %}

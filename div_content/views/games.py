@@ -43,6 +43,9 @@ def publishers_list(request):
     publishers = paginator.get_page(page_number)
     return render(request, 'games/publishers_list.html', {'publishers': publishers})
 
+def games_alphabetical(request):
+    return render(request, 'games/games_alphabetical.html')
+
 def games_by_developer(request, developer_url):
     developer = get_object_or_404(Metadeveloper, developerurl=developer_url)
     games = Game.objects.filter(
@@ -257,26 +260,35 @@ def game_add(request):
         form = GameForm()
     return render(request, 'games/game_add.html', {'form': form})
 
+
 def developer_list_ajax(request):
     term = request.GET.get('q', '')
     developers = Metadeveloper.objects.filter(developer__icontains=term)[:50]
     results = [{'id': dev.developerid, 'text': dev.developer} for dev in developers]
     return JsonResponse({'results': results})
+
+
 def platform_list_ajax(request):
     term = request.GET.get('q', '')
     platforms = Metaplatform.objects.filter(platform__icontains=term)[:50]
     results = [{'id': plat.platformid, 'text': plat.platform} for plat in platforms]
     return JsonResponse({'results': results})
+
+
 def publisher_list_ajax(request):
     term = request.GET.get('q', '')
     publishers = Metapublisher.objects.filter(publisher__icontains=term)[:50]
     results = [{'id': pub.publisherid, 'text': pub.publisher} for pub in publishers]
     return JsonResponse({'results': results})
+
+
 def country_list_ajax(request):
     term = request.GET.get('q', '')
     countries = Metacountry.objects.filter(countryname__icontains=term)[:50]
     results = [{'id': country.countryid, 'text': country.countryname} for country in countries]
     return JsonResponse({'results': results})
+
+
 def universum_list_ajax(request):
     term = request.GET.get('q', '')
     universes = Metauniversum.objects.filter(universumname__icontains=term)[:50]
@@ -293,7 +305,7 @@ def add_to_favourite_games(request, gameid):
     favourites_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=favourite_type)
 
     if Userlistitem.objects.filter(userlist=favourites_list, object_id=gameid).exists():
-        print("already in favourites")
+        pass
     else:
         content_type = ContentType.objects.get(id=CONTENT_TYPE_GAME_ID)
         Userlistitem.objects.create(
@@ -305,7 +317,6 @@ def add_to_favourite_games(request, gameid):
         favourite_sum, _ = FavoriteSum.objects.get_or_create(content_type=content_type, object_id=gameid)
         favourite_sum.favorite_count += 1
         favourite_sum.save()
-        print("new list created")
     
     return redirect("game_detail", game_url=game.url)
 
@@ -317,7 +328,7 @@ def add_to_playlist_games(request, gameid):
     playlist_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=playlist_type)
 
     if Userlistitem.objects.filter(userlist=playlist_list, object_id=gameid).exists():
-        print("already in favourites")
+        pass
     else:
         content_type = ContentType.objects.get(id=CONTENT_TYPE_GAME_ID)
         Userlistitem.objects.create(
@@ -325,7 +336,6 @@ def add_to_playlist_games(request, gameid):
             content_type=content_type,
             object_id=gameid
             )
-        print("new list created")
     
     return redirect("game_detail", game_url=game.url)
 
@@ -338,7 +348,7 @@ def add_to_played(request, gameid):
     played_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=played_type)
 
     if Userlistitem.objects.filter(userlist=played_list, object_id=gameid).exists():
-        print("already in favourites")
+        pass
     else:
         content_type = ContentType.objects.get(id=CONTENT_TYPE_GAME_ID)
         Userlistitem.objects.create(
@@ -346,7 +356,6 @@ def add_to_played(request, gameid):
             content_type=content_type,
             object_id=gameid
             )
-        print("new list created")
     
     return redirect("game_detail", game_url=game.url)
 
@@ -359,7 +368,7 @@ def add_to_game_library(request, gameid):
     gamelibrary_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=gamelibrary_type)
 
     if Userlistitem.objects.filter(userlist=gamelibrary_list, object_id=gameid).exists():
-        print("already in favourites")
+        pass
     else:
         content_type = ContentType.objects.get(id=CONTENT_TYPE_GAME_ID)
         Userlistitem.objects.create(
@@ -367,7 +376,6 @@ def add_to_game_library(request, gameid):
             content_type=content_type,
             object_id=gameid
             )
-        print("new list created")
     
     return redirect("game_detail", game_url=game.url)
 

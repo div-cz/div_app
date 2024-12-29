@@ -21,7 +21,9 @@ from div_content.views.authors import (
 from div_content.views.blog import blog_add_post, blog_detail, blog_index, blog_list, blog_new, blog_post_detail, blog_section_detail
 
 from div_content.views.books import (
-    book_add, book_detail, books, books_search, add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, rate_book, ratequote, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, remove_from_book_library, character_list_ajax, set_reading_goal
+    book_add, book_detail, books, books_search, add_to_favourite_books, add_to_readlist, add_to_read_books, 
+    add_to_book_library, rate_book, ratequote, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, 
+    remove_from_book_library, character_list_ajax, set_reading_goal, books_alphabetical
     )
 from div_content.views.creators import (
     creator_detail, creators_list, toggle_favorite, add_creator_to_favourites, remove_creator_from_favourites
@@ -36,7 +38,7 @@ from div_content.views.games import (
     remove_from_favourite_games, 
     add_to_playlist_games, remove_from_playlist_games, add_to_played, remove_from_played,
     add_to_game_library, remove_from_game_library, 
-    publishers_list, games_by_developer, games_by_publisher, games_by_genre, games_by_year
+    publishers_list, games_by_developer, games_by_publisher, games_by_genre, games_by_year, games_alphabetical
     )
 from div_content.views.characters import (
     add_character_to_favorites, character_list, character_detail, remove_character_from_favorites
@@ -67,7 +69,7 @@ from div_content.views.series import (
     remove_from_tvshow_library, remove_from_tvshow_watchlist, remove_from_watched_tvshows, add_to_favourite_tvseason,
     add_to_tvseason_watchlist, add_to_watched_tvseasons, remove_from_favourite_tvseasons, remove_from_tvseason_watchlist,
     remove_from_watched_tvseasons, add_to_favourite_tvepisodes, add_to_tvepisode_watchlist, add_to_watched_tvepisode, 
-    remove_from_favourite_tvepisodes, remove_from_tvepisode_watchlist, remove_from_watched_tvepisodes
+    remove_from_favourite_tvepisodes, remove_from_tvepisode_watchlist, remove_from_watched_tvepisodes, series_alphabetical
 )
 from div_content.views.tv import tv, tv_detail
 
@@ -175,6 +177,7 @@ urlpatterns = [
 
 
     path('serialy/', series_list, name='series_list'),
+    path('serialy/abecedne/', series_alphabetical, name='series_alphabetical'),
     path('serialy/<int:year>', series_year, name='series_year'),
     path('serialy/<slug:genre_url>', series_genre, name='series_genre'),
 
@@ -189,6 +192,7 @@ urlpatterns = [
 
 
     path('hry/', games, name='games_index'),
+    path('hry/abecedne/', games_alphabetical, name='games_alphabetical'),
     path('hry/vydavatele/', publishers_list, name='publishers_list'),
     path('hry/vydavatel/<str:publisher_url>', games_by_publisher, name='games_by_publisher'),
     path('hry/vyvojar/<str:developer_url>', games_by_developer, name='games_by_developer'),
@@ -226,6 +230,7 @@ urlpatterns = [
    
     path('autor/pridat/', author_add, name='author_add'),
     path('knihy/', books, name='books_index'),
+    path('knihy/abecedne/', books_alphabetical, name='books_alphabetical'),
     path('hledani-knih/', books_search, name='books_search'),
 
     path('kniha/pridat-do-oblibenych-<int:bookid>', add_to_favourite_books, name="add_to_favourite_books"),
@@ -395,4 +400,3 @@ if settings.DEBUG:
     
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
