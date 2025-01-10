@@ -19,7 +19,7 @@ from div_content.forms.movies import CommentForm, MovieDivRatingForm, SearchForm
 from div_content.models import (
     Article, Book, Creator, Creatorbiography, Game, Metalocation, Metagenre,
 
-    Movie, Moviecomments, Moviecrew, Moviegenre, Movielocation, Movierating, Movietrailer, User, Userprofile, Moviekeywords,
+    Movie, Moviecomments, Moviecrew, Moviegenre, Movielocation, Moviequotes, Movierating, Movietrailer, Movietrivia, User, Userprofile, Moviekeywords,
     Userlisttype, Userlist, Userlistmovie, FavoriteSum, Userlistitem
 
 )
@@ -211,7 +211,33 @@ def movie_detail(request, movie_url):
     keywordsEN = [keyword.keywordid.keyword for keyword in keywords if keyword.keywordid.keyword]
     keywordsCZ = [keyword.keywordid.keywordcz for keyword in keywords if keyword.keywordid.keywordcz]
 
-# xsilence8x přidán context keywordsCZ, EN 
+    # Přidávání nové hlášky
+    if request.method == 'POST' and 'quote_text' in request.POST:
+        quote_text = request.POST.get('quote_text').strip()
+        if quote_text:
+            Moviequotes.objects.create(
+                quote=quote_text,
+                movie=movie,
+                divrating=0,  # Defaultní hodnocení
+                #UserID=request.user  
+            )
+            return redirect('movie_detail', movie_url=movie_url)
+
+    # Přidávání nové zajímavosti
+    if request.method == 'POST' and 'trivia_text' in request.POST:
+        trivia_text = request.POST.get('trivia_text').strip()
+        if trivia_text:
+            Movietrivia.objects.create(
+                trivia=trivia_text,
+                movieid=movie,
+                divrating=0,  # Výchozí hodnocení
+                userid=request.user if request.user.is_authenticated else None
+            )
+            return redirect('movie_detail', movie_url=movie_url)
+
+    quotes = Moviequotes.objects.filter(movie=movie).order_by('-divrating')  
+    trivia = Movietrivia.objects.filter(movieid=movie).order_by('-divrating')  
+
     return render(request, 'movies/movie_detail.html', {
         'movie': movie,
         'genres': genres,
@@ -238,7 +264,8 @@ def movie_detail(request, movie_url):
         'same_universe_movies': same_universe_movies,
         'universum': universum,
         'div_rating_form': div_rating_form,
-
+        'quotes': quotes,
+        'trivia': trivia,
     })
 
 

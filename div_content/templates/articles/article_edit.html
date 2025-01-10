@@ -1,0 +1,24 @@
+{% extends "article/base.html" %}
+
+{% block title %} Upravit {{ topic.title }} {% endblock title %}
+
+{% block content %}
+
+<h2><a class="hover:underline" href="{% url 'clanky' %}">Články</a> / <a class="hover:underline" href="">filmy, knihy, hry</a> / název článku</h2>
+
+{% if user.is_authenticated %}
+    <section class="w-3/4">
+        <h2>Upravit článek</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn mb-4 mr-1 btn-action add" type="submit">Upravit</button>
+        </form>
+    </section>
+{% endif %}
+
+{% endblock content %}
+
+{% block script %}
+<script src="/static/js/forum-comment-summernote.js"></script>
+{% endblock script %}

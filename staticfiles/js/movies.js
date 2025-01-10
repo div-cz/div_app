@@ -136,17 +136,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-$(document).ready(function(){
-    $('.tab-links a').on('click', function(e) {
+$(document).ready(function () {
+    // Kód pro kliknutí na záložky
+    $('.tab-links a').on('click', function (e) {
         e.preventDefault();
+
         var currentAttrValue = $(this).attr('href');
 
-        // Show/Hide Tabs
-        $('.tab-content').removeClass('active');
-        $(currentAttrValue).addClass('active');
+        if ($(currentAttrValue).length) { // Kontrola existence sekce
+            $('.tab-content').removeClass('active');
+            $(currentAttrValue).addClass('active');
 
-        // Change/remove current tab to active
-        $('.tab-links a').removeClass('active');
-        $(this).addClass('active');
+            $('.tab-links a').removeClass('active');
+            $(this).addClass('active');
+        } else {
+            console.error('Sekce neexistuje: ', currentAttrValue);
+        }
+    });
+
+    // Kód pro kliknutí na "další..."
+    $('#go-to-characters').on('click', function (e) {
+        e.preventDefault();
+
+        var targetTab = '#tab2';
+
+        if ($(targetTab).length) { // Kontrola existence sekce
+            $('.tab-links a').removeClass('active');
+            $('a[href="' + targetTab + '"]').addClass('active');
+
+            $('.tab-content').removeClass('active');
+            $(targetTab).addClass('active');
+
+            $(targetTab)[0].scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        } else {
+            console.error('Sekce neexistuje: ', targetTab);
+        }
     });
 });

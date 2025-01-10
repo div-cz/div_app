@@ -130,51 +130,128 @@
         </div>
         {% endif %}
 
-        <!-- SEZNAM KNIH -->
+        <!-- SEZNAM KNIH + SÉRIE -->
         <div class="card mb-4 d-none d-lg-block">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="card-title font-bold after-h3">Seznam knih</h3>
-                <p class="mb-4">Série: 
-                    <a href="">série jedna</a>
-                    &nbsp;|&nbsp;
-                    <a href="">série dva</a>
-                    &nbsp;|&nbsp;
-                    <a href="">série tři</a>
-                </p>
-                <p>
-                    <a href="">všechny knihy</a> (21) <!--počet knih-->
-                </p>
+                
+                {% if series_books %}
+                    <p class="mb-4">Série: 
+                        {% for series_id, data in series_books.items %}
+                            <a href="#" class="series-link" data-series-id="{{ series_id }}">{{ data.name }}</a>
+                            {% if not forloop.last %}&nbsp;|&nbsp;{% endif %}
+                        {% endfor %}
+                    </p>
+                    <p>
+                        <a href="#" class="series-link active" data-series-id="all">všechny knihy</a> ({{ books|length }})
+                    </p>
+                {% else %}
+                    <p class="mb-4">Autor nemá žádné série</p>
+                {% endif %}
+        
                 <div class="flex flex-wrap">
-                    {% for book in books %}
-                    <hr>
-                    <div class="flex items-start w-full">
-                        <a href="/kniha/{{ book.url }}">
-                        {% if book.img == "noimg.png" %}
-                            <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
-                            <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz }}" class="w-full rounded" style="object-fit: cover; width: 80px;">
+                    <!-- Sekce pro všechny knihy -->
+                    <div id="all-books" class="w-full">
+                        {% for book in books %}
+                        <hr>
+                        <div class="flex items-start w-full">
+                            <a href="/kniha/{{ book.url }}">
+                            {% if book.img == "noimg.png" %}
+                                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz }}" class="w-full rounded" style="object-fit: cover; width: 80px;">
                             {% elif book.img == "GoogleID" %}
-                            <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
-                            <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="w-full rounded" style="min-width: 80px;">
+                                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="w-full rounded" style="min-width: 80px;">
                             {% else %}
-                            <!-- Jinak zobraz vlastní nahraný obrázek -->
-                            <img src="/static/kniha/{{ book.img }}" alt="{{ book.titlecz }}" class="w-full rounded" style="object-fit: cover; width: 80px;">
-                        {% endif %}
-                        </a>
-                        <div class="flex flex-wrap ml-4 w-full">
-                            <div class="flex items-center justify-between w-full">
-                                <p><a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz }}</a> <span>({{ book.year }})</span></p>
-                                {% if book.is_read %}
-                                    <i class="fas fa-book mr-4" title="přečteno"></i>
+                                <img src="/static/kniha/{{ book.img }}" alt="{{ book.titlecz }}" class="w-full rounded" style="object-fit: cover; width: 80px;">
+                            {% endif %}
+                            </a>
+                            <div class="flex flex-wrap ml-4 w-full">
+                                <div class="flex items-center justify-between w-full">
+                                    <p><a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz }}</a> <span>({{ book.year }})</span></p>
+                                    {% if book.is_read %}
+                                        <i class="fas fa-book mr-4" title="přečteno"></i>
+                                    {% endif %}
+                                </div>
+                                {% if book.universumid %}
+                                    <p>Série: <a href="#" class="series-link" data-series-id="{{ book.universumid.universumid }}">
+                                        {{ book.universumid.universumnamecz|default:book.universumid.universumname }}
+                                    </a></p>
                                 {% endif %}
+                                <p class="card-text">{{ book.description|safe|truncatewords:40 }}</p>
                             </div>
-                            <p>Série: <a href="">série tři</a></p> <!-- NASTAVENÍ SÉRIÉ POKUD MÁ -->
-                            <p class="card-text">{{ book.description|safe|truncatewords:40 }}</p>
                         </div>
+                        {% endfor %}
+                    </div>
+        
+                    <!-- Sekce pro knihy v sériích -->
+                    {% for series_id, data in series_books.items %}
+                    <div id="series-{{ series_id }}" class="w-full" style="display: none;">
+                        {% for book in data.books %}
+                        <hr>
+                        <div class="flex items-start w-full">
+                            <a href="/kniha/{{ book.url }}">
+                            {% if book.img == "noimg.png" %}
+                                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz }}" class="w-full rounded" style="object-fit: cover; width: 80px;">
+                            {% elif book.img == "GoogleID" %}
+                                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="w-full rounded" style="min-width: 80px;">
+                            {% else %}
+                                <img src="/static/kniha/{{ book.img }}" alt="{{ book.titlecz }}" class="w-full rounded" style="object-fit: cover; width: 80px;">
+                            {% endif %}
+                            </a>
+                            <div class="flex flex-wrap ml-4 w-full">
+                                <div class="flex items-center justify-between w-full">
+                                    <p><a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz }}</a> <span>({{ book.year }})</span></p>
+                                    {% if book.is_read %}
+                                        <i class="fas fa-book mr-4" title="přečteno"></i>
+                                    {% endif %}
+                                </div>
+                                <p class="card-text">{{ book.description|safe|truncatewords:40 }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
                     {% endfor %}
                 </div>
             </div>
         </div>
+        
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const seriesLinks = document.querySelectorAll('.series-link');
+            
+            seriesLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const seriesId = this.getAttribute('data-series-id');
+                    
+                    // Skrýt všechny sekce
+                    document.querySelectorAll('[id^="series-"]').forEach(div => {
+                        div.style.display = 'none';
+                    });
+                    document.getElementById('all-books').style.display = 'none';
+                    
+                    // Zobrazit vybranou sekci
+                    if (seriesId === 'all') {
+                        document.getElementById('all-books').style.display = 'block';
+                    } else {
+                        document.getElementById(`series-${seriesId}`).style.display = 'block';
+                    }
+                    
+                    // Aktualizovat aktivní odkaz
+                    seriesLinks.forEach(link => {
+                        link.classList.remove('active', 'text-blue-600');
+                    });
+                    this.classList.add('active', 'text-blue-600');
+                });
+            });
+        });
+        </script>
+        
+        <style>
+        .series-link.active {
+            color: #2563eb;  /* text-blue-600 */
+            font-weight: bold;
+        }
+        </style><!-- Knihy a série -->
     </div>
 
     <!-- PRAVÁ STRANA -->

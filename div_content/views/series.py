@@ -10,7 +10,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from div_content.forms.series import SearchForm, TVShowDivRatingForm, CommentForm
 from django.db import connection
 from div_content.models import (
-    Tvcountries, Tvcrew, Tvgenre, Tvkeywords, Tvproductions, Tvseason, Tvshow, Tvepisode, Userlisttype, 
+    Tvcountries, Tvcrew, Tvgenre, Tvkeywords, Tvproductions, Tvseason, Tvshow, Tvshowquotes, Tvepisode, Userlisttype, 
     Userlist, Userlistitem, Userlisttvshow, Userlisttvseason, Userlisttvepisode, FavoriteSum, Tvshowcomments
 )
 
@@ -51,6 +51,8 @@ def serie_detail(request, tv_url):
 
     # Sezóny seriálu
     seasons = Tvseason.objects.filter(tvshowid=tvshow.tvshowid).order_by('seasonnumber')
+    #episodes = Tvepisode.objects.filter(tvshowid=tvshow.tvshowid).order_by('seasonid', 'episodenumber')
+    episodes = Tvepisode.objects.filter(seasonid__tvshowid=tvshow.tvshowid).order_by('seasonid', 'episodenumber')
 
     # Paginator
     items_per_page = 40
@@ -165,12 +167,29 @@ def serie_detail(request, tv_url):
             tvshow_div_rating_form = TVShowDivRatingForm(instance=tvshow)
 
 
+    # Hlášky k dílům
+    quotes = Tvshowquotes.objects.filter(tv_show=tvshow).select_related('actor', 'character')
+
+    # Přidávání nové hlášky
+    if request.method == 'POST' and 'quote_text' in request.POST:
+        quote_text = request.POST.get('quote_text').strip()
+        if quote_text:
+            Tvshowquotes.objects.create(
+                quote=quote_text,
+                tv_show=tvshow,
+                user=request.user if request.user.is_authenticated else None,
+                div_rating=0
+            )
+            return redirect('serie_detail', tv_url=tvshow.url)
+
+
     return render(request, 'series/serie_detail.html', {
         'tvshow': tvshow,
         'genres': genres,
         'countries': countries,
         'productions': productions,
         'seasons': seasons,
+        'episodes': episodes,
         'ratings': ratings,
         'average_rating': average_rating,
         'user_rating': user_rating,
@@ -184,6 +203,7 @@ def serie_detail(request, tv_url):
         'tvshow_div_rating_form': tvshow_div_rating_form,
         "serie_page": serie_page,
         "content_season_page": content_season_page,
+        'quotes': quotes,
     })
 
 
@@ -417,7 +437,24 @@ def serie_season(request, tv_url, seasonurl):
             is_in_watched = False
     else:
         is_in_watched = False
-    
+
+    # Hlášky pro sezónu
+    quotes = Tvshowquotes.objects.filter(season=season).select_related('actor', 'character', 'episode')
+
+    # Přidávání nové hlášky pro sezónu
+    if request.method == 'POST' and 'quote_text' in request.POST:
+        quote_text = request.POST.get('quote_text').strip()
+        if quote_text:
+            Tvshowquotes.objects.create(
+                quote=quote_text,
+                tv_show=tvshow,
+                season=season,
+                user=request.user if request.user.is_authenticated else None,
+                div_rating=0
+            )
+            return redirect('serie_season', tv_url=tvshow.url, seasonurl=season.seasonurl)
+
+
     return render(request, 'series/serie_season.html', {
         'tvshow': tvshow,
         'season': season,
@@ -428,6 +465,7 @@ def serie_season(request, tv_url, seasonurl):
         'previous_season': previous_season,
         'next_season': next_season,
         'directors': directors,
+        'quotes': quotes,
         'episodes': episodes,
         'is_in_favourites': is_in_favourites,
         'is_in_watchlist': is_in_watchlist,
@@ -597,6 +635,23 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
     else:
         is_in_watched = False
 
+    # Hlášky pro epizodu
+    quotes = Tvshowquotes.objects.filter(episode=episode).select_related('actor', 'character')
+
+    # Přidávání nové hlášky pro epizodu
+    if request.method == 'POST' and 'quote_text' in request.POST:
+        quote_text = request.POST.get('quote_text').strip()
+        if quote_text:
+            Tvshowquotes.objects.create(
+                quote=quote_text,
+                tv_show=tvshow,
+                season=season,
+                episode=episode,
+                user=request.user if request.user.is_authenticated else None,
+                div_rating=0
+            )
+            return redirect('serie_episode', tv_url=tvshow.url, seasonurl=season.seasonurl, episodeurl=episode.episodeurl)
+
 
     return render(request, 'series/serie_episode.html', {
         'tvshow': tvshow,
@@ -612,6 +667,7 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
         'is_in_favourites': is_in_favourites,
         'is_in_watchlist': is_in_watchlist,
         'is_in_watched': is_in_watched,
+        'quotes': quotes,
     })
 
 

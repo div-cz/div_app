@@ -2,8 +2,7 @@
 # forms.books.py
 from django import forms
 from django.contrib.auth.models import User
-from div_content.models import Book, Bookcomments, Bookcharacter, Bookquotes, Userprofile
-
+from div_content.models import Book, Bookcomments, Bookcharacter, Booklisting, Bookquotes, Userprofile
 
 class BookAddForm(forms.Form):
     identifier = forms.CharField(label='ISBN nebo Google ID', max_length=255)
@@ -14,6 +13,16 @@ class SearchFormBooks(forms.Form):
     q = forms.CharField(label='Hledat', max_length=255)
 
 
+class BookDivRatingForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ['divrating']
+        widgets = {
+            'divrating': forms.NumberInput(attrs={'class': 'form-control', 'step': '1'}),
+        }
+        labels = {
+            'divrating': 'DIV Rating (0-99)',
+        }
 
 
 class CommentFormBook(forms.ModelForm):
@@ -59,6 +68,62 @@ class BookDivRatingForm(forms.ModelForm):
         labels = {
             'divrating': 'DIV Rating (0-99)',
         }
+
+
+class BookListingForm(forms.ModelForm):
+    price = forms.DecimalField(
+        max_digits=10, 
+        required=True, 
+        initial=100,
+        label='Cena',
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
+    shipping = forms.DecimalField(
+        max_digits=10, 
+        required=False, 
+        initial=70,
+        label='Poštovné',
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
+    commission = forms.IntegerField(
+        min_value=0, 
+        max_value=100, 
+        initial=10, 
+        label='Provize na chod webu',
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
+    personal_pickup = forms.BooleanField(
+        required=False, 
+        label='Osobní převzetí',
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    class Meta:
+        model = Booklisting
+        fields = ['listingtype', 'price', 'shipping', 'commission', 'description', 'condition', 'location', 'personal_pickup']
+        labels = {
+            'listingtype': 'Typ',
+            'price': 'Cena',
+            'description': 'Popis',
+            'condition': 'Stav',
+            'location': 'Místo'
+        }
+        widgets = {
+            'listingtype': forms.Select(attrs={'class': 'form-control'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'shipping': forms.NumberInput(attrs={'class': 'form-control'}),
+            'commission': forms.NumberInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'style': 'height:100px !important'}),
+            'condition': forms.TextInput(attrs={'class': 'form-control'}),
+            'location': forms.TextInput(attrs={'class': 'form-control'})
+        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.initial.get('listingtype'):
+            self.initial['listingtype'] = 'SELL'
+        if self.initial.get('listingtype') == 'GIVE':
+            self.fields['price'].widget = forms.HiddenInput()
+            self.fields['shipping'].widget = forms.HiddenInput()
+            self.fields['commission'].widget = forms.HiddenInput()
 
 
 

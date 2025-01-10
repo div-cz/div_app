@@ -1,5 +1,9 @@
 {% extends "universum/base.html" %}
-{% block title %}{{ universum.universumnamecz }} | DIV.cz{% endblock %}
+
+{% block title %}{{ universum.universumnamecz }} na DIV.cz{% endblock %}
+
+{% block meta %}
+{% endblock %}
 
 {% block content %}
 
@@ -13,14 +17,17 @@
 
         <div class="row container my-4 absolute w-full h-full p-6" style="top: 0; left: 0;">
 
-            <!-- LEVÁ STRANA -->
-            <div class="col-lg-8">
-            {% endif %}
+    <!-- LEVÁ STRANA -->
+    <div class="col-lg-8">
+    {% endif %}
                 <h1>{{ universum.universumnamecz|default:universum.universumname }}</h1>
-                <p>{{ universum.universumdescription }}</p>
+                <p>{{ universum.universumdescription|default:"" }}</p>
                 <div class="ml-8 mt-8">
                     <h2>Filmy ze stejného světa</h2>
                     <ul class="list-group ml-8">
+                    {% if movies %}
+                    {% else %}Zatím žádné
+                    {% endif %}
                         {% for movie in movies %}
                         <li class="list-group-item">
                             <a class="movies" href="{% url 'movie_detail' movie_url=movie.url %}">
@@ -34,6 +41,9 @@
                 <div class="ml-8 mt-8">
                     <h2>Knihy ze stejného světa</h2>
                     <ul class="list-group ml-8">
+                    {% if books %}
+                    {% else %}Zatím žádné
+                    {% endif %}
                         {% for book in books %}
                         <li class="list-group-item">
                             <a class="books" href="{% url 'book_detail' book_url=book.url %}">
@@ -47,6 +57,9 @@
                 <div class="ml-8 mt-8">
                     <h2>Hry ze stejného světa</h2>
                     <ul class="list-group ml-8">
+                    {% if games %}
+                    {% else %}Zatím žádné
+                    {% endif %}
                         <li class="list-group-item">
                             <a class="games"></a>
                             <!-- Add games section here -->

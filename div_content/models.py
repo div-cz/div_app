@@ -272,8 +272,6 @@ class Book(models.Model):
     language = models.CharField(db_column='Language', max_length=2, null=True, blank=True)
     universumid = models.ForeignKey('Metauniversum', models.DO_NOTHING, db_column='UniversumID', null=True)
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True)
-
-
     lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
     divrating = models.IntegerField(db_column='DIVRating', default="0", db_index=True, blank=True, null=True)
 
@@ -281,6 +279,45 @@ class Book(models.Model):
         db_table = 'Book'
 
         # indexes = [models.Index(fields=['url'], name='url_book_idx')] 
+
+
+class Booklisting(models.Model):
+    LISTING_TYPES = (
+        ('SELL', 'Prodám'),
+        ('BUY', 'Koupím'),
+        ('GIVE', 'Daruji'),
+    )
+    LISTING_STATUS = (
+        ('ACTIVE', 'Aktivní'),
+        ('RESERVED', 'Rezervováno'),
+        ('COMPLETED', 'Dokončeno'),
+        ('CANCELLED', 'Zrušeno'),
+    )
+    booklistingid = models.AutoField(db_column='BookListingID', primary_key=True)
+    user = models.ForeignKey(User, db_column='user_id', on_delete=models.CASCADE)
+    buyer = models.ForeignKey(User, db_column='BuyerID', null=True, blank=True, on_delete=models.SET_NULL, related_name='listings_bought')
+    book = models.ForeignKey(Book, db_column='book_id', on_delete=models.CASCADE)
+    listingtype = models.CharField(db_column='ListingType', max_length=4, choices=LISTING_TYPES)
+    price = models.DecimalField(db_column='Price', max_digits=10, decimal_places=2, null=True, blank=True)
+    shipping = models.DecimalField(db_column='Shipping', max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Poštovné')
+    commission = models.IntegerField(db_column='Commission', verbose_name='Provize na chod webu')
+    personal_pickup = models.BooleanField(db_column='PersonalPickup', verbose_name='Osobní převzetí')
+    description = models.TextField(db_column='Description', max_length=512, blank=True, null=True)
+    condition = models.CharField(db_column='Condition', max_length=50, blank=True, null=True)
+    location = models.CharField(db_column='Location', max_length=100, blank=True, null=True)
+    createdat = models.DateTimeField(db_column='CreateDat', auto_now_add=True)
+    completedat = models.DateTimeField(db_column='CompletedAt', null=True, blank=True)
+    active = models.BooleanField(db_column='Active', default=True)
+
+    status = models.CharField(db_column='Status', max_length=10, choices=LISTING_STATUS, default='ACTIVE')
+    # Hodnocení transakce
+    sellerrating = models.IntegerField(db_column='SellerRating', null=True, blank=True)
+    sellercomment = models.TextField(db_column='SellerComment', max_length=512, blank=True, null=True)
+    buyerrating = models.IntegerField(db_column='BuyerRating', null=True, blank=True)
+    buyercomment = models.TextField(db_column='BuyerComment', max_length=512, blank=True, null=True)
+    class Meta:
+        managed = False
+        db_table = 'BookListing'
 
 
 class Bookauthor(models.Model):
@@ -720,6 +757,7 @@ class Game(models.Model):
     titlecz = models.CharField(db_column='TitleCZ', max_length=255, null=True, blank=True)
     special = models.IntegerField(db_column='Special', db_index=True, blank=True, null=True)
     url = models.CharField(db_column='URL', max_length=255, null=True, blank=True)
+    img = models.CharField(db_column='IMG', max_length=255,  null=True, blank=True)
     rawgid = models.IntegerField(db_column='RawgID', null=True, blank=True)
     metacritic = models.IntegerField(db_column='MetaCritic', null=True, blank=True)
     descriptioncz = models.TextField(db_column='DescriptionCZ', null=True, blank=True)
@@ -1571,6 +1609,27 @@ class Tvshowcomments(models.Model):
     class Meta:
         db_table = 'TVShowComments'
 
+
+class Tvshowquotes(models.Model):
+    quote_id = models.AutoField(primary_key=True, db_column='QuoteID')
+    quote = models.TextField(db_column='Quote')
+    actor = models.ForeignKey(Creator, on_delete=models.RESTRICT, null=True, db_column='ActorID')
+    character = models.ForeignKey(Charactermeta, on_delete=models.RESTRICT, null=True, db_column='CharacterID')
+    episode = models.ForeignKey(Tvepisode, on_delete=models.CASCADE, null=True, db_column='EpisodeID')
+    season = models.ForeignKey(Tvseason, on_delete=models.SET_NULL, null=True, db_column='SeasonID')
+    tv_show = models.ForeignKey(Tvshow, on_delete=models.SET_NULL, null=True, db_column='TVShowID')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, db_column='UserID')
+    parent_quote = models.IntegerField(null=True, blank=True, db_column='ParentQuoteID')
+    div_rating = models.IntegerField(default=0, db_column='DIVRating')
+
+    class Meta:
+        managed = False
+        db_table = 'TVShowQuotes'
+
+    def __str__(self):
+        return f"{self.quote[:50]}..."  
+
+
 class Tvcountries(models.Model):
     tvcountryid = models.AutoField(db_column='TVCountryID', primary_key=True)
     tvshowid = models.ForeignKey('Tvshow', on_delete=models.CASCADE, db_column='TVShowID')
@@ -1637,7 +1696,7 @@ class Userbookgoal(models.Model):
     goalyear = models.PositiveIntegerField(db_column='GoalYear')  # Field name made lowercase.
     goal = models.PositiveIntegerField(db_column='Goal')  # Field name made lowercase.
     booksread = models.PositiveIntegerField(db_column='BooksRead')  # Field name made lowercase.
-    lastupdated = models.DateTimeField(db_column='LastUpdated')  # Field name made lowercase.
+    lastupdated = models.DateTimeField(db_column='LastUpdated', blank=True, null=True)  # Field name made lowercase.
     user = models.ForeignKey(User, models.DO_NOTHING)
 
     class Meta:
@@ -1718,6 +1777,7 @@ class Userprofile(models.Model):
     avatar = models.ForeignKey(Avatar, db_column='Avatar', null=True, blank=True, on_delete=models.SET_NULL)
     
     class Meta:
+        managed = False
         db_table = 'UserProfile'
 
 
@@ -1801,7 +1861,6 @@ class Userlistgame(models.Model):
         db_table = 'UserListGame'
     def __str__(self):
         return f"{self.userlist.namelist} - {self.game.title}"
-
 
 
 class Userlisttvshow(models.Model):

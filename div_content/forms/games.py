@@ -22,6 +22,7 @@ class GameForm(forms.ModelForm):
         label="Developer",
         widget=forms.Select(attrs={'class': 'form-control select2'}),
         required=False
+        #empty_label="--- Vyberte ---"
     )
     platformid = forms.ModelChoiceField(
         queryset=Metaplatform.objects.none(),  # Nevrací nic pøi prvním naètení

@@ -5,6 +5,46 @@
 
 {% block title %}{{ movie.titlecz }} ({{ movie.releaseyear }}) | DIV.cz{% endblock %}
 
+{% block meta %}
+    <meta name="description" content="{{ movie.description|striptags|truncatechars:200 }}">
+
+    {% if keywordsCZ %}<!-- xsilence8x meta tags -->
+    <meta name="keywords" content="{% for keyword in keywordsCZ %}{{ keyword }}, {% endfor %}">
+    {% elif keywordsEN %}
+    <meta name="keywords" content="{% for keyword in keywordsEN %}{{ keyword }}, {% endfor %}">
+    {% endif %}
+
+
+    <meta property="og:type" content="movie">
+    <meta property="og:site_name" content="Databáze DIV">
+    <meta property="og:title" content="{{ movie.titlecz }} ({{ movie.releaseyear }})">
+    <meta property="og:description" content="{{ movie.description|striptags|truncatechars:180 }}">
+    <meta property="og:image" content="
+        {% if movie.img and movie.img != 'noimg.png' %}
+            https://image.tmdb.org/t/p/original{{ movie.img }}
+        {% elif movie.imgposter and movie.imgposter != 'noimg.png' %}
+            https://image.tmdb.org/t/p/original{{ movie.imgposter }}
+        {% else %}
+            https://div.cz/static/img/site/soutez/soutez_wallpaper.png
+        {% endif %}
+            ">
+    <meta property="og:url" content="https://div.cz/film/{{ movie.url }}">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@DIV_cz">
+    <meta name="twitter:title" content="{{ movie.titlecz }} ({{ movie.releaseyear }})">
+    <meta name="twitter:description" content="{{ movie.description|striptags|truncatechars:200 }}">
+    <meta name="twitter:image" content="
+        {% if movie.img and movie.img != 'noimg.png' %}
+            https://image.tmdb.org/t/p/original{{ movie.img }}
+        {% elif movie.imgposter and movie.imgposter != 'noimg.png' %}
+            https://image.tmdb.org/t/p/original{{ movie.imgposter }}
+        {% else %}
+            https://div.cz/static/img/site/soutez/soutez_wallpaper.png
+        {% endif %}
+            ">
+{% endblock %}
+
 {% block content %}
 
 <div class="row container my-5">
@@ -43,6 +83,7 @@
                 {% else %}
                 <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.imgposter }}" alt="{{ movie.titlecz }}" class="img-fluid h-fit w-full rounded" style="object-fit: cover; max-width: 200px;">
             {% endif %}
+
                 <div class="d-lg-none mb-2 sm:ml-5">
                     <div class="rating-stars" style="white-space: nowrap;"><!--&nbsp;|&nbsp;-->
                         <div class="smaller-stars">{% ratings movie %}</div>
@@ -86,6 +127,7 @@
                             {% else %}
                             <a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a>
                             {% endif %}
+
                             {% comment %}
                             {% if actor.characterid %}
                                 {% if actor.characterid.characterbio %}
@@ -97,7 +139,9 @@
                                 {% endif %}
                             {% endif %}
                             {% endcomment %}
+
                         {% endfor %}
+                        , <a href="#tab2" id="go-to-characters">další...</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -190,7 +234,7 @@
                 <div class="">    
                     <h3 class="after-h3">Recenze</h3>      
                     {% if user.is_authenticated %}
-                    <h3>Přidat novou recenzi</h3>
+                    <h4>Přidat novou recenzi</h4>
                     <form method="post" class="after" action="">
                         {% csrf_token %}
                         {{ comment_form.comment }}
@@ -262,18 +306,32 @@
 
             <!-- ZAJÍMAVOSTI -->
             <div id="tab3" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
-                <div class="">          
+                <div>
                     <h3 class="after-h3">Informace o zajímavostech filmu</h3>
-                    <h3>Přidat novou zajímavost</h3>
-                    <form method="post" class="after" action="">
-                        <textarea>
-
-                        </textarea>
+                    
+                    {% if user.is_authenticated %}
+                    <!-- Formulář pro přidání nové zajímavosti -->
+                    <h4>Přidat novou zajímavost</h4>
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        <textarea name="trivia_text" rows="3" placeholder="Zadejte zajímavost"></textarea>
                         <button type="submit" class="add">Vložit zajímavost</button>
-                    </form>               
+                    </form>
+                    {% endif %}
 
-                    <p>Zatím nejsou žádné recenze k tomuto filmu.</p>
-
+                    <!-- Výpis zajímavostí -->
+                    {% if trivia %}
+                        {% for item in trivia %}
+                            <p class="before">
+                            {{ item.trivia }}
+                                {% if item.creator %}
+                                <br><strong>Autor:</strong> {{ item.creator.firstname }} {{ item.creator.lastname }}
+                                {% endif %}
+                            </p>
+                        {% endfor %}
+                    {% else %}
+                        <p>Zatím nejsou žádné zajímavosti k tomuto filmu.</p>
+                    {% endif %}
                 </div>
             </div>
 
@@ -281,7 +339,7 @@
             <div id="tab4" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
                 <h3 class="after-h3">Trailer</h3>
                 {% if movie_trailer %}
-                    <iframe style="width:100%;height:56.25vw" src="https://www.youtube.com/embed/{{ movie_trailer.youtubeurl }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <iframe style="width:100%; height:300px" src="https://www.youtube.com/embed/{{ movie_trailer.youtubeurl }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 {% else %}
                     <p>Trailer není k dispozici.</p>
                 {% endif %}
@@ -294,23 +352,39 @@
                         <button type="submit" class="btn btn-primary mt-3">Přidat trailer (Jen YoutubeID: dGzY9zp46KI)</button>
                     </form>
                 {% endif %}
-
             </div>
 
             <!-- HLÁŠKY -->
             <div id="tab5" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
                 <div class="">          
                     <h3 class="after-h3">Známé hlášky z filmu</h3>
-                    <h3>Přidat novou hlášku</h3>
-                    <form method="post" class="after" action="">
-                        <textarea>
 
-                        </textarea>
-                        <button type="submit" class="add">Vložit hlášku</button>
-                    </form>               
+                    {% if user.is_authenticated %}
+                        <h4>Přidat novou hlášku</h4>
+                        <form method="post" action="">
+                        {% csrf_token %}
+                            <textarea name="quote_text" rows="3" required></textarea>
+                            <button type="submit" class="add">Vložit hlášku</button>
+                        </form>               
+                    {% endif %}
 
-                    <p>Zatím nejsou žádné hlášky k tomuto filmu.</p>
+                    <!-- Výpis hlášek -->
+                    {% if quotes %}
+                        {% for quote in quotes %}
+                            <p class="before">
+                                <strong>Hláška:</strong> {{ quote.quote }}
 
+                                {% if quote.actor %}
+                                <br><strong>Herec:</strong> {{ quote.actor.firstname }} {{ quote.actor.lastname }}
+                                {% endif %}
+                                {% if quote.character %}
+                                    ( <strong>Postava:</strong> {{ quote.character.characternamecz }})
+                                {% endif %}
+                            </p>
+                        {% endfor %}
+                    {% else %}
+                        <p>Zatím nejsou žádné hlášky k tomuto filmu.</p>
+                    {% endif %}
                 </div>
             </div>
 

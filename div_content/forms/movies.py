@@ -1,9 +1,8 @@
-# FORMS/MOVIES
+# FORMS.MOVIES.PY TEST
 
 from django import forms
 from django.contrib.auth.models import User
-from div_content.models import Movie, Moviecomments, Movietrailer, Userprofile
-
+from div_content.models import Movie, Moviecinema, Moviecomments, Moviedistributor, Movietrailer, Userprofile
 
 
 class MovieDivRatingForm(forms.ModelForm):
@@ -14,9 +13,8 @@ class MovieDivRatingForm(forms.ModelForm):
             'divrating': forms.NumberInput(attrs={'class': 'form-control', 'step': '1'}),
         }
         labels = {
-            'divrating': 'DIV Rating (0-9999)',
+            'divrating': 'DIV Rating (0-999)',
         }
-
 
 
 # use in movies/movie_detail.html
@@ -34,9 +32,20 @@ class CommentForm(forms.ModelForm):
             'comment': forms.Textarea(attrs={'class': 'form-control'}),
         }
 
-# use in movie section
-class SearchForm(forms.Form):
-    q = forms.CharField(label='Hledat', max_length=255)
+
+class MovieCinemaForm(forms.ModelForm):
+    class Meta:
+        model = Moviecinema
+        fields = ['distributorid', 'releasedate']
+
+    distributorid = forms.ModelChoiceField(
+        queryset=Moviedistributor.objects.all(),
+        label='Distributor'
+    )
+    releasedate = forms.DateField(
+        widget=forms.SelectDateWidget(),
+        label='Datum vydání'
+    )
 
 
 class TrailerForm(forms.ModelForm):
@@ -48,6 +57,10 @@ class TrailerForm(forms.ModelForm):
         super(TrailerForm, self).__init__(*args, **kwargs)
         self.fields['youtubeurl'].widget.attrs.update({'class': 'form-control'})
 
+
+# use in movie section
+class SearchForm(forms.Form):
+    q = forms.CharField(label='Hledat', max_length=255)
 
 """
 # Use in profile

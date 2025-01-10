@@ -5,6 +5,94 @@
 
 {% block title %} {{ book.titlecz }} | DIV.cz{% endblock %}
 
+{% block meta %}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+<style>
+    .arrow {
+        display: flex;
+        align-items: center;
+        font-size: 24px; 
+        transition: transform 0.3s ease; 
+        height: 25px;
+        text-align: center;
+        margin-left: 5px;
+    }
+
+    .arrow-up {
+        transform: rotate(180deg); 
+    }
+
+    .collapse {
+        display: none; 
+        overflow: hidden;  
+        transition: max-height 0.3s ease-in-out;  
+        max-height: 0; 
+        border: 1px solid #495057;
+        padding: 10px;
+    }
+
+    .collapse.open {
+        display: flex;
+        max-height: 500px; 
+    }
+
+    .collapse img {
+        width: 40%;
+        height: fit-content;
+    }
+
+    .collapse p {
+        border-bottom: 1px solid #495057;
+        padding: 8px;
+    }
+
+    .more {
+        cursor: pointer;
+        background: none;
+        border: none;
+        border-radius: 8px;
+        padding: .5rem 1.5rem;
+        font-size: 18px;
+        font-weight: 600;
+        transition: all .3s ease;
+    }
+
+    .more-arrow {
+        fill: #94a1b2;
+        position: absolute;
+        pointer-events: none;
+        width: 24px;
+        right: 0;
+        top: 25%;
+        transition: all .3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    }
+
+    /* .more:hover {
+        letter-spacing: 2px;
+    } */
+
+    .more:hover ~.second {
+        opacity: .66;
+        right: -20px;
+        transition-delay: 50ms;
+    }
+
+    .more:hover ~.third {
+        opacity: .33;
+        right: -40px;
+        transition-delay: 100ms;
+    }
+
+    .second, .third {
+        opacity: 0;
+    }
+
+</style>
+
+{% endblock %}
+
 {% block content %}
 
 <div class="row container my-5">
@@ -83,15 +171,19 @@
             <div class="flex flex-wrap content-between flex-grow-1 sm:mt-5 w-full lg:w-55">
                 <ul class="list-unstyled">
                     <li><strong>Originální název: </strong>{{ book.title }}</li>
-                    
-                    {% if author %}
-                    <li><strong>Autor:</strong>
-                        {% for author in authors %}
-                        <a href="/autor/{{ author.url }}">{{ author.firstname }} {{ author.lastname }}</a>
-                        {% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </li>
-                    {% endif %}
+
+
+                   {% if authors %}
+                   <li><strong>Autor:</strong>
+                       {% for author in authors %}
+                           <a href="/autor/{{ author.url }}">{{ author.firstname }} {{ author.lastname }}</a>
+                           {% if not forloop.last %}, {% endif %}
+                       {% endfor %}
+                   </li>
+                   {% elif book.author %}
+                   <li><strong>Autor:</strong> {{ book.author }}</li>
+                   {% endif %}
+
 
                     {% if genres %}
                     <li><strong>Žánr:</strong>
@@ -101,13 +193,21 @@
                         {% endfor %}
                     </li>
                     {% endif %}
-                        
+            
                     {% if book.language %}
-                    <li><strong>Jazyk:</strong> {{ book.language }} </li>
+                    <li><strong>Jazyk:</strong> 
+                    {% if book.language == 'cs' %}
+                        čeština
+                    {% elif book.language == 'aj' %}  
+                        angličtina
+                    {% else %}
+                        {{ book.language }}
+                    {% endif %}
+                    </li>
                     {% endif %}
 
                     <li><strong>Nakladatelství:</strong>
-                        <a href="">Nějaké nakladatelství</a>
+                        <!--Nejsou zatím data <a href="">Nějaké nakladatelství</a>-->
                     </li>
 
                     {% if characters_with_roles %}
@@ -214,6 +314,22 @@
             </div>
         </div>
 
+        <!-- PRODAM / KOUPIM -->
+        <details>
+            <summary class="market add my-4">PRODÁM / KOUPÍM</summary>
+            <div class="card mt-3">
+                <div class="card-body">
+                    více v <a href="#tab5" id="go-to-market">obchodě</a>
+                    <form method="post" name="booklisting_form">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="booklisting">
+                        {{ booklisting_form.as_p }}
+                        <button type="submit" class="btn add btn-primary">Vytvořit nabídku</button>
+                    </form>
+                </div>
+            </div>
+        </details>
+
         <!-- POPIS KNIHY -->
         <div class="w-full">
             <p id="biography-text">
@@ -232,7 +348,7 @@
                 <li><a href="#tab1" class="active">Recenze</a></li>
                 <li><a href="#tab2">Postavy</a></li>
                 <li><a href="#tab3">Citáty</a></li>
-                <li><a href="#tab4">Zajímavosti</a></li>
+                <!--<li><a href="#tab4">Zajímavosti</a></li>-->
                 <li><a href="#tab5">Obchod</a></li>
             </ul>
     
@@ -404,26 +520,205 @@
             </div>
 
             <!-- OBCHOD -->
-            <div id="tab5" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F] ">
-                <h3 class="after-h3">Prodej nebo sežeň knihu</h3>
-                <div class="w-full flex flex-wrap justify-between sm:p-5">
-                    <div class="w-1/2 sm:w-full pr-4 lg:stats-container">
-                        <h4 class="after-h3 ml-4">Prodávám</h4>
-                        <div class="table lg:pr-5">
-                            
-                        </div>
-                    </div>
-                    <div class="w-1/2 sm:w-full pl-4 sm:mt-10 flex flex-wrap content-start">
-                        <h4 class="after-h3 lg:pl-5 w-full">Poptávám</h4>
-                        <div class="table lg:pr-5 w-full lg:pl-5">
+            <div id="market">
+                <div id="tab5" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
+                    <h3 class="after-h3">Tuto knihu prodává / poptává</h3>
 
+                    <!-- PRODAM / KOUPIM -->
+                    <details class="my-4">
+                        <summary style="font-size: 1.17rem;">PRODÁM / KOUPÍM</summary>
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <form method="post" name="booklisting_form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form_type" value="booklisting">
+                                    {{ booklisting_form.as_p }}
+                                    <button type="submit" class="btn add btn-primary">Vytvořit nabídku</button>
+                                </form>
+                            </div>
                         </div>
+                    </details>
+
+                    <div class="w-full flex flex-wrap justify-between sm:p-0">  
+                        <!-- VÝPIS NABÍDEK -->                
+                        {% if sell_listings %}
+                        <div class="w-full pr-4 mb-5">
+                            <h4 class="after-h3 ml-4">Prodává <span><small>({{ sell_listings.count }} {% if sell_listings.count == 1 %}uživatel{% elif sell_listings.count < 5 %}uživatelé{% else %}uživatelů{% endif %})</small></span></h4>
+
+                            {% for listing in sell_listings %}
+                            <div class="flex {% cycle 'sudy' '' %}">
+                                <div class="w-full">
+                                    <div class="flex w-full items-center">
+                                        <span class="arrow text-xl cursor-pointer" data-ask-id="{{ listing.booklistingid }}">&#129083;</span>
+                                        <div class="flex justify-between w-full p-2">
+                                            <a href="{% url 'user_sell_listings' listing.user.id %}">{{ listing.user.username }}</a>
+                                            <p>
+                                                {% if listing.listingtype == 'GIVE' %}
+                                                    Daruji
+                                                {% else %}
+                                                    {{ listing.price|floatformat:0 }} Kč
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div id="ask-details-{{ listing.booklistingid }}" class="collapse flex-wrap p-2">
+                                        <div class="flex w-full sm:flex-wrap items-start">
+                                            <img src="/static/img/book/book.png" class="pr-2">
+                                            <div class="flex flex-wrap">
+                                                {% if listing.location %}
+                                                <p class="flex justify-between w-full">
+                                                    <strong>Lokalita: </strong>
+                                                    <span>{{ listing.location }}</span>
+                                                </p>
+                                                {% endif %}
+
+                                                {% if listing.condition %}
+                                                <p class="flex justify-between w-full">
+                                                    <strong>Stav knihy: </strong>
+                                                    <span>{{ listing.condition }}</span>
+                                                </p>
+                                                {% endif %}
+
+                                                {% if listing.listingtype != 'GIVE' %}
+                                                <p class="flex justify-between w-full">
+                                                    <strong>Cena knihy: </strong>
+                                                    <span>{{ listing.price|floatformat:0 }} Kč</span>
+                                                </p>
+                                                {% endif %}
+
+                                                {% if listing.shipping %}
+                                                <p class="flex justify-between w-full">
+                                                    <strong>Poštovné: </strong>
+                                                    <span>{{ listing.shipping|floatformat:0 }} Kč</span>
+                                                </p>
+                                                {% endif %}
+
+                                                {% if listing.personal_pickup %}
+                                                <p class="flex justify-between w-full">
+                                                    <strong>Osobní převzetí: </strong>
+                                                    <span>0 Kč</span>
+                                                </p>
+                                                {% endif %}
+
+                                                {% if listing.listingtype != 'GIVE' and listing.shipping %}
+                                                <p class="flex justify-between w-full">
+                                                    <strong>Cena celkem: </strong>
+                                                    <span>{{ listing.price|add:listing.shipping|floatformat:0 }} Kč</span>
+                                                </p>
+                                                {% endif %}
+
+                                                {% if listing.description %}
+                                                <p class="flex flex-wrap justify-between w-full">
+                                                    <strong>Poznámka: </strong>
+                                                    <span>{{ listing.description }}</span>
+                                                </p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="w-full flex justify-end mr-10">
+                                            <div class="relative flex">
+                                                <a href="{% url 'listing_detail' book.url listing.booklistingid %}" 
+                                                class="more">Detail nabídky</a>
+                                                <span class="more-arrow first">
+                                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                                        <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
+                                                    </svg>
+                                                </span>
+                                                <span class="more-arrow second">
+                                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                                        <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
+                                                    </svg>
+                                                </span>
+                                                <span class="more-arrow third">
+                                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                                        <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <!-- VÝPIS POPTÁVEK -->
+                        {% if buy_listings %}
+                        <div class="w-full pr-4 mb-5">
+                            <h4 class="after-h3 ml-4">Poptává <span><small>({{ buy_listings.count }} {% if buy_listings.count == 1 %}uživatel{% elif buy_listings.count < 5 %}uživatelé{% else %}uživatelů{% endif %})</small></span></h4>
+
+                            {% for listing in buy_listings %}
+                            <div class="flex {% cycle 'sudy' '' %}">
+                                <div class="w-full">
+                                    <div class="flex w-full items-center">
+                                        <span class="arrow text-xl cursor-pointer" data-ask-id="{{ listing.booklistingid }}">&#129083;</span>
+                                        <div class="flex justify-between w-full p-2">
+                                            <a href="{% url 'user_buy_listings' listing.user.id %}">{{ listing.user.username }}</a>
+                                            <p>{{ listing.price|floatformat:0 }} Kč</p>
+                                        </div>
+                                    </div>
+
+                                    <div id="ask-details-{{ listing.booklistingid }}" class="collapse flex-wrap p-2">
+                                        <div class="flex w-full sm:flex-wrap items-start">
+                                            <div class="flex flex-wrap w-full">
+                                                {% if listing.location %}
+                                                <p class="flex justify-between w-full">
+                                                    <strong>Lokalita: </strong>
+                                                    <span>{{ listing.location }}</span>
+                                                </p>
+                                                {% endif %}
+
+                                                <p class="flex justify-between w-full">
+                                                    <strong>Nabízená cena: </strong>
+                                                    <span>{{ listing.price|floatformat:0 }} Kč</span>
+                                                </p>
+
+                                                {% if listing.description %}
+                                                <p class="w-full mt-2">{{ listing.description }}</p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="w-full flex justify-end mr-10">
+                                            <div class="relative flex">
+                                                <a href="{% url 'listing_detail' book.url listing.booklistingid %}" 
+                                                class="more">Detail poptávky</a>
+                                                <span class="more-arrow first">
+                                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                                        <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
+                                                    </svg>
+                                                </span>
+                                                <span class="more-arrow second">
+                                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                                        <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
+                                                    </svg>
+                                                </span>
+                                                <span class="more-arrow third">
+                                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                                        <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if not sell_listings and not buy_listings %}
+                        <p class="text-center text-gray-600 py-4">Pro tuto knihu zatím nejsou žádné nabídky ani poptávky.</p>
+                        {% endif %}
                     </div>
+
                 </div>
             </div>
 
         </div>
-       
     </div>
 
     <!-- Pravá strana -->
@@ -468,16 +763,31 @@
             </div>
         </div>
 
+
+        <!-- Série -->
+        {% if series %}
+        <div class="card box-shadow mb-4">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title font-bold after-h3">
+                    Série:  <a href="/svet/{{ series.universumurl }}">{{ series.universumnamecz }}</a>
+                </h3>
+                <div class="flex flex-wrap">
+                    {% for book in series_books %}
+                        <a href="/kniha/{{ book.url }}" class="w-full">{{ book.titlecz|default:book.title }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="card-title font-bold after-h3">Další díla</h3>
                 <div class="flex flex-wrap">
-                    <a href="" class="w-full">kniha 1</a> 
-                    <a href="" class="w-full">kniha 2</a> 
-                    <a href="" class="w-full">kniha 3</a> 
+                    Ke knize neevidujeme pokračování
                 </div>
             </div>
         </div>
+        {% endif %}
 
         {% if request.user.is_superuser %}
         <div class="card box-shadow mb-3">
@@ -586,6 +896,31 @@
         });
     });
 
+</script>
+
+<script>
+    /* sroluje nebo rozroluje radek s nabidkou a souvisejici ikonku */
+    $(document).ready(function() {
+        // Přidáme událost kliknutí na šipku
+        $('span.arrow').click(function() {
+            var askId = $(this).data('ask-id');  // Získáme data-ask-id z kliknuté šipky
+            var el = $('#ask-details-' + askId);  // Najdeme odpovídající obsah pro toto ID
+            var icon = $(this);  // Odkazujeme na šipku
+
+            // Ovládání pro rozbalení/skládání obsahu
+            if (el.hasClass('open')) {
+                el.removeClass('open').css('max-height', '0');  // Skryjeme obsah
+                icon.removeClass('arrow-up');  // Změníme šipku zpět na dolů
+            } else {
+                // Zkontrolujeme, jestli není už jiný obsah otevřený a skryjeme ho
+                $('.collapse.open').removeClass('open').css('max-height', '0');
+                $('.arrow-up').removeClass('arrow-up');
+                
+                el.addClass('open').css('max-height', '500px');  // Rozbalíme obsah
+                icon.addClass('arrow-up');  // Otočíme šipku nahoru
+            }
+        });
+    });
 </script>
 
 {% endblock %}

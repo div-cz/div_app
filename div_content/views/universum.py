@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404
 from div_content.models import Book, Metauniversum, Movie 
 
 def universum_list(request):
-    universa = Metauniversum.objects.all()[:30]
+    universa = Metauniversum.objects.all().order_by('-divrating')[:30]
     return render(request, 'universum/universum_list.html', {'universa': universa})
 
 def universum_detail(request, universum_url):
