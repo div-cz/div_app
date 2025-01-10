@@ -18,10 +18,10 @@ from django.views.decorators.http import require_POST
 
 from dotenv import load_dotenv
 
-from div_content.forms.books import BookAddForm, BookDivRatingForm, BookCharacterForm, Bookquoteform, CommentFormBook, SearchFormBooks
+from div_content.forms.books import BookAddForm, BookDivRatingForm, BookCharacterForm, BookListingForm, Bookquoteform, CommentFormBook, SearchFormBooks
 from div_content.models import (
-    Book, Bookauthor, Bookcharacter, Bookcomments, Bookcover, Bookgenre, Bookisbn, 
-    Bookpublisher, Bookquotes, Bookrating, Bookwriters, Charactermeta, Metagenre, Metaindex, Metastats,
+    Book, Bookauthor, Bookcharacter, Bookcomments, Bookcover, Bookgenre, Bookisbn, Booklisting, 
+    Bookpublisher, Bookquotes, Bookrating, Bookwriters, Charactermeta, Metagenre, Metaindex, Metastats, Metauniversum, 
     Userlist, Userlistbook, Userlisttype, FavoriteSum, Userbookgoal, Userlistitem
 )
 #from div_content.utils.books import fetch_book_from_google_by_id, fetch_books_from_google
@@ -35,6 +35,11 @@ from django.db.models import Avg, Count
 import math
 from django.contrib import messages
 from datetime import datetime
+
+
+import qrcode
+import base64
+from io import BytesIO
 
 
 # Konstanty
@@ -60,7 +65,8 @@ def get_reading_goal(request):
             user=request.user,
             goalyear=current_year,
             goal=0,
-            booksread=0
+            booksread=0,
+            lastupdated=timezone.now()
         )
     
     # Spočítáme skutečný počet přečtených knih
@@ -107,6 +113,107 @@ def set_reading_goal(request):
         
     return redirect('books_index')  # Ujistěte se, že 'books' je správný name v urls.py
 
+
+def book_listings(request, book_url):
+    """Zobrazení všech nabídek pro konkrétní knihu."""
+    book = get_object_or_404(Book, url=book_url)
+    listings = Booklisting.objects.filter(book=book, active=True).order_by('-createdat')
+    
+    # Rozdělení na prodej a poptávku
+    sell_listings = listings.filter(listingtype__in=['SELL', 'GIVE'])
+    buy_listings = listings.filter(listingtype='BUY')
+    
+    return render(request, 'books/listings.html', {
+        'book': book,
+        'sell_listings': sell_listings,
+        'buy_listings': buy_listings
+    })
+
+
+def get_qr_code(amount, vs, message):
+    qr_string = f"SPD*1.0*ACC:CZ5620100000002602912559*AM:{amount}*CC:CZK*MSG:{message}*X-VS:{vs}"
+    img = qrcode.make(qr_string)
+    buffer = BytesIO()
+    img.save(buffer)
+    return base64.b64encode(buffer.getvalue()).decode()
+
+def listing_detail(request, book_url, listing_id):
+    """Detail konkrétní nabídky s možností rezervace a hodnocení."""
+    book = get_object_or_404(Book, url=book_url)
+    listing = get_object_or_404(Booklisting, booklistingid=listing_id, book=book)
+    
+    if request.method == 'POST' and request.user.is_authenticated:
+        # Rezervace nabídky
+        if 'reserve_listing' in request.POST and request.user != listing.user:
+            if listing.status != 'ACTIVE':
+                messages.error(request, 'Nabídka již není aktivní.')
+            else:
+                listing.status = 'RESERVED'
+                listing.buyer = request.user
+                listing.save()
+                messages.success(request, 'Nabídka byla rezervována.')
+            
+        # Dokončení transakce
+        elif 'complete_listing' in request.POST and request.user == listing.user:
+            if listing.status != 'RESERVED':
+                messages.error(request, 'Nabídka není ve stavu pro dokončení.')
+            else:
+                listing.status = 'COMPLETED'
+                listing.completed_at = timezone.now()
+                listing.save()
+                messages.success(request, 'Transakce byla dokončena.')
+            
+        # Přidání hodnocení prodejcem
+        elif 'seller_rating' in request.POST and request.user == listing.user:
+            if listing.buyer_rating:
+                messages.error(request, 'Hodnocení již bylo přidáno.')
+            else:
+                listing.buyer_rating = request.POST.get('rating')
+                listing.buyer_comment = request.POST.get('comment')
+                listing.save()
+                messages.success(request, 'Hodnocení kupujícího bylo přidáno.')
+            
+        # Přidání hodnocení kupujícím
+        elif 'buyer_rating' in request.POST and request.user == listing.buyer:
+            if listing.seller_rating:
+                messages.error(request, 'Hodnocení již bylo přidáno.')
+            else:
+                listing.seller_rating = request.POST.get('rating')
+                listing.seller_comment = request.POST.get('comment')
+                listing.save()
+                messages.success(request, 'Hodnocení prodejce bylo přidáno.')
+
+
+    # QR kód a platební údaje
+    payment_info = None
+    if listing.status == 'RESERVED' and listing.buyer == request.user:
+        total_amount = float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0)
+        qr_message = f"{book.title}|{listing.user.username}"
+        payment_info = {
+            'total': total_amount,
+            'qr_code': get_qr_code(total_amount, book.bookid, qr_message),
+            'variable_symbol': book.bookid,
+            'note': qr_message
+        }
+
+
+    # Zjištění, zda může uživatel přidat hodnocení
+    can_rate_seller = (listing.status == 'COMPLETED' and 
+                      request.user == listing.buyer and 
+                      not listing.seller_rating)
+    can_rate_buyer = (listing.status == 'COMPLETED' and 
+                     request.user == listing.user and 
+                     not listing.buyer_rating)
+    
+    return render(request, 'books/listing_detail.html', {
+        'book': book,
+        'listing': listing,
+        'payment_info': payment_info,
+        'can_rate_seller': can_rate_seller,
+        'can_rate_buyer': can_rate_buyer
+    })
+
+
 def books(request):
     #api_key = os.getenv('GOOGLE_API_KEY')
     #api_test_message = "API klíč není nastaven" if not api_key else "API klíč je nastaven"
@@ -126,7 +233,9 @@ def books(request):
         #all_books = []
         #api_test_message += " | Chyba při získávání dat z API: " + str(e)
     
-    book_list_15 = Book.objects.filter(year__gt=2022).order_by('-divrating')[20:35]
+    book_list_15 = Book.objects.all().order_by('-divrating')[:30]
+    #větší než 2022
+    #book_list_15 = Book.objects.filter(year__gt=2022).order_by('-divrating')[20:35]
 
     # Knihy podle popularity
     # book_list_15 = Metaindex.objects.filter(year__gt=2018).order_by("-popularity").values('title', 'url', 'img', 'description')[:15]
@@ -158,6 +267,8 @@ def book_detail(request, book_url):
     book = get_object_or_404(Book, url=book_url)
     user = request.user
     comment_form = None
+    series = None
+    series_books = []
 
     genres = book.bookgenre_set.all()[:3]
     
@@ -245,8 +356,6 @@ def book_detail(request, book_url):
 
     comments = Bookcomments.objects.filter(bookid=book).order_by('-commentid')
 
-
-
     # Fetch book ratings
     book_content_type = ContentType.objects.get_for_model(Book)
     ratings = UserRating.objects.filter(rating__content_type=book_content_type, rating__object_id=book.bookid)
@@ -277,8 +386,6 @@ def book_detail(request, book_url):
         else:
             book_div_rating_form = BookDivRatingForm(instance=book)
 
-
-
     # POSTAVA
     character_form = BookCharacterForm()
     characters = Bookcharacter.objects.filter(bookid=book).select_related('characterid')
@@ -302,6 +409,30 @@ def book_detail(request, book_url):
         return JsonResponse({'results': list(matching_characters)}, safe=False)
 
 
+    booklisting_form = None
+    if user.is_authenticated:
+        if request.method == 'POST' and request.POST.get('form_type') == 'booklisting':
+            booklisting_form = BookListingForm(request.POST)
+            if booklisting_form.is_valid():
+                listing = booklisting_form.save(commit=False)
+                listing.user = request.user
+                listing.book = book
+                listing.save()
+                messages.success(request, 'Nabídka byla úspěšně vytvořena.')
+                return redirect('book_detail', book_url=book_url)
+        else:
+            booklisting_form = BookListingForm()
+
+    # Načtení nabídek
+    listings = Booklisting.objects.filter(book_id=book.bookid, active=True).order_by('-createdat')
+    sell_listings = listings.filter(listingtype__in=['SELL', 'GIVE'])
+    buy_listings = listings.filter(listingtype='BUY')
+
+
+    if book.universumid:
+        series = book.universumid
+        series_books = Book.objects.filter(universumid=book.universumid).exclude(bookid=book.bookid)[:10]
+    
 
     return render(request, 'books/book_detail.html', {
         'book': book,
@@ -320,6 +451,12 @@ def book_detail(request, book_url):
         'average_rating': average_rating,
         'user_rating': user_rating,
         'book_div_rating_form': book_div_rating_form,
+        'booklisting_form': booklisting_form,
+        'sell_listings': sell_listings,
+        'buy_listings': buy_listings,
+        'series': series,
+        'series_books': series_books,
+        #'books_with_series': books_with_series,
         })
 #    top_20_books = Book.objects.order_by('-bookrating').all()[:20]  # Define top_20_books here
     #'top_20_books': top_20_books

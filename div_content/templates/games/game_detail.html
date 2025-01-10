@@ -5,6 +5,11 @@
 
 {% block title %}{{ game.title }} | DIV.cz{% endblock %}
 
+{% block meta %}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+
 {% block content %}
 
 <div class="row container my-5">
@@ -24,7 +29,7 @@
             {% if genres %}
             <span class="me-3">
                 {% for game_genre in genres %}
-                    <a href="/hry/zanry/{{ game_genre.genreid.url }}">{{ game_genre.genreid.genrenamecz }}</a>{% if not forloop.last %}, {% endif %}
+                    <a href="/hry/zanr/{{ game_genre.genreid.url }}">{{ game_genre.genreid.genrenamecz }}</a>{% if not forloop.last %}, {% endif %}
                 {% endfor %}
             </span>
             &nbsp;|&nbsp;
@@ -33,11 +38,26 @@
 
         <div class="d-flex mb-3 mt-4 wrap">
             <div class="me-3 mr-4 flex-shrink-0 sm-flex" style="width:40%; max-width:200px">
-                {% if game.img == "noimg.png" %}
+
+
+                {% if game.img %}
+                    {% if game.img == "rawg.io" %}
+                        <img src="https://rawg.io/ ... /img/{{ game.img }}" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
+                    {% else %}
+                        <img src="/static/hra{{ game.img }}" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
+                    {% endif %}
+                {% else %}
+                    <img src="/static/img/game/game.png" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
+                {% endif %}
+
+
+<!--                {% if game.img == "noimg.png" %}
                     <img src="{{ game.img }}" alt="Hra {{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
                     {% else %}
                     <img src="/static/img/game/game.png" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
-                {% endif %}
+                {% endif %}-->
+
+
                 <div class="d-lg-none mb-2 sm:ml-5">
                     <div class="rating-stars" style="white-space: nowrap;"><!--&nbsp;|&nbsp;-->
                         <div class="smaller-stars"><!--{ % <!-- ratings movie--> % }--></div>
@@ -164,8 +184,8 @@
             <ul class="tab-links">
                 <li class="karta"><a href="#tab1" class="active">Recenze</a></li>
                 <li class="karta"><a href="#tab2">Postavy</a></li>
-                <li class="karta"><a href="#tab3">Systémové požadavky</a></li>
-                <li class="karta"><a href="#tab4"></a></li>
+                <!--<li class="karta"><a href="#tab3">Systémové požadavky</a></li>-->
+                <!--<li class="karta"><a href="#tab4"></a></li>-->
             </ul>
 
             <!-- RECENZE -->
@@ -198,7 +218,7 @@
                     </ul>
 
                     {% else %}
-                    <p>Zatím nejsou žádné komentáře k této knize.</p>
+                    <p>Zatím nejsou žádné recenze k této hře.</p>
                     {% endif %}
                 </div>
             </div>
@@ -212,10 +232,11 @@
 
 
             <!-- SYSTÉMOVÉ POŽADAVKY -->
+            <!--
             <div id="tab2" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F] ">
                 <h3 class="after-h3">Systémové požadavky</h3>
 
-            </div>
+            </div>-->
 
 
         </div>
@@ -321,5 +342,19 @@
 
     </div>
 </div>
-
+<script>
+    $(document).ready(function(){
+        $('.tab-links a').click(function(e){
+            e.preventDefault();
+            
+            // Odstraní active class ze všech tabů
+            $('.tab-links a').removeClass('active');
+            $('.tab-content').removeClass('active');
+            
+            // Přidá active class na aktuální tab
+            $(this).addClass('active');
+            $($(this).attr('href')).addClass('active');
+        });
+    });
+</script>
 {% endblock %}

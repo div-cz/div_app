@@ -23,7 +23,8 @@ from div_content.views.blog import blog_add_post, blog_detail, blog_index, blog_
 from div_content.views.books import (
     book_add, book_detail, books, books_search, add_to_favourite_books, add_to_readlist, add_to_read_books, 
     add_to_book_library, rate_book, ratequote, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, 
-    remove_from_book_library, character_list_ajax, set_reading_goal, books_alphabetical
+    remove_from_book_library, character_list_ajax, set_reading_goal, books_alphabetical, 
+    book_listings, listing_detail
     )
 from div_content.views.creators import (
     creator_detail, creators_list, toggle_favorite, add_creator_to_favourites, remove_creator_from_favourites
@@ -38,7 +39,7 @@ from div_content.views.games import (
     remove_from_favourite_games, 
     add_to_playlist_games, remove_from_playlist_games, add_to_played, remove_from_played,
     add_to_game_library, remove_from_game_library, 
-    publishers_list, games_by_developer, games_by_publisher, games_by_genre, games_by_year, games_alphabetical
+    publishers_list, games_by_developer, games_by_publisher, games_by_genre, games_by_year, games_alphabetical, games_genres
     )
 from div_content.views.characters import (
     add_character_to_favorites, character_list, character_detail, remove_character_from_favorites
@@ -57,7 +58,8 @@ from div_content.views.users import (
     watched_profile, favorite_movies, rated_media, rated_movies, rated_books, rated_games, favorite_media, 
     favorite_actors, favorite_books, favorite_drinks, favorite_foods, favorite_games, favorite_items, favorite_locations, 
     profile_books_section, profile_games_section, profile_movies_section, profile_series_section, profile_stats_section, profile_show_case, user_lists, 
-    update_profile, review_profile, chat, add_to_favorite_users, remove_from_favorite_users, chat_message, load_older_messages
+    update_profile, review_profile, chat, add_to_favorite_users, remove_from_favorite_users, chat_message, load_older_messages, 
+    user_book_listings, user_sell_listings, user_buy_listings
     )
 from div_content.views.charts import (
     award_detail, charts_index, charts_books, charts_games, charts_movies, charts_users, awards_index, awards_movies, 
@@ -196,7 +198,8 @@ urlpatterns = [
     path('hry/vydavatele/', publishers_list, name='publishers_list'),
     path('hry/vydavatel/<str:publisher_url>', games_by_publisher, name='games_by_publisher'),
     path('hry/vyvojar/<str:developer_url>', games_by_developer, name='games_by_developer'),
-    path('hry/zanry/<str:genre_url>', games_by_genre, name='games_by_genre'),
+    path('hry/zanry/', games_genres, name='games_genres'),
+    path('hry/zanr/<str:genre_url>', games_by_genre, name='games_by_genre'),
     path('hry/rok/<int:year>', games_by_year, name='games_by_year'),
 
 
@@ -250,6 +253,13 @@ urlpatterns = [
     path('kniha/ajax/postava/', character_list_ajax, name='ajax_character_list'),
     path('set-reading-goal/', set_reading_goal, name='set_reading_goal'),
 
+    # ANTIKVARIÁT
+    path('kniha/<str:book_url>/nabidky/', book_listings, name='book_listings'),
+    path('kniha/<str:book_url>/prodej/<int:listing_id>/', listing_detail, name='listing_detail'),
+    path('kniha/<str:book_url>/poptavka/<int:listing_id>/', listing_detail, name='listing_detail'),
+    path('uzivatel/<int:user_id>/prodej-knihy/', user_sell_listings, name='user_sell_listings'),
+    path('uzivatel/<int:user_id>/koupim-knihy/', user_buy_listings, name='user_buy_listings'),
+    path('uzivatel/<int:user_id>/nabidky/', user_book_listings, name='user_book_listings'),  # Přidáno
 
     # path('spisovatele/', authors_list, name='authors_list'),
     # path('spisovatel/<str:author_url>', author_detail, name='author_detail'), 

@@ -6,12 +6,19 @@
 
 {% block title %}Knihy | DIV.cz{% endblock %}
 
-{% block content %}
 
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css"/>
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"/>
-
-<script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
+{% block meta %}
+<meta name="description" content="Databáze knih na DIV.cz. Objevte novinky, recenze, žebříčky, autory a další informace o vašich oblíbených knihách.">
+<meta name="keywords" content="knihy, literatura, databáze knih, recenze, novinky, žebříčky, autoři, knižní novinky">
+<meta name="author" content="DIV.cz">
+<meta property="og:title" content="Knihy | Databáze DIV.cz">
+<meta property="og:description" content="Prozkoumejte nejnovější knihy na DIV.cz. Aktuální recenze, novinky a žebříčky.">
+<meta property="og:image" content="https://div.cz/img/book/knizni-div.webp">
+<meta property="og:url" content="https://div.cz/knihy/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Knihy | Databáze DIV.cz">
+<meta name="twitter:description" content="Aktuální databáze knih na DIV.cz. Recenze, novinky, a více.">
+<meta name="twitter:image" content="https://div.cz/img/book/knizni-div.webp">
 
 <style>
 
@@ -30,6 +37,17 @@
         border-radius: 5px;
     }
 </style>
+{% endblock %}
+
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"/>
+
+<script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
+
+
 
 <div class="row container my-4">
     <!-- Hlavní obsah (Levý sloupec) -->
@@ -90,7 +108,7 @@
                             {{ book.author }}
                         {% endif %}
                     </h5>
-                    <p class="card-text">{{ book.description|safe|truncatewords:40 }}</p>
+                    <p class="card-text">{{ book.description|default_if_none:""|safe|truncatewords:40 }}</p>
                     <!--<a href="/film/{{ movie.url }}" class="btn btn-primary">{{ movie.titlecz }}</a>-->
                 </div>
             </div>
@@ -237,36 +255,36 @@
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="card-title font-bold after-h3">Žánry</h3>
                 <div>
-                    <a href="/knihy/biografie">Biografie</a> |
-                    <a href="/knihy/cestovni">Cestovní</a> |
-                    <a href="/knihy/detektivni">Detektivní</a> |
+                    <a href="/knihy/biografie-a-autobiografie">Biografie a autobiografie</a> |
+                    <a href="/knihy/cestopisy">Cestopisy</a> |
+                    <a href="/knihy/krimi">Detektivní</a> |
                     <a href="/knihy/dobrodruzne">Dobrodružné</a> |
-                    <a href="/knihy/duchovni literatura">Duchovní literatura</a> |
+
                     <a href="/knihy/detske">Dětské</a> |
                     <a href="/knihy/eroticke">Erotické</a> |
                     <a href="/knihy/fantasy">Fantasy</a> | 
-                    <a href="/knihy/historie">Historie</a> | 
+                    <a href="/knihy/historicky">Historie</a> | 
                     <a href="/knihy/horor">Horor</a> |
-                    <a href="/knihy/humorne">Humorné</a> |
-                    <a href="/knihy/komiks">Komiks</a> |
-                    <a href="/knihy/literatura faktu">Literatura faktu</a> |
-                    <a href="/knihy/naucna">Naučná</a> |
+                    <a href="/knihy/humor-a-zabava">Humorné</a> |
+                    <a href="/knihy/komiksy-a-graficke-romany">Komiks</a> |
+                    <a href="/knihy/literatura-faktu">Literatura faktu</a> |
+
                     <a href="/knihy/odborna">Odborná</a> |
                     <a href="/knihy/poezie">Poezie</a> |
                     <a href="/knihy/pohadky">Pohádky</a> |
-                    <a href="/knihy/popularne naucne">Populárně-naučné</a> |
+                    <a href="/knihy/popularne-naucne">Populárně-naučné</a> |
                     <a href="/knihy/povidky">Povídky</a> |
-                    <a href="/knihy/pro mladez">Pro mládež</a> |
-                    <a href="/knihy/psychologicky">Psychologický</a> |
-                    <a href="/knihy/romanticke">Romantické</a> |
-                    <a href="/knihy/roman">Román</a> |
+                    <a href="/knihy/pro-mladez">Pro mládež</a> |
+
+                    <a href="/knihy/romanticky">Romantický</a> |
+
                     <a href="/knihy/sci-fi">Sci-fi</a> |
                     <a href="/knihy/sportovni">Sportovní</a> |
                     <a href="/knihy/thriller">Thriller</a> |
-                    <a href="/knihy/umeni">Umění</a> |
+                    <a href="/knihy/umeni-a-fotografie">Umění</a> |
                     <a href="/knihy/valecne">Válečné</a> |
                     <a href="/knihy/western">Western</a> |
-                    <a href="/knihy/young adult">Young adult</a>
+                    <a href="/knihy/young-adult">Young adult</a>
                 </div>
             </div>
         </div>

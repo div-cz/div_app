@@ -217,8 +217,8 @@
             <ul class="tab-links">
                 <li class="karta"><a href="#tab1" class="active">Recenze</a></li>
                 <li class="karta"><a href="#tab2">Hrají</a></li>
-                <li class="karta"><a href="#tab3">Zajímavosti</a></li>
-                <li class="karta"><a href="#tab4">Trailer</a></li>
+                <!--<li class="karta"><a href="#tab3">Zajímavosti</a></li>-->
+                <!--<li class="karta"><a href="#tab4">Trailer</a></li>-->
                 <li class="karta"><a href="#tab5">Hlášky</a></li>
                 <!--<li class="karta"><a href="#tab6">Diskuze</a></li>-->
                 <!--<li class="karta"><a href="#tab7">Lokality</a></li>-->
@@ -333,19 +333,41 @@
             </div>
 
             <!-- HLÁŠKY -->
-            <div id="tab5" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
-                <h3 class="after-h3">Hlášky</h3>
-                <p>Známé hlášky ze seriálu.</p>
-                <h3>Přidat novou hlášku</h3>
-                <form method="post" class="after" action="">
-                    <textarea>
+<div id="tab5" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
+    <h3 class="after-h3">Hlášky</h3>
+    <p>Známé hlášky ze seriálu.</p>
 
-                    </textarea>
-                    <button type="submit" class="add">Vložit hlášku</button>
-                </form>               
-
-                <p>Zatím nejsou žádné hlášky k tomuto sediálu.</p>
+    {% if quotes %}
+        <div class="mt-4">
+            {% for quote in quotes %}
+            <div class="quote-block p-3 mb-3 border rounded">
+                <p class="quote-text">{{ quote.quote }}</p>
+                <div class="quote-meta text-sm mt-2">
+                    <span>Přidal: {{ quote.user.username|default:"Anonym" }}</span>
+                    {% if quote.actor %}
+                        <span>Herec: {{ quote.actor.firstname }} {{ quote.actor.lastname }}</span>
+                    {% endif %}
+                    {% if quote.character %}
+                        <span>Postava: {{ quote.character.characternamecz }}</span>
+                    {% endif %}
+                </div>
             </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Zatím nejsou žádné hlášky k tomuto seriálu.</p>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+    <h3>Přidat novou hlášku</h3>
+    <form method="post" class="after" action="">
+        {% csrf_token %}
+        <textarea name="quote_text" class="w-full p-2 mb-2" rows="3" required></textarea>
+        <button type="submit" class="add">Vložit hlášku</button>
+    </form>
+    {% endif %}
+</div>
+
 
             <!--<div id="tab6" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
                 <h3>Diskuze</h3>

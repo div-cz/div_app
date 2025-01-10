@@ -3,16 +3,19 @@
 from datetime import date
 
 from div_content.forms.users import ContactForm, UserProfileForm, UserMessageForm
+
 from div_content.models import (
-    Avatar, Book, Bookauthor, Bookcomments, Bookgenre, Creator, Favorite, Charactermeta, Game, Gamecomments, Metacountry, Metagenre, Movie, Moviecomments, Moviecountries, 
+    Avatar, Book, Bookauthor, Bookcomments, Bookgenre, Booklisting, Creator, Favorite, Charactermeta, Game, Gamecomments, Metacountry, Metagenre, Movie, Moviecomments, Moviecountries, 
     Moviegenre, Movierating, Userdivcoins, Userlist, Userlistbook, Userlistgame, Userlistmovie, Userlisttype, Userprofile,
     Usermessage, Userchatsession, Userlisttvshow
     
     )
 from div_content.views.login import custom_login_view
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+
 from django.core.paginator import Paginator
 from django.db.models import Avg, Count, F, Q, Max, Prefetch
 from django.http import JsonResponse
@@ -24,6 +27,101 @@ import json
 from django.utils.formats import date_format
 from django.utils.timezone import localtime
 
+
+
+
+# A N T I K V A R I Á T
+def user_book_listings(request, user_id):
+    """Přehledová stránka všech nabídek uživatele."""
+    user = get_object_or_404(User, id=user_id)
+    
+    # Získání prodejních nabídek
+    sell_listings = Booklisting.objects.filter(
+        user=user,
+        listingtype__in=['SELL', 'GIVE'],
+        active=True
+    ).order_by('-createdat')[:5]
+    
+    # Získání poptávek
+    buy_listings = Booklisting.objects.filter(
+        user=user,
+        listingtype='BUY',
+        active=True
+    ).order_by('-createdat')[:5]
+    
+    # Získání hodnocení jako prodejce
+    seller_ratings = Booklisting.objects.filter(
+        user=user,
+        status='COMPLETED',
+        sellerrating__isnull=False
+    )
+    avg_seller_rating = seller_ratings.aggregate(Avg('sellerrating'))['sellerrating__avg']
+    seller_ratings_count = seller_ratings.count()
+    
+    # Získání hodnocení jako kupující
+    buyer_ratings = Booklisting.objects.filter(
+        buyer=user,
+        status='COMPLETED',
+        buyerrating__isnull=False
+    )
+    avg_buyer_rating = buyer_ratings.aggregate(Avg('buyerrating'))['buyerrating__avg']
+    buyer_ratings_count = buyer_ratings.count()
+    
+    return render(request, 'user/user_book_listings.html', {  # změněna cesta k šabloně
+        'profile_user': user,
+        'sell_listings': sell_listings,
+        'buy_listings': buy_listings,
+        'seller_rating': avg_seller_rating,
+        'seller_ratings_count': seller_ratings_count,
+        'buyer_rating': avg_buyer_rating,
+        'buyer_ratings_count': buyer_ratings_count
+    })
+
+
+def user_sell_listings(request, user_id):
+    """Seznam všech prodejních nabídek uživatele."""
+    user = get_object_or_404(User, id=user_id)
+    listings = Booklisting.objects.filter(
+        user=user,
+        listingtype__in=['SELL', 'GIVE']
+    ).order_by('-createdat')
+    
+    # Získání průměrného hodnocení jako prodejce
+    sellerratings = Booklisting.objects.filter(
+        user=user,
+        status='COMPLETED',
+        sellerrating__isnull=False
+    )
+    avg_rating = sellerratings.aggregate(Avg('sellerrating'))['sellerrating__avg']
+    
+    return render(request, 'user/user_book_sell.html', {
+        'profile_user': user,
+        'listings': listings,
+        'avg_rating': avg_rating,
+        'total_ratings': sellerratings.count()
+    })
+
+
+def user_buy_listings(request, user_id):
+   profile_user = get_object_or_404(User, id=user_id)
+   listings = Booklisting.objects.filter(
+       user=profile_user,
+       listingtype='BUY'
+   ).order_by('-createdat')
+   
+   buyer_ratings = Booklisting.objects.filter(
+       buyer=profile_user,
+       status='COMPLETED',
+       buyerrating__isnull=False
+   )
+   avg_rating = buyer_ratings.aggregate(Avg('buyerrating'))['buyerrating__avg']
+   
+   return render(request, 'user/user_book_buy.html', {
+       'profile_user': profile_user,
+       'listings': listings,
+       'avg_rating': avg_rating, 
+       'total_ratings': buyer_ratings.count()
+   })
 
 
 def profile_show_case(request, user_id):
@@ -63,32 +161,35 @@ def profile_show_case(request, user_id):
 
 
 
-
-
 @login_required
 def add_to_favorite_users(request, userprofile_id):
     userprofile = get_object_or_404(Userprofile, userprofileid=userprofile_id)
+    userprofile_content_type_id = ContentType.objects.get_for_model(Userprofile).id
+    
     if Favorite.objects.filter(
             user=request.user,
-            content_type_id=37,  # ContentType ID pro Userprofile
+            content_type_id=userprofile_content_type_id,  # ContentType ID pro Userprofile
             object_id=userprofile.userprofileid
         ).exists():
         pass
     else:
         Favorite.objects.create(
             user=request.user,
-            content_type_id=37,  # ContentType ID pro Userprofile
+            content_type_id=userprofile_content_type_id,  # ContentType ID pro Userprofile
             object_id=userprofile.userprofileid
         )
     return redirect("myuser_detail", user_id=userprofile.user.id)
 
-
 @login_required
 def remove_from_favorite_users(request, userprofile_id):
     userprofile = get_object_or_404(Userprofile, userprofileid=userprofile_id)
-    Favorite.objects.filter(user=request.user, content_type_id=37, object_id=userprofile.userprofileid).delete()
+    userprofile_content_type_id = ContentType.objects.get_for_model(Userprofile).id
+    Favorite.objects.filter(
+        user=request.user, 
+        content_type_id=userprofile_content_type_id, 
+        object_id=userprofile.userprofileid
+    ).delete()
     return redirect("myuser_detail", user_id=userprofile.user.id)
-
 
 def contact_form(request):
     message_sent = False
@@ -159,9 +260,18 @@ def myuser_detail(request, user_id=None):
     user_div_coins = get_object_or_404(Userdivcoins, user_id=profile_user.id)
 
     # Assuming content_type_id for movies is defined
-    movie_content_type_id = 33
-    book_content_type_id = 9
-    userprofile_content_type_id = 37
+    #movie_content_type_id = 33
+    movie_content_type = ContentType.objects.get_for_model(Movie)
+    movie_content_type_id = movie_content_type.id
+
+    #book_content_type_id = 9
+    book_content_type = ContentType.objects.get_for_model(Book)
+    book_content_type_id = book_content_type.id
+
+    #userprofile_content_type_id = 37
+    userprofile_content_type = ContentType.objects.get_for_model(Userprofile)
+    userprofile_content_type_id = userprofile_content_type.id
+
     # 7 = article, --- může být jiné při změně tabulek a nové migrai!!!!
 
     movie_ratings = UserRating.objects.filter(user_id=user_id, rating__content_type_id=movie_content_type_id).order_by('-modified')[:5]
@@ -216,7 +326,10 @@ def profile_movies_section(request, user_id):
     items_per_page = 20
 
     # Získání hodnocených filmů
-    movie_content_type_id = 33  # Na základě obsahu
+    #movie_content_type_id = 33  # Na základě obsahu
+    movie_content_type = ContentType.objects.get_for_model(Movie)
+    movie_content_type_id = movie_content_type.id
+
     movie_ratings = UserRating.objects.filter(user_id=user_id, rating__content_type_id=movie_content_type_id).order_by('-modified')
     movie_paginator = Paginator(movie_ratings, items_per_page)
     movie_page_number = request.GET.get('page', 1)
@@ -291,7 +404,10 @@ def profile_movies_section(request, user_id):
         filmoteka_page_obj = None
 
     # Zjistí jestli je uživatel můj oblíbený (pro tlačítko "Oblíbený")
-    userprofile_content_type_id = 37
+    #userprofile_content_type_id = 37
+    userprofile_content_type = ContentType.objects.get_for_model(Userprofile)
+    userprofile_content_type_id = userprofile_content_type.id
+
     is_favorite = False
     if Favorite.objects.filter(user=request.user.id, content_type_id=userprofile_content_type_id, object_id=user_profile.userprofileid).exists():
         is_favorite = True
@@ -321,7 +437,10 @@ def profile_series_section(request, user_id):
     items_per_page = 20
 
     # Získání hodnocených seriálů
-    series_content_type_id = 40  # Na základě obsahu
+    #series_content_type_id = 40
+    series_content_type = ContentType.objects.get_for_model(Tvshow)
+    series_content_type_id = series_content_type.id
+
     series_ratings = UserRating.objects.filter(user_id=user_id, rating__content_type_id=series_content_type_id).order_by('-modified')
     series_paginator = Paginator(series_ratings, items_per_page)
     series_page_number = request.GET.get('page', 1)
@@ -396,7 +515,10 @@ def profile_series_section(request, user_id):
         serialoteka_page_obj = None
 
     # Zjistí jestli je uživatel můj oblíbený (pro tlačítko "Oblíbený")
-    userprofile_content_type_id = 37
+    #userprofile_content_type_id = 37
+    userprofile_content_type = ContentType.objects.get_for_model(Userprofile)
+    userprofile_content_type_id = userprofile_content_type.id
+
     is_favorite = False
     if Favorite.objects.filter(user=request.user.id, content_type_id=userprofile_content_type_id, object_id=user_profile.userprofileid).exists():
         is_favorite = True
@@ -424,8 +546,11 @@ def profile_books_section(request, user_id):
     
     items_per_page = 20
 
-    # na produkci je to jinak! Tabulka django_content_type
-    book_content_type_id = 9
+    # Pro knihy
+    #book_content_type_id = 9
+    book_content_type = ContentType.objects.get_for_model(Book)
+    book_content_type_id = book_content_type.id
+
     
     # Získání hodnocení knih
     book_ratings = UserRating.objects.filter(user_id=user_id, rating__content_type_id=book_content_type_id).order_by('-modified')[:30]
@@ -507,7 +632,10 @@ def profile_books_section(request, user_id):
     # page_obj = paginator.get_page(page_number)
 
     # Zjistí jestli je uživatel můj oblíbený (pro tlačítko "Oblíbený")
-    userprofile_content_type_id = 37
+    #userprofile_content_type_id = 37
+    userprofile_content_type = ContentType.objects.get_for_model(Userprofile)
+    userprofile_content_type_id = userprofile_content_type.id
+
     is_favorite = False
     if Favorite.objects.filter(user=request.user.id, content_type_id=userprofile_content_type_id, object_id=user_profile.userprofileid).exists():
         is_favorite = True
@@ -542,7 +670,9 @@ def profile_games_section(request, user_id):
     items_per_page = 20
 
     # na produkci je to jinak! Tabulka django_content_type
-    game_content_type_id = 19
+    #game_content_type_id = 19
+    game_content_type = ContentType.objects.get_for_model(Game)
+    game_content_type_id = game_content_type.id
     
     # Získání hodnocení her
     game_ratings = UserRating.objects.filter(user_id=user_id, rating__content_type_id=game_content_type_id).order_by('-modified')[:30]
@@ -613,7 +743,10 @@ def profile_games_section(request, user_id):
         gamoteka_page_obj = None
 
     # Zjistí jestli je uživatel můj oblíbený (pro tlačítko "Oblíbený")
-    userprofile_content_type_id = 37
+    #userprofile_content_type_id = 37
+    userprofile_content_type = ContentType.objects.get_for_model(Userprofile)
+    userprofile_content_type_id = userprofile_content_type.id
+
     is_favorite = False
     if Favorite.objects.filter(user=request.user.id, content_type_id=userprofile_content_type_id, object_id=user_profile.userprofileid).exists():
         is_favorite = True
@@ -759,7 +892,10 @@ def profile_stats_section(request, user_id):
 
 
     # Zjistí jestli je uživatel můj oblíbený (pro tlačítko "Oblíbený")
-    userprofile_content_type_id = 37
+    #userprofile_content_type_id = 37
+    userprofile_content_type = ContentType.objects.get_for_model(Userprofile)
+    userprofile_content_type_id = userprofile_content_type.id
+
     is_favorite = False
     if Favorite.objects.filter(user=request.user.id, content_type_id=userprofile_content_type_id, object_id=user_profile.userprofileid).exists():
         is_favorite = True
@@ -944,8 +1080,13 @@ def rated_media(request, user_id=None):
     profile_user = get_object_or_404(User, id=user_id)
 
     # Assuming content_type_id for movies is defined
-    movie_content_type_id = 33
-    book_content_type_id = 9
+    #movie_content_type_id = 33
+    movie_content_type = ContentType.objects.get_for_model(Movie)
+    movie_content_type_id = movie_content_type.id
+
+    #book_content_type_id = 9
+    book_content_type = ContentType.objects.get_for_model(Book)
+    book_content_type_id = book_content_type.id
 
     movie_ratings = UserRating.objects.filter(user_id=user_id, rating__content_type_id=movie_content_type_id).order_by('-modified')
     book_ratings = UserRating.objects.filter(user_id=user_id, rating__content_type_id=book_content_type_id).order_by('-modified')

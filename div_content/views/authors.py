@@ -42,9 +42,30 @@ def author_detail(request, author_url):
     books = Book.objects.filter(authorid=author.authorid).order_by("-year").annotate(
         is_read=Exists(read_list_items)
     )
+
+
+    #Výpis knih podle sérií
+    series_books = {}
+    non_series_books = []
+    
+    for book in books:
+        if book.universumid:
+            universum_id = book.universumid.universumid
+            if universum_id not in series_books:
+                series_books[universum_id] = {
+                    'series': book.universumid,
+                    'name': book.universumid.universumnamecz or book.universumid.universumname,
+                    'books': []
+                }
+            series_books[universum_id]['books'].append(book)
+        else:
+            non_series_books.append(book)
+
+
         
     author_list_10 = Bookauthor.objects.values('firstname', 'lastname', 'url', 'birthyear')[:10]
     author_list_10_minus = Bookauthor.objects.values('firstname', 'lastname', 'url', 'birthyear')[:10]
+
 
     # Zjistí zda je autor v seznamu oblíbených u přihlášeného uživatele   
     if user.is_authenticated:
@@ -64,9 +85,15 @@ def author_detail(request, author_url):
         content_type=content_type
     ).select_related("userlist")
 
+
+    #TEST Martin
+    #'author_list_10': Bookauthor.objects.values('firstname', 'lastname', 'url', 'birthyear')[:10],
     return render(request, 'creators/author_detail.html', {
         'author': author, 
         'books': books, 
+        'series_books': series_books,
+        'non_series_books': non_series_books,
+        'has_series': bool(series_books),
         'author_list_10': author_list_10, 
         'author_list_10_minus': author_list_10_minus,
         'is_favorite': is_favorite,

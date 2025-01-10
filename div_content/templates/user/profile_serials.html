@@ -9,67 +9,80 @@
 
 {% block content %}
 
-<style>
-    .nav-tabs .nav-tabs-link.active {
-        background-color: #A52B21;
-        color: #ffffff;
-    }
-</style>
-
 <div class="mt-5">
     <!-- Sekce záložek pro filmy, seriály, knihy, hry, statistiky -->
-    <div class="flex overflow-scroll">
-        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
-            <i class="fa-solid fa-film mr-2"></i>
-            <a class="movies" href="{% url 'profile_movies_section' profile_user.id %}">Filmy</a>
+    <div class="tab-container flex overflow-scroll lg:fit-content rounded-1xl">
+        <div class="tab" onclick="updateGroupSelector(this)">
+            <h3>
+                <i class="fa-solid fa-film mr-2"></i>
+                <a class="movies" href="{% url 'profile_movies_section' profile_user.id %}">Filmy</a>
+            </h3>
         </div>
-        <div class="border rounded-1xl mr-2 flex items-center bg-[#f0f0f0]" style="padding: .5rem 1rem;" >
-            <i class="fa-solid fa-video mr-2"></i>
-            <a class="movies" href="{% url 'profile_series_section' profile_user.id %}">Seriály</a>
+        <div class="tab active" onclick="updateGroupSelector(this)" >
+            <h3>
+                <i class="fa-solid fa-video mr-2"></i>
+                <a class="movies" href="{% url 'profile_series_section' profile_user.id %}">Seriály</a>
+            </h3>
         </div>
-        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;">
-            <i class="fa-solid fa-book mr-2"></i>
-            <a class="books" href="{% url 'profile_books_section' profile_user.id %}">Knihy</a>
+        <div class="tab" onclick="updateGroupSelector(this)">
+            <h3>
+                <i class="fa-solid fa-book mr-2"></i>
+                <a class="books" href="{% url 'profile_books_section' profile_user.id %}">Knihy</a>
+            </h3>
         </div>
-        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
-            <i class="fa-solid fa-gamepad mr-2"></i>
-            <a class="games" href="{% url 'profile_games_section' profile_user.id %}">Hry</a>
+        <div class="tab" onclick="updateGroupSelector(this)" >
+            <h3>
+                <i class="fa-solid fa-gamepad mr-2"></i>
+                <a class="games" href="{% url 'profile_games_section' profile_user.id %}">Hry</a>
+            </h3>
         </div>
-        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
-            <i class="fas fa-star mr-2"></i>
-            <a class="stats" href="{% url 'profile_stats_section' profile_user.id %}">Statistiky</a>
+        <div class="tab" onclick="updateGroupSelector(this)" >
+            <h3>
+                <i class="fas fa-star mr-2"></i>
+                <a class="stats" href="{% url 'profile_stats_section' profile_user.id %}">Statistiky</a>
+            </h3>
         </div>
-        <div class="border rounded-1xl mr-2 flex items-center" style="padding: .5rem 1rem;" >
-            <i class="fa-solid fa-trophy mr-2"></i> 
-            <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
+        <div class="tab" onclick="updateGroupSelector(this)" >
+            <h3>
+                <i class="fa-solid fa-trophy mr-2"></i> 
+                <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
+            </h3>
         </div>
+        <!-- <div class="tab" onclick="updateGroupSelector(this)" >
+            <h3>
+                <i class="fas fa-user mr-2"></i>
+                <a class="badges" href="">Uživatelé</a>
+            </h3>
+        </div> -->
 
-        <!-- <a class="border rounded-1xl mr-2 users" 
-           style="padding: .5rem 1rem;" 
-           href="">Uživatelé</a> -->
+        <!-- Indikátor pozadí -->
+        <div class="background rounded-1xl"></div>
+
     </div>
     
     <!-- Podkategorie záložek (hodnocení, oblíbené atd.) -->
     <div class="row mt-5">
-        <ul class="nav nav-tabs overflow-scroll">
+        <ul class="nav nav-tabs overflow-scroll nav-tabs rounded-t-lg border">
             <li class="nav-tabs-item">
-                <a class="nav-tabs-link border active {% if category == 'hodnoceni' %}active{% endif %}" href="#" id="tab-hodnoceni">Hodnocení</a>
+                <a class="nav-tabs-link active" href="#" id="tab-hodnoceni" onclick="updateNavTabSelector(this)">Hodnocení</a>
             </li>
             <li class="nav-tabs-item">
-                <a class="nav-tabs-link border {% if category == 'oblibene' %}active{% endif %}" href="#" id="tab-oblibene">Oblíbené</a>
+                <a class="nav-tabs-link" href="#" id="tab-oblibene" onclick="updateNavTabSelector(this)">Oblíbené</a>
             </li>
             <li class="nav-tabs-item">
-                <a class="nav-tabs-link border {% if category == 'recenze' %}active{% endif %}" href="#" id="tab-recenze">Recenze</a>
+                <a class="nav-tabs-link" href="#" id="tab-recenze" onclick="updateNavTabSelector(this)">Recenze</a>
             </li>
             <li class="nav-tabs-item">
-                <a class="nav-tabs-link border {% if category == 'chci-videt' %}active{% endif %}" href="#" id="tab-chci-videt">Chci vidět</a>
+                <a class="nav-tabs-link" href="#" id="tab-chci-videt" onclick="updateNavTabSelector(this)">Chci vidět</a>
             </li>
             <li class="nav-tabs-item">
-                <a class="nav-tabs-link border {% if category == 'shlednuto' %}active{% endif %}" href="#" id="tab-shlednuto">Shlédnuto</a>
+                <a class="nav-tabs-link" href="#" id="tab-shlednuto" onclick="updateNavTabSelector(this)">Shlédnuto</a>
             </li>
             <li class="nav-tabs-item">
-                <a class="nav-tabs-link border {% if category == 'serialoteka' %}active{% endif %}" href="#" id="tab-serialoteka">Seriálotéka</a>
+                <a class="nav-tabs-link" href="#" id="tab-serialoteka" onclick="updateNavTabSelector(this)">Seriálotéka</a>
             </li>
+            <!-- Indikátor pozadí -->
+            <div class="background"></div>
         </ul>
 
         <div class="tab-content w-full mb-3 bg-[#F9F9F9] dark:bg-[#1A161F]">
@@ -92,7 +105,7 @@
                                 {% endif %}
                             </div> -->
                             <div class="p-1">
-                                <a href="/serial/{{ user_rating.rating.content_object.url }}">
+                                <a class="movies" href="/serial/{{ user_rating.rating.content_object.url }}">
                                     {% if user_rating.rating.content_object.titlecz %}{{ user_rating.rating.content_object.titlecz }} {% else %} {{ user_rating.rating.content_object.title }} {% endif %}
                                 </a> ({{ user_rating.rating.content_object.premieredate|date:"Y" }}–{{ user_rating.rating.content_object.enddate|date:"Y" }})
                             </div>
@@ -455,39 +468,5 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Funkce na aktivaci konkrétního tabu
-        function activateTab(tabId) {
-            document.querySelectorAll('.tab-show').forEach(tabContent => {
-                tabContent.classList.remove('active');
-            });
-            document.querySelectorAll('.nav-tabs-link').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            const targetTab = tabId.replace('tab-', '');
-            document.getElementById(targetTab).classList.add('active');
-            document.getElementById('tab-' + targetTab).classList.add('active');
-        }
-
-        // Kontrola, jestli je v URL fragment (část po #)
-        const hash = window.location.hash.substring(1);  // Získá fragment bez #
-        if (hash) {
-            activateTab('tab-' + hash);  // Aktivuje příslušný tab
-        }
-
-        // Přepínání tabů po kliknutí
-        document.querySelectorAll('.nav-tabs-link').forEach(tab => {
-            tab.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetTab = this.getAttribute('id');
-                activateTab(targetTab);
-                // Aktualizace URL bez reloadu stránky
-                history.pushState(null, null, '#' + targetTab.replace('tab-', ''));
-            });
-        });
-    });
-</script>
 
 {% endblock content %}

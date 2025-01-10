@@ -31,8 +31,15 @@ CONTENT_TYPE_GAME_ID = 19
 
 
 def games(request):
+    carousel_games = Game.objects.all().order_by('-divrating')[:10]
     games = Game.objects.all().order_by('-divrating')[:20] 
-    return render(request, 'games/games_list.html', {'games': games})
+    return render(request, 'games/games_list.html', {
+        'games': games, 
+        'carousel_games': carousel_games,
+        })
+
+def games_genres(request):
+    return render(request, 'games/games_genres.html')
 
 
 def publishers_list(request):
@@ -100,15 +107,8 @@ def game_detail(request, game_url):
 
     genres = Gamegenre.objects.filter(gameid=game).select_related('genreid')
 
-    # Fetch developers associated with the game
     developers = Gamedevelopers.objects.filter(gameid=game)
-
-
-    # Fetch platforms associated with the game
     platforms = Gameplatform.objects.filter(gameid=game)
-
-
-    # Fetch publishers associated with the game
     publishers = Gamepublisher.objects.filter(gameid=game)
 
 

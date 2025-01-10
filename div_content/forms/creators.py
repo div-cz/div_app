@@ -2,15 +2,15 @@
 
 from django import forms
 from django.contrib.auth.models import User
-
 from django.contrib.contenttypes.models import ContentType
-from div_content.models import Creator, Favorite, Creatorbiography
+
+from div_content.models import Creator, Creatorbiography, Favorite
 
 
-#from django.contrib.auth.models import User
 
-class CreatorBiographyForm(forms.ModelForm):
-    ...
+
+#class CreatorBiographyForm(forms.ModelForm):
+#    ...
 
 
 class SearchFormCreators(forms.Form):
