@@ -25,7 +25,6 @@
 <meta name="twitter:image" content="https://div.cz/img/book/knizni-div.webp">
 
 <style>
-
     .bar-container {
         flex-grow: 1;
         background-color: #d3d3d3; 
@@ -77,9 +76,19 @@
         {% comment %}{% endcache %}{% endcomment %}
     </div>
 
+    <!-- generování knih -->
     <div class="row my-4">
         <div class="grid grid-cols-1 gap-2">
             {% for book in book_list_15 %} 
+            
+            <!-- hodnocení -->
+            <div class="flex justify-end w-full" style="margin-top: -25px;">
+                <div class="rating box-shadow">
+                    <div class="rating-inner">
+                    </div>
+                </div>
+            </div>
+
             <div class="book-card grid w-full bg-[#F9F9F9] dark:bg-[#1A161F] border rounded-1xl">
                 <a href="/kniha/{{ book.url }}" class="w-auto">
                 {% if book.img == "noimg.png" %}

@@ -2,7 +2,7 @@ const panels = document.querySelectorAll('.panel');
 
 
 if (panels.length > 0) {
-    let currentIndex = 0; // Index aktu·lnÏ aktivnÌho panelu
+    let currentIndex = 0; // Index aktuÔøΩlnÔøΩ aktivnÔøΩho panelu
 
     function removeActiveClasses() {
         panels.forEach(panel => {
@@ -15,19 +15,19 @@ if (panels.length > 0) {
         panels[index].classList.add('active');
     }
 
-    // NastavenÌ inici·lnÌho panelu jako aktivnÌho
+    // NastavenÔøΩ iniciÔøΩlnÔøΩho panelu jako aktivnÔøΩho
     setActivePanel(currentIndex);
 
-    // AutomatickÈ p¯epÌn·nÌ panel˘ po 10 sekund·ch (10000 ms)
+    // AutomatickÔøΩ pÔøΩepÔøΩnÔøΩnÔøΩ panelÔøΩ po 10 sekundÔøΩch (10000 ms)
     setInterval(() => {
-        currentIndex = (currentIndex + 1) % panels.length; // Posun na dalöÌ panel a zpÏt na prvnÌ po poslednÌm
+        currentIndex = (currentIndex + 1) % panels.length; // Posun na dalÔøΩÔøΩ panel a zpÔøΩt na prvnÔøΩ po poslednÔøΩm
         setActivePanel(currentIndex);
     }, 5000);
 
-    // ZajistÌme, ûe ruËnÌ kliknutÌ na panel p¯epÌöe automatick˝ p¯epÌnaË
+    // ZajistÔøΩme, ÔøΩe ruÔøΩnÔøΩ kliknutÔøΩ na panel pÔøΩepÔøΩe automatickÔøΩ pÔøΩepÔøΩnaÔøΩ
     panels.forEach((panel, index) => {
         panel.addEventListener('click', () => {
-            currentIndex = index; // NastavÌ aktu·lnÌ panel na index kliknutÈho panelu
+            currentIndex = index; // NastavÔøΩ aktuÔøΩlnÔøΩ panel na index kliknutÔøΩho panelu
             setActivePanel(currentIndex);
         });
     });
@@ -38,27 +38,27 @@ if (panels.length > 0) {
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ZÌsk·me CSRF token z vygenerovanÈho skrytÈho inputu
+    // ZÔøΩskÔøΩme CSRF token z vygenerovanÔøΩho skrytÔøΩho inputu
 
     var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
 
     document.querySelectorAll('.btn-action').forEach(function(button) {
         button.addEventListener('click', function(e) {
 
-            e.preventDefault(); // ZamezÌme v˝chozÌ akci tlaËÌtka, pokud je nÏjak·
+            e.preventDefault(); // ZamezÔøΩme vÔøΩchozÔøΩ akci tlaÔøΩÔøΩtka, pokud je nÔøΩjakÔøΩ
 
             var gameId = button.getAttribute('data-game-id');
             var listType = button.getAttribute('data-list-type');
             var thankYouMessage = document.getElementById('add-thankyou');
 
-            // OdesÌl·nÌ poûadavku na server
+            // OdesÔøΩlÔøΩnÔøΩ poÔøΩadavku na server
 
             fetch("/hra/add-to-list/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
 
-                    "X-CSRFToken": csrfToken  // P¯id·nÌ CSRF token
+                    "X-CSRFToken": csrfToken  // PÔøΩidÔøΩnÔøΩ CSRF token
 
                 },
                 body: JSON.stringify({
@@ -78,14 +78,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     thankYouMessage.style.display = 'block';
 
 
-                    // Skryjeme hl·öku po 4 sekund·ch
+                    // Skryjeme hlÔøΩku po 4 sekundÔøΩch
 
                     setTimeout(function() {
                         thankYouMessage.style.display = 'none';
                     }, 4000);
                 } else {
 
-                    alert("NÏco se pokazilo. Zkuste to prosÌm znovu.");
+                    alert("NÔøΩco se pokazilo. Zkuste to prosÔøΩm znovu.");
 
                 }
             });
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
             thankYouMessage.style.display = 'block';
             location.reload();
 
-            // Skryjte hl·öku po 3 sekund·ch
+            // Skryjte hlÔøΩku po 3 sekundÔøΩch
             setTimeout(function() {
                 thankYouMessage.style.display = 'none';
                 
@@ -116,3 +116,35 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+
+
+// RATING
+document.addEventListener('DOMContentLoaded', () => {
+    const ratingElement = document.querySelector('.rating');
+    const ratingValue = 90; // Zmƒõ≈àte na hodnotu hodnocen√≠
+
+    // Dynamick√Ω v√Ωbƒõr barvy podle hodnocen√≠
+    let gradientColor;
+
+    if (ratingValue >= 80) {
+        gradientColor = '#0a0'; // Zelen√°
+    } else if (ratingValue >= 60) {
+        gradientColor = '#FFD700'; // ≈Ωlut√°
+    } else if (ratingValue >= 40) {
+        gradientColor = '#1E90FF'; // Svƒõtle modr√°
+    } else if (ratingValue >= 10) {
+        gradientColor = '#FF4500'; // ƒåerven√°
+    } else {
+        gradientColor = '#555'; // ≈†ed√°
+    }
+
+    const gradientValue = `${ratingValue}%`;
+
+    // Nastaven√≠ barvy a hodnoty na ::after pomoc√≠ inline stylu
+    ratingElement.style.setProperty('--gradient-color', gradientColor);
+    ratingElement.style.setProperty('--gradient-value', gradientValue);
+
+    // Nastaven√≠ textu hodnocen√≠
+    const ratingInner = document.querySelector('.rating-inner');
+    ratingInner.innerHTML = `${ratingValue}<span>%</span>`;
+});

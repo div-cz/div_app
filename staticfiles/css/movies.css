@@ -42,7 +42,7 @@ main a:is(.dark *) {
 }
 
 .card-text {
-    -webkit-line-clamp: 6;
+    -webkit-line-clamp: 5;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -208,12 +208,75 @@ main a:is(.dark *) {
 
 
 
+/* RATING */
+
+.rating {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-top: 0; /* Necháme výchozí hodnotu */
+    margin-right: 10px;
+    padding: 0; /* Žádné zbytečné paddingy */
+}
+
+.rating::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 44px;
+    height: 44px;
+    background: #000; /* Horní černý kruh */
+    border-radius: 50%;
+    z-index: 2;
+}
+
+.rating::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50px;
+    height: 50px;
+    background: conic-gradient(
+        var(--gradient-color, #0a0) 0%,
+        var(--gradient-color, #0a0) var(--gradient-value, 50%),
+        #000 var(--gradient-value, 50%)
+    );
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.rating-inner {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff; /* Barva textu uvnitř */
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.rating-inner span {
+    font-size: 10px;
+    margin-left: 2px;
+    color: #ffd700; /* Zlatá hvězdička */
+}
 
 
 
 
 
 
+@media (min-width: 992px) and (max-width: 1200px) {
+    .card-text {
+        -webkit-line-clamp: 6;
+    }
+}
 
 @media (max-width: 767.98px) { /* Příklad pro zařízení s menší obrazovkou */
 
@@ -263,7 +326,6 @@ main a:is(.dark *) {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-
     .margin-l {
         margin-left: 20px;
     }
@@ -283,3 +345,5 @@ main a:is(.dark *) {
         grid-template-columns: repeat(1, minmax(0, 1fr));
     }
 }
+
+

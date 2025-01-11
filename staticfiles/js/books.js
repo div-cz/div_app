@@ -57,3 +57,36 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
+
+
+// RATING
+document.addEventListener('DOMContentLoaded', () => {
+    const ratingElement = document.querySelector('.rating');
+    const ratingValue = 90; // Změňte na hodnotu hodnocení
+
+    // Dynamický výběr barvy podle hodnocení
+    let gradientColor;
+
+    if (ratingValue >= 80) {
+        gradientColor = '#0a0'; // Zelená
+    } else if (ratingValue >= 60) {
+        gradientColor = '#FFD700'; // Žlutá
+    } else if (ratingValue >= 40) {
+        gradientColor = '#1E90FF'; // Světle modrá
+    } else if (ratingValue >= 10) {
+        gradientColor = '#FF4500'; // Červená
+    } else {
+        gradientColor = '#555'; // Šedá
+    }
+
+    const gradientValue = `${ratingValue}%`;
+
+    // Nastavení barvy a hodnoty na ::after pomocí inline stylu
+    ratingElement.style.setProperty('--gradient-color', gradientColor);
+    ratingElement.style.setProperty('--gradient-value', gradientValue);
+
+    // Nastavení textu hodnocení
+    const ratingInner = document.querySelector('.rating-inner');
+    ratingInner.innerHTML = `${ratingValue}<span>%</span>`;
+});
