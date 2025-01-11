@@ -1,5 +1,4 @@
 <!-- TEST -->
-<!-- CHYBÍ NAPOJENÍ KOMENTÁŘŮ -->
 {% extends "series/base.html" %}
 {% load humanize %}
 {% load i18n %}
@@ -25,12 +24,21 @@
             </div>
         </div>
 
+        <!-- generování seriálů -->
         <div class="mb-4">
             <div class="grid grid-cols-3 gap-2">
                 {% for tvshow in tvshows_list %}
                 <div class="card card2 w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                     
                     <img src="{% if tvshow.img != 'noimg.png' %}https://www.themoviedb.org/t/p/w533_and_h300_bestv2{{ tvshow.img }}{% else %}/static/img/nomovie_400.jpg{% endif %}" alt="{{ tvshow.titlecz }}" class="card-img-top rounded-t-lg">
+
+                    <!-- hodnocení -->
+                    <div class="flex justify-end w-full" style="margin-top: -25px;">
+                        <div class="rating box-shadow">
+                            <div class="rating-inner">
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="card-body">
                         <h4 class="card-title"><a href="/serial/{{ tvshow.url }}">{{ tvshow.titlecz }}</a></h4>

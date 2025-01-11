@@ -219,7 +219,7 @@ def movies(request, year=None, genre_url=None, movie_url=None):
             })
 
     else:
-        movies_carousel = Metaindex.objects.filter(section='Movie').order_by('-divrating').values('title', 'url', 'img', 'description')[:4]
+        movies_carousel = Metaindex.objects.filter(section='Movie').order_by('-popularity').values('title', 'url', 'img', 'description')[:4]
         movies = Movie.objects.all().order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:50]
         movies_list_15 = Movie.objects.filter(adult=0,releaseyear__gt=2018).order_by('-divrating').values('title', 'titlecz', 'url', 'img', 'description')[:15]
         
