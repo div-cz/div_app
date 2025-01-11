@@ -15,9 +15,15 @@ from div_content.models import (
 )
 
 # Konstanty
-CONTENT_TYPE_SERIES_ID = 40 # tvshow
-CONTENT_TYPE_TVSEASON_ID = 41 # tvseason
-CONTENT_TYPE_TVEPISODE_ID = 43 # tvepisode
+#CONTENT_TYPE_SERIES_ID = 40 # tvshow
+tvshow_content_type = ContentType.objects.get_for_model(Tvshow)
+CONTENT_TYPE_SERIES_ID = tvshow_content_type.id
+#CONTENT_TYPE_TVSEASON_ID = 41 # tvseason
+tvseason_content_type = ContentType.objects.get_for_model(Tvseason)
+CONTENT_TYPE_TVSEASON_ID = tvseason_content_type.id
+#CONTENT_TYPE_TVEPISODE_ID = 43 # tvepisode
+tvepisode_content_type = ContentType.objects.get_for_model(Tvepisode)
+CONTENT_TYPE_TVEPISODE_ID = tvepisode_content_type.id
 
 # Userlisttype pro seriály na testu
 USERLISTTYPE_OBLIBENY = 13

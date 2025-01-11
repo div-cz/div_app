@@ -15,7 +15,7 @@ from django.utils import timezone
 # Kontrola pro superadminy
 """
 def is_superadmin(user):
-    return user.username in ["xsilence8x", "VendaCiki", "Martin2"]
+    return user.username in ["xsilence8x", "VendaCiki", "Martin2", "Ionno"]
 
 @user_passes_test(is_superadmin)"""
 def admin_index(request):

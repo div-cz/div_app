@@ -83,9 +83,9 @@ def charts_index(request):
 
 def charts_books(request):
     # Nejlepší knihy (podle ID)
-    best_books_ids = [1, 2, 3, 4, 5, 7, 8, 11]  # Nahraďte skutečnými ID nejlepších knih
-    popular_authors_ids = [10501,25224,34328,47783,52431,53235,55412,58512,62011,63760]  # ID nejoblíbenějších spisovatelů
-    popular_authoresses_ids = [24465,26829,31044,31086,61009,69005,74162,74167,74205,74214]  # ID nejoblíbenějších spisovatelek
+    best_books_ids = [1, 2, 3, 4, 5, 7, 8, 11]  # ID hustých knih
+    popular_authors_ids = [10501,25224,34328,47783,52431,53235,55412,58512,62011,63760]  # ID spisovatelů
+    popular_authoresses_ids = [24465,26829,31044,31086,61009,69005,74162,74167,74205,74214]  # ID spisovatelek
 
     best_books = Book.objects.filter(bookid__in=best_books_ids).select_related('authorid', 'countryid')
     popular_authors = Bookauthor.objects.filter(authorid__in=popular_authors_ids)
@@ -168,6 +168,66 @@ def charts_movies(request):
 
     popular_directors = Creator.objects.filter(creatorid__in=director_ids)
     popular_directresses = Creator.objects.filter(creatorid__in=directress_ids)
+
+
+
+
+#    creator_content_type = ContentType.objects.get_for_model(Creator)
+#
+#
+#    popular_directors = Creator.objects.filter(
+#        knownfordepartment='Directing',
+#        creatorid__in=Favorite.objects.filter(
+#            content_type=creator_content_type
+#        ).values_list('object_id', flat=True)
+#    ).annotate(favorite_count=Count('creatorid')).order_by('-favorite_count')[:10]
+#
+#
+#    best_movies = Movie.objects.filter(
+#        movierating__isnull=False
+#    ).annotate(
+#        avg_rating=Avg('movierating__rating')
+#    ).order_by('-avg_rating')[:10]
+#
+#
+#    best_directors = []
+#    for movie in best_movies:
+#        directors = movie.moviecrew_set.filter(roleid__rolename__iexact='director')
+#        for director in directors:
+#            best_directors.append({
+#                'director': director.peopleid,
+#                'movie_count': directors.count(),
+#                'avg_rating': movie.avg_rating
+#            })
+#
+#
+#    popular_actors = Creator.objects.filter(
+#        gender=2,  # 2 značí mužské pohlaví
+#        creatorid__in=Favorite.objects.filter(
+#            content_type=creator_content_type
+#        ).values_list('object_id', flat=True)
+#    ).annotate(
+#        favorite_count=Count('creatorid', filter=Q(
+#            creatorid__in=Favorite.objects.filter(
+#                content_type=creator_content_type
+#            ).values_list('object_id', flat=True)
+#        ))
+#    ).order_by('-favorite_count')[:10]
+#
+#
+#    popular_actresses = Creator.objects.filter(
+#        gender=1,  # 1 značí ženské pohlaví
+#        creatorid__in=Favorite.objects.filter(
+#            content_type=creator_content_type
+#        ).values_list('object_id', flat=True)
+#    ).annotate(
+#        favorite_count=Count('creatorid', filter=Q(
+#            creatorid__in=Favorite.objects.filter(
+#                content_type=creator_content_type
+#            ).values_list('object_id', flat=True)
+#        ))
+#    ).order_by('-favorite_count')[:10]
+
 
 
     # Nejoblíbenější herci (muži)

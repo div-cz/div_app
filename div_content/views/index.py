@@ -1,4 +1,4 @@
-# VIEWS.INDEX.PY
+# VIEWS.INDEX.PY TEST
 
 from datetime import date
 
@@ -16,7 +16,7 @@ from div_content.forms.index import ArticleForm, ArticlenewsForm
 from div_content.forms.movies import CommentForm, SearchForm
 from div_content.models import (
 
-    AATask, Article, Articlenews, Book, Creator, Creatorbiography, Game, Metacharts,Metagenre, Metaindex, Metalocation,  Metastats, Movie, Moviecinema, Moviedistributor, Moviecomments, Moviecrew, Moviegenre, Movierating, Tvgenre, Tvshow, User, Userprofile
+    AATask, Article, Articlenews, Book, Creator, Creatorbiography, Game, Metacharts, Metagenre, Metaindex, Metalocation,  Metastats, Movie, Moviecinema, Moviedistributor, Moviecomments, Moviecrew, Moviegenre, Movierating, Tvgenre, Tvshow, User, Userprofile
 
 )
 from star_ratings.models import Rating, UserRating
@@ -71,6 +71,9 @@ def get_sorted_tasks(user):
             
     return user_tasks + unassigned_tasks + other_tasks
 
+    movies_comments_9 = Moviecomments.objects.select_related('movieid', 'user').order_by(
+            '-commentid').values('comment', 'movieid__titlecz', 'movieid__url', 'movieid', 'user', 'user__username')[:5]
+
 
 
 
@@ -106,17 +109,21 @@ def index(request): # hlavní strana
     articlenews = Articlenews.objects.all().order_by('-created')[:5]
 
 
-    movies = Movie.objects.all().order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:40]
+    movies = Movie.objects.all().order_by('-divrating').values('title', 'titlecz', 'url', 'img', 'description')[:40]
     today = date.today()
     current_month = today.month
     current_day = today.day
-    creators_list_8 = Creator.objects.filter(birthdate__month=current_month, birthdate__day=current_day).order_by('-popularity')[:8]
+    creators_list_8 = Creator.objects.filter(birthdate__month=current_month, birthdate__day=current_day).order_by('-divrating')[:8]
     users_list_4 = User.objects.annotate(
         comment_count=Count('moviecomments'),
         rating_count=Count('userrating'),
         comment_rating_sum=Count('moviecomments')+Count('userrating')
         ).order_by('-rating_count')[:9]
-        
+
+
+    movies_comments_9 = Moviecomments.objects.select_related('movieid', 'user').order_by(
+            '-commentid').values('comment', 'movieid__titlecz', 'movieid__url', 'movieid', 'user', 'user__username')[:5]
+
     movies_comments_5 = Moviecomments.objects.select_related('movieid', 'user').order_by(
             '-commentid').values('comment', 'movieid__titlecz', 'movieid__url', 'movieid', 'user', 'user__username')[:5]
 
@@ -149,6 +156,7 @@ def index(request): # hlavní strana
             'articlenews_form': articlenews_form,
             'creators_list_8': creators_list_8, 
             'users_list_4': users_list_4, 
+            'movies_comments_9': movies_comments_9,
             'movies_comments_5': movies_comments_5,
             'movies_in_cinema': movies_in_cinema, 
             'stats_book': stats_book,
@@ -201,7 +209,7 @@ def movies(request, year=None, genre_url=None, movie_url=None):
         movies_carousel_genre = Metaindex.objects.filter(section='Movie').order_by('-indexid').values('title', 'url', 'img', 'description')[:3]
 
         #movies_list_30_genre = Movie.objects.filter(moviegenre__genreid=genre.genreid).values('title', 'titlecz', 'url', 'img', 'description')[:30]
-        movies_list_30_genre = Movie.objects.filter(moviegenre__genreid=genre.genreid).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description', 'popularity')[:30]
+        movies_list_30_genre = Movie.objects.filter(moviegenre__genreid=genre.genreid).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description', 'divrating')[:30]
 
         return render(request, 'movies/movies_genre.html', {
             'movies_for_genre': movies_for_genre, 
@@ -211,9 +219,9 @@ def movies(request, year=None, genre_url=None, movie_url=None):
             })
 
     else:
-        movies_carousel = Metaindex.objects.filter(section='Movie').order_by('-popularity').values('title', 'url', 'img', 'description')[:4]
+        movies_carousel = Metaindex.objects.filter(section='Movie').order_by('-divrating').values('title', 'url', 'img', 'description')[:4]
         movies = Movie.objects.all().order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:50]
-        movies_list_15 = Movie.objects.filter(adult=0,releaseyear__gt=2018).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:15]
+        movies_list_15 = Movie.objects.filter(adult=0,releaseyear__gt=2018).order_by('-divrating').values('title', 'titlecz', 'url', 'img', 'description')[:15]
         
         stats_movie = Metastats.objects.filter(tablemodel='Movie').first()
         stats_creator = Metastats.objects.filter(tablemodel="Creator").first()
@@ -254,7 +262,7 @@ def search(request):
         if form.is_valid():
             query = form.cleaned_data['q']
             movies = (Movie.objects.filter(titlecz__icontains=query, adult=0)
-                .values('title', 'titlecz', 'url', 'img', 'description', 'popularity', 'releaseyear', 'averagerating').order_by('-popularity')[:50])
+                .values('title', 'titlecz', 'url', 'img', 'description', 'popularity', 'releaseyear', 'averagerating').order_by('-divrating')[:50])
     else:
         form = SearchForm()
 

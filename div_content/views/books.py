@@ -48,7 +48,9 @@ USERLISTTYPE_READLIST_ID = 5 # Chci číst
 USERLISTTYPE_READ_BOOKS_ID = 6 # Přečteno
 USERLISTTYPE_BOOK_LIBRARY_ID = 10 # Knihovna
 
-CONTENT_TYPE_BOOK_ID = 9
+#CONTENT_TYPE_BOOK_ID = 9
+book_content_type = ContentType.objects.get_for_model(Book)
+CONTENT_TYPE_BOOK_ID = book_content_type.id
 
 
 
