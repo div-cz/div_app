@@ -12,7 +12,10 @@ from django.contrib.auth.decorators import login_required
 # Konstanty - Userlisttype, django_content_type
 USERLISTTYPE_FAV_AUTHOR_ID = 23 # Oblíbený spisovatel
 USERLISTTYPE_READLIST_ID = 6 # Přečteno
-CONTENT_TYPE_BOOKAUTHOR_ID = 10
+
+#CONTENT_TYPE_BOOKAUTHOR_ID = 10
+bookauthor_content_type = ContentType.objects.get_for_model(Bookauthor)
+CONTENT_TYPE_BOOKAUTHOR_ID = bookauthor_content_type.id
 
 
 def authors_list(request):

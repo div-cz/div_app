@@ -54,7 +54,7 @@
 
         <!-- Info Bar -->
         <div class="rounded-3 p-2 mb-3 d-flex w-full bg-[#F9F9F9] dark:bg-[#1A161F] border-[#ccc] rounded-1xl">
-            <span class="me-3"><a href="https://div.cz/filmy/{{ movie.releaseyear }}">{{ movie.releaseyear }}</a></span>
+            <span class="me-3"><a href="https://div.cz/filmy/{{ movie.releaseyear }}" title="Filmy roku {{ movie.releaseyear }} | {{ movie.movieid }}">{{ movie.releaseyear }}</a></span>
             &nbsp;|&nbsp;
             <span class="me-3">
             {% if countries %}
@@ -67,8 +67,7 @@
             {% if movie.duration != 0 %}
                 &nbsp;|&nbsp;
                 <span>{{ movie.duration }} minut</span> 
-                &nbsp;|&nbsp;
-                <span>ID: {{ movie.movieid }}</span>
+                <!--&nbsp;|&nbsp;-->
             {% endif %}
         </div>
 
@@ -215,6 +214,35 @@
                 <div id="add-thankyou" class="alert alert-success" style="display: none;">Film přidán do seznamu!</div>
             </div>
         </div>
+
+
+
+{% if user.is_staff %}
+<!-- PŘIDAT DO KINA -->
+<details>
+    <summary>Přidat do kina</summary>
+    <form method="post" name="distributor_form">
+        {% csrf_token %}
+        
+        <!-- Roletka pro distributory -->
+        <label for="distributor_id">Distributor:</label>
+        <select name="distributor_id" id="distributor_id">
+            {% for distributor in distributors %}
+                <option value="{{ distributor.distributorid }}">{{ distributor.name }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Kalendář pro výběr data -->
+        <label for="release_date">Datum vydání:</label>
+        <input type="date" name="release_date" id="release_date">
+
+        <button type="submit" name="add_distributor">Přidat do kina</button>
+    </form>
+    <hr>
+</details>
+{% endif %}
+
+
 
         <p>{{ movie.description|safe }}</p>
 

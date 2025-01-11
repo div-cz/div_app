@@ -9,6 +9,6 @@ def universum_list(request):
 
 def universum_detail(request, universum_url):
     universum = get_object_or_404(Metauniversum, universumurl=universum_url)  
-    movies = Movie.objects.filter(universumid=universum)[:30]  # Limit to 30 movies
-    books = Book.objects.filter(universumid=universum)[:30]  # Limit to 30 movies
+    movies = Movie.objects.filter(universumid=universum)[:30]
+    books = Book.objects.filter(universumid=universum)[:30] 
     return render(request, 'universum/universum_detail.html', {'universum': universum, 'movies': movies, 'books': books})

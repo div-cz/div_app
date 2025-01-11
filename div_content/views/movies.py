@@ -15,11 +15,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import cache_page
 from django.views.generic import DetailView
 
-from div_content.forms.movies import CommentForm, MovieDivRatingForm, SearchForm, TrailerForm
+from div_content.forms.movies import CommentForm, MovieCinemaForm, MovieDivRatingForm, SearchForm, TrailerForm
 from div_content.models import (
     Article, Book, Creator, Creatorbiography, Game, Metalocation, Metagenre,
 
-    Movie, Moviecomments, Moviecrew, Moviegenre, Movielocation, Moviequotes, Movierating, Movietrailer, Movietrivia, User, Userprofile, Moviekeywords,
+    Movie, Moviecinema, Moviecomments, Moviecountries, Moviecrew, Moviedistributor, Moviegenre, Movielocation, Moviequotes, Movierating, Movietrailer, Movietrivia, User, Userprofile, Moviekeywords,
     Userlisttype, Userlist, Userlistmovie, FavoriteSum, Userlistitem
 
 )
@@ -30,13 +30,17 @@ import math
 from django.contrib import messages
 
 
+
+
 # Konstanty
 USERLISTTYPE_FAVORITE_MOVIE_ID = 1 # Oblíbený film
 USERLISTTYPE_WATCHLIST_ID = 2 # Chci vidět
 USERLISTTYPE_WATCHED_ID = 3 # Shlédnuto
 USERLISTTYPE_MOVIE_LIBRARY_ID = 11 # Filmotéka
 
-CONTENT_TYPE_MOVIE_ID = 33
+#CONTENT_TYPE_MOVIE_ID = 33
+movie_content_type = ContentType.objects.get_for_model(Movie)
+CONTENT_TYPE_MOVIE_ID = movie_content_type.id
 
 #Carouse = .values('title', 'titlecz', 'url', 'img', 'description')
 #List = .values('title', 'titlecz', 'url', 'img', 'description')
@@ -211,6 +215,8 @@ def movie_detail(request, movie_url):
     keywordsEN = [keyword.keywordid.keyword for keyword in keywords if keyword.keywordid.keyword]
     keywordsCZ = [keyword.keywordid.keywordcz for keyword in keywords if keyword.keywordid.keywordcz]
 
+    distributors = Moviedistributor.objects.all()
+
     # Přidávání nové hlášky
     if request.method == 'POST' and 'quote_text' in request.POST:
         quote_text = request.POST.get('quote_text').strip()
@@ -222,6 +228,22 @@ def movie_detail(request, movie_url):
                 #UserID=request.user  
             )
             return redirect('movie_detail', movie_url=movie_url)
+
+    # Přidávání do kina
+    if request.method == 'POST' and "add_distributor" in request.POST:
+            distributor_id = request.POST.get("distributor_id")
+            release_date = request.POST.get("release_date")
+            try:
+                distributor = Moviedistributor.objects.get(distributorid=distributor_id)
+                Moviecinema.objects.create(
+                    movieid=movie,
+                    distributorid=distributor,
+                    releasedate=release_date
+                )
+                messages.success(request, "Distributor byl úspěšně přidán.")
+                return redirect("movie_detail", movie_url=movie_url)
+            except Moviedistributor.DoesNotExist:
+                messages.error(request, "Distributor neexistuje.")
 
     # Přidávání nové zajímavosti
     if request.method == 'POST' and 'trivia_text' in request.POST:
@@ -258,8 +280,8 @@ def movie_detail(request, movie_url):
         "is_in_watchlist": is_in_watchlist,
         "is_in_watched": is_in_watched,
         "is_in_movie_library": is_in_movie_library,
-
         'movie_trailer': movie_trailer,
+        'distributors': distributors,
         'trailer_form': trailer_form, 
         'same_universe_movies': same_universe_movies,
         'universum': universum,
@@ -271,9 +293,6 @@ def movie_detail(request, movie_url):
 
 
 
-from django.db import connection
-from django.shortcuts import render
-from div_content.forms.movies import SearchForm
 
 def search(request):
     movies = []

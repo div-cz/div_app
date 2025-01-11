@@ -5,7 +5,7 @@ from django.db.models import Exists, OuterRef
 from div_content.forms.characters import FavoriteFormCharacter, CharacterBiographyForm
 from django.contrib.contenttypes.models import ContentType
 from div_content.models import (
-    Characterbiography, Charactermeta, Favorite, Moviecrew, Userlisttype, Userlist, Userlistitem, 
+    Characterbiography, Charactermeta, Favorite, Movie, Moviecrew, Userlisttype, Userlist, Userlistitem, 
     FavoriteSum
     )
 from django.contrib.auth.decorators import login_required
@@ -21,8 +21,12 @@ from collections import defaultdict
 USERLISTTYPE_FAVORITE_CHARACTER_ID = 24
 USERLISTTYPE_WATCHED_MOVIES = 3 # Shlédnuto
 
-CONTENT_TYPE_CHARACTERMETA_ID = 13
-CONTENTTYPE_MOVIE_ID = 33
+#CONTENT_TYPE_CHARACTERMETA_ID = 13
+charactermeta_content_type = ContentType.objects.get_for_model(Charactermeta)
+CONTENT_TYPE_CHARACTERMETA_ID = charactermeta_content_type.id
+#CONTENTTYPE_MOVIE_ID = 33
+movie_content_type = ContentType.objects.get_for_model(Movie)
+CONTENTTYPE_MOVIE_ID = movie_content_type.id
 
 
 def character_list(request):

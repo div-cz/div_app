@@ -89,6 +89,7 @@ from allauth.account.views import SignupView, LogoutView, LoginView
 #from .views import SignUpView, Editace, RegisterView, ProfileUpdateView
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
 
     path('spravce/', admin_index, name='admin_index'),
     path('spravce/sprava-komentaru', admin_comments, name='admin_comments'),
@@ -123,8 +124,6 @@ urlpatterns = [
     path('blog/<slug:slug>', blog_detail, name='blog_detail'),
     path('blog/<slug:blog_slug>/<slug:post_slug>/', blog_post_detail, name='blog_post_detail'),
 
-
-    path('admin/', admin.site.urls),
     path('podpora/', redirect_view),
     path('', index, name='index'),
     path('filmy/', movies, name='movies_index'),
