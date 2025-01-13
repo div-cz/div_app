@@ -14,7 +14,7 @@ from django.urls import path, include
 #from div_content import views
 #from div_content.views import articles, books, creators, games, locations, movies, users
 from div_content.views.admins import admin_index, admin_comments, admin_edit_comment, admin_tasks, admin_task_detail, admin_task_edit #admin_task_new, 
-from div_content.views.articles import article_detail, articles_index, articles_list
+from div_content.views.articles import article_detail, articles_index, articles_list, article_new
 from div_content.views.authors import (
     authors_list, author_detail, author_add, add_to_favourite_authors, remove_from_favourite_authors
     )
@@ -59,7 +59,7 @@ from div_content.views.users import (
     favorite_actors, favorite_books, favorite_drinks, favorite_foods, favorite_games, favorite_items, favorite_locations, 
     profile_books_section, profile_games_section, profile_movies_section, profile_series_section, profile_stats_section, profile_show_case, user_lists, 
     update_profile, review_profile, chat, add_to_favorite_users, remove_from_favorite_users, chat_message, load_older_messages, 
-    user_book_listings, user_sell_listings, user_buy_listings
+    user_book_listings, user_sell_listings, user_buy_listings, search_user_in_chat
     )
 from div_content.views.charts import (
     award_detail, charts_index, charts_books, charts_games, charts_movies, charts_users, awards_index, awards_movies, 
@@ -287,6 +287,7 @@ urlpatterns = [
     path('clanek/', articles_list, name='articles_list'),  
     path('<str:article_url>', article_detail, name='article_detail'),
     path('clanky/<str:category>/', articles_list, name='articles_list'),
+    path('clanky/<str:category>/novy-clanek/', article_new, name='article_new'),
 
 
 
@@ -321,6 +322,7 @@ urlpatterns = [
     path('uzivatel/pridat-do-oblibenych-<int:userprofile_id>', add_to_favorite_users, name='add_to_favorite_users'),
     path('uzivatel/odebrat-z-oblibenych-<int:userprofile_id>', remove_from_favorite_users, name='remove_from_favorite_users'),
     path('uzivatel/<int:user_id>/vitrina/', profile_show_case, name='profile_show_case'),
+    path('search_user_in_chat/', search_user_in_chat, name='search_user_in_chat'),
 
 
     path('ucet/', myuser_detail, name='myuser_detail'),

@@ -1,15 +1,13 @@
 {% extends "forum/base.html" %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
 
 {% block title %}Div.cz | Diskuzní fórum{% endblock title %}
 
-{% block meta %}
-
-<link href="/static/css/navbar_together.css" rel="stylesheet">
-
-{% endblock %}
-
 {% block content %}
 
+<link href="/static/css/navbar_together.css" rel="stylesheet">
 
 <h2 class="w-full">Diskuzní fórum</h2>
 <form class="d-flex mt-4" style="max-width: 400px;" role="search" action="{% url 'forum_search' %}" method="get">
@@ -19,14 +17,11 @@
 
 <div class="grid gap-5 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 mt-5">
 {% for section in all_forum_sections %}
-    <div class="card-body w-full items-center text-center" style="background-image: url(https://i.ibb.co/HB09C25/bubble-1.png); background-size: 100% 100%;">
+    <div class="card-body w-full items-center text-center" style="background-image: url(/static/img/forum/bubble.webp); background-size: 100% 100%;">
         <a href="{% url 'forum_section_detail' slug=section.slug %}">
             <img src="/static/img/forum/{{section.imageurl}}">
-            <h3>{{ section.title }}</h3>
+            <h3 class="{{ section.description }}">{{ section.title }}</h3>
         </a>
-        {% if section.description %}
-        <p>{{ section.description }}</p>
-        {% endif %}
     </div>
 {% endfor %}
 </div>

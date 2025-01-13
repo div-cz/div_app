@@ -116,7 +116,33 @@ def movie_detail(request, movie_url):
 
     # Získání hodnocení pro daný film
     movie_content_type = ContentType.objects.get_for_model(Movie)
-    ratings = UserRating.objects.filter(rating__content_type=movie_content_type, rating__object_id=movie.movieid)
+    #ratings = UserRating.objects.filter(rating__content_type=movie_content_type, rating__object_id=movie.movieid)
+    # HODNOCENÍ UŽIVATELE
+    base_ratings = UserRating.objects.filter(
+        rating__content_type=movie_content_type, 
+        rating__object_id=movie.movieid
+    )
+    
+    # Použijeme tento QuerySet pro výpočet průměru
+    average_rating_result = base_ratings.aggregate(average=Avg('score'))
+    average_rating = average_rating_result.get('average')
+    
+    if average_rating is not None:
+        average_rating = math.ceil(average_rating)
+    else:
+        average_rating = 0
+    
+    # Teď teprve seřadíme s uživatelem na začátku
+    if user.is_authenticated:
+        ratings = list(base_ratings.order_by('-created'))
+        user_rating_index = next((i for i, rating in enumerate(ratings) if rating.user == user), None)
+        if user_rating_index is not None:
+            user_rating = ratings.pop(user_rating_index)
+            ratings.insert(0, user_rating)
+    else:
+        ratings = base_ratings.order_by('-created')
+
+
 
     if user.is_authenticated:
         user_rating = Movierating.objects.filter(user=user, movieid=movie).first()
@@ -134,13 +160,12 @@ def movie_detail(request, movie_url):
 
 
     # Výpočet průměrného hodnocení
-    average_rating_result = ratings.aggregate(average=Avg('score'))
-    average_rating = average_rating_result.get('average')
-
-    if average_rating is not None:
-        average_rating = math.ceil(average_rating)
-    else:
-        average_rating = 0  # nebo jakoukoliv defaultní hodnotu, kterou chcete nastavit
+    #average_rating_result = ratings.aggregate(average=Avg('score'))
+    #average_rating = average_rating_result.get('average')
+    #if average_rating is not None:
+    #    average_rating = math.ceil(average_rating)
+    #else:
+    #    average_rating = 0  # nebo jakoukoliv defaultní hodnotu, kterou chcete nastavit
 
     comments = Moviecomments.objects.filter(movieid=movie).order_by('-commentid')
     
@@ -225,6 +250,7 @@ def movie_detail(request, movie_url):
                 quote=quote_text,
                 movie=movie,
                 divrating=0,  # Defaultní hodnocení
+                user=request.user if request.user.is_authenticated else None
                 #UserID=request.user  
             )
             return redirect('movie_detail', movie_url=movie_url)

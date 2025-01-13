@@ -189,38 +189,38 @@
             </ul>
 
             <!-- RECENZE -->
-            <div id="tab1" class="tab-content active w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
-                <div class="">   
-                    <h3 class="after-h3">Recenze</h3>         
-                    {% if user.is_authenticated %}
-                    <h3>Přidat novou recenzi</h3>
-                    <form method="post" class="after" action="{% url 'game_detail' game_url=game.url %}">
-                        {% csrf_token %}
-                        {{ comment_form.comment }}
-                        <button type="submit" class="add">Vložit recenzi</button>
-                    </form>
-                    {% else %}
-                    <p>Pro komentování je nutné být <a href="/prihlaseni/">přihlášený</a>.<br>
-                    Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
-                    {% endif %}
+            <div id="tab1" class="tab-content active w-full bg-[#F9F9F9] dark:bg-[#1A161F]"> 
+                <h3 class="after-h3">Recenze hry</h3>   
+                <!-- přidat recenzi -->      
+                {% if user.is_authenticated %}
+                <h4>Přidat novou recenzi</h4>
+                <form method="post" action="{% url 'game_detail' game_url=game.url %}">
+                    {% csrf_token %}
+                    {{ comment_form.comment }}
+                    <button type="submit" class="add">Vložit recenzi</button>
+                </form>
+                {% else %}
+                <p>Pro komentování je nutné být <a href="/prihlaseni/">přihlášený</a>.<br>
+                Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
+                {% endif %}
 
-                    {% if comments %}
-                    <ul class="list-unstyled mt-3 komentar">
-                        {% for comment in comments %}
-                        <li class="mb-2 w-full rounded-1xl">
-                            <p>{{ comment.comment }}</p>
-                            <div class="user"></div>
-                                <a href="">{{ comment.user }}</a>
-                                <p>{{ comment.dateadded }}</p>
-                            </div>
-                        </li>
-                        {% endfor %}
-                    </ul>
+                <!-- výpis recenzí -->
+                {% if comments %}
+                <ul class="list-unstyled mt-3 komentar">
+                    {% for comment in comments %}
+                    <li class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
+                        <p>{{ comment.comment }}</p>
+                        <div class="user"></div>
+                            <a href="">{{ comment.user }}</a>
+                            <p>{{ comment.dateadded }}</p>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
 
-                    {% else %}
-                    <p>Zatím nejsou žádné recenze k této hře.</p>
-                    {% endif %}
-                </div>
+                {% else %}
+                <p>Zatím nejsou žádné recenze k této hře.</p>
+                {% endif %}
             </div>
 
             <!-- POSTAVY -->
@@ -249,7 +249,7 @@
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 style="text-align:center" class="after font-bold">Hodnocení</h3>
                 <div class="grid columns">
-                    <div class="hodnoceni">
+                    <div class="hodnoceni after">
                         {% ratings game %}
                         {% if user.is_authenticated %}
                         {% else %}
@@ -264,7 +264,8 @@
                     {% if ratings %}
                     <ul class="list-unstyled rating-users">
                     {% for rating in ratings %}
-                        <li>
+                        <li class="after">
+                            <small><p class="text-center p-1">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
                             <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a>
                             <span class="right">
                                 {% for _ in "12345" %}

@@ -1,12 +1,23 @@
 {% extends "forum/base.html" %}
 {% load forum_comments_tags %}
 
-{% block title %}
-{{ topic.title }}
-{% endblock title %}
+{% block title %}{{ topic.title }}{% endblock title %}
 
 {% block content %}
+
+{% if slug == "filmy" %}
+    <link href="/static/css/movies.css" rel="stylesheet">
+    </style>
+{% elif slug == "knihy" %}
+    <link href="/static/css/books.css" rel="stylesheet">
+{% elif slug == "hry" %}
+    <link href="/static/css/games.css" rel="stylesheet">
+{% else %}
+    <link href="/static/css/navbar_other.css" rel="stylesheet">
+{% endif %}
+
 <h2><a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a> / <a class="hover:underline" href="{% url 'forum_section_detail' slug=topic.section.slug %}">{{ topic.section.title }}</a> / {{ topic.title }}</h2>
+
 {% if user.is_authenticated %}
 <section class="w-3/4">
     <h2>Přidat komentář</h2>

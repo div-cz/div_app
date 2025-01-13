@@ -41,7 +41,7 @@
             <div class="flex flex-wrap">
                 <div class="flex w-full">
                     <a class="mr-2" href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">{{ comment.user }}</a>
-                    <p> - {{ comment.createdat }}</p> 
+                    <p> - <small>{{ comment.createdat }}</small></p> 
                 </div>
                 {% if comment.lasteditedat %}
                 <i><small>(Upraveno {{ comment.lasteditedat }})</small></i>
@@ -51,8 +51,8 @@
         </div>
         <!-- Udělí adminům možnost mazat komentáře -->
         {% if user == comment.user and not comment.isdeleted or user.is_staff %}
-        <p class="mb-0" style="width: 140px;">
-            <a href="{% url 'comment_edit' slug=topic.section.slug topicurl=topic.topicurl forumcommentid=comment.forumcommentid  %}">Upravit</a> | <a href="{% url 'comment_delete' slug=topic.section.slug topicurl=topic.topicurl forumcommentid=comment.forumcommentid  %}">Smazat</a>
+        <p class="mb-0 text-end" style="width: 140px;">
+            <small><a href="{% url 'comment_edit' slug=topic.section.slug topicurl=topic.topicurl forumcommentid=comment.forumcommentid  %}">Upravit</a> | <a href="{% url 'comment_delete' slug=topic.section.slug topicurl=topic.topicurl forumcommentid=comment.forumcommentid  %}">Smazat</a></small>
         </p>
     </div>
     {% endif %}

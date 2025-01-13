@@ -10,6 +10,7 @@ from div_content.models import (
     Usermessage, Userchatsession, Userlisttvshow
     
     )
+from django.contrib.auth.models import User 
 from div_content.views.login import custom_login_view
 
 from django.contrib.auth.decorators import login_required
@@ -26,6 +27,7 @@ import json
 
 from django.utils.formats import date_format
 from django.utils.timezone import localtime
+from django.http import JsonResponse
 
 
 
@@ -1231,6 +1233,7 @@ def update_profile(request):
         'user_div_coins': user_div_coins
         })
 
+# Index chatu (s přehledem všech zpráv)
 @login_required
 def chat(request):
     sender = request.user.id
@@ -1342,3 +1345,13 @@ def load_older_messages(request, user_id):
         for message in messages
     ]
     return JsonResponse({"messages": messages_data}, safe=False)
+
+
+# vyhleda uživatele ve zprávách v searchboxu
+def search_user_in_chat(request):
+    query = request.GET.get("q", "").strip()
+    if not query:
+        return JsonResponse({"users": []})  # Empty response for no query
+
+    matching_users = User.objects.filter(username__icontains=query).values("id", "username")[:10]
+    return JsonResponse({"users": list(matching_users)})

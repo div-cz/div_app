@@ -1,4 +1,6 @@
 # VIEWS.GAMES.PY TEST
+# IMPORT na začátku, řazeno abecedně
+import math
 
 from div_content.models import (
     Game, Gamecomments, Gamedevelopers, Gamegenre, Gameplatform, Gamepublisher, Gamepurchase, Gamerating, Metacountry, Metadeveloper, Metagenre, Metaplatform, Metapublisher, Metauniversum, Userlisttype, Userlist, 
@@ -6,19 +8,23 @@ from div_content.models import (
 )
 from div_content.forms.games import CommentFormGame, GameForm, GameDivRatingForm
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
 
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render, redirect
+from django.db import models
+from django.db.models import Avg, Count
 
+from django.http import JsonResponse
+
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_POST
 from star_ratings.models import Rating, UserRating
 
-from django.db.models import Avg, Count
-import math
-from django.contrib import messages
+
+
+
 
 
 # Konstanty
@@ -32,11 +38,41 @@ CONTENT_TYPE_GAME_ID = 19
 
 def games(request):
     carousel_games = Game.objects.all().order_by('-divrating')[:10]
-    games = Game.objects.all().order_by('-divrating')[:20] 
+
+    #games = Game.objects.all().order_by('-divrating')[:20] 
+    # Získáme hry včetně jejich hodnocení
+    game_content_type = ContentType.objects.get_for_model(Game)
+    games = Game.objects.all().annotate(
+        average_rating=models.Subquery(
+            Rating.objects.filter(
+                content_type=game_content_type,
+                object_id=models.OuterRef('gameid')
+            ).values('average')[:1]
+        )
+    ).order_by('-divrating').values(
+        'title', 
+        'titlecz', 
+        'description', 
+        'descriptioncz', 
+        'year',
+        'url', 
+        'img',
+        'average_rating'
+    )[:20]
+
+    # Zaokrouhlíme hodnoty na celá čísla a převedeme na procenta
+    for game in games:
+        if game['average_rating'] is not None:
+            game['average_rating'] = round(float(game['average_rating']) * 20)  # převod z 5 na 100%
+        else:
+            game['average_rating'] = 0
+    # //
     return render(request, 'games/games_list.html', {
         'games': games, 
         'carousel_games': carousel_games,
         })
+
+
 
 def games_genres(request):
     return render(request, 'games/games_genres.html')

@@ -215,34 +215,30 @@
             </div>
         </div>
 
+        {% if user.is_staff %}
+        <!-- PŘIDAT DO KINA -->
+        <details>
+            <summary>Přidat do kina</summary>
+            <form method="post" name="distributor_form">
+                {% csrf_token %}
+                
+                <!-- Roletka pro distributory -->
+                <label for="distributor_id">Distributor:</label>
+                <select name="distributor_id" id="distributor_id">
+                    {% for distributor in distributors %}
+                        <option value="{{ distributor.distributorid }}">{{ distributor.name }}</option>
+                    {% endfor %}
+                </select>
 
+                <!-- Kalendář pro výběr data -->
+                <label for="release_date">Datum vydání:</label>
+                <input type="date" name="release_date" id="release_date">
 
-{% if user.is_staff %}
-<!-- PŘIDAT DO KINA -->
-<details>
-    <summary>Přidat do kina</summary>
-    <form method="post" name="distributor_form">
-        {% csrf_token %}
-        
-        <!-- Roletka pro distributory -->
-        <label for="distributor_id">Distributor:</label>
-        <select name="distributor_id" id="distributor_id">
-            {% for distributor in distributors %}
-                <option value="{{ distributor.distributorid }}">{{ distributor.name }}</option>
-            {% endfor %}
-        </select>
-
-        <!-- Kalendář pro výběr data -->
-        <label for="release_date">Datum vydání:</label>
-        <input type="date" name="release_date" id="release_date">
-
-        <button type="submit" name="add_distributor">Přidat do kina</button>
-    </form>
-    <hr>
-</details>
-{% endif %}
-
-
+                <button type="submit" name="add_distributor">Přidat do kina</button>
+            </form>
+            <hr>
+        </details>
+        {% endif %}
 
         <p>{{ movie.description|safe }}</p>
 
@@ -263,7 +259,7 @@
                     <h3 class="after-h3">Recenze</h3>      
                     {% if user.is_authenticated %}
                     <h4>Přidat novou recenzi</h4>
-                    <form method="post" class="after" action="">
+                    <form method="post" class="w-full p-2 mb-2" action="">
                         {% csrf_token %}
                         {{ comment_form.comment }}
                         <button type="submit" class="add">Vložit recenzi</button>
@@ -273,14 +269,15 @@
                     Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
                     {% endif %}
 
+                    <!-- Výpis recenzí -->
                     {% if comments %}
                     <ul class="list-unstyled mt-3 komentar">
                         {% for comment in comments %}
-                        <li class="mb-2 w-full rounded-1xl">
+                        <li class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
                             <p class="koment after">{{ comment.comment }}</p>
                             <div class="user">
-                                <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a>
                                 <p>{{ comment.dateadded }}</p>
+                                <p>Přidal: <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a></p>
                             </div>
                         </li>
                         {% endfor %}
@@ -336,13 +333,12 @@
             <div id="tab3" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
                 <div>
                     <h3 class="after-h3">Informace o zajímavostech filmu</h3>
-                    
                     {% if user.is_authenticated %}
                     <!-- Formulář pro přidání nové zajímavosti -->
                     <h4>Přidat novou zajímavost</h4>
                     <form method="post" action="">
                         {% csrf_token %}
-                        <textarea name="trivia_text" rows="3" placeholder="Zadejte zajímavost"></textarea>
+                        <textarea name="trivia_text" class="w-full p-2 mb-2" rows="3" placeholder="Zadejte zajímavost"></textarea>
                         <button type="submit" class="add">Vložit zajímavost</button>
                     </form>
                     {% endif %}
@@ -350,12 +346,14 @@
                     <!-- Výpis zajímavostí -->
                     {% if trivia %}
                         {% for item in trivia %}
-                            <p class="before">
-                            {{ item.trivia }}
-                                {% if item.creator %}
-                                <br><strong>Autor:</strong> {{ item.creator.firstname }} {{ item.creator.lastname }}
-                                {% endif %}
-                            </p>
+                        <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
+                            <p class="text-sm after">{{ item.trivia }}</p>
+                            <div class="mt-2 text-end">
+                                <p>Přidal: 
+                                    <a href="{% url 'user_profile_with_profil' user_id=item.userid.id %}">{{ item.userid.username|default:"Anonym" }}</a>
+                                </p>
+                            </div>
+                        </div>
                         {% endfor %}
                     {% else %}
                         <p>Zatím nejsou žádné zajímavosti k tomuto filmu.</p>
@@ -383,37 +381,41 @@
             </div>
 
             <!-- HLÁŠKY -->
-            <div id="tab5" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
-                <div class="">          
-                    <h3 class="after-h3">Známé hlášky z filmu</h3>
+            <div id="tab5" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">        
+                <h3 class="after-h3">Známé hlášky z filmu</h3>
+                <!-- přidat hlášku -->
+                {% if user.is_authenticated %}
+                <h4>Přidat novou hlášku</h4>
+                <form method="post" action="">
+                {% csrf_token %}
+                    <textarea name="quote_text" class="w-full p-2 mb-2" rows="3" required></textarea>
+                    <button type="submit" class="add">Vložit hlášku</button>
+                </form>               
+                {% endif %}
 
-                    {% if user.is_authenticated %}
-                        <h4>Přidat novou hlášku</h4>
-                        <form method="post" action="">
-                        {% csrf_token %}
-                            <textarea name="quote_text" rows="3" required></textarea>
-                            <button type="submit" class="add">Vložit hlášku</button>
-                        </form>               
-                    {% endif %}
+                <!-- Výpis hlášek -->
+                {% if quotes %}
+                <div class="mt-4">
+                    {% for quote in quotes %}
+                    <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
+                        <p class="text-sm after">{{ quote.quote }}</p>
+                        <div class="mt-2 text-end">
+                            <p>Přidal: 
 
-                    <!-- Výpis hlášek -->
-                    {% if quotes %}
-                        {% for quote in quotes %}
-                            <p class="before">
-                                <strong>Hláška:</strong> {{ quote.quote }}
+                           {% if quote.user %}
+                               <a href="{% url 'user_profile_with_profil' user_id=quote.user.id %}">{{ quote.user.username }}</a>
+                           {% else %}
+                               Anonym
+                           {% endif %}
 
-                                {% if quote.actor %}
-                                <br><strong>Herec:</strong> {{ quote.actor.firstname }} {{ quote.actor.lastname }}
-                                {% endif %}
-                                {% if quote.character %}
-                                    ( <strong>Postava:</strong> {{ quote.character.characternamecz }})
-                                {% endif %}
                             </p>
-                        {% endfor %}
-                    {% else %}
-                        <p>Zatím nejsou žádné hlášky k tomuto filmu.</p>
-                    {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
+                {% else %}
+                <p>Zatím nejsou žádné hlášky k tomuto filmu.</p>
+            {% endif %}
             </div>
 
             <!--<div id="tab6" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
@@ -431,7 +433,7 @@
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 style="text-align:center" class="after font-bold">Hodnocení</h3>
                 <div class="grid columns">
-                    <div class="hodnoceni">
+                    <div class="hodnoceni after">
                         {% ratings movie %}
                         {% if user.is_authenticated %}
                         {% else %}
@@ -446,8 +448,9 @@
                     {% if ratings %}
                     <ul class="list-unstyled rating-users">
                     {% for rating in ratings %}
-                        <li>
-                            <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a> <!--(ID: {{ rating.user.id }})-->:
+                        <li class="after">
+                            <small><p class="text-center p-1">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
+                            <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a>
                             <span class="right">
                                 {% for _ in "12345" %}
                                 {% if forloop.counter <= rating.score %}
