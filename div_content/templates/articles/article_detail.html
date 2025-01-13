@@ -13,12 +13,47 @@
         <meta property="og:image:alt" content="{{ article.alt }}">
 
         <style>
-            h2 {
-                margin-top: 15px;
+            h1 {
+                margin-top: 2rem
             }
 
-            p {
+            .col-lg-8 h2 {
+                margin-top: 2rem;
+                width: fit-content;
+            }
+
+            .col-lg-8 h2::after {
+                content: "";
+                display: block;
+                height: 3px;
+                background-color: #d2d2d2;
+                margin: 10px 0 0 -2rem;
+            }
+
+            .col-lg-8 h3, h4, h5 {
+                margin-top: 1.5rem;
+            }
+
+            .col-lg-8 p {
+                margin-left: 1.25rem;
+                margin-top: 10px;
+            }
+
+            .col-lg-8 ul li {
+                margin-left: 3rem;
+            }
+
+            li ul {
+                list-style: disc;
+                margin-left: 1.5rem;
+            }
+
+            .obsah ul li {
                 margin-top: 20px;
+            }
+
+            .obsah ul li ul li {
+                margin-top: 0;
             }
         </style> 
 
@@ -35,7 +70,6 @@
                 {% include "inc/sidebar.html" %}
 
                 <div class="row container my-5"> 
-                    
                     <!-- Levá strana -->
                     <div class="col-lg-8">
                     {% if article.img %}
@@ -54,12 +88,13 @@
                     <!-- Pravá strana -->
                     <div class="col-lg-4 article-section">
                         <div class="card mb-4">
-                            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                            <div class="card-body obsah w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
                             {% if article.menu %}
-                                <h3 class="card-title font-bold after-h3">Menu</h3>
+                                <h3 class="card-title font-bold after-h3">Obsah</h3>
                                 {{ article.menu|safe }}
 
-                            {% else %}
+                                {% else %}
+
                             {% endif %}
                             </div>
                         </div>
@@ -67,7 +102,7 @@
                         <div class="card mb-4">
                             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
                             {% if article.typ == "Článek" %}
-                                <h3 class="card-title font-bold after-h3">Odkazy</h3>
+                                <h3 class="card-title font-bold after-h3">Další články</h3>
                                 <ul>
                                     <!--<li><a href=""></a></li>-->
                                     <li><a href="https://div.cz/100-nejvlivnejsich-osobnosti-pro-rok-2024">100 nejvlivnějších osobností 2024</a></li>
@@ -76,13 +111,13 @@
 
 
                                 {% elif article.typ == "Movie" %}
-                                    <h3 class="card-title font-bold after-h3">Filmy</h3>
+                                    <h3 class="card-title font-bold after-h3">Další články</h3>
                                 <ul>
                                     <li><a href="https://div.cz/soutez-o-listky-do-kina">Soutěž o lístky do kina</a></li>
 
                                 </ul>
                                 {% elif article.typ == "Filmy" %}
-                                    <h3 class="card-title font-bold after-h3">Filmy</h3>
+                                    <h3 class="card-title font-bold after-h3">Další články</h3>
                                 <ul>
                                     <li><a href="https://div.cz/seznam-filmu">Seznam filmů</a></li>
                                     <li><a href="https://div.cz/akcni">Akční filmy</a></li>
@@ -90,7 +125,7 @@
 
                                 </ul>
                                 {% elif article.typ == "Film" %}
-                                    <h3 class="card-title font-bold after-h3">Filmy</h3>
+                                    <h3 class="card-title font-bold after-h3">Další články</h3>
                                 <ul>
                                     <li><a href="https://div.cz/akcni">Akční filmy</a></li>
                                     <li><a href="https://div.cz/komedie">Komedie</a></li>
@@ -99,7 +134,7 @@
 
 
                                 {% elif article.typ == "Herec" %}
-                                    <h3 class="card-title font-bold after-h3">Filmy</h3>
+                                    <h3 class="card-title font-bold after-h3">Další články</h3>
                                 <ul>
                                     <li><a href="https://div.cz/akcni">Akční filmy</a></li>
                                     <li><a href="https://div.cz/komedie">Komedie</a></li>
@@ -107,7 +142,7 @@
                                 </ul>
 
                                 {% elif article.typ == "Herečka" %}
-                                    <h3 class="card-title font-bold after-h3">Filmy</h3>
+                                    <h3 class="card-title font-bold after-h3">Další články</h3>
                                 <ul>
                                     <li><a href="https://div.cz/libuse-safrankova">Libuše Šafránková</a></li>
                                     <li><a href="https://div.cz/akcni">Akční filmy</a></li>
@@ -115,9 +150,9 @@
                                     <li><a href="https://div.cz/seznam-filmu">Seznam filmů</a></li>
                                 </ul>
 
-
+                                <!-- KNIHY -->
                                 {% elif article.typ == "Book" %}
-                                    <h3 class="card-title font-bold after-h3">Knihy</h3>
+                                    <h3 class="card-title font-bold after-h3">Další články</h3>
                                 <ul>
                                     <li><a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury">Magnésia Litera 2024</a></li>
                                     <li><a href="https://div.cz/odhaleni-kouzla-slova-nobelova-cena-za-literaturu">Nobelova cena za literaturu</a></li>
@@ -127,7 +162,7 @@
                                 </ul>
 
                                 {% elif article.typ == "Knihy" %}
-                                    <h3 class="card-title font-bold after-h3">Knihy</h3>
+                                    <h3 class="card-title font-bold after-h3">Další články</h3>
                                 <ul>
                                     <li><a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury">Magnésia Litera 2024</a></li>
                                     <li><a href="https://div.cz/odhaleni-kouzla-slova-nobelova-cena-za-literaturu">Nobelova cena za literaturu</a></li>
@@ -137,7 +172,7 @@
 
 
                                 {% elif article.typ == "Game" %}
-                                    <h3 class="card-title font-bold after-h3">Hry</h3>
+                                    <h3 class="card-title font-bold after-h3">Další články</h3>
                                 <ul>
                                     <li><a href="https://div.cz/hry/">Seznam her</a></li>
 
@@ -145,7 +180,7 @@
 
 
                                 {% elif article.typ == "site" %}
-                                    <h3 class="card-title font-bold after-h3">Stránky</h3>
+                                    <h3 class="card-title font-bold after-h3">Další články</h3>
                                 <ul>
                                     <li><a href="https://div.cz/podminky-pouziti">Podmínky použití</a></li>
                                     <li><a href="https://div.cz/ochrana-osobnich-udaju">Ochrana osobních údajů</a></li>
@@ -154,7 +189,7 @@
 
 
                                 {% elif article.typ == "Site" %}
-                                    <h3 class="card-title font-bold after-h3">Stránky</h3>
+                                    <h3 class="card-title font-bold after-h3">Další články</h3>
                                 <ul>
                                     <li><a href="https://div.cz/podminky-pouziti">Podmínky použití</a></li>
                                     <li><a href="https://div.cz/ochrana-osobnich-udaju">Ochrana osobních údajů</a></li>

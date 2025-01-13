@@ -1,18 +1,30 @@
 # VIEWS.series.list
-
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import Avg
+# IMPORT na začátku, řazeno abecedně
 import math
-from django.core.paginator import Paginator
-from star_ratings.models import Rating, UserRating
-from django.shortcuts import render, get_object_or_404, redirect
-from div_content.forms.series import SearchForm, TVShowDivRatingForm, CommentForm
-from django.db import connection
+
+from datetime import timedelta
+
 from div_content.models import (
     Tvcountries, Tvcrew, Tvgenre, Tvkeywords, Tvproductions, Tvseason, Tvshow, Tvshowquotes, Tvepisode, Userlisttype, 
     Userlist, Userlistitem, Userlisttvshow, Userlisttvseason, Userlisttvepisode, FavoriteSum, Tvshowcomments
 )
+
+from div_content.forms.series import CommentForm, SearchForm, TVShowDivRatingForm
+
+from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
+from django.core.paginator import Paginator
+
+from django.db import models 
+from django.db import connection
+from django.db.models import Avg, Prefetch
+
+from django.shortcuts import get_object_or_404, redirect, render
+
+from django.utils import timezone
+
+from star_ratings.models import Rating, UserRating
+
 
 # Konstanty
 #CONTENT_TYPE_SERIES_ID = 40 # tvshow
@@ -42,8 +54,60 @@ USERLISTTYPE_SHLEDNUTY_DIL = 22
 
 def series_list(request):
 
-    tvshows_list = Tvshow.objects.all().order_by('-divrating').values('title', 'titlecz', 'description', 'url', 'img')[:15] 
-    return render(request, 'series/series_list.html', {'tvshows_list': tvshows_list})
+    #tvshows_list = Tvshow.objects.all().order_by('-divrating').values('title', 'titlecz', 'description', 'url', 'img')[:15] 
+    tvshow_content_type = ContentType.objects.get_for_model(Tvshow)
+    tvshows_list = Tvshow.objects.all().annotate(
+        average_rating=models.Subquery(
+            Rating.objects.filter(
+                content_type=tvshow_content_type,
+                object_id=models.OuterRef('tvshowid')
+            ).values('average')[:1]
+        )
+    ).order_by('-divrating').values(
+        'title', 
+        'titlecz', 
+        'description', 
+        'url', 
+        'img',
+        'average_rating'
+    )[:15]
+    
+
+    # Zaokrouhlíme hodnoty na celá čísla a převedeme na procenta
+    for tvshow in tvshows_list:
+        if tvshow['average_rating'] is not None:
+            tvshow['average_rating'] = round(float(tvshow['average_rating']) * 20)  # převod z 5 na 100%
+        else:
+            tvshow['average_rating'] = 0
+
+
+    #latest_episodes = Tvepisode.objects.select_related(
+    #    'seasonid',  # Join s TVSeason
+    #    'seasonid__tvshowid'  # Join s TVShow
+    #).filter(
+    #    seasonid__tvshowid__divrating__gt=4000,  # Pouze z top seriálů
+    #    airdate__lte=timezone.now()  # Pouze odvysílané díly
+    #).order_by(
+    #    '-airdate'  # Seřazení od nejnovějších
+    #)[:20]  
+
+    # NOVÉ SEZÓNY
+    now = timezone.now()
+    two_months_ago = now - timedelta(days=60)
+    two_months_future = now + timedelta(days=60)
+
+    # Nejnovější sezóny z top seriálů +- 2 měsíce
+    now = timezone.now()
+    two_months_ago = now - timedelta(days=60)
+    latest_seasons = Tvseason.objects.select_related('tvshowid').filter(
+        tvshowid__divrating__gt=3000,  # Top seriály
+        premieredate__gte=two_months_ago,  # Od dvou měsíců zpět
+        premieredate__isnull=False  # Musí mít datum premiéry
+    ).order_by(
+        'premieredate'  # Seřadíme podle data premiéry (budoucí na konci)
+    )[:9]
+
+    return render(request, 'series/series_list.html', {'tvshows_list': tvshows_list, 'latest_seasons': latest_seasons})
 
 
 def series_alphabetical(request):
@@ -657,6 +721,9 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
                 div_rating=0
             )
             return redirect('serie_episode', tv_url=tvshow.url, seasonurl=season.seasonurl, episodeurl=episode.episodeurl)
+
+
+
 
 
     return render(request, 'series/serie_episode.html', {

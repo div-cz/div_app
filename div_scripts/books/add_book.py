@@ -280,7 +280,8 @@ def update_book_details(request: HttpRequest, book_id:int)  -> JsonResponse:
             book.img = img_value
         elif img_option == 'no-img':
             # Nastavíme výchozí obrázek
-            book.img = 'noimg.png'
+            if not book.img:
+                book.img = 'noimg.png'
         else:
             # Pokud uživatel nezměnil obrázek, ponecháme původní
             pass

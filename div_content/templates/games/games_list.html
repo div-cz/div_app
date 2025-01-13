@@ -37,31 +37,35 @@
 
         <!-- generování her -->
         <div class="row my-4">
-            <div class="grid grid-cols-1 gap-2">
+            <div class="flex flex-wrap gap-2">
             {% for game in games %}
-                <div class="game-card grid w-full bg-[#F9F9F9] dark:bg-[#1A161F] border rounded-1xl">
-                    <a href="/hra/{{ game.url }}" class="">
+                <div class="game-card flex w-full bg-[#F9F9F9] dark:bg-[#1A161F] border rounded-1xl">
+
+                    <a href="/hra/{{ game.url }}" style="width: 130px;">
                     {% if game.img %}
                         {% if game.img == "rawg.io" %}
-                            <img src="https://rawg.io/ ... ... .../{{ game.img }}" alt="{{ game.title }}" class="card-img-top rounded-l-lg" style="height: 100%;">
+                            <img src="https://rawg.io/ ... ... .../{{ game.img }}" alt="{{ game.title }}" class="card-img-top rounded-l-lg">
                             {% else %}
-                            <img src="/static/hra{{ game.img }}" alt="{{ game.title }}" class="card-img-top rounded-l-lg" style="height: 100%;">
+                            <img src="/static/hra{{ game.img }}" alt="{{ game.title }}" class="card-img-top rounded-l-lg">
                             {% endif %}
                         {% else %}
-                        <img src="/static/img/game/game.png" alt="{{ game.title }}" class="card-img-top rounded-l-lg" style="height: 100%;">
+                        <img src="/static/img/game/game.png" alt="{{ game.title }}" class="card-img-top rounded-l-lg">
                     {% endif %}
                     </a>
 
-                    <!-- hodnocení -->
-                    <div class="flex justify-end w-full" style="margin-top: -25px;">
-                        <div class="rating box-shadow">
-                            <div class="rating-inner">
+                    <div class="card-body w-min">
+                        <div class="flex justify-between">
+                            <h4 class="card-title"><a href="/hra/{{ game.url }}">{{ game.title }}</a> ({{ game.year }})</h4>
+                            
+                            <!-- hodnocení -->
+                            <div class="flex" style="width: 50px;">
+                                <div class="rating box-shadow" data-rating="{{ game.average_rating }}">
+                                    <div class="rating-inner">{{ game.average_rating }}%
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="card-body">
-                        <h4 class="card-title"><a href="/hra/{{ game.url }}">{{ game.title }}</a> ({{ game.year }})</h4>
                         <p class="card-text">
                             {% if game.descriptioncz %}
                                 {{ game.descriptioncz|safe|truncatewords:40 }}

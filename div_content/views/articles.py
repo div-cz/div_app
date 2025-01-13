@@ -1,8 +1,9 @@
 # VIEWS.ARTICLES.PY
 
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from div_content.models import Article, Movie
 from div_content.views.login import custom_login_view
+from div_content.forms.index import ArticleForm
 
 
 
@@ -46,4 +47,39 @@ def articles_list(request, category):
     return render(request, 'articles/articles_list.html', {
         'articles': articles,
         'category': category_name,
+        'category_key': category,
+    })
+
+
+def article_new(request, category):
+    category_map = {
+        'filmy': ('Movie', 'Filmy'),
+        'knihy': ('Book', 'Knihy'),
+        'hry': ('Game', 'Hry'),
+        'serialy': ('General', 'Seriály'),
+    }
+
+    category_data = category_map.get(category.lower())
+    if not category_data:
+        return render(request, '404.html', status=404)
+
+    category_type, category_name = category_data
+    
+    #ARTICLE NEWS
+    if request.user.is_superuser or request.user.is_staff:
+        initial_data = {"typ": category_type}
+        article_form = ArticleForm(request.POST or None, initial=initial_data)
+        
+        if request.method == 'POST':
+            if 'article_submit' in request.POST and article_form.is_valid():
+                article = article_form.save(commit=False)
+                article.save()
+                return redirect('article_detail', article_url=article.url)
+    else:
+        article_form = None
+
+    return render(request, 'articles/article_new.html', {
+        "form": article_form,
+        "category_key": category,
+        "category_name": category_name,
     })

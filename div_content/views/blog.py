@@ -101,22 +101,26 @@ def blog_section_detail(request, section=None):
     if section == "herni":
         game_blogs = Articleblog.objects.filter(blog_type='game').order_by('-created_at')[:20]
         return render(request, "blog/blog_section_detail.html", {
-            "game_blogs": game_blogs
+            "game_blogs": game_blogs,
+            "section": section
             })
     elif section == "filmove":
         movie_blogs = Articleblog.objects.filter(blog_type='movie').order_by('-created_at')[:20]
         return render(request, "blog/blog_section_detail.html", {
-            "movie_blogs": movie_blogs
+            "movie_blogs": movie_blogs,
+            "section": section
         })
     elif section == "knizni":
         book_blogs = Articleblog.objects.filter(blog_type='book').order_by('-created_at')[:20]
         return render(request, "blog/blog_section_detail.html", {
-            "book_blogs": book_blogs
+            "book_blogs": book_blogs,
+            "section": section
             })
     elif section == "obecne":
         general_blogs = Articleblog.objects.filter(blog_type='general').order_by('-created_at')[:20]
         return render(request, "blog/blog_section_detail.html", {
-            "general_blogs": general_blogs
+            "general_blogs": general_blogs,
+            "section": section
         })
     else:
         return render(request, "404.html", status=404)

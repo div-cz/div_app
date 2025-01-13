@@ -358,8 +358,8 @@
                 <div class="">    
                     <h3 class="after-h3">Recenze</h3>       
                     {% if user.is_authenticated %}
-                    <h3>Přidat novou recenzi</h3>
-                    <form method="post" class="after" action="{% url 'book_detail' book_url=book.url %}">
+                    <h4>Přidat novou recenzi</h4>
+                    <form method="post" action="{% url 'book_detail' book_url=book.url %}">
                         {% csrf_token %}
                         {{ comment_form.comment }}
                         <button type="submit" class="add">Vložit recenzi</button>
@@ -372,7 +372,7 @@
                     {% if comments %}
                     <ul class="list-unstyled mt-3 komentar">
                         {% for comment in comments %}
-                        <li class="mb-2 w-full rounded-1xl">
+                        <li class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
                             <p class="koment after">{{ comment.comment }}</p>
                             <div class="user">
                                 <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a>
@@ -391,10 +391,63 @@
             <!-- POSTAVY -->
             <div id="tab2" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F] ">
                 <div class=""> 
-                    <h3 class="after-h3">Informace o postavách knihy</h3>
+                    <div>
+                        <h3 class="after-h3">Informace o postavách knihy</h3>
+
+                        {% if user.is_authenticated %}
+                        <h4>Přidat postavu ke knize</h4>
+                        <p>Z důvodu milionů postav trvá načítání řádově vteřiny</p>
+                        <form method="post" name="character_form">
+                            {% csrf_token %}
+                            <div>
+                                <label for="character_query">Hledat postavu:</label>
+                                <input type="text" id="character_query" class="form-control" placeholder="Začněte psát jméno postavy...">
+                                <ul id="character_results"></ul>
+                            </div>
+                            <input type="hidden" name="characterid" id="selected_character_id">
+
+                            <label for="charactermain">Typ postavy:</label>
+                            <select name="charactermain" class="form-control">
+                                <option value="1">Hlavní postava</option>
+                                <option value="0">Vedlejší postava</option>
+                                <option value="3">Hlavní v části knihy</option>
+                            </select>
+
+                            <button type="submit" name="add_character" class="add">Přidat postavu</button>
+                        </form>
+
+                        <script>
+                            document.getElementById('character_query').addEventListener('input', function () {
+                                const query = this.value;
+                                const resultsList = document.getElementById('character_results');
+
+                                if (query.length > 2) {
+                                    fetch(`/kniha/ajax/postava/?q=${query}`)
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            resultsList.innerHTML = '';
+                                            data.results.forEach(character => {
+                                                const li = document.createElement('li');
+                                                li.textContent = character.charactername;
+                                                li.dataset.id = character.characterid;
+                                                li.addEventListener('click', function () {
+                                                    document.getElementById('selected_character_id').value = this.dataset.id;
+                                                    document.getElementById('character_query').value = this.textContent;
+                                                    resultsList.innerHTML = '';
+                                                });
+                                                resultsList.appendChild(li);
+                                            });
+                                        });
+                                } else {
+                                    resultsList.innerHTML = '';
+                                }
+                            });
+                        </script>
+                        {% endif %}
+                    </div>
 
                     {% for character_with_role in characters_with_roles %}
-                    <div style="float:left;width:100px;height:40px;border:1px solid silver;padding:6px;margin:10px;text-align:center;valign:center;text-valign:center;">
+                    <div style="">
                         {% with character=character_with_role.characterid %}
                                     {% if character.characterbio %}
                                 <a href="/postava/{{ character.characterurl }}">
@@ -419,105 +472,60 @@
 
                         {% endif %}</div>
                     {% endfor %}
-                    
-                    <hr style="clear:both">
 
-                    {% if user.is_authenticated %}
-
-                    <h3>Přidat postavu ke knize</h3>
-                    <p>Z důvodu milionů postav trvá načítání řádově vteřiny</p>
-                    <form method="post" name="character_form">
-                        {% csrf_token %}
-                        <div>
-                            <label for="character_query">Hledat postavu:</label>
-                            <input type="text" id="character_query" class="form-control" placeholder="Začněte psát jméno postavy...">
-                            <ul id="character_results"></ul>
-                        </div>
-                        <input type="hidden" name="characterid" id="selected_character_id">
-
-                        <label for="charactermain">Typ postavy:</label>
-                        <select name="charactermain" class="form-control">
-                            <option value="1">Hlavní postava</option>
-                            <option value="0">Vedlejší postava</option>
-                            <option value="3">Hlavní v části knihy</option>
-                        </select>
-
-                        <button type="submit" name="add_character" class="btn btn-primary">Přidat postavu</button>
-                    </form>
-
-                    <script>
-                        document.getElementById('character_query').addEventListener('input', function () {
-                            const query = this.value;
-                            const resultsList = document.getElementById('character_results');
-
-                            if (query.length > 2) {
-                                fetch(`/kniha/ajax/postava/?q=${query}`)
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        resultsList.innerHTML = '';
-                                        data.results.forEach(character => {
-                                            const li = document.createElement('li');
-                                            li.textContent = character.charactername;
-                                            li.dataset.id = character.characterid;
-                                            li.addEventListener('click', function () {
-                                                document.getElementById('selected_character_id').value = this.dataset.id;
-                                                document.getElementById('character_query').value = this.textContent;
-                                                resultsList.innerHTML = '';
-                                            });
-                                            resultsList.appendChild(li);
-                                        });
-                                    });
-                            } else {
-                                resultsList.innerHTML = '';
-                            }
-                        });
-                    </script>
-                    {% endif %}
                 </div>
             </div>
 
             <!-- CICÁTY -->
             <div id="tab3" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F] ">
-                <div class=""> 
-                    <h3 class="after-h3">Citáty z knihy</h3>
-                    {% if user.is_authenticated %}
-                    <h4>Přidat nový citát:</h4>
-                    <form method="post" class="after">
-                        {% csrf_token %}
-                        {{ quote_form.as_p }}
-                        <button type="submit" class="add">Přidat citát</button>
-                    </form>
-                    {% endif %}
+                <h3 class="after-h3">Citáty z knihy</h3>
+                <!-- přidat citát -->
+                {% if user.is_authenticated %}
+                <h4>Přidat nový citát</h4>
+                <form method="post" class="">
+                    {% csrf_token %}
+                    {{ quote_form.as_p }}
+                    <button type="submit" class="add">Přidat citát</button>
+                </form>
+                {% endif %}
 
-                    <ul>
-                        {% for quote in quotes %}
-                        <li id="quote-{{ quote.quoteid }}" class="after">
-                            {{ quote.quote }}
-                            {% comment %}{% if quote.chapter %}
-                                <br><small>Kapitola: {{ quote.chapter }}</small>
-                            {% endif %}
-                            {% if quote.characterid %}
-                                <br><small>Postava: {{ quote.characterid.charactername }}</small>
-                            {% endif %}{% endcomment %}
-                            <div class="flex mt-3 items-center justify-between">
-                                <small><strong>Vložil:</strong> <a href="/uzivatel/{{ quote.user.id }}/">{{ quote.user.username }}</a></small>
-
-                                <!-- Hodnocení -->
-                                <div class="rating">
-                                    <span class="thumbsup" data-quote-id="{{ quote.quoteid }}">&#128077; {{ quote.thumbsup }}</span>
-                                    <span class="thumbsdown" data-quote-id="{{ quote.quoteid }}">&#128078; {{ quote.thumbsdown }}</span>
-                                </div>
-                            </div>
-                        </li>
-                        {% endfor %}
-                    </ul>
+                <!-- výpis citátů -->
+                {% if quotes %}
+                <div class="mt-4">
+                    {% for quote in quotes %}
+                    <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded" id="quote-{{ quote.quoteid }}">
+                        <p class="text-sm after">{{ quote.quote }}</p>
+                        {% comment %}{% if quote.chapter %}
+                            <br><small>Kapitola: {{ quote.chapter }}</small>
+                        {% endif %}
+                        {% if quote.characterid %}
+                            <br><small>Postava: {{ quote.characterid.charactername }}</small>
+                        {% endif %}{% endcomment %}
+                        <div class="mt-2 text-end">
+                            <p>Vložil: 
+                                <a href="/uzivatel/{{ quote.user.id }}/">{{ quote.user.username }}</a>
+                            </p>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
+                {% else %}
+                <p>Zatím nejsou žádné citáty k této knize.</p>
+                {% endif %}
             </div>
 
             <!-- ZAJÍMAVOSTI -->
             <div id="tab4" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F] ">
                 <h3 class="after-h3">Informace o zajímavostech filmu</h3>
+                <h4>Přidat novou zajímavost</h4>
+                <form method="post" action="">
+                    <textarea>
 
+                    </textarea>
+                    <button type="submit" class="add">Vložit zajímavost</button>
+                </form>               
+
+                <p>Zatím nejsou žádné zajímavosti k tomuto seriálu.</p>
             </div>
 
             <!-- OBCHOD -->
@@ -529,7 +537,7 @@
                     <details class="my-4">
                         <summary style="font-size: 1.17rem;">PRODÁM / KOUPÍM</summary>
                         <div class="card mt-3">
-                            <div class="card-body">
+                            <div class="card-body dark:bg-[#0d0c0f] rounded-1xl">
                                 <form method="post" name="booklisting_form">
                                     {% csrf_token %}
                                     <input type="hidden" name="form_type" value="booklisting">
@@ -730,7 +738,7 @@
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 style="text-align:center" class="after font-bold">Hodnocení</h3>
                 <div class="grid columns">
-                    <div class="hodnoceni">
+                    <div class="hodnoceni after">
                         {% ratings book %}
                         {% if user.is_authenticated %}
                         {% else %}
@@ -745,8 +753,9 @@
                     {% if ratings %}
                     <ul class="list-unstyled rating-users">
                     {% for rating in ratings %}
-                        <li>
-                            <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a> <!--(ID: {{ rating.user.id }})-->:
+                        <li class="after">
+                            <small><p class="text-center p-1">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
+                            <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a>
                             <span class="right">
                                 {% for _ in "12345" %}
                                 {% if forloop.counter <= rating.score %}
@@ -763,7 +772,6 @@
                 </div>
             </div>
         </div>
-
 
         <!-- Série -->
         {% if series %}
@@ -803,10 +811,9 @@
         </div>
         {% endif %}
 
-
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl ">
-                <h3 class="card-title font-bold after-h3">{{ book.titlecz }}</h3> <!-- NEFUNGUJE -->
+                <h3 class="card-title font-bold after-h3">{{ book.titlecz }}</h3>
                 <p class="card-text">Sdílet na:</p>
 
                 <!-- Facebook Share Button -->
@@ -896,7 +903,6 @@
             }
         });
     });
-
 </script>
 
 <script>

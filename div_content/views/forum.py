@@ -85,6 +85,7 @@ def forum_section_detail(request, slug):
         "section": section,
         "topics": topics,
         "page": page,
+        "slug": slug,
     })
 
 # přidat nové diskuzní vlákno
@@ -112,6 +113,7 @@ def create_new_topic(request, slug):
     return render(request, "forum/forum_create_topic.html", {
         "form": form,
         "section": section,
+        "slug": slug, 
     })
 
 # obsah diskuzního vlákna s komentáři
@@ -142,6 +144,7 @@ def forum_topic_detail(request, slug, topicurl):
         "comments": comments,
         "form": form,
         "page": page,
+        "slug": slug,
     })
 
 # edit komentáře v diskuzním vláknu

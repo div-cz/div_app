@@ -21,6 +21,7 @@ from div_content.models import (
 )
 from star_ratings.models import Rating, UserRating
 # for index
+from django.db import models
 from django.db.models import Avg, Count
 from django.db.models.functions import ExtractYear
 import math
@@ -113,7 +114,14 @@ def index(request): # hlavní strana
     today = date.today()
     current_month = today.month
     current_day = today.day
-    creators_list_8 = Creator.objects.filter(birthdate__month=current_month, birthdate__day=current_day).order_by('-divrating')[:8]
+    #creators_list_8 = Creator.objects.filter(birthdate__month=current_month, birthdate__day=current_day).order_by('-divrating')[:8]
+    creators_list_8 = Creator.objects.filter(
+        birthdate__month=current_month,
+        birthdate__day=current_day,
+        deathdate__isnull=True,
+        adult=0
+    ).order_by('-divrating')[:8]
+
     users_list_4 = User.objects.annotate(
         comment_count=Count('moviecomments'),
         rating_count=Count('userrating'),
@@ -221,8 +229,34 @@ def movies(request, year=None, genre_url=None, movie_url=None):
     else:
         movies_carousel = Metaindex.objects.filter(section='Movie').order_by('-popularity').values('title', 'url', 'img', 'description')[:4]
         movies = Movie.objects.all().order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:50]
-        movies_list_15 = Movie.objects.filter(adult=0,releaseyear__gt=2018).order_by('-divrating').values('title', 'titlecz', 'url', 'img', 'description')[:15]
-        
+        #movies_list_15 = Movie.objects.filter(adult=0,releaseyear__gt=2018).order_by('-divrating').values('title', 'titlecz', 'url', 'img', 'description')[:15]
+
+
+
+        # Získáme filmy včetně jejich hodnocení
+        movie_content_type = ContentType.objects.get_for_model(Movie)
+        movies_list_15 = Movie.objects.filter(adult=0, releaseyear__gt=2018).annotate(
+            average_rating=models.Subquery(
+                Rating.objects.filter(
+                    content_type=movie_content_type,
+                    object_id=models.OuterRef('movieid')
+                ).values('average')[:1]
+            )
+        ).order_by('-divrating').values(
+            'title', 
+            'titlecz', 
+            'description', 
+            'url', 
+            'img',
+            'average_rating'
+        )[:15]
+        # Zaokrouhlíme hodnoty na celá čísla a převedeme na procenta
+        for movie in movies_list_15:
+            if movie['average_rating'] is not None:
+                movie['average_rating'] = round(float(movie['average_rating']) * 20)  # převod z 5 na 100%
+            else:
+                movie['average_rating'] = 0
+
         stats_movie = Metastats.objects.filter(tablemodel='Movie').first()
         stats_creator = Metastats.objects.filter(tablemodel="Creator").first()
         stats_tvshows = Metastats.objects.filter(tablemodel="TVShow").first()

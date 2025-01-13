@@ -9,13 +9,15 @@
 
 <link href="/static/css/navbar_together.css" rel="stylesheet">
 
-<h2><a class="hover:underline" href="{% url 'clanky' %}">Články</a> / <a href="">filmy, knihy, hry</a></h2>
+<h2><a class="hover:underline" href="{% url 'articles_index' %}">Články</a> / <a href="{% url 'articles_list' category=category_key %}">{{ category_name }}</a></h2>
 
 <section class="w-3/4">
     <h2>Nový článek</h2>
     <form method="post">
-
-        <button class="btn mb-4 mr-1 btn-action add" type="submit">Přidat</button>
+        {% csrf_token %}
+        {{ form.errors }}
+        {{ form.as_p }}
+        <button class="btn mb-4 mr-1 btn-action add" name="article_submit" type="submit">Přidat</button>
     </form>
 </section>
 

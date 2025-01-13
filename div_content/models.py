@@ -82,7 +82,7 @@ class AATask(models.Model):
 
 
 class Article(models.Model):
-    id = models.IntegerField(db_column='ID', primary_key=True)
+    id = models.AutoField(db_column='ID', primary_key=True)
     url = models.CharField(db_column='URL', max_length=255)
     title = models.CharField(db_column='Title', max_length=255)
     h1 = models.CharField(db_column='H1', max_length=255)
@@ -103,6 +103,7 @@ class Article(models.Model):
     updated = models.DateField(db_column='Updated')
 
     class Meta:
+        managed = False
         db_table = 'Article'
 
 
@@ -1446,8 +1447,10 @@ class Moviequotes(models.Model):
     quote = models.TextField(db_column='Quote')
     parentquote = models.ForeignKey('self', on_delete=models.CASCADE, db_column='ParentQuoteID', null=True, blank=True)
     divrating = models.IntegerField(db_column='DIVRating', default="0", db_index=True, blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, db_column='user_id')  
 
     class Meta:
+        managed = 'False'
         db_table = 'MovieQuotes'
 
 class Movierating(AbstractBaseRating, models.Model):
@@ -1901,11 +1904,13 @@ class Userlisttvepisode(models.Model):
     def __str__(self):
         return f"{self.userlist.namelist} - {self.tvepisode.title}"
 
+"""
+# DEFINOVANÉ NA ŘÁDKU 1743
 class Userchatsession(models.Model):
     userchatsessionid = models.AutoField(db_column='UserChatSessionID', primary_key=True) 
     createdat = models.DateTimeField(db_column='CreatedAt')  # Field name made lowercase.
     user1 = models.ForeignKey(User, models.DO_NOTHING, db_column='User1')  # Field name made lowercase.
-    user2 = models.ForeignKey(User, models.DO_NOTHING, db_column='User2', related_name='userchatsession_user2_set')  # Field name made lowercase.
+    user2 = models.ForeignKey(User, models.DO_NOTHING, db_column='User2', related_name='userchatsession_user2_set') 
 
     class Meta:
         db_table = 'UserChatSession'
@@ -1925,8 +1930,7 @@ class Usermessage(models.Model):
     class Meta:
         ordering = ['sentat'] 
         db_table = 'UserMessage'
-
-
+"""
 
 
 

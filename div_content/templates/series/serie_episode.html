@@ -106,9 +106,9 @@
                             <a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a>
                             {% endif %}
                         {% endfor %}
+                        , <a href="#tab2" id="go-to-characters">další...</a>
                     </li>
                     {% endif %}
-                    
                 </ul>
 
                 <!-- Tlačítka -->
@@ -167,8 +167,7 @@
                 <li class="karta"><a href="#tab2">Hrají</a></li>
                 <!--<li class="karta"><a href="#tab3">Zajímavosti</a></li>-->
                 <li class="karta"><a href="#tab4">Hlášky</a></li>
-                <!--<li class="karta"><a href="#tab5">Diskuze</a></li>-->
-                <!--<li class="karta"><a href="#tab6">Lokality</a></li>-->
+                <!--<li class="karta"><a href="#tab5">Lokality</a></li>-->
             </ul>
     
             <!-- RECENZE -->
@@ -176,7 +175,7 @@
                 <div class="">    
                     <h3 class="after-h3">Recenze</h3> 
                     {% if user.is_authenticated %}
-                    <h3 class="after-h3">Přidat novou recenzi</h3>
+                    <h4 class="after-h3">Přidat novou recenzi</h4>
                     <form method="post" class="after" action="">
                         {% csrf_token %}
                         {{ comment_form.comment }}
@@ -190,7 +189,7 @@
                     {% if comments %}
                     <ul class="list-unstyled mt-3 komentar">
                         {% for comment in comments %}
-                        <li class="mb-2 w-full rounded-1xl">
+                        <li class="card card-body w-full p-3 mb-2 border rounded">
                             <p class="koment after">{{ comment.comment }}</p>
                             <div class="user">
                                 <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a>
@@ -249,7 +248,7 @@
             <!-- ZAJÍMAVOSTI -->
             <div id="tab3" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
                 <h3 class="after-h3">Informace o zajímavostech seriálu</h3>
-                <h3>Přidat novou zajímavost</h3>
+                <h4>Přidat novou zajímavost</h4>
                 <form method="post" class="after" action="">
                     <textarea>
 
@@ -261,47 +260,37 @@
             </div>
 
             <!-- HLÁŠKY -->
-<div id="tab4" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
-    <h3 class="after-h3">Hlášky</h3>
+            <div id="tab4" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
+                <h3 class="after-h3">Známé hlášky z filmu</h3>
+                <!-- přidat hlášku -->
+                {% if user.is_authenticated %}
+                <h4>Přidat novou hlášku</h4>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <textarea name="quote_text" class="w-full p-2 mb-2" rows="3" required></textarea>
+                    <button type="submit" class="add">Vložit hlášku</button>
+                </form>
+                {% endif %}
 
-    {% if quotes %}
-        <div class="mt-4">
-            {% for quote in quotes %}
-            <div class="quote-block p-3 mb-3 border rounded">
-                <p class="quote-text">{{ quote.quote }}</p>
-                <div class="quote-meta text-sm mt-2">
-                    <span>Přidal: {{ quote.user.username|default:"Anonym" }}</span>
-                    {% if quote.actor %}
-                        <span>Herec: {{ quote.actor.firstname }} {{ quote.actor.lastname }}</span>
-                    {% endif %}
-                    {% if quote.character %}
-                        <span>Postava: {{ quote.character.characternamecz }}</span>
-                    {% endif %}
+                <!-- výpis hlášek -->
+                {% if quotes %}
+                <div class="mt-4">
+                    {% for quote in quotes %}
+                    <div class="card card-body w-full p-3 mb-2 border rounded">
+                        <p class="text-sm after">{{ quote.quote }}</p>
+                        <div class="mt-2 text-end">
+                            <span>Přidal: </span>
+                            <span><a href="">{{ quote.user.username|default:"Anonym" }}</a></span>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
+                {% else %}
+                    <p>Zatím nejsou žádné hlášky k této epizodě.</p>
+                {% endif %}
             </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>Zatím nejsou žádné hlášky k této epizodě.</p>
-    {% endif %}
-
-    {% if user.is_authenticated %}
-    <h3>Přidat novou hlášku</h3>
-    <form method="post" class="after" action="">
-        {% csrf_token %}
-        <textarea name="quote_text" class="w-full p-2 mb-2" rows="3" required></textarea>
-        <button type="submit" class="add">Vložit hlášku</button>
-    </form>
-    {% endif %}
-</div>
-
 
             <!--<div id="tab5" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
-                <h3>Diskuze</h3>
-                <p>Diskuze o filmu.</p>
-            </div>-->
-
-            <!--<div id="tab6" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
                 <h3>Lokality</h3>
                 <p>Informace o natáčecích lokalitách.</p>
             </div>-->
@@ -316,7 +305,7 @@
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 style="text-align:center" class="after font-bold">Hodnocení</h3>
                 <div class="grid columns">
-                    <div class="hodnoceni">
+                    <div class="hodnoceni after">
                         {% ratings episode %}  <!-- Zobrazení hvězdného hodnocení -->
                         {% if user.is_authenticated %}
                         {% else %}
@@ -332,8 +321,9 @@
                     {% if ratings %}
                     <ul class="list-unstyled rating-users">
                         {% for rating in ratings %}
-                        <li>
-                            <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a>:
+                        <li class="after">
+                            <small><p class="text-center p-1">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
+                            <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a>
                             <span class="right">
                                 {% for _ in "12345" %}
                                 {% if forloop.counter <= rating.score %}
@@ -358,7 +348,7 @@
                 {% for season in seasons %}
 
                 <a href="{% url 'serie_season' tv_url=tvshow.url seasonurl=season.seasonurl %}" class="w-full">
-                    {{ season.titlecz }}
+                    {{ season.seasonnumber }}. {{ season.titlecz }}
                 </a>
 
                 {% empty %}

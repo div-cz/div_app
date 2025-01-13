@@ -6,15 +6,14 @@
 
 {% block title %}Knihy | DIV.cz{% endblock %}
 
-
 {% block meta %}
 <meta name="description" content="Databáze knih na DIV.cz. Objevte novinky, recenze, žebříčky, autory a další informace o vašich oblíbených knihách.">
-<link rel=”canonical” href=”https://div.cz/knihy/">
+<link rel="canonical" href="https://div.cz/knihy/">
 
 <meta name="keywords" content="knihy, literatura, databáze knih, recenze, novinky, žebříčky, autoři, knižní novinky">
 <meta name="author" content="DIV.cz">
 
-<meta property="og:title" content="Knihy | Databáze DIV.cz">
+<meta property="og:title" content="Knihy | Databáze knih na DIV.cz">
 <meta property="og:description" content="Prozkoumejte nejnovější knihy na DIV.cz. Aktuální recenze, novinky a žebříčky.">
 <meta property="og:image" content="https://div.cz/img/book/knizni-div.webp">
 <meta property="og:url" content="https://div.cz/knihy/">
@@ -41,11 +40,11 @@
     }
 </style>
 
-
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css"/>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"/>
 
 <script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
+
 {% endblock %}
 
 
@@ -55,42 +54,32 @@
     <!-- Hlavní obsah (Levý sloupec) -->
     <div class="col-lg-8">
         <!-- carousel -->
-        <div class="w-100">
-            {% comment %}{% load cache %}{% cache 604800 books_index %}{% endcomment %}
-            <div class="book-slider">
-                {% for book in top_books %}
-                <div style="margin:0 auto">
-                    <a href="/kniha/{{ book.url }}">
-                        <div id="img" style="width:145px;height:225px;border:0px solid blue;margin:0 auto">
-                        <img style="max-width: 140px; height: 205px; margin:0 auto" src="{% if book.img == 'noimg.png' %}https://div.cz/static/img/book/book.png{% else %}/static/kniha/{{ book.img }}{% endif %}" alt="{{ book.titlecz }}">
-                    </a>
-                </div>
-
+        {% comment %}{% load cache %}{% cache 604800 books_index %}{% endcomment %}
+        <div class="book-slider">
+            {% for book in top_books %}
+            <div style="margin:0 auto">
                 <a href="/kniha/{{ book.url }}">
-                    <h3 class="white-background">{{ book.titlecz }}</h3>
+                    <div id="img">
+                    <img style="max-width: 140px; height: 205px; margin:0 auto" src="{% if book.img == 'noimg.png' %}https://div.cz/static/img/book/book.png{% else %}/static/kniha/{{ book.img }}{% endif %}" alt="{{ book.titlecz }}">
                 </a>
-                <p>{{ book.author }}</p>
             </div>
-            {% endfor %}
+
+            <a href="/kniha/{{ book.url }}">
+                <h3 class="white-background">{{ book.titlecz }}</h3>
+            </a>
+            <p>{{ book.author }}</p>
         </div>
-        {% comment %}{% endcache %}{% endcomment %}
+        {% endfor %}
+    {% comment %}{% endcache %}{% endcomment %}
     </div>
 
     <!-- generování knih -->
     <div class="row my-4">
-        <div class="grid grid-cols-1 gap-2">
+        <div class="flex flex-wrap gap-2">
             {% for book in book_list_15 %} 
-            
-            <!-- hodnocení -->
-            <div class="flex justify-end w-full" style="margin-top: -25px;">
-                <div class="rating box-shadow">
-                    <div class="rating-inner">
-                    </div>
-                </div>
-            </div>
+            <div class="w-full flex bg-[#F9F9F9] dark:bg-[#1A161F] border rounded-1xl">
 
-            <div class="book-card grid w-full bg-[#F9F9F9] dark:bg-[#1A161F] border rounded-1xl">
-                <a href="/kniha/{{ book.url }}" class="w-auto">
+                <a href="/kniha/{{ book.url }}" style="width: 130px;">
                 {% if book.img == "noimg.png" %}
                     <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
                     <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz }}" class="card-img-top rounded-l-lg">
@@ -103,26 +92,39 @@
                 {% endif %}   
                 </a>
 
-                <div class="card-body">
-                    <h4 class="card-title">
-                        <a href="/kniha/{{ book.url }}">
-                        {% if book.titlecz %}
-                        {{ book.titlecz }}
-                        {% else %}
-                        {{ book.title }}
-                        {% endif %}
-                        </a>
-                    </h4>
-                    <h5 class="card-title">
-                        {% if book.authorid and book.authorid.url %}
-                            <a href="{% url 'author_detail' author_url=book.authorid.url %}">{{ book.author }}</a>
-                        {% else %}
-                            {{ book.author }}
-                        {% endif %}
-                    </h5>
+                <div class="card-body w-min">
+                    <div class="flex justify-between">
+                        <div>
+                            <h4 class="card-title">
+                                <a href="/kniha/{{ book.url }}">
+                                {% if book.titlecz %}
+                                {{ book.titlecz }}
+                                {% else %}
+                                {{ book.title }}
+                                {% endif %}
+                                </a>
+                            </h4>
+                            <h5 class="card-title">
+                                {% if book.authorid and book.authorid.url %}
+                                    <a href="{% url 'author_detail' author_url=book.authorid.url %}">{{ book.author }}</a>
+                                {% else %}
+                                    {{ book.author }}
+                                {% endif %}
+                            </h5>
+                        </div>
+
+                        <!-- hodnocení -->
+                        <div class="flex" style="width: 50px;">
+                            <div class="rating box-shadow" data-rating="{{ book.average_rating }}">
+                                <div class="rating-inner">{{ book.average_rating }}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <p class="card-text">{{ book.description|default_if_none:""|safe|truncatewords:40 }}</p>
                     <!--<a href="/film/{{ movie.url }}" class="btn btn-primary">{{ movie.titlecz }}</a>-->
                 </div>
+                
             </div>
             {% endfor %}
         </div>
