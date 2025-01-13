@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from div_content.models import Bookcomments, Favorite, Userprofile
 
 
-
 class SearchFormCreators(forms.Form):
     q = forms.CharField(label='Hledat', max_length=255)
 

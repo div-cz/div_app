@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from div_content.models import (
     Creator, Creatorbiography, Favorite, Metaindex, Movie, Moviecrew, Userlisttype, Userlist, Userlistitem, FavoriteSum
 )
-from div_content.forms.creators import FavoriteForm, CreatorDivRatingForm
+from div_content.forms.creators import FavoriteForm, CreatorBiographyForm, CreatorDivRatingForm
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -110,6 +110,17 @@ def creator_detail(request, creator_url):
         else:
             creator_div_rating_form = CreatorDivRatingForm(instance=creator)
     
+    # Formulář pro přidání popisu herce
+    if request.method == "POST":
+        form = CreatorBiographyForm(request.POST)
+        if form.is_valid():
+            biography = form.save(commit=False)
+            biography.userid = request.user
+            biography.creator = creator
+            biography.save()
+            return redirect("creator_detail", creator_url=creator.url)
+    else:
+        form = CreatorBiographyForm(initial={"creator": creator})
 
     return render(request, 'creators/creator_detail.html', 
                 {'creator': creator, 
@@ -119,6 +130,7 @@ def creator_detail(request, creator_url):
                 'is_favorite': is_favorite,
                 'fans': fans,
                 'creator_div_rating_form': creator_div_rating_form,
+                'form': form,
 })
                 
 def creators_search(request):

@@ -480,17 +480,17 @@ class Bookwriters(models.Model):
 class Characterbiography(models.Model):
     biographyid = models.AutoField(primary_key=True)
     characterid = models.ForeignKey('Charactermeta', on_delete=models.CASCADE, db_column='CharacterID', related_name='biographies')
-    characterborn = models.CharField(db_column='CharacterBorn', max_length=16, null=True)
-    characterdeath = models.CharField(db_column='CharacterDeath', max_length=16, null=True)
-    biographytext = models.TextField(db_column='BiographyText', null=True, blank=True)
-    biographytextcz = models.TextField(db_column='BiographyTextCZ', null=True, blank=True)
-    source = models.CharField(db_column='Source', max_length=255, blank=True)
+    characterborn = models.CharField(db_column='CharacterBorn', max_length=16, blank=True, null=True)
+    characterdeath = models.CharField(db_column='CharacterDeath', max_length=16, blank=True, null=True)
+    biographytext = models.TextField(db_column='BiographyText', blank=True, null=True)
+    biographytextcz = models.TextField(db_column='BiographyTextCZ', blank=True, null=True)
+    source = models.CharField(db_column='Source', max_length=255, blank=True, null=True)
 
     lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
     language = models.CharField(db_column='Language', max_length=10, default='en')
-    externallink = models.URLField(db_column='ExternalLink', blank=True)
-    img = models.URLField(db_column='IMG', blank=True)
-    notes = models.TextField(db_column='Notes', blank=True)
+    externallink = models.URLField(db_column='ExternalLink', blank=True, null=True)
+    img = models.URLField(db_column='IMG', blank=True, null=True)
+    notes = models.TextField(db_column='Notes', blank=True, null=True)
     author = models.CharField(db_column='Author', max_length=255, blank=True)
     userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
     verificationstatus = models.CharField(
@@ -506,6 +506,7 @@ class Characterbiography(models.Model):
     is_primary = models.BooleanField(db_column='IsPrimary', default=False)
 
     class Meta:
+        managed = False
         db_table = 'CharacterBiography'
 
 
@@ -1112,12 +1113,13 @@ class Metaindex(models.Model):
     author = models.CharField(db_column='Author', max_length=255, null=True, blank=True) 
     year = models.CharField(db_column='Year', max_length=255, null=True, blank=True) 
     description = models.CharField(db_column='Description', max_length=255, null=True)
-    popularity = models.CharField(db_column='Popularity', max_length=9, default=0)
+    divrating = models.CharField(db_column='DIVrating', max_length=9, default=0)
     img = models.CharField(db_column='IMG', max_length=255, null=True, blank=True)  # URL obrázku
     url = models.CharField(db_column='URL', max_length=255, null=True, blank=True)  # URL pro detailní stránku položky
     last_updated = models.DateField(db_column='LastUpdated', auto_now=True)  # Datum poslední aktualizace
 
     class Meta:
+        managed = False
         db_table = 'MetaIndex'
 
 class Metapublisher(models.Model):

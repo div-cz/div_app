@@ -101,7 +101,7 @@ def index(request): # hlavní strana
 
 
 
-#        movies_carousel = Metaindex.objects.filter(section='Movie').order_by('-popularity').values('title', 'url', 'img', 'description')[2:8]
+#        movies_carousel = Metaindex.objects.filter(section='Movie').order_by('-divrating').values('title', 'url', 'img', 'description')[2:8]
     movies_list_6 = Metaindex.objects.filter(section='Movie').order_by('-indexid').values('title', 'url', 'img', 'description')[:6]
         
         #latest_articles = Article.objects.filter(typ='Článek').order_by('-created').values('url', 'title')[:3]
@@ -155,6 +155,24 @@ def index(request): # hlavní strana
     else:
         tasks = []
 
+
+    # Data pro jednotlivé karusely z MetaIndex
+    movies_carousel = Metaindex.objects.filter(
+        section='Movie'
+    ).order_by('-divrating')[:7]  # Můžete upravit počet položek
+    
+    series_carousel = Metaindex.objects.filter(
+        section='TVShow'
+    ).order_by('-divrating')[:7]
+    
+    books_carousel = Metaindex.objects.filter(
+        section='Book'
+    ).order_by('-divrating')[:7]
+    
+    games_carousel = Metaindex.objects.filter(
+        section='Game'
+    ).order_by('-divrating')[:7]
+    
     return render(request, 'index.html', {
             'movies': movies, 
             'movies_list_6': movies_list_6, 
@@ -171,7 +189,11 @@ def index(request): # hlavní strana
             'stats_movie': stats_movie,
             'stats_writters': stats_writters,
             'charts': charts,
-            'tasks': tasks
+            'tasks': tasks,
+            'movies_carousel': movies_carousel,
+            'series_carousel': series_carousel,
+            'books_carousel': books_carousel, 
+            'games_carousel': games_carousel,
             })  
 
 
@@ -217,7 +239,7 @@ def movies(request, year=None, genre_url=None, movie_url=None):
         movies_carousel_genre = Metaindex.objects.filter(section='Movie').order_by('-indexid').values('title', 'url', 'img', 'description')[:3]
 
         #movies_list_30_genre = Movie.objects.filter(moviegenre__genreid=genre.genreid).values('title', 'titlecz', 'url', 'img', 'description')[:30]
-        movies_list_30_genre = Movie.objects.filter(moviegenre__genreid=genre.genreid).order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description', 'divrating')[:30]
+        movies_list_30_genre = Movie.objects.filter(moviegenre__genreid=genre.genreid).order_by('-divrating').values('title', 'titlecz', 'url', 'img', 'description', 'divrating')[:30]
 
         return render(request, 'movies/movies_genre.html', {
             'movies_for_genre': movies_for_genre, 
@@ -227,8 +249,8 @@ def movies(request, year=None, genre_url=None, movie_url=None):
             })
 
     else:
-        movies_carousel = Metaindex.objects.filter(section='Movie').order_by('-popularity').values('title', 'url', 'img', 'description')[:4]
-        movies = Movie.objects.all().order_by('-popularity').values('title', 'titlecz', 'url', 'img', 'description')[:50]
+        movies_carousel = Metaindex.objects.filter(section='Movie').order_by('-divrating').values('title', 'url', 'img', 'description')[:4]
+        movies = Movie.objects.all().order_by('-divrating').values('title', 'titlecz', 'url', 'img', 'description')[:50]
         #movies_list_15 = Movie.objects.filter(adult=0,releaseyear__gt=2018).order_by('-divrating').values('title', 'titlecz', 'url', 'img', 'description')[:15]
 
 
@@ -296,7 +318,7 @@ def search(request):
         if form.is_valid():
             query = form.cleaned_data['q']
             movies = (Movie.objects.filter(titlecz__icontains=query, adult=0)
-                .values('title', 'titlecz', 'url', 'img', 'description', 'popularity', 'releaseyear', 'averagerating').order_by('-divrating')[:50])
+                .values('title', 'titlecz', 'url', 'img', 'description', 'divrating', 'releaseyear', 'averagerating').order_by('-divrating')[:50])
     else:
         form = SearchForm()
 

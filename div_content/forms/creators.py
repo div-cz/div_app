@@ -7,10 +7,26 @@ from django.contrib.contenttypes.models import ContentType
 from div_content.models import Creator, Creatorbiography, Favorite
 
 
-
-
-#class CreatorBiographyForm(forms.ModelForm):
-#    ...
+class CreatorBiographyForm(forms.ModelForm):
+    class Meta:
+        model = Creatorbiography
+        fields = [
+            'biographyid', 'biographytextcz', 'source', 
+            'externallink', 'imageurl'
+        ]
+        labels = {
+            'biographytextcz': "Životopis",
+            'source': "Zdroj",
+            'externallink': "URL adresa zdroje",
+            'imageurl': "URL adresa obrázku"
+        }
+        widgets = {
+            'biographyid': forms.HiddenInput(),
+            'biographytextcz': forms.Textarea(attrs={'class': 'form-control', 'rows': 20, 'style': 'height: 250px;','placeholder': 'Životopis postavy...'}),
+            'externallink': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'URL adresa zdroje'}),
+            'imageurl': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'URL obrázku'}),
+            'source': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Zdroj'}),
+        }
 
 
 class SearchFormCreators(forms.Form):

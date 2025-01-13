@@ -51,7 +51,7 @@
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="card-title font-bold after-h3">Má komunita</h3>
-                <div>   
+                <div class="after last-line">   
                     <div class="flex">
                         <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ tvshow.titlecz }}" style="width: 15%;">   
                         <div class="flex flex-wrap content-start ml-2" style="width: 83%;">
@@ -70,18 +70,18 @@
     <!-- PRAVÁ STRANA -->
     <div class="col-lg-4 article-section">
 
-
         <!-- Nejnovější sezóny -->
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="card-title font-bold after-h3">Nové sezóny</h3>
                 <ul class="w-full" style="list-style-type:none">
                     {% for season in latest_seasons %}
-                    <li>
+                    <li class="after last-line">
                         <a href="{% url 'serie_season' tv_url=season.tvshowid.url seasonurl=season.seasonurl %}">
                             {{ season.tvshowid.titlecz }}: S{{ season.seasonnumber|stringformat:"02d" }}
                             
-                        </a><br><small>(premiéra {{ season.premieredate|date:"j.n.Y" }})</small>
+                        </a>
+                        <p><small>(premiéra {{ season.premieredate|date:"j.n.Y" }})</small></p>
                     </li>
                     {% empty %}
                     <li>Žádné nové sezóny k dispozici</li>
@@ -90,7 +90,7 @@
             </div>
         </div>
 
-
+        <!-- žánry -->
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="card-title font-bold after-h3">Žánry</h3>
@@ -117,6 +117,7 @@
             </div>
         </div>
 
+        <!-- články -->
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="card-title font-bold after-h3">Články</h3>
@@ -125,6 +126,7 @@
             </div>
         </div>
 
+        <!-- roky -->
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="card-title font-bold after-h3">Roky</h3>
