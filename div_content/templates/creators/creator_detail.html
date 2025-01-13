@@ -174,12 +174,15 @@
 
         {% else %}
         <div class="flex flex-wrap items-center">
-            <details>
+            <details class="w-full">
                 <summary>Přidej vlastní popis, zatím tu žádný není!</summary>
                 <form action="">
-                    <textarea id="w3review" name="w3review" rows="3" cols="50"></textarea>
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="add">Přidat</button>
+                    <!-- <textarea id="w3review" name="w3review" rows="3" cols="50"></textarea>
                     <br>
-                    <input class="add" type="submit" value="Přidat">
+                    <input class="add" type="submit" value="Přidat"> -->
                 </form>
             </details>
         </div>

@@ -36,16 +36,13 @@
                         <div class="chat-search-box">
                             <div class="input-group flex justify-center">
                                 <input id="chatSearchInput" placeholder="Search">
-                                <div class="input-group-btn">
-                                    <button id="chatSearchButton" type="button" class="btn btn-info">
-                                        <i class="fa fa-search"></i>
-                                    </button>
-                                </div>
+                                <i class="fa fa-search flex items-center" style="padding: 5px 10px;"></i>
                             </div>
                         </div>
-                        <ul id="chatSearchResults" class="list-group"></ul>
-                        
-                        <ul class="users flex lg:flex-wrap">
+                        <div>
+                            <ul id="chatSearchResults" class="list-group"></ul>
+
+                            <ul class="users flex lg:flex-wrap">
                             {% for chat_session in all_chat_sessions %}
                                 {% if chat_session.messages.last %}
                                     {% if chat_session.user1 == request.user %}
@@ -95,8 +92,8 @@
                                     {% endif %}
                                 {% endif %}                    
                             {% endfor %}
-
-                        </ul>
+                            </ul>
+                        </div>
                     </div>
                 </div>
     
@@ -117,6 +114,7 @@
         {% include "inc/footer.html" %}
     
         <script src="/static/js/script.js"></script>
+        <script src="/static/js/searchUserForChat.js"></script>
     
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -139,57 +137,7 @@
             });
 
 
-            document.addEventListener('DOMContentLoaded', function () {
-                const searchInput = document.getElementById('chatSearchInput');
-                const searchButton = document.getElementById('chatSearchButton');
-                const resultsContainer = document.getElementById('chatSearchResults');
 
-                // Function to perform AJAX search
-                function performSearch(query) {
-                    if (!query.trim()) {
-                        resultsContainer.innerHTML = ''; // Clear results if input is empty
-                        return;
-                    }
-
-                    fetch(`/search_user_in_chat/?q=${encodeURIComponent(query)}`)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error(`HTTP error! Status: ${response.status}`);
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            // Clear previous results
-                            resultsContainer.innerHTML = '';
-
-                            if (data.users.length > 0) {
-                                data.users.forEach(user => {
-                                    const userItem = document.createElement('li');
-                                    userItem.classList.add('list-group-item');
-                                    userItem.innerHTML = `
-                                        <a href="/ucet/zprava-pro-${user.id}/">${user.username}</a>
-                                    `;
-                                    resultsContainer.appendChild(userItem);
-                                });
-                            } else {
-                                resultsContainer.innerHTML = '<li class="list-group-item">No users found.</li>';
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error fetching search results:', error);
-                        });
-                }
-
-                // Event listener for search input
-                searchInput.addEventListener('input', function () {
-                    performSearch(searchInput.value);
-                });
-
-                // Optional: Perform search on button click
-                searchButton.addEventListener('click', function () {
-                    performSearch(searchInput.value);
-                });
-            });
 
         </script>
 

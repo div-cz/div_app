@@ -27,17 +27,11 @@
     border-right: 0;
 }
 
-.chat-search-box .input-group .input-group-btn .btn {
-    -webkit-border-radius: 0 2px 2px 0;
-    -moz-border-radius: 0 2px 2px 0;
-    border-radius: 0 2px 2px 0;
-    margin: 0;
-}
-
-.chat-search-box .input-group .input-group-btn .btn i {
-    font-size: 1.2rem;
-    line-height: 100%;
-    vertical-align: middle;
+.input-group input {
+    border-radius: 1.5rem;
+    max-height: 2rem;
+    padding: .5rem !important;
+    border: 1px solid #dee2e6 !important;
 }
 
 @media (max-width: 767px) {
@@ -65,18 +59,30 @@
 .users {
     padding: 0;
     overflow: scroll;
+    overflow-x: auto;
+    /* scrollbar-width: none; Firefox */
+    height: calc(100vh - 200px);
+    margin-top: 20px;
 }
 
-.users::-webkit-scrollbar {
+/* .users::-webkit-scrollbar {
     display: none;
-}
-
-.users {
-    scrollbar-width: none; /* Firefox */
-}
+} */
 
 .person:hover {
     text-decoration: none;
+}
+
+.list-group {
+    padding: 0 20px 20px;
+    z-index: 1;
+    position: absolute;
+    background: #bec9d9;
+    width: 100%;
+}
+
+.list-group-item a:hover {
+    color: #fff;
 }
 
 .users .person {
@@ -84,7 +90,7 @@
     width: 100%;
     padding: 10px 1rem;
     cursor: pointer;
-    border-bottom: 1px solid #9e9e9e;
+    /* border-bottom: 1px solid #9e9e9e; */
     border-top: 1px solid #9e9e9e;
     box-shadow: inset 0 0 20px 5px #bec9d9;
     background-color: white;
@@ -190,6 +196,10 @@
         border-right: 1px solid #ccc;
     }
 
+    .users {
+        height: auto;
+    }
+
     .col-lg-8 {
         border-right: none;
     }
@@ -248,16 +258,17 @@
 
 .chat-box {
     overflow: scroll;
+    overflow-x: hidden;
     padding: 0 10px;
-    scrollbar-width: none; /* Firefox */
+    /* scrollbar-width: none; Firefox */
     position: relative;
     padding: 1rem;
     height: calc(100vh - 310px);
 }
 
-.chat-box::-webkit-scrollbar {
+/* .chat-box::-webkit-scrollbar {
     display: none;
-}
+} */
 
 .chat-left, .chat-right {
     display: flex;

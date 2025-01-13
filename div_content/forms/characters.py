@@ -13,19 +13,19 @@ class CharacterBiographyForm(forms.ModelForm):
     class Meta:
         model = Characterbiography
         fields = [
-            'characterid', 'characterborn', 'characterdeath', 'biographytext', 'source', 
+            'characterid', 'characterborn', 'characterdeath', 'biographytextcz', 'source', 
             'externallink', 'img'
         ]
         labels = {
             'characterborn': 'Datum narození',
             'characterdeath': 'Datum úmrtí',
-            'biographytext': "Životopis",
+            'biographytextcz': "Životopis",
             'source': "Zdroj",
             'externallink': "URL adresa zdroje"
         }
         widgets = {
             'characterid': forms.HiddenInput(),
-            'biographytext': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Životopis postavy...'}),
+            'biographytextcz': forms.Textarea(attrs={'class': 'form-control', 'rows': 20, 'style': 'height: 250px;','placeholder': 'Životopis postavy...'}),
             'externallink': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'URL adresa zdroje'}),
             'img': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'URL obrázku'}),
             'source': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Zdroj'}),

@@ -139,67 +139,66 @@
                     <div class="users-container">
                         <div class="chat-search-box">
                             <div class="input-group flex justify-center">
-                                <input placeholder="Search">
-                                <div class="input-group-btn">
-                                    <button type="button" class="btn btn-info">
-                                        <i class="fa fa-search"></i>
-                                    </button>
-                                </div>
+                                <input id="chatSearchInput" placeholder="Search">
+                                <i class="fa fa-search flex items-center" style="padding: 5px 10px;"></i>
                             </div>
                         </div>
-    
-                        <ul class="users flex lg:flex-wrap">
-                            {% for chat_session in all_chat_sessions %}
-                                {% if chat_session.messages.last %}
-                                    {% if chat_session.user1 == request.user %}
-                                    <a 
-                                    class="person w-full {% if chat_session.user2.id == receiver.id %}active-user{% endif %}" 
-                                    href="{% url 'chat_message' user_id=chat_session.user2.id %}">
-                                        <li class="flex items-center" data-chat="person1" data-username="{{ chat_session.user2.username|lower }}">
-                                            <div class="msg-user">
-                                                <img src="/static/img/avatar/{{ chat_session.user2.userprofile.avatar.imagepath}}" alt="Avatar">
-                                            </div>
-                                            <div class="name-time flex flex-wrap w-full">
-                                                <div class="flex justify-between w-full">
-                                                    <p class="name w-full">{{ chat_session.user2.username }}</p>
-                                                    {% if not chat_session.messages.last.isread and request.user != chat_session.messages.last.sender  %}
-                                                    <i class="fa-regular fa-envelope" style="color: red; font-size: 20px; margin: 0;"></i>
-                                                    {% endif %}
+                        <div>
+                            <ul id="chatSearchResults" class="list-group"></ul>
+        
+                            <ul class="users flex lg:flex-wrap">
+                                {% for chat_session in all_chat_sessions %}
+                                    {% if chat_session.messages.last %}
+                                        {% if chat_session.user1 == request.user %}
+                                        <a 
+                                        class="person w-full {% if chat_session.user2.id == receiver.id %}active-user{% endif %}" 
+                                        href="{% url 'chat_message' user_id=chat_session.user2.id %}">
+                                            <li class="flex items-center" data-chat="person1" data-username="{{ chat_session.user2.username|lower }}">
+                                                <div class="msg-user">
+                                                    <img src="/static/img/avatar/{{ chat_session.user2.userprofile.avatar.imagepath}}" alt="Avatar">
                                                 </div>
-                                                <div class="flex flex-wrap lg:w-full justify-between">
-                                                    <p class="date w-full">{{ chat_session.messages.last.sentat|date:"j. F Y" }}</p>
-                                                    <p class="time w-full">{{ chat_session.messages.last.sentat | time:"H:i" }}</p>
+                                                <div class="name-time flex flex-wrap w-full">
+                                                    <div class="flex justify-between w-full">
+                                                        <p class="name w-full">{{ chat_session.user2.username }}</p>
+                                                        {% if not chat_session.messages.last.isread and request.user != chat_session.messages.last.sender  %}
+                                                        <i class="fa-regular fa-envelope" style="color: red; font-size: 20px; margin: 0;"></i>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="flex flex-wrap lg:w-full justify-between">
+                                                        <p class="date w-full">{{ chat_session.messages.last.sentat|date:"j. F Y" }}</p>
+                                                        <p class="time w-full">{{ chat_session.messages.last.sentat | time:"H:i" }}</p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </li>
-                                    </a>
-                                    {% else %}
-                                    <a 
-                                    class="person w-full {% if chat_session.user1.id == receiver.id %}active-user{% endif %}" 
-                                    href="{% url 'chat_message' user_id=chat_session.user1.id %}">
-                                        <li class="flex items-center" data-chat="person1">
-                                            <div class="msg-user">
-                                                <img src="/static/img/avatar/{{ chat_session.user1.userprofile.avatar.imagepath}}" alt="Avatar">
-                                            </div>
-                                            <div class="name-time flex flex-wrap w-full">
-                                                <div class="flex justify-between w-full">
-                                                    <p class="name w-full">{{ chat_session.user1.username }}</p>
-                                                    {% if not chat_session.messages.last.isread and request.user != chat_session.messages.last.sender  %}
-                                                    <i class="fa-regular fa-envelope" style="color: red; font-size: 20px; margin: 0;"></i>
-                                                    {% endif %}
+                                            </li>
+                                        </a>
+                                        {% else %}
+                                        <a 
+                                        class="person w-full {% if chat_session.user1.id == receiver.id %}active-user{% endif %}" 
+                                        href="{% url 'chat_message' user_id=chat_session.user1.id %}">
+                                            <li class="flex items-center" data-chat="person1">
+                                                <div class="msg-user">
+                                                    <img src="/static/img/avatar/{{ chat_session.user1.userprofile.avatar.imagepath}}" alt="Avatar">
                                                 </div>
-                                                <div class="flex flex-wrap lg:w-full justify-between">
-                                                    <p class="date w-full">{{ chat_session.messages.last.sentat|date:"j. F Y" }}</p>
-                                                    <p class="time w-full">{{ chat_session.messages.last.sentat | time:"H:i" }}</p>
+                                                <div class="name-time flex flex-wrap w-full">
+                                                    <div class="flex justify-between w-full">
+                                                        <p class="name w-full">{{ chat_session.user1.username }}</p>
+                                                        {% if not chat_session.messages.last.isread and request.user != chat_session.messages.last.sender  %}
+                                                        <i class="fa-regular fa-envelope" style="color: red; font-size: 20px; margin: 0;"></i>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="flex flex-wrap lg:w-full justify-between">
+                                                        <p class="date w-full">{{ chat_session.messages.last.sentat|date:"j. F Y" }}</p>
+                                                        <p class="time w-full">{{ chat_session.messages.last.sentat | time:"H:i" }}</p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </li>
-                                    </a>    
-                                    {% endif %}
-                                {% endif %}                    
-                            {% endfor %}
+                                            </li>
+                                        </a>    
+                                        {% endif %}
+                                    {% endif %}                    
+                                {% endfor %}
 
-                        </ul>
+                            </ul>
+                        </div>
                     </div>
                 </div>
     
@@ -287,6 +286,7 @@
         {% include "inc/footer.html" %}
     
         <script src="/static/js/script.js"></script>
+        <script src="/static/js/searchUserForChat.js"></script>
 
         <script>
             const currentUser = "{{ request.user.username }}";

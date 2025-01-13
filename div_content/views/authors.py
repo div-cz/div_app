@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from div_content.models import (
     Book, Bookauthor, Userlisttype, Userlist, Userlistitem, Userlisttype, FavoriteSum
 )
+from div_content.forms.creators import Creatorbiography
 from django.contrib.auth.decorators import login_required
 
 

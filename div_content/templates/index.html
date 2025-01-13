@@ -67,6 +67,7 @@
 
             .swiper-wrapper {
                 display: flex;
+                margin-top: 5px;
             }
 
             .card-list .card-item {
@@ -121,6 +122,10 @@
                 transform: translateX(-50%);
             }
 
+            .swiper-slide {
+                display: flex;
+            }
+
             .swiper-button-next:after, .swiper-button-prev:after {
                 font-family: swiper-icons;
                 font-size: 20px;
@@ -134,7 +139,7 @@
             .swiper-button-prev {
                 height: 100%;
                 top: 0;
-                box-shadow: 10px 0px 20px 0px #ffffff;
+                box-shadow: 10px 0px 20px 0px #f8f8f8;
             }
 
             .swiper-button-prev:is(.dark *) {
@@ -144,7 +149,7 @@
             .swiper-button-next {
                 height: 100%;
                 top: 0;
-                box-shadow: -10px 0px 20px 0px #ffffff;
+                box-shadow: -10px 0px 20px 0px #f8f8f8;
             }
 
             .swiper-button-next:is(.dark *) {
@@ -162,6 +167,71 @@
                 .card-list .card-item {
                     flex: 1 0 50%; /* Pro obrazovky menší než 768px (mobilní zařízení) budou zobrazeny 2 karty */
                 }
+            }
+
+
+
+            .rating {
+                position: relative;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                padding: 0;
+            }
+
+            .rating::before {
+                content: '';
+                position: absolute;
+                top: 3px;
+                left: 3px;
+                width: 44px;
+                height: 44px;
+                background: #444444;
+                border-radius: 50%;
+                z-index: 2;
+            }
+
+            .rating::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 50px;
+                height: 50px;
+                background: conic-gradient(
+                    var(--gradient-color, #0a0) 0%,
+                    var(--gradient-color, #0a0) var(--gradient-value, 50%),
+                    #777777 var(--gradient-value, 50%)
+                );
+                border-radius: 50%;
+                z-index: 1;
+            }
+
+            .rating-inner {
+                position: relative;
+                z-index: 3;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: #fff;
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+            .rating-inner span {
+                font-size: 10px;
+                margin-left: 2px;
+                color: #ffd700;
+            }
+
+            .rating-shadow {
+                box-shadow: 3px 3px 10px rgb(147 147 147);
+            }
+
+            .rating-shadow:is(.dark *) {
+                box-shadow: none;
             }
 
         </style>
@@ -259,43 +329,24 @@
                                     <div class="swiper">
                                         <div class="card-wrapper">
                                             <div class="card-list swiper-wrapper">
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/img/fantasy/b/beowulf/beowulf.jpg" class="card-image">
+                                                {% for item in movies_carousel %}
+                                                <div class="card-item swiper-slide flex flex-wrap justify-center">
+                                                    <!-- hodnocení -->
+                                                    <div class="flex justify-end w-full" style="margin-bottom: -40px;">
+                                                        <div class="rating rating-shadow" data-rating="{{ movie.average_rating }}">
+                                                            <div class="rating-inner">
+                                                                {{ movie.average_rating }}%
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <a href="/film/{{ item.url }}" class="card-link">
+                                                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ item.img }}" class="card-image" alt="{{ item.title }}">
                                                     </a>
+                                                    <p class="text-center w-full"><small>{{ item.title }}</small></p>
                                                 </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/img/fantasy/c/carodejuv-ucen.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/img/fantasy/def/twilight-saga-rozbresk-1.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/img/fantasy/h/hvezdny-prach.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/img/fantasy/p/posledni-legie.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/img/fantasy/p/probuzeni-tmy.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/img/fantasy/pans-labyrinth.jpg" class="card-image">
-                                                    </a>
-                                                </div>
+                                                {% endfor %}
                                             </div>
-                                
+                                            
                                             <div class="swiper-pagination"></div>
                                             <div class="swiper-slide-button swiper-button-prev"></div>
                                             <div class="swiper-slide-button swiper-button-next"></div>
@@ -311,43 +362,24 @@
                                     <div class="swiper">
                                         <div class="card-wrapper">
                                             <div class="card-list swiper-wrapper">
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/img/fantasy/terabithia.jpg" class="card-image">
+                                                {% for item in series_carousel %}
+                                                <div class="card-item swiper-slide flex flex-wrap justify-center">
+                                                    <!-- hodnocení -->
+                                                    <div class="flex justify-end w-full" style="margin-bottom: -40px;">
+                                                        <div class="rating rating-shadow" data-rating="{{ stvshow.average_rating }}">
+                                                            <div class="rating-inner">
+                                                                {{ tvshow.average_rating }}%
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <a href="/serial/{{ item.url }}" class="card-link">
+                                                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ item.img }}" class="card-image" alt="{{ item.title }}">
                                                     </a>
+                                                    <p class="text-center w-full"><small>{{ item.title }}</small></p>
                                                 </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/img/fantasy/zaklinac.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/img/horror/h/hranice-smrti.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/img/horror/grindhouse.gif" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/img/serialy/p/person-of-interest.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/img/mystery/c/clona.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/img/serialy/a/alcatraz.jpg" class="card-image">
-                                                    </a>
-                                                </div>
+                                                {% endfor %}
                                             </div>
-                                
+                                            
                                             <div class="swiper-pagination"></div>
                                             <div class="swiper-slide-button swiper-button-prev"></div>
                                             <div class="swiper-slide-button swiper-button-next"></div>
@@ -363,43 +395,27 @@
                                     <div class="swiper">
                                         <div class="card-wrapper">
                                             <div class="card-list swiper-wrapper">
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/kniha/2024/12/DeadofWinter2023_DarcyCoates.jpg" class="card-image">
+                                                {% for item in books_carousel %}
+                                                <div class="card-item swiper-slide flex flex-wrap justify-center">
+                                                    <!-- hodnocení -->
+                                                    <div class="flex justify-end w-full" style="margin-bottom: -40px;">
+                                                        <div class="rating rating-shadow" data-rating="{{ book.average_rating }}">
+                                                            <div class="rating-inner">
+                                                                {{ book.average_rating }}%
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <a href="/kniha/{{ item.url }}" class="card-link">
+                                                        <img src="/static/kniha/{{ item.img }}" class="card-image" alt="{{ item.title }}">
                                                     </a>
+                                                    {% if item.author %}
+                                                    <p class="text-center w-full"><small>{{ item.author }}</small></p>
+                                                    {% endif %}
+                                                    <p class="text-center w-full"><small>{{ item.title }}</small></p>
                                                 </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/kniha/a/1/carodejne-byli-cecilia-lattari.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/kniha/a/1/dokud-rostou-citronovniky-zoulfa-katouh.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/kniha/a/1/na-dosah-hvezd-lorena-schafer.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/kniha/a/1/ptaci-pohadky-martina-bouckova.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/kniha/a/1/zeleny-paprsek-jules-verne.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/kniha/a/2/100-1-nejkrasnejsich-studii-david-kanovsky.jpg" class="card-image">
-                                                    </a>
-                                                </div>
+                                                {% endfor %}
                                             </div>
-                                
+                                            
                                             <div class="swiper-pagination"></div>
                                             <div class="swiper-slide-button swiper-button-prev"></div>
                                             <div class="swiper-slide-button swiper-button-next"></div>
@@ -415,43 +431,26 @@
                                     <div class="swiper">
                                         <div class="card-wrapper">
                                             <div class="card-list swiper-wrapper">
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/hra/2025/age-of-empires-ii-age-of-kings.jpg" class="card-image">
+                                                {% for item in games_carousel %}
+                                                <div class="card-item swiper-slide flex flex-wrap justify-center">
+                                                    <!-- hodnocení -->
+                                                    <div class="flex justify-end w-full" style="margin-bottom: -40px;">
+                                                        <div class="rating rating-shadow" data-rating="{{ game.average_rating }}">
+                                                            <div class="rating-inner">
+                                                                {{ game.average_rating }}%
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <a href="/hra/{{ item.url }}" class="card-link">
+                                                        <img src="/static/hra{{ item.img }}" class="card-image" alt="{{ item.title }}">
                                                     </a>
+                                                    
+                                                    <p class="text-center w-full"><small>{{ item.title }}</small></p>
+
                                                 </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/hra/2025/bioshock-infinite.webp" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/hra/2025/grand-theft-auto-v.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/hra/2025/hogwarts-legacy.avif" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/hra/2025/moorhuhn-x.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/hra/2025/the-last-of-us-part-ii.jpg" class="card-image">
-                                                    </a>
-                                                </div>
-                                                <div class="card-item swiper-slide">
-                                                    <a href="#" class="card-link">
-                                                        <img src="/static/hra/2025/riders-republic.jpg" class="card-image">
-                                                    </a>
-                                                </div>
+                                                {% endfor %}
                                             </div>
-                                
+                                            
                                             <div class="swiper-pagination"></div>
                                             <div class="swiper-slide-button swiper-button-prev"></div>
                                             <div class="swiper-slide-button swiper-button-next"></div>
@@ -526,7 +525,7 @@
                                             <h3 class="">{{ news.title }}</h3>
                                             <p class="biography-text">{{ news.news|safe }}</p> 
                                             <p><a class="toggle-biography">Více...</a></p>
-                                            <p><small>({{ news.source }} - {{ news.created }})</small></p>
+                                            <p class="text-end"><small>({{ news.source }} - {{ news.created }})</small></p>
                                         </div>
                                         {% endfor %}
                                     </div>
@@ -765,8 +764,9 @@
         </script>
 
         {% load static %}
-        <script src="{% static 'js/index.js' %}"></script>
+        
         <script src="{% static 'js/script.js' %}"></script>
+        <script src="{% static 'js/index.js' %}"></script>
 
     </body>
 </html>

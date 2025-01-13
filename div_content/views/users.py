@@ -1351,7 +1351,7 @@ def load_older_messages(request, user_id):
 def search_user_in_chat(request):
     query = request.GET.get("q", "").strip()
     if not query:
-        return JsonResponse({"users": []})  # Empty response for no query
+        return JsonResponse({"users": []})
 
     matching_users = User.objects.filter(username__icontains=query).values("id", "username")[:10]
     return JsonResponse({"users": list(matching_users)})
