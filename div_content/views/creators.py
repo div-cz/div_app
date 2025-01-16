@@ -17,6 +17,8 @@ from django.shortcuts import get_object_or_404, render, redirect
 from collections import defaultdict
 
 # Konstanty
+#CONTENT_TYPE použit v books, movies, authors, characters, series, creators
+
 USERLISTTYPE_FAV_CREATOR_ID = 25 # Oblíbený tvůrce
 USERLISTTYPE_WATCHED_MOVIES = 3 # Shlédnuto
 #CONTENTTYPE_CREATOR_ID = 15
@@ -80,23 +82,32 @@ def creator_detail(request, creator_url):
     movie_content_type = ContentType.objects.get(id=CONTENTTYPE_MOVIE_ID)
     userlisttype = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_WATCHED_MOVIES)
 
+
+    # OPRAVA ANONYMNÍHO PRISTUPU
     filmography_query = Moviecrew.objects.filter(
         peopleid=creator.creatorid
-    ).select_related('movieid', 'roleid').order_by('-movieid__releaseyear').annotate(
-    is_watched=Exists(
-        Userlistitem.objects.filter(
-            userlist__user=user,
-            userlist__listtype=userlisttype,
-            object_id=OuterRef('movieid'),
-            content_type=movie_content_type
+    ).select_related('movieid', 'roleid').order_by('-movieid__releaseyear')
+    
+    if request.user.is_authenticated:
+        filmography_query = filmography_query.annotate(
+            is_watched=Exists(
+                Userlistitem.objects.filter(
+                    userlist__user=request.user,
+                    userlist__listtype=userlisttype,
+                    object_id=OuterRef('movieid'),
+                    content_type=movie_content_type
+                )
+            )
         )
-    ))
+
 
     # Seskupování podle filmu a agregace rolí
     filmography = defaultdict(list)
     for entry in filmography_query:
-        entry.movieid.is_watched = entry.is_watched
-        filmography[entry.movieid].append(entry.roleid.rolenamecz)
+        movie = entry.movieid
+        if not request.user.is_anonymous:
+            movie.is_watched = entry.is_watched
+        filmography[movie].append(entry.roleid.rolenamecz)
 
 
     # Formulář pro úpravu DIV Ratingu u Creator

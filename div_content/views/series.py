@@ -27,6 +27,7 @@ from star_ratings.models import Rating, UserRating
 
 
 # Konstanty
+#CONTENT_TYPE použit v books, movies, authors, characters, series, creators
 #CONTENT_TYPE_SERIES_ID = 40 # tvshow
 tvshow_content_type = ContentType.objects.get_for_model(Tvshow)
 CONTENT_TYPE_SERIES_ID = tvshow_content_type.id

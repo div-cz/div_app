@@ -15,6 +15,7 @@ USERLISTTYPE_FAV_AUTHOR_ID = 23 # Oblíbený spisovatel
 USERLISTTYPE_READLIST_ID = 6 # Přečteno
 
 #CONTENT_TYPE_BOOKAUTHOR_ID = 10
+#CONTENT_TYPE použit v books, movies, authors, characters, series, creators
 bookauthor_content_type = ContentType.objects.get_for_model(Bookauthor)
 CONTENT_TYPE_BOOKAUTHOR_ID = bookauthor_content_type.id
 
