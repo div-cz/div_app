@@ -32,21 +32,25 @@ def author_detail(request, author_url):
 
     user = request.user
 
-    # Získá Userlisttype objekt pro přečtené knihy
-    userlisttype = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_READLIST_ID)
+    if user.is_authenticated:
+        # Získá Userlisttype objekt pro přečtené knihy
+        userlisttype = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_READLIST_ID)
 
-    # Získá uživatelovy přečtené knihy
-    read_list_items = Userlistitem.objects.filter(
-        userlist__user=user,
-        userlist__listtype=userlisttype,
-        object_id=OuterRef("bookid")
-    )
-
-    # Autorovy knihy seřazené od nejnovějších po nejstarší
-    # a přidá atribut is_read, pokud uživatel má v seznamu přečtených
-    books = Book.objects.filter(authorid=author.authorid).order_by("-year").annotate(
+        # Získá uživatelovy přečtené knihy
+        read_list_items = Userlistitem.objects.filter(
+            userlist__user=user,
+            userlist__listtype=userlisttype,
+            object_id=OuterRef("bookid")
+        )
+            # Autorovy knihy seřazené od nejnovějších po nejstarší
+        # a přidá atribut is_read, pokud uživatel má v seznamu přečtených
+        books = Book.objects.filter(authorid=author.authorid).order_by("-year").annotate(
         is_read=Exists(read_list_items)
     )
+    else:
+        books = Book.objects.filter(authorid=author.authorid).order_by("-year")
+
+
 
 
     #Výpis knih podle sérií

@@ -28,6 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
         '46.28.109.39',
+        '84.247.167.146',
         'div.cz',
         'www.div.cz',
         'test.div.cz',
@@ -230,9 +231,10 @@ FILE_CHARSET = 'utf-8'
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': '/var/tmp/django_cache',
+        #'LOCATION': '/var/tmp/django_cache',
     }
 }
+
 # 'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
 # 'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
 

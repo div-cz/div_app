@@ -6,8 +6,8 @@ from div_content.forms.users import ContactForm, UserProfileForm, UserMessageFor
 
 from div_content.models import (
     Avatar, Book, Bookauthor, Bookcomments, Bookgenre, Booklisting, Creator, Favorite, Charactermeta, Game, Gamecomments, Metacountry, Metagenre, Movie, Moviecomments, Moviecountries, 
-    Moviegenre, Movierating, Userdivcoins, Userlist, Userlistbook, Userlistgame, Userlistmovie, Userlisttype, Userprofile,
-    Usermessage, Userchatsession, Userlisttvshow
+    Moviegenre, Movierating, Tvshow, Userdivcoins, Userlist, Userlistbook, Userlistgame, Userlistmovie, Userlisttype, Userprofile,
+    Usermessage, Userchatsession, Userlisttvshow, Userlistitem
     
     )
 from django.contrib.auth.models import User 
@@ -30,6 +30,9 @@ from django.utils.timezone import localtime
 from django.http import JsonResponse
 
 
+#CONTENT_TYPE_BOOK_ID = 9
+book_content_type = ContentType.objects.get_for_model(Book)
+CONTENT_TYPE_BOOK_ID = book_content_type.id
 
 
 # A N T I K V A R I Á T
@@ -159,6 +162,7 @@ def profile_show_case(request, user_id):
         'profile_user': profile_user,
         'user_profile': user_profile,
         'awards': awards,
+        'active_tab': 'vitrina',
     })
 
 
@@ -427,6 +431,7 @@ def profile_movies_section(request, user_id):
         'watched_page_obj': watched_page_obj,
         'filmoteka_page_obj': filmoteka_page_obj,
         'is_favorite': is_favorite,
+        'active_tab': 'filmy',
     })
 
 
@@ -538,6 +543,7 @@ def profile_series_section(request, user_id):
         'watched_page_obj': watched_page_obj,
         'serialoteka_page_obj': serialoteka_page_obj,
         'is_favorite': is_favorite,
+        'active_tab': 'serialy',
     })
 
 
@@ -565,7 +571,9 @@ def profile_books_section(request, user_id):
     favorite_list = Userlist.objects.filter(user=profile_user, listtype=favorite_list_type).first()
     favorite_books = []
     if favorite_list:
-        favorite_books = Userlistbook.objects.filter(userlist=favorite_list).select_related('book')
+        favorite_book_items = Userlistitem.objects.filter(userlist=favorite_list, content_type=book_content_type)
+        for item in favorite_book_items:
+            favorite_books.append((Book.objects.filter(bookid=item.object_id).first(), item.addedat))
         favorite_paginator = Paginator(favorite_books, items_per_page)
         favorite_page_number = request.GET.get('favorite_page', 1)
         favorite_page_obj = favorite_paginator.get_page(favorite_page_number)
@@ -660,6 +668,7 @@ def profile_books_section(request, user_id):
         'library_books': library_books,
         'library_page_obj': library_page_obj,
         'is_favorite': is_favorite,
+        'active_tab': 'knihy',
     })
 
 
@@ -769,6 +778,7 @@ def profile_games_section(request, user_id):
         'game_ratings': game_ratings,
         'game_comments': game_comments,
         'is_favorite': is_favorite,
+        'active_tab': 'hry',
     })
 
 
@@ -911,6 +921,7 @@ def profile_stats_section(request, user_id):
         'book_genre_percentages': book_genre_percentages,
         'book_country_percentages': book_country_percentages,
         'is_favorite': is_favorite,
+        'active_tab': 'statistiky',
     })
 
 
