@@ -12,37 +12,37 @@
 <div class="mt-5">
     <!-- Sekce záložek pro filmy, knihy, hry, statistiky -->
     <div class="tab-container flex overflow-scroll lg:fit-content rounded-1xl">
-        <div class="tab" onclick="updateGroupSelector(this)">
+        <div class="tab {% if active_tab == 'filmy' %}active{% endif %}">
             <h3>
                 <i class="fa-solid fa-film mr-2"></i>
                 <a class="movies" href="{% url 'profile_movies_section' profile_user.id %}">Filmy</a>
             </h3>
         </div>
-        <div class="tab" onclick="updateGroupSelector(this)" >
+        <div class="tab {% if active_tab == 'serialy' %}active{% endif %}">
             <h3>
                 <i class="fa-solid fa-video mr-2"></i>
                 <a class="movies" href="{% url 'profile_series_section' profile_user.id %}">Seriály</a>
             </h3>
         </div>
-        <div class="tab active" onclick="updateGroupSelector(this)">
+        <div class="tab {% if active_tab == 'knihy' %}active{% endif %}">
             <h3>
                 <i class="fa-solid fa-book mr-2"></i>
                 <a class="books" href="{% url 'profile_books_section' profile_user.id %}">Knihy</a>
             </h3>
         </div>
-        <div class="tab" onclick="updateGroupSelector(this)" >
+        <div class="tab {% if active_tab == 'hry' %}active{% endif %}">
             <h3>
                 <i class="fa-solid fa-gamepad mr-2"></i>
                 <a class="games" href="{% url 'profile_games_section' profile_user.id %}">Hry</a>
             </h3>
         </div>
-        <div class="tab" onclick="updateGroupSelector(this)" >
+        <div class="tab {% if active_tab == 'statistiky' %}active{% endif %}">
             <h3>
                 <i class="fas fa-star mr-2"></i>
                 <a class="stats" href="{% url 'profile_stats_section' profile_user.id %}">Statistiky</a>
             </h3>
         </div>
-        <div class="tab" onclick="updateGroupSelector(this)" >
+        <div class="tab {% if active_tab == 'vitrina' %}active{% endif %}">
             <h3>
                 <i class="fa-solid fa-trophy mr-2"></i> 
                 <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
@@ -100,15 +100,21 @@
                     <div class="">
                         {% for rating in book_page_obj.object_list %}
                         <div class="grid border my-grid sudy">
-                            <!-- <div>
+
+                            {% comment %}
+                            <div>
                             {% if rating.rating.content_object.img and rating.rating.content_object.img != "noimg.png" %}
                                 <img src="https://books.google.com/books/content?id={{ rating.rating.content_object.img }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ rating.rating.content_object.title }}" width="50">
                             {% else %}
                                 <img src="https://div.cz/static/img/book/book.png" alt="Bez obrazku" width="50">
                             {% endif %}
-                            </div> -->
+                            </div>
+                            {% endcomment %}
+
                             <div class="p-1">
-                                <a class="books" href="/kniha/{{ rating.rating.content_object.url }}">{{ rating.rating.content_object.title }}</a> ({{ rating.rating.content_object.year }})
+                                <a class="books" href="/kniha/{{ rating.rating.content_object.url }}">
+                                    {% if rating.rating.content_object.titlecz %}{{ rating.rating.content_object.titlecz }}{% else %}{{ rating.rating.content_object.titlecz }}{% endif %}
+                                </a> ({{ rating.rating.content_object.year }})
                             </div>
                             <div class="text-center p-1">
                             {% with score=rating.score %}
@@ -166,12 +172,14 @@
                         <div class="text-center font-bold p-1">Datum</div>
                     </div>
                     <div class="">
-                    {% for book in favorite_books %}
+                    {% for book, addedat in favorite_books %}
                         <div class="grid border favorite-grid sudy">
                             <div class="p-1">
-                                <a class="books" href="/kniha/{{ book.book.url }}">{{ book.book.title }}</a> ({{ book.book.year }}) <!-- KNIHA a rok -->
+                                <a class="books" href="/kniha/{{ book.url }}">
+                                    {% if book.titlecz %}{{ book.titlecz }}{% else %}{{ book.title }}{% endif %}
+                                </a> ({{book.year }}) <!-- KNIHA a rok -->
                             </div>
-                            <div class="text-center p-1"> {{ book.addedat|date:"j. n. Y" }} </div> <!-- datum -->
+                            <div class="text-center p-1"> {{ addedat|date:"j. n. Y" }} </div> <!-- datum -->
                         </div>
                     {% endfor %}
 

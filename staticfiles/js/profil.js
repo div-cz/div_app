@@ -60,33 +60,3 @@ window.addEventListener('DOMContentLoaded', () => {
         updateNavTabSelector(initialTab);
     }
 });
-
-
-function updateGroupSelector(active) {
-    const parent = document.querySelector('.tab-container');
-    const background = parent.querySelector('.background');
-
-    // Najdeme pozici aktivní karty
-    const activeRect = active.getBoundingClientRect();
-    const parentRect = parent.getBoundingClientRect();
-
-    // Vypočítáme relativní pozici a šířku
-    const left = activeRect.left - parentRect.left;
-    const width = activeRect.width;
-
-    // Nastavíme nové vlastnosti pozadí
-    background.style.transform = `translateX(${left}px)`;
-    background.style.width = `${width}px`;
-
-    // Aktualizujeme aktivní kartu
-    parent.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    active.classList.add('active');
-}
-
-// Inicializace při načtení stránky
-window.addEventListener('DOMContentLoaded', () => {
-    const initialTab = document.querySelector('.tab.active');
-    if (initialTab) {
-        updateGroupSelector(initialTab);
-    }
-});

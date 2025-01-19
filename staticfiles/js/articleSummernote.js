@@ -6,10 +6,12 @@ $(document).ready(function() {
         tabsize: 2,
         height: 120,
         toolbar: [
+            ['style', ['style']],
             ['font', ['bold', 'underline']],
             ['color', ['color']],
             ['para', ['ul', 'ol', 'paragraph']],
-            ['emoji', ['emoji']], // ensure correct toolbar options
+            ['table', ['table']],
+            ['emoji', ['emoji']],
         ],
         callbacks: {
             onPaste: function(e) {

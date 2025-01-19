@@ -17,6 +17,14 @@
     padding: .5rem 1rem;
 }
 
+.tab.active {
+    background: #d3d3d3;
+}
+
+.tab.active i {
+    color: black;
+}
+
 .tab:not(.active) {
     background-color: transparent;
     color: #000;
@@ -39,6 +47,8 @@
     transition: transform 0.4s ease, width 0.3s ease;
 }
 
+
+/* VITRÍNA */
 #vitrina {
     display: flex;
     flex-wrap: wrap;
@@ -149,20 +159,46 @@
     text-align: center;
 }
 
-/* Responsivní chování */
-@media (max-width: 768px) {
-    .badge {
-        flex: 1 1 calc(33.33% - 10px); /* Tři odznaky na řádek na tabletu */
-        max-width: none; /* Zruší pevnou maximální šířku */
-    }
+
+
+/* POPUP */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
 }
 
-@media (max-width: 480px) {
-    .badge {
-        flex: 1 1 calc(50% - 10px); /* Dva odznaky na řádek na mobilu */
-        max-width: none; /* Zruší pevnou maximální šířku */
-    }
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+.popup button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.popup button:hover {
+    background-color: #0056b3;
+}
+
+
 
 .card-text {
     -webkit-line-clamp: 3;
@@ -199,16 +235,9 @@ a.games.actives  {
 }
 
 button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 6px 12px;
     gap: 8px;
     height: 32px;
     width: 130px;
-    border: none;
-    background: #056bfae0;
-    border-radius: 20px;
     cursor: pointer;
 }
 
@@ -290,3 +319,22 @@ button:hover .svg-icon {
     color: #fff;
 }
 
+
+
+@media (max-width: 768px) {
+    .badge {
+        flex: 1 1 calc(33.33% - 10px); /* Tři odznaky na řádek na tabletu */
+        max-width: none; /* Zruší pevnou maximální šířku */
+    }
+}
+
+@media (max-width: 480px) {
+    .badge {
+        flex: 1 1 calc(50% - 10px); /* Dva odznaky na řádek na mobilu */
+        max-width: none; /* Zruší pevnou maximální šířku */
+    }
+
+    .popup {
+        width: 90%;
+    }
+}
