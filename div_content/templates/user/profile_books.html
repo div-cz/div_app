@@ -90,7 +90,7 @@
             <div id="hodnoceni" class="tab-show w-full active {% if category == 'hodnoceni' %}active{% endif %}">
                 <h3 class="after-h3 padding">Hodnocení knih</h3>
                 {% if book_ratings %}
-                <div class="table lg:pr-5">
+                <div class="table ">
                     <div class="grid my-grid bg-[#c0c0c0]">
                         <!-- <div>Obálka</div> -->
                         <div class="font-bold p-1">Název</div>
@@ -157,7 +157,7 @@
                     </span>
                 </div> 
                 {% else %}
-                    <p>Nemáte žádné ohodnocené knihy.</p>
+                    <p>Žádné ohodnocené knihy.</p>
                 {% endif %}                         
             </div>
 
@@ -165,21 +165,21 @@
             <div id="oblibene" class="tab-show w-full {% if category == 'oblibene' %}active{% endif %}">
                 <h3 class="after-h3 padding">Oblíbené knihy</h3>
                 {% if favorite_books %}
-                <div class="table lg:pr-5">
+                <div class="table ">
                     <div class="grid favorite-grid bg-[#c0c0c0]">
                         <!-- <div>Miniatura</div> -->
                         <div class="font-bold p-1">Název</div>
                         <div class="text-center font-bold p-1">Datum</div>
                     </div>
                     <div class="">
-                    {% for book, addedat in favorite_books %}
+                    {% for book, item in favorite_books %}
                         <div class="grid border favorite-grid sudy">
                             <div class="p-1">
                                 <a class="books" href="/kniha/{{ book.url }}">
                                     {% if book.titlecz %}{{ book.titlecz }}{% else %}{{ book.title }}{% endif %}
                                 </a> ({{book.year }}) <!-- KNIHA a rok -->
                             </div>
-                            <div class="text-center p-1"> {{ addedat|date:"j. n. Y" }} </div> <!-- datum -->
+                            <div class="text-center p-1"> {{ item.addedat|date:"j. n. Y" }} </div> <!-- datum -->
                         </div>
                     {% endfor %}
 
@@ -208,21 +208,22 @@
                     </span>
                 </div>                          
                 {% else %}
-                    <p>Nemáté žádné oblíbené knihy.</p>
+                    <p>Žádné oblíbené knihy.</p>
                 {% endif %}
+
                 <hr>
                 
-                <h3 class="after-h3 padding">Oblíbení autoři</h3>
-
+                <!-- oblíbený autoři -->
+                <h3 class="after-h3 mt-8 padding">Oblíbení autoři</h3>
                 <div class="flex flex-wrap w-full">
                 {% if favorite_authors %}
                 {% for favorite in favorite_authors %}
-                    <div class="" style="width: 150px">
+                    <div class="mt-5" style="width: 150px">
                         <div class="p-1 w-full">
                             {% if favorite.content_object.img %}
-                                <img src="{{ favorite.content_object.img }}" alt="{{ favorite.content_object.firstname }}" class="img-fluid rounded" style="object-fit: cover; width: 50px; height: auto; margin: 0 auto">
+                                <img src="/static/img/author/{{ favorite.content_object.img }}" alt="{{ favorite.content_object.firstname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
                             {% else %}
-                                <img src="/static/img/creator/noperson.svg" alt="{{ favorite.content_object.firstname }}" class="img-fluid rounded" style="object-fit: cover; width: 50px; height: auto; margin: 0 auto">
+                                <img src="/static/img/creator/noperson.svg" alt="{{ favorite.content_object.firstname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
                             {% endif %}
                         </div>
                         <div class="p-1 w-full text-center">
@@ -232,7 +233,7 @@
                 {% endfor %}
 
                 {% else %}
-                    <p>Nemáte žádné oblíbené autory.</p>
+                    <p>Žádní oblíbení autoři.</p>
                 {% endif %}
 
                 </div>
@@ -241,7 +242,7 @@
             <!-- Tab Recenze -->
             <div id="recenze" class="tab-show w-full {% if category == 'recenze' %}active{% endif %}">
                 <h3 class="after-h3 padding">Recenze knih</h3>
-                <div class="table lg:pr-5">
+                <div class="table ">
                 {% if book_comments %}
                 {% for comment in book_comments %}
                     <div class="flex border sudy">
@@ -268,7 +269,7 @@
                     </div>
                     {% endfor %}
                 {% else %}
-                    <p>Nemáte žádné recenze.</p>
+                    <p>Žádné recenze.</p>
                 {% endif %}
                 </div>
 
@@ -298,7 +299,7 @@
             <div id="chci-cist" class="tab-show w-full {% if category == 'chci-cist' %}active{% endif %}">
                 <h3 class="after-h3 padding">Knihy, které chci číst</h3>
                 {% if wantsee_books %}
-                <div class="table lg:pr-5">
+                <div class="table ">
                     <div class="grid favorite-grid bg-[#c0c0c0]">
                         <!-- <div>Miniatura</div> -->
                         <div class="font-bold p-1">Název</div>
@@ -338,7 +339,7 @@
                     </span>
                 </div> 
                 {% else %}
-                    <p>Nemáte žádné knihy v seznamu "Chci číst".</p>
+                    <p>Žádné knihy v seznamu „Chci číst“.</p>
                 {% endif %}                         
             </div>
 
@@ -346,7 +347,7 @@
             <div id="precteno" class="tab-show w-full {% if category == 'precteno' %}active{% endif %}">
                 <h3 class="after-h3 padding">Přečtené knihy</h3>
                 {% if read_books %}
-                <div class="table lg:pr-5">
+                <div class="table ">
                     <div class="grid favorite-grid bg-[#c0c0c0]">
                         <!-- <div>Miniatura</div> -->
                         <div class="font-bold p-1">Název</div>
@@ -386,7 +387,7 @@
                     </span>
                 </div> 
                 {% else %}
-                    <p>Nemáte žádné přečtené knihy v seznamu.</p>
+                    <p>Žádné přečtené knihy v seznamu.</p>
                 {% endif %}
             </div>
 
@@ -394,7 +395,7 @@
             <div id="knihovna" class="tab-show w-full {% if category == 'knihovna' %}active{% endif %}">
                 <h3 class="after-h3 padding">Moje knihovna</h3>
                 {% if library_books %}
-                <div class="table lg:pr-5">
+                <div class="table ">
                     <div class="grid favorite-grid bg-[#c0c0c0]">
                         <!-- <div>Miniatura</div> -->
                         <div class="font-bold p-1">Název</div>
@@ -434,7 +435,7 @@
                     </span>
                 </div> 
                 {% else %}
-                    <p>Nemáte žádné knihy v knihovně.</p>
+                    <p>Žádné knihy v knihovně.</p>
                 {% endif %}
             </div>
 

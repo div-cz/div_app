@@ -60,7 +60,7 @@
             <div style="margin:0 auto">
                 <a href="/kniha/{{ book.url }}">
                     <div id="img">
-                    <img style="max-width: 140px; height: 205px; margin:0 auto" src="{% if book.img == 'noimg.png' %}https://div.cz/static/img/book/book.png{% else %}/static/kniha/{{ book.img }}{% endif %}" alt="{{ book.titlecz }}">
+                    <img class="box-shadow" style="max-width: 140px; height: 205px; margin:0 auto" src="{% if book.img == 'noimg.png' %}https://div.cz/static/img/book/book.png{% else %}/static/kniha/{{ book.img }}{% endif %}" alt="{{ book.titlecz }}">
                 </a>
             </div>
 
@@ -77,7 +77,7 @@
     <div class="row my-4">
         <div class="flex flex-wrap gap-2">
             {% for book in book_list_15 %} 
-            <div class="w-full flex bg-[#F9F9F9] dark:bg-[#1A161F] border rounded-1xl">
+            <div class="w-full flex box-shadow bg-[#F9F9F9] dark:bg-[#1A161F] border rounded-1xl">
 
                 <a href="/kniha/{{ book.url }}" style="width: 130px;">
                 {% if book.img == "noimg.png" %}
@@ -151,7 +151,68 @@
     
     <!-- Pravý sloupec -->
     <div class="col-lg-4 article-section ">
+        <!-- burza knih -->
         <div class="card box-shadow mb-4">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                <div class="flex flex-wrap justify-between card-title after-h3">
+                    <h3 class="font-bold">Burza knih</h3><a href="{% url 'books_market' %}"><small>Zobrazit vše</small></a>
+                </div>
+                <div class="flex flex-wrap">
+                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                        <a href="">
+                            <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/24-bajtu-x-42-let-dorotea-vejmelkova.jpg">
+                        </a>
+                        <div class="ml-2" style="flex: 2;">
+                            <p>kniha</p>
+                            <p>autor</p>
+                            <p>cena</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                        <a href="">
+                            <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/555-samolepek-kocky-a-psi-svojtka.jpg">
+                        </a>
+                        <div class="ml-2" style="flex: 2;">
+                            <p>kniha</p>
+                            <p>autor</p>
+                            <p>cena</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                        <a href="">
+                            <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/a-study-in-scarlet-sir-arthur-conan-doyle.jpg">
+                        </a>
+                        <div class="ml-2" style="flex: 2;">
+                            <p>kniha</p>
+                            <p>autor</p>
+                            <p>cena</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                        <a href="">
+                            <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/academy-stars-second-edition-2-workbook-with-digital-workbook-andrea-harries.jpg">
+                        </a>
+                        <div class="ml-2" style="flex: 2;">
+                            <p>kniha</p>
+                            <p>autor</p>
+                            <p>cena</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                        <a href="">
+                            <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/agilni-lidr-zuzana-sochova.jpg">
+                        </a>
+                        <div class="ml-2" style="flex: 2;">
+                            <p>kniha</p>
+                            <p>autor</p>
+                            <p>cena</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="card-title after-h3 font-bold">Právě vyšlo</h3>
                 <ul class="w-full" style="list-style-type:none">
@@ -164,7 +225,7 @@
                     <li>Duna - retro vydání</li>
                 </ul>
             </div>
-        </div>
+        </div> -->
 
         <!-- Čtenářský cíl přečtených knih -->
         <!-- by Martin -->
@@ -240,12 +301,17 @@
         <!-- ČLÁNKY -->
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <h3 class="card-title font-bold after-h3">Články</h3>
-                <ul>
-                    <li><a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury">Magnesia Litera 2024</a></li>
-                    <li><a href="https://div.cz/literarni-cena-skleneny-klic-glasnyckeln">Skleněný klíč</a></li>
-                    <li><a href="/odhaleni-kouzla-slova-nobelova-cena-za-literaturu">Nobelova cena za literaturu</a></li>
-                </ul>
+                <div class="flex flex-wrap justify-between card-title after-h3">
+                    <h3 class="font-bold">Články</h3><a href="{% url 'articles_list' category='knihy' %}"><small>Zobrazit vše</small></a>
+                </div>
+                <div class="flex flex-wrap after">
+                    <a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury" class="w-full">Magnesia Litera 2024</a>
+                    <a href="https://div.cz/literarni-cena-skleneny-klic-glasnyckeln" class="w-full">Skleněný klíč</a>
+                    <a href="/odhaleni-kouzla-slova-nobelova-cena-za-literaturu" class="w-full">Nobelova cena za literaturu</a>
+                </div>
+                <div>
+                    <a href="{% url 'article_new' category=category_key %}"><i class="fa-solid fa-plus"></i> Přidat nový článek</a>
+                </div>
             </div>
         </div>
 

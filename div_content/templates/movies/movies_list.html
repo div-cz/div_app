@@ -12,7 +12,7 @@
     <!-- LEVÁ STRANA -->
     <div class="col-lg-8">
         <!-- carousel - V kinech -->
-        <div id="image-slider" class="carousel">
+        <div id="image-slider" class="carousel box-shadow">
             {% for movie in carousel_cinema %}
             <div class="carousel-slide">
                 <a href="/film/{{ movie.movieid__url }}">
@@ -29,7 +29,7 @@
         <div class="mb-4">
             <div class="grid grid-cols-3 gap-2">
                 {% for movie in movies_list_15 %} 
-                <div class="card card2 w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <div class="card card2 box-shadow w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                     {% if movie.img == "noimg.png" %}
                     <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" class="card-img-top rounded-t-lg">
                     {% else %}
@@ -133,12 +133,15 @@
                 <div class="flex flex-wrap justify-between card-title after-h3">
                     <h3 class="font-bold">Články</h3><a href="{% url 'articles_list' category='filmy' %}"><small>Zobrazit vše</small></a>
                 </div>
-                <div class="flex flex-wrap">
+                <div class="flex flex-wrap after">
                     <a href="" class="w-full">článek 1</a> <!-- stačí název ne?-->
                     <a href="" class="w-full">článek 2</a>
                     <a href="" class="w-full">článek 3</a>
                     <a href="" class="w-full">článek 4</a>
                     <a href="" class="w-full">článek 5</a>
+                </div>
+                <div>
+                    <a href="{% url 'article_new' category=category_key %}"><i class="fa-solid fa-plus"></i> Přidat nový článek</a>
                 </div>
             </div>
         </div>

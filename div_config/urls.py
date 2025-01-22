@@ -24,7 +24,7 @@ from div_content.views.books import (
     book_add, book_detail, books, books_search, add_to_favourite_books, add_to_readlist, add_to_read_books, 
     add_to_book_library, rate_book, ratequote, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, 
     remove_from_book_library, character_list_ajax, set_reading_goal, books_alphabetical, 
-    book_listings, listing_detail
+    book_listings, listing_detail, books_market
     )
 from div_content.views.creators import (
     creator_detail, creators_list, toggle_favorite, add_creator_to_favourites, remove_creator_from_favourites
@@ -191,7 +191,7 @@ urlpatterns = [
     path('tv/', tv, name='tv_index'),
     path('tv/<str:tv_url>', tv_detail, name='tv_detail'),
 
-
+    # SEKCE HRY
     path('hry/', games, name='games_index'),
     path('hry/abecedne/', games_alphabetical, name='games_alphabetical'),
     path('hry/vydavatele/', publishers_list, name='publishers_list'),
@@ -200,8 +200,6 @@ urlpatterns = [
     path('hry/zanry/', games_genres, name='games_genres'),
     path('hry/zanr/<str:genre_url>', games_by_genre, name='games_by_genre'),
     path('hry/rok/<int:year>', games_by_year, name='games_by_year'),
-
-
 
     path('hra/pridat-do-oblibenych-<int:gameid>', add_to_favourite_games, name="add_to_favourite_games"),
     path('hra/chci-hrat-<int:gameid>', add_to_playlist_games, name="add_to_playlist_games"),
@@ -224,7 +222,7 @@ urlpatterns = [
     path('hra/ajax/countries/', country_list_ajax, name='ajax_countries'),
     path('hra/ajax/universes/', universum_list_ajax, name='ajax_universes'),
 
-
+    # SEKCE KNIHY
     path('autori/', authors_list, name='authors_list'),
     path('autor/pridat-do-oblibenych-<int:authorid>', add_to_favourite_authors, name='add_to_favourite_authors'),
     path('autor/odebrat-z-oblibenych-<int:authorid>', remove_from_favourite_authors, name='remove_from_favourite_authors'),
@@ -259,6 +257,7 @@ urlpatterns = [
     path('uzivatel/<int:user_id>/prodej-knihy/', user_sell_listings, name='user_sell_listings'),
     path('uzivatel/<int:user_id>/koupim-knihy/', user_buy_listings, name='user_buy_listings'),
     path('uzivatel/<int:user_id>/nabidky/', user_book_listings, name='user_book_listings'),  # Přidáno
+    path('knihy/burza-knih/', books_market, name='books_market'),
 
     # path('spisovatele/', authors_list, name='authors_list'),
     # path('spisovatel/<str:author_url>', author_detail, name='author_detail'), 

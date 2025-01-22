@@ -281,10 +281,11 @@ def books(request):
 
     return render(request, 'books/books_list.html', {
         'top_books': top_books,
-        "book_list_15": book_list_15,
+        'book_list_15': book_list_15,
         'stats_book': stats_book,
         'stats_writters': stats_writters,
-        'reading_goal': reading_goal
+        'reading_goal': reading_goal,
+        'category_key': 'knihy',
         })
 #'top_20_books': top_20_books, 'all_books': all_books, 'api_test_message': api_test_message
 
@@ -720,3 +721,7 @@ def remove_from_book_library(request, bookid):
     userlistbook.delete()
     
     return redirect("book_detail", book_url=book.url)
+
+
+def books_market(request):
+    return render(request, 'books/books_market.html', {})

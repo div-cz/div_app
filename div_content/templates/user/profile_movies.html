@@ -89,7 +89,7 @@
             <!-- Tab Hodnocení -->
             <div id="hodnoceni" class="tab-show w-full active {% if category == 'hodnoceni' %}active{% endif %}">
                 <h3 class="after-h3 padding">Hodnocení filmů</h3>
-                <div class="table lg:pr-5">
+                <div class="table ">
                     <div class="grid my-grid bg-[#c0c0c0]">
                         <!-- <div>Miniatura</div> -->
                         <div class="font-bold p-1">Název</div>
@@ -132,7 +132,7 @@
                     <span class="step-links flex justify-center">
                         {% if movie_page_obj.has_previous %}
                         <div>
-                            <a href="?page=1">&laquo; první</a>
+                            <a href="?page=1#hodnoceni">&laquo; první</a>
                             <a href="?page={{ movie_page_obj.previous_page_number }}#hodnoceni">předchozí</a>
                         </div>
                         {% endif %}
@@ -154,14 +154,14 @@
             <div id="oblibene" class="tab-show w-full {% if category == 'oblibene' %}active{% endif %}">
                 <h3 class="after-h3 padding">Oblíbené filmy</h3>
                 {% if favorite_page_obj %}
-                <div class="table lg:pr-5">
+                <div class="table ">
                     <div class="grid favorite-grid bg-[#c0c0c0]">
                         <!-- <div>Miniatura</div> -->
                         <div class="font-bold p-1">Název</div>
                         <div class="text-center font-bold p-1">Datum</div>
                     </div>
                     <div class="">
-                        {% for favorite in favorite_page_obj %}
+                        {% for movie, item in favorite_page_obj %}
                         <div class="grid border favorite-grid sudy">
                             <!-- <td>
                                 {% if favorite.movie.img %}
@@ -169,9 +169,11 @@
                                 {% endif %}
                             </td> -->
                             <div class="p-1">
-                                <a class="movies" href="/film/{{ favorite.movie.url }}">{{ favorite.movie.titlecz }}</a> ({{ favorite.movie.releaseyear }})
+                                <a class="movies" href="/film/{{ movie.url }}">
+                                    {% if movie.titlecz %}{{ movie.titlecz }}{% else %}{{ movie.title }}{% endif %}
+                                </a> ({{ movie.releaseyear }})
                             </div>
-                            <div class="text-center p-1">{{ favorite.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
+                            <div class="text-center p-1">{{ item.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
                         </div>
                         {% endfor %}
                     </div>
@@ -181,7 +183,7 @@
                     <span class="step-links flex justify-center">
                         {% if favorite_page_obj.has_previous %}
                         <div>
-                            <a href="?favorite_page=1">&laquo; první</a>
+                            <a href="?favorite_page=1#oblibene">&laquo; první</a>
                             <a href="?favorite_page={{ favorite_page_obj.previous_page_number }}#oblibene">předchozí</a>
                         </div>
                         {% endif %}
@@ -198,55 +200,80 @@
                     </span>
                 </div>
                 {% else %}
-                <p>Nemáte žádné oblíbené filmy.</p>
+                <p>Žádné oblíbené filmy.</p>
                 {% endif %}
-
+                
                 <hr>
                 
-                <h3 class="after-h3 padding">Oblíbení tvůrci</h3>
-                {% if fav_creators %}
-                    <div class="flex flex-wrap w-full">
-                        {% for creator in fav_creators %}
-                        <div class="mt-5" style="width: 150px">
-                            <div class="p-1 w-full">
-                                {% if not creator.img or creator.img == "" %}
-                                    <img src="/static/img/creator/noperson.svg" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
-                                {% else %}
-                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ creator.img }}" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
-                                {% endif %}
-                            </div>
-                            <div class="p-1 w-full text-center">
-                                <a href="/tvurce/{{ creator.url }}">{{ creator.firstname }} {{ creator.lastname }}</a>
-                            </div>
+                <!-- oblíbení tvůrci -->
+                <h3 class="after-h3 mt-8 padding">Oblíbení tvůrci</h3>
+                {% if fav_creators_page_obj %}
+                <div id="tvurci" class="flex flex-wrap w-full">
+                    {% for creator in fav_creators_page_obj %}
+                    <div class="mt-5" style="width: 150px">
+                        <div class="p-1 w-full">
+                            {% if not creator.img or creator.img == "" %}
+                                <img src="/static/img/creator/noperson.svg" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                            {% else %}
+                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ creator.img }}" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                            {% endif %}
                         </div>
-                        {% endfor %}
+                        <div class="p-1 w-full text-center">
+                            <a href="/tvurce/{{ creator.url }}">{{ creator.firstname }} {{ creator.lastname }}</a>
+                        </div>
                     </div>
+                    {% endfor %}
+                </div>
+
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+
+                        {% if fav_creators_page_obj.has_previous %}
+                        <div>
+                            <a href="?fav_creators_page=1#oblibene">&laquo; první</a>
+                            <a href="?fav_creators_page={{ fav_creators_page_obj.previous_page_number }}#oblibene">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <span class="current-page mx-4">
+                            Stránka {{ fav_creators_page_obj.number }} / {{ fav_creators_page_obj.paginator.num_pages }}</span>
+
+                        {% if fav_creators_page_obj.has_next %}
+                        <div>
+                            <a href="?fav_creators_page={{ fav_creators_page_obj.next_page_number }}#oblibene">další</a>
+                            <a href="?fav_creators_page={{ fav_creators_page_obj.paginator.num_pages }}#oblibene">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>
+
                 {% else %}
-                    <p>Nemáte žádné oblíbené herce.</p>
+                <p>Žádní oblíbení herci.</p>
                 {% endif %}
 
                 <hr>
-                
-                <h3 class="after-h3 padding">Postavy</h3>
+
+                <!-- oblíbené postavy -->
+                <h3 class="after-h3 mt-8 padding">Postavy</h3>
                 {% if fav_characters %}
-                    <div class="flex flex-wrap w-full">
-                        {% for character in fav_characters %}
-                        <div class="mt-5" style="width: 150px">
-                            <div class="p-1 w-full">
-                                {% if not character.characterimg or character.characterimg == "" %}
-                                    <img src="/static/img/creator/noperson.svg" alt="{{ character.charactername }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
-                                {% else %}
-                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ character.characterimg }}" alt="{{ character.name }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
-                                {% endif %}
-                            </div>
-                            <div class="p-1 w-full text-center">
-                                <a href="/postava/{{ character.characterurl }}">{{ character.charactername }}</a>
-                            </div>
+                <div class="flex flex-wrap w-full">
+                    {% for character in fav_characters %}
+                    <div class="mt-5" style="width: 150px">
+                        <div class="p-1 w-full">
+                            {% if not character.characterimg or character.characterimg == "" %}
+                                <img src="/static/img/creator/noperson.svg" alt="{{ character.charactername }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                            {% else %}
+                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ character.characterimg }}" alt="{{ character.name }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                            {% endif %}
                         </div>
-                        {% endfor %}
+                        <div class="p-1 w-full text-center">
+                            <a href="/postava/{{ character.characterurl }}">{{ character.charactername }}</a>
+                        </div>
                     </div>
+                    {% endfor %}
+                </div>
                 {% else %}
-                    <p>Nemáte žádné postavy.</p>
+                <p>Žádné oblíbené postavy.</p>
                 {% endif %}
 
             </div>
@@ -254,7 +281,7 @@
             <!-- Tab Recenze -->
             <div id="recenze" class="tab-show w-full {% if category == 'recenze' %}active{% endif %}">
                 <h3 class="after-h3 padding">Recenze filmů</h3>
-                <div class="table lg:pr-5">
+                <div class="table ">
                     {% if reviews %}
                     {% for review in reviews %}
                     <div class="flex border sudy">
@@ -281,7 +308,7 @@
                     </div>
                     {% endfor %}
                 {% else %}
-                    <p>Nemáte žádné recenze.</p>
+                    <p>Žádné recenze.</p>
                 {% endif %}
                 </div>
 
@@ -311,7 +338,7 @@
             <div id="chci-videt" class="tab-show w-full {% if category == 'chci-videt' %}active{% endif %}">
                 <h3 class="after-h3 padding">Filmy, které chci vidět</h3>
                 {% if wantsee_page_obj %}
-                <div class="table lg:pr-5">
+                <div class="table ">
                     <div class="grid favorite-grid bg-[#c0c0c0]">
                         <!-- <div>Miniatura</div> -->
                         <div class="font-bold p-1">Název</div>
@@ -338,7 +365,7 @@
                     <span class="step-links flex justify-center">
                         {% if wantsee_page_obj.has_previous %}
                         <div>
-                            <a href="?wantsee_page=1">&laquo; první</a>
+                            <a href="?wantsee_page=1#chci-videt">&laquo; první</a>
                             <a href="?wantsee_page={{ wantsee_page_obj.previous_page_number }}#chci-videt">předchozí</a>
                         </div>
                         {% endif %}
@@ -355,7 +382,7 @@
                     </span>
                 </div>
                 {% else %}
-                <p>Nemáte žádné filmy označené jako "Chci vidět".</p>
+                <p>Žádné filmy v seznamu „Chci vidět“.</p>
                 {% endif %}
             </div>
 
@@ -363,7 +390,7 @@
             <div id="shlednuto" class="tab-show w-full {% if category == 'shlednuto' %}active{% endif %}">
                 <h3 class="after-h3 padding">Shlédnuté filmy</h3>
                 {% if watched_page_obj %}
-                <div class="table lg:pr-5">
+                <div class="table ">
                     <div class="grid favorite-grid bg-[#c0c0c0]">
                         <!-- <div>Miniatura</div> -->
                         <div class="font-bold p-1">Název</div>
@@ -390,7 +417,7 @@
                     <span class="step-links flex justify-center">
                         {% if watched_page_obj.has_previous %}
                         <div>
-                            <a href="?watched_page=1">&laquo; první</a>
+                            <a href="?watched_page=1#shlednuto">&laquo; první</a>
                             <a href="?watched_page={{ watched_page_obj.previous_page_number }}#shlednuto">předchozí</a>
                         </div>
                         {% endif %}
@@ -407,7 +434,7 @@
                     </span>
                 </div>
                 {% else %}
-                <p>Nemáte žádné shlédnuté filmy.</p>
+                <p>Žádné shlédnuté filmy.</p>
                 {% endif %}
             </div>
 
@@ -415,7 +442,7 @@
             <div id="filmoteka" class="tab-show w-full {% if category == 'filmoteka' %}active{% endif %}">
                 <h3 class="after-h3 padding">Filmotéka</h3>
                 {% if filmoteka_page_obj %}
-                <div class="table lg:pr-5">
+                <div class="table ">
                     <div class="grid favorite-grid bg-[#c0c0c0]">
                         <!-- <div>Miniatura</div> -->
                         <div class="font-bold p-1">Název</div>
@@ -442,7 +469,7 @@
                     <span class="step-links flex justify-center">
                         {% if filmoteka_page_obj.has_previous %}
                         <div>
-                            <a href="?filmoteka_page=1">&laquo; první</a>
+                            <a href="?filmoteka_page=1#filmoteka">&laquo; první</a>
                             <a href="?filmoteka_page={{ filmoteka_page_obj.previous_page_number }}#filmoteka">předchozí</a>
                         </div>
                         {% endif %}
@@ -459,12 +486,43 @@
                     </span>
                 </div>
                 {% else %}
-                <p>Nemáte žádné filmy ve filmotéce.</p>
+                <p>Žádné filmy ve filmotéce.</p>
                 {% endif %}
             </div>
 
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Zkontrolujte, zda URL obsahuje hash
+        if (window.location.hash) {
+            const hash = window.location.hash;
+            // Najděte sekci podle ID hashe
+            const targetElement = document.querySelector(hash);
+            if (targetElement) {
+                // Scroll na pozici daného elementu
+                targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        }
+    });
+
+    // Přečte parametry v URL a pokud obsahuje fav_creators_page tak scrolluje na daný div element
+    document.addEventListener('DOMContentLoaded', function () {
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.has('fav_creators_page')) {
+        const favCreatorsSection = document.getElementById('tvurci');
+        if (favCreatorsSection) {
+            setTimeout(() => {
+                favCreatorsSection.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+    }
+});
+
+
+</script>
 
 {% endblock content %}

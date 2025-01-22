@@ -13,7 +13,7 @@
     <!-- LEVÁ STRANA -->
     <div class="col-lg-8">
         <!-- carousel - nejlépe hodnocené -->
-        <div id="image-slider" class="carousel">
+        <div id="image-slider" class="carousel box-shadow">
             <div class="carousel-slide">
                 <a href="/serialy/">
                     <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/ogmhmHVMRdZ4kRmdm0XiHY7OkIK.jpg" alt="Serialy">
@@ -28,7 +28,7 @@
         <div class="mb-4">
             <div class="grid grid-cols-3 gap-2">
                 {% for tvshow in tvshows_list %}
-                <div class="card card2 w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <div class="card card2 box-shadow w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                     
                     <img src="{% if tvshow.img != 'noimg.png' %}https://www.themoviedb.org/t/p/w533_and_h300_bestv2{{ tvshow.img }}{% else %}/static/img/nomovie_400.jpg{% endif %}" alt="{{ tvshow.titlecz }}" class="card-img-top rounded-t-lg">
 
@@ -120,9 +120,19 @@
         <!-- články -->
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <h3 class="card-title font-bold after-h3">Články</h3>
-
-
+                <div class="flex flex-wrap justify-between card-title after-h3">
+                    <h3 class="font-bold">Články</h3><a href="{% url 'articles_list' category='serialy' %}"><small>Zobrazit vše</small></a>
+                </div>
+                <div class="flex flex-wrap after">
+                    <a href="" class="w-full">článek 1</a> <!-- stačí název ne?-->
+                    <a href="" class="w-full">článek 2</a>
+                    <a href="" class="w-full">článek 3</a>
+                    <a href="" class="w-full">článek 4</a>
+                    <a href="" class="w-full">článek 5</a>
+                </div>
+                <div>
+                    <a href="{% url 'article_new' category=category_key %}"><i class="fa-solid fa-plus"></i> Přidat nový článek</a>
+                </div>
             </div>
         </div>
 

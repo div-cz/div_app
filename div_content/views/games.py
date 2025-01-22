@@ -70,6 +70,7 @@ def games(request):
     return render(request, 'games/games_list.html', {
         'games': games, 
         'carousel_games': carousel_games,
+        'category_key': 'hry',
         })
 
 

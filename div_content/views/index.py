@@ -28,17 +28,6 @@ import math
 
 
 
-def wendy_index(request):
-    return render(request, 'wendy/index.html')
-
-def wendy_detail(request):
-    return render(request, 'wendy/detail_filmu.html')
-
-def wendy_list(request):
-    return render(request, 'wendy/vypis_filmu.html')
-
-
-
 #Carouse = .values('title', 'titlecz', 'url', 'img', 'description')
 #List = .values('title', 'titlecz', 'url', 'img', 'description')
 def redirect_view(request):
@@ -304,6 +293,7 @@ def movies(request, year=None, genre_url=None, movie_url=None):
             'stats_moviecomments': stats_moviecomments,
             'movies_in_cinema': movies_in_cinema,
             'carousel_cinema': carousel_cinema,
+            'category_key': 'serialy',
             })
 
 
