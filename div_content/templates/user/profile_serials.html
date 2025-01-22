@@ -89,7 +89,7 @@
             <!-- Tab Hodnocení -->
             <div id="hodnoceni" class="tab-show w-full active {% if category == 'hodnoceni' %}active{% endif %}">
                 <h3 class="after-h3 padding">Hodnocení seriálů</h3>
-                <div class="table lg:pr-5">
+                <div class="table ">
                     <div class="grid my-grid bg-[#c0c0c0]">
                         <!-- <div>Miniatura</div> -->
                         <div class="font-bold p-1">Název</div>
@@ -154,7 +154,7 @@
             <div id="oblibene" class="tab-show w-full {% if category == 'oblibene' %}active{% endif %}">
                 <h3 class="after-h3 padding">Oblíbené seriály</h3>
                 {% if favorite_page_obj %}
-                <div class="table lg:pr-5">
+                <div class="table ">
                     <div class="grid favorite-grid bg-[#c0c0c0]">
                         <!-- <div>Miniatura</div> -->
                         <div class="font-bold p-1">Název</div>
@@ -169,7 +169,7 @@
                                 {% endif %}
                             </td> -->
                             <div class="p-1">
-                                <a href="/serial/{{ favorite.tvshow.url }}">
+                                <a class="movies" href="/serial/{{ favorite.tvshow.url }}">
                                     {{ favorite.tvshow.titlecz }}
                                 </a> ({{ favorite.tvshow.premieredate|date:"Y" }}–{{favorite.tvshow.enddate|date:"Y" }})
                             </div>
@@ -199,13 +199,15 @@
                         {% endif %}
                     </span>
                 </div>
+
                 {% else %}
-                <p>Nemáte žádné oblíbené seriály.</p>
+                <p>Žádné oblíbené seriály.</p>
                 {% endif %}
 
                 <hr>
                 
-                <h3 class="after-h3 padding">Oblíbení tvůrci</h3>
+                <!-- oblíbení tvůrci -->
+                <h3 class="after-h3 mt-8 padding">Oblíbení tvůrci</h3>
                 {% if fav_creators %}
                     <div class="flex flex-wrap w-full">
                         {% for creator in fav_creators %}
@@ -218,18 +220,19 @@
                                 {% endif %}
                             </div>
                             <div class="p-1 w-full text-center">
-                                <a href="/tvurce/{{ creator.url }}">{{ creator.firstname }} {{ creator.lastname }}</a>
+                                <a class="movies" href="/tvurce/{{ creator.url }}">{{ creator.firstname }} {{ creator.lastname }}</a>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
-                {% else %}
-                    <p>Nemáte žádné oblíbené herce.</p>
+                    {% else %}
+                    <p>Žádné oblíbené herce.</p>
                 {% endif %}
 
                 <hr>
                 
-                <h3 class="after-h3 padding">Postavy</h3>
+                <!-- oblíbené postavy -->
+                <h3 class="after-h3 mt-8 padding">Postavy</h3>
                 {% if fav_characters %}
                     <div class="flex flex-wrap w-full">
                         {% for character in fav_characters %}
@@ -242,13 +245,13 @@
                                 {% endif %}
                             </div>
                             <div class="p-1 w-full text-center">
-                                <a href="/postava/{{ character.characterurl }}">{{ character.charactername }}</a>
+                                <a class="movies" href="/postava/{{ character.characterurl }}">{{ character.charactername }}</a>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
                 {% else %}
-                    <p>Nemáte žádné postavy.</p>
+                    <p>Žádné oblíbené postavy.</p>
                 {% endif %}
 
             </div>
@@ -256,7 +259,7 @@
             <!-- Tab Recenze -->
             <div id="recenze" class="tab-show w-full {% if category == 'recenze' %}active{% endif %}">
                 <h3 class="after-h3 padding">Recenze seriálů</h3>
-                <div class="table lg:pr-5">
+                <div class="table ">
                     {% if reviews %}
                     {% for review in reviews %}
                     <div class="flex border sudy">
@@ -270,7 +273,7 @@
                         <div class="w-full">
                             <div class="flex justify-between w-full">
                                 <div class="p-1">
-                                    <a href="/film/{{ review.movieid.url }}">{{ review.tvshowid.titlecz }}</a>
+                                    <a class="movies" href="/film/{{ review.movieid.url }}">{{ review.tvshowid.titlecz }}</a>
                                 </div>
                                 <div class="text-center p-1">
                                     {{ review.dateadded|date:"j. n Y" }}  <!-- KDY RECENZOVÁNO -->
@@ -283,7 +286,7 @@
                     </div>
                     {% endfor %}
                 {% else %}
-                    <p>Nemáte žádné recenze.</p>
+                    <p>Žádné recenze.</p>
                 {% endif %}
                 </div>
 
@@ -313,7 +316,7 @@
             <div id="chci-videt" class="tab-show w-full {% if category == 'chci-videt' %}active{% endif %}">
                 <h3 class="after-h3 padding">Seriály, které chci vidět</h3>
                 {% if wantsee_page_obj %}
-                <div class="table lg:pr-5">
+                <div class="table ">
                     <div class="grid favorite-grid bg-[#c0c0c0]">
                         <!-- <div>Miniatura</div> -->
                         <div class="font-bold p-1">Název</div>
@@ -357,7 +360,7 @@
                     </span>
                 </div>
                 {% else %}
-                <p>Nemáte žádné seriály označené jako "Chci vidět".</p>
+                <p>Žádné seriály v seznamu „Chci vidět“.</p>
                 {% endif %}
             </div>
 
@@ -365,7 +368,7 @@
             <div id="shlednuto" class="tab-show w-full {% if category == 'shlednuto' %}active{% endif %}">
                 <h3 class="after-h3 padding">Shlédnuté seriály</h3>
                 {% if watched_page_obj %}
-                <div class="table lg:pr-5">
+                <div class="table ">
                     <div class="grid favorite-grid bg-[#c0c0c0]">
                         <!-- <div>Miniatura</div> -->
                         <div class="font-bold p-1">Název</div>
@@ -409,7 +412,7 @@
                     </span>
                 </div>
                 {% else %}
-                <p>Nemáte žádné shlédnuté seriály.</p>
+                <p>Žádné shlédnuté seriály.</p>
                 {% endif %}
             </div>
 
@@ -417,7 +420,7 @@
             <div id="serialoteka" class="tab-show w-full {% if category == 'serialoteka' %}active{% endif %}">
                 <h3 class="after-h3 padding">Seriálotéka</h3>
                 {% if serialoteka_page_obj %}
-                <div class="table lg:pr-5">
+                <div class="table ">
                     <div class="grid favorite-grid bg-[#c0c0c0]">
                         <!-- <div>Miniatura</div> -->
                         <div class="font-bold p-1">Název</div>
@@ -461,7 +464,7 @@
                     </span>
                 </div>
                 {% else %}
-                <p>Nemáte žádné seriály v seriálotéce.</p>
+                <p>Žádné seriály v seriálotéce.</p>
                 {% endif %}
             </div>
 

@@ -108,7 +108,11 @@ def series_list(request):
         'premieredate'  # Seřadíme podle data premiéry (budoucí na konci)
     )[:9]
 
-    return render(request, 'series/series_list.html', {'tvshows_list': tvshows_list, 'latest_seasons': latest_seasons})
+    return render(request, 'series/series_list.html', {
+        'tvshows_list': tvshows_list, 
+        'latest_seasons': latest_seasons,
+        'category_key': 'filmy',
+        })
 
 
 def series_alphabetical(request):

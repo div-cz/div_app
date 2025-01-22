@@ -14,7 +14,6 @@
     <meta name="keywords" content="{% for keyword in keywordsEN %}{{ keyword }}, {% endfor %}">
     {% endif %}
 
-
     <meta property="og:type" content="movie">
     <meta property="og:site_name" content="Databáze DIV">
     <meta property="og:title" content="{{ movie.titlecz }} ({{ movie.releaseyear }})">
@@ -351,7 +350,11 @@
                             <p class="text-sm after">{{ item.trivia }}</p>
                             <div class="mt-2 text-end">
                                 <p>Přidal: 
+                                    {% if not item.userid.id is None %}
                                     <a href="{% url 'user_profile_with_profil' user_id=item.userid.id %}">{{ item.userid.username|default:"Anonym" }}</a>
+                                    {% else %}
+                                    Anonym
+                                    {% endif %}
                                 </p>
                             </div>
                         </div>

@@ -188,9 +188,9 @@
         </div>
         {% endif %}
 
-        <!-- FILMOGRAFIE -->
+        <!-- Filmy -->
         <div class="mt-5">
-            <h3>Filmografie</h3>
+            <h3>Filmy</h3>
             <div class="table box-shadow">
                 <div class="grid creator-grid p-1 bg-[#c0c0c0]">
                     <div></div>
@@ -203,13 +203,49 @@
                     <div class="grid items-center border p-1 creator-grid sudy">
                         <div>
                         {% if movie.img == "noimg.png" %}
-                            <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" style="width: 50px; height: auto;">
+                            <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" style="width: 100%; height: auto;">
                             {% else %}
-                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.img }}" alt="{{ movie.titlecz }}" style="width: 50px; height: auto;">
+                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.img }}" alt="{{ movie.titlecz }}" style="width: 100%; height: auto;">
                         {% endif %}
                         </div>
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between ml-2">
                             <a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a>
+                            {% if user.is_authenticated %}
+                                {% if movie.is_watched %}
+                                <i class="fas fa-eye" title="viděno"></i>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="text-center p-1">{{ movie.releaseyear }}</div>
+                        <div class="text-center p-1">{{ roles|join:", " }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- SERIÁLY -->
+        <div class="mt-5">
+            <h3>Seriály</h3>
+            <div class="table box-shadow">
+                <div class="grid creator-grid p-1 bg-[#c0c0c0]">
+                    <div></div>
+                    <div class="font-bold">Seriál</div>
+                    <div class="text-center font-bold">Rok</div>
+                    <div class="text-center font-bold">Role</div>
+                </div>
+                <div class="">
+                    {% for movie, roles in filmography %}
+                    <div class="grid items-center border p-1 creator-grid sudy">
+                        <div>
+                        {% if movie.img == "noimg.png" %}
+                            <img src="/static/img/nomovie_400.jpg" alt="{{ tvshow.titlecz }}" style="width: 100%; height: auto;">
+                            {% else %}
+                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.img }}" alt="{{ tvshow.titlecz }}" style="width: 100%; height: auto;">
+                        {% endif %}
+                        </div>
+                        <div class="flex items-center justify-between ml-2">
+                            <a href="/film/{{ movie.url }}">{{ tvshow.titlecz }}</a>
                             {% if user.is_authenticated %}
                                 {% if movie.is_watched %}
                                 <i class="fas fa-eye" title="viděno"></i>

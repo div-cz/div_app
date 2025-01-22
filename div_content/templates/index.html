@@ -251,7 +251,7 @@
                     <!-- LEVÁ STRANA-->
                     <div class="col-lg-8">
                         <!-- carousel -->
-                        <div class="carousel-container-index relative flex items-center mb-4">
+                        <div class="carousel-container-index box-shadow rounded-1xl relative flex items-center mb-4">
                             <div id="films-carousel" class="carousel-index carousel-fade">
                                 <div class="carousel-track-index" data-offset="0">
                                     <div class="carousel-item-index w-full border rounded-1xl">
@@ -313,7 +313,7 @@
                         </div>
                                 
                         <div class="grid grid-cols-1">
-                            <div class="card mb-4">
+                            <div class="card box-shadow mb-4">
                                 <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
                                     <p class="text-center">
                                         DIV.cz je stránka, která propojuje <a href="/knihy/">knihy</a>, <a href="/filmy/">filmy</a> a <a href="/hry/">hry</a> skrze postavy, lokality a
@@ -323,7 +323,7 @@
                             </div>
 
                             <!-- carousel filmy -->
-                            <div class="card mb-4">
+                            <div class="card box-shadow mb-4">
                                 <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
                                     <h3 class="card-title font-bold after-h3">Ze světa filmů</h3>
                                     <div class="swiper">
@@ -333,9 +333,9 @@
                                                 <div class="card-item swiper-slide flex flex-wrap justify-center">
                                                     <!-- hodnocení -->
                                                     <div class="flex justify-end w-full" style="margin-bottom: -40px;">
-                                                        <div class="rating rating-shadow" data-rating="{{ movie.average_rating }}">
+                                                        <div class="rating rating-shadow" data-rating="{{ item.divrating }}">
                                                             <div class="rating-inner">
-                                                                {{ movie.average_rating }}%
+                                                                {{ item.divrating }}%
                                                             </div>
                                                         </div>
                                                     </div>
@@ -356,7 +356,7 @@
                             </div>
 
                             <!-- carousel seriály -->
-                            <div class="card mb-4">
+                            <div class="card box-shadow mb-4">
                                 <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
                                     <h3 class="card-title font-bold after-h3">Ze světa seriálů</h3>
                                     <div class="swiper">
@@ -366,9 +366,9 @@
                                                 <div class="card-item swiper-slide flex flex-wrap justify-center">
                                                     <!-- hodnocení -->
                                                     <div class="flex justify-end w-full" style="margin-bottom: -40px;">
-                                                        <div class="rating rating-shadow" data-rating="{{ stvshow.average_rating }}">
+                                                        <div class="rating rating-shadow" data-rating="{{ item.divrating }}">
                                                             <div class="rating-inner">
-                                                                {{ tvshow.average_rating }}%
+                                                                {{ item.divrating }}%
                                                             </div>
                                                         </div>
                                                     </div>
@@ -389,7 +389,7 @@
                             </div>
 
                             <!-- carousel knihy -->
-                            <div class="card mb-4">
+                            <div class="card box-shadow mb-4">
                                 <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
                                     <h3 class="card-title font-bold after-h3">Ze světa knih</h3>
                                     <div class="swiper">
@@ -399,9 +399,9 @@
                                                 <div class="card-item swiper-slide flex flex-wrap justify-center">
                                                     <!-- hodnocení -->
                                                     <div class="flex justify-end w-full" style="margin-bottom: -40px;">
-                                                        <div class="rating rating-shadow" data-rating="{{ book.average_rating }}">
+                                                        <div class="rating rating-shadow" data-rating="{{ item.divrating }}">
                                                             <div class="rating-inner">
-                                                                {{ book.average_rating }}%
+                                                                {{ item.divrating }}%
                                                             </div>
                                                         </div>
                                                     </div>
@@ -425,7 +425,7 @@
                             </div>
 
                             <!-- carousel hry -->
-                            <div class="card mb-4">
+                            <div class="card box-shadow mb-4">
                                 <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
                                     <h3 class="card-title font-bold after-h3">Ze světa her</h3>
                                     <div class="swiper">
@@ -435,9 +435,9 @@
                                                 <div class="card-item swiper-slide flex flex-wrap justify-center">
                                                     <!-- hodnocení -->
                                                     <div class="flex justify-end w-full" style="margin-bottom: -40px;">
-                                                        <div class="rating rating-shadow" data-rating="{{ game.average_rating }}">
+                                                        <div class="rating rating-shadow" data-rating="{{ item.divrating }}">
                                                             <div class="rating-inner">
-                                                                {{ game.average_rating }}%
+                                                                {{ item.divrating }}%
                                                             </div>
                                                         </div>
                                                     </div>
@@ -460,7 +460,7 @@
                             </div>
 
                             <!-- novinky -->
-                            <div class="card mb-4">
+                            <div class="card box-shadow mb-4">
                                 <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
                                     <h3 class="card-title font-bold after-h3">Novinky</h3>
 
@@ -505,16 +505,6 @@
                                             </form>
                                             <p>Vyberte, co chcete přidat:</p>
                                         </details>
-
-                                        <!-- Formulář pro přidání dlouhého článku -->
-                                        <details>
-                                            <summary style="font-size: 1.17rem;">Přidej dlouhý článek</summary>
-                                            <form method="POST" class="form">
-                                                {% csrf_token %}
-                                                {{ article_form.as_p }}
-                                                <button type="submit" name="article_submit" class="btn btn-primary">Přidat článek</button>
-                                            </form>
-                                        </details>
                                     </div>
                                     {% endif %}
 
@@ -534,7 +524,7 @@
                             </div>
                            
                             <!-- Nejnovější komentáře -->
-                            <div class="card mb-4">
+                            <div class="card box-shadow mb-4">
                                 <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
                                     <h3 class="card-title font-bold after-h3">Nejnovější komentáře</h3>
                                     <div class="flex flex-wrap">        
@@ -575,7 +565,7 @@
                         </div>-->
 
                         <!-- narozeniny -->
-                        <div class="card mb-4">
+                        <div class="card box-shadow mb-4">
                             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
                             <h3 class="card-title font-bold after-h3">Narozeniny slaví</h3>
                             {% load cache %}
@@ -607,9 +597,11 @@
                         </div>
 
                         <!-- články -->
-                        <div class="card mb-4">
+                        <div class="card box-shadow mb-4">
                             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                <h3 class="card-title font-bold after-h3">Články</h3>
+                                <div class="flex flex-wrap justify-between card-title after-h3">
+                                    <h3 class="font-bold">Články</h3><a href="{% url 'articles_index' %}"><small>Zobrazit vše</small></a>
+                                </div>
                                 {% for article in articles %}
                                 <div class="flex flex-wrap items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
                                     <img class="article-thumbnail rounded-l" src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ article.img }}';" style="width:100px; height:fit-content; aspect-ratio: 3 / 4; object-fit: contain; margin-right:5px">
@@ -625,7 +617,9 @@
                         <!-- burza knih -->
                         <div class="card box-shadow mb-4">
                             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                <h3 class="card-title font-bold after-h3">Burza knih</h3>
+                                <div class="flex flex-wrap justify-between card-title after-h3">
+                                    <h3 class="font-bold">Burza knih</h3><a href="{% url 'books_market' %}"><small>Zobrazit vše</small></a>
+                                </div>
                                 <div class="flex flex-wrap">
                                     <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
                                         <a href="">
