@@ -23,11 +23,11 @@ USERLISTTYPE_WATCHED_MOVIES = 3 # Shlédnuto
 
 #CONTENT_TYPE_CHARACTERMETA_ID = 13
 #CONTENT_TYPE použit v books, movies, authors, characters, series, creators
-charactermeta_content_type = ContentType.objects.get_for_model(Charactermeta)
-CONTENT_TYPE_CHARACTERMETA_ID = charactermeta_content_type.id
+#charactermeta_content_type = ContentType.objects.get_for_model(Charactermeta)
+#CONTENT_TYPE_CHARACTERMETA_ID = charactermeta_content_type.id
 #CONTENTTYPE_MOVIE_ID = 33
-movie_content_type = ContentType.objects.get_for_model(Movie)
-CONTENTTYPE_MOVIE_ID = movie_content_type.id
+#movie_content_type = ContentType.objects.get_for_model(Movie)
+#CONTENTTYPE_MOVIE_ID = movie_content_type.id
 
 
 def character_list(request):
