@@ -32,9 +32,9 @@ from django.http import JsonResponse
 
 book_content_type = ContentType.objects.get_for_model(Book)
 CONTENT_TYPE_BOOK_ID = book_content_type.id
-userlisttype_fav_char = Userlisttype.objects.filter(name='Oblíbená postava').first() # Oblíbená postava
+userlisttype_fav_char = Userlisttype.objects.filter(name='Oblíbená postava').first()
 USERLISTTYPE_FAV_CHARACTER_ID = userlisttype_fav_char.userlisttypeid
-userlisttype_fav_creator = Userlisttype.objects.filter(name='Oblíbený tvůrce').first() # Oblíbený tvůrce
+userlisttype_fav_creator = Userlisttype.objects.filter(name='Oblíbený tvůrce').first()
 USERLISTTYPE_FAV_CREATOR_ID = userlisttype_fav_creator.userlisttypeid
 
 

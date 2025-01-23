@@ -6,7 +6,14 @@
             </h5>
             <p>
                 Jsme váš spolehlivý průvodce světem popkultury. Ohodnoťte filmy, hry a knihy s námi.
-                <a class="text-black dark:text-[#F9F9F9] hover:text-[#6c757d]" href="/registrace/">Registrace</a> / <a class="text-black dark:text-[#F9F9F9] hover:text-[#6c757d]" href="/prihlaseni/">přihlášení</a>
+
+                        {% if user.is_authenticated %}
+                        <a class="text-black dark:text-[#F9F9F9] hover:text-[#6c757d]" href="/ucet/">{{ user.username }}!</a> | <a class="text-black dark:text-[#F9F9F9] hover:text-[#6c757d]" href="/odhlaseni/">Odhlášení</a>
+                        {% else %}
+                        <a class="text-black dark:text-[#F9F9F9] hover:text-[#6c757d]" href="/registrace/">Registrace</a> / <a class="text-black dark:text-[#F9F9F9] hover:text-[#6c757d]" href="/prihlaseni/">přihlášení</a>
+                        {% endif %}
+            na <a class="text-black dark:text-[#F9F9F9] hover:text-[#6c757d]" href="/">DIV.cz</a>.
+
             </p>
         </div>
 
@@ -14,7 +21,7 @@
             <h5 class="font-bold text-xl md:text-3xl">Navigace</h5>
             <ul class="text-[#F9F9F9]">
                 <li><a class="hover:underline text-black dark:text-[#F9F9F9]" href="/">Domů</a></li>
-                <li><a class="hover:underline text-black dark:text-[#F9F9F9]" href="/kontakt/">Kontakt</a></li>
+                <li><a class="hover:underline text-black dark:text-[#F9F9F9]" href="/kontakt">Kontakt</a></li>
                 <li><a class="hover:underline text-black dark:text-[#F9F9F9]" href="/podminky-pouziti">Podmínky použití</a></li>
                 <li><a class="hover:underline text-black dark:text-[#F9F9F9]" href="/ochrana-osobnich-udaju">Ochrana osobních údajů</a></li>
             </ul>

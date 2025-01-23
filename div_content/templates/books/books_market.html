@@ -4,19 +4,17 @@
 {% block title %}Nabídky a poptávka knih | DIV.cz{% endblock %}
 
 {% block content %}
-
 <div class="container mx-auto px-4 py-6">
-
     <div class="flex items-center mt-8">
         <h3>Přejít na: </h3>
         <div class="">
             <h3 style="padding: 5px 10px;">                
-                <a href="">Nabídka knih</a>
+                <a href="{% url 'books_market_offers' %}">Nabídka knih</a>
             </h3>
         </div>
         <div class="">
             <h3 style="padding: 5px 10px;">
-                <a href="">Poptávka knih</a>
+                <a href="{% url 'books_market_wants' %}">Poptávka knih</a>
             </h3>
         </div>
     </div>
@@ -25,177 +23,86 @@
     <div class="mt-8">
         <h2 class="text-2xl font-semibold mb-4">Nabídka knih</h2>
         <div class="grid grid-cols-2 gap-2">
-            <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded">
-                <a href="">
-                    <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/24-bajtu-x-42-let-dorotea-vejmelkova.jpg">
-                </a>
-                <div class="ml-2" style="flex: 2;">
-                    <p>kniha</p>
-                    <p>autor</p>
-                    <p>cena</p>
+            {% for listing in sell_listings %}
+                <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded">
+                    <a href="{% url 'book_detail' listing.book.url %}">
+                        <img class="rounded-l" style="width: 80px;" src="/static/kniha/{{ listing.book.img }}">
+                    </a>
+                    <div class="ml-2" style="flex: 2;">
+                        <p>{{ listing.book.titlecz|default:listing.book.title }}</p>
+                        <p>{{ listing.book.author }}</p>
+                        <p>{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
+                        <p><a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">Detail nabídky</a></p>
+                        <p class="text-sm text-gray-600">Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</p>
+                    </div>
                 </div>
-            </div>
-            <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded">
-                <a href="">
-                    <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/555-samolepek-kocky-a-psi-svojtka.jpg">
-                </a>
-                <div class="ml-2" style="flex: 2;">
-                    <p>kniha</p>
-                    <p>autor</p>
-                    <p>cena</p>
-                </div>
-            </div>
-            <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded">
-                <a href="">
-                    <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/a-study-in-scarlet-sir-arthur-conan-doyle.jpg">
-                </a>
-                <div class="ml-2" style="flex: 2;">
-                    <p>kniha</p>
-                    <p>autor</p>
-                    <p>cena</p>
-                </div>
-            </div>
-            <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded">
-                <a href="">
-                    <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/academy-stars-second-edition-2-workbook-with-digital-workbook-andrea-harries.jpg">
-                </a>
-                <div class="ml-2" style="flex: 2;">
-                    <p>kniha</p>
-                    <p>autor</p>
-                    <p>cena</p>
-                </div>
-            </div>
-            <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded">
-                <a href="">
-                    <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/agilni-lidr-zuzana-sochova.jpg">
-                </a>
-                <div class="ml-2" style="flex: 2;">
-                    <p>kniha</p>
-                    <p>autor</p>
-                    <p>cena</p>
-                </div>
-            </div>
-            <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded">
-                <a href="">
-                    <img class="rounded-l" style="width: 80px;" src="/static/kniha/2025/01/SilenceintheShadows_DarcyCoates.jpg">
-                </a>
-                <div class="ml-2" style="flex: 2;">
-                    <p>kniha</p>
-                    <p>autor</p>
-                    <p>cena</p>
-                </div>
-            </div>
+            {% endfor %}
         </div>
 
         <div class="pagination mt-8 mb-8">
             <span class="step-links flex justify-center">
-
                 <div>
-                    <a href="">&laquo; první</a>
-                    <a href="">předchozí</a>
+                    {% if sell_listings.has_previous %}
+                        <a href="?sell_page=1">&laquo; první</a>
+                        <a href="?sell_page={{ sell_listings.previous_page_number }}">předchozí</a>
+                    {% endif %}
                 </div>
 
                 <span class="current-page mx-4">
-                Stránka 1 / 1
+                    Stránka {{ sell_listings.number }} / {{ sell_listings.paginator.num_pages }}
                 </span>
 
                 <div>
-                    <a href="">další</a>
-                    <a href="">poslední &raquo;</a>
+                    {% if sell_listings.has_next %}
+                        <a href="?sell_page={{ sell_listings.next_page_number }}">další</a>
+                        <a href="?sell_page={{ sell_listings.paginator.num_pages }}">poslední &raquo;</a>
+                    {% endif %}
                 </div>
-
             </span>
         </div>  
-
     </div>
 
     <!-- POPTÁVKY -->
     <div class="mt-8 mb-8">
         <h2 class="text-2xl font-semibold mb-4">Poptávka knih</h2>
         <div class="grid grid-cols-2 gap-2">
-            <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded">
-                <a href="">
-                    <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/sharko-franck-thilliez.jpg">
-                </a>
-                <div class="ml-2" style="flex: 2;">
-                    <p>kniha</p>
-                    <p>autor</p>
-                    <p>cena</p>
+            {% for listing in buy_listings %}
+                <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded">
+                    <a href="{% url 'book_detail' listing.book.url %}">
+                        <img class="rounded-l" style="width: 80px;" src="/static/kniha/{{ listing.book.img }}">
+                    </a>
+                    <div class="ml-2" style="flex: 2;">
+                        <p><a href="{% url 'book_detail' listing.book.url %}">{{ listing.book.titlecz|default:listing.book.title }}</a></p>
+                        <p>{{ listing.book.author }}</p>
+                        <p>Nabízená cena: {{ listing.price|floatformat:0 }} Kč</p>
+                        <p><a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">Detail poptávky</a></p>
+                        <p class="text-sm text-gray-600">Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</p>
+                    </div>
                 </div>
-            </div>
-            <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded">
-                <a href="">
-                    <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/dovolani-v-trestnim-rizeni-kristyna-machyanova.jpg">
-                </a>
-                <div class="ml-2" style="flex: 2;">
-                    <p>kniha</p>
-                    <p>autor</p>
-                    <p>cena</p>
-                </div>
-            </div>
-            <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded">
-                <a href="">
-                    <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/cesta-rusu-k-valce-petra-prochazkova.jpg">
-                </a>
-                <div class="ml-2" style="flex: 2;">
-                    <p>kniha</p>
-                    <p>autor</p>
-                    <p>cena</p>
-                </div>
-            </div>
-            <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded">
-                <a href="">
-                    <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/bride-ali-hazelwood.jpg">
-                </a>
-                <div class="ml-2" style="flex: 2;">
-                    <p>kniha</p>
-                    <p>autor</p>
-                    <p>cena</p>
-                </div>
-            </div>
-            <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded">
-                <a href="">
-                    <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/asterix-3-asterix-a-gotove-rene-goscinny.jpg">
-                </a>
-                <div class="ml-2" style="flex: 2;">
-                    <p>kniha</p>
-                    <p>autor</p>
-                    <p>cena</p>
-                </div>
-            </div>
-            <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded">
-                <a href="">
-                    <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/ahoj-krasko-ann-napolitano.jpg">
-                </a>
-                <div class="ml-2" style="flex: 2;">
-                    <p>kniha</p>
-                    <p>autor</p>
-                    <p>cena</p>
-                </div>
-            </div>
+            {% endfor %}
         </div>
 
         <div class="pagination mt-8">
             <span class="step-links flex justify-center">
-
                 <div>
-                    <a href="">&laquo; první</a>
-                    <a href="">předchozí</a>
+                    {% if buy_listings.has_previous %}
+                        <a href="?buy_page=1">&laquo; první</a>
+                        <a href="?buy_page={{ buy_listings.previous_page_number }}">předchozí</a>
+                    {% endif %}
                 </div>
 
                 <span class="current-page mx-4">
-                Stránka 1 / 1
+                    Stránka {{ buy_listings.number }} / {{ buy_listings.paginator.num_pages }}
                 </span>
 
                 <div>
-                    <a href="">další</a>
-                    <a href="">poslední &raquo;</a>
+                    {% if buy_listings.has_next %}
+                        <a href="?buy_page={{ buy_listings.next_page_number }}">další</a>
+                        <a href="?buy_page={{ buy_listings.paginator.num_pages }}">poslední &raquo;</a>
+                    {% endif %}
                 </div>
-
             </span>
         </div>
-
     </div>
-
 </div>
 {% endblock %}

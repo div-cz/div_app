@@ -1,0 +1,50 @@
+{# books_market_wants.html #}
+{% extends "books/base.html" %}
+{% load humanize %}
+
+{% block title %}Poptávka knih | DIV.cz{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="mt-8">
+        <h2 class="text-2xl font-semibold mb-4">Poptávka knih</h2>
+        <div class="grid grid-cols-2 gap-2">
+            {% for listing in listings %}
+            <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded">
+                <a href="{% url 'book_detail' listing.book.url %}">
+                    <img class="rounded-l" style="width: 80px;" src="/static/kniha/{{ listing.book.img }}">
+                </a>
+                <div class="ml-2" style="flex: 2;">
+                    <p>{{ listing.book.titlecz|default:listing.book.title }}</p>
+                    <p>{{ listing.book.author }}</p>
+                    <p>Nabízená cena: {{ listing.price|floatformat:0 }} Kč</p>
+                    <p class="text-sm text-gray-600">Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="pagination mt-8">
+            <span class="step-links flex justify-center">
+                <div>
+                    {% if listings.has_previous %}
+                        <a href="?page=1">&laquo; první</a>
+                        <a href="?page={{ listings.previous_page_number }}">předchozí</a>
+                    {% endif %}
+                </div>
+
+                <span class="current-page mx-4">
+                    Stránka {{ listings.number }} / {{ listings.paginator.num_pages }}
+                </span>
+
+                <div>
+                    {% if listings.has_next %}
+                        <a href="?page={{ listings.next_page_number }}">další</a>
+                        <a href="?page={{ listings.paginator.num_pages }}">poslední &raquo;</a>
+                    {% endif %}
+                </div>
+            </span>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -16,7 +16,7 @@ from div_content.forms.index import ArticleForm, ArticlenewsForm
 from div_content.forms.movies import CommentForm, SearchForm
 from div_content.models import (
 
-    AATask, Article, Articlenews, Book, Creator, Creatorbiography, Game, Metacharts, Metagenre, Metaindex, Metalocation,  Metastats, Movie, Moviecinema, Moviedistributor, Moviecomments, Moviecrew, Moviegenre, Movierating, Tvgenre, Tvshow, User, Userprofile
+    AATask, Article, Articlenews, Book, Booklisting, Creator, Creatorbiography, Game, Metacharts, Metagenre, Metaindex, Metalocation,  Metastats, Movie, Moviecinema, Moviedistributor, Moviecomments, Moviecrew, Moviegenre, Movierating, Tvgenre, Tvshow, User, Userprofile
 
 )
 from star_ratings.models import Rating, UserRating
@@ -66,6 +66,17 @@ def get_sorted_tasks(user):
 
 
 
+def get_market_listings(limit=5):
+    #Pomocná funkce pro hlavní stranu a výpis
+    #recent_listings = get_market_listings()
+    sell_listings = (Booklisting.objects.filter(
+        listingtype__in=['SELL', 'GIVE'], 
+        active=True,
+        status='ACTIVE'
+    ).select_related('book', 'user')
+     .order_by('-createdat')[:limit])
+    
+    return sell_listings
 
 def index(request): # hlavní strana
     #ARTICLE NEWS
@@ -162,6 +173,8 @@ def index(request): # hlavní strana
         section='Game'
     ).order_by('-divrating')[:7]
     
+    recent_listings = get_market_listings()
+    
     return render(request, 'index.html', {
             'movies': movies, 
             'movies_list_6': movies_list_6, 
@@ -183,6 +196,7 @@ def index(request): # hlavní strana
             'series_carousel': series_carousel,
             'books_carousel': books_carousel, 
             'games_carousel': games_carousel,
+            'recent_listings': recent_listings,
             })  
 
 
