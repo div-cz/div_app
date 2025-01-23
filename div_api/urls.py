@@ -29,7 +29,7 @@ urlpatterns = [
     #path('create-author/', create_author, name='create_author'),
     #path('fetch-book-details/', fetch_book_details, name='fetch_book_details'),
 	#path('verify-author/', verify_author, name='verify_author'),
-	#path('',include(router.urls)),
+	path('',include(router.urls)),
 
 
 ]

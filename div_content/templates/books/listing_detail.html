@@ -4,6 +4,17 @@
 
 {% block title %}{{ listing.get_listingtype_display }} {{ book.title }} | DIV.cz{% endblock %}
 
+{% block meta %}
+<style>
+.flex.flex-wrap > form {
+  width: 100%;
+  clear: both;
+  order: 999; 
+}
+</style>
+{% endblock %}
+
+
 {% block content %}
 
 <div class="container mx-auto px-4 py-6">
@@ -14,8 +25,19 @@
         </div>
 
         <div class="flex flex-wrap p-6">
-            <img src="/static/img/book/book.png" class="pr-2" style="width: 200px;"> <!-- vlastní nahraný obrázek nebo originál -->
-            <div class="" style="width: calc(100vh - 160px);">
+
+            {% if book.img == "noimg.png" %}
+                <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
+                <img src="/static/img/book/book.png" class="pr-2" style="width: 200px;" alt="Kniha {{ book.titlecz }}"> 
+                {% elif book.img == "GoogleID" %}
+                <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
+                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="pr-2" style="width: 200px;" >
+                {% else %}
+                <!-- Jinak zobraz vlastní nahraný obrázek -->
+                <img src="/static/kniha/{{ book.img }}" alt="{{ book.titlecz }}" class="pr-2" style="width: 200px;" >
+            {% endif %}
+
+            <div class="" style="width: calc(100vh -  160px);">
                 <div class="flex flex-wrap justify-between items-start mb-6 after">
                     <div>
                         <p>Cena: </p>
@@ -86,7 +108,7 @@
                     <form method="post" class="mb-6">
                         {% csrf_token %}
                         <button type="submit" name="reserve_listing" 
-                                class="w-full bg-blue-600 text-white px-6 py-3 hover:bg-blue-700">
+                                class="w-full py-4 px-8 bg-white rounded-lg font-bold text-[#607d8b] border-2 border-[#607d8b] shadow-lg hover:bg-[#607d8b] hover:text-white transition-all active:translate-y-0.5 active:shadow-inner">
                             Rezervovat
                         </button>
                     </form>
@@ -96,7 +118,7 @@
                     <form method="post" class="mb-6">
                         {% csrf_token %}
                         <button type="submit" name="complete_listing"
-                                class="w-full bg-green-600 text-white px-6 py-3 hover:bg-green-700">
+                                class="w-full py-4 px-8 bg-white rounded-lg font-bold text-[#607d8b] border-2 border-[#607d8b] shadow-lg hover:bg-[#607d8b] hover:text-white transition-all active:translate-y-0.5 active:shadow-inner">
                             Dokončit transakci 
                         </button>
                     </form>
@@ -172,7 +194,7 @@
                                 <textarea name="comment" class="w-full border  p-2" rows="3"></textarea>
                             </div>
                             <button type="submit" name="seller_rating" 
-                                    class="bg-blue-600 text-white px-6 py-2  hover:bg-blue-700">
+                                    class="w-full py-4 px-8 bg-white rounded-lg font-bold text-[#607d8b] border-2 border-[#607d8b] shadow-lg hover:bg-[#607d8b] hover:text-white transition-all active:translate-y-0.5 active:shadow-inner">
                                 Odeslat hodnocení
                             </button>
                         </form>
@@ -199,13 +221,37 @@
                                 <textarea name="comment" class="w-full border  p-2" rows="3"></textarea>
                             </div>
                             <button type="submit" name="buyer_rating" 
-                                    class="bg-blue-600 text-white px-6 py-2  hover:bg-blue-700">
+                                    class="w-full py-4 px-8 bg-white rounded-lg font-bold text-[#607d8b] border-2 border-[#607d8b] shadow-lg hover:bg-[#607d8b] hover:text-white transition-all active:translate-y-0.5 active:shadow-inner">
                                 Odeslat hodnocení
                             </button>
                         </form>
                     </div>
                 {% endif %}
-            
+
+{% if listing.status == 'RESERVED' %}
+<div class="border-2 border-[#607d8b] rounded-lg p-6 mt-6 bg-white">
+    <h3 class="text-xl font-semibold mb-4">Informace o procesu prodeje</h3>
+    
+    <p class="mb-4">Vaše platba bude dočasně uložena na transparentním účtu neziskové organizace eKultura.</p>
+    
+    <div class="space-y-2 mb-4">
+        <p><strong>Proces prodeje:</strong></p>
+        <ol class="list-decimal ml-6 space-y-1">
+            <li>Kupující pošle platbu na účet eKultury</li>
+            <li>Prodávající odešle knihu</li>
+            <li>Kupující potvrdí přijetí a spokojenost</li>
+            <li>eKultura převede peníze prodávajícímu</li>
+        </ol>
+    </div>
+
+
+    <div class="bg-gray-100 p-4 rounded">
+        <p class="text-sm">Prosím dokončete transakci do 10 dnů od: <strong>{{ completedat|date:"j. n. Y" }}</strong></p>
+        <p class="text-sm">Po tomto datu bude rezervace automaticky zrušena a peníze vráceny.</p>
+    </div>
+</div>
+{% endif %}
+
             {% else %}
             <p class="mt-6">Pro rezervaci nebo nákup knihy se musíš <a href="/prihlaseni/">přihlásit</a> nebo <a href="/registrace/">registrovat</a>.</p>
             {% endif %}

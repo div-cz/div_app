@@ -621,56 +621,19 @@
                                     <h3 class="font-bold">Burza knih</h3><a href="{% url 'books_market' %}"><small>Zobrazit vše</small></a>
                                 </div>
                                 <div class="flex flex-wrap">
-                                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
-                                        <a href="">
-                                            <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/24-bajtu-x-42-let-dorotea-vejmelkova.jpg">
-                                        </a>
-                                        <div class="ml-2" style="flex: 2;">
-                                            <p>kniha</p>
-                                            <p>autor</p>
-                                            <p>cena</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
-                                        <a href="">
-                                            <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/555-samolepek-kocky-a-psi-svojtka.jpg">
-                                        </a>
-                                        <div class="ml-2" style="flex: 2;">
-                                            <p>kniha</p>
-                                            <p>autor</p>
-                                            <p>cena</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
-                                        <a href="">
-                                            <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/a-study-in-scarlet-sir-arthur-conan-doyle.jpg">
-                                        </a>
-                                        <div class="ml-2" style="flex: 2;">
-                                            <p>kniha</p>
-                                            <p>autor</p>
-                                            <p>cena</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
-                                        <a href="">
-                                            <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/academy-stars-second-edition-2-workbook-with-digital-workbook-andrea-harries.jpg">
-                                        </a>
-                                        <div class="ml-2" style="flex: 2;">
-                                            <p>kniha</p>
-                                            <p>autor</p>
-                                            <p>cena</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
-                                        <a href="">
-                                            <img class="rounded-l" style="width: 80px;" src="/static/kniha/a/2/agilni-lidr-zuzana-sochova.jpg">
-                                        </a>
-                                        <div class="ml-2" style="flex: 2;">
-                                            <p>kniha</p>
-                                            <p>autor</p>
-                                            <p>cena</p>
-                                        </div>
-                                    </div>
+                {% for listing in recent_listings %}
+                <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                    <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+                        <img class="rounded-l" style="width: 80px;" src="/static/kniha/{{ listing.book.img }}">
+                    </a>
+                    <div class="ml-2" style="flex: 2;">
+                        <p>{{ listing.book.titlecz }}</p>
+                        <p>{{ listing.book.author }}</p>
+                        <p>{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
+                        <p class="text-sm text-gray-600">Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</p>
+                    </div>
+                </div>
+                {% endfor %}
                                 </div>
                             </div>
                         </div>
@@ -679,7 +642,10 @@
                         <div class="card box-shadow mb-4">
                             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
                                 <h3 class="card-title font-bold after-h3">Licence her</h3>
-                                nevím co by tu mělo být
+                                <ul>
+                                    <li>Playstation Store<!--, kredit 500,--></li>
+                                    <li>xBox Store<!--, kredit 1000,--></li>
+                                </ul>
                             </div>
                         </div>
 

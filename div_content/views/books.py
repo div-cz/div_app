@@ -14,6 +14,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 
+from django.core.paginator import Paginator
+
 from django.db import models
 from django.db.models import Avg, Count
 from django.db.models import Avg
@@ -113,11 +115,11 @@ def set_reading_goal(request):
                 user_goal.save()
             messages.success(request, f'Čtenářský cíl pro rok {current_year} byl nastaven na {goal} knih!')
         
-    return redirect('books_index')  # Ujistěte se, že 'books' je správný name v urls.py
+    return redirect('books_index') 
 
 
 def book_listings(request, book_url):
-    """Zobrazení všech nabídek pro konkrétní knihu."""
+    #Zobrazení všech nabídek pro konkrétní knihu.
     book = get_object_or_404(Book, url=book_url)
     listings = Booklisting.objects.filter(book=book, active=True).order_by('-createdat')
     
@@ -129,6 +131,64 @@ def book_listings(request, book_url):
         'book': book,
         'sell_listings': sell_listings,
         'buy_listings': buy_listings
+    })
+
+
+def books_market(request):
+    # Get sell listings with pagination
+    sell_listings = (Booklisting.objects
+        .filter(listingtype__in=['SELL', 'GIVE'], active=True, status='ACTIVE')
+        .select_related('book', 'user')
+        .order_by('-createdat'))
+    
+    sell_paginator = Paginator(sell_listings, 12)
+    sell_page = request.GET.get('sell_page')
+    sell_listings = sell_paginator.get_page(sell_page)
+
+    # Get buy listings with pagination 
+    buy_listings = (Booklisting.objects
+        .filter(listingtype='BUY', active=True, status='ACTIVE')
+        .select_related('book', 'user')
+        .order_by('-createdat'))
+    
+    buy_paginator = Paginator(buy_listings, 12)
+    buy_page = request.GET.get('buy_page')
+    buy_listings = buy_paginator.get_page(buy_page)
+
+    return render(request, 'books/books_market.html', {
+        'sell_listings': sell_listings,
+        'buy_listings': buy_listings
+    })
+
+
+def books_market_offers(request):
+    #View for sell/give offers
+    sell_listings = (Booklisting.objects
+        .filter(listingtype__in=['SELL', 'GIVE'], active=True, status='ACTIVE')
+        .select_related('book', 'user')
+        .order_by('-createdat'))
+    
+    paginator = Paginator(sell_listings, 12)
+    page = request.GET.get('page')
+    listings = paginator.get_page(page)
+
+    return render(request, 'books/books_market_offers.html', {
+        'listings': listings
+    })
+
+def books_market_wants(request):
+    #View for buy requests
+    buy_listings = (Booklisting.objects
+        .filter(listingtype='BUY', active=True, status='ACTIVE')
+        .select_related('book', 'user')
+        .order_by('-createdat'))
+    
+    paginator = Paginator(buy_listings, 12)
+    page = request.GET.get('page')
+    listings = paginator.get_page(page)
+
+    return render(request, 'books/books_market_wants.html', {
+        'listings': listings
     })
 
 
@@ -216,6 +276,19 @@ def listing_detail(request, book_url, listing_id):
     })
 
 
+def get_market_listings(limit=5):
+    #Pomocná funkce pro hlavní stranu a výpis
+    #recent_listings = get_market_listings()
+    sell_listings = (Booklisting.objects.filter(
+        listingtype__in=['SELL', 'GIVE'], 
+        active=True,
+        status='ACTIVE'
+    ).select_related('book', 'user')
+     .order_by('-createdat')[:limit])
+    
+    return sell_listings
+
+
 def books(request):
     #api_key = os.getenv('GOOGLE_API_KEY')
     #api_test_message = "API klíč není nastaven" if not api_key else "API klíč je nastaven"
@@ -278,6 +351,8 @@ def books(request):
     if request.user.is_authenticated:
         reading_goal = get_reading_goal(request)
     
+    recent_listings = get_market_listings()
+    
 
     return render(request, 'books/books_list.html', {
         'top_books': top_books,
@@ -286,6 +361,7 @@ def books(request):
         'stats_writters': stats_writters,
         'reading_goal': reading_goal,
         'category_key': 'knihy',
+        'recent_listings': recent_listings,
         })
 #'top_20_books': top_20_books, 'all_books': all_books, 'api_test_message': api_test_message
 
@@ -723,5 +799,3 @@ def remove_from_book_library(request, bookid):
     return redirect("book_detail", book_url=book.url)
 
 
-def books_market(request):
-    return render(request, 'books/books_market.html', {})
