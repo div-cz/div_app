@@ -103,7 +103,6 @@ class Article(models.Model):
     updated = models.DateField(db_column='Updated')
 
     class Meta:
-        managed = False
         db_table = 'Article'
 
 
@@ -317,7 +316,6 @@ class Booklisting(models.Model):
     buyerrating = models.IntegerField(db_column='BuyerRating', null=True, blank=True)
     buyercomment = models.TextField(db_column='BuyerComment', max_length=512, blank=True, null=True)
     class Meta:
-        managed = False
         db_table = 'BookListing'
 
 
@@ -506,7 +504,6 @@ class Characterbiography(models.Model):
     is_primary = models.BooleanField(db_column='IsPrimary', default=False)
 
     class Meta:
-        managed = False
         db_table = 'CharacterBiography'
 
 
@@ -1119,7 +1116,6 @@ class Metaindex(models.Model):
     last_updated = models.DateField(db_column='LastUpdated', auto_now=True)  # Datum poslední aktualizace
 
     class Meta:
-        managed = False
         db_table = 'MetaIndex'
 
 class Metapublisher(models.Model):
@@ -1452,7 +1448,6 @@ class Moviequotes(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, db_column='user_id')  
 
     class Meta:
-        managed = 'False'
         db_table = 'MovieQuotes'
 
 class Movierating(AbstractBaseRating, models.Model):
@@ -1628,7 +1623,6 @@ class Tvshowquotes(models.Model):
     div_rating = models.IntegerField(default=0, db_column='DIVRating')
 
     class Meta:
-        managed = False
         db_table = 'TVShowQuotes'
 
     def __str__(self):
@@ -1782,7 +1776,6 @@ class Userprofile(models.Model):
     avatar = models.ForeignKey(Avatar, db_column='Avatar', null=True, blank=True, on_delete=models.SET_NULL)
     
     class Meta:
-        managed = False
         db_table = 'UserProfile'
 
 

@@ -365,7 +365,7 @@ def profile_movies_section(request, user_id):
         
         # Combine Book objects with their Userlistitem data
         favorite_movies = [
-            (movie_map[item.object_id], item)  # Include Book object and Userlistitem instance
+            (movie_map[item.object_id], item)
             for item in favorite_movie_items
             if item.object_id in movie_map
         ]
