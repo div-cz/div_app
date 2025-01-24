@@ -27,17 +27,6 @@ from star_ratings.models import Rating, UserRating
 
 
 # Konstanty
-#CONTENT_TYPE použit v books, movies, authors, characters, series, creators
-#CONTENT_TYPE_SERIES_ID = 40 # tvshow
-#tvshow_content_type = ContentType.objects.get_for_model(Tvshow)
-#CONTENT_TYPE_SERIES_ID = tvshow_content_type.id
-#CONTENT_TYPE_TVSEASON_ID = 41 # tvseason
-#tvseason_content_type = ContentType.objects.get_for_model(Tvseason)
-#CONTENT_TYPE_TVSEASON_ID = tvseason_content_type.id
-#CONTENT_TYPE_TVEPISODE_ID = 43 # tvepisode
-#tvepisode_content_type = ContentType.objects.get_for_model(Tvepisode)
-#CONTENT_TYPE_TVEPISODE_ID = tvepisode_content_type.id
-
 # Userlisttype pro seriály na testu
 USERLISTTYPE_OBLIBENY = 13
 USERLISTTYPE_CHCI_VIDET = 14
@@ -51,6 +40,20 @@ USERLISTTYPE_SHLEDNUTA_SEZONA = 19
 USERLISTTYPE_OBLIBENY_DIL = 20
 USERLISTTYPE_CHCI_VIDET_DIL = 21
 USERLISTTYPE_SHLEDNUTY_DIL = 22
+
+
+#CONTENT_TYPE použit v books, movies, authors, characters, series, creators
+#CONTENT_TYPE_SERIES_ID = 40 # tvshow
+tvshow_content_type = ContentType.objects.get_for_model(Tvshow)
+CONTENT_TYPE_SERIES_ID = tvshow_content_type.id
+#CONTENT_TYPE_TVSEASON_ID = 41 # tvseason
+tvseason_content_type = ContentType.objects.get_for_model(Tvseason)
+CONTENT_TYPE_TVSEASON_ID = tvseason_content_type.id
+#CONTENT_TYPE_TVEPISODE_ID = 43 # tvepisode
+tvepisode_content_type = ContentType.objects.get_for_model(Tvepisode)
+CONTENT_TYPE_TVEPISODE_ID = tvepisode_content_type.id
+
+
 
 
 def series_list(request):
