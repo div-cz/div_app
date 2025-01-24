@@ -40,8 +40,8 @@ USERLISTTYPE_MOVIE_LIBRARY_ID = 11 # Filmotéka
 
 #CONTENT_TYPE_MOVIE_ID = 33
 #CONTENT_TYPE použit v books, movies, authors, characters, series, creators
-#movie_content_type = ContentType.objects.get_for_model(Movie)
-#CONTENT_TYPE_MOVIE_ID = movie_content_type.id
+movie_content_type = ContentType.objects.get_for_model(Movie)
+CONTENT_TYPE_MOVIE_ID = movie_content_type.id
 
 #Carouse = .values('title', 'titlecz', 'url', 'img', 'description')
 #List = .values('title', 'titlecz', 'url', 'img', 'description')

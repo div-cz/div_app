@@ -22,11 +22,11 @@ from collections import defaultdict
 USERLISTTYPE_FAV_CREATOR_ID = 25 # Oblíbený tvůrce
 USERLISTTYPE_WATCHED_MOVIES = 3 # Shlédnuto
 #CONTENTTYPE_CREATOR_ID = 15
-#creator_content_type = ContentType.objects.get_for_model(Creator)
-#CONTENTTYPE_CREATOR_ID = creator_content_type.id
+creator_content_type = ContentType.objects.get_for_model(Creator)
+CONTENTTYPE_CREATOR_ID = creator_content_type.id
 #CONTENTTYPE_MOVIE_ID = 33
-#movie_content_type = ContentType.objects.get_for_model(Movie)
-#CONTENTTYPE_MOVIE_ID = movie_content_type.id
+movie_content_type = ContentType.objects.get_for_model(Movie)
+CONTENTTYPE_MOVIE_ID = movie_content_type.id
 
 
 def creators_list(request):
