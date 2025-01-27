@@ -8,18 +8,23 @@
 <div class="container mx-auto px-4 py-6">
     <div class="mt-8">
         <h2 class="text-2xl font-semibold mb-4">Nabídka knih</h2>
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {% for listing in listings %}
             <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded">
                 <a href="{% url 'book_detail' listing.book.url %}">
-                    <img class="rounded-l" style="width: 80px;" src="/static/kniha/{{ listing.book.img }}">
+                    <img class="rounded-l" style="width: 80px;" src="/static/kniha/{{ listing.book.img }}" alt="odkaz na knihu">
                 </a>
-                <div class="ml-2" style="flex: 2;">
-                    <p>{{ listing.book.titlecz|default:listing.book.title }}</p>
-                    <p>{{ listing.book.author }}</p>
-                    <p>{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
-                    <p><a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">Detail nabídky</a></p>
-                    <p class="text-sm text-gray-600">Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</p>
+                <div class="flex flex-wrap content-between h-full p-2" style="flex: 2;">
+                    <div class="flex justify-between w-full">
+                        <div>
+                            <p>{{ listing.book.titlecz|default:listing.book.title }}</p>
+                            <p>{{ listing.book.author }}</p>
+                        </div>
+                        <p class="flex items-center rounded-circle border-black mb-3 p-1 price">{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
+                    </div>
+
+                    <p class="w-full"><a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">Detail nabídky</a></p>
+                    <p class="text-sm text-end w-full"><small>Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</small></p>
                 </div>
             </div>
             {% endfor %}

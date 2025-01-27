@@ -6,7 +6,7 @@ from div_content.forms.users import ContactForm, UserProfileForm, UserMessageFor
 
 from div_content.models import (
     Avatar, Book, Bookauthor, Bookcomments, Bookgenre, Booklisting, Creator, Favorite, Charactermeta, Game, Gamecomments, Metacountry, Metagenre, Movie, Moviecomments, Moviecountries, 
-    Moviegenre, Movierating, Tvshow, Userdivcoins, Userlist, Userlistbook, Userlistgame, Userlistmovie, Userlisttype, Userprofile,
+    Moviegenre, Movierating, Tvshow, Tvshowcomments, Userdivcoins, Userlist, Userlistbook, Userlistgame, Userlistmovie, Userlisttype, Userprofile,
     Usermessage, Userchatsession, Userlisttvshow, Userlistitem
     
     )
@@ -32,10 +32,7 @@ from django.http import JsonResponse
 
 book_content_type = ContentType.objects.get_for_model(Book)
 CONTENT_TYPE_BOOK_ID = book_content_type.id
-userlisttype_fav_char = Userlisttype.objects.filter(name='Oblíbená postava').first()
-USERLISTTYPE_FAV_CHARACTER_ID = userlisttype_fav_char.userlisttypeid
-userlisttype_fav_creator = Userlisttype.objects.filter(name='Oblíbený tvůrce').first()
-USERLISTTYPE_FAV_CREATOR_ID = userlisttype_fav_creator.userlisttypeid
+
 
 
 # A N T I K V A R I Á T
@@ -133,13 +130,8 @@ def user_buy_listings(request, user_id):
 
 
 def profile_show_case(request, user_id):
-    # Fetch the user profile
-    profile_user = get_object_or_404(User, pk=user_id)
-
-    # Get the user profile
-    user_profile = Userprofile.objects.get(user=profile_user)  
-
-    # Get the user's DivCoins data
+    profile_user = get_object_or_404(User, id=user_id)
+    user_profile = Userprofile.objects.get(user=profile_user)
     user_div_coins = get_object_or_404(Userdivcoins, user_id=profile_user.id)
 
     # Count total comments across movies, books, and games
@@ -162,6 +154,7 @@ def profile_show_case(request, user_id):
         awards.append({"name": "1000 komentářů", "icon": "1000_comments.png", "unlocked": True})
 
     return render(request, 'user/profile_show_case.html', {
+        'user_div_coins': user_div_coins,
         'profile_user': profile_user,
         'user_profile': user_profile,
         'awards': awards,
@@ -344,19 +337,10 @@ def profile_movies_section(request, user_id):
     movie_page_obj = movie_paginator.get_page(movie_page_number)
 
     # Získání oblíbených filmů (UserListTypeID = 1)
-    favorite_list_type = get_object_or_404(Userlisttype, userlisttypeid=1)
-    favorite_list = Userlist.objects.filter(user=profile_user, listtype=favorite_list_type).first()
+    userlisttype_fav_movie = Userlisttype.objects.filter(name='Oblíbený film').first()
+    favorite_list = Userlist.objects.filter(user=profile_user, listtype=userlisttype_fav_movie.userlisttypeid).first()
     if favorite_list:
-    #     favorite_movies = Userlistmovie.objects.filter(userlist=favorite_list).select_related('movie')
-    #     favorite_paginator = Paginator(favorite_movies, items_per_page)
-    #     favorite_page_number = request.GET.get('favorite_page', 1)
-    #     favorite_page_obj = favorite_paginator.get_page(favorite_page_number)
-    # else:
-    #     favorite_page_obj = None
         favorite_movie_items = Userlistitem.objects.filter(userlist=favorite_list, content_type=movie_content_type).order_by('-addedat')
-        # for item in favorite_book_items:
-        #     favorite_books.append((Book.objects.filter(bookid=item.object_id).first(), item.addedat))
-        # Fetch all related Book objects in a single query
         movies_ids = favorite_movie_items.values_list('object_id', flat=True)
         movies = Movie.objects.filter(movieid__in=movies_ids)
 
@@ -369,7 +353,6 @@ def profile_movies_section(request, user_id):
             for item in favorite_movie_items
             if item.object_id in movie_map
         ]
-
         favorite_paginator = Paginator(favorite_movies, items_per_page)
         favorite_page_number = request.GET.get('favorite_page', 1)
         favorite_page_obj = favorite_paginator.get_page(favorite_page_number)
@@ -377,16 +360,14 @@ def profile_movies_section(request, user_id):
         favorite_page_obj = None
         
     # Získání oblíbených herců (ContentType pro Creator)
-    favourite_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_FAV_CREATOR_ID)
+    userlisttype_fav_creator = Userlisttype.objects.filter(name='Oblíbený tvůrce').first()
+    favourite_type = Userlisttype.objects.get(userlisttypeid=userlisttype_fav_creator.userlisttypeid)
     favourites_list = Userlist.objects.filter(user=profile_user, listtype=favourite_type).first()
-    fav_creators = []
     if favourites_list:
         creator_content_type = ContentType.objects.get_for_model(Creator)
         # Subquery
         addedat_subquery = Userlistitem.objects.filter(
-            userlist=favourites_list,
-            content_type=creator_content_type,
-            object_id=OuterRef('creatorid')
+            userlist=favourites_list, content_type=creator_content_type, object_id=OuterRef('creatorid')
         ).values('addedat')[:1]
 
         # Annotate Creator objects with addedat and sort by addedat
@@ -405,26 +386,56 @@ def profile_movies_section(request, user_id):
         fav_creators_page_obj = None
         
     # Seznam oblíbených postav
-    character_content_type = ContentType.objects.get_for_model(Charactermeta)
-    favorite_characters = Favorite.objects.filter(
-        user=profile_user,
-        content_type=character_content_type
-    )[:10]
-    fav_characters = [favorite.content_object for favorite in favorite_characters]
+    userlisttype_fav_char = Userlisttype.objects.filter(name='Oblíbená postava').first()
+    favorite_char_list = Userlist.objects.filter(user=profile_user, listtype=userlisttype_fav_char.userlisttypeid).first()
+    if favorite_char_list:
+        character_content_type = ContentType.objects.get_for_model(Charactermeta)
+        # Subquery
+        addedat_subquery = Userlistitem.objects.filter(
+            userlist=favorite_char_list, content_type=character_content_type, object_id=OuterRef('characterid')
+        ).values('addedat')[:1]
 
+        fav_characters = Charactermeta.objects.filter(
+            characterid__in=Userlistitem.objects.filter(
+                userlist=favorite_char_list, content_type=character_content_type
+            ).values_list('object_id', flat=True)
+        ).annotate(
+            addedat=Subquery(addedat_subquery)
+        ).order_by('-addedat')
+
+        fav_characters_paginator = Paginator(fav_characters, 12)
+        fav_characters_page_number = request.GET.get('fav_characters_page', 1)
+        fav_characters_page_obj = fav_characters_paginator.get_page(fav_characters_page_number)
+    else:
+        fav_characters_page_obj = None
 
     # Získání recenzí
-    reviews = Moviecomments.objects.filter(
-        user_id=user_id,
-        comment__isnull=False
-    ).order_by('-dateadded')[:20]
-
+    reviews = Moviecomments.objects.filter(user_id=user_id, comment__isnull=False).order_by('-dateadded')
+    if reviews: 
+        moviereviews_paginator = Paginator(reviews, items_per_page)
+        moviereviews_page_number = request.GET.get('moviereviews_page', 1)
+        moviereviews_page_obj = moviereviews_paginator.get_page(moviereviews_page_number)
+    else:
+        moviereviews_page_obj = None
 
     # Chci vidět (UserListTypeID = 2)
     wantsee_list_type = get_object_or_404(Userlisttype, userlisttypeid=2)
-    wantsee_list = Userlist.objects.filter(user=profile_user, listtype=wantsee_list_type).first()
+    wantsee_list = Userlist.objects.filter(user=profile_user, listtype=wantsee_list_type.userlisttypeid).first()
     if wantsee_list:
-        wantsee_movies = Userlistmovie.objects.filter(userlist=wantsee_list).select_related('movie')
+        # wantsee_movies = Userlistmovie.objects.filter(userlist=wantsee_list).select_related('movie')
+        wantsee_movie_items = Userlistitem.objects.filter(userlist=wantsee_list, content_type=movie_content_type).order_by('-addedat')
+        movies_ids = wantsee_movie_items.values_list('object_id', flat=True)
+        movies = Movie.objects.filter(movieid__in=movies_ids)
+
+        # Create a mapping of book_id to Book object
+        movie_map = {movie.movieid: movie for movie in movies}
+        
+        # Combine Book objects with their Userlistitem data
+        wantsee_movies = [
+            (movie_map[item.object_id], item)
+            for item in wantsee_movie_items
+            if item.object_id in movie_map
+        ]
         wantsee_paginator = Paginator(wantsee_movies, items_per_page)
         wantsee_page_number = request.GET.get('wantsee_page', 1)
         wantsee_page_obj = wantsee_paginator.get_page(wantsee_page_number)
@@ -435,7 +446,19 @@ def profile_movies_section(request, user_id):
     watched_list_type = get_object_or_404(Userlisttype, userlisttypeid=3)
     watched_list = Userlist.objects.filter(user=profile_user, listtype=watched_list_type).first()
     if watched_list:
-        watched_movies = Userlistmovie.objects.filter(userlist=watched_list).select_related('movie')
+        watched_movie_items = Userlistitem.objects.filter(userlist=watched_list, content_type=movie_content_type).order_by('-addedat')
+        movies_ids = watched_movie_items.values_list('object_id', flat=True)
+        movies = Movie.objects.filter(movieid__in=movies_ids)
+
+        # Create a mapping of book_id to Book object
+        movie_map = {movie.movieid: movie for movie in movies}
+        
+        # Combine Book objects with their Userlistitem data
+        watched_movies = [
+            (movie_map[item.object_id], item)
+            for item in watched_movie_items
+            if item.object_id in movie_map
+        ]
         watched_paginator = Paginator(watched_movies, items_per_page)
         watched_page_number = request.GET.get('watched_page', 1)
         watched_page_obj = watched_paginator.get_page(watched_page_number)
@@ -446,7 +469,19 @@ def profile_movies_section(request, user_id):
     filmoteka_list_type = get_object_or_404(Userlisttype, userlisttypeid=11)
     filmoteka_list = Userlist.objects.filter(user=profile_user, listtype=filmoteka_list_type).first()
     if filmoteka_list:
-        filmoteka_movies = Userlistmovie.objects.filter(userlist=filmoteka_list).select_related('movie')
+        filmoteka_movie_items = Userlistitem.objects.filter(userlist=filmoteka_list, content_type=movie_content_type).order_by('-addedat')
+        movies_ids = filmoteka_movie_items.values_list('object_id', flat=True)
+        movies = Movie.objects.filter(movieid__in=movies_ids)
+
+        # Create a mapping of book_id to Book object
+        movie_map = {movie.movieid: movie for movie in movies}
+        
+        # Combine Book objects with their Userlistitem data
+        filmoteka_movies = [
+            (movie_map[item.object_id], item)
+            for item in filmoteka_movie_items
+            if item.object_id in movie_map
+        ]
         filmoteka_paginator = Paginator(filmoteka_movies, items_per_page)
         filmoteka_page_number = request.GET.get('filmoteka_page', 1)
         filmoteka_page_obj = filmoteka_paginator.get_page(filmoteka_page_number)
@@ -468,10 +503,10 @@ def profile_movies_section(request, user_id):
         'user_div_coins': user_div_coins,
         'movie_page_obj': movie_page_obj,
         'favorite_page_obj': favorite_page_obj,
-        'fav_creators': fav_creators, 
         'fav_creators_page_obj': fav_creators_page_obj,
-        'fav_characters': fav_characters,
+        'fav_characters_page_obj': fav_characters_page_obj,
         'reviews': reviews,
+        'moviereviews_page_obj': moviereviews_page_obj,
         'wantsee_page_obj': wantsee_page_obj,
         'watched_page_obj': watched_page_obj,
         'filmoteka_page_obj': filmoteka_page_obj,
@@ -502,7 +537,19 @@ def profile_series_section(request, user_id):
     favorite_list_type = get_object_or_404(Userlisttype, userlisttypeid=13)
     favorite_list = Userlist.objects.filter(user=profile_user, listtype=favorite_list_type).first()
     if favorite_list:
-        favorite_series = Userlisttvshow.objects.filter(userlist=favorite_list).select_related('tvshow')
+        favorite_series_items = Userlistitem.objects.filter(userlist=favorite_list, content_type=series_content_type).order_by('-addedat')
+        series_ids = favorite_series_items.values_list('object_id', flat=True)
+        series = Tvshow.objects.filter(tvshowid__in=series_ids)
+
+        # Create a mapping of book_id to Book object
+        serie_map = {serie.tvshowid: serie for serie in series}
+        
+        # Combine Book objects with their Userlistitem data
+        favorite_series = [
+            (serie_map[item.object_id], item)
+            for item in favorite_series_items
+            if item.object_id in serie_map
+        ]
         favorite_paginator = Paginator(favorite_series, items_per_page)
         favorite_page_number = request.GET.get('favorite_page', 1)
         favorite_page_obj = favorite_paginator.get_page(favorite_page_number)
@@ -510,34 +557,83 @@ def profile_series_section(request, user_id):
         favorite_page_obj = None
         
     # Získání oblíbených herců (ContentType pro Creator)
-    # creator_content_type = ContentType.objects.get_for_model(Creator)
-    # favorite_creators = Favorite.objects.filter(
-    #     user=profile_user,
-    #     content_type=creator_content_type
-    # ).order_by('-created_at')[:10]
-    # fav_creators = [favorite.content_object for favorite in favorite_creators]
+    userlisttype_fav_creator = Userlisttype.objects.filter(name='Oblíbený tvůrce').first()
+    favourite_type = Userlisttype.objects.get(userlisttypeid=userlisttype_fav_creator.userlisttypeid)
+    favourites_list = Userlist.objects.filter(user=profile_user, listtype=favourite_type).first()
+    if favourites_list:
+        creator_content_type = ContentType.objects.get_for_model(Creator)
+        # Subquery
+        addedat_subquery = Userlistitem.objects.filter(
+            userlist=favourites_list, content_type=creator_content_type, object_id=OuterRef('creatorid')
+        ).values('addedat')[:1]
 
-    # # Seznam oblíbených postav
-    # character_content_type = ContentType.objects.get_for_model(Charactermeta)
-    # favorite_characters = Favorite.objects.filter(
-    #     user=profile_user,
-    #     content_type=character_content_type
-    # )[:10]
-    # fav_characters = [favorite.content_object for favorite in favorite_characters]
+        # Annotate Creator objects with addedat and sort by addedat
+        fav_creators = Creator.objects.filter(
+            creatorid__in=Userlistitem.objects.filter(
+                userlist=favourites_list, content_type=creator_content_type
+            ).values_list('object_id', flat=True)
+        ).annotate(
+            addedat=Subquery(addedat_subquery)
+        ).order_by('-addedat')
+
+        fav_creators_paginator = Paginator(fav_creators, 12)
+        fav_creators_page_number = request.GET.get('fav_creators_page', 1)
+        fav_creators_page_obj = fav_creators_paginator.get_page(fav_creators_page_number)
+    else:
+        fav_creators_page_obj = None
+
+   # Seznam oblíbených postav
+    userlisttype_fav_char = Userlisttype.objects.filter(name='Oblíbená postava').first()
+    favorite_char_list = Userlist.objects.filter(user=profile_user, listtype=userlisttype_fav_char.userlisttypeid).first()
+    if favorite_char_list:
+        character_content_type = ContentType.objects.get_for_model(Charactermeta)
+        # Subquery
+        addedat_subquery = Userlistitem.objects.filter(
+            userlist=favorite_char_list, content_type=character_content_type, object_id=OuterRef('characterid')
+        ).values('addedat')[:1]
+
+        fav_characters = Charactermeta.objects.filter(
+            characterid__in=Userlistitem.objects.filter(
+                userlist=favorite_char_list, content_type=character_content_type
+            ).values_list('object_id', flat=True)
+        ).annotate(
+            addedat=Subquery(addedat_subquery)
+        ).order_by('-addedat')
+
+        fav_characters_paginator = Paginator(fav_characters, 12)
+        fav_characters_page_number = request.GET.get('fav_characters_page', 1)
+        fav_characters_page_obj = fav_characters_paginator.get_page(fav_characters_page_number)
+    else:
+        fav_characters_page_obj = None
 
 
     # Získání recenzí
-    # reviews = Moviecomments.objects.filter(
-    #     user_id=user_id,
-    #     comment__isnull=False
-    # ).order_by('-dateadded')[:20]
+    reviews = Tvshowcomments.objects.filter(user_id=user_id, comment__isnull=False).order_by('-dateadded')
+    if reviews: 
+        seriesreviews_paginator = Paginator(reviews, items_per_page)
+        seriesreviews_page_number = request.GET.get('seriesreviews_page', 1)
+        seriesreviews_page_obj = seriesreviews_paginator.get_page(seriesreviews_page_number)
+    else:
+        seriesreviews_page_obj = None
 
 
     # Chci vidět (UserListTypeID = 14)
     wantsee_list_type = get_object_or_404(Userlisttype, userlisttypeid=14)
     wantsee_list = Userlist.objects.filter(user=profile_user, listtype=wantsee_list_type).first()
     if wantsee_list:
-        wantsee_series = Userlisttvshow.objects.filter(userlist=wantsee_list).select_related('tvshow')
+        wantsee_series_items = Userlistitem.objects.filter(userlist=wantsee_list, content_type=series_content_type).order_by('-addedat')
+        series_ids = wantsee_series_items.values_list('object_id', flat=True)
+        series = Tvshow.objects.filter(tvshowid__in=series_ids)
+
+        # Create a mapping of book_id to Book object
+        serie_map = {serie.tvshowid: serie for serie in series}
+        
+        # Combine Book objects with their Userlistitem data
+        wantsee_series = [
+            (serie_map[item.object_id], item)
+            for item in wantsee_series_items
+            if item.object_id in serie_map
+        ]
         wantsee_paginator = Paginator(wantsee_series, items_per_page)
         wantsee_page_number = request.GET.get('wantsee_page', 1)
         wantsee_page_obj = wantsee_paginator.get_page(wantsee_page_number)
@@ -548,7 +644,19 @@ def profile_series_section(request, user_id):
     watched_list_type = get_object_or_404(Userlisttype, userlisttypeid=15)
     watched_list = Userlist.objects.filter(user=profile_user, listtype=watched_list_type).first()
     if watched_list:
-        watched_series = Userlisttvshow.objects.filter(userlist=watched_list).select_related('tvshow')
+        watched_series_items = Userlistitem.objects.filter(userlist=watched_list, content_type=series_content_type).order_by('-addedat')
+        series_ids = watched_series_items.values_list('object_id', flat=True)
+        series = Tvshow.objects.filter(tvshowid__in=series_ids)
+
+        # Create a mapping of book_id to Book object
+        serie_map = {serie.tvshowid: serie for serie in series}
+        
+        # Combine Book objects with their Userlistitem data
+        watched_series = [
+            (serie_map[item.object_id], item)
+            for item in watched_series_items
+            if item.object_id in serie_map
+        ]
         watched_paginator = Paginator(watched_series, items_per_page)
         watched_page_number = request.GET.get('watched_page', 1)
         watched_page_obj = watched_paginator.get_page(watched_page_number)
@@ -559,7 +667,19 @@ def profile_series_section(request, user_id):
     serialoteka_list_type = get_object_or_404(Userlisttype, userlisttypeid=16)
     serialoteka_list = Userlist.objects.filter(user=profile_user, listtype=serialoteka_list_type).first()
     if serialoteka_list:
-        serialoteka_series= Userlisttvshow.objects.filter(userlist=serialoteka_list).select_related('tvshow')
+        serialoteka_series_items = Userlistitem.objects.filter(userlist=serialoteka_list, content_type=series_content_type).order_by('-addedat')
+        series_ids = serialoteka_series_items.values_list('object_id', flat=True)
+        series = Tvshow.objects.filter(tvshowid__in=series_ids)
+
+        # Create a mapping of book_id to Book object
+        serie_map = {serie.tvshowid: serie for serie in series}
+        
+        # Combine Book objects with their Userlistitem data
+        serialoteka_series = [
+            (serie_map[item.object_id], item)
+            for item in serialoteka_series_items
+            if item.object_id in serie_map
+        ]
         serialoteka_paginator = Paginator(serialoteka_series, items_per_page)
         serialoteka_page_number = request.GET.get('serialoteka_page', 1)
         serialoteka_page_obj = serialoteka_paginator.get_page(serialoteka_page_number)
@@ -581,9 +701,11 @@ def profile_series_section(request, user_id):
         'user_div_coins': user_div_coins,
         'series_page_obj': series_page_obj,
         'favorite_page_obj': favorite_page_obj,
+        'fav_characters_page_obj': fav_characters_page_obj,
+        'fav_creators_page_obj': fav_creators_page_obj,
         # 'fav_creators': fav_creators, 
         # 'fav_characters': fav_characters,
-        # 'reviews': reviews,
+        'seriesreviews_page_obj': seriesreviews_page_obj,
         'wantsee_page_obj': wantsee_page_obj,
         'watched_page_obj': watched_page_obj,
         'serialoteka_page_obj': serialoteka_page_obj,
@@ -614,12 +736,8 @@ def profile_books_section(request, user_id):
     # Oblíbené knihy
     favorite_list_type = get_object_or_404(Userlisttype, userlisttypeid=4)  # Typ seznamu pro oblíbené
     favorite_list = Userlist.objects.filter(user=profile_user, listtype=favorite_list_type).first()
-    favorite_books = []
     if favorite_list:
         favorite_book_items = Userlistitem.objects.filter(userlist=favorite_list, content_type=book_content_type).order_by('-addedat')
-        # for item in favorite_book_items:
-        #     favorite_books.append((Book.objects.filter(bookid=item.object_id).first(), item.addedat))
-        # Fetch all related Book objects in a single query
         book_ids = favorite_book_items.values_list('object_id', flat=True)
         books = Book.objects.filter(bookid__in=book_ids)
 
@@ -628,7 +746,7 @@ def profile_books_section(request, user_id):
         
         # Combine Book objects with their Userlistitem data
         favorite_books = [
-            (book_map[item.object_id], item)  # Include Book object and Userlistitem instance
+            (book_map[item.object_id], item)
             for item in favorite_book_items
             if item.object_id in book_map
         ]
@@ -640,42 +758,86 @@ def profile_books_section(request, user_id):
         favorite_page_obj = None
 
     # Načítání oblíbených spisovatelů
-    profile_user = get_object_or_404(User, id=user_id)
-    #print(f"Profile user: {profile_user}")
     bookauthor_content_type = ContentType.objects.get_for_model(Bookauthor)
-    #print(f"ContentType pro spisovatele: {bookauthor_content_type}")
-    favorite_authors = Favorite.objects.filter(
-        user=profile_user,
-        content_type=bookauthor_content_type
-    )[:20]
-    #print(f"Oblíbení autoři: {favorite_authors}")
-    
-    fav_authors = [favorite.content_object for favorite in favorite_authors]
-    #print(fav_authors)
+    userlisttype_fav_creator = Userlisttype.objects.filter(name='Oblíbený spisovatel').first()
+    favourite_type = Userlisttype.objects.get(userlisttypeid=userlisttype_fav_creator.userlisttypeid)
+    favourites_list = Userlist.objects.filter(user=profile_user, listtype=favourite_type).first()
+    if favourites_list:
+        bookauthor_content_type = ContentType.objects.get_for_model(Bookauthor)
+        # Subquery
+        addedat_subquery = Userlistitem.objects.filter(
+            userlist=favourites_list, content_type=bookauthor_content_type, object_id=OuterRef('authorid')
+        ).values('addedat')[:1]
+
+        # Annotate Creator objects with addedat and sort by addedat
+        fav_authors = Bookauthor.objects.filter(
+            authorid__in=Userlistitem.objects.filter(
+                userlist=favourites_list, content_type=bookauthor_content_type
+            ).values_list('object_id', flat=True)
+        ).annotate(
+            addedat=Subquery(addedat_subquery)
+        ).order_by('-addedat')
+
+        fav_creators_paginator = Paginator(fav_authors, 12)
+        fav_creators_page_number = request.GET.get('fav_creators_page', 1)
+        fav_creators_page_obj = fav_creators_paginator.get_page(fav_creators_page_number)
+    else:
+        fav_creators_page_obj = None
+
 
     # Recenze knih (komentáře)
-    book_comments = Bookcomments.objects.filter(user=profile_user).exclude(comment__isnull=True).exclude(comment__exact='')
-    print(f"Book comments: {book_comments}")  # Debugging line
+    #     book_comments = Bookcomments.objects.filter(user=profile_user).exclude(comment__isnull=True).exclude(comment__exact='')
+    # print(f"Book comments: {book_comments}")  # Debugging line
+    # Získání recenzí
+    reviews = Bookcomments.objects.filter(user=profile_user, comment__isnull=False).order_by('-dateadded')
+    if reviews: 
+        bookreviews_paginator = Paginator(reviews, items_per_page)
+        bookreviews_page_number = request.GET.get('bookreviews_page', 1)
+        bookreviews_page_obj = bookreviews_paginator.get_page(bookreviews_page_number)
+    else:
+        bookreviews_page_obj = None
 
     # Knihy, které chce číst (Chci číst)
-    wantsee_list_type = get_object_or_404(Userlisttype, userlisttypeid=5)
-    wantsee_list = Userlist.objects.filter(user=profile_user, listtype=wantsee_list_type).first()
-    wantsee_books = []
-    if wantsee_list:
-        wantsee_books = Userlistbook.objects.filter(userlist=wantsee_list).select_related('book')
-        print(f"Want to read books: {wantsee_books}")  # Debugging line
-        wantsee_paginator = Paginator(wantsee_books, items_per_page)
-        wantsee_page_number = request.GET.get('wantsee_page', 1)
-        wantsee_page_obj = wantsee_paginator.get_page(wantsee_page_number)
+    wantread_list_type = get_object_or_404(Userlisttype, name="Chci číst")
+    wantread_list = Userlist.objects.filter(user=profile_user, listtype=wantread_list_type).first()
+    if wantread_list:
+        wantread_book_items = Userlistitem.objects.filter(userlist=wantread_list, content_type=book_content_type).order_by('-addedat')
+        books_ids = wantread_book_items.values_list('object_id', flat=True)
+        books = Book.objects.filter(bookid__in=books_ids)
+
+        # Create a mapping of book_id to Book object
+        book_map = {book.bookid: book for book in books}
+        
+        # Combine Book objects with their Userlistitem data
+        wantread_books = [
+            (book_map[item.object_id], item)
+            for item in wantread_book_items
+            if item.object_id in book_map
+        ]
+
+        wantread_paginator = Paginator(wantread_books, items_per_page)
+        wantread_page_number = request.GET.get('wantread_page', 1)
+        wantread_page_obj = wantread_paginator.get_page(wantread_page_number)
     else:
-        wantsee_page_obj = None
+        wantread_page_obj = None
 
     # Přečtené knihy (Přečteno)
-    read_list_type = get_object_or_404(Userlisttype, userlisttypeid=6)
+    read_list_type = get_object_or_404(Userlisttype, name='Přečteno')
     read_list = Userlist.objects.filter(user=profile_user, listtype=read_list_type).first()
-    read_books = []
     if read_list:
-        read_books = Userlistbook.objects.filter(userlist=read_list).select_related('book')
+        read_book_items = Userlistitem.objects.filter(userlist=read_list, content_type=book_content_type).order_by('-addedat')
+        books_ids = read_book_items.values_list('object_id', flat=True)
+        books = Book.objects.filter(bookid__in=books_ids)
+
+        # Create a mapping of book_id to Book object
+        book_map = {book.bookid: book for book in books}
+        
+        # Combine Book objects with their Userlistitem data
+        read_books = [
+            (book_map[item.object_id], item)
+            for item in read_book_items
+            if item.object_id in book_map
+        ]
         read_paginator = Paginator(read_books, items_per_page)
         read_page_number = request.GET.get('read_page', 1)
         read_page_obj = read_paginator.get_page(read_page_number)
@@ -683,22 +845,27 @@ def profile_books_section(request, user_id):
         read_page_obj = None
 
     # Knihovna
-    library_list_type = get_object_or_404(Userlisttype, userlisttypeid=10)
+    library_list_type = get_object_or_404(Userlisttype, name='Knihovna')
     library_list = Userlist.objects.filter(user=profile_user, listtype=library_list_type).first()
-    library_books = []
     if library_list:
-        library_books = Userlistbook.objects.filter(userlist=library_list).select_related('book')
+        library_items = Userlistitem.objects.filter(userlist=library_list, content_type=book_content_type).order_by('-addedat')
+        books_ids = library_items.values_list('object_id', flat=True)
+        books = Book.objects.filter(bookid__in=books_ids)
+
+        # Create a mapping of book_id to Book object
+        book_map = {book.bookid: book for book in books}
+        
+        # Combine Book objects with their Userlistitem data
+        library_books = [
+            (book_map[item.object_id], item)
+            for item in library_items
+            if item.object_id in book_map
+        ]
         library_paginator = Paginator(library_books, items_per_page)
         library_page_number = request.GET.get('library_page', 1)
         library_page_obj = library_paginator.get_page(library_page_number)
     else:
         library_page_obj = None
-
-    # Stránkování pro hodnocení knih
-    # items_per_page = 10
-    # paginator = Paginator(book_ratings, items_per_page)
-    # page_number = request.GET.get('page')
-    # page_obj = paginator.get_page(page_number)
 
     # Zjistí jestli je uživatel můj oblíbený (pro tlačítko "Oblíbený")
     #userprofile_content_type_id = 37
@@ -715,16 +882,11 @@ def profile_books_section(request, user_id):
         'user_div_coins': user_div_coins,
         'book_ratings': book_ratings,
         'book_page_obj': book_page_obj, 
-        'favorite_books': favorite_books, 
         'favorite_page_obj': favorite_page_obj,
-        'favorite_authors': favorite_authors,
-        'fav_authors': favorite_authors,
-        'book_comments': book_comments,
-        'wantsee_books': wantsee_books, 
-        'wantsee_page_obj': wantsee_page_obj,
-        'read_books': read_books,
+        'fav_creators_page_obj': fav_creators_page_obj,
+        'bookreviews_page_obj': bookreviews_page_obj,
+        'wantread_page_obj': wantread_page_obj,
         'read_page_obj': read_page_obj, 
-        'library_books': library_books,
         'library_page_obj': library_page_obj,
         'is_favorite': is_favorite,
         'active_tab': 'knihy',
@@ -758,11 +920,22 @@ def profile_games_section(request, user_id):
     # page_obj = paginator.get_page(page_number)
 
     # Oblíbené hry
-    favorite_list_type = get_object_or_404(Userlisttype, userlisttypeid=7)  # Typ seznamu pro oblíbené
+    favorite_list_type = get_object_or_404(Userlisttype, name='Oblíbená hra')  # Typ seznamu pro oblíbené
     favorite_list = Userlist.objects.filter(user=profile_user, listtype=favorite_list_type).first()
-    favorite_games = []
     if favorite_list:
-        favorite_games = Userlistgame.objects.filter(userlist=favorite_list).select_related('game')
+        favorite_game_items = Userlistitem.objects.filter(userlist=favorite_list, content_type=game_content_type).order_by('-addedat')
+        game_ids = favorite_game_items.values_list('object_id', flat=True)
+        games = Game.objects.filter(gameid__in=game_ids)
+
+        # Create a mapping of book_id to Book object
+        game_map = {game.gameid: game for game in games}
+        
+        # Combine Book objects with their Userlistitem data
+        favorite_games = [
+            (game_map[item.object_id], item)
+            for item in favorite_game_items
+            if item.object_id in game_map
+        ]
         favorite_paginator = Paginator(favorite_games, items_per_page)
         favorite_page_number = request.GET.get("favorite_page", 1)
         favorite_page_obj = favorite_paginator.get_page(favorite_page_number)
@@ -771,29 +944,55 @@ def profile_games_section(request, user_id):
 
 
     # Recenze her (komentáře)
-    # game_comments = Gamecomments.objects.filter(user=profile_user).exclude(comment__isnull=True).exclude(comment__exact='')
-    # print(f"Game comments: {game_comments}")  # Debugging line
-    game_comments = None
+    # reviews = Gamecomments.objects.filter(user=profile_user, comment__isnull=False).order_by('-dateadded')
+    reviews = Gamecomments.objects.filter(user=profile_user, comment__isnull=False)
+    if reviews: 
+        reviews_paginator = Paginator(reviews, items_per_page)
+        reviews_page_number = request.GET.get('reviews_page', 1)
+        reviews_page_obj = reviews_paginator.get_page(reviews_page_number)
+    else:
+        reviews_page_obj = None
 
     # Hry, které chci hrát (Chci hrát)
-    wantsee_list_type = get_object_or_404(Userlisttype, userlisttypeid=8)
-    wantsee_list = Userlist.objects.filter(user=profile_user, listtype=wantsee_list_type).first()
-    wantsee_games = []
-    if wantsee_list:
-        wantsee_games = Userlistgame.objects.filter(userlist=wantsee_list).select_related('game')
-        print(f"Want to play games: {wantsee_games}")  # Debugging line
-        wantplay_paginator = Paginator(wantsee_games, items_per_page)
+    wantplay_list_type = get_object_or_404(Userlisttype, name='Chci hrát')
+    wantplay_list = Userlist.objects.filter(user=profile_user, listtype=wantplay_list_type).first()
+    if wantplay_list:
+        favorite_game_items = Userlistitem.objects.filter(userlist=wantplay_list, content_type=game_content_type).order_by('-addedat')
+        game_ids = favorite_game_items.values_list('object_id', flat=True)
+        games = Game.objects.filter(gameid__in=game_ids)
+
+        # Create a mapping of book_id to Book object
+        game_map = {game.gameid: game for game in games}
+        
+        # Combine Book objects with their Userlistitem data
+        wantplay_games = [
+            (game_map[item.object_id], item)
+            for item in favorite_game_items
+            if item.object_id in game_map
+        ]
+        wantplay_paginator = Paginator(wantplay_games, items_per_page)
         wantplay_page_number = request.GET.get("wantplay_page", 1)
         wantplay_page_obj = wantplay_paginator.get_page(wantplay_page_number)
     else:
         wantplay_page_obj = None
 
     # Odehrané hry (Odehráno)
-    played_list_type = get_object_or_404(Userlisttype, userlisttypeid=9)
+    played_list_type = get_object_or_404(Userlisttype, name='Hrál jsem')
     played_list = Userlist.objects.filter(user=profile_user, listtype=played_list_type).first()
-    played_games = []
     if played_list:
-        played_games = Userlistgame.objects.filter(userlist=played_list).select_related('game')
+        played_game_items = Userlistitem.objects.filter(userlist=played_list, content_type=game_content_type).order_by('-addedat')
+        game_ids = played_game_items.values_list('object_id', flat=True)
+        games = Game.objects.filter(gameid__in=game_ids)
+
+        # Create a mapping of book_id to Book object
+        game_map = {game.gameid: game for game in games}
+        
+        # Combine Book objects with their Userlistitem data
+        played_games = [
+            (game_map[item.object_id], item)
+            for item in played_game_items
+            if item.object_id in game_map
+        ]
         played_paginator = Paginator(played_games, items_per_page)
         played_page_number = request.GET.get("playedgames_page", 1)
         played_page_obj = played_paginator.get_page(played_page_number)
@@ -801,11 +1000,22 @@ def profile_games_section(request, user_id):
         played_page_obj = None
 
     # Gamotéka
-    library_list_type = get_object_or_404(Userlisttype, userlisttypeid=12)
+    library_list_type = get_object_or_404(Userlisttype, name='Gamotéka')
     library_list = Userlist.objects.filter(user=profile_user, listtype=library_list_type).first()
-    library_games = []
     if library_list:
-        library_games = Userlistgame.objects.filter(userlist=library_list).select_related('game')
+        played_game_items = Userlistitem.objects.filter(userlist=library_list, content_type=game_content_type).order_by('-addedat')
+        game_ids = played_game_items.values_list('object_id', flat=True)
+        games = Game.objects.filter(gameid__in=game_ids)
+
+        # Create a mapping of book_id to Book object
+        game_map = {game.gameid: game for game in games}
+        
+        # Combine Book objects with their Userlistitem data
+        library_games = [
+            (game_map[item.object_id], item)
+            for item in played_game_items
+            if item.object_id in game_map
+        ]
         gamoteka_paginator = Paginator(library_games, items_per_page)
         gamoteka_page_number = request.GET.get("gamoteka_page", 1)
         gamoteka_page_obj = gamoteka_paginator.get_page(gamoteka_page_number)
@@ -826,23 +1036,15 @@ def profile_games_section(request, user_id):
         'user_profile': user_profile,
         'user_div_coins': user_div_coins,
         'game_page_obj': game_page_obj, 
-        'favorite_games': favorite_games, 
         'favorite_page_obj': favorite_page_obj,
-        'wantsee_games': wantsee_games, 
         'wantplay_page_obj': wantplay_page_obj,
-        'played_games': played_games, 
         'played_page_obj': played_page_obj,
-        'library_games': library_games,
         'gamoteka_page_obj': gamoteka_page_obj,
         'game_ratings': game_ratings,
-        'game_comments': game_comments,
+        'reviews_page_obj': reviews_page_obj,
         'is_favorite': is_favorite,
         'active_tab': 'hry',
     })
-
-
-
-
 
 
 

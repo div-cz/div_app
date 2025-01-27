@@ -67,11 +67,11 @@
 
             <a href="/kniha/{{ book.url }}">
                 <h3 class="white-background">
-                                {% if book.titlecz %}
-                                {{ book.titlecz }}
-                                {% else %}
-                                {{ book.title }}
-                                {% endif %}
+                {% if book.titlecz %}
+                    {{ book.titlecz }}
+                    {% else %}
+                    {{ book.title }}
+                {% endif %}
                 </h3>
             </a>
             <p>{{ book.author }}</p>
@@ -137,6 +137,7 @@
         </div>
     </div>
 
+    <!-- má komunita -->
     <div class="card box-shadow mb-4">
         <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
             <h3 class="card-title font-bold after-h3">Má komunita</h3>
@@ -161,10 +162,36 @@
     <!-- burza knih -->
     <div class="card box-shadow mb-4">
         <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-            <div class="flex flex-wrap justify-between card-title after-h3">
-                <h3 class="font-bold">Burza knih</h3><a href="{% url 'books_market' %}"><small>Zobrazit vše</small></a>
+            <div class="flex flex-wrap card-title after-h3">
+                <h3 class="font-bold">Burza knih</h3>
             </div>
+            <!-- prodej -->
             <div class="flex flex-wrap">
+                <div class="flex flex-wrap justify-between w-full">
+                    <h4>Prodej</h4><a href="{% url 'books_market_offers' %}"><small>Zobrazit vše</small></a>
+                </div>
+                {% for listing in recent_listings %}
+                <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                    <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+                        <img class="rounded-l" style="width: 80px;" src="/static/kniha/{{ listing.book.img }}">
+                    </a>
+                    <div class="flex flex-wrap content-between h-full p-2" style="flex: 2;">
+                        <p class="w-full">{{ listing.book.titlecz }}</p>
+                        <p class="w-full">{{ listing.book.author }}</p>
+                        <p class="w-full">{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
+                        <p class="text-sm text-end w-full"><small>Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</small></p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <hr>
+
+            <!-- poptávka -->
+            <div class="flex flex-wrap">
+                <div class="flex flex-wrap justify-between w-full">
+                    <h4>Poptávka</h4><a href="{% url 'books_market_wants' %}"><small>Zobrazit vše</small></a>
+                </div>
                 {% for listing in recent_listings %}
                 <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
                     <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
@@ -174,7 +201,7 @@
                         <p>{{ listing.book.titlecz }}</p>
                         <p>{{ listing.book.author }}</p>
                         <p>{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
-                        <p class="text-sm text-gray-600">Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</p>
+                        <p class="text-sm text-end w-full"><small>Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</small></p>
                     </div>
                 </div>
                 {% endfor %}

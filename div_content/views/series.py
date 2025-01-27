@@ -219,19 +219,19 @@ def serie_detail(request, tv_url):
 
     #  Recenze k seriálům
 
-    # if user.is_authenticated:
-    #     user_rating = Tvshowrating.objects.filter(user=user, tvshowid=tvshow).first()
-        
-    #     if 'comment' in request.POST:
-    #         comment_form = CommentForm(request.POST)
-    #         if comment_form.is_valid():
-    #             comment = comment_form.cleaned_data['comment']
-    #             Tvshowcomments.objects.create(comment=comment, tvshowkid=tvshow, user=request.user)
-    #             return redirect('series_detail', tv_url=tvshow.url)
-    #         else:
-    #             print(comment_form.errors)
-    #     else:
-    #         comment_form = CommentForm(request=request)
+    if user.is_authenticated:
+        if 'comment' in request.POST:
+            comment_form = CommentForm(request.POST)
+            if comment_form.is_valid():
+                comment = comment_form.cleaned_data['comment']
+                Tvshowcomments.objects.create(comment=comment, tvshowkid=tvshow, user=request.user)
+                return redirect('serie_detail', tv_url=tvshow.url)
+            else:
+                print(comment_form.errors)
+        else:
+            comment_form = CommentForm(request=request)
+    
+    comments = Tvshowcomments.objects.filter(tvshowkid=tvshow).order_by('-commentid')
 
     # Formulář pro úpravu DIV Ratingu u TVShow
     tvshow_div_rating_form = None
@@ -282,6 +282,8 @@ def serie_detail(request, tv_url):
         "serie_page": serie_page,
         "content_season_page": content_season_page,
         'quotes': quotes,
+        'comments': comments,
+        'comment_form': comment_form,
     })
 
 

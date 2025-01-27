@@ -151,7 +151,7 @@
                                     {% if chat_session.messages.last %}
                                         {% if chat_session.user1 == request.user %}
                                         <a 
-                                        class="person w-full {% if chat_session.user2.id == receiver.id %}active-user{% endif %}" 
+                                        class="person h-fit w-full {% if chat_session.user2.id == receiver.id %}active-user{% endif %}" 
                                         href="{% url 'chat_message' user_id=chat_session.user2.id %}">
                                             <li class="flex items-center" data-chat="person1" data-username="{{ chat_session.user2.username|lower }}">
                                                 <div class="msg-user">
@@ -173,7 +173,7 @@
                                         </a>
                                         {% else %}
                                         <a 
-                                        class="person w-full {% if chat_session.user1.id == receiver.id %}active-user{% endif %}" 
+                                        class="person h-fit w-full {% if chat_session.user1.id == receiver.id %}active-user{% endif %}" 
                                         href="{% url 'chat_message' user_id=chat_session.user1.id %}">
                                             <li class="flex items-center" data-chat="person1">
                                                 <div class="msg-user">
@@ -207,7 +207,9 @@
                         <div class="user-avatar mr-2">
                             <img src="/static/img/avatar/{{receiver_userprofile.avatar.imagepath}}" alt="Avatar">
                         </div>
-                        <span class="name">{{ receiver }}</span>
+                        <span class="name"><a href="{% url 'myuser_detail' receiver.id %}" style="color:black;">
+                            {{ receiver }}
+                        </a></span>
                     </div>
 
                     <div class="chat-container pr-0" id="chatContainer" data-last-message-id="{{ last_message_id }}">

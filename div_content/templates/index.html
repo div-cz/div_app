@@ -473,11 +473,11 @@
                                             <form method="POST" class="form">
                                                 {% csrf_token %}
                                                 <div class="form-group">{{ articlenews_form.title }}
-                                                    <label for="id_title">:Title</label>
+                                                    <label for="id_title">:Titulek</label>
                                                 </div>
                                                 
                                                 <div class="form-group">
-                                                    <label for="id_news">News:</label>
+                                                    <label for="id_news">Novinka:</label>
                                                     {{ articlenews_form.news }}
                                                 </div>
                                                 
@@ -494,16 +494,15 @@
                                                 </div>
                                                 
                                                 <div class="form-group">{{ articlenews_form.source }}
-                                                    <label for="id_source">:Source (Variety.com atp.)</label>
+                                                    <label for="id_source">:Zdroj (Variety.com atp.)</label>
                                                 </div>
                                                 
                                                 <div class="form-group">{{ articlenews_form.typ }}
-                                                    <label for="id_typ">:Typ (Movie, Book, Game)</label>
+                                                    <label for="id_typ">:Typ (Movie, Serie, Book, Game)</label>
                                                 </div>
 
                                                 <button type="submit" name="articlenews_submit" class="btn btn-primary">Přidat novinku</button>
                                             </form>
-                                            <p>Vyberte, co chcete přidat:</p>
                                         </details>
                                     </div>
                                     {% endif %}
@@ -617,23 +616,49 @@
                         <!-- burza knih -->
                         <div class="card box-shadow mb-4">
                             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                <div class="flex flex-wrap justify-between card-title after-h3">
-                                    <h3 class="font-bold">Burza knih</h3><a href="{% url 'books_market' %}"><small>Zobrazit vše</small></a>
+                                <div class="flex flex-wrap card-title after-h3">
+                                    <h3 class="font-bold">Burza knih</h3>
                                 </div>
+                                <!-- prodej -->
                                 <div class="flex flex-wrap">
-                {% for listing in recent_listings %}
-                <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
-                    <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
-                        <img class="rounded-l" style="width: 80px;" src="/static/kniha/{{ listing.book.img }}">
-                    </a>
-                    <div class="ml-2" style="flex: 2;">
-                        <p>{{ listing.book.titlecz }}</p>
-                        <p>{{ listing.book.author }}</p>
-                        <p>{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
-                        <p class="text-sm text-gray-600">Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</p>
-                    </div>
-                </div>
-                {% endfor %}
+                                    <div class="flex flex-wrap justify-between w-full">
+                                        <h4>Prodej</h4><a href="{% url 'books_market_offers' %}"><small>Zobrazit vše</small></a>
+                                    </div>
+                                    {% for listing in recent_listings %}
+                                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                                        <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+                                            <img class="rounded-l" style="width: 80px;" src="/static/kniha/{{ listing.book.img }}">
+                                        </a>
+                                        <div class="ml-2" style="flex: 2;">
+                                            <p>{{ listing.book.titlecz }}</p>
+                                            <p>{{ listing.book.author }}</p>
+                                            <p>{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
+                                            <p class="text-sm text-end w-full"><small>Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</small></p>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+
+                                <hr>
+
+                                <!-- poptávka -->
+                                <div class="flex flex-wrap">
+                                    <div class="flex flex-wrap justify-between w-full">
+                                        <h4>Poptávka</h4><a href="{% url 'books_market_wants' %}"><small>Zobrazit vše</small></a>
+                                    </div>
+                                    {% for listing in recent_listings %}
+                                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                                        <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+                                            <img class="rounded-l" style="width: 80px;" src="/static/kniha/{{ listing.book.img }}">
+                                        </a>
+                                        <div class="flex flex-wrap content-between h-full p-2" style="flex: 2;">
+                                            <p class="w-full">{{ listing.book.titlecz }}</p>
+                                            <p class="w-full">{{ listing.book.author }}</p>
+                                            <p class="w-full">{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
+                                            <p class="text-sm text-end w-full"><small>Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</small></p>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>
@@ -664,24 +689,63 @@
                 const toggleButtons = document.querySelectorAll(".toggle-biography");
 
                 bioElements.forEach((bioElement, index) => {
-                    const fullText = bioElement.innerText; // Celý text
-                    const truncatedText = fullText.substring(0, 400); // Prvních 400 znaků
+                    const fullHTML = bioElement.innerHTML; // Celý text včetně HTML
+                    const maxLength = 400; // Požadovaný počet znaků
 
-                    // Inicializace zkráceného textu
-                    bioElement.innerText = truncatedText + "...";
+                    // Vytvořit text bez HTML pro zkrácení
+                    const tempElement = document.createElement("div");
+                    tempElement.innerHTML = fullHTML;
+                    const plainText = tempElement.innerText;
 
-                    // Připojit listener na odpovídající tlačítko
-                    toggleButtons[index].addEventListener("click", function () {
-                        if (bioElement.innerText === truncatedText + "...") {
-                            bioElement.innerText = fullText; // Zobrazit celý text
-                            this.innerText = "...Méně"; // Změnit text tlačítka
-                        } else {
-                            bioElement.innerText = truncatedText + "..."; // Zobrazit zkrácený text
-                            this.innerText = "Více..."; // Změnit text tlačítka
+                    // Zkrácený text (bez HTML, ale jen do maxLength znaků)
+                    const truncatedText = plainText.substring(0, maxLength);
+
+                    // Zkrácený HTML (pro zobrazení s HTML tagy)
+                    let truncatedHTML = "";
+                    let charCount = 0;
+                    tempElement.childNodes.forEach(node => {
+                        if (charCount >= maxLength) return; // Nepřidávat další znaky
+                        if (node.nodeType === Node.TEXT_NODE) {
+                            // Přidat textový obsah
+                            const remainingChars = maxLength - charCount;
+                            truncatedHTML += node.textContent.substring(0, remainingChars);
+                            charCount += node.textContent.length;
+                        } else if (node.nodeType === Node.ELEMENT_NODE) {
+                            // Přidat celý HTML tag (rekurzivně zpracovaný)
+                            const nodeHTML = node.outerHTML;
+                            if (charCount + node.textContent.length <= maxLength) {
+                                truncatedHTML += nodeHTML;
+                                charCount += node.textContent.length;
+                            }
                         }
                     });
+
+                    // Přidat tři tečky na konec, pokud je text zkrácený
+                    if (plainText.length > maxLength) {
+                        truncatedHTML += "...";
+                    }
+
+                    // Nastavit zkrácený text
+                    bioElement.innerHTML = truncatedHTML;
+
+                    // Pokud má text více než maxLength znaků, přidat funkci na zobrazení plného textu
+                    if (plainText.length > maxLength) {
+                        toggleButtons[index].style.display = "inline"; // Zobrazit tlačítko
+                        toggleButtons[index].addEventListener("click", function () {
+                            if (bioElement.innerHTML === truncatedHTML) {
+                                bioElement.innerHTML = fullHTML; // Zobrazit celý text
+                                this.innerText = "...Méně"; // Změnit text tlačítka
+                            } else {
+                                bioElement.innerHTML = truncatedHTML; // Zobrazit zkrácený text
+                                this.innerText = "Více..."; // Změnit text tlačítka
+                            }
+                        });
+                    } else {
+                        toggleButtons[index].style.display = "none"; // Skryjeme tlačítko
+                    }
                 });
             });
+
         </script>
 
         <!-- carousel ze světa... -->

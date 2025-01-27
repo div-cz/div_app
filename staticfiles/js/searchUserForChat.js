@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         resultsContainer.appendChild(userItem);
                     });
                 } else {
-                    resultsContainer.innerHTML = '<li class="list-group-item">No users found.</li>';
+                    resultsContainer.innerHTML = '<li class="list-group-item">Žádný uživatel nenalezen.</li>';
                 }
             })
             .catch(error => {

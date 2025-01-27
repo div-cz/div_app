@@ -116,6 +116,7 @@ def games_by_publisher(request, publisher_url):
     games = paginator.get_page(page_number)
     return render(request, 'games/games_by_publisher.html', {'publisher': publisher, 'games': games})
 
+
 def games_by_genre(request, genre_url):
     genre = get_object_or_404(Metagenre, url=genre_url)
     games = Gamegenre.objects.filter(genreid=genre).select_related('gameid')
@@ -125,7 +126,6 @@ def games_by_genre(request, genre_url):
     games = paginator.get_page(page_number)
 
     return render(request, 'games/games_by_genre.html', {'games': games, 'genre': genre})
-
 
 
 def games_by_year(request, year):

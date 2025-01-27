@@ -137,8 +137,11 @@
                         </div>
                         {% endif %}
 
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if movie_page_obj.paginator.num_pages > 1 %}
                         <span class="current-page mx-4">
                             Stránka {{ movie_page_obj.number }} / {{ movie_page_obj.paginator.num_pages }}</span>
+                        {% endif %}
 
                         {% if movie_page_obj.has_next %}
                         <div>
@@ -188,8 +191,11 @@
                         </div>
                         {% endif %}
 
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if favorite_page_obj.paginator.num_pages > 1 %}
                         <span class="current-page mx-4">
                             Stránka {{ favorite_page_obj.number }} / {{ favorite_page_obj.paginator.num_pages }}</span>
+                        {% endif %}
 
                         {% if favorite_page_obj.has_next %}
                         <div>
@@ -206,84 +212,116 @@
                 <hr>
                 
                 <!-- oblíbení tvůrci -->
-                <h3 class="after-h3 mt-8 padding">Oblíbení tvůrci</h3>
-                {% if fav_creators_page_obj %}
-                <div id="tvurci" class="flex flex-wrap w-full">
-                    {% for creator in fav_creators_page_obj %}
-                    <div class="mt-5" style="width: 150px">
-                        <div class="p-1 w-full">
-                            {% if not creator.img or creator.img == "" %}
-                                <img src="/static/img/creator/noperson.svg" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
-                            {% else %}
-                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ creator.img }}" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
-                            {% endif %}
+                <div id="tvurci">
+                    <h3 class="after-h3 mt-8 padding">Oblíbení tvůrci</h3>
+                    {% if fav_creators_page_obj %}
+                    <div class="flex flex-wrap w-full">
+                        {% for creator in fav_creators_page_obj %}
+                        <div class="mt-5" style="width: 150px">
+                            <div class="p-1 w-full">
+                                {% if not creator.img or creator.img == "" %}
+                                    <img src="/static/img/creator/noperson.svg" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                                {% else %}
+                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ creator.img }}" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                                {% endif %}
+                            </div>
+                            <div class="p-1 w-full text-center">
+                                <a href="/tvurce/{{ creator.url }}">{{ creator.firstname }} {{ creator.lastname }}</a>
+                            </div>
                         </div>
-                        <div class="p-1 w-full text-center">
-                            <a href="/tvurce/{{ creator.url }}">{{ creator.firstname }} {{ creator.lastname }}</a>
-                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
+
+                    <div class="pagination mt-8">
+                        <span class="step-links flex justify-center">
+
+                            {% if fav_creators_page_obj.has_previous %}
+                            <div>
+                                <a href="?fav_creators_page=1#oblibene">&laquo; první</a>
+                                <a href="?fav_creators_page={{ fav_creators_page_obj.previous_page_number }}#oblibene">předchozí</a>
+                            </div>
+                            {% endif %}
+
+                            <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                            {% if fav_creators_page_obj.paginator.num_pages > 1 %}
+                            <span class="current-page mx-4">
+                                Stránka {{ fav_creators_page_obj.number }} / {{ fav_creators_page_obj.paginator.num_pages }}</span>
+                            {% endif %}
+
+                            {% if fav_creators_page_obj.has_next %}
+                            <div>
+                                <a href="?fav_creators_page={{ fav_creators_page_obj.next_page_number }}#oblibene">další</a>
+                                <a href="?fav_creators_page={{ fav_creators_page_obj.paginator.num_pages }}#oblibene">poslední &raquo;</a>
+                            </div>
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    {% else %}
+                    <p>Žádní oblíbení herci.</p>
+                    {% endif %}
                 </div>
-
-                <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
-
-                        {% if fav_creators_page_obj.has_previous %}
-                        <div>
-                            <a href="?fav_creators_page=1#oblibene">&laquo; první</a>
-                            <a href="?fav_creators_page={{ fav_creators_page_obj.previous_page_number }}#oblibene">předchozí</a>
-                        </div>
-                        {% endif %}
-
-                        <span class="current-page mx-4">
-                            Stránka {{ fav_creators_page_obj.number }} / {{ fav_creators_page_obj.paginator.num_pages }}</span>
-
-                        {% if fav_creators_page_obj.has_next %}
-                        <div>
-                            <a href="?fav_creators_page={{ fav_creators_page_obj.next_page_number }}#oblibene">další</a>
-                            <a href="?fav_creators_page={{ fav_creators_page_obj.paginator.num_pages }}#oblibene">poslední &raquo;</a>
-                        </div>
-                        {% endif %}
-                    </span>
-                </div>
-
-                {% else %}
-                <p>Žádní oblíbení herci.</p>
-                {% endif %}
-
                 <hr>
 
                 <!-- oblíbené postavy -->
-                <h3 class="after-h3 mt-8 padding">Postavy</h3>
-                {% if fav_characters %}
-                <div class="flex flex-wrap w-full">
-                    {% for character in fav_characters %}
-                    <div class="mt-5" style="width: 150px">
-                        <div class="p-1 w-full">
-                            {% if not character.characterimg or character.characterimg == "" %}
-                                <img src="/static/img/creator/noperson.svg" alt="{{ character.charactername }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
-                            {% else %}
-                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ character.characterimg }}" alt="{{ character.name }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
-                            {% endif %}
+                <div id="postavy" >
+                    <h3 class="after-h3 mt-8 padding">Postavy</h3>
+                    {% if fav_characters_page_obj %}
+                    <div class="flex flex-wrap w-full">
+                        {% for character in fav_characters_page_obj %}
+                        <div class="mt-5" style="width: 150px">
+                            <div class="p-1 w-full">
+                                {% if not character.characterimg or character.characterimg == "" %}
+                                    <img src="/static/img/creator/noperson.svg" alt="{{ character.charactername }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                                {% else %}
+                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ character.characterimg }}" alt="{{ character.name }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                                {% endif %}
+                            </div>
+                            <div class="p-1 w-full text-center">
+                                <a href="/postava/{{ character.characterurl }}">
+                                    {% if character.characternamecz %}{{ character.characternamecz }}{% else %}{{ character.charactername }}{% endif %}</a>
+                            </div>
                         </div>
-                        <div class="p-1 w-full text-center">
-                            <a href="/postava/{{ character.characterurl }}">{{ character.charactername }}</a>
-                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
+                    <div class="pagination mt-8">
+                        <span class="step-links flex justify-center">
+
+                            {% if fav_characters_page_obj.has_previous %}
+                            <div>
+                                <a href="?fav_characters_page=1#oblibene">&laquo; první</a>
+                                <a href="?fav_characters_page={{ fav_characters_page_obj.previous_page_number }}#oblibene">předchozí</a>
+                            </div>
+                            {% endif %}
+
+                            <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                            {% if fav_characters_page_obj.paginator.num_pages > 1 %}
+                            <span class="current-page mx-4">
+                                Stránka {{ fav_characters_page_obj.number }} / {{ fav_characters_page_obj.paginator.num_pages }}</span>
+                            {% endif %}
+
+                            {% if fav_characters_page_obj.has_next %}
+                            <div>
+                                <a href="?fav_characters_page={{ fav_characters_page_obj.next_page_number }}#oblibene">další</a>
+                                <a href="?fav_characters_page={{ fav_characters_page_obj.paginator.num_pages }}#oblibene">poslední &raquo;</a>
+                            </div>
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    {% else %}
+                    <p>Žádné oblíbené postavy.</p>
+                    {% endif %}
                 </div>
-                {% else %}
-                <p>Žádné oblíbené postavy.</p>
-                {% endif %}
 
             </div>
 
             <!-- Tab Recenze -->
             <div id="recenze" class="tab-show w-full {% if category == 'recenze' %}active{% endif %}">
                 <h3 class="after-h3 padding">Recenze filmů</h3>
+                {% if moviereviews_page_obj %}
                 <div class="table ">
-                    {% if reviews %}
-                    {% for review in reviews %}
+                    {% for review in moviereviews_page_obj %}
                     <div class="flex border sudy">
                         <div class="p-1">
                             {% if review.movieid.img %}
@@ -307,31 +345,36 @@
                         </div>
                     </div>
                     {% endfor %}
-                {% else %}
-                    <p>Žádné recenze.</p>
-                {% endif %}
+
+                    <div class="pagination mt-8">
+                        <span class="step-links flex justify-center">
+                            {% if moviereviews_page_obj.has_previous %}
+                            <div>
+                                <a href="?moviereviews_page=1#recenze">&laquo; první</a>
+                                <a href="?moviereviews_page={{ moviereviews_page_obj.previous_page_number }}#recenze">předchozí</a>
+                            </div>
+                            {% endif %}
+    
+                            <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                            {% if moviereviews_page_obj.paginator.num_pages > 1 %}
+                            <span class="current-page mx-4">
+                                Stránka {{ moviereviews_page_obj.number }} / {{ moviereviews_page_obj.paginator.num_pages }}</span>
+                            {% endif %}
+    
+                            {% if moviereviews_page_obj.has_next %}
+                            <div>
+                                <a href="?moviereviews_page={{ moviereviews_page_obj.next_page_number }}#recenze">další</a>
+                                <a href="?moviereviews_page={{ moviereviews_page_obj.paginator.num_pages }}#recenze">poslední &raquo;</a>
+                            </div>
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    {% else %}
+                        <p>Žádné recenze.</p>
+                    {% endif %}
                 </div>
 
-                <!-- <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
-
-                        <div>
-                            <a href="">&laquo; první</a>
-                            <a href="">předchozí</a>
-                        </div>
-
-
-                        <span class="current-page mx-4">
-                            Stránka  / </span>
-
-
-                        <div>
-                            <a href="">další</a>
-                            <a href="">poslední &raquo;</a>
-                        </div>
-
-                    </span>
-                </div> -->
             </div>
 
             <!-- Tab Chci vidět -->
@@ -345,7 +388,7 @@
                         <div class="text-center font-bold p-1">Datum</div>
                     </div>
                     <div class="">
-                        {% for movie in wantsee_page_obj %}
+                        {% for movie, item in wantsee_page_obj %}
                         <div class="grid border favorite-grid sudy">
                             <!-- <div>
                                 {% if movie.movie.img %}
@@ -353,9 +396,11 @@
                                 {% endif %}
                             </div> -->
                             <div class="p-1">
-                                <a class="movies" href="/film/{{ movie.movie.url }}">{{ movie.movie.titlecz }}</a> ({{ movie.movie.releaseyear }})
+                                <a class="movies" href="/film/{{ movie.url }}">
+                                    {% if movie.titlecz %}{{ movie.titlecz }}{% else %}{{ movie.title }}{% endif %}
+                                </a> ({{ movie.releaseyear }})
                             </div>
-                            <div class="text-center p-1">{{ movie.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
+                            <div class="text-center p-1">{{ item.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
                         </div>
                         {% endfor %}
                     </div>
@@ -370,8 +415,11 @@
                         </div>
                         {% endif %}
 
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if wantsee_page_obj.paginator.num_pages > 1 %}
                         <span class="current-page mx-4">
                             Stránka {{ wantsee_page_obj.number }} / {{ wantsee_page_obj.paginator.num_pages }}</span>
+                        {% endif %}
 
                         {% if wantsee_page_obj.has_next %}
                         <div>
@@ -397,7 +445,7 @@
                         <div class="text-center font-bold p-1">Datum</div>
                     </div>
                     <div class="">
-                        {% for movie in watched_page_obj %}
+                        {% for movie, item in watched_page_obj %}
                         <div class="grid border favorite-grid sudy">
                             <!-- <div>
                                 {% if movie.movie.img %}
@@ -405,9 +453,11 @@
                                 {% endif %}
                             </div> -->
                             <div class="p-1">
-                                <a class="movies" href="/film/{{ movie.movie.url }}">{{ movie.movie.titlecz }}</a> ({{ movie.movie.releaseyear }})
+                                <a class="movies" href="/film/{{ movie.url }}">
+                                    {% if movie.titlecz %}{{ movie.titlecz }}{% else %}{{ movie.title }}{% endif %}
+                                </a> ({{ movie.releaseyear }})
                             </div>
-                            <div class="text-center p-1">{{ movie.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
+                            <div class="text-center p-1">{{ item.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
                         </div>
                         {% endfor %}
                     </div>
@@ -422,8 +472,11 @@
                         </div>
                         {% endif %}
 
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if watched_page_obj.paginator.num_pages > 1 %}
                         <span class="current-page mx-4">
                             Stránka {{ watched_page_obj.number }} / {{ watched_page_obj.paginator.num_pages }}</span>
+                        {% endif %}
 
                         {% if watched_page_obj.has_next %}
                         <div>
@@ -449,7 +502,7 @@
                         <div class="text-center font-bold p-1">Datum</div>
                     </div>
                     <div class="">
-                        {% for movie in filmoteka_page_obj %}
+                        {% for movie, item in filmoteka_page_obj %}
                         <div class="grid border favorite-grid sudy">
                             <!-- <td>
                                 {% if movie.movie.img %}
@@ -457,9 +510,11 @@
                                 {% endif %}
                             </td> -->
                             <div class="p-1">
-                                <a class="movies" href="/film/{{ movie.movie.url }}">{{ movie.movie.titlecz }}</a> ({{ movie.movie.releaseyear }})
+                                <a class="movies" href="/film/{{ movie.url }}">
+                                    {% if movie.titlecz %}{{ movie.titlecz }}{% else %}{{ movie.title }}{% endif %}
+                                </a> ({{ movie.releaseyear }})
                             </div>
-                            <div class="text-center p-1">{{ movie.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
+                            <div class="text-center p-1">{{ item.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
                         </div>
                         {% endfor %}
                     </div>
@@ -474,8 +529,11 @@
                         </div>
                         {% endif %}
 
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if filmoteka_page_obj.paginator.num_pages > 1 %}
                         <span class="current-page mx-4">
                             Stránka {{ filmoteka_page_obj.number }} / {{ filmoteka_page_obj.paginator.num_pages }}</span>
+                        {% endif %}
 
                         {% if filmoteka_page_obj.has_next %}
                         <div>
@@ -494,35 +552,8 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Zkontrolujte, zda URL obsahuje hash
-        if (window.location.hash) {
-            const hash = window.location.hash;
-            // Najděte sekci podle ID hashe
-            const targetElement = document.querySelector(hash);
-            if (targetElement) {
-                // Scroll na pozici daného elementu
-                targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
-            }
-        }
-    });
-
-    // Přečte parametry v URL a pokud obsahuje fav_creators_page tak scrolluje na daný div element
-    document.addEventListener('DOMContentLoaded', function () {
-    const urlParams = new URLSearchParams(window.location.search);
-
-    if (urlParams.has('fav_creators_page')) {
-        const favCreatorsSection = document.getElementById('tvurci');
-        if (favCreatorsSection) {
-            setTimeout(() => {
-                favCreatorsSection.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
-        }
-    }
-});
-
-
-</script>
-
 {% endblock content %}
+
+{% block script %}
+<script src="/static/js/profileScrollScript.js"></script>
+{% endblock %}
