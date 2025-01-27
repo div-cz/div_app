@@ -131,11 +131,11 @@
                 {% endif %}
             </div>
 
-
             {% if user.is_authenticated %}
             <div>
                 <a id="editBookButton" data-book-id="{{ book.bookid }}" >Upravit knihu</a>
             </div>
+
             <script>
                 document.getElementById('editBookButton').addEventListener('click', function() {
                     const bookId = this.getAttribute('data-book-id'); // Získání BOOKID z data atributu
@@ -173,18 +173,16 @@
                 <ul class="list-unstyled">
                     <li><strong>Originální název: </strong>{{ book.title }}</li>
 
-
-                   {% if authors %}
-                   <li><strong>Autor:</strong>
-                       {% for author in authors %}
-                           <a href="/autor/{{ author.url }}">{{ author.firstname }} {{ author.lastname }}</a>
-                           {% if not forloop.last %}, {% endif %}
-                       {% endfor %}
-                   </li>
-                   {% elif book.author %}
-                   <li><strong>Autor:</strong> {{ book.author }}</li>
-                   {% endif %}
-
+                    {% if authors %}
+                    <li><strong>Autor:</strong>
+                        {% for author in authors %}
+                            <a href="/autor/{{ author.url }}">{{ author.firstname }} {{ author.lastname }}</a>
+                            {% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </li>
+                    {% elif book.author %}
+                    <li><strong>Autor:</strong> {{ book.author }}</li>
+                    {% endif %}
 
                     {% if genres %}
                     <li><strong>Žánr:</strong>
@@ -309,8 +307,6 @@
                         </a>
                     </div>
                     {% endif %}
-
-                    <div id="add-thankyou" class="alert alert-success" style="display: none;">Film přidán do seznamu!</div>
                 </div>
             </div>
         </div>
@@ -356,7 +352,8 @@
             <!-- RECENZE -->
             <div id="tab1" class="tab-content active w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
                 <div class="">    
-                    <h3 class="after-h3">Recenze</h3>       
+                    <h3 class="after-h3">Recenze</h3>  
+                    <!-- přidat recenzi -->       
                     {% if user.is_authenticated %}
                     <h4>Přidat novou recenzi</h4>
                     <form method="post" action="{% url 'book_detail' book_url=book.url %}">
@@ -369,14 +366,15 @@
                     Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
                     {% endif %}
 
+                    <!-- výpis recenzí -->
                     {% if comments %}
                     <ul class="list-unstyled mt-3 komentar">
                         {% for comment in comments %}
                         <li class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
                             <p class="koment after">{{ comment.comment }}</p>
                             <div class="user">
-                                <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a>
                                 <p>{{ comment.dateadded }}</p>
+                                <p>Přidal: <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a></p>
                             </div>
                         </li>
                         {% endfor %}
@@ -501,10 +499,16 @@
                         {% if quote.characterid %}
                             <br><small>Postava: {{ quote.characterid.charactername }}</small>
                         {% endif %}{% endcomment %}
-                        <div class="mt-2 text-end">
+                        <div class="flex justify-between m-2">
                             <p>Vložil: 
                                 <a href="/uzivatel/{{ quote.user.id }}/">{{ quote.user.username }}</a>
                             </p>
+
+                            <!-- Hodnocení -->
+                            <div class="">
+                                <span class="thumbsup" data-quote-id="{{ quote.quoteid }}">&#128077; {{ quote.thumbsup }}</span>
+                                <span class="thumbsdown" data-quote-id="{{ quote.quoteid }}">&#128078; {{ quote.thumbsdown }}</span>
+                            </div>
                         </div>
                     </div>
                     {% endfor %}

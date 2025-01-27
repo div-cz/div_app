@@ -21,7 +21,7 @@ from div_content.views.authors import (
 from div_content.views.blog import blog_add_post, blog_detail, blog_index, blog_list, blog_new, blog_post_detail, blog_section_detail
 
 from div_content.views.books import (
-    book_add, book_detail, books, books_search, books_market, books_market_offers, books_market_wants, add_to_favourite_books, add_to_readlist, add_to_read_books, 
+    book_add, book_detail, books, books_search, books_market_offers, books_market_wants, add_to_favourite_books, add_to_readlist, add_to_read_books, 
     add_to_book_library, rate_book, ratequote, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, 
     remove_from_book_library, character_list_ajax, set_reading_goal, books_alphabetical, 
     book_listings, listing_detail
@@ -257,7 +257,6 @@ urlpatterns = [
     path('uzivatel/<int:user_id>/prodej-knihy/', user_sell_listings, name='user_sell_listings'),
     path('uzivatel/<int:user_id>/koupim-knihy/', user_buy_listings, name='user_buy_listings'),
     path('uzivatel/<int:user_id>/nabidky/', user_book_listings, name='user_book_listings'),  # Přidáno
-    path('knihy/burza-knih/', books_market, name='books_market'),
     path('knihy/burza-knih/nabidky/', books_market_offers, name='books_market_offers'),
     path('knihy/burza-knih/poptavky/', books_market_wants, name='books_market_wants'),
 

@@ -134,33 +134,6 @@ def book_listings(request, book_url):
     })
 
 
-def books_market(request):
-    # Get sell listings with pagination
-    sell_listings = (Booklisting.objects
-        .filter(listingtype__in=['SELL', 'GIVE'], active=True, status='ACTIVE')
-        .select_related('book', 'user')
-        .order_by('-createdat'))
-    
-    sell_paginator = Paginator(sell_listings, 12)
-    sell_page = request.GET.get('sell_page')
-    sell_listings = sell_paginator.get_page(sell_page)
-
-    # Get buy listings with pagination 
-    buy_listings = (Booklisting.objects
-        .filter(listingtype='BUY', active=True, status='ACTIVE')
-        .select_related('book', 'user')
-        .order_by('-createdat'))
-    
-    buy_paginator = Paginator(buy_listings, 12)
-    buy_page = request.GET.get('buy_page')
-    buy_listings = buy_paginator.get_page(buy_page)
-
-    return render(request, 'books/books_market.html', {
-        'sell_listings': sell_listings,
-        'buy_listings': buy_listings
-    })
-
-
 def books_market_offers(request):
     #View for sell/give offers
     sell_listings = (Booklisting.objects

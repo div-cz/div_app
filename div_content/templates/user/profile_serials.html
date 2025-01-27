@@ -132,13 +132,16 @@
                     <span class="step-links flex justify-center">
                         {% if series_page_obj.has_previous %}
                         <div>
-                            <a href="?page=1">&laquo; první</a>
+                            <a href="?page=1#hodnoceni">&laquo; první</a>
                             <a href="?page={{ series_page_obj.previous_page_number }}#hodnoceni">předchozí</a>
                         </div>
                         {% endif %}
 
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if series_page_obj.paginator.num_pages > 1 %}
                         <span class="current-page mx-4">
                             Stránka {{ series_page_obj.number }} / {{ series_page_obj.paginator.num_pages }}</span>
+                        {% endif %}
 
                         {% if series_page_obj.has_next %}
                         <div>
@@ -161,7 +164,7 @@
                         <div class="text-center font-bold p-1">Datum</div>
                     </div>
                     <div class="">
-                        {% for favorite in favorite_page_obj %}
+                        {% for tvshow, item in favorite_page_obj %}
                         <div class="grid border favorite-grid sudy">
                             <!-- <td>
                                 {% if favorite.movie.img %}
@@ -169,11 +172,15 @@
                                 {% endif %}
                             </td> -->
                             <div class="p-1">
-                                <a class="movies" href="/serial/{{ favorite.tvshow.url }}">
-                                    {{ favorite.tvshow.titlecz }}
-                                </a> ({{ favorite.tvshow.premieredate|date:"Y" }}–{{favorite.tvshow.enddate|date:"Y" }})
+                                <a class="movies" href="/serial/{{ tvshow.url }}">
+                                    {% if tvshow.titlecz %}{{ tvshow.titlecz }}{% else %}{{ tvshow.title }}{% endif %}
+                                </a> {% if tvshow.premieredate|date:"Y" == tvshow.enddate|date:"Y" %}
+                                ({{ tvshow.premieredate|date:"Y" }})
+                                {% else %}
+                                ({{ tvshow.premieredate|date:"Y" }}–{{ tvshow.enddate|date:"Y" }})
+                                {% endif %}
                             </div>
-                            <div class="text-center p-1">{{ favorite.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
+                            <div class="text-center p-1">{{ item.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
                         </div>
                         {% endfor %}
                     </div>
@@ -183,13 +190,16 @@
                     <span class="step-links flex justify-center">
                         {% if favorite_page_obj.has_previous %}
                         <div>
-                            <a href="?favorite_page=1">&laquo; první</a>
+                            <a href="?favorite_page=1xoblibene">&laquo; první</a>
                             <a href="?favorite_page={{ favorite_page_obj.previous_page_number }}#oblibene">předchozí</a>
                         </div>
                         {% endif %}
 
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if favorite_page_obj.paginator.num_pages > 1 %}
                         <span class="current-page mx-4">
                             Stránka {{ favorite_page_obj.number }} / {{ favorite_page_obj.paginator.num_pages }}</span>
+                        {% endif %}
 
                         {% if favorite_page_obj.has_next %}
                         <div>
@@ -207,65 +217,117 @@
                 <hr>
                 
                 <!-- oblíbení tvůrci -->
-                <h3 class="after-h3 mt-8 padding">Oblíbení tvůrci</h3>
-                {% if fav_creators %}
-                    <div class="flex flex-wrap w-full">
-                        {% for creator in fav_creators %}
-                        <div class="mt-5" style="width: 150px">
-                            <div class="p-1 w-full">
-                                {% if not creator.img or creator.img == "" %}
-                                    <img src="/static/img/creator/noperson.svg" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
-                                {% else %}
-                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ creator.img }}" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
-                                {% endif %}
+                <div id="tvurci" >
+                    <h3 class="after-h3 mt-8 padding">Oblíbení tvůrci</h3>
+                    {% if fav_creators_page_obj %}
+                        <div class="flex flex-wrap w-full">
+                            {% for creator in fav_creators_page_obj %}
+                            <div class="mt-5" style="width: 150px">
+                                <div class="p-1 w-full">
+                                    {% if not creator.img or creator.img == "" %}
+                                        <img src="/static/img/creator/noperson.svg" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                                    {% else %}
+                                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ creator.img }}" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                                    {% endif %}
+                                </div>
+                                <div class="p-1 w-full text-center">
+                                    <a class="movies" href="/tvurce/{{ creator.url }}">{{ creator.firstname }} {{ creator.lastname }}</a>
+                                </div>
                             </div>
-                            <div class="p-1 w-full text-center">
-                                <a class="movies" href="/tvurce/{{ creator.url }}">{{ creator.firstname }} {{ creator.lastname }}</a>
-                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <p>Žádné oblíbené herce.</p>
-                {% endif %}
+                        <div class="pagination mt-8">
+                            <span class="step-links flex justify-center">
+        
+                                {% if fav_creators_page_obj.has_previous %}
+                                <div>
+                                    <a href="?fav_creators_page=1#oblibene">&laquo; první</a>
+                                    <a href="?fav_creators_page={{ fav_creators_page_obj.previous_page_number }}#oblibene">předchozí</a>
+                                </div>
+                                {% endif %}
+        
+                                <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                                {% if fav_creators_page_obj.paginator.num_pages > 1 %}
+                                <span class="current-page mx-4">
+                                    Stránka {{ fav_creators_page_obj.number }} / {{ fav_creators_page_obj.paginator.num_pages }}</span>
+                                {% endif %}
+        
+                                {% if fav_creators_page_obj.has_next %}
+                                <div>
+                                    <a href="?fav_creators_page={{ fav_creators_page_obj.next_page_number }}#oblibene">další</a>
+                                    <a href="?fav_creators_page={{ fav_creators_page_obj.paginator.num_pages }}#oblibene">poslední &raquo;</a>
+                                </div>
+                                {% endif %}
+                            </span>
+                        </div>
 
+                    {% else %}
+                    <p>Žádní oblíbení herci.</p>
+                    {% endif %}
+                </div>
                 <hr>
                 
                 <!-- oblíbené postavy -->
-                <h3 class="after-h3 mt-8 padding">Postavy</h3>
-                {% if fav_characters %}
-                    <div class="flex flex-wrap w-full">
-                        {% for character in fav_characters %}
-                        <div class="mt-5" style="width: 150px">
-                            <div class="p-1 w-full">
-                                {% if not character.characterimg or character.characterimg == "" %}
-                                    <img src="/static/img/creator/noperson.svg" alt="{{ character.charactername }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
-                                {% else %}
-                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ character.characterimg }}" alt="{{ character.name }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
-                                {% endif %}
+                <div id="postavy">
+                    <h3 class="after-h3 mt-8 padding">Postavy</h3>
+                    {% if fav_characters_page_obj %}
+                        <div class="flex flex-wrap w-full">
+                            {% for character in fav_characters_page_obj %}
+                            <div class="mt-5" style="width: 150px">
+                                <div class="p-1 w-full">
+                                    {% if not character.characterimg or character.characterimg == "" %}
+                                        <img src="/static/img/creator/noperson.svg" alt="{{ character.charactername }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                                    {% else %}
+                                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ character.characterimg }}" alt="{{ character.name }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                                    {% endif %}
+                                </div>
+                                <div class="p-1 w-full text-center">
+                                    <a class="movies" href="/postava/{{ character.characterurl }}">{% if character.characternamecz %}{{ character.characternamecz }}{% else %}{{ character.charactername }}{% endif %}</a>
+                                </div>
                             </div>
-                            <div class="p-1 w-full text-center">
-                                <a class="movies" href="/postava/{{ character.characterurl }}">{{ character.charactername }}</a>
-                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p>Žádné oblíbené postavy.</p>
-                {% endif %}
-
+                    {% else %}
+                        <p>Žádné oblíbené postavy.</p>
+                    {% endif %}
+                </div>
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+    
+                        {% if fav_characters_page_obj.has_previous %}
+                        <div>
+                            <a href="?fav_characters_page=1#oblibene">&laquo; první</a>
+                            <a href="?fav_characters_page={{ fav_characters_page_obj.previous_page_number }}#oblibene">předchozí</a>
+                        </div>
+                        {% endif %}
+    
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if fav_characters_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page mx-4">
+                            Stránka {{ fav_characters_page_obj.number }} / {{ fav_characters_page_obj.paginator.num_pages }}</span>
+                        {% endif %}
+    
+                        {% if fav_characters_page_obj.has_next %}
+                        <div>
+                            <a href="?fav_characters_page={{ fav_characters_page_obj.next_page_number }}#oblibene">další</a>
+                            <a href="?fav_characters_page={{ fav_characters_page_obj.paginator.num_pages }}#oblibene">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>
             </div>
+            
 
             <!-- Tab Recenze -->
             <div id="recenze" class="tab-show w-full {% if category == 'recenze' %}active{% endif %}">
                 <h3 class="after-h3 padding">Recenze seriálů</h3>
+                {% if seriesreviews_page_obj %}
                 <div class="table ">
-                    {% if reviews %}
-                    {% for review in reviews %}
+                    {% for review in seriesreviews_page_obj %}
                     <div class="flex border sudy">
                         <div class="p-1">
-                            {% if review.tvshowid.img %}
-                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ review.tvshowid.imgposter }}" alt="{{ review.movie.titlecz }}" style="object-fit: cover; width: 50px; height: auto;">
+                            {% if review.tvshowkid.img %}
+                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ review.tvshowkid.imgposter }}" alt="{{ review.tvshowkid.titlecz }}" style="object-fit: cover; width: 50px; height: auto;">
                             {% else %}
                                 <img src="/static/img/tvshow/w200/nomovie.jpg" alt="{{ review.tvshowid.titlecz }}" style="object-fit: cover; width: 50px; height: auto;">
                             {% endif %}
@@ -273,7 +335,7 @@
                         <div class="w-full">
                             <div class="flex justify-between w-full">
                                 <div class="p-1">
-                                    <a class="movies" href="/film/{{ review.movieid.url }}">{{ review.tvshowid.titlecz }}</a>
+                                    <a class="movies" href="/serial/{{ review.tvshowkid.url }}">{{ review.tvshowkid.titlecz }}</a>
                                 </div>
                                 <div class="text-center p-1">
                                     {{ review.dateadded|date:"j. n Y" }}  <!-- KDY RECENZOVÁNO -->
@@ -283,33 +345,39 @@
                                 {{ review.comment|truncatewords:10 }} <!-- RECENZE -->
                             </div>
                         </div>
+
                     </div>
                     {% endfor %}
-                {% else %}
-                    <p>Žádné recenze.</p>
-                {% endif %}
+                    
+                    <div class="pagination mt-8">
+                        <span class="step-links flex justify-center">
+
+                            {% if seriesreviews_page_obj.has_previous %}
+                            <div>
+                                <a href="?seriesreviews_page=1#recenze">&laquo; první</a>
+                                <a href="?seriesreviews_page={{ seriesreviews_page_obj.previous_page_number }}#recenze">předchozí</a>
+                            </div>
+                            {% endif %}
+
+                            <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                            {% if seriesreviews_page_obj.paginator.num_pages > 1 %}
+                            <span class="current-page mx-4">
+                                Stránka {{ seriesreviews_page_obj.number }} / {{ seriesreviews_page_obj.paginator.num_pages }}</span>
+                            {% endif %}
+
+                            {% if seriesreviews_page_obj.has_next %}
+                            <div>
+                                <a href="?seriesreviews_page={{ seriesreviews_page_obj.next_page_number }}#recenze">další</a>
+                                <a href="?seriesreviews_page={{ seriesreviews_page_obj.paginator.num_pages }}#recenze">poslední &raquo;</a>
+                            </div>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% else %}
+                        <p>Žádné recenze.</p>
+                    {% endif %}
                 </div>
 
-                <!-- <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
-
-                        <div>
-                            <a href="">&laquo; první</a>
-                            <a href="">předchozí</a>
-                        </div>
-
-
-                        <span class="current-page mx-4">
-                            Stránka  / </span>
-
-
-                        <div>
-                            <a href="">další</a>
-                            <a href="">poslední &raquo;</a>
-                        </div>
-
-                    </span>
-                </div> -->
             </div>
 
             <!-- Tab Chci vidět -->
@@ -323,7 +391,7 @@
                         <div class="text-center font-bold p-1">Datum</div>
                     </div>
                     <div class="">
-                        {% for tvshow in wantsee_page_obj %}
+                        {% for tvshow, item in wantsee_page_obj %}
                         <div class="grid border favorite-grid sudy">
                             <!-- <div>
                                 {% if movie.movie.img %}
@@ -331,9 +399,15 @@
                                 {% endif %}
                             </div> -->
                             <div class="p-1">
-                                <a class="movies" href="/film/{{ tvshow.tvshow.url }}">{{ tvshow.tvshow.titlecz }}</a> ({{ tvshow.tvshow.releaseyear }})
+                                <a class="movies" href="/film/{{ tvshow.url }}">
+                                    {% if tvshow.titlecz %}{{ tvshow.titlecz }}{% else %}{{ tvshow.title }}{% endif %}
+                                </a> {% if tvshow.premieredate|date:"Y" == tvshow.enddate|date:"Y" %}
+                                ({{ tvshow.premieredate|date:"Y" }})
+                                {% else %}
+                                ({{ tvshow.premieredate|date:"Y" }}–{{ tvshow.enddate|date:"Y" }})
+                                {% endif %}
                             </div>
-                            <div class="text-center p-1">{{ movie.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
+                            <div class="text-center p-1">{{ item.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
                         </div>
                         {% endfor %}
                     </div>
@@ -343,13 +417,16 @@
                     <span class="step-links flex justify-center">
                         {% if wantsee_page_obj.has_previous %}
                         <div>
-                            <a href="?wantsee_page=1">&laquo; první</a>
+                            <a href="?wantsee_page=1#chci-videt">&laquo; první</a>
                             <a href="?wantsee_page={{ wantsee_page_obj.previous_page_number }}#chci-videt">předchozí</a>
                         </div>
                         {% endif %}
 
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if wantsee_page_obj.paginator.num_pages > 1 %}
                         <span class="current-page mx-4">
                             Stránka {{ wantsee_page_obj.number }} / {{ wantsee_page_obj.paginator.num_pages }}</span>
+                        {% endif %}
 
                         {% if wantsee_page_obj.has_next %}
                         <div>
@@ -375,7 +452,7 @@
                         <div class="text-center font-bold p-1">Datum</div>
                     </div>
                     <div class="">
-                        {% for movie in watched_page_obj %}
+                        {% for tvshow, item in watched_page_obj %}
                         <div class="grid border favorite-grid sudy">
                             <!-- <div>
                                 {% if movie.movie.img %}
@@ -383,9 +460,15 @@
                                 {% endif %}
                             </div> -->
                             <div class="p-1">
-                                <a class="movies" href="/film/{{ movie.movie.url }}">{{ movie.movie.titlecz }}</a> ({{ movie.movie.releaseyear }})
+                                <a class="movies" href="/film/{{ tvshow.url }}">
+                                    {% if tvshow.titlecz %}{{ tvshow.titlecz }}{% else %}{{ tvshow.title }}{% endif %}
+                                </a> {% if tvshow.premieredate|date:"Y" == tvshow.enddate|date:"Y" %}
+                                ({{ tvshow.premieredate|date:"Y" }})
+                                {% else %}
+                                ({{ tvshow.premieredate|date:"Y" }}–{{ tvshow.enddate|date:"Y" }})
+                                {% endif %}
                             </div>
-                            <div class="text-center p-1">{{ movie.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
+                            <div class="text-center p-1">{{ item.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
                         </div>
                         {% endfor %}
                     </div>
@@ -395,13 +478,16 @@
                     <span class="step-links flex justify-center">
                         {% if watched_page_obj.has_previous %}
                         <div>
-                            <a href="?watched_page=1">&laquo; první</a>
+                            <a href="?watched_page=1#shlednuto">&laquo; první</a>
                             <a href="?watched_page={{ watched_page_obj.previous_page_number }}#shlednuto">předchozí</a>
                         </div>
                         {% endif %}
 
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if watched_page_obj.paginator.num_pages > 1 %}
                         <span class="current-page mx-4">
                             Stránka {{ watched_page_obj.number }} / {{ watched_page_obj.paginator.num_pages }}</span>
+                        {% endif %}
 
                         {% if watched_page_obj.has_next %}
                         <div>
@@ -427,7 +513,7 @@
                         <div class="text-center font-bold p-1">Datum</div>
                     </div>
                     <div class="">
-                        {% for movie in serialoteka_page_obj %}
+                        {% for tvshow, item in serialoteka_page_obj %}
                         <div class="grid border favorite-grid sudy">
                             <!-- <td>
                                 {% if movie.movie.img %}
@@ -435,9 +521,15 @@
                                 {% endif %}
                             </td> -->
                             <div class="p-1">
-                                <a class="movies" href="/film/{{ movie.movie.url }}">{{ movie.movie.titlecz }}</a> ({{ movie.movie.releaseyear }})
+                                <a class="movies" href="/film/{{ tvshow.url }}">
+                                    {% if tvshow.titlecz %}{{ tvshow.titlecz }}{% else %}{{ tvshow.title }}{% endif %}
+                                </a> {% if tvshow.premieredate|date:"Y" == tvshow.enddate|date:"Y" %}
+                                ({{ tvshow.premieredate|date:"Y" }})
+                                {% else %}
+                                ({{ tvshow.premieredate|date:"Y" }}–{{ tvshow.enddate|date:"Y" }})
+                                {% endif %}
                             </div>
-                            <div class="text-center p-1">{{ movie.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
+                            <div class="text-center p-1">{{ item.addedat|date:"j. n. Y" }}</div> <!-- Zobrazení datumu -->
                         </div>
                         {% endfor %}
                     </div>
@@ -447,13 +539,16 @@
                     <span class="step-links flex justify-center">
                         {% if serialoteka_page_obj.has_previous %}
                         <div>
-                            <a href="?serialoteka_page=1">&laquo; první</a>
+                            <a href="?serialoteka_page=1#serialoteka">&laquo; první</a>
                             <a href="?serialoteka_page={{ serialoteka_page_obj.previous_page_number }}#serialoteka">předchozí</a>
                         </div>
                         {% endif %}
 
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if serialoteka_page_obj.paginator.num_pages > 1 %}
                         <span class="current-page mx-4">
                             Stránka {{ serialoteka_page_obj.number }} / {{ serialoteka_page_obj.paginator.num_pages }}</span>
+                        {% endif %}
 
                         {% if serialoteka_page_obj.has_next %}
                         <div>
@@ -473,3 +568,7 @@
 </div>
 
 {% endblock content %}
+
+{% block script %}
+<script src="/static/js/profileScrollScript.js"></script>
+{% endblock %}

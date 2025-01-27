@@ -20,7 +20,7 @@
 <div class="row container my-5">
     <!-- Levá strana -->
     <div class="col-lg-8">
-        <h2>{{ game.title }}  <small class="text-muted">{% if game.year %} ({{ game.year }}) {% endif %}</small></h2>
+        <h2>{{ game.title }} <small class="text-muted">{% if game.year %} ({{ game.year }}) {% endif %}</small></h2>
 
         <!-- Info Bar -->
         <div class="rounded-3 p-2 mb-3 d-flex w-full bg-[#F9F9F9] dark:bg-[#1A161F] border-[#ccc] rounded-1xl">
@@ -39,11 +39,11 @@
             </span>
             &nbsp;|&nbsp;
             {% endif %}
+
         </div>
 
         <div class="d-flex mb-3 mt-4 wrap">
             <div class="me-3 mr-4 flex-shrink-0 sm-flex" style="width:40%; max-width:200px">
-
 
                 {% if game.img %}
                     {% if game.img == "rawg.io" %}
@@ -55,17 +55,15 @@
                     <img src="/static/img/game/game.png" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
                 {% endif %}
 
-
-<!--                {% if game.img == "noimg.png" %}
+                <!--{% if game.img == "noimg.png" %}
                     <img src="{{ game.img }}" alt="Hra {{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
                     {% else %}
                     <img src="/static/img/game/game.png" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
                 {% endif %}-->
 
-
                 <div class="d-lg-none mb-2 sm:ml-5">
                     <div class="rating-stars" style="white-space: nowrap;"><!--&nbsp;|&nbsp;-->
-                        <div class="smaller-stars"><!--{ % <!-- ratings movie--> % }--></div>
+                        <div class="smaller-stars">{% ratings game %}</div>
                         <div id="rating-thankyou2" class="alert alert-success" style="display: none;">Děkujeme za hodnocení!</div>
                     </div>
                 </div>
@@ -109,80 +107,91 @@
                 <span>Jazyk: {{ game.ratingid }} </span>
                 {% endif %}
 
-                <!-- Tlačítka -->
-                {% if user.is_authenticated %}
-                <!-- Autorizován -->
-                <div class="favorite-menu grid sm:grid-colums-2 justify-items-center w-full border rounded-1xl mt-4">
-                    {% if not is_in_favourites %}
-                    <!-- Pokud film není v oblíbených -->
-                    <a href="{% url 'add_to_favourite_games' gameid=game.gameid %}" class="favorite-link" style="color: black;">
-                        <span class="favorite-link-icon">
-                            <i class="fas fa-heart" style="color: {% if is_in_favourite_games %} #e91e63 {% else %} #000000 {% endif %}"></i>
-                        </span>
-                    {% else %}
-                        <a href="{% url 'remove_from_favourite_games' gameid=game.gameid %}" class="favorite-link">
+                <div class="w-full mt-4">
+                    <!-- Tlačítka -->
+                    {% if user.is_authenticated %}
+                    <!-- Autorizován -->
+                    <div class="favorite-menu grid sm:grid-colums-2 justify-items-center w-full border rounded-1xl mt-4">
+                        {% if not is_in_favourites %}
+                        <!-- Pokud film není v oblíbených -->
+                        <a href="{% url 'add_to_favourite_games' gameid=game.gameid %}" class="favorite-link" style="color: black;">
                             <span class="favorite-link-icon">
-                                <i class="fas fa-heart" style="color: {% if is_in_favourites %} #e91e63 {% else %} #000000 {% endif %}"></i>
+                                <i class="fas fa-heart" style="color: {% if is_in_favourite_games %} #e91e63 {% else %} #000000 {% endif %}"></i>
                             </span>
-                    {% endif %}
-                        <span class="favorite-link-title">Oblíbené</span>
-                        <span class="xl:hidden">Oblíbené</span>
-                    </a>
+                        {% else %}
+                            <a href="{% url 'remove_from_favourite_games' gameid=game.gameid %}" class="favorite-link">
+                                <span class="favorite-link-icon">
+                                    <i class="fas fa-heart" style="color: {% if is_in_favourites %} #e91e63 {% else %} #000000 {% endif %}"></i>
+                                </span>
+                        {% endif %}
+                            <span class="favorite-link-title">Oblíbené</span>
+                            <span class="xl:hidden">Oblíbené</span>
+                        </a>
 
-                    {% if not is_in_played %}
-                    <!-- Pokud není v Odehráno -->
-                    <a href="{% url 'add_to_played' gameid=game.gameid %}" class="favorite-link" style="color: black;">
-                        <span class="favorite-link-icon">
-                            <i class="fas fa-gamepad" style="color: {% if is_in_played %} #e91e63 {% else %} #000000 {% endif %}"></i>
-                        </span>
-                    {% else %}
-                        <a href="{% url 'remove_from_played' gameid=game.gameid %}" class="favorite-link">
+                        {% if not is_in_played %}
+                        <!-- Pokud není v Odehráno -->
+                        <a href="{% url 'add_to_played' gameid=game.gameid %}" class="favorite-link" style="color: black;">
                             <span class="favorite-link-icon">
                                 <i class="fas fa-gamepad" style="color: {% if is_in_played %} #e91e63 {% else %} #000000 {% endif %}"></i>
                             </span>
-                    {% endif %}
-                        <span class="favorite-link-title">Odehráno</span>
-                        <span class="xl:hidden">Odehráno</span>
-                    </a>
+                        {% else %}
+                            <a href="{% url 'remove_from_played' gameid=game.gameid %}" class="favorite-link">
+                                <span class="favorite-link-icon">
+                                    <i class="fas fa-gamepad" style="color: {% if is_in_played %} #e91e63 {% else %} #000000 {% endif %}"></i>
+                                </span>
+                        {% endif %}
+                            <span class="favorite-link-title">Odehráno</span>
+                            <span class="xl:hidden">Odehráno</span>
+                        </a>
 
-                    {% if not is_in_game_library %}
-                    <!-- Pokud není v Gamotéce -->
-                    <a href="{% url 'add_to_game_library' gameid=game.gameid %}" class="favorite-link" style="color: black;">
-                        <span class="favorite-link-icon">
-                            <i class="fas fa-home" style="color: {% if is_in_game_library %} #e91e63 {% else %} #000000 {% endif %}"></i>
-                        </span>
-                    {% else %}
-                        <a href="{% url 'remove_from_game_library' gameid=game.gameid %}" class="favorite-link">
+                        {% if not is_in_game_library %}
+                        <!-- Pokud není v Gamotéce -->
+                        <a href="{% url 'add_to_game_library' gameid=game.gameid %}" class="favorite-link" style="color: black;">
                             <span class="favorite-link-icon">
-                                <i class="fas fas fa-home" style="color: {% if is_in_game_library %} #e91e63 {% else %} #000000 {% endif %}"></i>
+                                <i class="fas fa-home" style="color: {% if is_in_game_library %} #e91e63 {% else %} #000000 {% endif %}"></i>
                             </span>
-                    {% endif %}
-                        <span class="favorite-link-title">Gamotéka</span>
-                        <span class="xl:hidden">Gamotéka</span>
-                    </a>
-                
-                    {% if not is_in_playlist %}
-                    <!-- Pokud není v Chci hrát -->
-                    <a href="{% url 'add_to_playlist_games' gameid=game.gameid %}" class="favorite-link" style="color: black;">
-                        <span class="favorite-link-icon">
-                            <i class="fas fa-dice" style="color: {% if is_in_playlist %} #e91e63 {% else %} #000000 {% endif %}"></i>
-                        </span>
-                    {% else %}
-                        <a href="{% url 'remove_from_playlist_games' gameid=game.gameid %}" class="favorite-link">
+                        {% else %}
+                            <a href="{% url 'remove_from_game_library' gameid=game.gameid %}" class="favorite-link">
+                                <span class="favorite-link-icon">
+                                    <i class="fas fas fa-home" style="color: {% if is_in_game_library %} #e91e63 {% else %} #000000 {% endif %}"></i>
+                                </span>
+                        {% endif %}
+                            <span class="favorite-link-title">Gamotéka</span>
+                            <span class="xl:hidden">Gamotéka</span>
+                        </a>
+                    
+                        {% if not is_in_playlist %}
+                        <!-- Pokud není v Chci hrát -->
+                        <a href="{% url 'add_to_playlist_games' gameid=game.gameid %}" class="favorite-link" style="color: black;">
                             <span class="favorite-link-icon">
                                 <i class="fas fa-dice" style="color: {% if is_in_playlist %} #e91e63 {% else %} #000000 {% endif %}"></i>
                             </span>
+                        {% else %}
+                            <a href="{% url 'remove_from_playlist_games' gameid=game.gameid %}" class="favorite-link">
+                                <span class="favorite-link-icon">
+                                    <i class="fas fa-dice" style="color: {% if is_in_playlist %} #e91e63 {% else %} #000000 {% endif %}"></i>
+                                </span>
+                        {% endif %}
+                            <span class="favorite-link-title">Chci hrát</span>
+                            <span class="xl:hidden">Chci hrát</span>
+                        </a>
+                    </div>
                     {% endif %}
-                        <span class="favorite-link-title">Chci hrát</span>
-                        <span class="xl:hidden">Chci hrát</span>
-                    </a>
                 </div>
-                {% endif %}
             </div>
         </div>
 
-        <p>{% if game.descriptioncz %}
-        {{ game.descriptioncz|safe }}    {% else %}Zatím žádný popis    {% endif %}</p>
+        <!-- POPIS HRY -->
+        <div class="w-full">
+            <p id="biography-text">
+            {% if game.descriptioncz %}
+                {{ game.descriptioncz|safe }}   
+                <p><a id="toggle-biography">Více...</a></p>  
+            {% else %}
+                Zatím žádný popis    
+            {% endif %}
+            </p>
+        </div>
 
         <!-- Karty -->
         <div class="tab-container" style="font-size:12px">
@@ -195,37 +204,39 @@
 
             <!-- RECENZE -->
             <div id="tab1" class="tab-content active w-full bg-[#F9F9F9] dark:bg-[#1A161F]"> 
-                <h3 class="after-h3">Recenze hry</h3>   
-                <!-- přidat recenzi -->      
-                {% if user.is_authenticated %}
-                <h4>Přidat novou recenzi</h4>
-                <form method="post" action="{% url 'game_detail' game_url=game.url %}">
-                    {% csrf_token %}
-                    {{ comment_form.comment }}
-                    <button type="submit" class="add">Vložit recenzi</button>
-                </form>
-                {% else %}
-                <p>Pro komentování je nutné být <a href="/prihlaseni/">přihlášený</a>.<br>
-                Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
-                {% endif %}
+                <div class=""> 
+                    <h3 class="after-h3">Recenze hry</h3>   
+                    <!-- přidat recenzi -->      
+                    {% if user.is_authenticated %}
+                    <h4>Přidat novou recenzi</h4>
+                    <form method="post" action="{% url 'game_detail' game_url=game.url %}">
+                        {% csrf_token %}
+                        {{ comment_form.comment }}
+                        <button type="submit" class="add">Vložit recenzi</button>
+                    </form>
+                    {% else %}
+                    <p>Pro komentování je nutné být <a href="/prihlaseni/">přihlášený</a>.<br>
+                    Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
+                    {% endif %}
 
-                <!-- výpis recenzí -->
-                {% if comments %}
-                <ul class="list-unstyled mt-3 komentar">
-                    {% for comment in comments %}
-                    <li class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
-                        <p>{{ comment.comment }}</p>
-                        <div class="user"></div>
-                            <a href="">{{ comment.user }}</a>
-                            <p>{{ comment.dateadded }}</p>
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
+                    <!-- výpis recenzí -->
+                    {% if comments %}
+                    <ul class="list-unstyled mt-3 komentar">
+                        {% for comment in comments %}
+                        <li class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
+                            <p class="koment after">{{ comment.comment }}</p>
+                            <div class="user">
+                                <p>{{ comment.dateadded }}</p>
+                                <p>Přidal: <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a></p>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
 
-                {% else %}
-                <p>Zatím nejsou žádné recenze k této hře.</p>
-                {% endif %}
+                    {% else %}
+                    <p>Zatím nejsou žádné recenze k této hře.</p>
+                    {% endif %}
+                </div>
             </div>
 
             <!-- POSTAVY -->
@@ -233,8 +244,6 @@
                 <h3 class="after-h3">Postavy ze hry</h3>
 
             </div>
-
-
 
             <!-- SYSTÉMOVÉ POŽADAVKY -->
             <!--
@@ -289,7 +298,6 @@
             </div>
         </div>
 
-
         {% if request.user.is_superuser %}
         <div class="card box-shadow mb-3">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
@@ -302,7 +310,6 @@
             </div>
         </div>
         {% endif %}
-
 
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
@@ -348,6 +355,7 @@
 
     </div>
 </div>
+
 <script>
     $(document).ready(function(){
         $('.tab-links a').click(function(e){
@@ -363,4 +371,5 @@
         });
     });
 </script>
+
 {% endblock %}

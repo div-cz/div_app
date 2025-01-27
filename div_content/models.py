@@ -781,6 +781,7 @@ class Gamecomments(models.Model):
     gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 #    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)   
+    dateadded = models.DateTimeField(db_column='DateAdded', auto_now_add=True)
 
     class Meta:
         db_table = 'GameComments'

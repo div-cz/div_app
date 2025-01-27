@@ -228,8 +228,8 @@
                 <div class="">    
                     <h3 class="after-h3">Recenze</h3> 
                     {% if user.is_authenticated %}
-                    <h4 class="after-h3">Přidat novou recenzi</h4>
-                    <form method="post" class="after" action="">
+                    <h4>Přidat novou recenzi</h4>
+                    <form method="post" class="w-full p-2 mb-2" action="">
                         {% csrf_token %}
                         {{ comment_form.comment }}
                         <button type="submit" class="add">Vložit recenzi</button>
@@ -245,15 +245,15 @@
                         <li class="card card-body w-full p-3 mb-2 border rounded">
                             <p class="koment after">{{ comment.comment }}</p>
                             <div class="user">
-                                <a href="{% url 'user_profile_with_profil' comment.user.pk %}">Přidal: {{ comment.user }}</a>
                                 <p>{{ comment.dateadded }}</p>
+                                <p>Přidal: <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a></p>
                             </div>
                         </li>
                         {% endfor %}
                     </ul>
                     
                     {% else %}
-                    <p>Zatím nejsou žádné recenze k tomuto filmu.</p>
+                    <p>Zatím nejsou žádné recenze k tomuto seriálu.</p>
                     {% endif %}
                 </div>
             </div>
