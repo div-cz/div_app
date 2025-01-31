@@ -169,8 +169,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'divDB',
-        'USER': 'martindb', #'e',
-        'PASSWORD': 'Han1cka+1a9', #,
+        'USER': '', #'e',
+        'PASSWORD': '', #,
         'HOST': 'localhost', #'sss.',
         'PORT': '3306',
         'OPTIONS': {
