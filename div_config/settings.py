@@ -27,6 +27,7 @@ SECRET_KEY = 'django-insecure-(7wns0c0f-zk&jpy02dw*^k9iv-q8dg4ofd36tz_+&!o^g3u+q
 DEBUG = True
 
 ALLOWED_HOSTS = [
+        'magic.div.cz',
         '46.28.109.39',
         '84.247.167.146',
         'div.cz',
@@ -40,6 +41,7 @@ ALLOWED_HOSTS = [
         '127.0.0.1',
         'localhost:8000']
 INTERNAL_IPS =  [
+        '84.247.167.146',
         '46.28.109.39',
         '46.28.109.13',
         '109.199.114.231',
@@ -169,8 +171,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'divDB',
-        'USER': '', #'e',
-        'PASSWORD': '', #,
+        'USER': 'django_user', #'e',
+        'PASSWORD': 'django_password', #,
         'HOST': 'localhost', #'sss.',
         'PORT': '3306',
         'OPTIONS': {
@@ -266,7 +268,7 @@ REST_FRAMEWORK = {
 }
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://test.div.cz',
+    'https://magic.div.cz',
 ]
 """
 LOGGING = {

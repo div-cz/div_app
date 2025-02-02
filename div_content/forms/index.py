@@ -13,7 +13,7 @@ class ArticleForm(forms.ModelForm):
 class ArticlenewsForm(forms.ModelForm):
     class Meta:
         model = Articlenews
-        fields = ['title', 'news', 'img', 'alt', 'perex', 'source', 'typ']
+        fields = ['title', 'news', 'img', 'alt', 'source', 'typ'] # 'perex', 
         widgets = {
             'news': forms.Textarea(attrs={'id': 'summernote'}),
         }

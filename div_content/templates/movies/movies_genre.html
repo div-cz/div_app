@@ -2,8 +2,9 @@
 {% load i18n %}
 {% load ratings %}
 {% load static %}
+{% load cache %}
 
-{% block title %}{{ movie.titlecz }} ({{ movie.releaseyear }}) | DIV.cz{% endblock %}
+{% block title %}{{ genre.genrenamecz  }} filmy na DIV.cz{% endblock %}
 
 {% block content %}
 
@@ -11,6 +12,9 @@
     <h2 class="mb-4 px-4">Seznam filmů žánru: {{ genre.genrenamecz  }}</h2>
     <div class="row">
         <!-- Hlavní obsah (Levý sloupec) -->
+
+
+        {% cache 86400 'genre_page' genre.id %}
         <div class="col-md-8 my-3">
             <!-- Seznam filmů -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -35,8 +39,7 @@
                 {% endfor %}
             </div>
         </div>
-
-        {% comment %}{% endcache %}{% endcomment %}
+        {% endcache %}
 
         <!-- Pravý sloupec -->
         <div class="col-md-4 my-3">
