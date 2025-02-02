@@ -1,9 +1,25 @@
 const $$ = {
     on(root, eventName, selector, fn) {
+        root.removeEventListener(eventName, fn);
         root.addEventListener(eventName, function (event) {
             const target = event.target.closest(selector);
             if (root.contains(target)) {
                 fn.call(target, event);
+            }
+        });
+    },
+    onPanelRender(root, panelId, fn) {
+        /*
+        This is a helper function to attach a handler for a `djdt.panel.render`
+        event of a specific panel.
+
+        root: The container element that the listener should be attached to.
+        panelId: The Id of the panel.
+        fn: A function to execute when the event is triggered.
+         */
+        root.addEventListener("djdt.panel.render", function (event) {
+            if (event.detail.panelId === panelId) {
+                fn.call(event);
             }
         });
     },
@@ -32,6 +48,26 @@ const $$ = {
             document.head.appendChild(el);
         });
     },
+    applyStyles(container) {
+        /*
+         * Given a container element, apply styles set via data-djdt-styles attribute.
+         * The format is data-djdt-styles="styleName1:value;styleName2:value2"
+         * The style names should use the CSSStyleDeclaration camel cased names.
+         */
+        container
+            .querySelectorAll("[data-djdt-styles]")
+            .forEach(function (element) {
+                const styles = element.dataset.djdtStyles || "";
+                styles.split(";").forEach(function (styleText) {
+                    const styleKeyPair = styleText.split(":");
+                    if (styleKeyPair.length === 2) {
+                        const name = styleKeyPair[0].trim();
+                        const value = styleKeyPair[1].trim();
+                        element.style[name] = value;
+                    }
+                });
+            });
+    },
 };
 
 function ajax(url, init) {
@@ -39,7 +75,11 @@ function ajax(url, init) {
     return fetch(url, init)
         .then(function (response) {
             if (response.ok) {
-                return response.json();
+                    return response.json().catch(function(error){
+                        return Promise.reject(
+                            new Error("The response  is a invalid Json object : " + error)
+                        );
+                    });
             }
             return Promise.reject(
                 new Error(response.status + ": " + response.statusText)
@@ -69,4 +109,34 @@ function ajaxForm(element) {
     return ajax(url, ajaxData);
 }
 
-export { $$, ajax, ajaxForm };
+function replaceToolbarState(newStoreId, data) {
+    const djDebug = document.getElementById("djDebug");
+    djDebug.setAttribute("data-store-id", newStoreId);
+    // Check if response is empty, it could be due to an expired storeId.
+    Object.keys(data).forEach(function (panelId) {
+        const panel = document.getElementById(panelId);
+        if (panel) {
+            panel.outerHTML = data[panelId].content;
+            document.getElementById("djdt-" + panelId).outerHTML =
+                data[panelId].button;
+        }
+    });
+}
+
+function debounce(func, delay) {
+    let timer = null;
+    let resolves = [];
+
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            const result = func(...args);
+            resolves.forEach((r) => r(result));
+            resolves = [];
+        }, delay);
+
+        return new Promise((r) => resolves.push(r));
+    };
+}
+
+export { $$, ajax, ajaxForm, replaceToolbarState, debounce };
