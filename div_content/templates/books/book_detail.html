@@ -358,7 +358,7 @@
                     <h4>Přidat novou recenzi</h4>
                     <form method="post" action="{% url 'book_detail' book_url=book.url %}">
                         {% csrf_token %}
-                        {{ comment_form.comment }}
+                        {{ comment_form.comment|safe }}
                         <button type="submit" class="add">Vložit recenzi</button>
                     </form>
                     {% else %}
@@ -782,7 +782,7 @@
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="card-title font-bold after-h3">
-                    Série:  <a href="/svet/{{ series.universumurl }}">{{ series.universumnamecz }}</a>
+                    Série:  <a href="/svet/{{ series.universumurl }}">{{ series.universumnamecz|default:series.universumnamecz }}</a>
                 </h3>
                 <div class="flex flex-wrap">
                     {% for book in series_books %}
