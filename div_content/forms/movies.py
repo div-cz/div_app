@@ -2,7 +2,7 @@
 
 from django import forms
 from django.contrib.auth.models import User
-from div_content.models import Movie, Moviecinema, Moviecomments, Moviedistributor, Movietrailer, Userprofile
+from div_content.models import Movie, Moviecinema, Moviecomments, Moviedistributor, Movieerror, Movietrailer, Userprofile
 
 
 class MovieDivRatingForm(forms.ModelForm):
@@ -56,6 +56,17 @@ class TrailerForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(TrailerForm, self).__init__(*args, **kwargs)
         self.fields['youtubeurl'].widget.attrs.update({'class': 'form-control'})
+
+
+class MovieErrorForm(forms.ModelForm):
+    error = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'w-full p-2 mb-2', 'rows': 3}),
+        required=True
+    )
+    
+    class Meta:
+        model = Movieerror
+        fields = ['error']
 
 
 # use in movie section

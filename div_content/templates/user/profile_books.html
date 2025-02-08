@@ -223,50 +223,50 @@
                 <div id="tvurci">
                     <h3 class="after-h3 mt-8 padding">Oblíbení autoři</h3>
                     {% if fav_creators_page_obj %}
-                        <div class="flex flex-wrap w-full">
-                            {% for author in fav_creators_page_obj %}
-                                <div class="mt-5" style="width: 150px">
-                                    <div class="p-1 w-full">
-                                        {% if author.img %}
-                                            <img src="/static/img/author/{{ author.img }}" alt="{{ author.firstname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
-                                        {% else %}
-                                            <img src="/static/img/creator/noperson.svg" alt="{{ author.firstname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
-                                        {% endif %}
-                                    </div>
-                                    <div class="p-1 w-full text-center">
-                                        <a href="/autor/{{ author.url }}">{{ author.firstname }} {{ author.lastname }}</a>
-                                    </div>
+                    <div class="flex flex-wrap w-full">
+                        {% for author in fav_creators_page_obj %}
+                            <div class="mt-5" style="width: 150px">
+                                <div class="p-1 w-full">
+                                    {% if author.img %}
+                                        <img src="/static/img/author/{{ author.img }}" alt="{{ author.firstname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                                    {% else %}
+                                        <img src="/static/img/creator/noperson.svg" alt="{{ author.firstname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                                    {% endif %}
                                 </div>
-                            {% endfor %}
-                        </div>
-                        <div class="pagination mt-8">
-                            <span class="step-links flex justify-center">
-        
-                                {% if fav_creators_page_obj.has_previous %}
-                                <div>
-                                    <a href="?fav_creators_page=1#oblibene">&laquo; první</a>
-                                    <a href="?fav_creators_page={{ fav_creators_page_obj.previous_page_number }}#oblibene">předchozí</a>
+                                <div class="p-1 w-full text-center">
+                                    <a href="/autor/{{ author.url }}">{{ author.firstname }} {{ author.lastname }}</a>
                                 </div>
-                                {% endif %}
-        
-                                <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                                {% if fav_creators_page_obj.paginator.num_pages > 1 %}
-                                <span class="current-page mx-4">
-                                    Stránka {{ fav_creators_page_obj.number }} / {{ fav_creators_page_obj.paginator.num_pages }}</span>
-                                {% endif %}
-        
-                                {% if fav_creators_page_obj.has_next %}
-                                <div>
-                                    <a href="?fav_creators_page={{ fav_creators_page_obj.next_page_number }}#oblibene">další</a>
-                                    <a href="?fav_creators_page={{ fav_creators_page_obj.paginator.num_pages }}#oblibene">poslední &raquo;</a>
-                                </div>
-                                {% endif %}
-                            </span>
-                        </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="pagination mt-8">
+                        <span class="step-links flex justify-center">
+    
+                            {% if fav_creators_page_obj.has_previous %}
+                            <div>
+                                <a href="?fav_creators_page=1#oblibene">&laquo; první</a>
+                                <a href="?fav_creators_page={{ fav_creators_page_obj.previous_page_number }}#oblibene">předchozí</a>
+                            </div>
+                            {% endif %}
+    
+                            <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                            {% if fav_creators_page_obj.paginator.num_pages > 1 %}
+                            <span class="current-page mx-4">
+                                Stránka {{ fav_creators_page_obj.number }} / {{ fav_creators_page_obj.paginator.num_pages }}</span>
+                            {% endif %}
+    
+                            {% if fav_creators_page_obj.has_next %}
+                            <div>
+                                <a href="?fav_creators_page={{ fav_creators_page_obj.next_page_number }}#oblibene">další</a>
+                                <a href="?fav_creators_page={{ fav_creators_page_obj.paginator.num_pages }}#oblibene">poslední &raquo;</a>
+                            </div>
+                            {% endif %}
+                        </span>
+                    </div>
 
-                        {% else %}
-                            <p>Žádní oblíbení autoři.</p>
-                        {% endif %} 
+                    {% else %}
+                        <p>Žádní oblíbení autoři.</p>
+                    {% endif %} 
                 </div>
                     
             </div>
@@ -275,66 +275,66 @@
             <div id="recenze" class="tab-show w-full {% if category == 'recenze' %}active{% endif %}">
                 <h3 class="after-h3 padding">Recenze knih</h3>
                 {% if bookreviews_page_obj %}
-                    <div class="table ">
-                    {% for comment in bookreviews_page_obj %}
-                        <div class="flex border sudy">
-                            <div class="p-1">
-                                {% if comment.bookid.img %}
-                                    <img src="https://books.google.com/books/content?id={{ comment.bookid.img }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ comment.bookid.title }}" style="object-fit: cover; width: 50px; height: auto;">
-                                {% else %}
-                                    <img src="/static/img/book/book.png" alt="{{ comment.bookid.title }}" style="object-fit: cover; width: 50px; height: auto;">
-                                {% endif %}
-                            </div>
-                            <div class="w-full">
-                                <div class="flex justify-between w-full">
-                                    <div class="p-1">
-                                        <a class="books" href="/kniha/{{ comment.bookid.url }}">
-                                            {% if comment.bookid.titlecz %}
-                                            {{ comment.bookid.titlecz }}
-                                            {% else %}
-                                            {{ comment.bookid.title }}
-                                            {% endif %}
-                                        </a>({{ comment.bookid.year }})
-                                    </div>
-                                    <div class="text-center p-1">
-                                        {{ comment.dateadded|date:"j. n. Y" }}
-                                    </div> 
-                                </div>
+                <div class="table ">
+                {% for comment in bookreviews_page_obj %}
+                    <div class="flex border sudy">
+                        <div class="p-1">
+                            {% if comment.bookid.img %}
+                                <img src="https://books.google.com/books/content?id={{ comment.bookid.img }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ comment.bookid.title }}" style="object-fit: cover; width: 50px; height: auto;">
+                            {% else %}
+                                <img src="/static/img/book/book.png" alt="{{ comment.bookid.title }}" style="object-fit: cover; width: 50px; height: auto;">
+                            {% endif %}
+                        </div>
+                        <div class="w-full">
+                            <div class="flex justify-between w-full">
                                 <div class="p-1">
-                                    {{ comment.comment|truncatewords:10 }}
+                                    <a class="books" href="/kniha/{{ comment.bookid.url }}">
+                                        {% if comment.bookid.titlecz %}
+                                        {{ comment.bookid.titlecz }}
+                                        {% else %}
+                                        {{ comment.bookid.title }}
+                                        {% endif %}
+                                    </a>({{ comment.bookid.year }})
                                 </div>
+                                <div class="text-center p-1">
+                                    {{ comment.dateadded|date:"j. n. Y" }}
+                                </div> 
+                            </div>
+                            <div class="p-1">
+                                {{ comment.comment|truncatewords:10 }}
                             </div>
                         </div>
-                    {% endfor %}
-
-                    <div class="pagination mt-8">
-                        <span class="step-links flex justify-center">
-
-                            {% if bookreviews_page_obj.has_previous %}
-                            <div>
-                                <a href="?bookreviews_page=1#recenze">&laquo; první</a>
-                                <a href="?bookreviews_page={{ bookreviews_page_obj.previous_page_number }}#recenze">předchozí</a>
-                            </div>
-                            {% endif %}
-
-                            <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                            {% if bookreviews_page_obj.paginator.num_pages > 1 %}
-                            <span class="current-page mx-4">
-                                Stránka {{ bookreviews_page_obj.number }} / {{ bookreviews_page_obj.paginator.num_pages }}</span>
-                            {% endif %}
-
-                            {% if bookreviews_page_obj.has_next %}
-                            <div>
-                                <a href="?bookreviews_page={{ bookreviews_page_obj.next_page_number }}#recenze">další</a>
-                                <a href="?bookreviews_page={{ bookreviews_page_obj.paginator.num_pages }}#recenze">poslední &raquo;</a>
-                            </div>
-                            {% endif %}
-                        </span>
                     </div>
-                    {% else %}
-                        <p>Žádné recenze.</p>
-                    {% endif %}
-                    </div>
+                {% endfor %}
+                </div>
+
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+
+                        {% if bookreviews_page_obj.has_previous %}
+                        <div>
+                            <a href="?bookreviews_page=1#recenze">&laquo; první</a>
+                            <a href="?bookreviews_page={{ bookreviews_page_obj.previous_page_number }}#recenze">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if bookreviews_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page mx-4">
+                            Stránka {{ bookreviews_page_obj.number }} / {{ bookreviews_page_obj.paginator.num_pages }}</span>
+                        {% endif %}
+
+                        {% if bookreviews_page_obj.has_next %}
+                        <div>
+                            <a href="?bookreviews_page={{ bookreviews_page_obj.next_page_number }}#recenze">další</a>
+                            <a href="?bookreviews_page={{ bookreviews_page_obj.paginator.num_pages }}#recenze">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>
+                {% else %}
+                    <p>Žádné recenze.</p>
+                {% endif %}
 
             </div>
 
