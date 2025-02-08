@@ -15,11 +15,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import cache_page
 from django.views.generic import DetailView
 
-from div_content.forms.movies import CommentForm, MovieCinemaForm, MovieDivRatingForm, SearchForm, TrailerForm
+from div_content.forms.movies import CommentForm, MovieCinemaForm, MovieDivRatingForm, MovieErrorForm, SearchForm, TrailerForm
 from div_content.models import (
     Article, Book, Creator, Creatorbiography, Game, Metalocation, Metagenre,
 
-    Movie, Moviecinema, Moviecomments, Moviecountries, Moviecrew, Moviedistributor, Moviegenre, Movielocation, Moviequotes, Movierating, Movietrailer, Movietrivia, User, Userprofile, Moviekeywords,
+    Movie, Moviecinema, Moviecomments, Moviecountries, Moviecrew, Moviedistributor, Movieerror, Moviegenre, Movielocation, Moviequotes, Movierating, Movietrailer, Movietrivia, User, Userprofile, Moviekeywords,
     Userlisttype, Userlist, Userlistmovie, FavoriteSum, Userlistitem
 
 )
@@ -59,12 +59,9 @@ def movie_detail(request, movie_url):
 
     movie_trailer = Movietrailer.objects.filter(movieid=movie.movieid).first()
 
-
     user = request.user
     user_rating = None
     comment_form = None  # Default value
-    
-
 
     if user.is_authenticated:
         try:
@@ -284,8 +281,20 @@ def movie_detail(request, movie_url):
             )
             return redirect('movie_detail', movie_url=movie_url)
 
+    if request.method == 'POST' and 'error_text' in request.POST:
+        error_text = request.POST.get('error_text').strip()
+        if error_text:
+            Movieerror.objects.create(
+                error=error_text,
+                movieid=movie,
+                divrating=0,
+                userid=request.user if request.user.is_authenticated else None
+            )
+            return redirect('movie_detail', movie_url=movie_url)
+
     quotes = Moviequotes.objects.filter(movie=movie).order_by('-divrating')  
     trivia = Movietrivia.objects.filter(movieid=movie).order_by('-divrating')  
+    errors = Movieerror.objects.filter(movieid=movie).order_by('-divrating')
 
     return render(request, 'movies/movie_detail.html', {
         'movie': movie,
@@ -315,6 +324,7 @@ def movie_detail(request, movie_url):
         'div_rating_form': div_rating_form,
         'quotes': quotes,
         'trivia': trivia,
+        'errors': errors,
     })
 
 

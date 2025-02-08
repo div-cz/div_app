@@ -247,35 +247,36 @@
                         </div>
                     </div>
                     {% endfor %}
-                    <div class="pagination mt-8">
-                        <span class="step-links flex justify-center">
+                </div>
 
-                            {% if reviews_page_obj.has_previous %}
-                            <div>
-                                <a href="?reviews_page=1#recenze">&laquo; první</a>
-                                <a href="?reviews_page={{ reviews_page_obj.previous_page_number }}#recenze">předchozí</a>
-                            </div>
-                            {% endif %}
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
 
-                            <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                            {% if reviews_page_obj.paginator.num_pages > 1 %}
-                            <span class="current-page mx-4">
-                                Stránka {{ reviews_page_obj.number }} / {{ reviews_page_obj.paginator.num_pages }}</span>
-                            {% endif %}
+                        {% if reviews_page_obj.has_previous %}
+                        <div>
+                            <a href="?reviews_page=1#recenze">&laquo; první</a>
+                            <a href="?reviews_page={{ reviews_page_obj.previous_page_number }}#recenze">předchozí</a>
+                        </div>
+                        {% endif %}
 
-                            {% if reviews_page_obj.has_next %}
-                            <div>
-                                <a href="?reviews_page={{ reviews_page_obj.next_page_number }}#recenze">další</a>
-                                <a href="?reviews_page={{ reviews_page_obj.paginator.num_pages }}#recenze">poslední &raquo;</a>
-                            </div>
-                            {% endif %}
-                        </span>
-                    </div>
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if reviews_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page mx-4">
+                            Stránka {{ reviews_page_obj.number }} / {{ reviews_page_obj.paginator.num_pages }}</span>
+                        {% endif %}
+
+                        {% if reviews_page_obj.has_next %}
+                        <div>
+                            <a href="?reviews_page={{ reviews_page_obj.next_page_number }}#recenze">další</a>
+                            <a href="?reviews_page={{ reviews_page_obj.paginator.num_pages }}#recenze">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>
                 {% else %}
                     <p>Žádné recenze.</p>
                 {% endif %}
-                </div>
-                <!-- paginator zde -->
+
             </div>
 
             <!-- Tab Chci hrát -->

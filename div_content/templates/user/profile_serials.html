@@ -316,7 +316,6 @@
                     </span>
                 </div>
             </div>
-            
 
             <!-- Tab Recenze -->
             <div id="recenze" class="tab-show w-full {% if category == 'recenze' %}active{% endif %}">
@@ -345,39 +344,37 @@
                                 {{ review.comment|truncatewords:10 }} <!-- RECENZE -->
                             </div>
                         </div>
-
                     </div>
                     {% endfor %}
-                    
-                    <div class="pagination mt-8">
-                        <span class="step-links flex justify-center">
-
-                            {% if seriesreviews_page_obj.has_previous %}
-                            <div>
-                                <a href="?seriesreviews_page=1#recenze">&laquo; první</a>
-                                <a href="?seriesreviews_page={{ seriesreviews_page_obj.previous_page_number }}#recenze">předchozí</a>
-                            </div>
-                            {% endif %}
-
-                            <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                            {% if seriesreviews_page_obj.paginator.num_pages > 1 %}
-                            <span class="current-page mx-4">
-                                Stránka {{ seriesreviews_page_obj.number }} / {{ seriesreviews_page_obj.paginator.num_pages }}</span>
-                            {% endif %}
-
-                            {% if seriesreviews_page_obj.has_next %}
-                            <div>
-                                <a href="?seriesreviews_page={{ seriesreviews_page_obj.next_page_number }}#recenze">další</a>
-                                <a href="?seriesreviews_page={{ seriesreviews_page_obj.paginator.num_pages }}#recenze">poslední &raquo;</a>
-                            </div>
-                            {% endif %}
-                        </span>
-                    </div>
-                    {% else %}
-                        <p>Žádné recenze.</p>
-                    {% endif %}
                 </div>
 
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+
+                        {% if seriesreviews_page_obj.has_previous %}
+                        <div>
+                            <a href="?seriesreviews_page=1#recenze">&laquo; první</a>
+                            <a href="?seriesreviews_page={{ seriesreviews_page_obj.previous_page_number }}#recenze">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if seriesreviews_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page mx-4">
+                            Stránka {{ seriesreviews_page_obj.number }} / {{ seriesreviews_page_obj.paginator.num_pages }}</span>
+                        {% endif %}
+
+                        {% if seriesreviews_page_obj.has_next %}
+                        <div>
+                            <a href="?seriesreviews_page={{ seriesreviews_page_obj.next_page_number }}#recenze">další</a>
+                            <a href="?seriesreviews_page={{ seriesreviews_page_obj.paginator.num_pages }}#recenze">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>
+                {% else %}
+                    <p>Žádné recenze.</p>
+                {% endif %}
             </div>
 
             <!-- Tab Chci vidět -->

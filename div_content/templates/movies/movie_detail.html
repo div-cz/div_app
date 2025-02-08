@@ -430,8 +430,37 @@
 
             <!-- chyby -->
             <div id="tab7" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
-                <h3>Chyby ve filmu</h3>
-                <p></p>
+                <h3 class="after-h3">Chyby ve filmu</h3>
+                {% if user.is_authenticated %}
+                <h4>Přidat novou chybu</h4>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <textarea name="error_text" class="w-full p-2 mb-2" rows="3" required></textarea>
+                    <button type="submit" class="add">Vložit chybu</button>
+                </form>
+                {% endif %}
+            
+                <!-- Výpis chyb -->
+                {% if errors %}
+                <div class="mt-4">
+                    {% for error in errors %}
+                    <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
+                        <p class="text-sm after">{{ error.error }}</p>
+                        <div class="mt-2 text-end">
+                            <p>Přidal: 
+                                {% if error.userid %}
+                                    <a href="{% url 'user_profile_with_profil' user_id=error.userid.id %}">{{ error.userid.username }}</a>
+                                {% else %}
+                                    Anonym
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p>Zatím nejsou žádné chyby k tomuto filmu.</p>
+                {% endif %}
             </div>
         </div>
 

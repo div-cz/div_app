@@ -1277,7 +1277,7 @@ class Metatype(models.Model):
 
 
 class Metauniversum(models.Model):
-    universumid = models.IntegerField(db_column='UniversumID', primary_key=True)
+    universumid = models.AutoField(db_column='UniversumID', primary_key=True)
     universumname = models.CharField(db_column='UniversumName', max_length=255)
     universumnamecz = models.CharField(db_column='UniversumNameCZ', max_length=255, blank=True, null=True)
     universumurl = models.CharField(db_column='UniversumURL', max_length=255, blank=True, null=True)
@@ -1368,10 +1368,13 @@ class Moviecrew(models.Model):
     roleid = models.ForeignKey(Creatorrole, models.DO_NOTHING, db_column='RoleID')
     characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID')
     peopleid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='PeopleID')
+    creworder = models.IntegerField(db_column='CrewOrder', null=True, blank=True)
 
     class Meta:
         db_table = 'MovieCrew'
-
+        indexes = [
+            models.Index(fields=['creworder']),
+        ]
 
 class Moviedistributor(models.Model):
     distributorid = models.AutoField(db_column='DistributorID', primary_key=True)
@@ -1394,6 +1397,16 @@ class Movieduplicity(models.Model):
     class Meta:
         db_table = 'MovieDuplicity'
 
+class Movieerror(models.Model):
+    errorid = models.AutoField(db_column='ErrorID', primary_key=True)
+    error = models.CharField(db_column='Error', max_length=1024)
+    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')
+    userid = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID', null=True, blank=True)
+    divrating = models.IntegerField(db_column='DIVRating', default="0", db_index=True, blank=True, null=True)
+    dateadded = models.DateTimeField(db_column='DateAdded', auto_now_add=True)
+
+    class Meta:
+        db_table = 'MovieError'
 
 class Moviegenre(models.Model):
     moviegenreid = models.AutoField(db_column='MovieGenreID', primary_key=True)
@@ -1521,9 +1534,13 @@ class Tvcrew(models.Model):
     characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID', null=True, blank=True)
     peopleid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='PeopleID')
     episodecount = models.IntegerField(db_column='EpisodeCount')
+    creworder = models.IntegerField(db_column='CrewOrder', null=True, blank=True)
 
     class Meta:
         db_table = 'TVCrew'
+        indexes = [
+            models.Index(fields=['creworder']),
+        ]
 
 class Tvepisode(models.Model):
     episodeid = models.AutoField(db_column='EpisodeID', primary_key=True)
@@ -1556,9 +1573,13 @@ class Tvepisodecrew(models.Model):
     roleid = models.ForeignKey(Creatorrole, models.DO_NOTHING, db_column='RoleID')
     characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID', null=True, blank=True)
     peopleid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='PeopleID')
+    creworder = models.IntegerField(db_column='CrewOrder', null=True, blank=True)
 
     class Meta:
         db_table = 'TVEpisodeCrew'
+        indexes = [
+            models.Index(fields=['creworder']),
+        ]
 
 class Tvseason(models.Model):
     seasonid = models.AutoField(db_column='SeasonID', primary_key=True)
