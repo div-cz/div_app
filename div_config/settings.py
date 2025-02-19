@@ -270,8 +270,7 @@ REST_FRAMEWORK = {
 CSRF_TRUSTED_ORIGINS = [
     'https://magic.div.cz',
 ]
-"""
-LOGGING = {
+""" LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
@@ -284,15 +283,20 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'var/log/django.log',
+            'filename': '/var/log/django.log',
             'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
-        '': {  # '' znamená default logger pro celou aplikaci
-            'handlers': ['file'],
+        'django': {
+            'handlers': ['file', 'console'],
             'level': 'DEBUG',
             'propagate': True,
         },
     },
-}"""
+}
+"""
