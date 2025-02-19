@@ -564,7 +564,7 @@
                             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
                             <h3 class="card-title font-bold after-h3">Narozeniny slaví</h3>
                             {% load cache %}
-                                {% cache 57600 creators_list_birth %} 
+                                {% cache 28800 creators_list_birth %} 
                                     {% for creator in creators_list_8 %}
                                     <div class="flex flex-wrap after last-line">
                                         <img src="https://www.themoviedb.org/t/p/w300/{{ creator.img }}" class="" alt="{{ creator.lastname }}" style="width:100px;margin-right:10px;">
@@ -600,7 +600,7 @@
                                 {% for article in articles %}
                                 <div class="flex flex-wrap items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
                                     <img class="article-thumbnail rounded-l" src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ article.img }}';" style="width:100px; height:fit-content; aspect-ratio: 3 / 4; object-fit: contain; margin-right:5px">
-                                    <div class="flex flex-wrap article-content" style="flex:2;">
+                                    <div class="flex flex-wrap article-content p-2" style="flex:2;">
                                         <a href="{{ article.url }}">{{ article.title }}</a>
                                         <p>{{ article.perex|truncatewords:9 }}</p>
                                     </div>
@@ -618,25 +618,24 @@
                                 <!-- prodej -->
                                 <div class="flex flex-wrap">
                                     <div class="flex flex-wrap justify-between w-full">
-                                        <h4>Prodej</h4><a href="{% url 'books_market_offers' %}"><small>Zobrazit vše</small></a>
+                                        <h4>Prodej - </h4><a href="{% url 'books_market_offers' %}"><small>Zobrazit vše</small></a>
                                     </div>
                                     {% for listing in recent_listings %}
                                     <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
                                         <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
-
-            {% if book.img == "noimg.png" %}
-                <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
-                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
-                {% elif book.img == "GoogleID" %}
-                <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
-                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
-                {% else %}
-                <!-- Jinak zobraz vlastní nahraný obrázek -->
-                <img src="/static/kniha/{{ book.img }}" alt="{{ book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
-            {% endif %}
-
+                                        {% if listing.book.img == "noimg.png" %}
+                                            <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
+                                            <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                                            {% elif listing.book.img == "GoogleID" %}
+                                            <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
+                                            <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                                            {% else %}
+                                            <!-- Jinak zobraz vlastní nahraný obrázek -->
+                                            <img src="/static/kniha/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                                        {% endif %}
                                         </a>
-                                        <div class="ml-2" style="flex: 2;">
+
+                                        <div class="ml-2 p-2" style="flex: 2;">
                                             <p>{{ listing.book.titlecz }}</p>
                                             <p>{{ listing.book.author }}</p>
                                             <p>{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
@@ -656,19 +655,18 @@
                                     {% for listing in recent_listings %}
                                     <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
                                         <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
-
-            {% if book.img == "noimg.png" %}
-                <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
-                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
-                {% elif book.img == "GoogleID" %}
-                <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
-                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
-                {% else %}
-                <!-- Jinak zobraz vlastní nahraný obrázek -->
-                <img src="/static/kniha/{{ book.img }}" alt="{{ book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
-            {% endif %}
-
+                                        {% if book.img == "noimg.png" %}
+                                            <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
+                                            <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                                            {% elif book.img == "GoogleID" %}
+                                            <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
+                                            <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                                            {% else %}
+                                            <!-- Jinak zobraz vlastní nahraný obrázek -->
+                                            <img src="/static/kniha/{{ book.img }}" alt="{{ book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                                        {% endif %}
                                         </a>
+
                                         <div class="flex flex-wrap content-between h-full p-2" style="flex: 2;">
                                             <p class="w-full">{{ listing.book.titlecz }}</p>
                                             <p class="w-full">{{ listing.book.author }}</p>
