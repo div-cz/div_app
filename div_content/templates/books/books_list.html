@@ -38,6 +38,11 @@
         background-color: #61872B;
         border-radius: 5px;
     }
+
+    .slick-dots {
+        margin-bottom: 20px;
+    }
+    
 </style>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css">
@@ -56,11 +61,11 @@
         <!-- carousel -->
         <div class="book-slider">
             {% for book in top_books %}
-            <div class="book-item" style="text-align: center; margin: 10px;"> 
+            <div class="book-item flex-wrap justify-center" style="display: flex; text-align: center; margin: 10px;"> 
                 <a href="/kniha/{{ book.url }}">
                     <img class="box-shadow" style="max-width: 140px; height: 205px;" src="{% if book.img == 'noimg.png' %}https://div.cz/static/img/book/book.png {% elif book.img == 'GoogleID' %}https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api {% else %}/static/kniha/{{ book.img }}{% endif %}" alt="{{ book.titlecz }}">
                 </a>
-                <a href="/kniha/{{ book.url }}">
+                <a class="w-full" href="/kniha/{{ book.url }}">
                     <h3 class="card-text">
                         {% if book.titlecz %}
                             {{ book.titlecz }}
@@ -69,7 +74,7 @@
                         {% endif %}
                     </h3>
                 </a>
-                <p>{{ book.author }}</p>
+                <p class="w-full">{{ book.author }}</p>
             </div>
             {% endfor %}
         </div>

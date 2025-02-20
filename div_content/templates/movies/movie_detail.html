@@ -270,7 +270,6 @@
                     {% endif %}
 
                     <!-- Výpis recenzí -->
-                    {% if comments %}
                     <ul class="list-unstyled mt-3 komentar">
                         {% for comment in comments %}
                         <li class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
@@ -282,10 +281,6 @@
                         </li>
                         {% endfor %}
                     </ul>
-                    
-                    {% else %}
-                    <p>Zatím nejsou žádné recenze k tomuto filmu.</p>
-                    {% endif %}
                 </div>
             </div>
 
@@ -344,24 +339,20 @@
                     {% endif %}
 
                     <!-- Výpis zajímavostí -->
-                    {% if trivia %}
-                        {% for item in trivia %}
-                        <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
-                            <p class="text-sm after">{{ item.trivia }}</p>
-                            <div class="mt-2 text-end">
-                                <p>Přidal: 
-                                    {% if not item.userid.id is None %}
-                                    <a href="{% url 'user_profile_with_profil' user_id=item.userid.id %}">{{ item.userid.username|default:"Anonym" }}</a>
-                                    {% else %}
-                                    Anonym
-                                    {% endif %}
-                                </p>
-                            </div>
+                    {% for item in trivia %}
+                    <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
+                        <p class="text-sm after">{{ item.trivia }}</p>
+                        <div class="mt-2 text-end">
+                            <p>Přidal: 
+                                {% if not item.userid.id is None %}
+                                <a href="{% url 'user_profile_with_profil' user_id=item.userid.id %}">{{ item.userid.username|default:"Anonym" }}</a>
+                                {% else %}
+                                Anonym
+                                {% endif %}
+                            </p>
                         </div>
-                        {% endfor %}
-                    {% else %}
-                        <p>Zatím nejsou žádné zajímavosti k tomuto filmu.</p>
-                    {% endif %}
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
 
@@ -398,7 +389,6 @@
                 {% endif %}
 
                 <!-- Výpis hlášek -->
-                {% if quotes %}
                 <div class="mt-4">
                     {% for quote in quotes %}
                     <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
@@ -417,9 +407,6 @@
                     </div>
                     {% endfor %}
                 </div>
-                {% else %}
-                <p>Zatím nejsou žádné hlášky k tomuto filmu.</p>
-            {% endif %}
             </div>
 
             <!-- lokality -->
@@ -441,7 +428,6 @@
                 {% endif %}
             
                 <!-- Výpis chyb -->
-                {% if errors %}
                 <div class="mt-4">
                     {% for error in errors %}
                     <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
@@ -458,9 +444,6 @@
                     </div>
                     {% endfor %}
                 </div>
-                {% else %}
-                <p>Zatím nejsou žádné chyby k tomuto filmu.</p>
-                {% endif %}
             </div>
         </div>
 
