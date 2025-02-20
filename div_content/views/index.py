@@ -37,7 +37,6 @@ def redirect_view(request):
 
 
 
-
 # TASK MANAGEMENT 
 def get_sorted_tasks(user):
     # Získáme všechny hlavní úkoly (bez parentid)

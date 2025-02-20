@@ -4,6 +4,7 @@
 
 import base64
 import datetime
+import json
 import math
 import os
 import qrcode
@@ -360,7 +361,7 @@ def book_detail(request, book_url):
     characters_with_roles = Bookcharacter.objects.filter(bookid=book.bookid).select_related('characterid')
 
     # Fetch quotes associated with the book
-    quotes = Bookquotes.objects.filter(bookid=book)
+    quotes = Bookquotes.objects.filter(bookid=book).order_by('-divrating')
 
     # Initialize the quote form
     if user.is_authenticated:
@@ -567,6 +568,7 @@ def rate_book(request, book_id):
 
 
 @require_POST
+@login_required
 def ratequote(request, quote_id):
     quote = get_object_or_404(Bookquotes, pk=quote_id)
     action = request.POST.get('action')
@@ -579,12 +581,14 @@ def ratequote(request, quote_id):
     # Pokud uživatel nehlasoval, zvýšíme hlas a nastavíme cookie
     if action == 'thumbsup':
         quote.thumbsup += 1
+        quote.divrating = (quote.divrating or 0) + 1 
     elif action == 'thumbsdown':
         quote.thumbsdown += 1
+        quote.divrating = (quote.divrating or 0) - 1
 
     quote.save()
 
-    response = JsonResponse({'thumbsup': quote.thumbsup, 'thumbsdown': quote.thumbsdown})
+    response = JsonResponse({'thumbsup': quote.thumbsup, 'thumbsdown': quote.thumbsdown, 'divrating': quote.divrating})
     
     # Nastaví cookie na týden
     expires = timezone.now() + datetime.timedelta(days=7)

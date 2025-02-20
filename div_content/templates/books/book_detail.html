@@ -505,10 +505,11 @@
                             </p>
 
                             <!-- Hodnocen√≠ -->
-                            <div class="">
-                                <span class="thumbsup" data-quote-id="{{ quote.quoteid }}">&#128077; {{ quote.thumbsup }}</span>
-                                <span class="thumbsdown" data-quote-id="{{ quote.quoteid }}">&#128078; {{ quote.thumbsdown }}</span>
-                            </div>
+                            <div id="quote-{{ quote.quoteid }}">
+                               <span class="thumbsup" data-quote-id="{{ quote.quoteid }}">Ì†ΩÌ±ç <span class="count">{{ quote.thumbsup }}</span></span>
+                               <span class="thumbsdown" data-quote-id="{{ quote.quoteid }}">Ì†ΩÌ±é <span class="count">{{ quote.thumbsdown }}</span></span>
+                               <span class="divrating">‚≠ê <span class="count">{{ quote.divrating }}</span></span>
+                           </div>
                         </div>
                     </div>
                     {% endfor %}
@@ -859,31 +860,69 @@
     </div>
 </div>
 
+
+
+===
 <script>
+    // ‚úÖ Funkce pro z√≠sk√°n√≠ CSRF tokenu z cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
     $(document).ready(function(){
         $('.thumbsup, .thumbsdown').on('click', function() {
             var quoteId = $(this).data('quote-id');
             var action = $(this).hasClass('thumbsup') ? 'thumbsup' : 'thumbsdown';
-            
+
             $.ajax({
                 url: "{% url 'ratequote' 0 %}".replace('0', quoteId),
                 method: 'POST',
-                data: {
-                    'action': action,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),  // getCookie u≈æ je definov√°na!
+                    'Content-Type': 'application/json'
                 },
+                data: JSON.stringify({'action': action}),
                 success: function(data) {
+                    console.log("Response received:", data);
+
                     if (data.error) {
-                        alert(data.error);  // Zobraz√≠ chybu, pokud u≈æ u≈æivatel hlasoval
+                        alert(data.error);
                     } else {
-                        $('#quote-' + quoteId + ' .thumbsup').html('&#128077; ' + data.thumbsup);
-                        $('#quote-' + quoteId + ' .thumbsdown').html('&#128078; ' + data.thumbsdown);
+                        let thumbsup = parseInt(data.thumbsup) || 0;
+                        let thumbsdown = parseInt(data.thumbsdown) || 0;
+                        let divrating = parseInt(data.divrating) || 0;
+
+                        // ‚úÖ Aktualizujeme pouze ƒç√≠slo, emoji z≈Øst√°v√° v HTML
+                        $('#quote-' + quoteId + ' .thumbsup .count').text(thumbsup);
+                        $('#quote-' + quoteId + ' .thumbsdown .count').text(thumbsdown);
+                        $('#quote-' + quoteId + ' .divrating .count').text(divrating);
                     }
+                },
+                error: function(xhr) {
+                    console.error("AJAX error:", xhr.responseText);
+                    alert("Chyba p≈ôi hlasov√°n√≠.");
                 }
             });
         });
     });
 </script>
+
+
+
+
+
+
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
