@@ -1,7 +1,7 @@
 # FORMS/SERIES
 
 from django import forms
-from div_content.models import Tvshow, Tvshowcomments
+from div_content.models import Tvshow, Tvshowcomments, Tvshowtrailer
 
 
 class SearchForm(forms.Form):
@@ -33,3 +33,12 @@ class CommentForm(forms.ModelForm):
         widgets = {
             'comment': forms.Textarea(attrs={'class': 'form-control'}),
         }
+
+class TrailerForm(forms.ModelForm):
+    class Meta:
+        model = Tvshowtrailer
+        fields = ['youtubeurl']
+
+    def __init__(self, *args, **kwargs):
+        super(TrailerForm, self).__init__(*args, **kwargs)
+        self.fields['youtubeurl'].widget.attrs.update({'class': 'form-control'})
