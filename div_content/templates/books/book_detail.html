@@ -6,6 +6,14 @@
 {% block title %} {{ book.titlecz }} | DIV.cz{% endblock %}
 
 {% block meta %}
+<meta name="description" content="{{ book.description|striptags|truncatewords:30 }}"> 
+<meta name="keywords" content="{{ book.titlecz }}, knihy, literatura, DIV.cz"> 
+<meta property="og:title" content="{{ book.titlecz }}"> 
+<meta property="og:description" content="{{ book.description|striptags|truncatewords:30 }}"> 
+<meta property="og:image" content="https://div.cz/{% if book.img and book.img != 'noimg.png' %}/static/kniha/{{ book.img }}{% else %}/static/img/book/book.png{% endif %}"> 
+<meta property="og:url" content="https://div.cz/kniha/{{ book.url }}"> 
+<meta name="author" content="eKultura">
+
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
@@ -506,9 +514,9 @@
 
                             <!-- Hodnocen√≠ -->
                             <div id="quote-{{ quote.quoteid }}">
-                               <span class="thumbsup" data-quote-id="{{ quote.quoteid }}">Ì†ΩÌ±ç <span class="count">{{ quote.thumbsup }}</span></span>
-                               <span class="thumbsdown" data-quote-id="{{ quote.quoteid }}">Ì†ΩÌ±é <span class="count">{{ quote.thumbsdown }}</span></span>
-                               <span class="divrating">‚≠ê <span class="count">{{ quote.divrating }}</span></span>
+                               <span class="thumbsup" data-quote-id="{{ quote.quoteid }}">&#x1F44D; <span class="count">{{ quote.thumbsup }}</span></span>
+                               <span class="thumbsdown" data-quote-id="{{ quote.quoteid }}">&#x1F44E; <span class="count">{{ quote.thumbsdown }}</span></span>
+                               <span class="divrating">&#x2B50; <span class="count">{{ quote.divrating }}</span></span>
                            </div>
                         </div>
                     </div>
@@ -862,9 +870,8 @@
 
 
 
-===
 <script>
-    // ‚úÖ Funkce pro z√≠sk√°n√≠ CSRF tokenu z cookies
+    //  Funkce pro z√≠sk√°n√≠ CSRF tokenu z cookies
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -903,7 +910,7 @@
                         let thumbsdown = parseInt(data.thumbsdown) || 0;
                         let divrating = parseInt(data.divrating) || 0;
 
-                        // ‚úÖ Aktualizujeme pouze ƒç√≠slo, emoji z≈Øst√°v√° v HTML
+                        // Aktualizujeme pouze ƒç√≠slo, emoji z≈Øst√°v√° v HTML
                         $('#quote-' + quoteId + ' .thumbsup .count').text(thumbsup);
                         $('#quote-' + quoteId + ' .thumbsdown .count').text(thumbsdown);
                         $('#quote-' + quoteId + ' .divrating .count').text(divrating);

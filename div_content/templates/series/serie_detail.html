@@ -148,7 +148,7 @@
                 {% endif %}
                 <!-- Neautorizován -->
 
-                <div id="add-thankyou" class="alert alert-success" style="display: none;">Film přidán do seznamu!</div>
+                <div id="add-thankyou" class="alert alert-success" style="display: none;">Seriál přidán do seznamu!</div>
             </div>
         </div>
 
@@ -217,8 +217,8 @@
             <ul class="tab-links">
                 <li class="karta"><a href="#tab1" class="active">Recenze</a></li>
                 <li class="karta"><a href="#tab2">Hrají</a></li>
-                <!--<li class="karta"><a href="#tab3">Zajímavosti</a></li>-->
-                <!--<li class="karta"><a href="#tab4">Trailer</a></li>-->
+                <li class="karta"><a href="#tab3">Zajímavosti</a></li>
+                <li class="karta"><a href="#tab4">Trailer</a></li>
                 <li class="karta"><a href="#tab5">Hlášky</a></li>
                 <!--<li class="karta"><a href="#tab6">Lokality</a></li>-->
             </ul>
@@ -295,33 +295,53 @@
 
             <!-- ZAJÍMAVOSTI -->
             <div id="tab3" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
-                <h3 class="after-h3">Informace o zajímavostech seriálu</h3>
+                <h3 class="after-h3">Zajímavosti ze seriálu</h3>
+            
+                {% if user.is_authenticated %}
                 <h4>Přidat novou zajímavost</h4>
-                <form method="post" class="after" action="">
-                    <textarea>
-
-                    </textarea>
+                <form method="post">
+                    {% csrf_token %}
+                    <textarea name="trivia_text" class="w-full p-2 mb-2" rows="3" required></textarea>
                     <button type="submit" class="add">Vložit zajímavost</button>
-                </form>               
+                </form>
+                {% endif %}
+            
+                <div class="mt-4">
+                    {% for item in trivia %}
+                    <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
+                        <p class="text-sm after">{{ item.trivia }}</p>
+                        <div class="mt-2 text-end">
+                            <p>Přidal: 
+                                {% if item.userid %}
+                                    <a href="{% url 'user_profile_with_profil' user_id=item.userid.id %}">{{ item.userid.username }}</a>
+                                {% else %}
+                                    Anonym
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
+
 
             <!-- TRAILER -->
             <div id="tab4" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
                 <h3 class="after-h3">Trailer</h3>
-                {% if movie_trailer %}
-                <iframe style="width:100%;height:56.25vw" src="https://www.youtube.com/embed/{{ movie_trailer.youtubeurl }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            {% else %}
-                <p>Trailer není k dispozici.</p>
-            {% endif %}
-
-            {% if user.is_authenticated %}
-                <h4>Přidat trailer</h4>
-                <form method="post">
-                    {% csrf_token %}
-                    {{ trailer_form.as_p }}
-                    <button type="submit" class="btn btn-primary mt-3">Přidat trailer (Jen YoutubeID: dGzY9zp46KI)</button>
-                </form>
-            {% endif %}
+                {% if tvshow_trailer %}
+                    <iframe style="width:100%; height:300px" src="https://www.youtube.com/embed/{{ tvshow_trailer.youtubeurl }}" frameborder="0" allowfullscreen></iframe>
+                {% else %}
+                    <p>Trailer není k dispozici.</p>
+                {% endif %}
+            
+                {% if user.is_authenticated %}
+                    <h4>Přidat trailer</h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ trailer_form.as_p }}
+                        <button type="submit" class="btn btn-primary mt-3">Přidat trailer</button>
+                    </form>
+                {% endif %}
             </div>
 
             <!-- HLÁŠKY -->

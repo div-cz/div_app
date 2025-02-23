@@ -1632,6 +1632,28 @@ class Tvshowcomments(models.Model):
         db_table = 'TVShowComments'
 
 
+class Tvshowtrailer(models.Model):
+    trailerid = models.AutoField(db_column='TrailerID', primary_key=True)
+    tvshowid = models.ForeignKey('Tvshow', on_delete=models.CASCADE, db_column='TvshowID')
+    youtubeurl = models.CharField(db_column='YoutubeURL', max_length=255)
+    duration = models.DurationField(db_column='Duration', null=True, blank=True)
+    date_added = models.DateField(db_column='DateAdded', auto_now_add=True)
+    views = models.IntegerField(db_column='Views', default=0)
+
+    class Meta:
+        db_table = 'TvshowTrailer'
+
+class Tvshowtrivia(models.Model):
+    triviaid = models.AutoField(db_column='TriviaID', primary_key=True)
+    trivia = models.TextField(db_column='Trivia')
+    tvshowid = models.ForeignKey('Tvshow', on_delete=models.CASCADE, db_column='TvshowID')
+    userid = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID', null=True, blank=True)
+    divrating = models.IntegerField(db_column='DIVRating', default=0, db_index=True, blank=True, null=True)
+
+    class Meta:
+        db_table = 'TvshowTrivia'
+
+
 class Tvshowquotes(models.Model):
     quote_id = models.AutoField(primary_key=True, db_column='QuoteID')
     quote = models.TextField(db_column='Quote')

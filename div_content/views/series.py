@@ -5,11 +5,10 @@ import math
 from datetime import timedelta
 
 from div_content.models import (
-    Tvcountries, Tvcrew, Tvgenre, Tvkeywords, Tvproductions, Tvseason, Tvshow, Tvshowquotes, Tvepisode, Userlisttype, 
-    Userlist, Userlistitem, Userlisttvshow, Userlisttvseason, Userlisttvepisode, FavoriteSum, Tvshowcomments
+    FavoriteSum, Tvcountries, Tvcrew, Tvgenre, Tvkeywords, Tvproductions, Tvseason, Tvshow, Tvshowcomments, Tvshowtrailer, Tvshowtrivia, Tvshowquotes, Tvepisode, Userlisttype, Userlist, Userlistitem, Userlisttvshow, Userlisttvseason, Userlisttvepisode
 )
 
-from div_content.forms.series import CommentForm, SearchForm, TVShowDivRatingForm
+from div_content.forms.series import CommentForm, SearchForm, TrailerForm, TVShowDivRatingForm
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -52,6 +51,7 @@ CONTENT_TYPE_TVSEASON_ID = tvseason_content_type.id
 #CONTENT_TYPE_TVEPISODE_ID = 43 # tvepisode
 tvepisode_content_type = ContentType.objects.get_for_model(Tvepisode)
 CONTENT_TYPE_TVEPISODE_ID = tvepisode_content_type.id
+
 
 
 
@@ -120,6 +120,220 @@ def series_list(request):
 
 def series_alphabetical(request):
     return render(request, "series/series_alphabetical.html")
+
+
+
+def serie_season(request, tv_url, seasonurl):
+    user = request.user
+    tvshow = get_object_or_404(Tvshow, url=tv_url)
+    season = get_object_or_404(Tvseason, tvshowid=tvshow.tvshowid, seasonurl=seasonurl)
+    episodes = Tvepisode.objects.filter(seasonid=season.seasonid)
+    if episodes.exists():
+        first_episode = episodes[0]  # Get the first episode if it exists
+    else:
+        first_episode = None 
+
+    # Get the previous season
+    previous_season = Tvseason.objects.filter(
+        tvshowid=tvshow.tvshowid, 
+        seasonnumber__lt=season.seasonnumber
+    ).order_by('-seasonnumber').first()
+    # Get the next season
+    next_season = Tvseason.objects.filter(
+        tvshowid=tvshow.tvshowid, 
+        seasonnumber__gt=season.seasonnumber
+    ).order_by('seasonnumber').first()
+
+
+    genres = Tvgenre.objects.filter(tvshowid=tvshow.tvshowid).select_related('genreid')
+    countries = Tvcountries.objects.filter(tvshowid=tvshow.tvshowid).select_related('countryid')
+    productions = Tvproductions.objects.filter(tvshowid=tvshow.tvshowid).select_related('metaproductionid')
+    seasons = Tvseason.objects.filter(tvshowid=tvshow.tvshowid).order_by('seasonnumber')
+    directors = Tvcrew.objects.filter(tvshowid=tvshow.tvshowid, roleid='383').select_related('peopleid')
+
+    # Zjistí, jestli má uživatel sezónu v seznamu Oblíbené
+    if user.is_authenticated:
+        try:
+            favourites_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_OBLIBENA_SEZONA)
+            favourites_list = Userlist.objects.get(user=user, listtype=favourites_type)
+            is_in_favourites = Userlistitem.objects.filter(object_id=season.seasonid, userlist=favourites_list).exists()
+        except Exception as e:
+            is_in_favourites = False
+    else:
+        is_in_favourites = False
+
+    # Zjistí, jestli má uživatel sezónu v seznamu Chci vidět
+    if user.is_authenticated:
+        try:
+            watchlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_CHCI_VIDET_SEZONU)
+            watchlist_list = Userlist.objects.get(user=user, listtype=watchlist_type)
+            is_in_watchlist = Userlistitem.objects.filter(object_id=season.seasonid, userlist=watchlist_list).exists()
+        except Exception as e:
+            is_in_watchlist = False
+    else:
+        is_in_watchlist = False
+
+    # Zjistí, jestli má uživatel sezónu v seznamu Shlédnuto
+    if user.is_authenticated:
+        try:
+            watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SHLEDNUTA_SEZONA)
+            watched_list = Userlist.objects.get(user=user, listtype=watched_type)
+            is_in_watched = Userlistitem.objects.filter(object_id=season.seasonid, userlist=watched_list).exists()
+        except Exception as e:
+            is_in_watched = False
+    else:
+        is_in_watched = False
+
+    # Hlášky pro sezónu
+    quotes = Tvshowquotes.objects.filter(season=season).select_related('actor', 'character', 'episode')
+
+    # Přidávání nové hlášky pro sezónu
+    if request.method == 'POST' and 'quote_text' in request.POST:
+        quote_text = request.POST.get('quote_text').strip()
+        if quote_text:
+            Tvshowquotes.objects.create(
+                quote=quote_text,
+                tv_show=tvshow,
+                season=season,
+                user=request.user if request.user.is_authenticated else None,
+                div_rating=0
+            )
+            return redirect('serie_season', tv_url=tvshow.url, seasonurl=season.seasonurl)
+
+
+    ratings = UserRating.objects.filter(rating__content_type=tvseason_content_type, rating__object_id=season.seasonid)
+    average_rating_result = ratings.aggregate(average=Avg('score'))
+    average_rating = average_rating_result.get('average')
+    if average_rating is not None:
+        average_rating = math.ceil(average_rating)
+    else:
+        average_rating = 0
+
+
+    return render(request, 'series/serie_season.html', {
+        'tvshow': tvshow,
+        'season': season,
+        'genres': genres,
+        'countries': countries,
+        'productions': productions,
+        'seasons': seasons,
+        'previous_season': previous_season,
+        'next_season': next_season,
+        'directors': directors,
+        'quotes': quotes,
+        'episodes': episodes,
+        'is_in_favourites': is_in_favourites,
+        'is_in_watchlist': is_in_watchlist,
+        'is_in_watched': is_in_watched,
+        'ratings': ratings,
+        'average_rating': average_rating,
+
+    })
+
+
+
+def serie_episode(request, tv_url, seasonurl, episodeurl):
+    tvshow = get_object_or_404(Tvshow, url=tv_url)
+    season = get_object_or_404(Tvseason, tvshowid=tvshow.tvshowid, seasonurl=seasonurl)
+    episode = get_object_or_404(Tvepisode, seasonid=season.seasonid, episodeurl=episodeurl)
+
+    # PREVIOUS
+    previous_episode = Tvepisode.objects.filter(
+        seasonid=season.seasonid,
+        episodenumber__lt=episode.episodenumber  # Hledáme epizodu s menším číslem
+    ).order_by('-episodenumber').first()  # Seřadíme od nejvyššího k nejnižšímu
+    # NEXT 
+    next_episode = Tvepisode.objects.filter(
+        seasonid=season.seasonid,
+        episodenumber__gt=episode.episodenumber  # Hledáme epizodu s menším číslem
+    ).order_by('episodenumber').first()  # Seřadíme od nejvyššího k nejnižšímu
+
+    genres = Tvgenre.objects.filter(tvshowid=tvshow.tvshowid).select_related('genreid')
+    countries = Tvcountries.objects.filter(tvshowid=tvshow.tvshowid).select_related('countryid')
+    productions = Tvproductions.objects.filter(tvshowid=tvshow.tvshowid).select_related('metaproductionid')
+    seasons = Tvseason.objects.filter(tvshowid=tvshow.tvshowid).order_by('seasonnumber')
+    directors = Tvcrew.objects.filter(tvshowid=tvshow.tvshowid, roleid='383').select_related('peopleid')
+
+    user = request.user
+
+    # Zjistí, jestli má uživatel díl v seznamu Oblíbené
+    if user.is_authenticated:
+        try:
+            favourites_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_OBLIBENY_DIL)
+            favourites_list = Userlist.objects.get(user=user, listtype=favourites_type)
+            is_in_favourites = Userlistitem.objects.filter(object_id=episode.episodeid, userlist=favourites_list).exists()
+        except Exception as e:
+            is_in_favourites = False
+    else:
+        is_in_favourites = False
+
+    # Zjistí, jestli má uživatel díl v seznamu Chci vidět
+    if user.is_authenticated:
+        try:
+            watchlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_CHCI_VIDET_DIL)
+            watchlist_list = Userlist.objects.get(user=user, listtype=watchlist_type)
+            is_in_watchlist = Userlistitem.objects.filter(object_id=episode.episodeid, userlist=watchlist_list).exists()
+        except Exception as e:
+            is_in_watchlist = False
+    else:
+        is_in_watchlist = False
+
+    # Zjistí, jestli má uživatel díl v seznamu Shlédnuto
+    if user.is_authenticated:
+        try:
+            watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SHLEDNUTY_DIL)
+            watched_list = Userlist.objects.get(user=user, listtype=watched_type)
+            is_in_watched = Userlistitem.objects.filter(object_id=episode.episodeid, userlist=watched_list).exists()
+        except Exception as e:
+            is_in_watched = False
+    else:
+        is_in_watched = False
+
+    # Hlášky pro epizodu
+    quotes = Tvshowquotes.objects.filter(episode=episode).select_related('actor', 'character')
+
+    # Přidávání nové hlášky pro epizodu
+    if request.method == 'POST' and 'quote_text' in request.POST:
+        quote_text = request.POST.get('quote_text').strip()
+        if quote_text:
+            Tvshowquotes.objects.create(
+                quote=quote_text,
+                tv_show=tvshow,
+                season=season,
+                episode=episode,
+                user=request.user if request.user.is_authenticated else None,
+                div_rating=0
+            )
+            return redirect('serie_episode', tv_url=tvshow.url, seasonurl=season.seasonurl, episodeurl=episode.episodeurl)
+
+    ratings = UserRating.objects.filter(rating__content_type=tvepisode_content_type, rating__object_id=episode.episodeid)
+    
+    # Výpočet průměrného hodnocení
+    average_rating_result = ratings.aggregate(average=Avg('score'))
+    average_rating = average_rating_result.get('average')
+    if average_rating is not None:
+        average_rating = math.ceil(average_rating)
+    else:
+        average_rating = 0
+
+    return render(request, 'series/serie_episode.html', {
+        'tvshow': tvshow,
+        'season': season,
+        'genres': genres,
+        'countries': countries,
+        'productions': productions,
+        'seasons': seasons,
+        'directors': directors,
+        'episode': episode,
+        'previous_episode': previous_episode,
+        'next_episode': next_episode,
+        'is_in_favourites': is_in_favourites,
+        'is_in_watchlist': is_in_watchlist,
+        'is_in_watched': is_in_watched,
+        'quotes': quotes,
+        'ratings': ratings,
+        'average_rating': average_rating,
+    })
 
 
 def serie_detail(request, tv_url):
@@ -260,6 +474,31 @@ def serie_detail(request, tv_url):
             )
             return redirect('serie_detail', tv_url=tvshow.url)
 
+    tvshow_trailer = Tvshowtrailer.objects.filter(tvshowid=tvshow.tvshowid).order_by('-trailerid').first()
+    trivia = Tvshowtrivia.objects.filter(tvshowid=tvshow.tvshowid).order_by('-divrating')
+
+    if request.method == 'POST':
+        if 'youtubeurl' in request.POST:
+            trailer_form = TrailerForm(request.POST)
+            if trailer_form.is_valid():
+                trailer = trailer_form.save(commit=False)
+                trailer.tvshowid = tvshow
+                trailer.save()
+                return redirect('serie_detail', tv_url=tvshow.url)
+
+        elif 'trivia_text' in request.POST:
+            trivia_text = request.POST.get('trivia_text').strip()
+            if trivia_text:
+                Tvshowtrivia.objects.create(
+                    trivia=trivia_text,
+                    tvshowid=tvshow,
+                    divrating=0,
+                    userid=request.user if request.user.is_authenticated else None
+                )
+                return redirect('serie_detail', tv_url=tvshow.url)
+
+    else:
+        trailer_form = TrailerForm()
 
     return render(request, 'series/serie_detail.html', {
         'tvshow': tvshow,
@@ -284,6 +523,9 @@ def serie_detail(request, tv_url):
         'quotes': quotes,
         'comments': comments,
         'comment_form': comment_form,
+        'tvshow_trailer': tvshow_trailer,
+        'trivia': trivia,
+        'trailer_form': trailer_form,
     })
 
 
@@ -301,11 +543,59 @@ def rate_tvshow(request, tvshow_id):
             defaults={'rating': rating}
         )
 
+        # Automatické přidání do "Seriálnuto"
+        watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SERIALNUTO)
+        watched_list, _ = Userlist.objects.get_or_create(user=user, listtype=watched_type)
+
+        # Ověření, zda už existuje v seznamu
+        if not Userlistitem.objects.filter(userlist=watched_list, object_id=tvshow_id).exists():
+            content_type = ContentType.objects.get(id=CONTENT_TYPE_SERIES_ID)  # Oprava získání ContentType
+            Userlistitem.objects.create(
+                userlist=watched_list, 
+                content_type=content_type,
+                object_id=tvshow_id
+            )
+
+
         # Přesměrování zpět na detail seriálu po úspěšném hodnocení
         return redirect('series_detail', tv_url=tvshow.url)
     else:
         # Pokud není POST požadavek, vrátit detail seriálu
         return redirect('series_detail', tv_url=tvshow.url)
+
+@login_required
+def rate_tvseason(request, tvseason_id):
+    if request.method == 'POST':
+        rating = int(request.POST.get('rating'))
+        user = request.user
+        tvseason = get_object_or_404(Tvseason, seasonid=tvseason_id)
+
+        Tvshowrating.objects.update_or_create(
+            tvseason=tvseason,
+            user=user,
+            defaults={'rating': rating}
+        )
+
+        return redirect('serie_season', tv_url=tvseason.tvshowid.url, seasonurl=tvseason.seasonurl)
+    else:
+        return redirect('serie_season', tv_url=tvseason.tvshowid.url, seasonurl=tvseason.seasonurl)
+
+@login_required
+def rate_tvepisode(request, tvepisode_id):
+    if request.method == 'POST':
+        rating = int(request.POST.get('rating'))
+        user = request.user
+        tvepisode = get_object_or_404(Tvepisode, episodeid=tvepisode_id)
+
+        Tvshowrating.objects.update_or_create(
+            tvepisode=tvepisode,
+            user=user,
+            defaults={'rating': rating}
+        )
+
+        return redirect('serie_episode', tv_url=tvepisode.seasonid.tvshowid.url, seasonurl=tvepisode.seasonid.seasonurl, episodeurl=tvepisode.episodeurl)
+    else:
+        return redirect('serie_episode', tv_url=tvepisode.seasonid.tvshowid.url, seasonurl=tvepisode.seasonid.seasonurl, episodeurl=tvepisode.episodeurl)
 
 
 def search_tvshow(request):
@@ -457,101 +747,6 @@ def remove_from_tvshow_library(request, tvshowid):
     return redirect("serie_detail", tv_url=tvshow.url)
 
 
-def serie_season(request, tv_url, seasonurl):
-    user = request.user
-    tvshow = get_object_or_404(Tvshow, url=tv_url)
-    season = get_object_or_404(Tvseason, tvshowid=tvshow.tvshowid, seasonurl=seasonurl)
-    episodes = Tvepisode.objects.filter(seasonid=season.seasonid)
-    if episodes.exists():
-        first_episode = episodes[0]  # Get the first episode if it exists
-    else:
-        first_episode = None 
-
-    # Get the previous season
-    previous_season = Tvseason.objects.filter(
-        tvshowid=tvshow.tvshowid, 
-        seasonnumber__lt=season.seasonnumber
-    ).order_by('-seasonnumber').first()
-    # Get the next season
-    next_season = Tvseason.objects.filter(
-        tvshowid=tvshow.tvshowid, 
-        seasonnumber__gt=season.seasonnumber
-    ).order_by('seasonnumber').first()
-
-
-    genres = Tvgenre.objects.filter(tvshowid=tvshow.tvshowid).select_related('genreid')
-    countries = Tvcountries.objects.filter(tvshowid=tvshow.tvshowid).select_related('countryid')
-    productions = Tvproductions.objects.filter(tvshowid=tvshow.tvshowid).select_related('metaproductionid')
-    seasons = Tvseason.objects.filter(tvshowid=tvshow.tvshowid).order_by('seasonnumber')
-    directors = Tvcrew.objects.filter(tvshowid=tvshow.tvshowid, roleid='383').select_related('peopleid')
-
-    # Zjistí, jestli má uživatel sezónu v seznamu Oblíbené
-    if user.is_authenticated:
-        try:
-            favourites_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_OBLIBENA_SEZONA)
-            favourites_list = Userlist.objects.get(user=user, listtype=favourites_type)
-            is_in_favourites = Userlistitem.objects.filter(object_id=season.seasonid, userlist=favourites_list).exists()
-        except Exception as e:
-            is_in_favourites = False
-    else:
-        is_in_favourites = False
-
-    # Zjistí, jestli má uživatel sezónu v seznamu Chci vidět
-    if user.is_authenticated:
-        try:
-            watchlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_CHCI_VIDET_SEZONU)
-            watchlist_list = Userlist.objects.get(user=user, listtype=watchlist_type)
-            is_in_watchlist = Userlistitem.objects.filter(object_id=season.seasonid, userlist=watchlist_list).exists()
-        except Exception as e:
-            is_in_watchlist = False
-    else:
-        is_in_watchlist = False
-
-    # Zjistí, jestli má uživatel sezónu v seznamu Shlédnuto
-    if user.is_authenticated:
-        try:
-            watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SHLEDNUTA_SEZONA)
-            watched_list = Userlist.objects.get(user=user, listtype=watched_type)
-            is_in_watched = Userlistitem.objects.filter(object_id=season.seasonid, userlist=watched_list).exists()
-        except Exception as e:
-            is_in_watched = False
-    else:
-        is_in_watched = False
-
-    # Hlášky pro sezónu
-    quotes = Tvshowquotes.objects.filter(season=season).select_related('actor', 'character', 'episode')
-
-    # Přidávání nové hlášky pro sezónu
-    if request.method == 'POST' and 'quote_text' in request.POST:
-        quote_text = request.POST.get('quote_text').strip()
-        if quote_text:
-            Tvshowquotes.objects.create(
-                quote=quote_text,
-                tv_show=tvshow,
-                season=season,
-                user=request.user if request.user.is_authenticated else None,
-                div_rating=0
-            )
-            return redirect('serie_season', tv_url=tvshow.url, seasonurl=season.seasonurl)
-
-
-    return render(request, 'series/serie_season.html', {
-        'tvshow': tvshow,
-        'season': season,
-        'genres': genres,
-        'countries': countries,
-        'productions': productions,
-        'seasons': seasons,
-        'previous_season': previous_season,
-        'next_season': next_season,
-        'directors': directors,
-        'quotes': quotes,
-        'episodes': episodes,
-        'is_in_favourites': is_in_favourites,
-        'is_in_watchlist': is_in_watchlist,
-        'is_in_watched': is_in_watched,
-    })
-
 
 # Přidat do seznamu: Oblíbená sezóna
 @login_required
@@ -656,102 +851,6 @@ def remove_from_watched_tvseasons(request, tv_url, tvseasonid):
     userlisttvseason.delete()
     
     return redirect("serie_season", tv_url=tvseason.tvshowid.url, seasonurl=tvseason.seasonurl)
-
-
-def serie_episode(request, tv_url, seasonurl, episodeurl):
-    tvshow = get_object_or_404(Tvshow, url=tv_url)
-    season = get_object_or_404(Tvseason, tvshowid=tvshow.tvshowid, seasonurl=seasonurl)
-    episode = get_object_or_404(Tvepisode, seasonid=season.seasonid, episodeurl=episodeurl)
-
-    # PREVIOUS
-    previous_episode = Tvepisode.objects.filter(
-        seasonid=season.seasonid,
-        episodenumber__lt=episode.episodenumber  # Hledáme epizodu s menším číslem
-    ).order_by('-episodenumber').first()  # Seřadíme od nejvyššího k nejnižšímu
-    # NEXT 
-    next_episode = Tvepisode.objects.filter(
-        seasonid=season.seasonid,
-        episodenumber__gt=episode.episodenumber  # Hledáme epizodu s menším číslem
-    ).order_by('episodenumber').first()  # Seřadíme od nejvyššího k nejnižšímu
-
-    genres = Tvgenre.objects.filter(tvshowid=tvshow.tvshowid).select_related('genreid')
-    countries = Tvcountries.objects.filter(tvshowid=tvshow.tvshowid).select_related('countryid')
-    productions = Tvproductions.objects.filter(tvshowid=tvshow.tvshowid).select_related('metaproductionid')
-    seasons = Tvseason.objects.filter(tvshowid=tvshow.tvshowid).order_by('seasonnumber')
-    directors = Tvcrew.objects.filter(tvshowid=tvshow.tvshowid, roleid='383').select_related('peopleid')
-
-    user = request.user
-
-    # Zjistí, jestli má uživatel díl v seznamu Oblíbené
-    if user.is_authenticated:
-        try:
-            favourites_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_OBLIBENY_DIL)
-            favourites_list = Userlist.objects.get(user=user, listtype=favourites_type)
-            is_in_favourites = Userlistitem.objects.filter(object_id=episode.episodeid, userlist=favourites_list).exists()
-        except Exception as e:
-            is_in_favourites = False
-    else:
-        is_in_favourites = False
-
-    # Zjistí, jestli má uživatel díl v seznamu Chci vidět
-    if user.is_authenticated:
-        try:
-            watchlist_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_CHCI_VIDET_DIL)
-            watchlist_list = Userlist.objects.get(user=user, listtype=watchlist_type)
-            is_in_watchlist = Userlistitem.objects.filter(object_id=episode.episodeid, userlist=watchlist_list).exists()
-        except Exception as e:
-            is_in_watchlist = False
-    else:
-        is_in_watchlist = False
-
-    # Zjistí, jestli má uživatel díl v seznamu Shlédnuto
-    if user.is_authenticated:
-        try:
-            watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SHLEDNUTY_DIL)
-            watched_list = Userlist.objects.get(user=user, listtype=watched_type)
-            is_in_watched = Userlistitem.objects.filter(object_id=episode.episodeid, userlist=watched_list).exists()
-        except Exception as e:
-            is_in_watched = False
-    else:
-        is_in_watched = False
-
-    # Hlášky pro epizodu
-    quotes = Tvshowquotes.objects.filter(episode=episode).select_related('actor', 'character')
-
-    # Přidávání nové hlášky pro epizodu
-    if request.method == 'POST' and 'quote_text' in request.POST:
-        quote_text = request.POST.get('quote_text').strip()
-        if quote_text:
-            Tvshowquotes.objects.create(
-                quote=quote_text,
-                tv_show=tvshow,
-                season=season,
-                episode=episode,
-                user=request.user if request.user.is_authenticated else None,
-                div_rating=0
-            )
-            return redirect('serie_episode', tv_url=tvshow.url, seasonurl=season.seasonurl, episodeurl=episode.episodeurl)
-
-
-
-
-
-    return render(request, 'series/serie_episode.html', {
-        'tvshow': tvshow,
-        'season': season,
-        'genres': genres,
-        'countries': countries,
-        'productions': productions,
-        'seasons': seasons,
-        'directors': directors,
-        'episode': episode,
-        'previous_episode': previous_episode,
-        'next_episode': next_episode,
-        'is_in_favourites': is_in_favourites,
-        'is_in_watchlist': is_in_watchlist,
-        'is_in_watched': is_in_watched,
-        'quotes': quotes,
-    })
 
 
 # Přidat do seznamu: Oblíbený díl
