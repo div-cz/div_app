@@ -361,17 +361,15 @@
                 <h3 class="after-h3">Trailer</h3>
                 {% if movie_trailer %}
                     <iframe style="width:100%; height:300px" src="https://www.youtube.com/embed/{{ movie_trailer.youtubeurl }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                {% else %}
-                    <p>Trailer není k dispozici.</p>
-                {% endif %}
-
-                {% if user.is_authenticated %}
-                    <h3>Přidat trailer</h3>
-                    <form method="post">
-                        {% csrf_token %}
-                        {{ trailer_form.as_p }}
-                        <button type="submit" class="btn btn-primary mt-3">Přidat trailer (Jen YoutubeID: dGzY9zp46KI)</button>
-                    </form>
+                    {% else %}
+                        {% if user.is_authenticated %}
+                        <h3>Přidat trailer</h3>
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ trailer_form.as_p }}
+                            <button type="submit" class="btn btn-primary mt-3">Přidat trailer (Jen YoutubeID: dGzY9zp46KI)</button>
+                        </form>
+                    {% endif %}
                 {% endif %}
             </div>
 

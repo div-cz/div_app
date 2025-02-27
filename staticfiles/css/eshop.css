@@ -7,7 +7,6 @@
 }
 
 .title {
-    font-size: 1.5em;
     font-weight: 900;
     text-align: center;
     margin: 0;
@@ -74,24 +73,150 @@
 }
 
 .text-title {
-   font-weight: 900;
-   font-size: 1.2em;
-   line-height: 1.5;
+    font-weight: 900;
+    font-size: 1.2em;
+    line-height: 1.5;
 }
 
 .card-button {
-   border: 1px solid #252525;
-   display: flex;
-   padding: .3em;
-   cursor: pointer;
-   border-radius: 50px;
-   transition: .3s ease-in-out;
+    border: 1px solid #252525;
+    display: flex;
+    padding: .3em;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: .3s ease-in-out;
+    width: 100%;
+    justify-content: space-evenly;
+    align-items: center;
 }
-
+/* 
 svg {
-   width: 20px;
-   height: 20px;
+    width: 20px;
+    height: 20px;
+} */
+
+
+
+.book-text {
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 
+/* CAROUSEL */
+.card-wrapper {
+    max-width: 1100px;
+    margin: 0 40px 35px;
+    overflow: hidden;
+}
+/* 
+.swiper-wrapper {
+    display: flex;
+    margin-top: 5px;
+} */
 
+.card-list .card-item {
+    list-style: none;
+    /* flex: 0 0 25%; */
+    box-sizing: border-box;
+}
+
+.card-list .card-item .card-link {
+    user-select: none;
+    display: block;
+    border-radius: 1rem;
+    text-decoration: none;
+    border: 2px solid transparent;
+    /* box-shadow: 0 10px 10px rgba(0, 0, 0, 30%); */
+    transition: 0.2s ease;
+}
+
+.card-list .card-item .card-link:active {
+    cursor: grabbing;
+}
+
+.card-list .card-item .card-link .card-image {
+    max-width: 100px; 
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.swiper-pagination-bullet {
+    height: 13px;
+    width: 13px;
+    opacity: 0.5;
+    background: #607d8b;
+}
+
+.swiper-pagination-bullet-active {
+    opacity: 1;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+    z-index: 10;
+}
+
+/* Vylepšení zobrazení pagination */
+.swiper-pagination {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.swiper-slide {
+    display: flex;
+}
+
+.swiper-button-next:after, .swiper-button-prev:after {
+    font-family: swiper-icons;
+    font-size: 20px;
+    text-transform: none !important;
+    letter-spacing: 0;
+    font-variant: initial;
+    line-height: 1;
+    color: #607d8b;
+}
+
+.swiper-button-prev {
+    height: 100%;
+    top: 0;
+    box-shadow: 10px 0px 20px 0px #f8f8f8;
+}
+
+.swiper-button-prev:is(.dark *) {
+    box-shadow: 10px 0px 20px 0px #1a161f;
+}
+
+.swiper-button-next {
+    height: 100%;
+    top: 0;
+    box-shadow: -10px 0px 20px 0px #f8f8f8;
+}
+
+.swiper-button-next:is(.dark *) {
+    box-shadow: -10px 0px 20px 0px #1a161f;
+}
+
+
+@media screen and (max-width: 1024px) {
+    .card-list .card-item {
+        flex: 1 0 33%; /* Pro obrazovky menší než 1024px bude zobrazeno 3 karty */
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .card-list .card-item {
+        flex: 1 0 50%;  /* Pro obrazovky menší než 768px (mobilní zařízení) budou zobrazeny 2 karty */
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .card-list .card-item {
+        flex: 1 0 100%; /* Pro obrazovky menší než 500px (mobilní zařízení) budou zobrazeny 1 karty */
+    }
+}

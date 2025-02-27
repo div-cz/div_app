@@ -181,6 +181,7 @@
                 <ul class="list-unstyled">
                     <li><strong>Originální název: </strong>{{ book.title }}</li>
 
+                    <!-- AUTOR -->
                     {% if authors %}
                     <li><strong>Autor:</strong>
                         {% for author in authors %}
@@ -192,6 +193,7 @@
                     <li><strong>Autor:</strong> {{ book.author }}</li>
                     {% endif %}
 
+                    <!-- ŽÁNR -->
                     {% if genres %}
                     <li><strong>Žánr:</strong>
                         {% for book_genre in genres %}
@@ -201,6 +203,10 @@
                     </li>
                     {% endif %}
             
+                    <!-- SÉRIE -->
+                    <li><strong>Série:</strong> název série</li>
+
+                    <!-- JAZYK -->
                     {% if book.language %}
                     <li><strong>Jazyk:</strong> 
                     {% if book.language == 'cs' %}
@@ -217,6 +223,7 @@
                         <!--Nejsou zatím data <a href="">Nějaké nakladatelství</a>-->
                     </li>
 
+                    <!-- POSTAVY -->
                     {% if characters_with_roles %}
                     <li><strong>Postavy:</strong>
                         {% for character_with_role in characters_with_roles %}
@@ -262,6 +269,7 @@
                     {% if user.is_authenticated %}
                     <div class="favorite-menu grid sm:grid-colums-2 justify-items-center w-full border rounded-1xl mt-4">
                         
+                        <!-- OBLÍBENÉ -->
                         {% if not is_in_favourites %}
                         <a href="{% url 'add_to_favourite_books' bookid=book.bookid %}" class="favorite-link" style="color: black;">
                             {% else %}
@@ -275,6 +283,7 @@
                             </a>
                         </a>
 
+                        <!-- PŘEČTENO -->
                         {% if not is_in_read_books %}
                         <a href="{% url 'add_to_read_books' bookid=book.bookid %}" class="favorite-link" style="color: black;">
                             {% else %}
@@ -288,6 +297,7 @@
                             </a>
                         </a>
 
+                        <!-- KNIHOVNA -->
                         {% if not is_in_book_library %}
                         <a href="{% url 'add_to_book_library' bookid=book.bookid %}" class="favorite-link" style="color: black;">
                             {% else %}
@@ -301,6 +311,7 @@
                             </a>
                         </a>
 
+                        <!-- CHCI ČÍST -->
                         {% if not is_in_readlist %}
                         <a href="{% url 'add_to_readlist' bookid=book.bookid %}" class="favorite-link" style="color: black;">
                             {% else %}
@@ -319,21 +330,13 @@
             </div>
         </div>
 
-        <!-- PRODAM / KOUPIM -->
-        <details>
-            <summary class="market add my-4">PRODÁM / KOUPÍM</summary>
-            <div class="card mt-3">
-                <div class="card-body">
-                    více v <a href="#tab5" id="go-to-market">obchodě</a>
-                    <form method="post" name="booklisting_form">
-                        {% csrf_token %}
-                        <input type="hidden" name="form_type" value="booklisting">
-                        {{ booklisting_form.as_p }}
-                        <button type="submit" class="btn add btn-primary">Vytvořit nabídku</button>
-                    </form>
-                </div>
-            </div>
-        </details>
+        <!-- KOUPIT -->
+        <div class="flex items-center">
+            <h3>KOUPIT</h3>
+            <button type="submit" href="" class="add-book ml-3 mt-0"><img src="/static/img/book/e-book_icon.png" alt="e-kniha" title="e-kniha" class="mr-2" style="width: 20px; height: 20px;">E-kniha</button>
+            <button type="submit" href="" class="add-book ml-3 mt-0"><img src="/static/img/book/cd_icon.png" alt="audiokniha" title="audiokniha" class="mr-2" style="width: 20px; height: 20px;">Audio</button>
+            <button type="submit" href="#tab5" id="go-to-market" class="add-book ml-3 mt-0"><img src="/static/img/book/book_icon.png" alt="kniha" title="kniha" class="mr-2" style="width: 20px; height: 20px;">Bazar</button>
+        </div>
 
         <!-- POPIS KNIHY -->
         <div class="w-full">
@@ -354,7 +357,7 @@
                 <li><a href="#tab2">Postavy</a></li>
                 <li><a href="#tab3">Citáty</a></li>
                 <!--<li><a href="#tab4">Zajímavosti</a></li>-->
-                <li><a href="#tab5">Obchod</a></li>
+                <li><a href="#tab5">DIVkvariát</a></li>
             </ul>
     
             <!-- RECENZE -->
@@ -387,9 +390,6 @@
                         </li>
                         {% endfor %}
                     </ul>
-                    
-                    {% else %}
-                    <p>Zatím nejsou žádné recenze k této knize.</p>
                     {% endif %}
                 </div>
             </div>
@@ -496,7 +496,6 @@
                 {% endif %}
 
                 <!-- výpis citátů -->
-                {% if quotes %}
                 <div class="mt-4">
                     {% for quote in quotes %}
                     <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded" id="quote-{{ quote.quoteid }}">
@@ -522,9 +521,6 @@
                     </div>
                     {% endfor %}
                 </div>
-                {% else %}
-                <p>Zatím nejsou žádné citáty k této knize.</p>
-                {% endif %}
             </div>
 
             <!-- ZAJÍMAVOSTI -->
@@ -537,11 +533,9 @@
                     </textarea>
                     <button type="submit" class="add">Vložit zajímavost</button>
                 </form>               
-
-                <p>Zatím nejsou žádné zajímavosti k tomuto seriálu.</p>
             </div>
 
-            <!-- OBCHOD -->
+            <!-- DIVKVARIÁT -->
             <div id="market">
                 <div id="tab5" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
                     <h3 class="after-h3">Tuto knihu prodává / poptává</h3>
@@ -924,12 +918,6 @@
         });
     });
 </script>
-
-
-
-
-
-
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {

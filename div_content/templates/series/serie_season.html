@@ -165,7 +165,7 @@
                     {% if episodes.exists %}
                         {% for episode in episodes %}
                             <div style="margin-bottom:10px">
-                                <!-- Check for no image and use a default image if necessary -->
+                                <!-- Kontrola, zda je obrázek k dispozici, a v případě potřeby použije výchozí obrázek -->
                                 {% if episode.episodeimg == "noimg.png" %}
                                     <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ episode.title }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 50px; float:left; margin: 0 15px 5px 0;">
                                 {% else %}
@@ -188,8 +188,8 @@
             <ul class="tab-links">
                 <li class="karta"><a href="#tab1" class="active">Recenze</a></li>
                 <li class="karta"><a href="#tab2">Hrají</a></li>
-                <!--<li class="karta"><a href="#tab3">Zajímavosti</a></li>-->
-                <!--<li class="karta"><a href="#tab4">Trailer</a></li>-->
+                <li class="karta"><a href="#tab3">Zajímavosti</a></li>
+                <li class="karta"><a href="#tab4">Trailer</a></li>
                 <li class="karta"><a href="#tab5">Hlášky</a></li>
                 <!--<li class="karta"><a href="#tab6">Lokality</a></li>-->
             </ul>
@@ -199,8 +199,8 @@
                 <div class="">    
                     <h3 class="after-h3">Recenze</h3> 
                     {% if user.is_authenticated %}
-                    <h4 class="after-h3">Přidat novou recenzi</h4>
-                    <form method="post" class="after" action="">
+                    <h4>Přidat novou recenzi</h4>
+                    <form method="post">
                         {% csrf_token %}
                         {{ comment_form.comment }}
                         <button type="submit" class="add">Vložit recenzi</button>
@@ -268,7 +268,7 @@
             <div id="tab3" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
                 <h3 class="after-h3">Informace o zajímavostech seriálu</h3>
                 <h4>Přidat novou zajímavost</h4>
-                <form method="post" class="after" action="">
+                <form method="post">
                     <textarea>
 
                     </textarea>
@@ -279,20 +279,18 @@
             <!-- TRAILER -->
             <div id="tab4" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
                 <h3 class="after-h3">Trailer</h3>
-                {% if movie_trailer %}
-                <iframe style="width:100%;height:56.25vw" src="https://www.youtube.com/embed/{{ movie_trailer.youtubeurl }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            {% else %}
-                <p>Trailer není k dispozici.</p>
-            {% endif %}
-
-            {% if user.is_authenticated %}
-                <h3>Přidat trailer</h3>
-                <form method="post">
-                    {% csrf_token %}
-                    {{ trailer_form.as_p }}
-                    <button type="submit" class="btn btn-primary mt-3">Přidat trailer (Jen YoutubeID: dGzY9zp46KI)</button>
-                </form>
-            {% endif %}
+                {% if tvshow_trailer %}
+                    <iframe style="width:100%; height:300px" src="https://www.youtube.com/embed/{{ tvshow_trailer.youtubeurl }}" frameborder="0" allowfullscreen></iframe>
+                    {% else %}
+                        {% if user.is_authenticated %}
+                        <h3>Přidat trailer</h3>
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ trailer_form.as_p }}
+                            <button type="submit" class="btn btn-primary mt-3">Přidat trailer (Jen YoutubeID: dGzY9zp46KI)</button>
+                        </form>
+                    {% endif %} 
+                {% endif %}
             </div>
 
             <!-- HLÁŠKY -->
@@ -301,7 +299,7 @@
                 <!-- přidat hlášku -->
                 {% if user.is_authenticated %}
                 <h4>Přidat novou hlášku</h4>
-                <form method="post" action="">
+                <form method="post">
                     {% csrf_token %}
                     <textarea name="quote_text" class="w-full p-2 mb-2" rows="3" required></textarea>
                     <button type="submit" class="add">Vložit hlášku</button>
