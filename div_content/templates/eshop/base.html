@@ -14,7 +14,121 @@
         <link href="/static/css/eshop.css" rel="stylesheet">
         <link href="/static/css/navbar_other.css" rel="stylesheet">
 
+        <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+        <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+        <style>
+            .card-wrapper {
+                max-width: 1100px;
+                margin: 0 40px 35px;
+                overflow: hidden;
+            }
+
+            .swiper-wrapper {
+                display: flex;
+                margin-top: 10px;
+            }
+
+            .card-list .card-item {
+                list-style: none;
+                flex: 0 0 25%;
+                box-sizing: border-box;
+                user-select: none;
+                display: flex;
+                background: #fff;
+                border-radius: 12px;
+                text-decoration: none;
+                border: 2px solid transparent;
+                /* box-shadow: 0 10px 10px rgba(0, 0, 0, 30%); */
+                transition: 0.2s ease;
+            }
+
+            .card-list .card-item .card-link:active {
+                cursor: grabbing;
+            }
+
+            .card-list .card-item .card-link .card-image {
+                max-width: 100px; 
+                height: 150px;
+                object-fit: cover;
+                border-radius: 10px;
+            }
+
+            .swiper-pagination-bullet {
+                height: 13px;
+                width: 13px;
+                opacity: 0.5;
+                background: #607d8b;
+            }
+
+            .swiper-pagination-bullet-active {
+                opacity: 1;
+            }
+
+            .swiper-button-next,
+            .swiper-button-prev {
+                z-index: 10;
+            }
+
+            /* Vylepšení zobrazení pagination */
+            .swiper-pagination {
+                position: absolute;
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .swiper-slide {
+                display: flex;
+            }
+
+            .swiper-button-next:after, .swiper-button-prev:after {
+                font-family: swiper-icons;
+                font-size: 20px;
+                text-transform: none !important;
+                letter-spacing: 0;
+                font-variant: initial;
+                line-height: 1;
+                color: #607d8b;
+            }
+
+            .swiper-button-prev {
+                height: 100%;
+                top: 0;
+                box-shadow: 10px 0px 20px 0px #f8f8f8;
+            }
+
+            .swiper-button-prev:is(.dark *) {
+                box-shadow: 10px 0px 20px 0px #1a161f;
+            }
+
+            .swiper-button-next {
+                height: 100%;
+                top: 0;
+                box-shadow: -10px 0px 20px 0px #f8f8f8;
+            }
+
+            .swiper-button-next:is(.dark *) {
+                box-shadow: -10px 0px 20px 0px #1a161f;
+            }
+
+
+            @media screen and (max-width: 1024px) {
+                .card-list .card-item {
+                    flex: 1 0 33%; /* Pro obrazovky menší než 1024px bude zobrazeno 3 karty */
+                }
+            }
+
+            @media screen and (max-width: 768px) {
+                .card-list .card-item {
+                    flex: 1 0 50%; /* Pro obrazovky menší než 768px (mobilní zařízení) budou zobrazeny 2 karty */
+                }
+            }
+
+        </style>
+
 {% block meta %}
+
 {% endblock %}
 
     </head>
@@ -50,12 +164,11 @@
                                                 <li><a href="/eshop/knihy/">Prodej knih</a></li>
                                                 <li><a href="/eshop/filmy/">Prodej filmů</a></li>
                                                 <li><a href="/eshop/hry/">Prodej her</a></li>
-                                                <li><a href="/eshop/">eshop</a></li>
 
+                                                <!-- <hr class="hr-hidden">
+                                                <li><a href="/forum/">Forum</a></li> -->
                                                 <hr class="hr-hidden">
-                                                <li><a href="/forum/">Forum</a></li>
-                                                <hr class="hr-hidden">
-                                                <li><a href="" class="flex">
+                                                <li><a href="/eshop/" class="flex">
                                                     <svg viewBox="0 0 16 16" height="24" width="24" fill="#607d8b">
                                                         <path d="M11.354 6.354a.5.5 0 0 0-.708-.708L8 8.293 6.854 7.146a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0l3-3z"></path>
                                                         <path d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1H.5zm3.915 10L3.102 4h10.796l-1.313 7h-8.17zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"></path>
@@ -72,9 +185,13 @@
                     </div>
                 </aside>
 
-                {% block content %}
+                <div class="row container my-4 px-4">
 
-                {% endblock %}
+                    {% block content %}
+
+                    {% endblock %}
+
+                </div>
 
             </section>
         </main>
@@ -83,6 +200,45 @@
 
         <script src="/static/js/books.js"></script>
         <script src="/static/js/script.js"></script>
+
+        <!-- carousel -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                new Swiper('.card-wrapper', {
+                    loop: true,
+                    speed: 700,
+                    spaceBetween: 20,  // Menší mezera mezi kartami, pokud je příliš velká
+                    slidesPerView: 4,  // Na větších obrazovkách zobrazení 4 karet
+                    slidesPerGroup: 1,  // Posouvá se vždy o 1 kartu
+
+                    pagination: {
+                        el: '.swiper-pagination',
+                        clickable: true,
+                        dynamicBullets: true,
+                    },
+
+                    navigation: {
+                        nextEl: '.swiper-button-next',
+                        prevEl: '.swiper-button-prev',
+                    },
+
+                    breakpoints: {
+                        0: {
+                            slidesPerView: 1,  // Na mobilu 2 karty
+                            spaceBetween: 10,  // Menší mezera mezi kartami na mobilu
+                        },
+                        768: {
+                            slidesPerView: 3,  // Na tabletu 3 karty
+                            spaceBetween: 15,  // Střední mezera mezi kartami na tabletu
+                        },
+                        1024: {
+                            slidesPerView: 4,  // Na desktopu 4 karty
+                            spaceBetween: 20,  // Větší mezera mezi kartami na desktopu
+                        },
+                    },
+                });
+            });
+        </script>
 
     </body>
 </html>

@@ -324,23 +324,20 @@
                 </div>
             </div>
 
-
             <!-- TRAILER -->
             <div id="tab4" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
                 <h3 class="after-h3">Trailer</h3>
                 {% if tvshow_trailer %}
                     <iframe style="width:100%; height:300px" src="https://www.youtube.com/embed/{{ tvshow_trailer.youtubeurl }}" frameborder="0" allowfullscreen></iframe>
-                {% else %}
-                    <p>Trailer není k dispozici.</p>
-                {% endif %}
-            
-                {% if user.is_authenticated %}
-                    <h4>Přidat trailer</h4>
-                    <form method="post">
-                        {% csrf_token %}
-                        {{ trailer_form.as_p }}
-                        <button type="submit" class="btn btn-primary mt-3">Přidat trailer</button>
-                    </form>
+                    {% else %}
+                        {% if user.is_authenticated %}
+                        <h4>Přidat trailer</h4>
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ trailer_form.as_p }}
+                            <button type="submit" class="btn btn-primary mt-3">Přidat trailer (Jen YoutubeID: dGzY9zp46KI)</button>
+                        </form>
+                    {% endif %}
                 {% endif %}
             </div>
 
@@ -350,7 +347,7 @@
                 <!-- přidat hlášku -->
                 {% if user.is_authenticated %}
                 <h4>Přidat novou hlášku</h4>
-                <form method="post" action="">
+                <form method="post">
                     {% csrf_token %}
                     <textarea name="quote_text" class="w-full p-2 mb-2" rows="3" required></textarea>
                     <button type="submit" class="add">Vložit hlášku</button>
