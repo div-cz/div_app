@@ -35,6 +35,7 @@ from div_content.models import (
     Userlist, Userlistbook, Userlisttype, FavoriteSum, Userbookgoal, Userlistitem
 )
 #from div_content.utils.books import fetch_book_from_google_by_id, fetch_books_from_google
+from div_content.utils.payments import generate_qr_code
 
 load_dotenv()
 from div_content.views.login import custom_login_view
@@ -514,6 +515,12 @@ def book_detail(request, book_url):
         series = book.universumid
         series_books = Book.objects.filter(universumid=book.universumid).exclude(bookid=book.bookid)[:10]
     
+    qr_code_data = None
+    if request.user.is_authenticated:
+        amount = 199  # Cena e-knihy
+        format = request.GET.get('format', 'pdf')
+        qr_code_data = generate_qr_code(book.bookid, format, amount, request.user)
+
 
     return render(request, 'books/book_detail.html', {
         'book': book,
@@ -537,6 +544,7 @@ def book_detail(request, book_url):
         'buy_listings': buy_listings,
         'series': series,
         'series_books': series_books,
+        'qr_code_data': qr_code_data
         #'books_with_series': books_with_series,
         })
 #    top_20_books = Book.objects.order_by('-bookrating').all()[:20]  # Define top_20_books here

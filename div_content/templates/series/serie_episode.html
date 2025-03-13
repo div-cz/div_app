@@ -36,8 +36,8 @@
 
         <!-- Info Bar -->
         <div class="rounded-3 p-2 mb-3 d-flex w-full bg-[#F9F9F9] dark:bg-[#1A161F] border-[#ccc] rounded-1xl">
-            <span class="me-3">{{ tvshow.premieredate|date:"Y"|default:"?" }}</span>&nbsp;|&nbsp;
-            <span class="me-3">
+            <span>{{ tvshow.premieredate|date:"Y"|default:"?" }}</span>&nbsp;|&nbsp;
+            <span>
             {% if countries %}
                 {% for country in countries %}
                     {{ country.countryid.countrynamecz }}{% if not forloop.last %}, {% endif %}
@@ -52,7 +52,7 @@
         </div>
 
         <div class="d-flex mb-3 mt-4 wrap">
-            <div class="me-3 mr-4 flex-shrink-0 sm-flex" style="width:40%; max-width:200px">
+            <div class="mr-4 flex" style="width:40%; max-width:200px">
                 {% if episode.episodeimg == "noimg.png" %}
                     <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ episode.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px; height: fit-content;">
                     {% else %}
@@ -179,7 +179,7 @@
                     <form method="post">
                         {% csrf_token %}
                         {{ comment_form.comment }}
-                        <button type="submit" class="add">Vložit recenzi</button>
+                        <button type="submit" class="add-movie">Vložit recenzi</button>
                     </form>
                     {% else %}
                     <p>Pro komentování je nutné být <a href="/prihlaseni/">přihlášený</a>.<br>
@@ -248,7 +248,7 @@
                     <textarea>
 
                     </textarea>
-                    <button type="submit" class="add">Vložit zajímavost</button>
+                    <button type="submit" class="add-movie">Vložit zajímavost</button>
                 </form>               
             </div>
 
@@ -261,7 +261,7 @@
                 <form method="post">
                     {% csrf_token %}
                     <textarea name="quote_text" class="w-full p-2 mb-2" rows="3" required></textarea>
-                    <button type="submit" class="add">Vložit hlášku</button>
+                    <button type="submit" class="add-movie">Vložit hlášku</button>
                 </form>
                 {% endif %}
 

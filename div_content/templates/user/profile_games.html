@@ -48,6 +48,12 @@
                 <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
             </h3>
         </div>
+        <div class="tab {% if active_tab == 'obchod' %}active{% endif %}">
+            <h3>
+                <i class="fa-solid fa-cart-shopping mr-2"></i> 
+                <a class="stats" href="{% url 'profile_eshop_section' profile_user.id %}">Obchod</a>
+            </h3>
+        </div>
         <!-- <div class="tab" onclick="updateGroupSelector(this)" >
             <h3>
                 <i class="fas fa-user mr-2"></i>
@@ -62,7 +68,7 @@
     
     <!-- Podkategorie záložek (hodnocení, oblíbené atd.) -->
     <div class="row mt-5">
-        <ul class="nav nav-tabs overflow-scroll nav-tabs rounded-t-lg border bg-[#c0c0c0] bg-[#FFFFFF]">
+        <ul class="nav nav-tabs overflow-scroll nav-tabs rounded-t-lg border bg-[#727271] bg-[#FFFFFF]">
             <li class="nav-tabs-item">
                 <a class="nav-tabs-link active" href="#" id="tab-hodnoceni" onclick="updateNavTabSelector(this)">Hodnocení</a>
             </li>
@@ -91,8 +97,7 @@
                 <h3 class="after-h3 padding">Hodnocení her</h3>
                 {% if game_ratings %}
                 <div class="table ">
-                    <div class="grid my-grid bg-[#c0c0c0]">
-                        <!-- <div>Miniatura</div> -->
+                    <div class="grid my-grid bg-[#c0c0c0] dark:text-black">
                         <div class="font-bold p-1">Název</div>
                         <div class="text-center font-bold p-1">Hodnocení</div>
                         <div class="text-center font-bold p-1">Datum</div>
@@ -100,11 +105,6 @@
                     <div class="">
                         {% for user_rating in game_page_obj.object_list %}
                         <div class="grid border my-grid sudy">
-                            <!-- <div>
-                                {% if movie.movie.img %}
-                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ movie.movie.img }}" alt="{{ movie.movie.title }}" width="50">
-                                {% endif %}
-                            </div> -->
                             <div class="p-1">
                                 <a class="games" href="/hra/{{ user_rating.rating.content_object.url }}">
                                     {% if user_rating.rating.content_object.titlecz %}
@@ -126,7 +126,7 @@
                                     {% endfor %}
                                 </span>
                                 {% endwith %}
-                            </div> <!-- HODNOCENÍ -->
+                            </div>
                             <div class="text-center p-1"> {{ user_rating.modified|date:"j. n Y" }} </div> <!-- datum -->
                         </div>
                         {% endfor %}
@@ -158,7 +158,7 @@
                     </span>
                 </div>
                 {% else %}
-                <p>Žádné ohodnocené hry.</p>    
+                <p  class="p-3">Žádné ohodnocené hry.</p>    
                 {% endif %}                      
             </div>
 
@@ -167,19 +167,13 @@
                 <h3 class="after-h3 padding">Oblíbené hry</h3>
                 {% if favorite_page_obj %}
                 <div class="table ">
-                    <div class="grid favorite-grid bg-[#c0c0c0]">
-                        <!-- <div>Miniatura</div> -->
+                    <div class="grid favorite-grid bg-[#c0c0c0] dark:text-black">
                         <div class="font-bold p-1">Název</div>
                         <div class="text-center font-bold p-1">Datum</div>
                     </div>
                     <div class="">
                         {% for game, item in favorite_page_obj %}
                         <div class="grid border favorite-grid sudy">
-                            <!-- <div>
-                                {% if movie.movie.img %}
-                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ movie.movie.img }}" alt="{{ movie.movie.title }}" width="50">
-                                {% endif %}
-                            </div> -->
                             <div class="p-1">
                                 <a class="games" href="/hra/{{ game.url }}">
                                     {% if game.titlecz %}{{ game.titlecz }}{% else %}{{ game.title }}{% endif %}
@@ -216,7 +210,7 @@
                     </span>
                 </div>
                 {% else %}
-                    <p>Žádné oblíbené hry.</p>
+                    <p  class="p-3">Žádné oblíbené hry.</p>
                 {% endif %}
             </div>
 
@@ -274,7 +268,7 @@
                     </span>
                 </div>
                 {% else %}
-                    <p>Žádné recenze.</p>
+                    <p  class="p-3">Žádné recenze.</p>
                 {% endif %}
 
             </div>
@@ -284,8 +278,7 @@
                 <h3 class="after-h3 padding">Hry, které si chci zahrát</h3>
                 {% if wantplay_page_obj %}
                 <div class="table ">
-                    <div class="grid favorite-grid bg-[#c0c0c0]">
-                        <!-- <div>Miniatura</div> -->
+                    <div class="grid favorite-grid bg-[#c0c0c0] dark:text-black">
                         <div class="font-bold p-1">Název</div>
                         <div class="text-center font-bold p-1">Datum</div>
                     </div>
@@ -293,11 +286,6 @@
                         
                         {% for game, item in wantplay_page_obj %}
                         <div class="grid border favorite-grid sudy">
-                            <!-- <div>
-                                {% if movie.movie.img %}
-                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ movie.movie.img }}" alt="{{ movie.movie.title }}" width="50">
-                                {% endif %}
-                            </div> -->
                             <div class="p-1">
                                 <a class="games" href="/hra/{{ game.url }}">
                                     {% if game.titlecz %}{{ game.titlecz }}{% else %}{{ game.title }}{% endif %}
@@ -335,7 +323,7 @@
                     </span>
                 </div>
                 {% else %}
-                    <p>Žádné hry v seznamu „Chci hrát“.</p>
+                    <p  class="p-3">Žádné hry v seznamu „Chci hrát“.</p>
                 {% endif %}
             </div>
 
@@ -344,19 +332,13 @@
                 <h3 class="after-h3 padding">Odehrané hry</h3>
                 {% if played_page_obj %}
                 <div class="table ">
-                    <div class="grid favorite-grid bg-[#c0c0c0]">
-                        <!-- <div>Miniatura</div> -->
+                    <div class="grid favorite-grid bg-[#c0c0c0] dark:text-black">
                         <div class="font-bold p-1">Název</div>
                         <div class="text-center font-bold p-1">Datum</div>
                     </div>
                     <div class="">
                         {% for game, item in played_page_obj %}
                         <div class="grid border favorite-grid sudy">
-                            <!-- <div>
-                                {% if movie.movie.img %}
-                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ movie.movie.img }}" alt="{{ movie.movie.title }}" width="50">
-                                {% endif %}
-                            </div> -->
                             <div class="p-1">
                                 <a class="games" href="/hra/{{ game.url }}">
                                     {% if game.titlecz %}{{ game.titlecz }}{% else %}{{ game.title }}{% endif %}
@@ -393,7 +375,7 @@
                     </span>
                 </div>
                 {% else %}
-                    <p>Žádné odehrané hry.</p>
+                    <p  class="p-3">Žádné odehrané hry.</p>
                 {% endif %}
             </div>
 
@@ -402,19 +384,13 @@
                 <h3 class="after-h3 padding">Gamotéka</h3>
                 {% if gamoteka_page_obj %}
                 <div class="table ">
-                    <div class="grid favorite-grid bg-[#c0c0c0]">
-                        <!-- <div>Miniatura</div> -->
+                    <div class="grid favorite-grid bg-[#c0c0c0] dark:text-black">
                         <div class="font-bold p-1">Název</div>
                         <div class="text-center font-bold p-1">Datum</div>
                     </div>
                     <div class="">
                         {% for game, item in gamoteka_page_obj %}
                         <div class="grid border favorite-grid sudy">
-                            <!-- <div>
-                                {% if movie.movie.img %}
-                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ movie.movie.img }}" alt="{{ movie.movie.title }}" width="50">
-                                {% endif %}
-                            </div> -->
                             <div class="p-1">
                                 <a class="games" href="/hra/{{ game.url }}">
                                     {% if game.titlecz %}{{ game.titlecz }}{% else %}{{ game.title }}{% endif %}
@@ -451,7 +427,7 @@
                     </span>
                 </div>
                 {% else %}
-                    <p>Žádné hry v Gamotéce.</p>
+                    <p  class="p-3">Žádné hry v Gamotéce.</p>
                 {% endif %}
             </div>
 

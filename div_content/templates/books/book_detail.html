@@ -97,6 +97,27 @@
         opacity: 0;
     }
 
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        z-index: 1000;
+        border-radius: 10px;
+        width: 50%;
+    }
 </style>
 
 {% endblock %}
@@ -119,13 +140,13 @@
             <!-- Kontrola, zda je k dispozici rok -->
             <div>
                 {% if book.year %}
-                <span class="me-3"><a href="https://div.cz/knihy/{{ book.year }}">{{ book.year }}</a></span>
+                <span><a href="https://div.cz/knihy/{{ book.year }}">{{ book.year }}</a></span>
                 &nbsp;|&nbsp;
                 {% endif %}
 
                 <!-- Kontrola, zda existuje seznam žánrů a není prázdný -->
                 {% if genres %}
-                <span class="me-3">
+                <span>
                     {% for book_genre in genres %}
                         <!--<a href="https://div.cz/knihy/{{ book_genre.genreid.url }}">-->{{ book_genre.genreid.genrenamecz }}<!--</a>-->{% if not forloop.last %}, {% endif %}
                     {% endfor %}
@@ -156,7 +177,7 @@
         </div>
 
         <div class="d-flex mb-3 mt-4 wrap">
-            <div class="me-3 mr-4 flex-shrink-0 sm-flex" style="width:40%; max-width:200px">
+            <div class="mr-4 flex" style="width:40%; max-width:200px">
 
             {% if book.img == "noimg.png" %}
                 <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
@@ -331,11 +352,76 @@
         </div>
 
         <!-- KOUPIT -->
-        <div class="flex items-center">
-            <h3>KOUPIT</h3>
-            <button type="submit" href="" class="add-book ml-3 mt-0"><img src="/static/img/book/e-book_icon.png" alt="e-kniha" title="e-kniha" class="mr-2" style="width: 20px; height: 20px;">E-kniha</button>
-            <button type="submit" href="" class="add-book ml-3 mt-0"><img src="/static/img/book/cd_icon.png" alt="audiokniha" title="audiokniha" class="mr-2" style="width: 20px; height: 20px;">Audio</button>
-            <button type="submit" href="#tab5" id="go-to-market" class="add-book ml-3 mt-0"><img src="/static/img/book/book_icon.png" alt="kniha" title="kniha" class="mr-2" style="width: 20px; height: 20px;">Bazar</button>
+        <div class="flex flex-wrap items-center" style="margin: 20px 0;">
+            <h3 class="mb-3 sm:w-full">KOUPIT</h3>
+            <div class="flex flex-wrap">
+                <button type="submit" href="" class="add-book ml-3 mt-0 mb-2" style="width: 122px; padding: 0.5em 0;" id="e-book-btn">
+                    <img src="/static/img/book/e-book_icon.png" alt="e-kniha" title="e-kniha" class="mr-2" style="width: 35px;">
+                    <div class="flex flex-col">
+                        <p>E-kniha</p>
+                        <p style="font-size: 80%;">cena kč</p>
+                    </div>
+                </button>
+            
+                <!-- Popup okno -->
+                {% if user.is_authenticated %}
+                <div class="overlay hidden"></div>
+                <div class="popup hidden">
+                    <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closePopup"><i class="fa-solid fa-xmark"></i></button>
+                    <div class="flex justify-between">
+                        <div class="dark:text-black">
+                            <form>
+                                <label>
+                                    <input type="radio" name="format" value="mobi"> Mobi
+                                </label><br>
+                                <label>
+                                    <input type="radio" name="format" value="pdf"> PDF
+                                </label><br>
+                                <label>
+                                    <input type="radio" name="format" value="epub"> EPUB
+                                </label><br>
+                            </form>                          
+                        </div>
+                        <div>
+                            <img src="https://www.lks-casopis.cz/wp-content/uploads/ss27-z-posty_dent_qr.png" style="width: 100px;"> <!-- QR kód -->
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            
+                <button type="submit" href="" class="add-book ml-3 mt-0 mb-2" style="width: 122px; padding: 0.5em 0;" id="audio-btn">
+                    <img src="/static/img/book/cd_icon.png" alt="audiokniha" title="audiokniha" class="mr-2" style="width: 35px;">
+                    <div class="flex flex-col">
+                        <p>Audio</p>
+                        <p style="font-size: 80%;">cena kč</p>
+                    </div>
+                </button>
+                
+                {% if user.is_authenticated %}
+                <!-- náhled poslechu -->
+                <div class="overlay hidden" id="audio-overlay"></div>
+                <div class="popup hidden" id="audio-popup">
+                    <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closeAudioPopup">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <div>
+                        <img src="https://www.lks-casopis.cz/wp-content/uploads/ss27-z-posty_dent_qr.png" style="width: 100px;"> <!-- QR kód -->
+                    </div>
+                    <audio controls>
+                        <source src="/audio/povest/o-libusi-a-zalozeni-prahy.mp3" type="audio/mpeg">
+                        Prohlížeč nezná značku audio. 
+                        <a href="/audio/povest/o-libusi-a-zalozeni-prahy.mp3">Nahrávku</a> si stáhněte.
+                    </audio>
+                </div>
+                {% endif %}
+                
+                <button type="submit" href="#tab5" id="go-to-market" class="add-book ml-3 mt-0 mb-2" style="width: 122px; padding: 0.5em 0;"><img src="/static/img/book/book_icon.png" alt="kniha" title="kniha" class="mr-2" style="width: 35px;">
+                    <div class="flex flex-col">
+                        <p>Bazar</p>
+                        <p style="font-size: 80%;">cena kč</p> <!-- cena od do? -->
+                    </div>
+                </button>
+            </div>
         </div>
 
         <!-- POPIS KNIHY -->
@@ -370,7 +456,7 @@
                     <form method="post" action="{% url 'book_detail' book_url=book.url %}">
                         {% csrf_token %}
                         {{ comment_form.comment|safe }}
-                        <button type="submit" class="add">Vložit recenzi</button>
+                        <button type="submit" class="add-book">Vložit recenzi</button>
                     </form>
                     {% else %}
                     <p>Pro komentování je nutné být <a href="/prihlaseni/">přihlášený</a>.<br>
@@ -419,7 +505,7 @@
                                 <option value="3">Hlavní v části knihy</option>
                             </select>
 
-                            <button type="submit" name="add_character" class="add">Přidat postavu</button>
+                            <button type="submit" name="add_character" class="add-book">Přidat postavu</button>
                         </form>
 
                         <script>
@@ -491,7 +577,7 @@
                 <form method="post" class="">
                     {% csrf_token %}
                     {{ quote_form.as_p }}
-                    <button type="submit" class="add">Přidat citát</button>
+                    <button type="submit" class="add-book">Přidat citát</button>
                 </form>
                 {% endif %}
 
@@ -531,7 +617,7 @@
                     <textarea>
 
                     </textarea>
-                    <button type="submit" class="add">Vložit zajímavost</button>
+                    <button type="submit" class="add-book">Vložit zajímavost</button>
                 </form>               
             </div>
 
@@ -745,6 +831,12 @@
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 style="text-align:center" class="after font-bold">Hodnocení</h3>
                 <div class="grid columns">
+                    <div class="rating" data-rating="{{ book.average_rating }}">
+                        <div class="rating-inner">
+                            {{ book.average_rating }}%
+                        </div>
+                    </div>
+
                     <div class="hodnoceni after">
                         {% ratings book %}
                         {% if user.is_authenticated %}
@@ -964,6 +1056,52 @@
                 el.addClass('open').css('max-height', '500px');  // Rozbalíme obsah
                 icon.addClass('arrow-up');  // Otočíme šipku nahoru
             }
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // E-kniha popup
+        const ebookBtn = document.getElementById("e-book-btn");
+        const ebookOverlay = document.querySelector(".overlay");
+        const ebookPopup = document.querySelector(".popup");
+        const closeEbookPopupBtn = document.getElementById("closePopup");
+
+        ebookBtn.addEventListener("click", function() {
+            ebookOverlay.classList.remove("hidden");
+            ebookPopup.classList.remove("hidden");
+        });
+
+        closeEbookPopupBtn.addEventListener("click", function() {
+            ebookOverlay.classList.add("hidden");
+            ebookPopup.classList.add("hidden");
+        });
+
+        ebookOverlay.addEventListener("click", function() {
+            ebookOverlay.classList.add("hidden");
+            ebookPopup.classList.add("hidden");
+        });
+
+        // Audiokniha popup
+        const audioBtn = document.getElementById("audio-btn");
+        const audioOverlay = document.getElementById("audio-overlay");
+        const audioPopup = document.getElementById("audio-popup");
+        const closeAudioPopupBtn = document.getElementById("closeAudioPopup");
+
+        audioBtn.addEventListener("click", function() {
+            audioOverlay.classList.remove("hidden");
+            audioPopup.classList.remove("hidden");
+        });
+
+        closeAudioPopupBtn.addEventListener("click", function() {
+            audioOverlay.classList.add("hidden");
+            audioPopup.classList.add("hidden");
+        });
+
+        audioOverlay.addEventListener("click", function() {
+            audioOverlay.classList.add("hidden");
+            audioPopup.classList.add("hidden");
         });
     });
 </script>

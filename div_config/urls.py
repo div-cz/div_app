@@ -57,7 +57,7 @@ from div_content.views.users import (
     contact_form, myuser_detail, rate_movie, add_to_list, ratings_profile, favorites_profile, iwantsee_profile, 
     watched_profile, favorite_movies, rated_media, rated_movies, rated_books, rated_games, favorite_media, 
     favorite_actors, favorite_books, favorite_drinks, favorite_foods, favorite_games, favorite_items, favorite_locations, 
-    profile_books_section, profile_games_section, profile_movies_section, profile_series_section, profile_stats_section, profile_show_case, user_lists, 
+    profile_books_section, profile_eshop_section, profile_games_section, profile_movies_section, profile_series_section, profile_stats_section, profile_show_case, user_lists, 
     update_profile, review_profile, chat, add_to_favorite_users, remove_from_favorite_users, chat_message, load_older_messages, 
     user_book_listings, user_sell_listings, user_buy_listings, search_user_in_chat
     )
@@ -315,9 +315,12 @@ urlpatterns = [
     path('uzivatel/', myuser_detail, name='myuser_detail'),
     path('uzivatel/<int:user_id>/', myuser_detail, name='myuser_detail'),
     path('uzivatel/<int:user_id>/filmy/', profile_movies_section, name='profile_movies_section'),
-    path('uzivatel/<int:user_id>/serialy/', profile_series_section, name='profile_series_section'),
     path('uzivatel/<int:user_id>/hry/', profile_games_section, name='profile_games_section'),
     path('uzivatel/<int:user_id>/knihy/', profile_books_section, name='profile_books_section'),
+    path('uzivatel/<int:user_id>/eshop/', profile_eshop_section, name='profile_eshop_section'),
+        
+    path('uzivatel/<int:user_id>/serialy/', profile_series_section, name='profile_series_section'),
+
     path('uzivatel/<int:user_id>/statistiky/', profile_stats_section, name='profile_stats_section'),
     path('uzivatel/pridat-do-oblibenych-<int:userprofile_id>', add_to_favorite_users, name='add_to_favorite_users'),
     path('uzivatel/odebrat-z-oblibenych-<int:userprofile_id>', remove_from_favorite_users, name='remove_from_favorite_users'),

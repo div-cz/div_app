@@ -318,6 +318,27 @@ def myuser_detail(request, user_id=None):
     )
 
 
+
+@login_required
+def profile_eshop_section(request, user_id):
+    profile_user = get_object_or_404(User, id=user_id)
+    user_profile = Userprofile.objects.get(user=profile_user)
+    user_div_coins = get_object_or_404(Userdivcoins, user_id=profile_user.id)
+
+    # Historie nákupů (příklad, může být upraven podle DB struktury)
+    #purchase_history = Userlistitem.objects.filter(
+    #    userlist__user=profile_user,
+    #    userlist__listtype__name__in=["Zakoupené filmy", "Zakoupené knihy", "Zakoupené hry"]
+    #).select_related("content_type").order_by("-addedat")
+
+    return render(request, "user/profile_markets.html", {
+        "profile_user": profile_user,
+        "user_profile": user_profile,
+        "user_div_coins": user_div_coins,
+        "active_tab": "obchod",
+    })
+
+
 ### profile
 def profile_movies_section(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)

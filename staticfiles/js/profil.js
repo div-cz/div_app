@@ -31,24 +31,23 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-
 function updateNavTabSelector(activeTab) {
-    const parent = document.querySelector('.nav-tabs');
-    const background = parent.querySelector('.background');
+    const parent = document.querySelector('.nav-tabs'); // Rodičovský prvek
+    const background = parent.querySelector('.background'); // Posuvné podbarvení
 
     // Najdeme pozici aktivní záložky
     const activeRect = activeTab.getBoundingClientRect();
     const parentRect = parent.getBoundingClientRect();
 
-    // Vypočítáme relativní pozici a šířku
-    const left = activeRect.left - parentRect.left;
+    // Správný výpočet posunu s ohledem na scrollování
+    const left = activeRect.left - parentRect.left + parent.scrollLeft;
     const width = activeRect.width;
 
-    // Nastavíme nové vlastnosti pozadí
+    // Aplikujeme nové hodnoty pro podbarvení
     background.style.transform = `translateX(${left}px)`;
     background.style.width = `${width}px`;
 
-    // Odstraníme aktivní třídu ze všech záložek a přidáme ji jen na kliknutou
+    // Aktualizujeme aktivní třídu
     parent.querySelectorAll('.nav-tabs-link').forEach(link => link.classList.remove('active'));
     activeTab.classList.add('active');
 }
@@ -60,3 +59,6 @@ window.addEventListener('DOMContentLoaded', () => {
         updateNavTabSelector(initialTab);
     }
 });
+
+
+

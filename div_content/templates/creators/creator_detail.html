@@ -235,27 +235,30 @@
                     <div class="text-center font-bold">Role</div>
                 </div>
                 <div class="">
-                    {% for movie, roles in filmography %}
+                    {% for tvshow, roles in tvshows %}
                     <div class="grid items-center border p-1 creator-grid sudy">
                         <div>
-                        {% if movie.img == "noimg.png" %}
-                            <img src="/static/img/nomovie_400.jpg" alt="{{ tvshow.titlecz }}" style="width: 100%; height: auto;">
+                            {% if tvshow.img == "noimg.png" %}
+                                <img src="/static/img/nomovie_400.jpg" alt="{{ tvshow.titlecz }}" style="width: 100%; height: auto;">
                             {% else %}
-                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.img }}" alt="{{ tvshow.titlecz }}" style="width: 100%; height: auto;">
-                        {% endif %}
+                                <img src="https://www.themoviedb.org/t/p/w400{{ tvshow.img }}" alt="{{ tvshow.titlecz }}" style="width: 100%; height: auto;">
+                            {% endif %}
                         </div>
                         <div class="flex items-center justify-between ml-2">
-                            <a href="/film/{{ movie.url }}">{{ tvshow.titlecz }}</a>
+                            <a href="/serial/{{ tvshow.url }}">{{ tvshow.titlecz }}</a>
                             {% if user.is_authenticated %}
-                                {% if movie.is_watched %}
+                                {% if tvshow.is_watched %}
                                 <i class="fas fa-eye" title="viděno"></i>
                                 {% endif %}
                             {% endif %}
                         </div>
-                        <div class="text-center p-1">{{ movie.releaseyear }}</div>
+                        <div class="text-center p-1">{{ tvshow.premieredate|date:"Y" }}</div>
                         <div class="text-center p-1">{{ roles|join:", " }}</div>
                     </div>
+                    {% empty %}
+                        <p>❌ Žádné seriály nenalezeny.</p>
                     {% endfor %}
+
                 </div>
             </div>
         </div>

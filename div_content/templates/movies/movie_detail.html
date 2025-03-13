@@ -46,6 +46,68 @@
 
 {% block content %}
 
+<style>
+    .rating {
+        position: relative;
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        margin: 0 auto;
+        padding: 0;
+        margin-bottom: 10px;
+    }
+
+    .rating::before {
+        content: '';
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        width: 75px;
+        height: 75px;
+        background: #444444;
+        border-radius: 50%;
+        z-index: 2;
+        margin: 4px;
+    }
+
+    .rating::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 85px;
+        height: 85px;
+        background: conic-gradient(
+            var(--gradient-color, #0a0) 0%,
+            var(--gradient-color, #0a0) var(--gradient-value, 50%),
+            #777777 var(--gradient-value, 50%)
+        );
+        border-radius: 50%;
+        z-index: 1;
+        margin: 4px;
+    }
+
+    .rating-inner {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #fff;
+        font-size: 30px;
+        font-weight: bold;
+    }
+
+    .rating-inner span {
+        font-size: 10px;
+        margin-left: 2px;
+        color: #ffd700;
+        margin-top: -10px;
+    }
+</style>
+
 <div class="row container my-5">
     <!-- Levá strana -->
     <div class="col-lg-8">
@@ -53,9 +115,9 @@
 
         <!-- Info Bar -->
         <div class="rounded-3 p-2 mb-3 d-flex w-full bg-[#F9F9F9] dark:bg-[#1A161F] border-[#ccc] rounded-1xl">
-            <span class="me-3"><a href="https://div.cz/filmy/{{ movie.releaseyear }}" title="Filmy roku {{ movie.releaseyear }} | {{ movie.movieid }}">{{ movie.releaseyear }}</a></span>
+            <span><a href="https://div.cz/filmy/{{ movie.releaseyear }}" title="Filmy roku {{ movie.releaseyear }} | {{ movie.movieid }}">{{ movie.releaseyear }}</a></span>
             &nbsp;|&nbsp;
-            <span class="me-3">
+            <span>
             {% if countries %}
                 {% for movie_country in countries %}
                     {{ movie_country.countryid.countrynamecz }}{% if not forloop.last %}, {% endif %}
@@ -71,7 +133,7 @@
         </div>
 
         <div class="d-flex mb-3 mt-4 wrap">
-            <div class="me-3 mr-4 flex-shrink-0 sm-flex" style="width:40%; max-width:200px">
+            <div class="mr-4 flex" style="width:40%; max-width:200px">
             {% if movie.imgposter == "noimg.png" %}
                 {% if movie.img == "noimg.png" %}
                 <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px;">
@@ -83,7 +145,7 @@
             {% endif %}
 
                 <div class="d-lg-none mb-2 sm:ml-5">
-                    <div class="rating-stars" style="white-space: nowrap;"><!--&nbsp;|&nbsp;-->
+                    <div class="rating-stars" style="white-space: nowrap;">
                         <div class="smaller-stars">{% ratings movie %}</div>
                         <div id="rating-thankyou" class="alert alert-success" style="display: none;">Děkujeme za hodnocení!</div>
                     </div>
@@ -262,7 +324,7 @@
                     <form method="post" class="w-full p-2 mb-2" action="">
                         {% csrf_token %}
                         {{ comment_form.comment }}
-                        <button type="submit" class="add">Vložit recenzi</button>
+                        <button type="submit" class="add-movie">Vložit recenzi</button>
                     </form>
                     {% else %}
                     <p>Pro komentování je nutné být <a href="/prihlaseni/">přihlášený</a>.<br>
@@ -334,7 +396,7 @@
                     <form method="post" action="">
                         {% csrf_token %}
                         <textarea name="trivia_text" class="w-full p-2 mb-2" rows="3" placeholder="Zadejte zajímavost"></textarea>
-                        <button type="submit" class="add">Vložit zajímavost</button>
+                        <button type="submit" class="add-movie">Vložit zajímavost</button>
                     </form>
                     {% endif %}
 
@@ -367,7 +429,7 @@
                         <form method="post">
                             {% csrf_token %}
                             {{ trailer_form.as_p }}
-                            <button type="submit" class="btn btn-primary mt-3">Přidat trailer (Jen YoutubeID: dGzY9zp46KI)</button>
+                            <button type="submit" class="add-movie mt-3">Přidat trailer (Jen YoutubeID: dGzY9zp46KI)</button>
                         </form>
                     {% endif %}
                 {% endif %}
@@ -382,7 +444,7 @@
                 <form method="post" action="">
                 {% csrf_token %}
                     <textarea name="quote_text" class="w-full p-2 mb-2" rows="3" required></textarea>
-                    <button type="submit" class="add">Vložit hlášku</button>
+                    <button type="submit" class="add-movie">Vložit hlášku</button>
                 </form>               
                 {% endif %}
 
@@ -421,7 +483,7 @@
                 <form method="post" action="">
                     {% csrf_token %}
                     <textarea name="error_text" class="w-full p-2 mb-2" rows="3" required></textarea>
-                    <button type="submit" class="add">Vložit chybu</button>
+                    <button type="submit" class="add-movie">Vložit chybu</button>
                 </form>
                 {% endif %}
             
@@ -454,6 +516,12 @@
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 style="text-align:center" class="after font-bold">Hodnocení</h3>
                 <div class="grid columns">
+                    <div class="rating" data-rating="{{ movie.average_rating }}">
+                        <div class="rating-inner">
+                            {{ movie.average_rating }}%
+                        </div>
+                    </div>
+
                     <div class="hodnoceni after">
                         {% ratings movie %}
                         {% if user.is_authenticated %}
@@ -465,7 +533,7 @@
                     <div id="rating-thankyou2" class="alert alert-success" style="display: none;">
                         Děkujeme za hodnocení!
                     </div>
-
+                    
                     {% if ratings %}
                     <ul class="list-unstyled rating-users">
                     {% for rating in ratings %}
