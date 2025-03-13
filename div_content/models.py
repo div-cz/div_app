@@ -268,7 +268,7 @@ class Book(models.Model):
     googleid = models.CharField(db_column='GoogleID', max_length=16, null=True)
     description = models.TextField(db_column='Description', blank=True, null=True)
     goodreads = models.CharField(db_column='GoodreadsID', max_length=12, blank=True, null=True)
-    databazeknih = models.CharField(db_column='DatabazeKnih', max_length=16, blank=True, null=True)
+    databazeknih = models.CharField(db_column='SourceID', max_length=16, blank=True, null=True)
     language = models.CharField(db_column='Language', max_length=2, null=True, blank=True)
     universumid = models.ForeignKey('Metauniversum', models.DO_NOTHING, db_column='UniversumID', null=True)
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True)
@@ -292,6 +292,7 @@ class Booklisting(models.Model):
         ('RESERVED', 'Rezervováno'),
         ('COMPLETED', 'Dokončeno'),
         ('CANCELLED', 'Zrušeno'),
+        ('DELETED', 'Smazáno'),
     )
     booklistingid = models.AutoField(db_column='BookListingID', primary_key=True)
     user = models.ForeignKey(User, db_column='user_id', on_delete=models.CASCADE)
@@ -308,7 +309,6 @@ class Booklisting(models.Model):
     createdat = models.DateTimeField(db_column='CreateDat', auto_now_add=True)
     completedat = models.DateTimeField(db_column='CompletedAt', null=True, blank=True)
     active = models.BooleanField(db_column='Active', default=True)
-
     status = models.CharField(db_column='Status', max_length=10, choices=LISTING_STATUS, default='ACTIVE')
     # Hodnocení transakce
     sellerrating = models.IntegerField(db_column='SellerRating', null=True, blank=True)
@@ -379,9 +379,6 @@ class Bookcover(models.Model):
 
 
 
-
-
-
 class Bookisbn(models.Model):
     bookisbnid = models.AutoField(db_column='BookISBNID', primary_key=True)
     book = models.ForeignKey(Book, on_delete=models.CASCADE, db_column='BookID')
@@ -423,14 +420,26 @@ class Bookpublisher(models.Model):
 
 
 class Bookpurchase(models.Model):
+    STATUS_CHOICES = (
+        ('PENDING', 'Čeká na platbu'),
+        ('PAID', 'Zaplaceno'),
+        ('CANCELLED', 'Zrušeno'),
+    )
+    
     purchaseid = models.AutoField(db_column='PurchaseID', primary_key=True)
-    purchasedate = models.DateField(db_column='PurchaseDate')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID')
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, db_column='BookID')
+    format = models.CharField(db_column='Format', max_length=10, choices=[('mobi', 'MOBI'), ('pdf', 'PDF'), ('epub', 'EPUB')])
     price = models.DecimalField(db_column='Price', max_digits=10, decimal_places=2)
-#    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
-    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
+    orderdate = models.DateTimeField(db_column='OrderDate', auto_now_add=True)
+    paymentdate = models.DateTimeField(db_column='PaymentDate', null=True, blank=True)
+    expirationdate = models.DateTimeField(db_column='ExpirationDate', null=True, blank=True)  # Např. 3 roky od nákupu
+    status = models.CharField(db_column='Status', max_length=10, choices=STATUS_CHOICES, default='PENDING')
+    cancelreason = models.TextField(db_column='CancelReason', max_length=512, blank=True, null=True)  # Důvod zrušení/reklamace
 
     class Meta:
         db_table = 'BookPurchase'
+
 
 
 class Bookquotes(models.Model):

@@ -3,7 +3,7 @@
 from django.db.models import Exists, OuterRef
 from django.contrib.contenttypes.models import ContentType
 from div_content.models import (
-    Creator, Creatorbiography, Favorite, Metaindex, Movie, Moviecrew, Userlisttype, Userlist, Userlistitem, FavoriteSum
+    Creator, Creatorbiography, Favorite, FavoriteSum, Metaindex, Movie, Moviecrew, Tvcrew, Tvshow, Userlisttype, Userlist, Userlistitem
 )
 from div_content.forms.creators import FavoriteForm, CreatorBiographyForm, CreatorDivRatingForm
 
@@ -110,6 +110,32 @@ def creator_detail(request, creator_url):
         filmography[movie].append(entry.roleid.rolenamecz)
 
 
+    # výpis seriálů 
+    tvshow_query = Tvcrew.objects.filter(
+    peopleid=creator
+    ).select_related('tvshowid', 'roleid').order_by('-tvshowid__premieredate')
+    
+    if request.user.is_authenticated:
+        tvshow_query = tvshow_query.annotate(
+            is_watched=Exists(
+                Userlistitem.objects.filter(
+                    userlist__user=request.user,
+                    userlist__listtype=userlisttype,
+                    object_id=OuterRef('tvshowid'),
+                    content_type=ContentType.objects.get_for_model(Tvshow)
+                )
+            )
+        )
+    
+    # Seskupení seriálů podle show + role
+    tvshows = defaultdict(list)
+    for entry in tvshow_query:
+        tvshow = entry.tvshowid
+        if not request.user.is_anonymous:
+            tvshow.is_watched = entry.is_watched
+        tvshows[tvshow].append(entry.roleid.rolenamecz)
+
+
     # Formulář pro úpravu DIV Ratingu u Creator
     creator_div_rating_form = None
     if request.user.is_superuser:
@@ -133,11 +159,14 @@ def creator_detail(request, creator_url):
     else:
         form = CreatorBiographyForm(initial={"creator": creator})
 
+
+
     return render(request, 'creators/creator_detail.html', 
                 {'creator': creator, 
                 'creatorbiography': creatorbiography, 
                 'top_10_creators': top_10_creators, 
                 'filmography': filmography.items(),
+                'tvshows': tvshows.items(),
                 'is_favorite': is_favorite,
                 'fans': fans,
                 'creator_div_rating_form': creator_div_rating_form,
