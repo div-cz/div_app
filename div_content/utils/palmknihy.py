@@ -9,7 +9,8 @@ from div_content.models import Book, Bookisbn
 from div_content.utils.functions import normalize_isbn, format_isbn
 
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(dotenv_path="/var/www/div_app/.env")
+
 
 API_BASE_URL = os.getenv("PALMKNIHY_API_URL")
 CLIENT_ID = os.getenv("PALMKNIHY_CLIENT_ID")
