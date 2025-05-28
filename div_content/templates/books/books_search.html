@@ -23,22 +23,29 @@
                             <a href="{{ book.url }}">
                             {% if book.img == "noimg.png" %}
                                 <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
-                                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz }}" class="w-full rounded" style="max-width: 100px; object-fit: cover;">
+                                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz|default:book.title }}" class="w-full rounded" style="max-width: 100px; object-fit: cover;">
                                 {% elif book.img == "GoogleID" %}
                                 <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
                                 <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="img-fluid w-full rounded" style="max-width: 100px; object-fit: cover;">
                                 {% else %}
                                 <!-- Jinak zobraz vlastní nahraný obrázek -->
-                                <img src="/static/kniha/{{ book.img }}" alt="{{ book.titlecz }}" class="w-full rounded" style="max-width: 100px; object-fit: cover;">
+                                <img src="/static/kniha/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="w-full rounded" style="max-width: 100px; object-fit: cover;">
                             {% endif %}
                             </a>
                         </div>
-                        <div class="flex flex-wrap ml-2">
-                            <a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz }}</a> 
-                            <a href="/autor/{{ book.authorid__url }}">{{ book.authorid__firstname }} {{ book.authorid__lastname }}</a>
+                        <div class="flex flex-wrap ml-2">                        
+                            <a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a> 
+
+                            {% if book.authorid__url %}
+                              <a href="/autor/{{ book.authorid__url }}">{{ book.authorid__firstname }} {{ book.authorid__lastname }}</a>
+                            {% else %}
+                              {{ book.author }}
+                            {% endif %}
+                            <!--<a href="/autor/{{ book.authorid__url }}">{{ book.authorid__firstname }} {{ book.authorid__lastname }}</a>-->
+
                         </div>
                         <div>
-                            <a href="https://div.cz/knihy/{{ book.year }}">{{ book.year }}</a>
+                            <a href="https://div.cz/knihy/{{ book.year }}">{{ book.year|default:"" }}</a>
                         </div>
                         <div class="text-center p-1 stars">
                             {% if movie.AverageRating %}

@@ -42,7 +42,6 @@
     .slick-dots {
         margin-bottom: 20px;
     }
-    
 </style>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css">
@@ -78,6 +77,59 @@
             </div>
             {% endfor %}
         </div>
+
+
+<!--  TEST PRODEJ EKNIH 
+
+<div class="mb-4">
+    <h3 class="font-bold mb-2">&#128218; E-knihy k prodeji</h3>
+    <div class="flex flex-wrap gap-4">
+        {% for ebook2 in ebooks2 %}
+        <div class="border rounded-xl p-2" style="width: 180px;">
+            <p class="font-bold text-sm truncate">{{ ebook2.title }}</p>
+            <p class="text-xs text-gray-600 truncate">{{ ebook2.publisher.name }}</p>
+            <p class="text-sm text-green-700 mt-1">Dostupnost: 
+{% if ebook2.stock_availability %}
+Ano
+{% else %}
+Ne
+{% endif %}
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+</div>-->
+
+<!-- // TEST PRODEJ EKNIH -->
+<!--  TEST: Debug vypis všech dat od Palmknihy 
+<div class="mt-6">
+    <h4 class="font-semibold mb-2">&#128218;  Detailní data o e-knihách (pro vývoj a ladění)</h4>
+    {% for ebook2 in ebooks2 %}
+        <div class="mb-4 border rounded-lg p-4 bg-gray-50 text-sm">
+            <table class="w-full text-left table-auto">
+                <tbody>
+                    {% for key, value in ebook2.items %}
+                        <tr class="border-t">
+                            <td class="font-medium py-1 pr-2">{{ key }}</td>
+                            <td class="py-1 text-gray-800">
+                                {% if value is dict %}
+                                    <pre>{{ value|safe|json_script:"value" }}</pre>
+                                {% elif value is list %}
+                                    <pre>{{ value|safe|json_script:"value" }}</pre>
+                                {% else %}
+                                    {{ value }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endfor %}
+</div>-->
+<!-- // TEST TEST -->
+
+
 
         <!-- generování knih -->
         <div class="row my-4">
@@ -139,17 +191,19 @@
         <!-- má komunita -->
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <h3 class="card-title font-bold after-h3">Má komunita</h3>
-                <div>   
+                <div class="flex flex-wrap justify-between card-title after-h3">
+                    <h3 class="font-bold"><!--Má komunita-->Poslední komentář</h3><!--<a href=""><small>Zobrazit vše</small></a>-->
+                </div>
+                <div class="after last-line">   <!-- může se zobrazovat 5 posledních, zbytek bude v profilu -->
                     <div class="flex">
                         <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}" style="width: 15%;">   
                         <div class="flex flex-wrap content-start ml-2" style="width: 83%;">
-                            <a class="w-full" href="/knihy/">Dekameron</a> <!-- název knihy -->
-                            <p class="w-full">Komentář, který jsem napsala ke knize je zde :)</p>
+                            <a class="w-full" href="/kniha/{{ last_comment.bookid.url }}">{{ last_comment.bookid.titlecz|default:last_comment.bookid.title }}</a> <!-- název knihy -->
+                            <p class="w-full">{{ last_comment.comment }}</p>
                         </div>
                         
                     </div>  
-                    <p class="flex justify-end">Uživatel: <a href="/uzivatel/" class="ml-2">VendaCiki</a></p>
+                    <p class="flex justify-end">Uživatel: <a href="/uzivatel/{{ last_comment.user.username }}" class="ml-2">{{ last_comment.user.username }}</a></p>
                 </div>
             </div>
         </div>

@@ -141,9 +141,13 @@
                     <div class="ml-3">
                         <h3 class="p-1">{{ forloop.counter }}. <a href="{% url 'book_detail' book.url %}">{{ book.title }}</a> ({{ book.year }})</h3>
                         <p class="p-1">Spisovatel: 
-                            <a href="{% url 'creator_detail' book.authorid.url %}">
-                                {{ book.authorid.firstname }} {{ book.authorid.lastname }}
-                            </a>
+
+                            {% if book.authorid and book.authorid.url %}
+                                <a href="{% url 'author_detail' author_url=book.authorid.url %}">{{ book.author }}</a>
+                            {% else %}
+                                {{ book.author }}
+                            {% endif %}
+
                         </p>
                         <p class="p-1">{{ book.countryid.countrynamecz }}</p>
                     </div>

@@ -30,7 +30,7 @@
                     <!-- Pole Bio -->
                         <div class="form-group">
                             <label class="font-bold" for="id_bio">O mně:</label>
-                            <textarea name="bio" id="id_bio" class="form-control">{{ form.bio.value }}</textarea>
+                            <textarea name="bio" id="id_bio" class="form-control">{{ form.bio.value|default_if_none:"" }}</textarea>
                             {% if form.bio.errors %}
                             <small class="text-danger">
                             {% for error in form.bio.errors %}
@@ -58,7 +58,7 @@
                             <!-- Pole Location -->
                             <div class="form-group w-full">
                                 <label class="font-bold" for="id_location">Bydliště (město):</label>
-                                <input type="text" name="location" maxlength="255" id="id_location" value="{{ form.location.value }}" class="form-control" placeholder="Nepovinné">
+                                <input type="text" name="location" maxlength="255" id="id_location" value="{{ form.location.value|default_if_none:"" }}" class="form-control" placeholder="Nepovinné">
                                 {% if form.location.errors %}
                                 <small class="text-danger">
                                     {% for error in form.location.errors %}

@@ -21,7 +21,7 @@ from django.db import models
 from django.db.models import Avg, Count
 from django.db.models import Avg
 
-from django.http import JsonResponse
+from django.http import FileResponse, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -31,18 +31,22 @@ from dotenv import load_dotenv
 from div_content.forms.books import BookAddForm, BookDivRatingForm, BookCharacterForm, BookListingForm, Bookquoteform, CommentFormBook, SearchFormBooks
 from div_content.models import (
     Book, Bookauthor, Bookcharacter, Bookcomments, Bookcover, Bookgenre, Bookisbn, Booklisting, 
-    Bookpublisher, Bookquotes, Bookrating, Bookwriters, Charactermeta, Metagenre, Metaindex, Metastats, Metauniversum, 
-    Userlist, Userlistbook, Userlisttype, FavoriteSum, Userbookgoal, Userlistitem
+    Bookpublisher, Bookpurchase, Bookquotes, Bookrating, Bookwriters, Charactermeta, Metagenre, Metaindex, Metastats, Metauniversum, Userlist, Userlistbook, Userlisttype, FavoriteSum, Userbookgoal, Userlistitem
 )
 #from div_content.utils.books import fetch_book_from_google_by_id, fetch_books_from_google
 from div_content.utils.payments import generate_qr_code
+from div_content.utils.palmknihy import get_catalog_product
 
 load_dotenv()
 from div_content.views.login import custom_login_view
+from div_content.views.palmknihy import get_palmknihy_ebooks
+
+from io import BytesIO
 
 from star_ratings.models import Rating, UserRating
 
-from io import BytesIO
+
+
 
 
 
@@ -56,6 +60,13 @@ USERLISTTYPE_BOOK_LIBRARY_ID = 10 # Knihovna
 book_content_type = ContentType.objects.get_for_model(Book)
 CONTENT_TYPE_BOOK_ID = book_content_type.id
 
+
+
+def normalize(text):
+    return (text or "").lower().strip().replace("á", "a").replace("č", "c").replace("ď", "d")\
+           .replace("é", "e").replace("ě", "e").replace("í", "i").replace("ň", "n")\
+           .replace("ó", "o").replace("ř", "r").replace("š", "s").replace("ť", "t")\
+           .replace("ú", "u").replace("ů", "u").replace("ý", "y").replace("ž", "z")
 
 
 def get_reading_goal(request):
@@ -167,12 +178,39 @@ def books_market_wants(request):
     })
 
 
+
+def get_book_price(book_id, format):
+    """ Vrátí cenu e-knihy podle jejího formátu """
+    book_isbn = Bookisbn.objects.filter(book_id=book_id, format=format).first()
+    return book_isbn.price if book_isbn and book_isbn.price else None
+
+
+def generate_qr(request, book_id, format):
+    # Ověření, zda existuje kniha a formát v databázi Bookisbn
+    book_isbn = Bookisbn.objects.filter(book=book_id, format=format).first()
+
+    if not book_isbn or not book_isbn.price:
+        return HttpResponse(status=404)  # QR kód nebude dostupný, pokud cena neexistuje
+
+    qr_string = f"SPD*1.0*ACC:CZ5620100000002602912559*AM:{book_isbn.price}*CC:CZK*MSG={book_isbn.book.title}-{format}"
+
+    img = qrcode.make(qr_string)
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+
+    return HttpResponse(buffer.getvalue(), content_type="image/png")
+
+
+
+
+
 def get_qr_code(amount, vs, message):
     qr_string = f"SPD*1.0*ACC:CZ5620100000002602912559*AM:{amount}*CC:CZK*MSG:{message}*X-VS:{vs}"
     img = qrcode.make(qr_string)
     buffer = BytesIO()
     img.save(buffer)
     return base64.b64encode(buffer.getvalue()).decode()
+    
 
 def listing_detail(request, book_url, listing_id):
     """Detail konkrétní nabídky s možností rezervace a hodnocení."""
@@ -264,6 +302,30 @@ def get_market_listings(limit=5):
     return sell_listings
 
 
+@login_required
+def cancel_purchase(request, purchase_id):
+    purchase = get_object_or_404(Bookpurchase, id=purchase_id, buyer=request.user)
+    if request.method == "POST":
+        reason = request.POST.get("cancel_reason", "Bez udání důvodu")
+        purchase.status = "canceled"
+        purchase.cancel_reason = reason
+        purchase.completedat = timezone.now()
+        purchase.save()
+        return redirect("index")
+    return render(request, "books/market_cancel_purchase.html", {"purchase": purchase})
+
+@login_required
+def confirm_sale(request, purchase_id):
+    purchase = get_object_or_404(Bookpurchase, id=purchase_id, seller=request.user)
+    if request.method == "POST":
+        purchase.status = "completed"
+        purchase.completedat = timezone.now()
+        purchase.save()
+        return redirect("index")
+    return render(request, "books/market_confirm_sale.html", {"purchase": purchase})
+
+
+
 def books(request):
     #api_key = os.getenv('GOOGLE_API_KEY')
     #api_test_message = "API klíč není nastaven" if not api_key else "API klíč je nastaven"
@@ -328,6 +390,10 @@ def books(request):
     
     recent_listings = get_market_listings()
     
+    ebooks2 = get_palmknihy_ebooks(limit=6)
+    
+    last_comment = Bookcomments.objects.select_related('user', 'bookid').order_by('-commentid').first()
+
 
     return render(request, 'books/books_list.html', {
         'top_books': top_books,
@@ -337,6 +403,8 @@ def books(request):
         'reading_goal': reading_goal,
         'category_key': 'knihy',
         'recent_listings': recent_listings,
+        'ebooks2': ebooks2,
+        'last_comment': last_comment,
         })
 #'top_20_books': top_20_books, 'all_books': all_books, 'api_test_message': api_test_message
 
@@ -515,11 +583,88 @@ def book_detail(request, book_url):
         series = book.universumid
         series_books = Book.objects.filter(universumid=book.universumid).exclude(bookid=book.bookid)[:10]
     
-    qr_code_data = None
+    # Načtení QR kódu pro eKnihu, pokud ji uživatel koupil a čeká na platbu
+    user_ebook_purchases = []
+    if user.is_authenticated:  # ✅ Zkontrolujeme, zda je uživatel přihlášený
+        user_ebook_purchases = Bookpurchase.objects.filter(user=user, book=book, status="PENDING").order_by('-purchaseid')
+    qr_codes = {}
+    for purchase in user_ebook_purchases:
+        qr_codes[purchase.id] = generate_qr_code(purchase.book.bookid, purchase.format, purchase.price, user)
+
+    prices = {
+        'mobi': get_book_price(book.bookid, 'MOBI'),
+        'epub': get_book_price(book.bookid, 'EPUB'),
+        'pdf': get_book_price(book.bookid, 'PDF'),
+    }
+
+
+    # TEST API EKNIHY
+    ebooks = get_catalog_product(limit=300)
+    matched = None
+    
+    for ebook in ebooks:
+        # Porovnáme název knihy
+        if not isinstance(ebook, dict):
+            continue
+    
+        # Porovnáme autora – API vrací list autorů (dicty), např. [{"name": "Václav"}]
+        authors_api = [normalize(a.get("name", "")) if isinstance(a, dict) else normalize(a) for a in ebook.get("authors", [])]
+        if normalize(book.author) not in authors_api:
+            continue
+    
+        # Shoda nalezena
+        matched = ebook
+        break
+
+    bookisbns = Bookisbn.objects.filter(book=book)
+    ALLOWED_EBOOK_FORMATS = ["EPUB", "MOBI", "PDF"]  # příp. rozšiř o 'AUDIO'
+    
+    bookisbns = Bookisbn.objects.filter(book=book, format__in=ALLOWED_EBOOK_FORMATS)
+    ebook_formats = {
+        b.format.lower(): {
+            "isbn": b.isbn,
+            "price": b.price,
+            "free": b.price == 0,
+            "available": b.price is not None,
+            "type": b.ISBNtype,
+        }
+        for b in bookisbns if b.isbn and b.format
+    }
+
+    ebook_info = next(iter(ebook_formats.values()), None)
+    has_ebook = any(data.get("available") for data in ebook_formats.values())
+    has_audio = False 
+
+
+
+     # Najdeme všechny Bookisbn pro danou knihu (typy EPUB/MOBI/PDF)
+    bookisbns = Bookisbn.objects.filter(book=book, format__in=["EPUB", "MOBI", "PDF"])
+    prices = {
+        "epub": None,
+        "mobi": None,
+        "pdf": None
+    }
+    for isbn in bookisbns:
+        if isbn.format == "EPUB":
+            prices["epub"] = isbn.price
+        elif isbn.format == "MOBI":
+            prices["mobi"] = isbn.price
+        elif isbn.format == "PDF":
+            prices["pdf"] = isbn.price
+
+    # Urči minimální dostupnou cenu (od)
+    cena_od = min([p for p in prices.values() if p is not None and p > 0], default=None)
+
     if request.user.is_authenticated:
-        amount = 199  # Cena e-knihy
-        format = request.GET.get('format', 'pdf')
-        qr_code_data = generate_qr_code(book.bookid, format, amount, request.user)
+        existing_paid_email = Bookpurchase.objects.filter(
+            book=book,
+            user=request.user,
+            status="PAID"
+        ).order_by('purchaseid').first()
+        existing_paid_email = existing_paid_email.kindlemail if existing_paid_email else ""
+    else:
+        existing_paid_email = ""
+
 
 
     return render(request, 'books/book_detail.html', {
@@ -544,7 +689,17 @@ def book_detail(request, book_url):
         'buy_listings': buy_listings,
         'series': series,
         'series_books': series_books,
-        'qr_code_data': qr_code_data
+        'user_ebook_purchases': user_ebook_purchases,
+        'qr_codes': qr_codes,
+        'prices': prices,
+        'palmknihy_data': matched,
+        'ebook_info': ebook_info,
+        "ebook_formats": ebook_formats,
+        'has_ebook': has_ebook,
+        'has_audio': has_audio,
+        'prices': prices,
+        'cena_od': cena_od,
+        'existing_paid_email': existing_paid_email,
         #'books_with_series': books_with_series,
         })
 #    top_20_books = Book.objects.order_by('-bookrating').all()[:20]  # Define top_20_books here
@@ -615,7 +770,7 @@ def books_search(request):
             # Použití select_related pro připojení autora k výsledkům
             books = (Book.objects.filter(title__icontains=query)
                 .select_related('authorid')  # Připojení modelu Bookauthor
-                .values('title', 'url', 'year', 'googleid', 'pages', 'author', 'authorid__url', 'authorid__firstname', 'authorid__lastname')[:50])
+                .values('title', 'titlecz', 'url', 'year', 'googleid', 'pages', 'img', 'author', 'authorid__url', 'authorid__firstname', 'authorid__lastname')[:50])
     else:
         form = SearchFormBooks()
 

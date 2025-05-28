@@ -13,7 +13,7 @@ from django.contrib import admin
 from django.urls import path, include
 #from div_content import views
 #from div_content.views import articles, books, creators, games, locations, movies, users
-from div_content.views.admins import admin_index, admin_comments, admin_edit_comment, admin_tasks, admin_task_detail, admin_task_edit #admin_task_new, 
+from div_content.views.admins import admin_assign_book, admin_index, admin_comments, admin_edit_comment, admin_odpriradit_eknihu, admin_palmknihy_preview, admin_store_ebook, admin_store_page, admin_tasks, admin_task_detail, admin_task_edit, ajax_search_books, recent_payments #admin_task_new, 
 from div_content.views.articles import article_detail, articles_index, articles_list, article_new
 from div_content.views.authors import (
     authors_list, author_detail, author_add, add_to_favourite_authors, remove_from_favourite_authors
@@ -21,10 +21,7 @@ from div_content.views.authors import (
 from div_content.views.blog import blog_add_post, blog_detail, blog_index, blog_list, blog_new, blog_post_detail, blog_section_detail
 
 from div_content.views.books import (
-    book_add, book_detail, books, books_search, books_market_offers, books_market_wants, add_to_favourite_books, add_to_readlist, add_to_read_books, 
-    add_to_book_library, rate_book, ratequote, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, 
-    remove_from_book_library, character_list_ajax, set_reading_goal, books_alphabetical, 
-    book_listings, listing_detail
+ add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, book_add, book_detail, books, books_search, books_market_offers, books_market_wants, cancel_purchase, confirm_sale, generate_qr, rate_book, ratequote, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, remove_from_book_library, character_list_ajax, set_reading_goal, books_alphabetical, book_listings, listing_detail
     )
 from div_content.views.creators import (
     creator_detail, creators_list, toggle_favorite, add_creator_to_favourites, remove_creator_from_favourites
@@ -52,12 +49,15 @@ from div_content.views.movies import (
     movies_alphabetical, redirect_view, movie_detail, search, MovieDetailView, add_to_favourites, add_to_watchlist, add_to_watched, 
     remove_from_favourites, remove_from_watchlist, remove_from_watched, add_to_movie_library, remove_from_movie_library
     )
+
+from div_content.views.payments import (bank_transactions, download_ebook, send_to_reader, send_to_reader_modal)
+
 from div_content.views.universum import universum_detail, universum_list
 from div_content.views.users import (
     contact_form, myuser_detail, rate_movie, add_to_list, ratings_profile, favorites_profile, iwantsee_profile, 
     watched_profile, favorite_movies, rated_media, rated_movies, rated_books, rated_games, favorite_media, 
     favorite_actors, favorite_books, favorite_drinks, favorite_foods, favorite_games, favorite_items, favorite_locations, 
-    profile_books_section, profile_eshop_section, profile_games_section, profile_movies_section, profile_series_section, profile_stats_section, profile_show_case, user_lists, 
+    profile_books_section, profile_community_section, profile_eshop_section, profile_games_section, profile_movies_section, profile_series_section, profile_stats_section, profile_show_case, user_lists, 
     update_profile, review_profile, chat, add_to_favorite_users, remove_from_favorite_users, chat_message, load_older_messages, 
     user_book_listings, user_sell_listings, user_buy_listings, search_user_in_chat
     )
@@ -99,6 +99,14 @@ urlpatterns = [
     path('spravce/ukol/<int:task_id>/', admin_task_detail, name='admin_task_detail'),
     path('spravce/ukol/<int:task_id>/edit/', admin_task_edit, name='admin_task_edit'),
     path('spravce/ukol/novy/', admin_task_edit, name='admin_task_create'),
+    path('spravce/platby/', recent_payments, name='recent_payments'),
+    path('spravce/banka/', bank_transactions, name='bank_transactions'),
+    path("spravce/eknihy-prehled/", admin_palmknihy_preview, name="admin_palmknihy_preview"),
+    path("spravce/eknihy-ulozit-stranku/", admin_store_page, name="admin_store_page"),
+    path("spravce/eknihy-ulozit/", admin_store_ebook, name="admin_store_ebook"),
+    path("spravce/eknihy-prirazeni/", admin_assign_book, name="admin_assign_book"),
+    path("spravce/book-search", ajax_search_books, name="ajax_search_books"),
+    path("spravce/eknihy-odpriradit/", admin_odpriradit_eknihu, name="admin_odpriradit_eknihu"),
 
 
     path('eshop/', eshop_list, name='eshop_list'),
@@ -249,6 +257,8 @@ urlpatterns = [
     
     path('kniha/ajax/postava/', character_list_ajax, name='ajax_character_list'),
     path('set-reading-goal/', set_reading_goal, name='set_reading_goal'),
+    
+
 
     # ANTIKVARIÁT
     path('kniha/<str:book_url>/nabidky/', book_listings, name='book_listings'),
@@ -259,6 +269,17 @@ urlpatterns = [
     path('uzivatel/<int:user_id>/nabidky/', user_book_listings, name='user_book_listings'),  # Přidáno
     path('knihy/burza-knih/nabidky/', books_market_offers, name='books_market_offers'),
     path('knihy/burza-knih/poptavky/', books_market_wants, name='books_market_wants'),
+
+    path('antikvariat/zruseni/<int:purchase_id>/', cancel_purchase, name='cancel_purchase'),
+    path('antikvariat/potvrzeni/<int:purchase_id>/', confirm_sale, name='confirm_sale'),
+    
+    # E-KNIHY
+    path('generate-qr/<int:book_id>/<str:format>/', generate_qr, name='generate_qr'),
+    #path('poslat-do-ctecky/<str:isbn>/', send_to_reader, name='send_to_reader'),
+    #path('stahnout-eknihu/<str:isbn>/', download_ebook, name='download_ebook'),
+    path('stahnout-eknihu/<str:isbn>/<str:format>/', download_ebook, name='download_ebook'),
+    path('poslat-do-ctecky/<str:isbn>/<str:format>/', send_to_reader, name='send_to_reader'),
+    path('poslat-do-ctecky2/<str:isbn>/<str:format>/', send_to_reader_modal, name='send_to_reader_modal'),
 
     # path('spisovatele/', authors_list, name='authors_list'),
     # path('spisovatel/<str:author_url>', author_detail, name='author_detail'), 
@@ -320,6 +341,7 @@ urlpatterns = [
     path('uzivatel/<int:user_id>/eshop/', profile_eshop_section, name='profile_eshop_section'),
         
     path('uzivatel/<int:user_id>/serialy/', profile_series_section, name='profile_series_section'),
+    path('uzivatel/<int:user_id>/komunita/', profile_community_section, name='profile_community_section'),
 
     path('uzivatel/<int:user_id>/statistiky/', profile_stats_section, name='profile_stats_section'),
     path('uzivatel/pridat-do-oblibenych-<int:userprofile_id>', add_to_favorite_users, name='add_to_favorite_users'),
@@ -388,6 +410,8 @@ urlpatterns = [
     path('accounts/reset/done/', 
          auth_views.PasswordResetCompleteView.as_view(template_name='account/password_reset_complete.html'), 
          name='password_reset_complete'),
+
+
 
 
 

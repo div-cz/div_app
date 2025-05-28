@@ -18,6 +18,66 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
 <style>
+    .rating {
+        position: relative;
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        margin: 0 auto;
+        padding: 0;
+        margin-bottom: 10px;
+    }
+
+    .rating::before {
+        content: '';
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        width: 75px;
+        height: 75px;
+        background: #444444;
+        border-radius: 50%;
+        z-index: 2;
+        margin: 4px;
+    }
+
+    .rating::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 85px;
+        height: 85px;
+        background: conic-gradient(
+            var(--gradient-color, #0a0) 0%,
+            var(--gradient-color, #0a0) var(--gradient-value, 50%),
+            #777777 var(--gradient-value, 50%)
+        );
+        border-radius: 50%;
+        z-index: 1;
+        margin: 4px;
+    }
+
+    .rating-inner {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #fff;
+        font-size: 30px;
+        font-weight: bold;
+    }
+
+    .rating-inner span {
+        font-size: 10px;
+        margin-left: 2px;
+        color: #ffd700;
+        margin-top: -10px;
+    }
+
     .arrow {
         display: flex;
         align-items: center;
@@ -135,6 +195,17 @@
         {% endif %}
         </h2>
 
+{% if messages %}
+    <div class="mt-3">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
+            {{ message|safe }}
+        </div>
+    {% endfor %}
+    </div>
+{% endif %}
+
+
         <!-- Info Bar -->
         <div class="rounded-3 p-2 mb-3 d-flex w-full bg-[#F9F9F9] dark:bg-[#1A161F] border-[#ccc] rounded-1xl justify-between">
             <!-- Kontrola, zda je k dispozici rok -->
@@ -225,7 +296,11 @@
                     {% endif %}
             
                     <!-- SÉRIE -->
-                    <li><strong>Série:</strong> název série</li>
+        {% if series %}
+                    <li><strong>Série:</strong>  <a href="/svet/{{ series.universumurl }}">{{ series.universumnamecz|default:series.universumnamecz }}</a></li>
+        {% else %}
+                    <li><strong>Série:</strong> -</li>
+        {% endif %}
 
                     <!-- JAZYK -->
                     {% if book.language %}
@@ -243,6 +318,38 @@
                     <li><strong>Nakladatelství:</strong>
                         <!--Nejsou zatím data <a href="">Nějaké nakladatelství</a>-->
                     </li>
+
+
+<!-- E-Book zdarma -->
+{% for fmt, data in ebook_formats.items %}
+    {% if data.free %}
+        {% if user.is_authenticated %}
+            <li>
+                <a href="{% url 'download_ebook' data.isbn fmt %}" class="small" style="font-size:80%">
+                    Stáhnout {{ fmt|upper }}
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'send_to_reader' data.isbn fmt %}" class="small" style="font-size:80%">
+                    Poslat do čtečky ({{ fmt|upper }})
+                </a>
+            </li>
+        {% else %}
+            <li>
+                <a href="#" class="small" style="font-size:80%">
+                    Stáhnout {{ fmt|upper }} <span style="color: #888;">(jen pro přihlášené)</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="small" style="font-size:80%">
+                    Poslat do čtečky ({{ fmt|upper }}) <span style="color: #888;">(jen pro přihlášené)</span>
+                </a>
+            </li>
+        {% endif %}
+    {% endif %}
+{% endfor %}
+
+
 
                     <!-- POSTAVY -->
                     {% if characters_with_roles %}
@@ -351,67 +458,253 @@
             </div>
         </div>
 
+
+
+
+
+
+
+
+
         <!-- KOUPIT -->
         <div class="flex flex-wrap items-center" style="margin: 20px 0;">
             <h3 class="mb-3 sm:w-full">KOUPIT</h3>
             <div class="flex flex-wrap">
-                <button type="submit" href="" class="add-book ml-3 mt-0 mb-2" style="width: 122px; padding: 0.5em 0;" id="e-book-btn">
-                    <img src="/static/img/book/e-book_icon.png" alt="e-kniha" title="e-kniha" class="mr-2" style="width: 35px;">
-                    <div class="flex flex-col">
-                        <p>E-kniha</p>
-                        <p style="font-size: 80%;">cena kč</p>
-                    </div>
-                </button>
-            
-                <!-- Popup okno -->
-                {% if user.is_authenticated %}
-                <div class="overlay hidden"></div>
-                <div class="popup hidden">
-                    <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closePopup"><i class="fa-solid fa-xmark"></i></button>
-                    <div class="flex justify-between">
-                        <div class="dark:text-black">
-                            <form>
-                                <label>
-                                    <input type="radio" name="format" value="mobi"> Mobi
-                                </label><br>
-                                <label>
-                                    <input type="radio" name="format" value="pdf"> PDF
-                                </label><br>
-                                <label>
-                                    <input type="radio" name="format" value="epub"> EPUB
-                                </label><br>
-                            </form>                          
-                        </div>
-                        <div>
-                            <img src="https://www.lks-casopis.cz/wp-content/uploads/ss27-z-posty_dent_qr.png" style="width: 100px;"> <!-- QR kód -->
-                        </div>
-                    </div>
-                </div>
+
+
+
+<!-- Tlačítko E-kniha -->
+<button type="button"
+    class="add-book ml-3 mt-0 mb-2"
+    id="e-book-btn"
+    {% if not has_ebook %}
+        disabled
+        style="
+            width:140px;
+            padding:0.5em 0;
+            background:#e5e5e5;
+            color:#444;
+            border:1px solid #bbb;
+            cursor:not-allowed;
+            box-shadow:none;
+            opacity:1;
+        "
+    {% else %}
+        style="width:140px; padding:0.5em 0;"
+    {% endif %}
+>
+    <img src="/static/img/book/e-book_icon.png" alt="e-kniha" class="mr-2" style="width:35px;">
+    <div class="flex flex-col">
+        <p style="margin-bottom:0;">E-kniha</p>
+        <p style="font-size:80%;margin:0;">
+            {% if cena_od %}
+                od {{ cena_od|floatformat:0 }} Kč
+            {% else %}
+                nedostupné
+            {% endif %}
+        </p>
+    </div>
+</button>
+
+
+
+
+
+
+{% if ebook_formats %}
+<!-- Overlay -->
+<div class="overlay hidden" id="ebook-overlay"></div>
+<!-- Modal -->
+<div class="popup hidden" id="ebook-popup">
+    <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closePopup">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+    <div>
+        <h3>Vyberte formát e-knihy</h3>
+        <form id="ebook-form" method="post" action="">
+            {% csrf_token %}
+            <div>
+                {% for fmt, data in ebook_formats.items %}
+                    <label style="margin-right:10px;opacity:{% if not data.available %}0.5{% else %}1{% endif %}">
+                        <input type="radio" name="format"
+                               value="{{ fmt }}"
+                               data-isbn="{{ data.isbn }}"
+                               {% if forloop.first and data.available %}checked{% endif %}
+                               {% if not data.available %}disabled{% endif %}>
+                        {{ fmt|upper }} 
+                        {% if data.price is not None and data.price > 0 %}
+                            ({{ data.price|floatformat:0 }} Kč)
+                        {% elif data.free %}
+                            Zdarma
+                        {% else %}
+                            nedostupné
+                        {% endif %}
+                    </label>
+                {% endfor %}
+            </div>
+
+            <div style="margin-top: 15px;">
+                <label for="kindlemail">E-mail čtečky (Kindle apod.):</label>
+                       <input type="email" name="kindlemail" id="kindlemail"
+                           value="{% if existing_paid_email %}{{ existing_paid_email }}{% elif user.is_authenticated %}{{ user.email }}{% else %}{% endif %}"
+                           placeholder="{% if existing_paid_email %}{{ existing_paid_email }}{% elif user.is_authenticated %}{{ user.email }}{% else %}např. uzivatel@kindle.com{% endif %}"
+                           style="width:220px"
+                       {% if existing_paid_email %}readonly="readonly"{% endif %}>
+
+                {% if existing_paid_email %}
+                    <br><span class="text-muted">Tato e-kniha již byla zakoupena a poslána na tento e-mail.</span>
                 {% endif %}
+
+            </div>
+
+            <div style="margin-top:15px;">
+                <button type="submit" class="btn btn-primary">Poslat do čtečky</button>
+                <a id="download-link" href="#" class="btn btn-secondary">Stáhnout</a>
+            </div>
+            <!-- QR Code pro placené knihy -->
+            <div id="qr-wrap" style="display:none;margin-top:20px;">
+                <img id="qr-image" src="" alt="QR platba" style="width:160px;">
+                <p><b>Zaplaťte přes QR kód, po spárování platby bude e-kniha ke stažení a odeslána do čtečky.</b></p>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Otevření popupu
+    const ebookBtn = document.getElementById("e-book-btn");
+    const ebookOverlay = document.getElementById("ebook-overlay");
+    const ebookPopup = document.getElementById("ebook-popup");
+    const closeEbookPopupBtn = document.getElementById("closePopup");
+    if (ebookBtn) {
+        ebookBtn.addEventListener("click", function() {
+            ebookOverlay.classList.remove("hidden");
+            ebookPopup.classList.remove("hidden");
+            updateFormAction();
+        });
+    }
+    closeEbookPopupBtn.addEventListener("click", closeModal);
+    ebookOverlay.addEventListener("click", closeModal);
+    function closeModal() {
+        ebookOverlay.classList.add("hidden");
+        ebookPopup.classList.add("hidden");
+        document.getElementById('qr-wrap').style.display = 'none';
+    }
+
+    // Dynamicky nastav akci formuláře podle zvoleného formátu
+    function updateFormAction() {
+        const checked = document.querySelector("input[name='format']:checked");
+        if (checked) {
+            const isbn = checked.getAttribute("data-isbn");
+            const fmt = checked.value;
+            document.getElementById("ebook-form").action = "/poslat-do-ctecky2/" + isbn + "/" + fmt + "/";
+        }
+    }
+    document.querySelectorAll("input[name='format']").forEach(function(radio) {
+        radio.addEventListener("change", function() {
+            updateFormAction();
+        });
+    });
+    updateFormAction();
+
+    // Download tlačítko nebo QR dle ceny
+    const downloadBtn = document.getElementById("download-link");
+    const ebookForm = document.getElementById("ebook-form");
+    const qrWrap = document.getElementById("qr-wrap");
+    const qrImg = document.getElementById("qr-image");
+    if (downloadBtn) {
+        downloadBtn.addEventListener("click", function(event) {
+            event.preventDefault();
+            const checked = document.querySelector("input[name='format']:checked");
+            const isbn = checked.getAttribute("data-isbn");
+            const fmt = checked.value;
+            var prices = {
+                {% for fmt, data in ebook_formats.items %}
+                    "{{ fmt }}": {{ data.price|default:"0" }},
+                {% endfor %}
+            };
+            if (prices[fmt] > 0) {
+                qrWrap.style.display = "block";
+                qrImg.src = `/generate-qr/{{ book.bookid }}/${fmt}/`;
+            } else {
+                window.location.href = "/stahnout-eknihu/" + isbn + "/" + fmt + "/";
+            }
+        });
+    }
+});
+</script>
+{% endif %}
+
+
             
-                <button type="submit" href="" class="add-book ml-3 mt-0 mb-2" style="width: 122px; padding: 0.5em 0;" id="audio-btn">
-                    <img src="/static/img/book/cd_icon.png" alt="audiokniha" title="audiokniha" class="mr-2" style="width: 35px;">
-                    <div class="flex flex-col">
-                        <p>Audio</p>
-                        <p style="font-size: 80%;">cena kč</p>
-                    </div>
-                </button>
+<!-- AUDIO - PRIPRAVENO -->
+<!-- Tlačítko AUDIO -->
+<button type="button"
+    class="add-book ml-3 mt-0 mb-2"
+    id="audio-btn"
+    {% if not has_audio %}
+        disabled
+        style="
+            width:140px;
+            padding:0.5em 0;
+            background:#e5e5e5;
+            color:#444;
+            border:1px solid #bbb;
+            cursor:not-allowed;
+            box-shadow:none;
+            opacity:1;
+        "
+    {% else %}
+        style="width:140px; padding:0.5em 0;"
+    {% endif %}
+>
+    <img src="/static/img/book/cd_icon.png" alt="audiokniha" class="mr-2" style="width:35px;">
+    <div class="flex flex-col">
+        <p style="margin-bottom:0;">Audio</p>
+        <p style="font-size:80%;margin:0;">
+            {% if has_audio %}
+                od {{ audio_price|default:"???" }} Kč
+            {% else %}
+                nedostupné
+            {% endif %}
+        </p>
+    </div>
+</button>
+
+
                 
                 {% if user.is_authenticated %}
                 <!-- náhled poslechu -->
                 <div class="overlay hidden" id="audio-overlay"></div>
                 <div class="popup hidden" id="audio-popup">
+                <p>Audio verze se připravuje nebo není dostupná.</p>
                     <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closeAudioPopup">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                     <div>
-                        <img src="https://www.lks-casopis.cz/wp-content/uploads/ss27-z-posty_dent_qr.png" style="width: 100px;"> <!-- QR kód -->
+                        <img src="" style="width: 100px;"> <!-- QR kód -->
                     </div>
-                    <audio controls>
-                        <source src="/audio/povest/o-libusi-a-zalozeni-prahy.mp3" type="audio/mpeg">
+                    <!--<audio controls>
+                        <source src="audiokniha.mp3" type="audio/mpeg">
                         Prohlížeč nezná značku audio. 
-                        <a href="/audio/povest/o-libusi-a-zalozeni-prahy.mp3">Nahrávku</a> si stáhněte.
-                    </audio>
+                        <a href="audiokniha.mp3">Nahrávku</a> si stáhněte.
+                    </audio>-->
+                </div>
+                {% else %}
+                <div class="overlay hidden" id="audio-overlay"></div>
+                <div class="popup hidden" id="audio-popup">
+                <p>Audio kniha pouze pro <a href="/prihlaseni/">přihlášené</a> a <a href="https://div.cz/registrace/">registrované</a>.</p>
+                    <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closeAudioPopup">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <div>
+                        <img src="" style="width: 100px;"> <!-- QR kód -->
+                    </div>
+                    <!--<audio controls>
+                        <source src="audiokniha.mp3" type="audio/mpeg">
+                        Prohlížeč nezná značku audio. 
+                        <a href="audiokniha.mp3">Nahrávku</a> si stáhněte.
+                    </audio>-->
                 </div>
                 {% endif %}
                 
@@ -423,6 +716,17 @@
                 </button>
             </div>
         </div>
+
+
+<!-- IF PALMINKY DATA -->
+<!--{% if palmknihy_data %}
+<div class="mt-6 bg-gray-100 p-4 rounded text-sm">
+    <h4 class="font-bold">Testovací výpis z Palmknihy API</h4>
+    <pre>{{ palmknihy_data|safe }}</pre>
+</div>
+{% endif %}-->
+<!-- // IF PALMINKY DATA -->
+
 
         <!-- POPIS KNIHY -->
         <div class="w-full">
@@ -628,18 +932,25 @@
 
                     <!-- PRODAM / KOUPIM -->
                     <details class="my-4">
-                        <summary style="font-size: 1.17rem;">PRODÁM / KOUPÍM</summary>
+                        <summary style="font-size: 1.17rem;">Vytvořit nabídku (PRODÁM / KOUPÍM)</summary>
                         <div class="card mt-3">
                             <div class="card-body dark:bg-[#0d0c0f] rounded-1xl">
-                                <form method="post" name="booklisting_form">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="form_type" value="booklisting">
-                                    {{ booklisting_form.as_p }}
-                                    <button type="submit" class="btn add btn-primary">Vytvořit nabídku</button>
-                                </form>
+                                {% if user.is_authenticated %}
+                                    <form method="post" name="booklisting_form">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="form_type" value="booklisting">
+                                        {{ booklisting_form.as_p }}
+                                        <button type="submit" class="btn add btn-primary">Vytvořit nabídku</button>
+                                    </form>
+                                {% else %}
+                                    <div class="alert alert-warning">
+                                        Pro vytvoření nabídky se musíte <a href="/prihlaseni/">přihlásit</a>.
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </details>
+
 
                     <div class="w-full flex flex-wrap justify-between sm:p-0">  
                         <!-- VÝPIS NABÍDEK -->                
@@ -826,7 +1137,7 @@
     <!-- Pravá strana -->
     <div class="col-lg-4">
 
-        <!-- Rating -->
+        <!-- Hodnocení -->
         <div class="card box-shadow mb-4 mt-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 style="text-align:center" class="after font-bold">Hodnocení</h3>
@@ -1011,28 +1322,34 @@
     });
 </script>
 
+<!-- více, méně -->
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const bioElement = document.getElementById("biography-text");
-        const toggleButton = document.getElementById("toggle-biography");
+document.addEventListener("DOMContentLoaded", function () {
+    const bioElement = document.getElementById("biography-text");
+    const toggleButton = document.getElementById("toggle-biography");
 
-        const fullText = bioElement.innerText; // Store the full biography text
-        const truncatedText = fullText.substring(0, 500); // First 500 characters
+    const fullText = bioElement.innerText; // Store the full biography text
+    const truncatedText = fullText.substring(0, 500); // First 500 characters
 
-        // Initialize with truncated text
+    // Check if text needs truncation
+    if (fullText.length > 500) {
         bioElement.innerText = truncatedText + "...";
+    } else {
+        toggleButton.style.display = "none"; // Hide button if no truncation needed
+    }
 
-        // Toggle functionality
-        toggleButton.addEventListener("click", function () {
-            if (bioElement.innerText === truncatedText + "...") {
-                bioElement.innerText = fullText; // Show full text
-                toggleButton.innerText = "...Méně"; // Update button text
-            } else {
-                bioElement.innerText = truncatedText + "..."; // Show truncated text
-                toggleButton.innerText = "Více..."; // Update button text
-            }
-        });
+    // Toggle functionality
+    toggleButton.addEventListener("click", function () {
+        if (bioElement.innerText === truncatedText + "...") {
+            bioElement.innerText = fullText; // Show full text
+            toggleButton.innerText = "...Méně"; // Update button text
+        } else {
+            bioElement.innerText = truncatedText + "..."; // Show truncated text
+            toggleButton.innerText = "Více..."; // Update button text
+        }
     });
+});
+
 </script>
 
 <script>
@@ -1059,6 +1376,18 @@
         });
     });
 </script>
+
+<script>
+function openEbookPopup() {
+    document.getElementById('ebook-popup').classList.remove('hidden');
+    document.getElementById('overlay').classList.remove('hidden');
+}
+function closeEbookPopup() {
+    document.getElementById('ebook-popup').classList.add('hidden');
+    document.getElementById('overlay').classList.add('hidden');
+}
+</script>
+
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {

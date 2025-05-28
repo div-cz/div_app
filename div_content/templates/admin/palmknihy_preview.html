@@ -1,0 +1,256 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<h1>E-knihy z Palmknih</h1>
+
+<p><hr>Menu: <a href="/spravce/">Správce</a> - <a href="/spravce/sprava-komentaru">Správa komentářů</a> - <a href="/spravce/platby/">Platby</a> - <strong>Eknihy přehled</strong><hr></p>
+
+
+<p style="float:right;margin:0 20px 10px"><span style="color:green">&check;</span> - Vše OK | <span style="color:orange">&#9888;</span> - chybí PalmKnihyID | <span style="color:red">&cross;</span> - Není v DB</p>
+
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Titul</th>
+      <th>Autor</th>
+      <th>Formát</th>
+      <th>Cena</th>
+      <th>ISBN</th>
+      <th>Detail<br>Uložit</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for book in ebooks %}
+    <tr style="border-bottom:1px solid #ccc;" data-title="{{ book.title|escape }}" data-author="{{ book.author|escape }}" data-format="{{ book.format|escape }}" data-price="{{ book.formats.0.price }}" data-isbn="{{ book.main_isbn }} | {{ book.isbn_list }}" data-raw="{{ book.raw|escape }}">
+
+
+<td id="isbn-{{ book.isbn_normalized }}">
+  <!-- BOOK TITLE -->
+
+  API název: <a href="#" class="popup-title" style="font-weight:bold; cursor:pointer;">{{ book.title }}</a><br>
+    {% if book.bookid %}
+
+      <div style="margin-bottom: 4px;">
+        {% if book.has_palmknihyid %}
+          <span class="badge badge-success" style="background:#27ae60;color:white;font-size:90%;">
+            Přiřazeno k Palmknihy
+          </span>
+        {% else %}
+          <span class="badge badge-warning" style="background:#e67e22;color:white;font-size:90%;">
+            Přiřazeno k DIV (manuálně/starý záznam)
+          </span>
+        {% endif %}
+
+    {% if book.book_titlecz %}
+      <div style="font-size:90%; margin-top:2px;">
+        <span class="text-muted">DIV název:</span> <strong>{{ book.book_titlecz }}</strong>
+      </div>
+    {% endif %}
+{% if book.book_author %}
+  <div style="font-size:85%; color:#888;">Autor v DIV: {{ book.book_author }}</div>
+{% endif %}
+
+        <a href="/kniha/{{ book.book_url }}" target="_blank" class="btn btn-sm btn-success ml-2">Zobrazit</a>
+        <span class="text-muted small">ID: {{ book.bookid }}</span>
+        
+{% if book.bookid %}
+{% with found=0 %}
+  {% for f in book.formats %}
+    {% if f.palmknihyid and not found %}
+      <form method="post" action="{% url 'admin_odpriradit_eknihu' %}" style="display:inline;">
+        {% csrf_token %}
+        <input type="hidden" name="isbn" value="{{ f.isbn }}">
+        <input type="hidden" name="palmknihyid" value="{{ f.palmknihyid }}">
+        <input type="hidden" name="page" value="{{ page }}">
+        <input type="hidden" name="isbn_anchor" value="isbn-{{ book.isbn_normalized }}">
+        <button type="submit" class="btn btn-sm btn-outline-danger ml-2">Odebrat</button>
+      </form>
+      {% with 1 as found %}
+      {% endwith %}
+    {% endif %}
+  {% endfor %}
+{% endwith %}
+
+{% endif %}
+
+
+      </div>
+    {% endif %}
+
+  <input type="text" class="form-control book-search" placeholder="Přiřaď existující knihu..." data-palmknihyid="{{ book.palmknihyid }}">
+  <div class="search-results" style="position:relative; z-index:999;"></div>
+</td>
+
+
+      <td>{{ book.author }}</td>
+      <td>{{ book.format }}</td>
+      <td><!-- PRICE -->
+      <ul style="margin-top: 0.5em;font-size:70%">
+        {% for f in book.formats %}
+          <li>
+            <strong>{{ f.format }}</strong>
+            {% if f.exists %}
+              <span style="color:green;">&check;</span>
+              {% if not f.palmknihyid %}
+                <span style="color:orange;" title="ISBN existuje v DB, ale není propojeno s Palmknihy">&#9888; PalmknihyID chybí</span>
+              {% endif %}
+              <br>
+              <span>Cena v API: 
+                {% if f.price is not None %}{{ f.price }} Kč{% else %}–{% endif %}
+              </span><br>
+
+              <span>
+                Cena v DB: 
+                {% if f.db_price is not None %}
+                  <span style="color:#27ae60">{{ f.db_price }} Kč</span>
+                {% else %}
+                  <span style="color:#e74c3c">V DB není cena!</span>
+                {% endif %}
+              </span>
+              <hr style="margin:3px 0;">
+            {% else %}
+              <span style="color:red;">&cross;</span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+      </td>
+
+<td>
+  {{ book.main_isbn }}
+  {% if book.main_isbn and book.main_in_db is not False and book.main_has_palmknihyid is False %}
+    <span style="color:orange;font-size:85%;">
+      <br>&#9888; Hlavní ISBN v DB, ale není napárován na Palmknihy!
+    </span>
+  {% elif book.main_isbn and book.main_in_db is False %}
+    <span style="color:red;font-size:85%;">
+      <br>&#9888; Hlavní ISBN není v DB! Nelze přiřadit knihu.
+    </span>
+  {% endif %}
+  <hr>
+  <ul style="margin-top: 0.5em;font-size:70%">
+    {% for f in book.formats %}
+      <li>
+        <strong>{{ f.format }}</strong> — {{ f.isbn }}
+        {% if f.exists %}
+          <span style="color:green;">&check;</span>
+        {% else %}
+          <span style="color:red;">&cross;</span>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+</td>
+
+      <td>
+        <span style="font-size: 20px;">&#128214;</span><br>
+        <form method="post" action="{% url 'admin_store_ebook' %}">
+          {% csrf_token %}
+          <input type="hidden" name="palmknihyid" value="{{ book.palmknihyid }}">
+          <input type="hidden" name="page" value="{{ page }}">
+          <button type="submit">Uložit</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="my-3">
+  <a href="?page={{ page|add:'-1' }}">Předchozí</a>
+  <span>Stránka {{ page }}</span>
+  <a href="?page={{ page|add:'1' }}">Další</a>
+</div>
+
+<form method="post" action="{% url 'admin_store_page' %}">
+  {% csrf_token %}
+  {% for book in ebooks %}
+    <input type="hidden" name="palmknihyids" value="{{ book.palmknihyid }}">
+    <input type="hidden" name="page" value="{{ page }}">
+  {% endfor %}
+  <button type="submit">Uložit celou stránku</button>
+</form>
+
+<div id="popup" style="display:none; position:fixed; top:10%; left:10%; width:80%; height:70%; background:white; border:2px solid #333; overflow:auto; padding:20px; z-index:1000;">
+  <button onclick="closePopup()" style="float:right; font-size:18px;">&#10060; zavřít</button>
+  <h3 id="popup-title"></h3>
+  <form id="popup-form" method="post" action="{% url 'admin_store_ebook' %}">
+    {% csrf_token %}
+    <input type="hidden" name="palmknihyid" id="popup-palmknihyid">
+    <button type="submit">Uložit záznam</button>
+  </form>
+  <p><strong>Autor:</strong> <span id="popup-author"></span></p>
+  <p><strong>Formát(y):</strong> <span id="popup-format"></span></p>
+  <p><strong>Cena:</strong> <span id="popup-price"></span></p>
+  <p><strong>ISBN:</strong> <span id="popup-isbn"></span></p>
+  <pre id="popup-raw" style="white-space: pre-wrap; background:#f9f9f9; padding:1em; border:1px solid #ccc;"></pre>
+</div>
+
+<script>
+function closePopup() {
+  document.getElementById("popup").style.display = "none";
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  // POPUP okno
+  document.querySelectorAll(".popup-title").forEach(function (el) {
+    el.addEventListener("click", function (e) {
+      e.preventDefault();
+      const row = el.closest("tr");
+      document.getElementById("popup-title").textContent = row.dataset.title;
+      document.getElementById("popup-author").textContent = row.dataset.author;
+      document.getElementById("popup-format").textContent = row.dataset.format;
+      document.getElementById("popup-price").textContent = row.dataset.price;
+      document.getElementById("popup-isbn").textContent = row.dataset.isbn;
+      document.getElementById("popup-raw").textContent = row.dataset.raw;
+      document.getElementById("popup-palmknihyid").value = row.querySelector("input[name='palmknihyid']")?.value || "";
+      document.getElementById("popup").style.display = "block";
+    });
+  });
+
+  // VYHLEDÁVÁNÍ a přiřazení
+  document.querySelectorAll(".book-search").forEach(function(input) {
+    input.addEventListener("input", function() {
+      const query = this.value;
+      const palmknihyid = this.dataset.palmknihyid;
+      const resultsContainer = this.nextElementSibling;
+
+      if (query.length < 3) {
+        resultsContainer.innerHTML = "";
+        return;
+      }
+
+      fetch(`/spravce/book-search?q=${encodeURIComponent(query)}`)
+        .then(resp => resp.json())
+        .then(data => {
+          resultsContainer.innerHTML = "";
+
+           data.results.forEach(book => {
+             const div = document.createElement("div");
+             div.textContent = book.text;
+             div.style.cursor = "pointer";
+
+               div.onclick = function() {
+                 fetch(`/spravce/eknihy-prirazeni/`, {
+                   method: "POST",
+                   headers: {
+                     "Content-Type": "application/json",
+                     "X-CSRFToken": '{{ csrf_token }}'
+                   },
+                   body: JSON.stringify({ bookid: book.id, palmknihyid: palmknihyid })
+                 }).then(() => location.reload());
+               };
+
+             resultsContainer.appendChild(div);
+           });
+
+
+        });
+    });
+  });
+});
+</script>
+
+
+{% endblock %}

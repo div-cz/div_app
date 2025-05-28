@@ -384,13 +384,14 @@ class Bookisbn(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, db_column='BookID')
     isbn = models.CharField(max_length=26, unique=True, db_column='ISBN')
     ISBNtype = models.CharField(max_length=255, null=True, blank=True, db_column='ISBNtype')
-    publisherid = models.ForeignKey('Bookpublisher', models.DO_NOTHING, db_column='PublisherID', null=True)
+    publisherid = models.ForeignKey('Metapublisher', models.DO_NOTHING, db_column='PublisherID', null=True)
     publicationyear = models.IntegerField(null=True, blank=True, db_column='PublicationYear')
     format = models.CharField(max_length=100, null=True, blank=True, db_column='Format') # e.g., Hardcover, Paperback, eBook
+    price = models.DecimalField(max_digits=10, decimal_places=2, db_column='Price', null=True, blank=True) 
     language = models.CharField(max_length=100, null=True, blank=True, db_column='Language') # e.g., English, Czech
     description = models.TextField(null=True, blank=True, db_column='Description')
     coverimage = models.URLField(max_length=200, null=True, blank=True, db_column='CoverIMG')
-    
+    palmknihyid = models.CharField(max_length=64, db_column='PalmknihyID', null=True, blank=True) 
     class Meta:
         db_table = 'BookISBN'
 
@@ -427,6 +428,7 @@ class Bookpurchase(models.Model):
     )
     
     purchaseid = models.AutoField(db_column='PurchaseID', primary_key=True)
+    purchasedate = models.DateField(db_column='PurchaseDate', null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID')
     book = models.ForeignKey(Book, on_delete=models.CASCADE, db_column='BookID')
     format = models.CharField(db_column='Format', max_length=10, choices=[('mobi', 'MOBI'), ('pdf', 'PDF'), ('epub', 'EPUB')])
@@ -434,6 +436,7 @@ class Bookpurchase(models.Model):
     orderdate = models.DateTimeField(db_column='OrderDate', auto_now_add=True)
     paymentdate = models.DateTimeField(db_column='PaymentDate', null=True, blank=True)
     expirationdate = models.DateTimeField(db_column='ExpirationDate', null=True, blank=True)  # Např. 3 roky od nákupu
+    kindlemail = models.EmailField(db_column='KindleEmail', blank=True, null=True)
     status = models.CharField(db_column='Status', max_length=10, choices=STATUS_CHOICES, default='PENDING')
     cancelreason = models.TextField(db_column='CancelReason', max_length=512, blank=True, null=True)  # Důvod zrušení/reklamace
 
@@ -1553,6 +1556,7 @@ class Tvcrew(models.Model):
 
 class Tvepisode(models.Model):
     episodeid = models.AutoField(db_column='EpisodeID', primary_key=True)
+    tmdbid = models.IntegerField(db_column='TmdbID', blank=True, null=True)
     episodeurl = models.CharField(db_column='EpisodeURL', max_length=255, null=True, blank=True)
     episodenumber = models.IntegerField(db_column='EpisodeNumber')
     title = models.CharField(db_column='Title', max_length=255, null=True, blank=True)
@@ -1592,6 +1596,7 @@ class Tvepisodecrew(models.Model):
 
 class Tvseason(models.Model):
     seasonid = models.AutoField(db_column='SeasonID', primary_key=True)
+    tmdbid = models.IntegerField(db_column='TmdbID', blank=True, null=True)
     seasonurl = models.CharField(db_column='SeasonURL', max_length=255, null=True, blank=True)
     seasonnumber = models.IntegerField(db_column='SeasonNumber')
     title = models.CharField(db_column='title', max_length=255, null=True, blank=True)
@@ -1609,6 +1614,7 @@ class Tvseason(models.Model):
 
 class Tvshow(models.Model):
     tvshowid = models.AutoField(db_column='TVShowID', primary_key=True)
+    tmdbid = models.IntegerField(db_column='TmdbID', blank=True, null=True)
     title = models.CharField(db_column='Title', max_length=255, null=True, blank=True)
     titlecz = models.CharField(db_column='TitleCZ', max_length=255, null=True, blank=True)
     url = models.CharField(db_column='URL', max_length=255, null=True, blank=True, unique=True)
@@ -1622,7 +1628,6 @@ class Tvshow(models.Model):
     popularity = models.IntegerField(db_column='Popularity', null=True, db_index=True)
     language = models.CharField(db_column='Language', max_length=4, null=True, blank=True)
     countryid = models.ForeignKey(Metacountry, models.DO_NOTHING, db_column='CountryID')
-
     universumid = models.ForeignKey(Metauniversum, models.DO_NOTHING, db_column='UniversumID', null=True, blank=True)
     createdby = models.ForeignKey(Creator, models.DO_NOTHING, db_column='CreatorID', null=True, blank=True)
 

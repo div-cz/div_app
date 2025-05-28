@@ -1,0 +1,39 @@
+{% extends "inc/base.html" %}
+
+{% block title %}Transakce FIO {% endblock title %}
+{% block h1 %}Výpis všech transakcí (FIO API){% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+
+
+
+
+<table class="table table-striped table-sm">
+    <thead>
+        <tr>
+            <th>Datum</th>
+            <th>VS</th>
+            <th>Částka</th>
+            <th>Popis</th>
+            <th>Odesílatel</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for tx in transactions %}
+        <tr>
+            <td>{{ tx.date | default:"-" }}</td>
+            <td>{{ tx.variableSymbol | default:"-" }}</td>
+            <td>{{ tx.amount }} Kč</td>
+            <td>{{ tx.messageForRecipient | default:"-" }}</td>
+            <td>{{ tx.senderName | default:"-" }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'recent_payments' %}" class="btn btn-secondary btn-sm mt-3">Zpět na přehled plateb</a>
+
+
+{% endblock content %}
+

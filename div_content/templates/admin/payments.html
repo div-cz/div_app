@@ -1,0 +1,102 @@
+{% extends "inc/base.html" %}
+
+{% block title %}Poslední platby{% endblock title %}
+{% block h1 %}Poslední platby{% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+
+
+        <p><hr>Menu: <a href="/spravce/">Správce</a> - <a href="/spravce/sprava-komentaru">Správa komentářů</a> - <a href="/spravce/platby/">Platby</a> - <a href="/spravce/eknihy-prehled/">Eknihy přehled</a><hr></p>
+
+
+{% if not user.is_authenticated %}
+  <p>Pro zobrazení plateb se prosím <a href="/prihlaseni/">přihlaste</a>.</p>
+
+{% elif not user.is_superuser %}
+  <p>Nemáte oprávnění ke zobrazení této sekce.</p>
+
+{% else %}
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th>Kniha</th>
+            <th>Uživatel</th>
+            <th>Částka</th>
+            <th>Datum</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for p in payments %}
+        <tr>
+            <td>{{ p.book.titlecz }}</td>
+            <td>{{ p.user.username }}</td>
+            <td>{{ p.price|floatformat:2 }} Kč</td>
+            <td>{{ p.paymentdate|date:"d.m.Y H:i" }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="4">Žádné platby nenalezeny.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+<!--  <p>
+    <a href="{% url 'bank_transactions' %}" class="btn btn-sm btn-secondary">
+      Zkontrolovat platby z banky
+    </a>
+  </p>-->
+{% endif %}
+
+
+
+<hr>
+
+<h3>Výpis příjmů z FIO účtu (kredity)</h3>
+
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th>Datum</th>
+            <th>VS</th>
+            <th>Popis</th>
+            <th>Protiúčet</th>
+            <th>Název účtu</th>
+            <th>Částka</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for tx in transactions %}
+        <tr>
+            <td>{{ tx.column0.value|slice:":10" }}</td>
+            <td>{{ tx.column5.value }}</td>
+            <td>
+                {% if tx.column16.value %}{{ tx.column16.value }}
+                {% else %}{{ tx.column25.value }}{% endif %}
+            </td>
+            
+            <td>{{ tx.column2.value }}</td>
+            <td>{{ tx.column10.value }}</td>
+
+            <td>{{ tx.column1.value }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="4">Žádné příjmy nenalezeny. <span style="color:red;font-weight:bold">Je možné zobrazit jednou za 90 vteřin. <a href="/spravce/platby/">Refresh</a></td></tr>
+    {% endfor %}
+    </tbody>
+
+</table>
+
+
+{% endblock content %}
+
+
+
+
+
+
+
+
+
+
+

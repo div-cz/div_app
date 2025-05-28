@@ -1,0 +1,40 @@
+{% extends "books/base.html" %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block title %} Zrušení nabídky | DIV.cz{% endblock %}
+
+{% block meta %}
+
+<style>
+    .flex.flex-wrap > form {
+        width: 100%;
+        clear: both;
+        order: 999; 
+    }
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container mx-auto px-4 py-6">
+
+    <h1 class="mt-8">
+        DIVkvariát - zrušení nabídky
+    </h1>
+
+
+<form method="POST">
+    {% csrf_token %}
+    <h3>Opravdu chcete stornovat tento nákup?</h3>
+    <p>{{ purchase.book.titlecz }}</p>
+    <input type="text" name="cancel_reason" placeholder="Důvod storna" required>
+    <button type="submit">Potvrdit storno</button>
+    <a href="{% url 'index' %}">Zrušit</a>
+</form>
+
+</div>
+
+{% endblock %}

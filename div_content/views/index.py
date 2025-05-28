@@ -2,21 +2,20 @@
 
 from datetime import date
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.decorators import user_passes_test
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import DetailView
 from div_content.views.login import custom_login_view
 
-from div_content.forms.admins import TaskForm, TaskCommentForm
+from div_content.forms.admins import TaskCommentForm, TaskForm
 from div_content.forms.index import ArticleForm, ArticlenewsForm
 from div_content.forms.movies import CommentForm, SearchForm
 from div_content.models import (
 
-    AATask, Article, Articlenews, Book, Booklisting, Creator, Creatorbiography, Game, Metacharts, Metagenre, Metaindex, Metalocation,  Metastats, Movie, Moviecinema, Moviedistributor, Moviecomments, Moviecrew, Moviegenre, Movierating, Tvgenre, Tvshow, User, Userprofile
+    AATask, Article, Articlenews, Book, Booklisting, Bookpurchase, Creator, Creatorbiography, Game, Metacharts, Metagenre, Metaindex, Metalocation,  Metastats, Movie, Moviecinema, Moviedistributor, Moviecomments, Moviecrew, Moviegenre, Movierating, Tvgenre, Tvshow, User, Userprofile
 
 )
 from star_ratings.models import Rating, UserRating
@@ -24,7 +23,12 @@ from star_ratings.models import Rating, UserRating
 from django.db import models
 from django.db.models import Avg, Count
 from django.db.models.functions import ExtractYear
+
+from io import BytesIO
+
 import math
+import qrcode
+
 
 
 
@@ -78,6 +82,7 @@ def get_market_listings(limit=5):
     return sell_listings
 
 def index(request): # hlavní strana
+    user = request.user if request.user.is_authenticated else None
     #ARTICLE NEWS
     if request.user.is_superuser or request.user.is_staff:
         article_form = ArticleForm(request.POST or None)
@@ -173,6 +178,20 @@ def index(request): # hlavní strana
     ).order_by('-divrating')[:7]
     
     recent_listings = get_market_listings()
+
+
+    # Poslední nákupy eKnih pro superusera
+    last_ebook_purchases = []
+    
+    if request.user.is_authenticated:
+        user_ebook_purchases = Bookpurchase.objects.filter(user=request.user, status="PENDING").order_by('-purchaseid')
+        seller_pending_listings = Booklisting.objects.filter(user=request.user, status='ACTIVE').order_by('-createdat')
+        pending_book_purchases = Booklisting.objects.filter(buyer=request.user, status='PENDING').order_by('-createdat')
+    else:
+        user_ebook_purchases = []
+        seller_pending_listings = []
+        pending_book_purchases = []
+
     
     return render(request, 'index.html', {
             'movies': movies, 
@@ -196,7 +215,26 @@ def index(request): # hlavní strana
             'books_carousel': books_carousel, 
             'games_carousel': games_carousel,
             'recent_listings': recent_listings,
+            'last_ebook_purchases': last_ebook_purchases,
+            'user_ebook_purchases': user_ebook_purchases,
+            'seller_pending_listings': seller_pending_listings,
+            'pending_book_purchases': pending_book_purchases,
             })  
+
+@login_required
+def show_qr_payment(request, listing_id):
+    listing = get_object_or_404(Booklisting, id=listing_id, user=request.user)
+
+    # Data pro QR kód
+    payment_data = f"Platba za knihu {listing.book.titlecz} - částka: {listing.price} Kč"
+    
+    # Vytvoření QR kódu
+    qr = qrcode.make(payment_data)
+    
+    # Uložení QR kódu do paměti
+    stream = BytesIO()
+    qr.save(stream, format="PNG")
+    return HttpResponse(stream.getvalue(), content_type="image/png")
 
 
 def series_genre(request, genre_url):

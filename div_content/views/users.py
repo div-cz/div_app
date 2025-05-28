@@ -914,6 +914,22 @@ def profile_books_section(request, user_id):
     })
 
 
+
+def profile_community_section(request, user_id):
+    profile_user = get_object_or_404(User, id=user_id)
+
+
+    return render(
+        request,
+        "user/profile_community.html",
+        {
+            "profile_user": profile_user,
+            "active_tab": "komunita"
+        }
+    )
+
+
+
 def profile_games_section(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)
     user_profile = Userprofile.objects.get(user=profile_user)

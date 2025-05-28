@@ -6,6 +6,67 @@
 {% block title %}{{ tvshow.titlecz }} ({{ tvshow.premieredate|date:"Y"|default:"?" }} - {{ tvshow.enddate|date:"Y"|default:"?" }}) | DIV.cz{% endblock %}
 
 {% block content %}
+<style>
+    .rating {
+        position: relative;
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        margin: 0 auto;
+        padding: 0;
+        margin-bottom: 10px;
+    }
+
+    .rating::before {
+        content: '';
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        width: 75px;
+        height: 75px;
+        background: #444444;
+        border-radius: 50%;
+        z-index: 2;
+        margin: 4px;
+    }
+
+    .rating::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 85px;
+        height: 85px;
+        background: conic-gradient(
+            var(--gradient-color, #0a0) 0%,
+            var(--gradient-color, #0a0) var(--gradient-value, 50%),
+            #777777 var(--gradient-value, 50%)
+        );
+        border-radius: 50%;
+        z-index: 1;
+        margin: 4px;
+    }
+
+    .rating-inner {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #fff;
+        font-size: 30px;
+        font-weight: bold;
+    }
+
+    .rating-inner span {
+        font-size: 10px;
+        margin-left: 2px;
+        color: #ffd700;
+        margin-top: -10px;
+    }
+</style>
 
 <div class="row container my-5">
     <!-- Levá strana -->
@@ -289,11 +350,18 @@
 
     <!-- Pravá strana -->
     <div class="col-lg-4">
-        <!-- Rating -->
+
+        <!-- Hodnocení -->
         <div class="card box-shadow mb-4 mt-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 style="text-align:center" class="after font-bold">Hodnocení</h3>
                 <div class="grid columns">
+                    <div class="rating" data-rating="{{ episode.average_rating }}">
+                        <div class="rating-inner">
+                            {{ episode.average_rating }}%
+                        </div>
+                    </div>
+
                     <div class="hodnoceni after">
                         {% ratings episode %}  <!-- Zobrazení hvězdného hodnocení -->
                         {% if user.is_authenticated %}

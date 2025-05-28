@@ -322,6 +322,85 @@
                                 </div>
                             </div>
 
+<!-- objednávky potvrzení -->
+<!-- objednávky potvrzení -->
+{% if user.is_authenticated %}
+    <!-- Poslední nákupy eKnih -->
+    {% if user.is_superuser and last_ebook_purchases %}
+    <div class="card box-shadow mb-4">
+        <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+        <h3>Poslední nákupy eKnih (přehled pro superuser)</h3>
+        <ul>
+            {% for purchase in last_ebook_purchases %}
+                <li>
+                    {{ purchase.user.username }} koupil {{ purchase.book.titlecz }} - {{ purchase.status }}
+                </li>
+            {% endfor %}
+        </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Moje eKnihy -->
+    {% if user_ebook_purchases %}
+    <div class="card box-shadow mb-4">
+        <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+            <h3>Moje eKnihy</h3>
+            <ul>
+                {% for purchase in user_ebook_purchases %}
+                    <li>
+                        {{ purchase.book.titlecz }} - Stav: {{ purchase.status }}
+                        {% if purchase.status == "PENDING" %}
+                            <form method="POST" action="{% url 'cancel_purchase' purchase.purchaseid %}">
+                                {% csrf_token %}
+                                <input type="text" name="cancel_reason" placeholder="Důvod storna">
+                                <button type="submit">Stornovat</button>
+                            </form>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Moje nákupy v DIVkvariátu -->
+    {% if pending_book_purchases %}
+    <div class="card box-shadow mb-4">
+        <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+            <h3>Moje nákupy v DIVkvariátu</h3>
+            <ul>
+                {% for listing in pending_book_purchases %}
+                    <li>
+                        {{ listing.book.titlecz }} - Čeká na platbu
+                        <br>
+                        <img src="{% url 'show_qr_payment' listing.id %}" alt="QR kód pro platbu">
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Moje prodeje v DIVkvariátu -->
+    {% if seller_pending_listings %}
+    <div class="card box-shadow mb-4">
+        <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+            <h3>Moje prodeje v DIVkvariátu</h3>
+            <ul>
+                {% for listing in seller_pending_listings %}
+                    <li>
+                        {{ listing.book.titlecz }} - Čeká na platbu/k odeslání
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+{% endif %}
+<!-- / objednávky potvrzení -->
+<!-- / objednávky potvrzení -->
+
                             <!-- carousel filmy -->
                             <div class="card box-shadow mb-4">
                                 <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
@@ -685,7 +764,6 @@
         <!-- více, méně -->
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-                // Najít všechny články s třídou "biography-text" a "toggle-biography"
                 const bioElements = document.querySelectorAll(".biography-text");
                 const toggleButtons = document.querySelectorAll(".toggle-biography");
 
@@ -746,7 +824,6 @@
                     }
                 });
             });
-
         </script>
 
         <!-- carousel ze světa... -->
