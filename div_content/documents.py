@@ -1,8 +1,9 @@
-from django_elasticsearch_dsl import Document
+#from django_elasticsearch_dsl import Document
 
-from .models import Book
+#from .models import Book
 
 #@registry.register_document
+"""
 class BookDocument(Document):
     class Index:
         name = "books"
@@ -11,5 +12,5 @@ class BookDocument(Document):
     class Django:
         model = Book
         fields = ["title", "titlecz", "year", "url"]
-
+"""
 # to be continued

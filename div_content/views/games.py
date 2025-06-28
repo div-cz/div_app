@@ -60,6 +60,7 @@ def games(request):
         'average_rating'
     )[:20]
 
+    latest_comments = Gamecomments.objects.order_by('-dateadded')[:3]
     # Zaokrouhlíme hodnoty na celá čísla a převedeme na procenta
     for game in games:
         if game['average_rating'] is not None:
@@ -71,8 +72,8 @@ def games(request):
         'games': games, 
         'carousel_games': carousel_games,
         'category_key': 'hry',
+        'latest_comments': latest_comments,
         })
-
 
 
 def games_genres(request):

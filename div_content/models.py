@@ -433,6 +433,8 @@ class Bookpurchase(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, db_column='BookID')
     format = models.CharField(db_column='Format', max_length=10, choices=[('mobi', 'MOBI'), ('pdf', 'PDF'), ('epub', 'EPUB')])
     price = models.DecimalField(db_column='Price', max_digits=10, decimal_places=2)
+    palmknihyid = models.CharField(db_column='PalmknihyID', max_length=64, blank=True, null=True) 
+    source = models.CharField(db_column='Source', max_length=16, blank=True, null=True) 
     orderdate = models.DateTimeField(db_column='OrderDate', auto_now_add=True)
     paymentdate = models.DateTimeField(db_column='PaymentDate', null=True, blank=True)
     expirationdate = models.DateTimeField(db_column='ExpirationDate', null=True, blank=True)  # Např. 3 roky od nákupu

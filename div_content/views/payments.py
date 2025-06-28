@@ -2,8 +2,11 @@
 
 import datetime
 import io
+
 import os
 import smtplib
+import unicodedata
+
 from decimal import Decimal
 
 import qrcode
@@ -42,41 +45,57 @@ def get_mimetype_from_format(fmt):
         return ("application/octet-stream", fmt)
 
 
-
+def strip_diacritics(s):
+    return unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode('ascii')
 
 
 # QR kod pro zaplaceni konkretni e-knihy ve formatu SPD (FIO)
 def generate_qr(request, book_id, format):
     book = get_object_or_404(Book, pk=book_id)
-    fetch_and_update_bookisbn(book)  # vzdy kontroluj aktualni cenu
+    fetch_and_update_bookisbn(book)  # vždy ověř aktuální cenu
 
-    bookisbn = Bookisbn.objects.filter(book=book).first()
+    bookisbn = Bookisbn.objects.filter(book=book, format__iexact=format).first()
     if not bookisbn or not bookisbn.price:
         raise Http404("E-kniha není dostupná nebo nemá cenu.")
+    
+    amount = bookisbn.price
 
-    # vytvor zaznam o zamyslene koupi
+    # 1. Vytvoř záznam o zamýšlené koupi
+    palmknihy_id = bookisbn.palmknihyid
+    
     purchase = Bookpurchase.objects.create(
         book=book,
         user=request.user if request.user.is_authenticated else None,
         format=format,
         price=bookisbn.price,
         status="PENDING",
-        createdat=now(),
+        palmknihyid=palmknihy_id,
+        #createdat=now(),
     )
 
+
+    # 2. Použij purchase.purchaseid jako X-VS
     vs = str(purchase.purchaseid)
-    msg = f"ebook-{book.bookid}-{format}"
+    # Odstraň diakritiku pro MSG 
 
-    # SPD format pro FIO
-    amount = f"{Decimal(bookisbn.price):.2f}"
-    qr_text = f"SPD*1.0*ACC:CZ1234567890123456789012*AM:{amount}*CC:CZK*MSG:{msg}*X-VS:{vs}"
+    msg = unicodedata.normalize('NFKD', f"{book.title}-{format}").encode('ascii', 'ignore').decode('ascii')
+    msg = msg.replace(" ", "")
 
-    img = qrcode.make(qr_text)
+    #používá se funkce v views.books.py = update, tak asi už ne
+    qr_string = f"SPD*1.0*ACC:CZ2620100000002602912559*AM:{amount}*CC:CZK*MSG:{msg.replace('=', ':')}*X-VS:{vs}"
+
+
+    # 3. Vytvoř QR obrázek
+    img = qrcode.make(qr_string)
     buffer = io.BytesIO()
     img.save(buffer, format="PNG")
     buffer.seek(0)
 
+    # 4. Vrať QR obrázek jako response
     return HttpResponse(buffer.getvalue(), content_type="image/png")
+
+
+  
 
 
 
@@ -105,6 +124,27 @@ def check_payments():
     return "Kontrola dokončena"
 
 
+@login_required
+def check_purchase_status(request, purchase_id):
+    try:
+        purchase = Bookpurchase.objects.get(pk=purchase_id, user=request.user)
+        return JsonResponse({"status": purchase.status})
+    except Bookpurchase.DoesNotExist:
+        return JsonResponse({"status": "NOT_FOUND"}, status=404)
+
+@login_required
+def posledni_pending_purchaseid(request):
+    bookid = request.GET.get('bookid')
+    fmt = request.GET.get('format')
+    purchase = Bookpurchase.objects.filter(
+        book_id=bookid,
+        user=request.user,
+        format=fmt,
+        status="PENDING"
+    ).order_by('-purchaseid').first()
+    if purchase:
+        return JsonResponse({"purchase_id": purchase.purchaseid})
+    return JsonResponse({"purchase_id": None})
 
 
 def bank_transactions(request):
@@ -144,6 +184,31 @@ def bank_transactions(request):
 
 
 
+def get_ebook_purchase_status(user, book, ebook_formats):
+    """
+    Přidá ke každému formátu (epub/pdf/mobi...) hodnoty:
+    - is_paid: True/False
+    - show_qr: True/False
+    - is_free_div: True/False
+    """
+    if not user.is_authenticated:
+        for fmt, data in ebook_formats.items():
+            data['is_paid'] = False
+            data['show_qr'] = data.get('price', 0) > 0
+            data['is_free_div'] = data.get('type') == 'DIV' and (data.get('price') == 0 or not data.get('price'))
+        return ebook_formats
+
+    paid_purchases = Bookpurchase.objects.filter(user=user, book=book, status="PAID")
+    paid_formats = {p.format.lower() for p in paid_purchases}
+    for fmt, data in ebook_formats.items():
+        data['is_paid'] = fmt in paid_formats
+        data['show_qr'] = data.get('price', 0) > 0 and not data['is_paid']
+        data['is_free_div'] = data.get('type') == 'DIV' and (data.get('price') == 0 or not data.get('price'))
+    return ebook_formats
+
+
+
+
 
 # Stáhnout e-knihu – zdarma nebo po zaplacení
 @login_required
@@ -151,10 +216,29 @@ def download_ebook(request, isbn, format):
     bookisbn = get_object_or_404(Bookisbn, isbn=isbn)
     book = bookisbn.book
 
-    # kontrola: zdarma nebo uživatel zaplatil
-    if bookisbn.price == 0:
+    # FREE: zdarma ke stažení – vytvoř/vylepši objednávku
+    if bookisbn.price == 0 or bookisbn.price is None:
         allowed = True
+        purchase, created = Bookpurchase.objects.get_or_create(
+            book=book,
+            user=request.user,
+            format=format,
+            defaults={
+                "status": "PAID",
+                "price": 0,
+                "paymentdate": now(),
+                "expirationdate": now().replace(year=now().year + 3),
+            },
+        )
+        # Pokud existuje a není PAID, tak updatni!
+        if not created and purchase.status != "PAID":
+            purchase.status = "PAID"
+            purchase.price = 0
+            purchase.paymentdate = now()
+            purchase.expirationdate = now().replace(year=now().year + 3)
+            purchase.save()
     else:
+        # PLACENÁ: kontrola, zda user má objednáno a zaplaceno
         allowed = Bookpurchase.objects.filter(
             book=book,
             user=request.user,
@@ -164,19 +248,21 @@ def download_ebook(request, isbn, format):
     if not allowed:
         raise Http404("Nemáte oprávnění k této e-knize.")
 
-    # cesta k souboru – předpokládá se název podle URL knihy
+    # Cesta k souboru (název podle URL knihy a formátu)
     filename = f"{book.url}.{format.lower()}"
     filepath = os.path.join(os.getenv("FREE_EBOOKS_PATH"), filename)
 
     if not os.path.exists(filepath):
-        raise Http404("Soubor nebyl nalezen.")
+        messages.error(
+            request,
+            "Soubor s e-knihou není aktuálně dostupný. Pokud myslíte, že je to chyba, napište na <a href='mailto:info@div.cz'>info@div.cz</a>."
+        )
+        return redirect("book_detail", book_url=book.url)
 
     with open(filepath, "rb") as f:
         response = HttpResponse(f.read(), content_type="application/pdf")
         response["Content-Disposition"] = f"attachment; filename={filename}"
         return response
-
-
 
 
 @require_POST
@@ -230,6 +316,7 @@ def send_to_reader_modal(request, isbn, format):
                 "paymentdate": now(),
                 "expirationdate": now().replace(year=now().year + 3),
                 "kindlemail": kindlemail,
+                "readonly": True,
             },
         )
         # Pokud existoval, případně updatni email (u zdarma je to OK)
@@ -261,6 +348,10 @@ def send_to_reader_modal(request, isbn, format):
         smtp.send_message(msg)
 
     messages.success(request, f"E-kniha <strong>{book.title}</strong> byla odeslána do vaší čtečky na e-mail <strong>{recipient}</strong>.")
+    messages.error(
+    request,
+    "Soubor s e-knihou není aktuálně dostupný. Pokud myslíte, že je to chyba, napište na <a href='mailto:info@div.cz'>info@div.cz</a>."
+)
     return redirect("book_detail", book_url=book.url)
 
 
@@ -322,6 +413,10 @@ def send_to_reader(request, isbn, format):
         smtp.send_message(msg)
 
     messages.success(request, f"E-kniha <strong>{book.title}</strong> byla odeslána do vaší čtečky na e-mail <strong>{recipient}</strong>.")
+    messages.error(
+    request,
+    "Soubor s e-knihou není aktuálně dostupný. Pokud myslíte, že je to chyba, napište na <a href='mailto:info@div.cz'>info@div.cz</a>."
+)
     return redirect("book_detail", book_url=book.url)
 
 '''

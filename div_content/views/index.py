@@ -183,15 +183,20 @@ def index(request): # hlavní strana
     # Poslední nákupy eKnih pro superusera
     last_ebook_purchases = []
     
-    if request.user.is_authenticated:
-        user_ebook_purchases = Bookpurchase.objects.filter(user=request.user, status="PENDING").order_by('-purchaseid')
-        seller_pending_listings = Booklisting.objects.filter(user=request.user, status='ACTIVE').order_by('-createdat')
-        pending_book_purchases = Booklisting.objects.filter(buyer=request.user, status='PENDING').order_by('-createdat')
-    else:
-        user_ebook_purchases = []
-        seller_pending_listings = []
-        pending_book_purchases = []
 
+
+    if request.user.is_authenticated:
+          user_ebook_purchases = Bookpurchase.objects.filter(user=request.user, status="PENDING").order_by('-purchaseid')
+      #prodej a darování knih na divkvariátu
+          seller_pending_listings = Booklisting.objects.filter(user=request.user, listingtype__in=['SELL', 'GIVE'], ).order_by('-createdat')[:5]
+          pending_book_purchases = Booklisting.objects.filter(buyer=request.user, status='PENDING').order_by('-createdat')[:5]
+      #poptávka knih na div kvatiátu
+          user_wanted_purchases = Booklisting.objects.filter(user=request.user, listingtype='BUY').order_by('-createdat')[:5]
+    else:
+          user_ebook_purchases = []
+          seller_pending_listings = []
+          pending_book_purchases = []
+          user_wanted_purchases = []
     
     return render(request, 'index.html', {
             'movies': movies, 
@@ -219,6 +224,7 @@ def index(request): # hlavní strana
             'user_ebook_purchases': user_ebook_purchases,
             'seller_pending_listings': seller_pending_listings,
             'pending_book_purchases': pending_book_purchases,
+            'user_wanted_purchases': user_wanted_purchases,
             })  
 
 @login_required
@@ -334,7 +340,7 @@ def movies(request, year=None, genre_url=None, movie_url=None):
             'movieid__title', 'movieid__titlecz', 'movieid__img', 'movieid__url', 'releasedate'
         )[:10]
 
-
+        latest_comments = Moviecomments.objects.order_by('-dateadded')[:3]
         return render(request, 'movies/movies_list.html', {
             'movies': movies, 
             'movies_carousel': movies_carousel, 
@@ -345,8 +351,8 @@ def movies(request, year=None, genre_url=None, movie_url=None):
             'movies_in_cinema': movies_in_cinema,
             'carousel_cinema': carousel_cinema,
             'category_key': 'serialy',
+            'latest_comments': latest_comments,
             })
-
 
 
 

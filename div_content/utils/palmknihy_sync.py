@@ -5,11 +5,16 @@ import unidecode
 from div_content.models import Book, Bookisbn
 from div_content.utils.palmknihy import get_catalog_product
 
+from datetime import date
+from django.utils.timezone import now
+
+
+
 def clean(text):
     return unidecode.unidecode(text.lower().strip()) if text else ""
 
 def fetch_and_update_bookisbn(book):
-    now = datetime.datetime.now()
+    now = date.today()
 
     # Volat jen pokud je book.lastupdated starsi nez 7 dni nebo None
     if book.lastupdated and (now - book.lastupdated).days < 7:

@@ -28,6 +28,24 @@
         </a>
     </h1>
 
+
+{% if can_cancel_reservation %}
+<div class="mb-3 px-3">
+    <form method="post" action="{% url 'listing_detail_sell' book_url=book.url listing_id=listing.booklistingid %}">
+        {% csrf_token %}
+        <input type="hidden" name="cancel_reservation" value="true">
+        <div class="mb-3">
+            <label for="cancel_reason" class="form-label">Důvod zrušení (volitelné):</label>
+            <textarea class="form-control" id="cancel_reason" name="cancel_reason" rows="2"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary"
+                onclick="return confirm('Opravdu chcete zrušit rezervaci?');">
+            Zrušit rezervaci
+        </button>
+    </form>
+    </div>
+{% endif %} 
+
     <div class="mt-8">
         <div class="mb-6">
             <h2 class="font-bold mb-2">{{ book.titlecz }}</h2>

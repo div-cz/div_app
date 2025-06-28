@@ -512,9 +512,8 @@
 
 
 {% if ebook_formats %}
-<!-- Overlay -->
+<!-- Overlay a Modal -->
 <div class="overlay hidden" id="ebook-overlay"></div>
-<!-- Modal -->
 <div class="popup hidden" id="ebook-popup">
     <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closePopup">
         <i class="fa-solid fa-xmark"></i>
@@ -523,15 +522,15 @@
         <h3>Vyberte formát e-knihy</h3>
         <form id="ebook-form" method="post" action="">
             {% csrf_token %}
-            <div>
+            <div style="margin-bottom: 12px;">
                 {% for fmt, data in ebook_formats.items %}
-                    <label style="margin-right:10px;opacity:{% if not data.available %}0.5{% else %}1{% endif %}">
+                    <label style="margin-right:10px;opacity:{% if not data.available %}0.5{% else %}1{% endif %};">
                         <input type="radio" name="format"
                                value="{{ fmt }}"
                                data-isbn="{{ data.isbn }}"
-                               {% if forloop.first and data.available %}checked{% endif %}
+                               {% if forloop.first and data.available %}{% endif %}
                                {% if not data.available %}disabled{% endif %}>
-                        {{ fmt|upper }} 
+                        {{ fmt|upper }}
                         {% if data.price is not None and data.price > 0 %}
                             ({{ data.price|floatformat:0 }} Kč)
                         {% elif data.free %}
@@ -543,97 +542,52 @@
                 {% endfor %}
             </div>
 
-            <div style="margin-top: 15px;">
-                <label for="kindlemail">E-mail čtečky (Kindle apod.):</label>
-                       <input type="email" name="kindlemail" id="kindlemail"
-                           value="{% if existing_paid_email %}{{ existing_paid_email }}{% elif user.is_authenticated %}{{ user.email }}{% else %}{% endif %}"
-                           placeholder="{% if existing_paid_email %}{{ existing_paid_email }}{% elif user.is_authenticated %}{{ user.email }}{% else %}např. uzivatel@kindle.com{% endif %}"
-                           style="width:220px"
-                       {% if existing_paid_email %}readonly="readonly"{% endif %}>
-
+            <div style="margin-top: 12px;">
+                <label for="kindlemail">E-mail čtečky:</label>
+                <input type="email" name="kindlemail" id="kindlemail"
+                    value="{% if existing_paid_email %}{{ existing_paid_email }}{% elif user.is_authenticated %}{{ user.email }}{% else %}{% endif %}"
+                    placeholder="{% if existing_paid_email %}{{ existing_paid_email }}{% elif user.is_authenticated %}{{ user.email }}{% else %}např. uzivatel@kindle.com{% endif %}"
+                    style="width:220px"
+                {% if existing_paid_email %}readonly="readonly"{% endif %}>
                 {% if existing_paid_email %}
                     <br><span class="text-muted">Tato e-kniha již byla zakoupena a poslána na tento e-mail.</span>
                 {% endif %}
-
             </div>
 
-            <div style="margin-top:15px;">
-                <button type="submit" class="btn btn-primary">Poslat do čtečky</button>
-                <a id="download-link" href="#" class="btn btn-secondary">Stáhnout</a>
-            </div>
-            <!-- QR Code pro placené knihy -->
-            <div id="qr-wrap" style="display:none;margin-top:20px;">
-                <img id="qr-image" src="" alt="QR platba" style="width:160px;">
-                <p><b>Zaplaťte přes QR kód, po spárování platby bude e-kniha ke stažení a odeslána do čtečky.</b></p>
-            </div>
+            {% if user.is_authenticated %}
+                <input type="hidden" id="js-bookid" value="{{ book.bookid }}">
+                <!-- Blok akcí pro vybraný formát -->
+                <div id="ebook-action-block"></div>
+            {% else %}
+                <div class="my-2">
+                    <a href="/prihlaseni/" class="btn btn-primary">Přihlaš se</a>
+                    nebo
+                    <a href="/registrace/" class="btn btn-secondary">Registruj se</a>
+                    <br>
+                    <span class="text-muted">Pro nákup a stažení e-knihy je nutné mít účet.</span>
+                </div>
+            {% endif %}
         </form>
     </div>
 </div>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Otevření popupu
-    const ebookBtn = document.getElementById("e-book-btn");
-    const ebookOverlay = document.getElementById("ebook-overlay");
-    const ebookPopup = document.getElementById("ebook-popup");
-    const closeEbookPopupBtn = document.getElementById("closePopup");
-    if (ebookBtn) {
-        ebookBtn.addEventListener("click", function() {
-            ebookOverlay.classList.remove("hidden");
-            ebookPopup.classList.remove("hidden");
-            updateFormAction();
-        });
-    }
-    closeEbookPopupBtn.addEventListener("click", closeModal);
-    ebookOverlay.addEventListener("click", closeModal);
-    function closeModal() {
-        ebookOverlay.classList.add("hidden");
-        ebookPopup.classList.add("hidden");
-        document.getElementById('qr-wrap').style.display = 'none';
-    }
-
-    // Dynamicky nastav akci formuláře podle zvoleného formátu
-    function updateFormAction() {
-        const checked = document.querySelector("input[name='format']:checked");
-        if (checked) {
-            const isbn = checked.getAttribute("data-isbn");
-            const fmt = checked.value;
-            document.getElementById("ebook-form").action = "/poslat-do-ctecky2/" + isbn + "/" + fmt + "/";
-        }
-    }
-    document.querySelectorAll("input[name='format']").forEach(function(radio) {
-        radio.addEventListener("change", function() {
-            updateFormAction();
-        });
-    });
-    updateFormAction();
-
-    // Download tlačítko nebo QR dle ceny
-    const downloadBtn = document.getElementById("download-link");
-    const ebookForm = document.getElementById("ebook-form");
-    const qrWrap = document.getElementById("qr-wrap");
-    const qrImg = document.getElementById("qr-image");
-    if (downloadBtn) {
-        downloadBtn.addEventListener("click", function(event) {
-            event.preventDefault();
-            const checked = document.querySelector("input[name='format']:checked");
-            const isbn = checked.getAttribute("data-isbn");
-            const fmt = checked.value;
-            var prices = {
-                {% for fmt, data in ebook_formats.items %}
-                    "{{ fmt }}": {{ data.price|default:"0" }},
-                {% endfor %}
-            };
-            if (prices[fmt] > 0) {
-                qrWrap.style.display = "block";
-                qrImg.src = `/generate-qr/{{ book.bookid }}/${fmt}/`;
-            } else {
-                window.location.href = "/stahnout-eknihu/" + isbn + "/" + fmt + "/";
-            }
-        });
-    }
-});
-</script>
 {% endif %}
+<style>
+.dark .popup {
+    background: #181222 !important;
+    color: #f2f2f2 !important;
+    border: 1px solid #222031;
+}
+.dark .popup input,
+.dark .popup textarea {
+    background: #222031;
+    color: #f2f2f2;
+    border: 1px solid #28243a;
+}
+.dark .popup label {
+    color: #f2f2f2;
+}
+</style>
+
 
 
             
@@ -1266,7 +1220,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </div>
 
 
-
+<!-- hlasování pro citáty -->
 <script>
     //  Funkce pro získání CSRF tokenu z cookies
     function getCookie(name) {
@@ -1322,7 +1276,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 </script>
 
-<!-- více, méně -->
+<!-- více, méně - zobrazit celý bio -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const bioElement = document.getElementById("biography-text");
@@ -1351,7 +1305,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 </script>
-
+<!-- COLLPASE NA ŠIPKY -->
 <script>
     /* sroluje nebo rozroluje radek s nabidkou a souvisejici ikonku */
     $(document).ready(function() {
@@ -1376,63 +1330,222 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 </script>
+<!-- pop up knihy -->
 
+
+
+
+
+
+<!-- ✅ 1 – POPUPY pro e-knihu a audio -->
 <script>
-function openEbookPopup() {
-    document.getElementById('ebook-popup').classList.remove('hidden');
-    document.getElementById('overlay').classList.remove('hidden');
-}
-function closeEbookPopup() {
-    document.getElementById('ebook-popup').classList.add('hidden');
-    document.getElementById('overlay').classList.add('hidden');
-}
-</script>
 
+document.addEventListener("DOMContentLoaded", function () {
+    renderEbookActions();
+    const ebookBtn = document.getElementById("e-book-btn");
+    const ebookOverlay = document.getElementById("ebook-overlay");
+    const ebookPopup = document.getElementById("ebook-popup");
+    const closeEbookPopupBtn = document.getElementById("closePopup");
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // E-kniha popup
-        const ebookBtn = document.getElementById("e-book-btn");
-        const ebookOverlay = document.querySelector(".overlay");
-        const ebookPopup = document.querySelector(".popup");
-        const closeEbookPopupBtn = document.getElementById("closePopup");
+    const audioBtn = document.getElementById("audio-btn");
+    const audioOverlay = document.getElementById("audio-overlay");
+    const audioPopup = document.getElementById("audio-popup");
+    const closeAudioPopupBtn = document.getElementById("closeAudioPopup");
 
-        ebookBtn.addEventListener("click", function() {
+    function closeModal(el1, el2) {
+        el1.classList.add("hidden");
+        el2.classList.add("hidden");
+    }
+
+    if (ebookBtn) {
+        ebookBtn.addEventListener("click", function () {
             ebookOverlay.classList.remove("hidden");
             ebookPopup.classList.remove("hidden");
+            // ✅ zobraz QR při otevření
+            renderEbookActions();
+
+
+            const checked = document.querySelector("input[name='format']:checked");
+            if (checked) showQr(checked.value);
         });
+    }
 
-        closeEbookPopupBtn.addEventListener("click", function() {
-            ebookOverlay.classList.add("hidden");
-            ebookPopup.classList.add("hidden");
-        });
+    if (closeEbookPopupBtn) {
+        closeEbookPopupBtn.addEventListener("click", () => closeModal(ebookOverlay, ebookPopup));
+    }
 
-        ebookOverlay.addEventListener("click", function() {
-            ebookOverlay.classList.add("hidden");
-            ebookPopup.classList.add("hidden");
-        });
+    if (ebookOverlay) {
+        ebookOverlay.addEventListener("click", () => closeModal(ebookOverlay, ebookPopup));
+    }
 
-        // Audiokniha popup
-        const audioBtn = document.getElementById("audio-btn");
-        const audioOverlay = document.getElementById("audio-overlay");
-        const audioPopup = document.getElementById("audio-popup");
-        const closeAudioPopupBtn = document.getElementById("closeAudioPopup");
-
-        audioBtn.addEventListener("click", function() {
+    if (audioBtn) {
+        audioBtn.addEventListener("click", function () {
             audioOverlay.classList.remove("hidden");
             audioPopup.classList.remove("hidden");
         });
+    }
 
-        closeAudioPopupBtn.addEventListener("click", function() {
-            audioOverlay.classList.add("hidden");
-            audioPopup.classList.add("hidden");
-        });
+    if (closeAudioPopupBtn) {
+        closeAudioPopupBtn.addEventListener("click", () => closeModal(audioOverlay, audioPopup));
+    }
 
-        audioOverlay.addEventListener("click", function() {
-            audioOverlay.classList.add("hidden");
-            audioPopup.classList.add("hidden");
-        });
+    if (audioOverlay) {
+        audioOverlay.addEventListener("click", () => closeModal(audioOverlay, audioPopup));
+    }
+});
+</script>
+
+
+<!-- ✅ 2 – QR zobrazení a polling platby -->
+<script>
+    // Globálně dostupná funkce
+function showQr(fmt) {
+    const wrap = document.getElementById("qr-wrap");
+    if (!wrap) return;
+
+    let found = false;
+    document.querySelectorAll("[id^='qr-']").forEach(el => {
+        el.style.display = 'none';
+        if (el.id === 'qr-' + fmt) {
+            el.style.display = 'block';
+            found = true;
+        }
     });
+
+    // když se aspoň jeden QR ukazuje, ukaž wrap
+    wrap.style.display = found ? 'block' : 'none';
+}
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const formatRadios = document.querySelectorAll("input[name='format']");
+        const downloadBtn = document.getElementById("download-link");
+        const sendBtn = document.getElementById("send-to-reader-btn");
+
+        const qrWrap = document.getElementById("qr-wrap");
+        if (qrWrap) {
+            qrWrap.style.display = 'block';
+        }
+
+
+
+        const bookid = document.getElementById("js-bookid")?.value;
+        let currentPurchaseId = null;
+
+        const prices = {
+            {% for fmt, data in ebook_formats.items %}
+                "{{ fmt }}": {{ data.price|default:"0"|floatformat:"0" }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        };
+
+        formatRadios.forEach(radio => {
+            radio.addEventListener("change", function () {
+                showQr(this.value);
+            });
+        });
+
+        function checkPayment(purchaseId, isbn, fmt) {
+            const intervalId = setInterval(() => {
+                fetch(`/stav-platby/${purchaseId}/`)
+                    .then(resp => resp.json())
+                    .then(data => {
+                        if (data.status === "PAID") {
+                            clearInterval(intervalId);
+                            if (qrWrap) qrWrap.style.display = 'none';
+                            if (downloadBtn) {
+                                downloadBtn.removeAttribute("disabled");
+                                downloadBtn.href = `/stahnout-eknihu/${isbn}/${fmt}/`;
+                                downloadBtn.classList.remove("btn-secondary");
+                                downloadBtn.classList.add("btn-success");
+                                downloadBtn.innerText = "Stáhnout";
+                            }
+                            if (sendBtn) {
+                                sendBtn.removeAttribute("disabled");
+                            }
+                        }
+                    });
+            }, 4000);
+        }
+
+        if (downloadBtn) {
+            downloadBtn.addEventListener("click", function (event) {
+                event.preventDefault();
+                const checked = document.querySelector("input[name='format']:checked");
+                if (!checked) return;
+                const isbn = checked.dataset.isbn;
+                const fmt = checked.value;
+
+                if (prices[fmt] > 0) {
+                    fetch(`/posledni-pending-purchaseid/?bookid=${bookid}&format=${fmt}`)
+                        .then(r => r.json())
+                        .then(d => {
+                            if (d.purchase_id) {
+                                currentPurchaseId = d.purchase_id;
+                                checkPayment(currentPurchaseId, isbn, fmt);
+                            }
+                        });
+                } else {
+                    window.location.href = `/stahnout-eknihu/${isbn}/${fmt}/`;
+                }
+            });
+        }
+
+        // Načti QR při startu
+        const first = document.querySelector("input[name='format']:checked");
+        if (first) showQr(first.value);
+    });
+</script>
+
+<!-- dynamické přepínání bloků podle vybraného formátu -->
+<script>
+function renderEbookActions() {
+    const formats = {{ ebook_formats_json|safe }};
+    const radios = document.querySelectorAll("#ebook-popup input[name='format']");
+    const block = document.getElementById("ebook-action-block");
+    let selected = Array.from(radios).find(r => r.checked);
+    if (!selected) return;
+    let fmt = selected.value;
+    let data = formats[fmt];
+    let html = '';
+
+    if (data.show_qr) {
+        html += `
+            <div style="margin-top:15px;">
+                <button class="btn btn-secondary" disabled>Poslat do čtečky</button>
+                <button class="btn btn-secondary" disabled>Stáhnout</button>
+            </div>
+            <div id="qr-wrap" style="margin-top:20px;">
+                <img src="/generate-qr/{{ book.bookid }}/${fmt}" alt="QR ${fmt}" style="width:160px;">
+                <p><b>Zaplaťte přes QR kód...</b></p>
+                <p style="margin-top:8px;color:#888;">Po zaplacení QR kódem stránku obnovte.<br>Tlačítka se aktivují a e-knihu stáhnete.</p>
+
+            </div>
+        `;
+    } else if (data.is_paid || data.is_free_div) {
+        html += `
+            <div style="margin-top:15px;">
+                <button type="submit" class="btn btn-primary" id="send-to-reader-btn">Poslat do čtečky</button>
+                <a id="download-link" href="/stahnout-eknihu/${data.isbn}/${fmt}/" class="btn btn-success">Stáhnout</a>
+            </div>
+        `;
+    } else {
+        html += `<span class="text-danger">Formát není dostupný.</span>`;
+    }
+    block.innerHTML = html;
+}
+
+</script>
+
+<script>
+// DOPLŇ DO KÓDU:
+document.addEventListener("DOMContentLoaded", function () {
+    renderEbookActions();
+
+    document.querySelectorAll("#ebook-popup input[name='format']").forEach(radio => {
+        radio.addEventListener("change", renderEbookActions);
+    });
+});
+
 </script>
 
 {% endblock %}

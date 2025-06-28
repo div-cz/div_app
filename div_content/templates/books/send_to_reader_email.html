@@ -1,0 +1,15 @@
+<form method="post">
+    {% csrf_token %}
+    <label for="kindlemail">E-mail do čtečky:</label>
+    <input
+        type="email"
+        id="kindlemail"
+        name="kindlemail"
+        value="{{ kindlemail }}"
+        {% if readonly %}readonly="readonly"{% endif %}
+        required>
+    <button type="submit">Odeslat</button>
+</form>
+{% if readonly %}
+    <span class="text-muted">E-mail je uložen k objednávce, změna není možná.</span>
+{% endif %}

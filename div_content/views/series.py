@@ -111,10 +111,13 @@ def series_list(request):
         'premieredate'  # Seřadíme podle data premiéry (budoucí na konci)
     )[:9]
 
+    latest_comments = Tvshowcomments.objects.select_related('tvshowkid').filter(tvshowkid__isnull=False).order_by('-dateadded')[:3]
+  
     return render(request, 'series/series_list.html', {
         'tvshows_list': tvshows_list, 
         'latest_seasons': latest_seasons,
         'category_key': 'filmy',
+        'latest_comments': latest_comments,
         })
 
 

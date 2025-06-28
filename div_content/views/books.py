@@ -4,13 +4,17 @@
 
 import base64
 import datetime
+import io
 import json
 import math
 import os
 import qrcode
 import requests
+import unicodedata
 
 from datetime import datetime
+from decimal import Decimal
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
@@ -24,6 +28,8 @@ from django.db.models import Avg
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.utils.timezone import now
+
 from django.views.decorators.http import require_POST
 
 from dotenv import load_dotenv
@@ -34,12 +40,13 @@ from div_content.models import (
     Bookpublisher, Bookpurchase, Bookquotes, Bookrating, Bookwriters, Charactermeta, Metagenre, Metaindex, Metastats, Metauniversum, Userlist, Userlistbook, Userlisttype, FavoriteSum, Userbookgoal, Userlistitem
 )
 #from div_content.utils.books import fetch_book_from_google_by_id, fetch_books_from_google
-from div_content.utils.payments import generate_qr_code
+from div_content.utils.payments import generate_qr, prepare_qr_codes_for_book, qr_code_ebook, qr_code_market
 from div_content.utils.palmknihy import get_catalog_product
 
 load_dotenv()
 from div_content.views.login import custom_login_view
 from div_content.views.palmknihy import get_palmknihy_ebooks
+from div_content.views.payments import get_ebook_purchase_status
 
 from io import BytesIO
 
@@ -59,6 +66,14 @@ USERLISTTYPE_BOOK_LIBRARY_ID = 10 # Knihovna
 #CONTENT_TYPE_BOOK_ID = 9
 book_content_type = ContentType.objects.get_for_model(Book)
 CONTENT_TYPE_BOOK_ID = book_content_type.id
+
+
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return super().default(obj)
 
 
 
@@ -185,80 +200,126 @@ def get_book_price(book_id, format):
     return book_isbn.price if book_isbn and book_isbn.price else None
 
 
-def generate_qr(request, book_id, format):
-    # Ověření, zda existuje kniha a formát v databázi Bookisbn
-    book_isbn = Bookisbn.objects.filter(book=book_id, format=format).first()
-
-    if not book_isbn or not book_isbn.price:
-        return HttpResponse(status=404)  # QR kód nebude dostupný, pokud cena neexistuje
-
-    qr_string = f"SPD*1.0*ACC:CZ5620100000002602912559*AM:{book_isbn.price}*CC:CZK*MSG={book_isbn.book.title}-{format}"
-
-    img = qrcode.make(qr_string)
-    buffer = BytesIO()
-    img.save(buffer, format="PNG")
-
-    return HttpResponse(buffer.getvalue(), content_type="image/png")
 
 
-
-
-
-def get_qr_code(amount, vs, message):
-    qr_string = f"SPD*1.0*ACC:CZ5620100000002602912559*AM:{amount}*CC:CZK*MSG:{message}*X-VS:{vs}"
-    img = qrcode.make(qr_string)
-    buffer = BytesIO()
-    img.save(buffer)
-    return base64.b64encode(buffer.getvalue()).decode()
     
-
 def listing_detail(request, book_url, listing_id):
-    """Detail konkrétní nabídky s možností rezervace a hodnocení."""
     book = get_object_or_404(Book, url=book_url)
     listing = get_object_or_404(Booklisting, booklistingid=listing_id, book=book)
     
+    user_purchase = None 
+    if request.user.is_authenticated:
+        try:
+            user_purchase = Bookpurchase.objects.get(
+                user=request.user,
+                book=book,
+                status='RESERVED' 
+            )
+        except Bookpurchase.DoesNotExist:
+            user_purchase = None
+        except Bookpurchase.MultipleObjectsReturned:
+            user_purchase = Bookpurchase.objects.filter(
+                user=request.user,
+                book=book,
+                status='RESERVED'
+            ).order_by('-orderdate').first()
+
     if request.method == 'POST' and request.user.is_authenticated:
-        # Rezervace nabídky
         if 'reserve_listing' in request.POST and request.user != listing.user:
+            print("\n--- Pokus o rezervaci nabídky ---")
+            print(f"Aktuální listing.status: {listing.status}")
+            print(f"Uživatel: {request.user.username} (ID: {request.user.id})")
+            print(f"Kniha: {book.titlecz} (ID: {book.bookid})")
+            
             if listing.status != 'ACTIVE':
                 messages.error(request, 'Nabídka již není aktivní.')
-            else:
-                listing.status = 'RESERVED'
+                print("Chyba: Nabídka není aktivní.")
+            elif user_purchase:
+                messages.warning(request, 'Tuto knihu jste již rezervoval(a).')
+                print(f"Chyba: Uživatel již má existující purchase (ID: {user_purchase.purchaseid}, status: {user_purchase.status}).")
+            else:      
+                try:
+                    new_purchase = Bookpurchase.objects.create(
+                        user=request.user,
+                        book=book,
+                        price=listing.price,
+                        format='pdf', 
+                        status='RESERVED', 
+                        orderdate=timezone.now()
+                    )
+                    messages.success(request, 'Kniha byla úspěšně rezervována. Čeká na platbu.')
+                    user_purchase = new_purchase
+                    print(f"Úspěšně vytvořen nový Bookpurchase! ID: {new_purchase.purchaseid}, User: {new_purchase.user.username}, Book ID: {new_purchase.book.bookid}, Status: {new_purchase.status}")
+
+                except Exception as e:
+                    messages.error(request, f'Chyba při vytváření rezervace: {e}')
+                    print(f"CHYBA PŘI VYTVÁŘENÍ PURCHASE: {e}")
+                    return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
+
+                listing.status = 'RESERVED' 
                 listing.buyer = request.user
                 listing.save()
                 messages.success(request, 'Nabídka byla rezervována.')
-            
-        # Dokončení transakce
+                print(f"Listing aktualizován: Status={listing.status}, Kupující={listing.buyer.username}")
+                return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)    
+   # --- Dokončení transakce (pro prodejce) ---
         elif 'complete_listing' in request.POST and request.user == listing.user:
             if listing.status != 'RESERVED':
                 messages.error(request, 'Nabídka není ve stavu pro dokončení.')
+
+            elif not user_purchase or user_purchase.status != 'RESERVED': 
+                messages.error(request, 'Nelze dokončit, chybí odpovídající rezervace.')
             else:
                 listing.status = 'COMPLETED'
                 listing.completed_at = timezone.now()
                 listing.save()
+                
+                user_purchase.status = 'PAID'  
+                user_purchase.paymentdate = timezone.now()
+                user_purchase.save()
+
                 messages.success(request, 'Transakce byla dokončena.')
-            
+                return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
+
+        elif 'cancel_reservation' in request.POST and user_purchase: 
+            if (user_purchase.user == request.user and 
+                listing.status == 'RESERVED' and 
+                user_purchase.status == 'RESERVED'): 
+                
+                user_purchase.status = 'CANCELLED' 
+                user_purchase.cancelreason = request.POST.get("cancel_reason", "Bez udání důvodu")
+                user_purchase.save()
+
+                listing.status = 'ACTIVE' 
+                listing.buyer = None 
+                listing.save()
+
+                messages.success(request, 'Rezervace byla zrušena a nabídka vrácena do aktivního stavu.')
+                return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
+            else:
+                messages.error(request, 'Tuto rezervaci nelze zrušit. Nesplňuje podmínky pro zrušení.')        
+        
         # Přidání hodnocení prodejcem
-        elif 'seller_rating' in request.POST and request.user == listing.user:
-            if listing.buyer_rating:
+        elif 'sellerrating' in request.POST and request.user == listing.user:
+            if listing.buyerrating:
                 messages.error(request, 'Hodnocení již bylo přidáno.')
             else:
-                listing.buyer_rating = request.POST.get('rating')
-                listing.buyer_comment = request.POST.get('comment')
+                listing.buyerrating = request.POST.get('rating')
+                listing.buyercomment = request.POST.get('comment')
                 listing.save()
                 messages.success(request, 'Hodnocení kupujícího bylo přidáno.')
             
         # Přidání hodnocení kupujícím
-        elif 'buyer_rating' in request.POST and request.user == listing.buyer:
-            if listing.seller_rating:
+        elif 'buyerrating' in request.POST and request.user == listing.buyer:
+            if listing.sellerrating:
                 messages.error(request, 'Hodnocení již bylo přidáno.')
             else:
-                listing.seller_rating = request.POST.get('rating')
-                listing.seller_comment = request.POST.get('comment')
+                listing.sellerrating = request.POST.get('rating')
+                listing.sellercomment = request.POST.get('comment')
                 listing.save()
                 messages.success(request, 'Hodnocení prodejce bylo přidáno.')
 
-
+ 
     # QR kód a platební údaje
     payment_info = None
     if listing.status == 'RESERVED' and listing.buyer == request.user:
@@ -270,23 +331,34 @@ def listing_detail(request, book_url, listing_id):
             'variable_symbol': book.bookid,
             'note': qr_message
         }
-
-
-    # Zjištění, zda může uživatel přidat hodnocení
+    
+ # Zjištění, zda může uživatel přidat hodnocení
     can_rate_seller = (listing.status == 'COMPLETED' and 
                       request.user == listing.buyer and 
-                      not listing.seller_rating)
+                      not listing.sellerrating)
     can_rate_buyer = (listing.status == 'COMPLETED' and 
                      request.user == listing.user and 
-                     not listing.buyer_rating)
-    
+                     not listing.buyerrating)
+    can_cancel_reservation = False # Inicializace
+
+    if request.user.is_authenticated:
+        # Podmínka pro ZRUŠENÍ REZERVACE (kupující)
+        if (listing.status  == 'RESERVED' and 
+            user_purchase and 
+            user_purchase.user == request.user and 
+            user_purchase.status == 'PENDING'):
+            can_cancel_reservation = True
+
     return render(request, 'books/listing_detail.html', {
         'book': book,
         'listing': listing,
         'payment_info': payment_info,
         'can_rate_seller': can_rate_seller,
-        'can_rate_buyer': can_rate_buyer
-    })
+        'can_rate_buyer': can_rate_buyer,
+        'purchase': user_purchase,
+        'can_cancel_reservation': can_cancel_reservation,
+    })    
+     
 
 
 def get_market_listings(limit=5):
@@ -304,14 +376,27 @@ def get_market_listings(limit=5):
 
 @login_required
 def cancel_purchase(request, purchase_id):
-    purchase = get_object_or_404(Bookpurchase, id=purchase_id, buyer=request.user)
+    purchase = get_object_or_404(Bookpurchase, purchaseid=purchase_id, user=request.user) 
+    
     if request.method == "POST":
-        reason = request.POST.get("cancel_reason", "Bez udání důvodu")
-        purchase.status = "canceled"
-        purchase.cancel_reason = reason
-        purchase.completedat = timezone.now()
-        purchase.save()
-        return redirect("index")
+        reason = request.POST.get("cancel_reason", "Bez udání důvodu") 
+        
+        if purchase.book and purchase.book.status == 'RESERVED' and purchase.status == 'PENDING':
+            book_obj = purchase.book 
+            
+            book_obj.status = "ACTIVE" 
+            book_obj.save() 
+            
+            purchase.status = "CANCELLED" 
+            purchase.cancelreason = reason
+            purchase.save()
+            
+            messages.success(request, f'Rezervace knihy "{book_obj.titlecz}" byla zrušena.')
+            return redirect('index') 
+        else:
+            messages.error(request, 'Rezervaci nelze zrušit, protože kniha/rezervace již není ve stavu "RESERVED"/"PENDING".')
+            return redirect('index') 
+
     return render(request, "books/market_cancel_purchase.html", {"purchase": purchase})
 
 @login_required
@@ -393,7 +478,7 @@ def books(request):
     ebooks2 = get_palmknihy_ebooks(limit=6)
     
     last_comment = Bookcomments.objects.select_related('user', 'bookid').order_by('-commentid').first()
-
+    latest_comments = Bookcomments.objects.order_by('-dateadded')[:3]
 
     return render(request, 'books/books_list.html', {
         'top_books': top_books,
@@ -405,6 +490,7 @@ def books(request):
         'recent_listings': recent_listings,
         'ebooks2': ebooks2,
         'last_comment': last_comment,
+        'latest_comments': latest_comments,
         })
 #'top_20_books': top_20_books, 'all_books': all_books, 'api_test_message': api_test_message
 
@@ -587,19 +673,16 @@ def book_detail(request, book_url):
     user_ebook_purchases = []
     if user.is_authenticated:  # ✅ Zkontrolujeme, zda je uživatel přihlášený
         user_ebook_purchases = Bookpurchase.objects.filter(user=user, book=book, status="PENDING").order_by('-purchaseid')
-    qr_codes = {}
-    for purchase in user_ebook_purchases:
-        qr_codes[purchase.id] = generate_qr_code(purchase.book.bookid, purchase.format, purchase.price, user)
-
-    prices = {
-        'mobi': get_book_price(book.bookid, 'MOBI'),
-        'epub': get_book_price(book.bookid, 'EPUB'),
-        'pdf': get_book_price(book.bookid, 'PDF'),
-    }
 
 
     # TEST API EKNIHY
-    ebooks = get_catalog_product(limit=300)
+    try:
+        ebooks = get_catalog_product(limit=300)
+    except Exception as e:
+        ebooks = []
+        print(f"Chyba při načítání e-knih z Palmknihy: {e}")
+
+
     matched = None
     
     for ebook in ebooks:
@@ -617,8 +700,8 @@ def book_detail(request, book_url):
         break
 
     bookisbns = Bookisbn.objects.filter(book=book)
-    ALLOWED_EBOOK_FORMATS = ["EPUB", "MOBI", "PDF"]  # příp. rozšiř o 'AUDIO'
-    
+
+    ALLOWED_EBOOK_FORMATS = ["EPUB", "MOBI", "PDF", "AUDIO"]
     bookisbns = Bookisbn.objects.filter(book=book, format__in=ALLOWED_EBOOK_FORMATS)
     ebook_formats = {
         b.format.lower(): {
@@ -630,30 +713,17 @@ def book_detail(request, book_url):
         }
         for b in bookisbns if b.isbn and b.format
     }
-
+    ebook_formats = get_ebook_purchase_status(request.user, book, ebook_formats)
     ebook_info = next(iter(ebook_formats.values()), None)
     has_ebook = any(data.get("available") for data in ebook_formats.values())
-    has_audio = False 
+    has_audio = any(fmt == "audio" and data.get("available") for fmt, data in ebook_formats.items())
 
-
-
-     # Najdeme všechny Bookisbn pro danou knihu (typy EPUB/MOBI/PDF)
-    bookisbns = Bookisbn.objects.filter(book=book, format__in=["EPUB", "MOBI", "PDF"])
-    prices = {
-        "epub": None,
-        "mobi": None,
-        "pdf": None
-    }
-    for isbn in bookisbns:
-        if isbn.format == "EPUB":
-            prices["epub"] = isbn.price
-        elif isbn.format == "MOBI":
-            prices["mobi"] = isbn.price
-        elif isbn.format == "PDF":
-            prices["pdf"] = isbn.price
 
     # Urči minimální dostupnou cenu (od)
-    cena_od = min([p for p in prices.values() if p is not None and p > 0], default=None)
+    cena_od = min(
+        [data["price"] for data in ebook_formats.values() if data.get("price") is not None and data.get("price") > 0],
+        default=None
+    )
 
     if request.user.is_authenticated:
         existing_paid_email = Bookpurchase.objects.filter(
@@ -665,6 +735,46 @@ def book_detail(request, book_url):
     else:
         existing_paid_email = ""
 
+
+    qr_codes = {}
+    if user.is_authenticated:
+        pending_purchases = {p.format.lower(): p for p in Bookpurchase.objects.filter(
+            user=user, book=book, status="PENDING"
+        )}
+        for fmt, data in ebook_formats.items():
+            if data["available"] and data["price"]:
+                if fmt not in pending_purchases:
+                    purchase, _ = Bookpurchase.objects.get_or_create(
+                        user=user,
+                        book=book,
+                        format=fmt.upper(),
+                        status="PENDING",
+                        defaults={"price": data["price"]}
+                    )
+                    pending_purchases[fmt] = purchase
+                qr_codes = prepare_qr_codes_for_book(user, book, ebook_formats)
+
+    prepared = prepare_qr_codes_for_book(user, book, ebook_formats)
+    if prepared:
+        qr_codes = prepared
+
+    print("QR codes", prepare_qr_codes_for_book(user, book, ebook_formats))
+
+
+
+
+    qr_code_base64 = ""
+    if user_ebook_purchases:
+        qr_code_base64 = qr_code_ebook(user_ebook_purchases.first())
+
+
+    prices = {
+        'mobi': get_book_price(book.bookid, 'MOBI'),
+        'epub': get_book_price(book.bookid, 'EPUB'),
+        'pdf': get_book_price(book.bookid, 'PDF'),
+    }
+
+    ebook_formats = get_ebook_purchase_status(request.user, book, ebook_formats)
 
 
     return render(request, 'books/book_detail.html', {
@@ -691,15 +801,17 @@ def book_detail(request, book_url):
         'series_books': series_books,
         'user_ebook_purchases': user_ebook_purchases,
         'qr_codes': qr_codes,
+        'qr_code_base64': qr_code_base64,
         'prices': prices,
         'palmknihy_data': matched,
         'ebook_info': ebook_info,
-        "ebook_formats": ebook_formats,
         'has_ebook': has_ebook,
         'has_audio': has_audio,
         'prices': prices,
         'cena_od': cena_od,
         'existing_paid_email': existing_paid_email,
+        'ebook_formats': ebook_formats,  
+        'ebook_formats_json': json.dumps(ebook_formats, cls=DecimalEncoder),
         #'books_with_series': books_with_series,
         })
 #    top_20_books = Book.objects.order_by('-bookrating').all()[:20]  # Define top_20_books here

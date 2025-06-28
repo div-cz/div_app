@@ -21,7 +21,7 @@ from div_content.views.authors import (
 from div_content.views.blog import blog_add_post, blog_detail, blog_index, blog_list, blog_new, blog_post_detail, blog_section_detail
 
 from div_content.views.books import (
- add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, book_add, book_detail, books, books_search, books_market_offers, books_market_wants, cancel_purchase, confirm_sale, generate_qr, rate_book, ratequote, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, remove_from_book_library, character_list_ajax, set_reading_goal, books_alphabetical, book_listings, listing_detail
+ add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, book_add, book_detail, books, books_search, books_market_offers, books_market_wants, cancel_purchase, confirm_sale, rate_book, ratequote, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, remove_from_book_library, character_list_ajax, set_reading_goal, books_alphabetical, book_listings, listing_detail
     )
 from div_content.views.creators import (
     creator_detail, creators_list, toggle_favorite, add_creator_to_favourites, remove_creator_from_favourites
@@ -50,7 +50,7 @@ from div_content.views.movies import (
     remove_from_favourites, remove_from_watchlist, remove_from_watched, add_to_movie_library, remove_from_movie_library
     )
 
-from div_content.views.payments import (bank_transactions, download_ebook, send_to_reader, send_to_reader_modal)
+from div_content.views.payments import (bank_transactions, download_ebook, generate_qr, check_purchase_status, posledni_pending_purchaseid, send_to_reader, send_to_reader_modal)
 
 from div_content.views.universum import universum_detail, universum_list
 from div_content.views.users import (
@@ -275,6 +275,9 @@ urlpatterns = [
     
     # E-KNIHY
     path('generate-qr/<int:book_id>/<str:format>/', generate_qr, name='generate_qr'),
+    path("stav-platby/<int:purchase_id>/", check_purchase_status, name="check_purchase_status"),
+    path("posledni-pending-purchaseid/", posledni_pending_purchaseid, name="posledni_pending_purchaseid"),
+
     #path('poslat-do-ctecky/<str:isbn>/', send_to_reader, name='send_to_reader'),
     #path('stahnout-eknihu/<str:isbn>/', download_ebook, name='download_ebook'),
     path('stahnout-eknihu/<str:isbn>/<str:format>/', download_ebook, name='download_ebook'),

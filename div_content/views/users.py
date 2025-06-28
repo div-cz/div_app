@@ -5,7 +5,7 @@ from datetime import date
 from div_content.forms.users import ContactForm, UserProfileForm, UserMessageForm
 
 from div_content.models import (
-    Avatar, Book, Bookauthor, Bookcomments, Bookgenre, Booklisting, Creator, Favorite, Charactermeta, Game, Gamecomments, Metacountry, Metagenre, Movie, Moviecomments, Moviecountries, 
+    Avatar, Book, Bookauthor, Bookcomments, Bookgenre, Bookisbn, Booklisting, Bookpurchase, Creator, Favorite, Charactermeta, Game, Gamecomments, Metacountry, Metagenre, Movie, Moviecomments, Moviecountries, 
     Moviegenre, Movierating, Tvshow, Tvshowcomments, Userdivcoins, Userlist, Userlistbook, Userlistgame, Userlistmovie, Userlisttype, Userprofile,
     Usermessage, Userchatsession, Userlisttvshow, Userlistitem
     
@@ -331,11 +331,27 @@ def profile_eshop_section(request, user_id):
     #    userlist__listtype__name__in=["Zakoupené filmy", "Zakoupené knihy", "Zakoupené hry"]
     #).select_related("content_type").order_by("-addedat")
 
+    # Seznam zakoupených e-knih (status PAID, platnost do budoucna, řazení od nejnovějších)
+    purchased_ebooks = Bookpurchase.objects.filter(user=profile_user, status='PAID').select_related('book')
+    for p in purchased_ebooks:
+        bookisbn = Bookisbn.objects.filter(book=p.book, format__iexact=p.format).first()
+        p.isbn = bookisbn.isbn if bookisbn else None
+
+    ebook_isbns = {}
+    for p in purchased_ebooks:
+        bookisbn = p.book.bookisbn_set.filter(format__iexact=p.format).first()
+        p.isbn = bookisbn.isbn if bookisbn else None
+
+    # TODO: případně filtr na expiraci:
+    # .filter(Q(expirationdate__isnull=True) | Q(expirationdate__gte=now()))
+
     return render(request, "user/profile_markets.html", {
         "profile_user": profile_user,
         "user_profile": user_profile,
         "user_div_coins": user_div_coins,
         "active_tab": "obchod",
+        "purchased_ebooks": purchased_ebooks,
+        "ebook_isbns": ebook_isbns,
     })
 
 
@@ -914,16 +930,19 @@ def profile_books_section(request, user_id):
     })
 
 
-
 def profile_community_section(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)
-
+    profile_user = get_object_or_404(User, id=user_id)
+    user_profile = Userprofile.objects.get(user=profile_user)
+    user_div_coins = get_object_or_404(Userdivcoins, user_id=profile_user.id)
 
     return render(
         request,
         "user/profile_community.html",
         {
-            "profile_user": profile_user,
+            'profile_user': profile_user,
+            'user_profile': user_profile,
+            'user_div_coins': user_div_coins,
             "active_tab": "komunita"
         }
     )

@@ -118,66 +118,49 @@
             <!-- Tab E-knihy -->
             <div id="eknihy" class="tab-show w-full active {% if category == 'e-knihy' %}active{% endif %}">
                 <h3 class="after-h3 padding">Zakoupené E-knihy</h3>
-                <div class="flex flex-wrap">
-                    <div class="flex border w-full md:w-1/2 p-3">
-                        <div>
-                            <img src="https://div.cz/static/img/book/book.png" alt="Bez obrazku" style="max-width: 150px;">
-                        </div>
 
-                        <div class="flex flex-wrap content-between">
-                            <div class="flex flex-wrap w-full">
-                                <div class="p-1 w-full">
-                                    <a class="books" href="">
-                                        Název knihy
-                                    </a> (rok)
-                                </div>
 
-                                <div class="p-1 w-full">
-                                    <a class="books" href="">
-                                        Autor
-                                    </a>
-                                </div>
-
-                                <div class="p-1 w-full">datum koupě</div> <!-- datum -->
-                                <div class="p-1 w-full">cena</div>
-                            </div>
-
-                            <div class="flex w-full justify-evenly">
-                                <button class="add-book">Stáhnout</button>
-                                <button class="add-book" title="Odeslat do čtečky">Odeslat</button>
-                            </div>
-                        </div>
+{% if purchased_ebooks %}
+    <div class="flex flex-wrap">
+        {% for p in purchased_ebooks %}
+        <div class="flex border w-full md:w-1/2 p-3 mb-3">
+            <div>
+                <img src="{% if p.book.img and p.book.img != 'noimg.png' %}/static/kniha/{{ p.book.img }}{% else %}https://div.cz/static/img/book/book.png{% endif %}" alt="{{ p.book.titlecz|default:p.book.title }}" style="max-width: 150px;">
+            </div>
+            <div class="flex flex-wrap content-between">
+                <div class="flex flex-wrap w-full">
+                    <div class="p-1 w-full">
+                        <a class="books" href="/kniha/{{ p.book.url }}">
+                            {{ p.book.titlecz|default:p.book.title }}
+                        </a> ({{ p.book.year|default:"-" }})
                     </div>
-
-                    <div class="flex border w-full md:w-1/2 p-3">
-                        <div>
-                            <img src="https://div.cz/static/img/book/book.png" alt="Bez obrazku" style="max-width: 150px;">
-                        </div>
-
-                        <div class="flex flex-wrap content-between">
-                            <div class="flex flex-wrap w-full">
-                                <div class="p-1 w-full">
-                                    <a class="books" href="">
-                                        Název knihy
-                                    </a> (rok)
-                                </div>
-
-                                <div class="p-1 w-full">
-                                    <a class="books" href="">
-                                        Autor
-                                    </a>
-                                </div>
-
-                                <div class="p-1 w-full">datum koupě</div> <!-- datum -->
-                                <div class="p-1 w-full">cena</div>
-                            </div>
-
-                            <div class="flex w-full justify-evenly">
-                                <button class="add-book">Stáhnout</button>
-                                <button class="add-book" title="Odeslat do čtečky">Odeslat</button>
-                            </div>
-                        </div>
+                    <div class="p-1 w-full">
+                        {% if p.book.bookauthor_set.all %}
+                            {% for ba in p.book.bookauthor_set.all %}
+                                {{ ba.author.firstname }} {{ ba.author.lastname }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        {% endif %}
                     </div>
+                    <div class="p-1 w-full">{{ p.paymentdate|date:"j. n. Y H:i" }}</div>
+                    <div class="p-1 w-full">{{ p.price|floatformat:0 }} Kč</div>
+                    <div class="p-1 w-full">formát: {{ p.format|upper }}</div>
+                </div>
+                <div class="flex w-full justify-evenly mt-3">
+                    {% if p.isbn %}
+                        <a href="{% url 'download_ebook' p.isbn p.format %}" class="add-book">Stáhnout</a>
+                        <a href="{% url 'send_to_reader' p.isbn p.format %}" class="add-book" title="Odeslat do čtečky">Odeslat</a>
+                    {% else %}
+                        <span style="color:red;">Chybí ISBN pro tento formát</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="p-3">Žádné zakoupené E-knihy.</p>
+{% endif %}
+
 
                 </div>
 
@@ -207,7 +190,7 @@
                     </span>
                 </div> 
                 
-                <p class="p-3">Žádné zakoupené E-knihy.</p>
+                
                                         
             </div>
 

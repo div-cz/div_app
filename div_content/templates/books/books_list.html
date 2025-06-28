@@ -188,27 +188,55 @@ Ne
             </div>
         </div>
 
-        <!-- má komunita -->
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <div class="flex flex-wrap justify-between card-title after-h3">
-                    <h3 class="font-bold"><!--Má komunita-->Poslední komentář</h3><!--<a href=""><small>Zobrazit vše</small></a>-->
-                </div>
-                <div class="after last-line">   <!-- může se zobrazovat 5 posledních, zbytek bude v profilu -->
-                    <div class="flex">
-                        <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}" style="width: 15%;">   
-                        <div class="flex flex-wrap content-start ml-2" style="width: 83%;">
-                            <a class="w-full" href="/kniha/{{ last_comment.bookid.url }}">{{ last_comment.bookid.titlecz|default:last_comment.bookid.title }}</a> <!-- název knihy -->
-                            <p class="w-full">{{ last_comment.comment }}</p>
-                        </div>
-                        
-                    </div>  
-                    <p class="flex justify-end">Uživatel: <a href="/uzivatel/{{ last_comment.user.username }}" class="ml-2">{{ last_comment.user.username }}</a></p>
-                </div>
-            </div>
+<div class="card box-shadow mb-4">
+    <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="flex flex-wrap justify-between card-title after-h3">
+             <h3 class="font-bold">Má komunita</h3><a href="/knihy/"><small>Zobrazit vše</small></a>
         </div>
+       <div class="after last-line">   
+    {% if latest_comments %} 
+        {% for comment in latest_comments %}  
+            <div class="flex mb-3"> 
+                <div class="mr-4 flex" style="width:100px; max-width:100px; flex-shrink: 0;"> 
+                    {% if comment.bookid.img == "noimg.png" %} 
+                        <img src="/static/img/book/book.png" alt="Kniha {{ comment.bookid.titlecz }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
+                    {% elif comment.bookid.img == "GoogleID" %}
+                        <img src="https://books.google.com/books/content?id={{ comment.bookid.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ comment.bookid.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px;">
+                    {% else %}
+                        <img src="/static/kniha/{{ comment.bookid.img }}" alt="{{ comment.bookid.titlecz }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
+                    {% endif %}
+                </div>         
+    
+                <div class="flex flex-wrap content-start ml-2" style="flex: 2;">
+                    <a class="w-full font-semibold" href="{% url 'book_detail' comment.bookid.url %}">{{ comment.bookid.titlecz }}</a>
+                    <p class="w-full text-sm text-gray-700 dark:text-gray-300">{{ comment.comment|truncatewords:30 }}</p>
+                    <p class="w-full text-xs text-gray-500 dark:text-gray-400">
+                        <p class="flex justify-end"> Uživatel: </p>
+                        {% if comment.user %}
+                            <div class="flex flex-wrap content-start ml-2" style="width: 83%;">
+                                <a href="/uzivatel/{{ comment.user.id }}/" class="ml-2">{{ comment.user.username }}</a>
+                            </div>
+                        {% endif %}
+                        <span class="ml-2">| {{ comment.dateadded|date:"d.m.Y H:i" }}</span>
+                    </p>
+                </div> 
+            </div>
 
-    </div>
+            {% if not forloop.last %}
+                <hr class="my-3 border-gray-300 dark:border-gray-700">
+            {% endif %}
+        {% endfor %} 
+    {% else %}
+        <p>Zatím žádné recenze od komunity.</p>
+    {% endif %}
+</div>
+</div>
+</div>
+</div>
+   
+ 
+
+
     
     <!-- PRAVÁ STRANA -->
     <div class="col-lg-4 article-section ">
@@ -402,7 +430,7 @@ Ne
             </div>
         </div>
 
-        <!-- ŽÁNRY -->
+        <!-- ŽÁNRY --><!--
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="card-title font-bold after-h3">Žánry</h3>
@@ -439,7 +467,7 @@ Ne
                     <a href="/knihy/young-adult">Young adult</a>
                 </div>
             </div>
-        </div>
+        </div>-->
 
         <!-- STATISTIKY -->
         <div class="card box-shadow mb-4">
