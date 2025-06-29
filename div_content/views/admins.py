@@ -349,7 +349,7 @@ def admin_palmknihy_preview(request):
                     "exists": isbn in existing_isbns,
                     "price": dist_price,      # <<<<<< Cena z API
                     "db_price": db_price,     # <<<<<< Cena z DB
-                    "palmknihyid": palmknihyid
+                    "palmknihyid": palmknihyid,
                 })
 
 
@@ -371,7 +371,7 @@ def admin_palmknihy_preview(request):
                 "exists": isbn_clean in existing_isbns,
                 "price": None,
                 "db_price": db_price,
-                "palmknihyid": palmknihyid
+                "palmknihyid": palmknihyid,
             })
 
 
@@ -490,7 +490,8 @@ def admin_store_ebook(request):
                 language=book_data.get("language", "cs"),
                 price=None,
                 description=book_data.get("description", "")[:500],
-                palmknihyid=palmknihyid
+                palmknihyid=palmknihyid,
+                ISBNtype="PALM"
             )
 
         # Ulož formáty EPUB, MOBI, PDF
@@ -504,7 +505,8 @@ def admin_store_ebook(request):
                     language=book_data.get("language", "cs"),
                     price=book_data.get("current_valid_price", {}).get("price"),
                     description=book_data.get("description", "")[:500],
-                    palmknihyid=palmknihyid
+                    palmknihyid=palmknihyid,
+                    ISBNtype="PALM"
                 )
 
     return redirect("admin_palmknihy_preview")
@@ -539,7 +541,8 @@ def admin_store_ebook(request):
                     "language": book_data.get("language", "cs"),
                     "price": None,
                     "description": book_data.get("description", "")[:500],
-                    "palmknihyid": palmknihyid
+                    "palmknihyid": palmknihyid,
+                    "ISBNtype": "PALM"
                 }
             )
 
@@ -555,7 +558,8 @@ def admin_store_ebook(request):
                         "language": book_data.get("language", "cs"),
                         "price": book_data.get("current_valid_price", {}).get("price"),
                         "description": book_data.get("description", "")[:500],
-                        "palmknihyid": palmknihyid
+                        "palmknihyid": palmknihyid,
+                        "ISBNtype": "PALM"
                     }
                 )
 
@@ -597,7 +601,8 @@ def admin_store_page(request):
                         "language": book_data.get("language", "cs"),
                         "price": None,
                         "description": book_data.get("description", "")[:500],
-                        "palmknihyid": palmknihyid
+                        "palmknihyid": palmknihyid,
+                        "ISBNtype": "PALM"
                     }
                 )
 
@@ -613,7 +618,8 @@ def admin_store_page(request):
                             "language": book_data.get("language", "cs"),
                             "price": book_data.get("current_valid_price", {}).get("price"),
                             "description": book_data.get("description", "")[:500],
-                            "palmknihyid": palmknihyid
+                            "palmknihyid": palmknihyid,
+                            "ISBNtype": "PALM"
                         }
                     )
     return redirect(request.META.get("HTTP_REFERER", "admin_palmknihy_preview"))
