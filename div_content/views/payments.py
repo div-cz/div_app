@@ -2,7 +2,6 @@
 
 import datetime
 import io
-
 import os
 import smtplib
 import unicodedata
@@ -23,7 +22,7 @@ from django.utils.timezone import now
 from django.views.decorators.http import require_POST
 
 from div_content.models import Book, Bookisbn, Bookpurchase
-from div_content.utils.palmknihy import get_catalog_product
+from div_content.utils.palmknihy import get_catalog_product, get_palmknihy_download_url, get_palmknihy_api_token
 from div_content.utils.palmknihy_sync import fetch_and_update_bookisbn
 
 
@@ -210,13 +209,46 @@ def get_ebook_purchase_status(user, book, ebook_formats):
 
 
 
+
+
+
+
 # Stáhnout e-knihu – zdarma nebo po zaplacení
 @login_required
 def download_ebook(request, isbn, format):
-    bookisbn = get_object_or_404(Bookisbn, isbn=isbn)
+    bookisbn = get_object_or_404(Bookisbn, isbn=isbn, format=format)
     book = bookisbn.book
 
-    # FREE: zdarma ke stažení – vytvoř/vylepši objednávku
+    # Poznáš zdroj
+    isbntype = (bookisbn.ISBNtype or "").upper()
+
+    # 1. PALM - stahování řešit přes Palmknihy API, přesměruj/poskytni link nebo stáhni jejich API
+    if bookisbn.ISBNtype == "PALM":
+        # Najdi nebo vytvoř purchase (objednávku), musíš mít purchaseid!
+        purchase = Bookpurchase.objects.filter(
+            book=book,
+            user=request.user,
+            format=format,
+            status="PAID"
+        ).first()
+        if not purchase:
+            raise Http404("Nemáte zaplaceno nebo objednáno.")
+    
+        # Připrav JSON data dle příručky
+        palmknihy_link = get_palmknihy_download_url(
+            palmknihyid=bookisbn.palmknihyid,
+            purchaseid=purchase.purchaseid,
+            user_id=request.user.id,
+            email=request.user.email,
+            format=format,
+            delivery_type="ebook" if format.lower() in ["epub", "pdf", "mobi"] else "audiobook"
+        )
+        if not palmknihy_link:
+            return HttpResponse("Palmknihy - link není dostupný.", status=404)
+        return redirect(palmknihy_link)
+
+
+    # 2. DIV (nebo prázdný/ostatní) – tvůj původní kód:
     if bookisbn.price == 0 or bookisbn.price is None:
         allowed = True
         purchase, created = Bookpurchase.objects.get_or_create(
@@ -228,9 +260,9 @@ def download_ebook(request, isbn, format):
                 "price": 0,
                 "paymentdate": now(),
                 "expirationdate": now().replace(year=now().year + 3),
+                "source": isbntype,
             },
         )
-        # Pokud existuje a není PAID, tak updatni!
         if not created and purchase.status != "PAID":
             purchase.status = "PAID"
             purchase.price = 0
@@ -238,7 +270,6 @@ def download_ebook(request, isbn, format):
             purchase.expirationdate = now().replace(year=now().year + 3)
             purchase.save()
     else:
-        # PLACENÁ: kontrola, zda user má objednáno a zaplaceno
         allowed = Bookpurchase.objects.filter(
             book=book,
             user=request.user,
@@ -248,7 +279,6 @@ def download_ebook(request, isbn, format):
     if not allowed:
         raise Http404("Nemáte oprávnění k této e-knize.")
 
-    # Cesta k souboru (název podle URL knihy a formátu)
     filename = f"{book.url}.{format.lower()}"
     filepath = os.path.join(os.getenv("FREE_EBOOKS_PATH"), filename)
 
@@ -263,6 +293,7 @@ def download_ebook(request, isbn, format):
         response = HttpResponse(f.read(), content_type="application/pdf")
         response["Content-Disposition"] = f"attachment; filename={filename}"
         return response
+
 
 
 @require_POST

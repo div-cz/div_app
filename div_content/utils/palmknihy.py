@@ -1,5 +1,6 @@
 # utils/palmknihy.py
 
+import json
 import os
 import re
 import requests
@@ -96,6 +97,49 @@ def get_all_palmknihy_products():
         all_books.extend(books)
         page += 1
     return all_books
+
+
+def get_palmknihy_api_token():
+    url = os.getenv("PALMKNIHY_API_URL") + "/auth"
+    data = {
+        "client_id": os.getenv("PALMKNIHY_CLIENT_ID"),
+        "client_secret": os.getenv("PALMKNIHY_CLIENT_SECRET"),
+        "grant_type": "client_credentials"
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "X-AM-Consumer-Key": os.getenv("PALMKNIHY_CLIENT_ID")
+    }
+    resp = requests.post(url, json=data, headers=headers)
+    resp.raise_for_status()
+    return resp.json()["access_token"]
+
+
+
+def get_palmknihy_download_url(palmknihyid, purchaseid, user_id, email, format, delivery_type="ebook"):
+    token = get_palmknihy_api_token()
+    endpoint = os.getenv("PALMKNIHY_API_URL") + "/partner/provision"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "X-AM-Consumer-Key": os.getenv("PALMKNIHY_CLIENT_ID")
+    }
+    data = {
+        "product_id": palmknihyid,
+        "order_id": str(purchaseid),
+        "purchase_date": datetime.datetime.now().isoformat(),  # doplň aktuální datum
+        "delivery_type": delivery_type,
+        "delivery_email": email,
+        "format": format.lower()  # zkusit, jestli provision API podporuje tento parametr
+    }
+    print("PALMKNIHY PROVISION REQ:", json.dumps(data, indent=2))
+    response = requests.post(endpoint, json=data, headers=headers, timeout=10)
+    print("PALMKNIHY PROVISION RESPONSE:", response.status_code, response.text)
+    if response.status_code == 200:
+        return response.json().get("download_url") or response.json().get("link")
+    return None
+
+
 
 
 
