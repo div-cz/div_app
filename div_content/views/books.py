@@ -206,100 +206,42 @@ def get_book_price(book_id, format):
 def listing_detail(request, book_url, listing_id):
     book = get_object_or_404(Book, url=book_url)
     listing = get_object_or_404(Booklisting, booklistingid=listing_id, book=book)
-    
-    user_purchase = None 
-    if request.user.is_authenticated:
-        try:
-            user_purchase = Bookpurchase.objects.get(
-                user=request.user,
-                book=book,
-                status='RESERVED' 
-            )
-        except Bookpurchase.DoesNotExist:
-            user_purchase = None
-        except Bookpurchase.MultipleObjectsReturned:
-            user_purchase = Bookpurchase.objects.filter(
-                user=request.user,
-                book=book,
-                status='RESERVED'
-            ).order_by('-orderdate').first()
 
     if request.method == 'POST' and request.user.is_authenticated:
+        # REZERVACE
         if 'reserve_listing' in request.POST and request.user != listing.user:
-            print("\n--- Pokus o rezervaci nabídky ---")
-            print(f"Aktuální listing.status: {listing.status}")
-            print(f"Uživatel: {request.user.username} (ID: {request.user.id})")
-            print(f"Kniha: {book.titlecz} (ID: {book.bookid})")
-            
             if listing.status != 'ACTIVE':
                 messages.error(request, 'Nabídka již není aktivní.')
-                print("Chyba: Nabídka není aktivní.")
-            elif user_purchase:
-                messages.warning(request, 'Tuto knihu jste již rezervoval(a).')
-                print(f"Chyba: Uživatel již má existující purchase (ID: {user_purchase.purchaseid}, status: {user_purchase.status}).")
-            else:      
-                try:
-                    new_purchase = Bookpurchase.objects.create(
-                        user=request.user,
-                        book=book,
-                        price=listing.price,
-                        format='pdf', 
-                        status='RESERVED', 
-                        orderdate=timezone.now()
-                    )
-                    messages.success(request, 'Kniha byla úspěšně rezervována. Čeká na platbu.')
-                    user_purchase = new_purchase
-                    print(f"Úspěšně vytvořen nový Bookpurchase! ID: {new_purchase.purchaseid}, User: {new_purchase.user.username}, Book ID: {new_purchase.book.bookid}, Status: {new_purchase.status}")
-
-                except Exception as e:
-                    messages.error(request, f'Chyba při vytváření rezervace: {e}')
-                    print(f"CHYBA PŘI VYTVÁŘENÍ PURCHASE: {e}")
-                    return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
-
-                listing.status = 'RESERVED' 
+            else:
+                listing.status = 'RESERVED'
                 listing.buyer = request.user
                 listing.save()
                 messages.success(request, 'Nabídka byla rezervována.')
-                print(f"Listing aktualizován: Status={listing.status}, Kupující={listing.buyer.username}")
-                return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)    
-   # --- Dokončení transakce (pro prodejce) ---
+                return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
+
+        # DOKONČENÍ (pro prodávajícího)
         elif 'complete_listing' in request.POST and request.user == listing.user:
             if listing.status != 'RESERVED':
                 messages.error(request, 'Nabídka není ve stavu pro dokončení.')
-
-            elif not user_purchase or user_purchase.status != 'RESERVED': 
-                messages.error(request, 'Nelze dokončit, chybí odpovídající rezervace.')
             else:
                 listing.status = 'COMPLETED'
-                listing.completed_at = timezone.now()
+                listing.completedat = timezone.now()
                 listing.save()
-                
-                user_purchase.status = 'PAID'  
-                user_purchase.paymentdate = timezone.now()
-                user_purchase.save()
-
                 messages.success(request, 'Transakce byla dokončena.')
                 return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
 
-        elif 'cancel_reservation' in request.POST and user_purchase: 
-            if (user_purchase.user == request.user and 
-                listing.status == 'RESERVED' and 
-                user_purchase.status == 'RESERVED'): 
-                
-                user_purchase.status = 'CANCELLED' 
-                user_purchase.cancelreason = request.POST.get("cancel_reason", "Bez udání důvodu")
-                user_purchase.save()
-
-                listing.status = 'ACTIVE' 
-                listing.buyer = None 
+        # ZRUŠENÍ REZERVACE (pro kupujícího)
+        elif 'cancel_reservation' in request.POST and request.user == listing.buyer:
+            if listing.status == 'RESERVED':
+                listing.status = 'ACTIVE'
+                listing.buyer = None
                 listing.save()
-
                 messages.success(request, 'Rezervace byla zrušena a nabídka vrácena do aktivního stavu.')
                 return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
             else:
-                messages.error(request, 'Tuto rezervaci nelze zrušit. Nesplňuje podmínky pro zrušení.')        
-        
-        # Přidání hodnocení prodejcem
+                messages.error(request, 'Tuto rezervaci nelze zrušit.')
+
+        # Hodnocení prodávající/kupující
         elif 'sellerrating' in request.POST and request.user == listing.user:
             if listing.buyerrating:
                 messages.error(request, 'Hodnocení již bylo přidáno.')
@@ -308,8 +250,7 @@ def listing_detail(request, book_url, listing_id):
                 listing.buyercomment = request.POST.get('comment')
                 listing.save()
                 messages.success(request, 'Hodnocení kupujícího bylo přidáno.')
-            
-        # Přidání hodnocení kupujícím
+
         elif 'buyerrating' in request.POST and request.user == listing.buyer:
             if listing.sellerrating:
                 messages.error(request, 'Hodnocení již bylo přidáno.')
@@ -319,35 +260,23 @@ def listing_detail(request, book_url, listing_id):
                 listing.save()
                 messages.success(request, 'Hodnocení prodejce bylo přidáno.')
 
- 
-    # QR kód a platební údaje
+    # QR platba atd – pouze pokud chceš
     payment_info = None
     if listing.status == 'RESERVED' and listing.buyer == request.user:
         total_amount = float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0)
         qr_message = f"{book.title}|{listing.user.username}"
         payment_info = {
             'total': total_amount,
-            'qr_code': get_qr_code(total_amount, book.bookid, qr_message),
+            'qr_code': qr_code_market(total_amount, book.bookid, qr_message),
             'variable_symbol': book.bookid,
             'note': qr_message
         }
-    
- # Zjištění, zda může uživatel přidat hodnocení
-    can_rate_seller = (listing.status == 'COMPLETED' and 
-                      request.user == listing.buyer and 
-                      not listing.sellerrating)
-    can_rate_buyer = (listing.status == 'COMPLETED' and 
-                     request.user == listing.user and 
-                     not listing.buyerrating)
-    can_cancel_reservation = False # Inicializace
 
-    if request.user.is_authenticated:
-        # Podmínka pro ZRUŠENÍ REZERVACE (kupující)
-        if (listing.status  == 'RESERVED' and 
-            user_purchase and 
-            user_purchase.user == request.user and 
-            user_purchase.status == 'PENDING'):
-            can_cancel_reservation = True
+
+    # Možnost hodnocení/zrušení pro správného uživatele
+    can_rate_seller = (listing.status == 'COMPLETED' and request.user == listing.buyer and not listing.sellerrating)
+    can_rate_buyer = (listing.status == 'COMPLETED' and request.user == listing.user and not listing.buyerrating)
+    can_cancel_reservation = (listing.status == 'RESERVED' and request.user == listing.buyer)
 
     return render(request, 'books/listing_detail.html', {
         'book': book,
@@ -355,9 +284,10 @@ def listing_detail(request, book_url, listing_id):
         'payment_info': payment_info,
         'can_rate_seller': can_rate_seller,
         'can_rate_buyer': can_rate_buyer,
-        'purchase': user_purchase,
         'can_cancel_reservation': can_cancel_reservation,
-    })    
+    })
+
+
      
 
 
