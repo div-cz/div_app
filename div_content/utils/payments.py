@@ -1,25 +1,55 @@
 #utils.payments
 
-import qrcode
+
 import base64
+import qrcode
 import unicodedata
+
 from io import BytesIO
 
+from django.http import HttpResponse
 
 
 
+# Generuje finaln√≠ kod views.payments.py
+def generate_qr_for_bookpurchase(purchase, book, user):
+    format_code = {"epub": "2", "mobi": "3", "pdf": "4"}.get(purchase.format.lower(), "9")
+    vs = f"01038{format_code}{str(purchase.purchaseid).zfill(4)}"
+    username = user.username if user and hasattr(user, "username") else "anon"
+    msg = f"{book.titlecz or book.title}-{purchase.format}-{username}-DIVcz"
+    msg = unicodedata.normalize('NFKD', msg).encode('ascii', 'ignore').decode('ascii').replace(" ", "")
+    qr_string = (
+        f"SPD*1.0*ACC:CZ5620100000002602912559"
+        f"*AM:{float(purchase.price):.2f}"
+        f"*CC:CZK"
+        f"*MSG:{msg.replace('=', ':')}"
+        f"*X-VS:{vs}"
+    )
+    img = qrcode.make(qr_string)
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+    return HttpResponse(buffer.getvalue(), content_type="image/png")
 
 
+"""
 def generate_qr(request, book_id, format):
-    # OvÏ¯enÌ, zda existuje kniha a form·t v datab·zi Bookisbn
+    FORMAT_MAPPING = {
+        'epub': '2',
+        'mobi': '3',
+        'pdf': '4',
+        'print': '0',
+        'audio': '1',
+        'burza_koupe': '5',
+        'burza_prodej': '6'
+    }
+
     book_isbn = Bookisbn.objects.select_related('book').filter(book=book_id, format=format).first()
     if not book_isbn or not book_isbn.price:
         return HttpResponse(status=404)
 
-    # ZÌsk·nÌ uûivatele
     user = request.user if request.user.is_authenticated else None
 
-    # ZÌsk·nÌ nebo vytvo¯enÌ PENDING purchase
     purchase = Bookpurchase.objects.filter(
         book=book_isbn.book,
         user=user,
@@ -35,20 +65,21 @@ def generate_qr(request, book_id, format):
             price=book_isbn.price,
             status="PENDING",
         )
+    # --- TV≈ÆJ VS --- #
+    form_num = FORMAT_MAPPING.get(format, '0')   # fallback je '0'
+    vs = f"01038{form_num}{str(purchase.purchaseid).zfill(4)[-4:]}"  # v≈ædy posledn√≠ 4 ƒç√≠sla
 
-    # Normalizovan· zpr·va
-    msg = unicodedata.normalize(
-        'NFKD',
-        f"{book_isbn.book.titlecz or book_isbn.book.title}-{book_isbn.book.pk}-{format}"
-    ).encode('ascii', 'ignore').decode('ascii').replace(" ", "")
+    username = purchase.user.username if purchase.user and hasattr(purchase.user, "username") else "anon"
+    msg = f"{purchase.book.titlecz or purchase.book.title}-{purchase.format}-{username}-DIVcz"
+    msg = unicodedata.normalize('NFKD', msg).encode('ascii', 'ignore').decode('ascii').replace(" ", "")
 
-    # QR kÛd jako platba
+
     qr_string = (
         f"SPD*1.0*ACC:CZ5620100000002602912559"
         f"*AM:{float(book_isbn.price):.2f}"
         f"*CC:CZK"
         f"*MSG:{msg}"
-        f"*X-VS:{purchase.purchaseid}"
+        f"*X-VS:{vs}"
     )
 
     img = qrcode.make(qr_string)
@@ -57,26 +88,37 @@ def generate_qr(request, book_id, format):
     buffer.seek(0)
 
     return HttpResponse(buffer.getvalue(), content_type="image/png")
+"""
 
 
 
 
 
-
-# pouûÌv·me v views.books.py
+# pou≈æ√≠v√°me v views.books.py ?? asi se pou≈æ√≠v√° views.payments generace_qr na radku 99
 # QR
 def qr_code_ebook(purchase):
-    msg = unicodedata.normalize(
-        'NFKD',
-        f"{purchase.book.titlecz or purchase.book.title}-{purchase.book.pk}-{purchase.format}"
-    ).encode('ascii', 'ignore').decode('ascii').replace(" ", "")
+
+    username = purchase.user.username if purchase.user and hasattr(purchase.user, "username") else "anon"
+    msg = f"{purchase.book.titlecz or purchase.book.title}-{purchase.format}-{username}-DIVcz-2"
+    msg = unicodedata.normalize('NFKD', msg).encode('ascii', 'ignore').decode('ascii').replace(" ", "")
+
+
+    format_code = {
+        "epub": "2",
+        "mobi": "3",
+        "pdf": "4",
+    }.get(purchase.format.lower(), "9")
+    vs = f"01038{format_code}{str(purchase.purchaseid).zfill(4)}"
+
     qr_string = (
         f"SPD*1.0*ACC:CZ5620100000002602912559"
         f"*AM:{float(purchase.price):.2f}"
         f"*CC:CZK"
         f"*MSG:{msg}"
-        f"*X-VS:{purchase.purchaseid}"
+        f"*X-VS:{vs}"
     )
+    # VS = 10138 - dal≈°√≠ ƒç√≠slo je  1 = audio, 2 = epub, 3 = mobi, 4 = pdf, 5 = burza koupƒõ, 6 = burza prodej
+    # posledn√≠ ƒçty≈ô√≠ ƒç√≠sla jsou posledn√≠ ƒçty≈ô√≠ id z bookpurchase/booklisting
     img = qrcode.make(qr_string)
     buffer = BytesIO()
     img.save(buffer, format="PNG")
@@ -85,13 +127,24 @@ def qr_code_ebook(purchase):
 
 
 
-def qr_code_market(amount, vs, message):
-    qr_string = f"SPD*1.0*ACC:CZ5620100000002602912559*AM:{amount}*CC:CZK*MSG:{message}*X-VS:{vs}"
+def qr_code_market(amount, listing, message, format_code="5"):
+    # format_code = 5 (koupƒõ), 6 (prodej)
+    vs = f"01038{format_code}{str(listing.booklistingid).zfill(4)[-4:]}"
+    msg = f"{listing.book.titlecz or listing.book.title}-BURZA-{listing.user.username}-DIVcz"
+    msg = unicodedata.normalize('NFKD', msg).encode('ascii', 'ignore').decode('ascii').replace(" ", "")
+
+    qr_string = (
+        f"SPD*1.0*ACC:CZ5620100000002602912559"
+        f"*AM:{amount:.2f}"
+        f"*CC:CZK"
+        f"*MSG:{msg}"
+        f"*X-VS:{vs}"
+    )
     img = qrcode.make(qr_string)
     buffer = BytesIO()
-    img.save(buffer)
-    return base64.b64encode(buffer.getvalue()).decode()
-
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+    return base64.b64encode(buffer.getvalue()).decode(), vs
 
 
 

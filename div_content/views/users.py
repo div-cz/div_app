@@ -8,16 +8,17 @@ from div_content.models import (
     Avatar, Book, Bookauthor, Bookcomments, Bookgenre, Bookisbn, Booklisting, Bookpurchase, Creator, Favorite, Charactermeta, Game, Gamecomments, Metacountry, Metagenre, Movie, Moviecomments, Moviecountries, 
     Moviegenre, Movierating, Tvshow, Tvshowcomments, Userdivcoins, Userlist, Userlistbook, Userlistgame, Userlistmovie, Userlisttype, Userprofile,
     Usermessage, Userchatsession, Userlisttvshow, Userlistitem
-    
     )
-from django.contrib.auth.models import User 
 from div_content.views.login import custom_login_view
 
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+
 from django.contrib.contenttypes.models import ContentType
 
 from django.core.paginator import Paginator
+
 from django.db.models import Avg, Count, F, Q, Max, Prefetch, OuterRef, Subquery
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
@@ -342,6 +343,48 @@ def profile_eshop_section(request, user_id):
         bookisbn = p.book.bookisbn_set.filter(format__iexact=p.format).first()
         p.isbn = bookisbn.isbn if bookisbn else None
 
+
+    # --- Zakoupené e-knihy ---
+    ebooks_qs = Bookpurchase.objects.filter(
+        user=profile_user,
+        status='PAID'
+    ).select_related('book').order_by('-paymentdate')
+    page_number = request.GET.get('page', 1)
+    paginator = Paginator(ebooks_qs, 10)  # 10 na stránku
+    page_obj = paginator.get_page(page_number)
+    for p in page_obj.object_list:
+        bookisbn = Bookisbn.objects.filter(book=p.book, format__iexact=p.format).first()
+        p.isbn = bookisbn.isbn if bookisbn else None
+
+    # Zakoupené audioknihy 
+    audiobooks_qs = Bookpurchase.objects.filter(
+        user=profile_user,
+        status='PAID',
+        format='audio'
+    ).select_related('book').order_by('-paymentdate')
+    audio_page = request.GET.get('audio_page', 1)
+    audio_paginator = Paginator(audiobooks_qs, 10)
+    purchased_audiobooks = audio_paginator.get_page(audio_page)
+
+    # Burza knih – moje nákupy
+    burza_bought_qs = Booklisting.objects.filter(
+        buyer=profile_user
+    ).select_related('book', 'user').order_by('-completedat')
+    burza_bought_page = request.GET.get('burza_bought_page', 1)
+    paginator_bought = Paginator(burza_bought_qs, 8)
+    burza_bought = paginator_bought.get_page(burza_bought_page)
+
+    # Burza knih – moje prodeje
+    burza_sold_qs = Booklisting.objects.filter(
+        user=profile_user
+    ).select_related('book', 'buyer').order_by('-completedat')
+    burza_sold_page = request.GET.get('burza_sold_page', 1)
+    paginator_sold = Paginator(burza_sold_qs, 8)
+    burza_sold = paginator_sold.get_page(burza_sold_page)
+
+
+
+
     # TODO: případně filtr na expiraci:
     # .filter(Q(expirationdate__isnull=True) | Q(expirationdate__gte=now()))
 
@@ -350,8 +393,12 @@ def profile_eshop_section(request, user_id):
         "user_profile": user_profile,
         "user_div_coins": user_div_coins,
         "active_tab": "obchod",
+        "category": request.GET.get("category", "e-knihy"),
         "purchased_ebooks": purchased_ebooks,
+        "purchased_audiobooks": purchased_audiobooks,
         "ebook_isbns": ebook_isbns,
+        "burza_bought": burza_bought,
+        "burza_sold": burza_sold,
     })
 
 
