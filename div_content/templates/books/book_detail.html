@@ -10,7 +10,7 @@
 <meta name="keywords" content="{{ book.titlecz }}, knihy, literatura, DIV.cz"> 
 <meta property="og:title" content="{{ book.titlecz }}"> 
 <meta property="og:description" content="{{ book.description|striptags|truncatewords:30 }}"> 
-<meta property="og:image" content="https://div.cz/{% if book.img and book.img != 'noimg.png' %}/static/kniha/{{ book.img }}{% else %}/static/img/book/book.png{% endif %}"> 
+<meta property="og:image" content="{% if book.img and book.img != 'noimg.png' %}https://media.div.cz/knihy/{{ book.img }}{% else %}/static/img/book/book.png{% endif %}"> 
 <meta property="og:url" content="https://div.cz/kniha/{{ book.url }}"> 
 <meta name="author" content="eKultura">
 
@@ -258,7 +258,7 @@
                 <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px;">
                 {% else %}
                 <!-- Jinak zobraz vlastní nahraný obrázek -->
-                <img src="/static/kniha/{{ book.img }}" alt="{{ book.titlecz }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
+                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
             {% endif %}
 
                 <div class="d-lg-none mb-2 sm:ml-5">

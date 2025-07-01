@@ -1,5 +1,6 @@
 # utils/palmknihy.py
 
+import datetime
 import json
 import os
 import re
@@ -99,25 +100,10 @@ def get_all_palmknihy_products():
     return all_books
 
 
-def get_palmknihy_api_token():
-    url = os.getenv("PALMKNIHY_API_URL") + "/auth"
-    data = {
-        "client_id": os.getenv("PALMKNIHY_CLIENT_ID"),
-        "client_secret": os.getenv("PALMKNIHY_CLIENT_SECRET"),
-        "grant_type": "client_credentials"
-    }
-    headers = {
-        "Content-Type": "application/json",
-        "X-AM-Consumer-Key": os.getenv("PALMKNIHY_CLIENT_ID")
-    }
-    resp = requests.post(url, json=data, headers=headers)
-    resp.raise_for_status()
-    return resp.json()["access_token"]
-
 
 
 def get_palmknihy_download_url(palmknihyid, purchaseid, user_id, email, format, delivery_type="ebook"):
-    token = get_palmknihy_api_token()
+    token = get_token() 
     endpoint = os.getenv("PALMKNIHY_API_URL") + "/partner/provision"
     headers = {
         "Authorization": f"Bearer {token}",
