@@ -502,6 +502,8 @@ def serie_detail(request, tv_url):
 
     else:
         trailer_form = TrailerForm()
+        
+    episodes_count = episodes.count()
 
     return render(request, 'series/serie_detail.html', {
         'tvshow': tvshow,
@@ -529,6 +531,7 @@ def serie_detail(request, tv_url):
         'tvshow_trailer': tvshow_trailer,
         'trivia': trivia,
         'trailer_form': trailer_form,
+        'episodes_count': episodes_count,
     })
 
 
