@@ -38,6 +38,21 @@
                             {% endfor %}
                             </small>
                         {% endif %}
+
+<div class="form-group w-full">
+    <label class="font-bold" for="id_bankaccount">Číslo účtu (pro výběr v Divkvariát):</label>
+    <input type="text" name="bankaccount" maxlength="32" id="id_bankaccount"
+           value="{{ form.bankaccount.value|default_if_none:'' }}" class="form-control" placeholder="Nepovinné">
+
+    {% if form.bankaccount.errors %}
+    <small class="text-danger">
+        {% for error in form.bankaccount.errors %}
+        {{ error }}
+        {% endfor %}
+    </small>
+    {% endif %}
+</div>
+
                         </div>
                         
                         <div class="flex flex-wrap lg:ml-4">
@@ -67,6 +82,8 @@
                                 </small>
                                 {% endif %}
                             </div>
+                            
+
                         </div>
                     </div>  
 
