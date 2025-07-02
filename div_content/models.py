@@ -1834,6 +1834,8 @@ class Userprofile(models.Model):
     location = models.CharField(db_column='Location', max_length=255, null=True, blank=True)
     birthdate = models.DateField(db_column='BirthDate', null=True, blank=True)
     avatar = models.ForeignKey(Avatar, db_column='Avatar', null=True, blank=True, on_delete=models.SET_NULL)
+    bankaccount = models.CharField(db_column='BankAccount', max_length=32, blank=True, null=True, verbose_name="Číslo účtu")
+
     
     class Meta:
         db_table = 'UserProfile'
