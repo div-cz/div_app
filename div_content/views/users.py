@@ -2,7 +2,7 @@
 
 from datetime import date
 
-from div_content.forms.users import ContactForm, UserProfileForm, UserMessageForm
+from div_content.forms.users import ContactForm, UserBankAccountForm, UserProfileForm, UserMessageForm
 
 from div_content.models import (
     Avatar, Book, Bookauthor, Bookcomments, Bookgenre, Bookisbn, Booklisting, Bookpurchase, Creator, Favorite, Charactermeta, Game, Gamecomments, Metacountry, Metagenre, Movie, Moviecomments, Moviecountries, 
@@ -211,6 +211,21 @@ def get_content_type_for_rating(rating):
         return ContentType.objects.get_for_model(content_object.__class__)
     return None
 
+
+
+@login_required
+def edit_bank_account(request):
+    profile, created = Userprofile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        form = UserBankAccountForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')  # nebo kamkoliv, např. 'user_dashboard'
+    else:
+        form = UserBankAccountForm(instance=profile)
+
+    return render(request, 'user/update_profile.html', {'form': form})
 
 # USER
 """

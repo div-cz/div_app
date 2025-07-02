@@ -9,7 +9,7 @@ from datetime import date #new
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = Userprofile
-        fields = ['bio', 'avatar', 'birthdate', 'location']
+        fields = ['bio', 'avatar', 'birthdate', 'location', 'bankaccount']
 
     def clean_birthdate(self):#new
         birthdate = self.cleaned_data.get('birthdate')
@@ -41,3 +41,15 @@ class UserMessageForm(forms.ModelForm):
         if not message:
             raise forms.ValidationError("Posíláš prázdnou zprávu!")
         return message
+
+
+class UserBankAccountForm(forms.ModelForm):
+    class Meta:
+        model = Userprofile
+        fields = ['bankaccount']
+        widgets = {
+            'bankaccount': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '119-5555555/0500'}),
+        }
+
+
+
