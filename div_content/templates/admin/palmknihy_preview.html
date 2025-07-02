@@ -9,6 +9,24 @@
 <p style="float:right;margin:0 20px 10px"><span style="color:green">&check;</span> - Vše OK | <span style="color:orange">&#9888;</span> - chybí PalmKnihyID | <span style="color:red">&cross;</span> - Není v DB</p>
 
 
+
+
+<div class="my-3">
+  <a href="?page={{ page|add:'-1' }}">Předchozí</a>
+  <span>Stránka {{ page }}</span>
+  <a href="?page={{ page|add:'1' }}">Další</a>
+</div>
+
+<form method="post" action="{% url 'admin_store_page' %}">
+  {% csrf_token %}
+  {% for book in ebooks %}
+    <input type="hidden" name="palmknihyids" value="{{ book.palmknihyid }}">
+    <input type="hidden" name="page" value="{{ page }}">
+  {% endfor %}
+  <button type="submit">Uložit celou stránku</button>
+</form>
+
+
 <table class="table">
   <thead>
     <tr>
