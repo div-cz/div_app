@@ -348,8 +348,8 @@
             <h3>Moje eKnihy</h3>
             <ul>
                 {% for purchase in user_ebook_purchases %}
-                    <li>
-                        {{ purchase.book.titlecz }} - Stav: {{ purchase.status }}
+                    <li><a href="/kniha/{{ purchase.book.url }}">
+                        {{ purchase.book.titlecz|default:purchase.book.title }} <small>(Stav: {{ purchase.format }})</small> </a>
                         {% if purchase.status == "PENDING" %}
                             <form method="POST" action="{% url 'cancel_purchase' purchase.purchaseid %}">
                                 {% csrf_token %}
@@ -359,7 +359,7 @@
                         {% endif %}
                     </li>
                 {% endfor %}
-            </ul>
+            </ul><hr>Všechny najdeš v <a href="/uzivatel/">profilu</a>
         </div>
     </div>
     {% endif %}
@@ -402,7 +402,7 @@
                         {% endif %}
                     </div>
                     <div class="flex-grow">
-                        <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}" class="ml-1 text-blue-600 hover:underline">{{ listing.book.titlecz }}</a>
+                        <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}" class="ml-1 text-blue-600 hover:underline">{{ listing.book.titlecz|default:listing.book.title }}</a>
                         
                         <div class="mt-1 font-semibold">
                             <div>       

@@ -186,7 +186,7 @@ def index(request): # hlavní strana
 
 
     if request.user.is_authenticated:
-          user_ebook_purchases = Bookpurchase.objects.filter(user=request.user, status="PENDING").order_by('-purchaseid')
+          user_ebook_purchases = Bookpurchase.objects.filter(user=request.user, status="PAID").order_by('-purchaseid')[:3]
       #prodej a darování knih na divkvariátu
           seller_pending_listings = Booklisting.objects.filter(user=request.user, listingtype__in=['SELL', 'GIVE'], ).order_by('-createdat')[:5]
           pending_book_purchases = Booklisting.objects.filter(buyer=request.user, status='PENDING').order_by('-createdat')[:5]

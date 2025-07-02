@@ -3,12 +3,12 @@
 {% load ratings %}
 {% load static %}
 
-{% block title %} {{ book.titlecz }} | DIV.cz{% endblock %}
+{% block title %} {{ book.titlecz|default:book.title }} | DIV.cz{% endblock %}
 
 {% block meta %}
 <meta name="description" content="{{ book.description|striptags|truncatewords:30 }}"> 
-<meta name="keywords" content="{{ book.titlecz }}, knihy, literatura, DIV.cz"> 
-<meta property="og:title" content="{{ book.titlecz }}"> 
+<meta name="keywords" content="{{ book.titlecz|default:book.title }}, knihy, literatura, DIV.cz"> 
+<meta property="og:title" content="{{ book.titlecz|default:book.title }}"> 
 <meta property="og:description" content="{{ book.description|striptags|truncatewords:30 }}"> 
 <meta property="og:image" content="{% if book.img and book.img != 'noimg.png' %}https://media.div.cz/knihy/{{ book.img }}{% else %}/static/img/book/book.png{% endif %}"> 
 <meta property="og:url" content="https://div.cz/kniha/{{ book.url }}"> 
@@ -252,13 +252,13 @@
 
             {% if book.img == "noimg.png" %}
                 <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
-                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
+                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz|default:book.title }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
                 {% elif book.img == "GoogleID" %}
                 <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
-                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px;">
+                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px;">
                 {% else %}
                 <!-- Jinak zobraz vlastní nahraný obrázek -->
-                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
+                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
             {% endif %}
 
                 <div class="d-lg-none mb-2 sm:ml-5">
@@ -707,7 +707,7 @@
             <!-- RECENZE -->
             <div id="tab1" class="tab-content active w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
                 <div class="">    
-                    <h3 class="after-h3">Recenze</h3>  
+                    <h3 class="after-h3" id="recenze">Recenze</h3>  
                     <!-- přidat recenzi -->       
                     {% if user.is_authenticated %}
                     <h4>Přidat novou recenzi</h4>
@@ -1177,7 +1177,7 @@
 
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl ">
-                <h3 class="card-title font-bold after-h3">{{ book.titlecz }}</h3>
+                <h3 class="card-title font-bold after-h3">{{ book.titlecz|default:book.title }}</h3>
                 <p class="card-text">Sdílet na:</p>
 
                 <!-- Facebook Share Button -->
@@ -1186,17 +1186,17 @@
                 </a>
 
                 <!-- Twitter Share Button -->
-                <a href="https://twitter.com/intent/tweet?url=https://div.cz/kniha/{{ book.url }}&text={{ book.titlecz }}" class="btn btn-info mb-2 mr-1" style="color: white;" target="_blank" title="Twitter">
+                <a href="https://twitter.com/intent/tweet?url=https://div.cz/kniha/{{ book.url }}&text={{ book.titlecz|default:book.title }}" class="btn btn-info mb-2 mr-1" style="color: white;" target="_blank" title="Twitter">
                     <i class="fab fa-twitter"></i>
                 </a>
 
                 <!-- E-mail Share Button -->
-                <a href="mailto:?subject={{ book.titlecz }}&body=Podívej se na https://div.cz/kniha/{{ book.url }}" class="btn btn-dark mb-2 mr-1" style="color: white;" target="_blank" title="E-mail">
+                <a href="mailto:?subject={{ book.titlecz|default:book.title }}&body=Podívej se na https://div.cz/kniha/{{ book.url }}" class="btn btn-dark mb-2 mr-1" style="color: white;" target="_blank" title="E-mail">
                     <i class="fas fa-envelope"></i>
                 </a>
 
                 <!-- WhatsApp Share Button -->
-                <a href="https://wa.me/?text={{ book.titlecz }} - https://div.cz/kniha/{{ book.url }}" class="btn btn-success mb-2" style="color: white;" target="_blank" title="WhatsApp">
+                <a href="https://wa.me/?text={{ book.titlecz|default:book.title }} - https://div.cz/kniha/{{ book.url }}" class="btn btn-success mb-2" style="color: white;" target="_blank" title="WhatsApp">
                     <i class="fab fa-whatsapp"></i>
                 </a>
 
