@@ -163,7 +163,7 @@
                             {% elif book.img == "GoogleID" %}
                                 <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="w-full rounded" style="min-width: 80px;">
                             {% else %}
-                                <img src="/static/kniha/{{ book.img }}" alt="{{ book.titlecz }}" class="w-full rounded" style="object-fit: cover; width: 80px;">
+                                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz }}" class="w-full rounded" style="object-fit: cover; width: 80px;">
                             {% endif %}
                             </a>
                             <div class="flex flex-wrap ml-4 w-full">
@@ -192,16 +192,16 @@
                         <div class="flex items-start w-full">
                             <a href="/kniha/{{ book.url }}">
                             {% if book.img == "noimg.png" %}
-                                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz }}" class="w-full rounded" style="object-fit: cover; width: 80px;">
+                                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz|default:book.title }}" class="w-full rounded" style="object-fit: cover; width: 80px;">
                             {% elif book.img == "GoogleID" %}
-                                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="w-full rounded" style="min-width: 80px;">
+                                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}" class="w-full rounded" style="min-width: 80px;">
                             {% else %}
-                                <img src="/static/kniha/{{ book.img }}" alt="{{ book.titlecz }}" class="w-full rounded" style="object-fit: cover; width: 80px;">
+                                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="w-full rounded" style="object-fit: cover; width: 80px;">
                             {% endif %}
                             </a>
                             <div class="flex flex-wrap ml-4 w-full">
                                 <div class="flex items-center justify-between w-full">
-                                    <p><a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz }}</a> <span>({{ book.year }})</span></p>
+                                    <p><a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a> <span>({{ book.year }})</span></p>
                                     {% if book.is_read %}
                                         <i class="fas fa-book mr-4" title="přečteno"></i>
                                     {% endif %}

@@ -29,7 +29,7 @@
     <tbody>
     {% for p in payments %}
         <tr>
-            <td>{{ p.book.titlecz }}</td>
+            <td>{{ p.book.titlecz|default:p.book.title }} <small>({{ p.format|default:"?"|upper }})</small></td>
             <td>{{ p.user.username }}</td>
             <td>{{ p.price|floatformat:2 }} Kč</td>
             <td>{{ p.paymentdate|date:"d.m.Y H:i" }}</td>
@@ -85,8 +85,8 @@
     {% endfor %}
     </tbody>
 
-</table>
-
+</table><hr>
+<p>VS: 010 - DIV; 38 = knihy; 1 = audio, 2 = epub, 3 = mobi, 4 = pdf; xxxx obj.č</p>
 
 {% endblock content %}
 
