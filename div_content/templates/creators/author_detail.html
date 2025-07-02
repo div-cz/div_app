@@ -168,7 +168,7 @@
                             </a>
                             <div class="flex flex-wrap ml-4 w-full">
                                 <div class="flex items-center justify-between w-full">
-                                    <p><a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz }}</a> <span>({{ book.year }})</span></p>
+                                    <p><a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a> <span>{% if book.year %} ({{ book.year }}){% endif %}</span></p>
                                     {% if book.is_read %}
                                         <i class="fas fa-book mr-4" title="přečteno"></i>
                                     {% endif %}
@@ -178,7 +178,7 @@
                                         {{ book.universumid.universumnamecz|default:book.universumid.universumname }}
                                     </a></p>
                                 {% endif %}
-                                <p class="card-text">{{ book.description|safe|truncatewords:40 }}</p>
+                                <p class="card-text">{{ book.description|default_if_none:"Popis není dostupný"|safe|truncatewords:40 }}</p>
                             </div>
                         </div>
                         {% endfor %}
@@ -201,12 +201,12 @@
                             </a>
                             <div class="flex flex-wrap ml-4 w-full">
                                 <div class="flex items-center justify-between w-full">
-                                    <p><a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a> <span>({{ book.year }})</span></p>
+                                    <p><a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a> <span>{% if book.year %} ({{ book.year }}){% endif %}</span></p>
                                     {% if book.is_read %}
                                         <i class="fas fa-book mr-4" title="přečteno"></i>
                                     {% endif %}
                                 </div>
-                                <p class="card-text">{{ book.description|safe|truncatewords:40 }}</p>
+                                <p class="card-text">{{ book.description|default_if_none:"Popis není dostupný"|safe|truncatewords:40 }}</p>
                             </div>
                         </div>
                         {% endfor %}
