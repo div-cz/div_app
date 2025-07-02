@@ -355,7 +355,7 @@ Ne
                     </div>
                     {% for listing in recent_listings %}
                     <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
-                        <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+                        <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">
                         {% if listing.book.img == "noimg.png" %}
                             <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
                             <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz|default:listing.book.title }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
@@ -369,7 +369,7 @@ Ne
                         </a>
 
                         <div class="ml-2" style="flex: 2;">
-                            <p><a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">{{ listing.book.titlecz|default:listing.book.title }}</a></p>
+                            <p><a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">{{ listing.book.titlecz|default:listing.book.title }}</a></p>
                             <p>{{ listing.book.author }}</p>
                             <p>{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
                             <p class="text-sm text-end w-full"><small>Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</small></p>
