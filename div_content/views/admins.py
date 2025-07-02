@@ -280,7 +280,7 @@ def recent_payments(request):
 
 def admin_palmknihy_preview(request):
     page = int(request.GET.get("page", 1))
-    raw_books = get_catalog_product(limit=10, page=page)
+    raw_books = get_catalog_product(limit=50, page=page)
 
     existing_isbns = set(normalize_isbn(i) for i in Bookisbn.objects.values_list("isbn", flat=True))
     unknown_book = Book.objects.get(pk=1)
