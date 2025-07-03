@@ -454,7 +454,7 @@ def download_ebook(request, isbn, format):
         return response
 
 
-
+"""
 @require_POST
 @login_required
 def send_to_reader_modal(request, isbn, format):
@@ -543,6 +543,91 @@ def send_to_reader_modal(request, isbn, format):
     "Soubor s e-knihou není aktuálně dostupný. Pokud myslíte, že je to chyba, napište na <a href='mailto:info@div.cz'>info@div.cz</a>."
 )
     return redirect("book_detail", book_url=book.url)
+"""
+
+
+
+@login_required
+def send_to_reader_modal(request, isbn, format):
+    bookisbn = get_object_or_404(Bookisbn, isbn=isbn)
+    book = bookisbn.book
+
+    # Najdi první PAID objednávku
+    purchase = Bookpurchase.objects.filter(
+        book=book,
+        user=request.user,
+        format=format,
+        status="PAID"
+    ).order_by('purchaseid').first()
+
+    # Pokud není, najdi PENDING (u placené knihy), nebo vytvoř novou (jen pokud žádná není)
+    if not purchase:
+        purchase, created = Bookpurchase.objects.get_or_create(
+            book=book,
+            user=request.user,
+            format=format,
+            status="PENDING" if bookisbn.price > 0 else "PAID",   # free hned paid
+            defaults={
+                "price": bookisbn.price or 0,
+                "paymentdate": now() if bookisbn.price == 0 else None,
+                "expirationdate": now().replace(year=now().year + 3) if bookisbn.price == 0 else None,
+                "source": (bookisbn.ISBNtype or "").upper(),
+            }
+        )
+
+    # Už je uložen kindle mail? (readonly)
+    kindlemail = purchase.kindlemail if purchase and purchase.kindlemail else request.user.email  # Pokud už v purchase je, použij, jinak předvyplň uživatelovým
+    readonly = bool(purchase and purchase.kindlemail)  # Pokud už je v DB, už nikdy neměnit
+
+
+    if request.method == "POST":
+        kindlemail = request.POST.get("kindlemail")
+        if not kindlemail or "@" not in kindlemail:
+            messages.error(request, "Neplatný e-mail.")
+            return redirect("book_detail", book_url=book.url)
+        if not purchase.kindlemail:
+            # První zápis je povolený
+            purchase.kindlemail = kindlemail
+            purchase.save()
+        # Další pokusy už mail nemění!
+        recipient = purchase.kindlemail
+
+        # ---- ODESLÁNÍ E-MAILU --------
+        mimetype, ext = get_mimetype_from_format(format)
+        filename = f"{book.url}.{ext}"
+        filepath = os.path.join(os.getenv("FREE_EBOOKS_PATH"), filename)
+        if not os.path.exists(filepath):
+            messages.error(
+                request,
+                "Soubor s e-knihou není aktuálně dostupný. Pokud myslíte, že je to chyba, napište na <a href='mailto:info@div.cz'>info@div.cz</a>."
+            )
+            return redirect("book_detail", book_url=book.url)
+
+        msg = EmailMessage()
+        msg['Subject'] = f"E-kniha z DIV.cz: {book.title}"
+        msg['From'] = os.getenv("EBOOK_SENDER_ADDRESS")
+        msg['To'] = recipient
+        msg.set_content("Vaše e-kniha je v příloze. Užijte si čtení.\n\n Tým DIV.cz")
+
+        with open(filepath, 'rb') as f:
+            maintype, subtype = mimetype.split('/')
+            msg.add_attachment(f.read(), maintype=maintype, subtype=subtype, filename=filename)
+
+        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+            smtp.login(os.getenv("EBOOK_SENDER_ADDRESS"), os.getenv("EBOOK_SENDER_PASSWORD"))
+            smtp.send_message(msg)
+
+        messages.success(request, f"E-kniha <strong>{book.title}</strong> byla odeslána do vaší čtečky na e-mail <strong>{recipient}</strong>.")
+        return redirect("book_detail", book_url=book.url)
+
+    # ---- GET požadavek – jen zobrazení formuláře ----------
+    return render(request, "books/send_to_reader_email.html", {
+        "isbn": isbn,
+        "format": format,
+        "user": request.user,
+        "kindlemail": purchase.kindlemail or request.user.email,
+        "readonly": bool(purchase.kindlemail),
+    })
 
 
 

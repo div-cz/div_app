@@ -330,7 +330,7 @@
                 </a>
             </li>
             <li>
-                <a href="{% url 'send_to_reader' data.isbn fmt %}" class="small" style="font-size:80%">
+                <a href="{% url 'send_to_reader_modal' data.isbn fmt %}" class="small" style="font-size:80%">
                     Poslat do čtečky ({{ fmt|upper }})
                 </a>
             </li>
@@ -499,6 +499,8 @@
         <p style="font-size:80%;margin:0;">
             {% if cena_od %}
                 od {{ cena_od|floatformat:0 }} Kč
+            {% elif has_ebook %}
+                zdarma
             {% else %}
                 nedostupné
             {% endif %}
@@ -536,23 +538,36 @@
                         {% elif data.free %}
                             Zdarma
                         {% else %}
-                            nedostupné
+                            Zdarma
                         {% endif %}
                     </label>
                 {% endfor %}
             </div>
 
-            <div style="margin-top: 12px;">
-                <label for="kindlemail">E-mail čtečky:</label>
-                <input type="email" name="kindlemail" id="kindlemail"
-                    value="{% if existing_paid_email %}{{ existing_paid_email }}{% elif user.is_authenticated %}{{ user.email }}{% else %}{% endif %}"
-                    placeholder="{% if existing_paid_email %}{{ existing_paid_email }}{% elif user.is_authenticated %}{{ user.email }}{% else %}např. uzivatel@kindle.com{% endif %}"
-                    style="width:220px"
-                {% if existing_paid_email %}readonly="readonly"{% endif %}>
-                {% if existing_paid_email %}
-                    <br><span class="text-muted">Tato e-kniha již byla zakoupena a poslána na tento e-mail.</span>
-                {% endif %}
-            </div>
+    <!-- Email pouze jednou! -->
+<div id="kindle-block" style="margin-top: 12px; display: none;">
+    <div style="margin-top: 12px;">
+
+{{ format_kindlemails|json_script:"formatKindlemailsData" }}
+
+
+        <label for="kindlemail">E-mail čtečky:</label>
+        <input type="email" name="kindlemail" id="kindlemail"
+               value="{{ kindlemail }}"
+               placeholder="vasectecka@kindle.com"
+               style="width:220px;"
+               {% if readonly %}readonly{% endif %}>
+
+<div class="kindleinfo text-muted mt-2" style="display:none;font-size:90%">
+    Tento e-mail je napevno spojen s objednávkou.<br>
+    V případě dotazů kontaktujte podporu info@div.cz.
+</div>
+
+    </div>
+</div>
+
+
+
 
             {% if user.is_authenticated %}
                 <input type="hidden" id="js-bookid" value="{{ book.bookid }}">
@@ -1547,5 +1562,86 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 </script>
+
+
+<!-- NAČTENÍ DO POPUP -->
+<script>
+// načtení do popup
+document.addEventListener("DOMContentLoaded", function() {
+    const form = document.getElementById("ebook-form");
+    const radios = document.querySelectorAll("#ebook-popup input[name='format']");
+
+    function updateFormAction() {
+        let selected = Array.from(radios).find(r => r.checked);
+        if (!selected) return;
+        // získáš data-isbn a value (tj. format)
+        const isbn = selected.getAttribute("data-isbn");
+        const fmt = selected.value;
+        form.action = `/poslat-do-ctecky2/${isbn}/${fmt}/`;
+    }
+
+    radios.forEach(radio => {
+        radio.addEventListener("change", updateFormAction);
+    });
+    updateFormAction(); // hned při načtení
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    const radios = document.querySelectorAll("#ebook-popup input[name='format']");
+    const kindleBlock = document.getElementById("kindle-block");
+
+    function toggleKindleBlock() {
+        let selected = Array.from(radios).find(r => r.checked);
+        if (selected) {
+            kindleBlock.style.display = "block";
+        } else {
+            kindleBlock.style.display = "none";
+        }
+    }
+
+    radios.forEach(radio => {
+        radio.addEventListener("change", toggleKindleBlock);
+    });
+    toggleKindleBlock(); // při načtení
+});
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const formatKindlemails = JSON.parse(document.getElementById('formatKindlemailsData').textContent);
+
+    const radios = document.querySelectorAll("#ebook-popup input[name='format']");
+    const kindlemailInput = document.getElementById('kindlemail');
+    const kindleInfoDiv = document.querySelector('.kindleinfo'); // pokud nějakou máš, jinak ignoruj
+
+    function setKindlemailFromRadio() {
+        const checked = Array.from(radios).find(r => r.checked);
+        if (checked) {
+            const val = formatKindlemails[checked.value];
+            if (val) {
+                kindlemailInput.value = val.kindlemail || "";
+                kindlemailInput.readOnly = !!val.readonly;
+                if (kindleInfoDiv) kindleInfoDiv.style.display = val.readonly ? "block" : "none";
+            } else {
+                kindlemailInput.value = "";
+                kindlemailInput.readOnly = false;
+                if (kindleInfoDiv) kindleInfoDiv.style.display = "none";
+            }
+        } else {
+            kindlemailInput.value = "";
+            kindlemailInput.readOnly = false;
+            if (kindleInfoDiv) kindleInfoDiv.style.display = "none";
+        }
+    }
+
+    radios.forEach(function(radio){
+        radio.addEventListener("change", setKindlemailFromRadio);
+    });
+
+    setKindlemailFromRadio(); // nastavit hned při načtení popupu
+});
+</script>
+
 
 {% endblock %}
