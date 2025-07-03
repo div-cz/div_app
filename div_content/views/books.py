@@ -640,7 +640,7 @@ def book_detail(request, book_url):
         b.format.lower(): {
             "isbn": b.isbn,
             "price": b.price,
-            "free": b.price == 0,
+            "free": b.price is not None and b.price == 0,
             "available": b.price is not None,
             "type": b.ISBNtype,
         }
@@ -709,7 +709,17 @@ def book_detail(request, book_url):
 
     ebook_formats = get_ebook_purchase_status(request.user, book, ebook_formats)
 
-
+    format_kindlemails = {}
+    if user.is_authenticated:
+        for fmt in ebook_formats:
+            purchase = Bookpurchase.objects.filter(
+                book=book, user=user, format=fmt.upper(), status="PAID"
+            ).order_by('-purchaseid').first()
+            format_kindlemails[fmt] = {
+                "kindlemail": purchase.kindlemail if purchase and purchase.kindlemail else user.email,
+                "readonly": bool(purchase and purchase.kindlemail)
+            }
+        
     return render(request, 'books/book_detail.html', {
         'book': book,
         'authors': authors, 
@@ -745,6 +755,7 @@ def book_detail(request, book_url):
         'existing_paid_email': existing_paid_email,
         'ebook_formats': ebook_formats,  
         'ebook_formats_json': json.dumps(ebook_formats, cls=DecimalEncoder),
+        "format_kindlemails": format_kindlemails,
         #'books_with_series': books_with_series,
         })
 #    top_20_books = Book.objects.order_by('-bookrating').all()[:20]  # Define top_20_books here

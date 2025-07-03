@@ -349,7 +349,7 @@
             <ul>
                 {% for purchase in user_ebook_purchases %}
                     <li><a href="/kniha/{{ purchase.book.url }}">
-                        {{ purchase.book.titlecz|default:purchase.book.title }} <small>(Stav: {{ purchase.format }})</small> </a>
+                        {{ purchase.book.titlecz|default:purchase.book.title }} <small>(Formát: {{ purchase.format }})</small> </a>
                         {% if purchase.status == "PENDING" %}
                             <form method="POST" action="{% url 'cancel_purchase' purchase.purchaseid %}">
                                 {% csrf_token %}
