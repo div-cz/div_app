@@ -127,24 +127,32 @@ def qr_code_ebook(purchase):
 
 
 
-def qr_code_market(amount, listing, message, format_code="5"):
-    # format_code = 5 (koupě), 6 (prodej)
-    vs = f"01038{format_code}{str(listing.booklistingid).zfill(4)[-4:]}"
-    msg = f"{listing.book.titlecz or listing.book.title}-BURZA-{listing.user.username}-DIVcz"
+def qr_code_market(amount, listing, message=None, format_code="5"):
+    username = listing.user.username if hasattr(listing.user, "username") else "anon"
+    
+    msg = message or f"{listing.book.titlecz or listing.book.title}-{listing.listingtype}-{username}-DIVcz-{format_code}"
     msg = unicodedata.normalize('NFKD', msg).encode('ascii', 'ignore').decode('ascii').replace(" ", "")
+    
+    vs = f"01038{format_code}{str(listing.booklistingid).zfill(4)[-4:]}"  
 
     qr_string = (
         f"SPD*1.0*ACC:CZ5620100000002602912559"
-        f"*AM:{amount:.2f}"
+        f"*AM:{float(amount):.2f}"
         f"*CC:CZK"
         f"*MSG:{msg}"
         f"*X-VS:{vs}"
     )
+
     img = qrcode.make(qr_string)
     buffer = BytesIO()
     img.save(buffer, format="PNG")
     buffer.seek(0)
-    return base64.b64encode(buffer.getvalue()).decode(), vs
+    qr_code_base64 = base64.b64encode(buffer.getvalue()).decode()
+
+    return qr_code_base64, vs
+
+
+
 
 
 

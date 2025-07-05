@@ -1,35 +1,50 @@
 # VIEWS.DIVKVARIAT.PY
 
 
-@login_required
-def payment_message(request, purchase_id):
-    purchase = get_object_or_404(Bookpurchase, purchaseid=purchase_id, user=request.user)
-    recipient_email = request.user.email
-    book = purchase.book
+from django.contrib.auth.decorators import login_required
+from django.core.mail import EmailMessage
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+import smtplib
+import os
 
-    if purchase.status == 'RESERVED' or purchase.status == 'PENDING':
-        recipient = recipient_email
+from div_content.models import Booklisting
+
+
+
+
+
+
+
+@login_required
+def send_listing_reservation_email(request, listing_id):
+    listing = get_object_or_404(Booklisting, booklistingid=listing_id, buyer=request.user)
+
+    if listing.status in ['RESERVED', 'PENDING']:
+        book = listing.book
+        recipient = request.user.email
 
         msg = EmailMessage()
-        msg['Subject'] = f"E-kniha z DIV.cz: {book.title}"
+        msg['Subject'] = f"Rezervace knihy z DIVkvariátu: {book.title}"
         msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
         msg['To'] = recipient
-        msg.set_content( f"Zarezervovali jste knihu {book.title}, prosím, zaplaťte požadovanou cenu. \n\n Tým DIV.cz")
+        msg.set_content(
+            f"Zarezervovali jste si knihu {book.title}. Prosíme, zaplaťte cenu dle platebních údajů v detailu nabídky.\n\nDěkujeme,\nTým DIV.cz"
+        )
 
-       
-        
-        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+        try:
+            with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
                 smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
                 smtp.send_message(msg)
-                messages.success(request, f"Zpráva o vyžadované platbě vám byla poslána na váš e-mail: <strong>{recipient}</strong>.")
+            messages.success(request, f"Potvrzení rezervace bylo posláno na váš e-mail: <strong>{recipient}</strong>.")
+        except Exception as e:
+            messages.error(request, f"Chyba při odesílání e-mailu: {e}")
 
     else:
-        if purchase.status == 'PAID':
-            messages.info(request, f"E-kniha <strong>{book.title}</strong> už byla doručena (nebo je zdarma). Pokud jste e-mail nedostali, zkontrolujte spam nebo kontaktujte podporu.")
-        else:
-            messages.warning(request, f"Pro knihu <strong>{book.title}</strong> není momentálně potřeba posílat zprávu k platbě (status: {purchase.status}).")
+        messages.warning(request, f"Nabídka není ve stavu pro rezervaci (status: {listing.status}).")
 
-    return redirect("listings_detail", book_url=book.url)
+    return redirect("listing_detail_sell", book_url=listing.book.url, listing_id=listing.booklistingid)
+
     
 
 
