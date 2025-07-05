@@ -145,7 +145,9 @@ def set_reading_goal(request):
         
     return redirect('books_index') 
 
-
+# === === === === ===
+# === DIV KVARIÁT ===
+# === === === === ===
 def book_listings(request, book_url):
     #Zobrazení všech nabídek pro konkrétní knihu.
     book = get_object_or_404(Book, url=book_url)
@@ -194,10 +196,35 @@ def books_market_wants(request):
 
 
 
-def get_book_price(book_id, format):
-    """ Vrátí cenu e-knihy podle jejího formátu """
-    book_isbn = Bookisbn.objects.filter(book_id=book_id, format=format).first()
-    return book_isbn.price if book_isbn and book_isbn.price else None
+
+@login_required
+def send_listing_reservation_email(request, listing_id):
+    listing = get_object_or_404(Booklisting, booklistingid=listing_id, buyer=request.user)
+
+    if listing.status in ['RESERVED', 'PENDING']:
+        book = listing.book
+        recipient = request.user.email
+
+        msg = EmailMessage()
+        msg['Subject'] = f"Rezervace knihy z DIVkvariátu: {book.title}"
+        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['To'] = recipient
+        msg.set_content(
+            f"Zarezervovali jste si knihu {book.title}. Prosíme, zaplaťte cenu dle platebních údajů v detailu nabídky.\n\nDěkujeme,\nTým DIV.cz"
+        )
+
+        try:
+            with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.send_message(msg)
+            messages.success(request, f"Potvrzení rezervace bylo posláno na váš e-mail: <strong>{recipient}</strong>.")
+        except Exception as e:
+            messages.error(request, f"Chyba při odesílání e-mailu: {e}")
+
+    else:
+        messages.warning(request, f"Nabídka není ve stavu pro rezervaci (status: {listing.status}).")
+
+    return redirect("listing_detail_sell", book_url=listing.book.url, listing_id=listing.booklistingid)
 
 
 
@@ -276,10 +303,21 @@ def listing_detail(request, book_url, listing_id):
         }
 
 
+    elif 'cancel_offer' in request.POST and request.user == listing.user:
+            if listing.status == 'ACTIVE' or listing.status == 'RESERVED':
+                listing.delete()
+                messages.success(request, 'Nabídka byla úspěšně zrušena.')
+                return redirect('book_listings', book_url=book_url)
+            else:
+                messages.error(request, 'Tuto nabídku nelze zrušit v aktuálním stavu.')      
+
     # Možnost hodnocení/zrušení pro správného uživatele
     can_rate_seller = (listing.status == 'COMPLETED' and request.user == listing.buyer and not listing.sellerrating)
     can_rate_buyer = (listing.status == 'COMPLETED' and request.user == listing.user and not listing.buyerrating)
     can_cancel_reservation = (listing.status == 'RESERVED' and request.user == listing.buyer)
+
+    can_cancel_offer = (request.user == listing.user and listing.status in ['ACTIVE', 'RESERVED'])
+
 
     return render(request, 'books/listing_detail.html', {
         'book': book,
@@ -288,10 +326,35 @@ def listing_detail(request, book_url, listing_id):
         'can_rate_seller': can_rate_seller,
         'can_rate_buyer': can_rate_buyer,
         'can_cancel_reservation': can_cancel_reservation,
+        'can_cancel_offer': can_cancel_offer,
     })
 
 
-     
+@login_required
+def cancel_sell(request, listing_id):
+    listing_to_cancel = get_object_or_404(Booklisting, booklistingid=listing_id, user=request.user)
+
+    if request.method == "POST":
+        if listing_to_cancel.status == 'ACTIVE' or listing_to_cancel.status == 'RESERVED':
+            old_status = listing_to_cancel.status
+
+            listing_to_cancel.status = "CANCELLED"
+            listing_to_cancel.active = False
+            
+            if old_status == 'RESERVED':
+                listing_to_cancel.buyer = None
+                messages.info(request, "Přiřazený kupující byl odstraněn.")
+
+            listing_to_cancel.save()
+
+            messages.success(request, f'Vaše nabídka knihy "{listing_to_cancel.book.titlecz}" byla úspěšně zrušena.')
+            
+            return redirect('index')
+        else:
+            messages.error(request, f'Nabídku knihy nelze zrušit".')
+            return redirect('index')
+
+    return render(request, "books/market_cancel_offer.html", {"listing_offer": listing_to_cancel})   
 
 
 def get_market_listings(limit=5):
@@ -431,6 +494,13 @@ def books(request):
 def books_alphabetical(request):
     return render(request, "books/books_alphabetical.html")
 
+
+def get_book_price(book_id, format):
+    """ Vrátí cenu e-knihy podle jejího formátu """
+    book_isbn = Bookisbn.objects.filter(book_id=book_id, format=format).first()
+    return book_isbn.price if book_isbn and book_isbn.price else None
+    
+    
 
 def book_detail(request, book_url):
     book = get_object_or_404(Book, url=book_url)
