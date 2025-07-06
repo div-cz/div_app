@@ -767,7 +767,7 @@
                                     <div class="flex flex-wrap justify-between w-full">
                                         <h4>Prodej - </h4><a href="{% url 'books_market_offers' %}"><small>Zobrazit vše</small></a>
                                     </div>
-                                    {% for listing in recent_listings %}
+                                    {% for listing in recent_sell_listings %}
                                     <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
                                         <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
                                         {% if listing.book.img == "noimg.png" %}
@@ -799,9 +799,9 @@
                                     <div class="flex flex-wrap justify-between w-full">
                                         <h4>Poptávka</h4><a href="{% url 'books_market_wants' %}"><small>Zobrazit vše</small></a>
                                     </div>
-                                    {% for listing in recent_listings %}
+                                    {% for listing in recent_buy_listings %}
                                     <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
-                                        <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+                                        <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">
                                         {% if listing.book.img == "noimg.png" %}
                                             <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
                                             <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">

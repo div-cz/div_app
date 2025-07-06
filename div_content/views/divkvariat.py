@@ -15,7 +15,6 @@ from div_content.models import Booklisting
 
 
 
-
 @login_required
 def send_listing_reservation_email(request, listing_id):
     listing = get_object_or_404(Booklisting, booklistingid=listing_id, buyer=request.user)

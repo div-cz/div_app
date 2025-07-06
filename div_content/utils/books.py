@@ -4,9 +4,30 @@
 import requests
 import logging
 
-from div_content.models import Book
+from div_content.models import Book, Booklisting
 
 logger = logging.getLogger(__name__)
+
+
+
+def get_market_listings(limit=5):
+    sell_listings = Booklisting.objects.filter(
+        listingtype__in=['SELL', 'GIVE'], 
+        active=True,
+        status='ACTIVE'
+    ).select_related('book', 'user').order_by('-createdat')[:limit]
+    
+    buy_listings = Booklisting.objects.filter(
+        listingtype='BUY', 
+        active=True,
+        status='ACTIVE'
+    ).select_related('book', 'user').order_by('-createdat')[:limit]
+    
+    return sell_listings, buy_listings
+
+
+
+
 
 def fetch_books_from_google(api_key, query):
     if not api_key:
