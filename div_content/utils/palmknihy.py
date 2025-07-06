@@ -41,6 +41,7 @@ def get_token():
 
     # Token
     if "data" not in result or "token" not in result["data"]:
+        print("Palmknihy odpověď:", response.text)
         raise Exception("&#10060; Token se nepodařilo načíst – chybí pole 'data.token'.")
 
     return result["data"]["token"]
