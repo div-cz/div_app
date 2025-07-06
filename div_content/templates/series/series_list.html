@@ -121,7 +121,7 @@
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <div class="flex flex-wrap justify-between card-title after-h3">
-                    <h3 class="font-bold">Články</h3><a href="{% url 'articles_list' category='serialy' %}"><small>Zobrazit vše</small></a>
+                    <h3 class="font-bold">Články</h3><!--<a href="{% url 'articles_list' category='serialy' %}"><small>Zobrazit vše</small></a>-->
                 </div>
                 <div class="flex flex-wrap after">
                     <a href="https://div.cz/serialy/2025" class="w-full">Seriály roku 2025</a> <!-- stačí název ne?-->
@@ -131,7 +131,9 @@
                     <a href="https://div.cz/rod-draka-2-serialova-recenze" class="w-full">Rok draka 2: recenze</a>
                 </div>
                 <div class="text-right">
+                    {% if user.is_superuser %}
                     <a href="{% url 'article_new' category=category_key %}"><i class="fa-solid fa-plus"></i> Přidat nový článek</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
