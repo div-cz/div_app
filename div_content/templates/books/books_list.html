@@ -200,16 +200,16 @@ Ne
                 </div>         
     
                 <div class="flex flex-wrap content-start ml-2" style="flex: 2;">
-                    <a class="w-full font-semibold" href="{% url 'book_detail' comment.bookid.url %}#recenze">{{ comment.bookid.titlecz }}</a>
+                    <a class="w-full font-semibold" href="{% url 'book_detail' comment.bookid.url %}#recenze">{{ comment.bookid.titlecz|default:comment.bookid.title }}</a>
                     <p class="w-full text-sm text-gray-700 dark:text-gray-300">{{ comment.comment|truncatewords:30 }}</p>
                     <p class="w-full text-xs text-gray-500 dark:text-gray-400">
                         <p class="flex justify-end"> Uživatel: </p>
                         {% if comment.user %}
                             <div class="flex flex-wrap content-start ml-2" style="width: 83%;">
                                 <a href="/uzivatel/{{ comment.user.id }}/" class="ml-2">{{ comment.user.username }}</a>
+                        <span class="ml-2">| {{ comment.dateadded|date:"d.m.Y H:i" }}</span>
                             </div>
                         {% endif %}
-                        <span class="ml-2">| {{ comment.dateadded|date:"d.m.Y H:i" }}</span>
                     </p>
                 </div> 
             </div>

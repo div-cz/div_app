@@ -297,7 +297,14 @@
             
                     <!-- SÉRIE -->
         {% if series %}
-                    <li><strong>Série:</strong>  <a href="/svet/{{ series.universumurl }}">{{ series.universumnamecz|default:series.universumnamecz }}</a></li>
+                    <li><strong>Série:</strong>  <a href="/svet/{{ series.universumurl }}">
+{% if series.universumnamecz %}
+  {{ series.universumnamecz }}
+{% else %}
+  {{ series.universumname }}
+{% endif %}
+
+                    </a></li>
         {% else %}
                     <li><strong>Série:</strong> -</li>
         {% endif %}
@@ -778,7 +785,17 @@
                                 <option value="3">Hlavní v části knihy</option>
                             </select>
 
-                            <button type="submit" name="add_character" class="add-book">Přidat postavu</button>
+
+
+                            
+                        {% if is_crew %}<!-- CREW -->
+                        <button type="submit" name="add_character" class="add-book">Přidat postavu</button>
+                        {% else %}
+                            <p class="text-muted text-sm">
+                                Chcete přidávat postavy? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
+                            </p>
+                        {% endif %}<!-- // CREW -->
+                        
                         </form>
 
                         <script>
@@ -850,7 +867,16 @@
                 <form method="post" class="">
                     {% csrf_token %}
                     {{ quote_form.as_p }}
-                    <button type="submit" class="add-book">Přidat citát</button>
+
+
+                        {% if is_crew %}<!-- CREW -->
+                        <button type="submit" class="add-book">Přidat citát</button>
+                        {% else %}
+                            <p class="text-muted text-sm">
+                                Chcete přidávat citáty? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
+                            </p>
+                        {% endif %}<!-- // CREW -->
+                        
                 </form>
                 {% endif %}
 
@@ -882,7 +908,7 @@
                 </div>
             </div>
 
-            <!-- ZAJÍMAVOSTI -->
+            <!-- ZAJÍMAVOSTI
             <div id="tab4" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F] ">
                 <h3 class="after-h3">Informace o zajímavostech filmu</h3>
                 <h4>Přidat novou zajímavost</h4>
@@ -892,7 +918,7 @@
                     </textarea>
                     <button type="submit" class="add-book">Vložit zajímavost</button>
                 </form>               
-            </div>
+            </div> -->
 
             <!-- DIVKVARIÁT -->
             <div id="market">
@@ -1157,7 +1183,13 @@
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="card-title font-bold after-h3">
-                    Série:  <a href="/svet/{{ series.universumurl }}">{{ series.universumnamecz|default:series.universumnamecz }}</a>
+                    Série:  <a href="/svet/{{ series.universumurl }}">
+{% if series.universumnamecz %}
+  {{ series.universumnamecz }}
+{% else %}
+  {{ series.universumname }}
+{% endif %}                    
+                    </a>
                 </h3>
                 <div class="flex flex-wrap">
                     {% for book in series_books %}
@@ -1176,6 +1208,23 @@
             </div>
         </div>
         {% endif %}
+
+
+
+        {% if request.user.is_superuser %}
+        <div class="card box-shadow mb-3">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title">Přidat na hlavní stranu</h3>
+                    <form method="post">
+                      {% csrf_token %}
+                      <button type="submit" name="add_to_metaindex" class="btn btn-sm btn-success mt-2">
+                        Přidat na hlavní stránku
+                      </button>
+                    </form>
+            </div>
+        </div>
+        {% endif %}
+        
 
         {% if request.user.is_superuser %}
         <div class="card box-shadow mb-3">

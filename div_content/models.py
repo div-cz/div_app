@@ -1299,7 +1299,7 @@ class Metauniversum(models.Model):
     universumdescriptioncz = models.TextField(db_column='UniversumDescriptionCZ', null=True)
     universumimg = models.CharField(db_column='UniversumIMG', max_length=64, null=True, blank=True)
     universumimgposter = models.CharField(db_column='UniversumIMGposter', max_length=64, null=True, blank=True)
-    universumcounter = models.CharField(db_column='UniversumCounter', max_length=64, null=True, blank=True)
+    universumcounter = models.IntegerField(db_column='UniversumCounter', null=True, blank=True, default=0)
     tmdbid = models.IntegerField(db_column='TmdbID', blank=True, null=True)
     divrating = models.IntegerField(db_column='DIVRating', default="0", db_index=True, blank=True, null=True)
 
