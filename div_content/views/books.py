@@ -21,7 +21,7 @@ from django.contrib import messages
 
 from django.core.paginator import Paginator
 
-from django.db import models
+from django.db import connection, models
 from django.db.models import Avg, Count
 from django.db.models import Avg
 
@@ -904,6 +904,30 @@ def ratequote(request, quote_id):
 
 
 
+
+def books_search(request):
+    books = []
+    if 'q' in request.GET:
+        form = SearchFormBooks(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data['q']
+            sql_query = """
+                SELECT bookid, title, titlecz, url, year, googleid, pages, img, author, authorid
+                FROM Book
+                WHERE MATCH(titlecz) AGAINST(%s IN NATURAL LANGUAGE MODE)
+                LIMIT 50;
+            """
+            with connection.cursor() as cursor:
+                cursor.execute(sql_query, [query])
+                rows = cursor.fetchall()
+                columns = [col[0] for col in cursor.description]
+                books = [dict(zip(columns, row)) for row in rows]
+    else:
+        form = SearchFormBooks()
+
+    return render(request, 'books/books_search.html', {'form': form, 'books': books})
+
+""" OLD 6,7,2025
 def books_search(request):
     books = None
     if 'q' in request.GET:
@@ -918,7 +942,7 @@ def books_search(request):
         form = SearchFormBooks()
 
     return render(request, 'books/books_search.html', {'form': form, 'books': books})
-
+"""
 
 
 
