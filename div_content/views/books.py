@@ -48,6 +48,7 @@ from div_content.views.login import custom_login_view
 from div_content.views.palmknihy import get_palmknihy_ebooks
 from div_content.views.payments import get_ebook_purchase_status
 
+from email.message import EmailMessage
 from io import BytesIO
 
 from star_ratings.models import Rating, UserRating
@@ -244,7 +245,9 @@ def listing_detail(request, book_url, listing_id):
                 listing.buyer = request.user
                 listing.save()
                 messages.success(request, 'Nabídka byla rezervována.')
+                send_listing_reservation_email(request, listing.booklistingid)
                 return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
+
 
         # DOKONČENÍ (pro prodávajícího)
         elif 'complete_listing' in request.POST and request.user == listing.user:
@@ -476,6 +479,10 @@ def books(request):
     last_comment = Bookcomments.objects.select_related('user', 'bookid').order_by('-commentid').first()
     latest_comments = Bookcomments.objects.order_by('-dateadded')[:3]
 
+    recent_sell_listings = Booklisting.objects.filter(listingtype__in=['SELL', 'GIVE'], active=True, status='ACTIVE').select_related('book', 'user').order_by('-createdat')[:5]
+    recent_buy_listings = Booklisting.objects.filter(listingtype='BUY', active=True, status='ACTIVE').select_related('book', 'user').order_by('-createdat')[:5]
+
+
     return render(request, 'books/books_list.html', {
         'top_books': top_books,
         'book_list_15': book_list_15,
@@ -487,6 +494,8 @@ def books(request):
         'ebooks2': ebooks2,
         'last_comment': last_comment,
         'latest_comments': latest_comments,
+        'recent_sell_listings': recent_sell_listings,
+        'recent_buy_listings': recent_buy_listings,
         })
 #'top_20_books': top_20_books, 'all_books': all_books, 'api_test_message': api_test_message
 
@@ -789,7 +798,13 @@ def book_detail(request, book_url):
                 "kindlemail": purchase.kindlemail if purchase and purchase.kindlemail else user.email,
                 "readonly": bool(purchase and purchase.kindlemail)
             }
-        
+
+    recent_sell_listings = get_market_listings()
+    recent_buy_listings = (Booklisting.objects
+        .filter(listingtype='BUY', active=True, status='ACTIVE')
+        .select_related('book', 'user')
+        .order_by('-createdat')[:5])
+
     return render(request, 'books/book_detail.html', {
         'book': book,
         'authors': authors, 
@@ -826,6 +841,8 @@ def book_detail(request, book_url):
         'ebook_formats': ebook_formats,  
         'ebook_formats_json': json.dumps(ebook_formats, cls=DecimalEncoder),
         "format_kindlemails": format_kindlemails,
+        'recent_sell_listings': recent_sell_listings,
+        'recent_buy_listings': recent_buy_listings,
         #'books_with_series': books_with_series,
         })
 #    top_20_books = Book.objects.order_by('-bookrating').all()[:20]  # Define top_20_books here

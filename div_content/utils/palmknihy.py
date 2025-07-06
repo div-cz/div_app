@@ -10,7 +10,8 @@ import unicodedata
 from div_content.models import Book, Bookisbn
 from div_content.utils.functions import normalize_isbn, format_isbn
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
+print("Načítám .env ze souboru:", find_dotenv())
 load_dotenv()
 
 
