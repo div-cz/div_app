@@ -10,6 +10,7 @@ import math
 import os
 import qrcode
 import requests
+import smtplib
 import unicodedata
 
 from datetime import datetime
@@ -19,6 +20,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 
+from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 
 from django.db import models
@@ -40,6 +42,7 @@ from div_content.models import (
     Bookpublisher, Bookpurchase, Bookquotes, Bookrating, Bookwriters, Charactermeta, Metagenre, Metaindex, Metastats, Metauniversum, Userlist, Userlistbook, Userlisttype, FavoriteSum, Userbookgoal, Userlistitem
 )
 
+from div_content.utils.books import get_market_listings
 from div_content.utils.metaindex import add_to_metaindex
 #from div_content.utils.books import fetch_book_from_google_by_id, fetch_books_from_google
 from div_content.utils.payments import prepare_qr_codes_for_book, qr_code_ebook, qr_code_market
@@ -49,6 +52,9 @@ load_dotenv()
 from div_content.views.login import custom_login_view
 from div_content.views.palmknihy import get_palmknihy_ebooks
 from div_content.views.payments import get_ebook_purchase_status
+
+from email.message import EmailMessage
+
 
 from io import BytesIO
 
@@ -208,25 +214,26 @@ def send_listing_reservation_email(request, listing_id):
         recipient = request.user.email
 
         msg = EmailMessage()
-        msg['Subject'] = f"Rezervace knihy z DIVkvariátu: {book.title}"
+        msg['Subject'] = os.getenv("EMAIL_SUBJECT_RESERVED").format(title=book.title)
         msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
         msg['To'] = recipient
-        msg.set_content(
-            f"Zarezervovali jste si knihu {book.title}. Prosíme, zaplaťte cenu dle platebních údajů v detailu nabídky.\n\nDěkujeme,\nTým DIV.cz"
-        )
+        msg.set_content(os.getenv("EMAIL_BODY_RESERVED").format(title=book.title))
 
         try:
             with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.login(
+                    os.getenv("ANTIKVARIAT_ADDRESS"),
+                    os.getenv("ANTIKVARIAT_PASSWORD")
+                )
                 smtp.send_message(msg)
-            messages.success(request, f"Potvrzení rezervace bylo posláno na váš e-mail: <strong>{recipient}</strong>.")
+            messages.success(request, f"Potvrzení rezervace bylo posláno na e-mail: <strong>{recipient}</strong>.")
         except Exception as e:
             messages.error(request, f"Chyba při odesílání e-mailu: {e}")
-
     else:
         messages.warning(request, f"Nabídka není ve stavu pro rezervaci (status: {listing.status}).")
 
     return redirect("listing_detail_sell", book_url=listing.book.url, listing_id=listing.booklistingid)
+
 
 
 
@@ -361,17 +368,7 @@ def cancel_sell(request, listing_id):
     return render(request, "books/market_cancel_offer.html", {"listing_offer": listing_to_cancel})   
 
 
-def get_market_listings(limit=5):
-    #Pomocná funkce pro hlavní stranu a výpis
-    #recent_listings = get_market_listings()
-    sell_listings = (Booklisting.objects.filter(
-        listingtype__in=['SELL', 'GIVE'], 
-        active=True,
-        status='ACTIVE'
-    ).select_related('book', 'user')
-     .order_by('-createdat')[:limit])
-    
-    return sell_listings
+
 
 
 @login_required
@@ -479,6 +476,8 @@ def books(request):
     
     last_comment = Bookcomments.objects.select_related('user', 'bookid').order_by('-commentid').first()
     latest_comments = Bookcomments.objects.order_by('-dateadded')[:3]
+    
+    recent_sell_listings, recent_buy_listings = get_market_listings()
 
     return render(request, 'books/books_list.html', {
         'top_books': top_books,
@@ -491,6 +490,8 @@ def books(request):
         'ebooks2': ebooks2,
         'last_comment': last_comment,
         'latest_comments': latest_comments,
+        'recent_sell_listings': recent_sell_listings,
+        'recent_buy_listings': recent_buy_listings,
         })
 #'top_20_books': top_20_books, 'all_books': all_books, 'api_test_message': api_test_message
 

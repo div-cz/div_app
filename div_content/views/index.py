@@ -1,13 +1,12 @@
 # VIEWS.INDEX.PY TEST
 
+
+import math
+import qrcode
+
 from datetime import date
+from io import BytesIO
 
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.contenttypes.models import ContentType
-
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import DetailView
 from div_content.views.login import custom_login_view
 
 from div_content.forms.admins import TaskCommentForm, TaskForm
@@ -18,16 +17,26 @@ from div_content.models import (
     AATask, Article, Articlenews, Book, Booklisting, Bookpurchase, Creator, Creatorbiography, Game, Metacharts, Metagenre, Metaindex, Metalocation,  Metastats, Movie, Moviecinema, Moviedistributor, Moviecomments, Moviecrew, Moviegenre, Movierating, Tvgenre, Tvshow, User, Userprofile
 
 )
-from star_ratings.models import Rating, UserRating
+from div_content.utils.books import get_market_listings
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.contenttypes.models import ContentType
+
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.generic import DetailView
+
 # for index
 from django.db import models
 from django.db.models import Avg, Count
 from django.db.models.functions import ExtractYear
 
-from io import BytesIO
+from star_ratings.models import Rating, UserRating
 
-import math
-import qrcode
+
+
+
+
 
 
 
@@ -69,17 +78,6 @@ def get_sorted_tasks(user):
 
 
 
-def get_market_listings(limit=5):
-    #Pomocná funkce pro hlavní stranu a výpis
-    #recent_listings = get_market_listings()
-    sell_listings = (Booklisting.objects.filter(
-        listingtype__in=['SELL', 'GIVE'], 
-        active=True,
-        status='ACTIVE'
-    ).select_related('book', 'user')
-     .order_by('-createdat')[:limit])
-    
-    return sell_listings
 
 def index(request): # hlavní strana
     user = request.user if request.user.is_authenticated else None
@@ -197,6 +195,9 @@ def index(request): # hlavní strana
           seller_pending_listings = []
           pending_book_purchases = []
           user_wanted_purchases = []
+
+    recent_sell_listings, recent_buy_listings = get_market_listings()
+
     
     return render(request, 'index.html', {
             'movies': movies, 
@@ -225,6 +226,8 @@ def index(request): # hlavní strana
             'seller_pending_listings': seller_pending_listings,
             'pending_book_purchases': pending_book_purchases,
             'user_wanted_purchases': user_wanted_purchases,
+            'recent_sell_listings': recent_sell_listings,
+            'recent_buy_listings': recent_buy_listings,
             })  
 
 @login_required
