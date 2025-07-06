@@ -194,6 +194,43 @@
                 </div>
             </div>
         </div>
+
+
+<!-- BIBLIOGRAFIE -->
+<div class="mt-5">
+    <h3>Bibliografie {{ character.charactername }}</h3>
+    <div class="table box-shadow">
+        <div class="grid creator-grid p-1 bg-[#c0c0c0]">
+            <div></div>
+            <div class="font-bold">Kniha</div>
+            <div class="text-center font-bold">Rok</div>
+            <div class="text-center font-bold">Autor</div>
+        </div>
+        <div>
+            {% for item in bibliography %}
+            {% with book=item.bookid %}
+            <div class="grid items-center border p-1 creator-grid sudy">
+                <div>
+                    {% if book.img == "noimg.png" %}
+                        <img src="/static/img/book/book.png" alt="{{ book.titlecz|default:book.title }}" style="max-width: 100%; object-fit: cover;">
+                    {% else %}
+                        <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz }}" style="max-width: 100%; object-fit: cover;">
+                    {% endif %}
+                </div>
+                <div class="p-1 flex items-center justify-between">
+                    <a href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a>
+                </div>
+                <div class="text-center p-1">{{ book.year|default:"" }}</div>
+                <div class="text-center p-1">{{ book.author|default:"" }}</div>
+            </div>
+            {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
+</div><!-- // BIBLIOGRAFIE -->
+
+
+
     </div>
 
     <!-- PRAVÁ STRANA -->

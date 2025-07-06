@@ -5,7 +5,7 @@ from django.db.models import Exists, OuterRef
 from div_content.forms.characters import FavoriteFormCharacter, CharacterBiographyForm
 from django.contrib.contenttypes.models import ContentType
 from div_content.models import (
-    Characterbiography, Charactermeta, Favorite, Movie, Moviecrew, Userlisttype, Userlist, Userlistitem, 
+    Book, Bookcharacter, Characterbiography, Charactermeta, Favorite, Movie, Moviecrew, Userlisttype, Userlist, Userlistitem, 
     FavoriteSum
     )
 from django.contrib.auth.decorators import login_required
@@ -70,6 +70,11 @@ def character_detail(request, character_url):
         entry.movieid.is_watched = entry.is_watched
         filmography[entry.movieid].append(actor_name)
 
+    bibliography = (Bookcharacter.objects
+        .filter(characterid=character)
+        .select_related('bookid')
+        .order_by('-bookid__year')[:40])
+    
     # Ověření, zda je postava v oblíbených
     # is_favorite = False
     # if request.user.is_authenticated:
@@ -121,6 +126,7 @@ def character_detail(request, character_url):
         'character': character, 
         'characterbiography': characterbiography, 
         'filmography': dict(filmography),
+        'bibliography': bibliography,
         'is_favorite': is_favorite,
         'fans': fans,
         'form': form,

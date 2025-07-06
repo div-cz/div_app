@@ -23,6 +23,8 @@ from div_content.models import (
     Userlisttype, Userlist, Userlistmovie, FavoriteSum, Userlistitem
 
 )
+from div_content.utils.metaindex import add_to_metaindex
+
 from star_ratings.models import Rating, UserRating
 # for index
 from django.db.models import Avg, Count
@@ -295,6 +297,17 @@ def movie_detail(request, movie_url):
     quotes = Moviequotes.objects.filter(movie=movie).order_by('-divrating')  
     trivia = Movietrivia.objects.filter(movieid=movie).order_by('-divrating')  
     errors = Movieerror.objects.filter(movieid=movie).order_by('-divrating')
+
+
+    if request.method == "POST" and request.user.is_superuser and 'add_to_metaindex' in request.POST:
+        result = add_to_metaindex(movie, 'Movie')
+        if result == "added":
+            messages.success(request, "Záznam byl přidán na hlavní stránku.")
+        elif result == "exists":
+            messages.info(request, "Záznam už existuje.")
+        else:
+            messages.error(request, "Nepodařilo se přidat.")
+        return redirect('movie_detail', movie_url=movie.url)
 
     return render(request, 'movies/movie_detail.html', {
         'movie': movie,

@@ -505,6 +505,17 @@ def serie_detail(request, tv_url):
         
     episodes_count = episodes.count()
 
+    if request.method == "POST" and request.user.is_superuser and 'add_to_metaindex' in request.POST:
+        from div_content.utils.metaindex import add_to_metaindex
+        result = add_to_metaindex(tvshow, 'TVShow')
+        if result == "added":
+            messages.success(request, "Záznam byl přidán na hlavní stránku.")
+        elif result == "exists":
+            messages.info(request, "Záznam už existuje.")
+        else:
+            messages.error(request, "Nepodařilo se přidat.")
+        return redirect('series_detail', show_url=tvshow.url)
+
     return render(request, 'series/serie_detail.html', {
         'tvshow': tvshow,
         'genres': genres,

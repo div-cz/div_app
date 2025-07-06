@@ -7,6 +7,7 @@ from div_content.models import (
     Userlistgame, FavoriteSum, Userlistitem
 )
 from div_content.forms.games import CommentFormGame, GameForm, GameDivRatingForm
+from div_content.utils.metaindex import add_to_metaindex
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -241,7 +242,18 @@ def game_detail(request, game_url):
             game_div_rating_form = GameDivRatingForm(instance=game)
 
 
-
+    if request.method == "POST" and request.user.is_superuser and 'add_to_metaindex' in request.POST:
+        result = add_to_metaindex(game, 'Game')
+        if result == "added":
+            messages.success(request, "Záznam byl přidán na hlavní stránku.")
+        elif result == "exists":
+            messages.info(request, "Záznam už existuje.")
+        else:
+            messages.error(request, "Nepodařilo se přidat.")
+        return redirect('game_detail', game_url=game.url)
+        
+        
+        
     return render(request, 'games/game_detail.html', {
         'game': game,
         'genres': genres,

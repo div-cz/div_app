@@ -21,7 +21,7 @@ from django.contrib import messages
 
 from django.core.paginator import Paginator
 
-from django.db import connection, models
+from django.db import models
 from django.db.models import Avg, Count
 from django.db.models import Avg
 
@@ -39,6 +39,8 @@ from div_content.models import (
     Book, Bookauthor, Bookcharacter, Bookcomments, Bookcover, Bookgenre, Bookisbn, Booklisting, 
     Bookpublisher, Bookpurchase, Bookquotes, Bookrating, Bookwriters, Charactermeta, Metagenre, Metaindex, Metastats, Metauniversum, Userlist, Userlistbook, Userlisttype, FavoriteSum, Userbookgoal, Userlistitem
 )
+
+from div_content.utils.metaindex import add_to_metaindex
 #from div_content.utils.books import fetch_book_from_google_by_id, fetch_books_from_google
 from div_content.utils.payments import prepare_qr_codes_for_book, qr_code_ebook, qr_code_market
 from div_content.utils.palmknihy import get_catalog_product
@@ -48,7 +50,6 @@ from div_content.views.login import custom_login_view
 from div_content.views.palmknihy import get_palmknihy_ebooks
 from div_content.views.payments import get_ebook_purchase_status
 
-from email.message import EmailMessage
 from io import BytesIO
 
 from star_ratings.models import Rating, UserRating
@@ -479,10 +480,6 @@ def books(request):
     last_comment = Bookcomments.objects.select_related('user', 'bookid').order_by('-commentid').first()
     latest_comments = Bookcomments.objects.order_by('-dateadded')[:3]
 
-    recent_sell_listings = Booklisting.objects.filter(listingtype__in=['SELL', 'GIVE'], active=True, status='ACTIVE').select_related('book', 'user').order_by('-createdat')[:5]
-    recent_buy_listings = Booklisting.objects.filter(listingtype='BUY', active=True, status='ACTIVE').select_related('book', 'user').order_by('-createdat')[:5]
-
-
     return render(request, 'books/books_list.html', {
         'top_books': top_books,
         'book_list_15': book_list_15,
@@ -494,8 +491,6 @@ def books(request):
         'ebooks2': ebooks2,
         'last_comment': last_comment,
         'latest_comments': latest_comments,
-        'recent_sell_listings': recent_sell_listings,
-        'recent_buy_listings': recent_buy_listings,
         })
 #'top_20_books': top_20_books, 'all_books': all_books, 'api_test_message': api_test_message
 
@@ -799,11 +794,16 @@ def book_detail(request, book_url):
                 "readonly": bool(purchase and purchase.kindlemail)
             }
 
-    recent_sell_listings = get_market_listings()
-    recent_buy_listings = (Booklisting.objects
-        .filter(listingtype='BUY', active=True, status='ACTIVE')
-        .select_related('book', 'user')
-        .order_by('-createdat')[:5])
+    if request.method == "POST" and request.user.is_superuser and 'add_to_metaindex' in request.POST:
+        result = add_to_metaindex(book, 'Book')
+        if result == "added":
+            messages.success(request, "Záznam byl přidán na hlavní stránku.")
+        elif result == "exists":
+            messages.info(request, "Záznam už existuje.")
+        else:
+            messages.error(request, "Nepodařilo se přidat.")
+        return redirect('book_detail', book_url=book.url)
+
 
     return render(request, 'books/book_detail.html', {
         'book': book,
@@ -841,8 +841,6 @@ def book_detail(request, book_url):
         'ebook_formats': ebook_formats,  
         'ebook_formats_json': json.dumps(ebook_formats, cls=DecimalEncoder),
         "format_kindlemails": format_kindlemails,
-        'recent_sell_listings': recent_sell_listings,
-        'recent_buy_listings': recent_buy_listings,
         #'books_with_series': books_with_series,
         })
 #    top_20_books = Book.objects.order_by('-bookrating').all()[:20]  # Define top_20_books here
@@ -904,30 +902,6 @@ def ratequote(request, quote_id):
 
 
 
-
-def books_search(request):
-    books = []
-    if 'q' in request.GET:
-        form = SearchFormBooks(request.GET)
-        if form.is_valid():
-            query = form.cleaned_data['q']
-            sql_query = """
-                SELECT bookid, title, titlecz, url, year, googleid, pages, img, author, authorid
-                FROM Book
-                WHERE MATCH(titlecz) AGAINST(%s IN NATURAL LANGUAGE MODE)
-                LIMIT 50;
-            """
-            with connection.cursor() as cursor:
-                cursor.execute(sql_query, [query])
-                rows = cursor.fetchall()
-                columns = [col[0] for col in cursor.description]
-                books = [dict(zip(columns, row)) for row in rows]
-    else:
-        form = SearchFormBooks()
-
-    return render(request, 'books/books_search.html', {'form': form, 'books': books})
-
-""" OLD 6,7,2025
 def books_search(request):
     books = None
     if 'q' in request.GET:
@@ -942,7 +916,7 @@ def books_search(request):
         form = SearchFormBooks()
 
     return render(request, 'books/books_search.html', {'form': form, 'books': books})
-"""
+
 
 
 

@@ -1,6 +1,6 @@
 {% extends "universum/base.html" %}
 
-{% block title %}{{ universum.universumnamecz }} na DIV.cz{% endblock %}
+{% block title %}{{ universum.universumnamecz|default:universum.universumname }} na DIV.cz{% endblock %}
 
 {% block meta %}
 {% endblock %}
@@ -12,7 +12,7 @@
     
     {% if movies|length > 0 %}
 
-    <div class="w-full relative" style="top: 0; left: 0; height: 100vh;">
+    <div class="w-full relative" style="top: 0; left: 0; height: 150vh;">
         <div style="background-image: url('https://image.tmdb.org/t/p/original/{{ movies.0.img }}'); background-size: cover; background-position: center; height: 100%; opacity: 0.2; z-index: 1;"></div>
 
         <div class="row container my-4 absolute w-full h-full p-6" style="top: 0; left: 0; z-index: 2;">
@@ -84,19 +84,57 @@
                     </div>
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-4"><!-- Postavy -->
                     <div class="card-body w-full">
-                        <h3 class="card-title font-bold after-h3">Postavy</h3>
-                        <ul class="w-full" style="list-style-type:none">
-                            <!--<li><a href="">Harry Potter</a></li>
+                        <!--<h3 class="card-title font-bold after-h3">Postavy</h3>
+                        <ul>
+                            <li><a href="">Harry Potter</a></li>
                             <li><a href="">Hagrid</a></li>
                             <li><a href="">Ron</a></li>
                             <li><a href="">Snape</a></li>
                             <li><a href="">Draco Malfoy</a></li>
-                            <li><a href="">Skorobezhlavý Nick</a></li>-->
-                        </ul>
+                            <li><a href="">Skorobezhlavý Nick</a></li>
+                        </ul>-->
+
+<!-- POSTAVY Z KNIH -->
+{% if book_characters %}
+<h3 class="card-title font-bold after-h3">Postavy v knihách tohoto světa</h3>
+<ul class="w-full" style="list-style-type:none">
+  {% for char in book_characters %}
+    <li><a href="{% url 'character_detail' character_url=char.characterurl %}">
+      {{ char.characternamecz|default:char.charactername }}
+    </a></li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<!-- POSTAVY Z FILMŮ -->
+{% if movie_characters %}
+<h3 class="card-title font-bold after-h3">Postavy ve filmech tohoto světa</h3>
+<ul class="w-full" style="list-style-type:none">
+  {% for char in movie_characters %}
+    <li><a href="{% url 'character_detail' character_url=char.characterurl %}">
+      {{ char.characternamecz|default:char.charactername }}
+    </a></li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+
+<!-- POSTAVY Z FILMŮ -->
+{% if game_characters %}
+<h3 class="card-title font-bold after-h3">Postavy ve hrách tohoto světa</h3>
+<ul class="w-full" style="list-style-type:none">
+  {% for char in game_characters %}
+    <li><a href="{% url 'character_detail' character_url=char.characterurl %}">
+      {{ char.characternamecz|default:char.charactername }}
+    </a></li>
+  {% endfor %}
+</ul>
+{% endif %}
+
                     </div>
-                </div>
+                </div><!-- // Postavy -->
 
                 <div class="mb-4">
                     <div class="card-body w-full">
