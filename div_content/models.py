@@ -274,6 +274,7 @@ class Book(models.Model):
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True)
     lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
     divrating = models.IntegerField(db_column='DIVRating', default="0", db_index=True, blank=True, null=True)
+    parentid = models.ForeignKey( 'self', db_column='ParentID', null=True, blank=True, on_delete=models.SET_NULL, related_name='editions')
 
     class Meta:
         db_table = 'Book'
