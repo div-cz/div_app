@@ -311,6 +311,7 @@ class Booklisting(models.Model):
     completedat = models.DateTimeField(db_column='CompletedAt', null=True, blank=True)
     active = models.BooleanField(db_column='Active', default=True)
     status = models.CharField(db_column='Status', max_length=10, choices=LISTING_STATUS, default='ACTIVE')
+    shippingaddress = models.CharField(db_column='ShippingAddress', max_length=1024, blank=True, null=True)
     # Hodnocení transakce
     sellerrating = models.IntegerField(db_column='SellerRating', null=True, blank=True)
     sellercomment = models.TextField(db_column='SellerComment', max_length=512, blank=True, null=True)
@@ -438,7 +439,8 @@ class Bookpurchase(models.Model):
     source = models.CharField(db_column='Source', max_length=16, blank=True, null=True) 
     orderdate = models.DateTimeField(db_column='OrderDate', auto_now_add=True)
     paymentdate = models.DateTimeField(db_column='PaymentDate', null=True, blank=True)
-    expirationdate = models.DateTimeField(db_column='ExpirationDate', null=True, blank=True)  # Např. 3 roky od nákupu
+    expirationdate = models.DateTimeField(db_column='ExpirationDate', null=True, blank=True)
+    shippingaddress = models.CharField(db_column='ShippingAddress', max_length=1024, blank=True, null=True)
     kindlemail = models.EmailField(db_column='KindleEmail', blank=True, null=True)
     status = models.CharField(db_column='Status', max_length=10, choices=STATUS_CHOICES, default='PENDING')
     cancelreason = models.TextField(db_column='CancelReason', max_length=512, blank=True, null=True)  # Důvod zrušení/reklamace
@@ -1836,6 +1838,7 @@ class Userprofile(models.Model):
     birthdate = models.DateField(db_column='BirthDate', null=True, blank=True)
     avatar = models.ForeignKey(Avatar, db_column='Avatar', null=True, blank=True, on_delete=models.SET_NULL)
     bankaccount = models.CharField(db_column='BankAccount', max_length=32, blank=True, null=True, verbose_name="Číslo účtu")
+    shippingaddress = models.CharField(db_column='ShippingAddress', max_length=1024, blank=True, null=True)
 
     
     class Meta:
