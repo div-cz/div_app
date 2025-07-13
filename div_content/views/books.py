@@ -45,7 +45,7 @@ from div_content.models import (
 from div_content.utils.books import get_market_listings
 from div_content.utils.metaindex import add_to_metaindex
 #from div_content.utils.books import fetch_book_from_google_by_id, fetch_books_from_google
-from div_content.utils.payments import prepare_qr_codes_for_book, qr_code_ebook, qr_code_market
+from div_content.utils.payments import prepare_qr_codes_for_book, qr_code_ebook
 from div_content.utils.palmknihy import get_catalog_product
 
 load_dotenv()
@@ -205,169 +205,34 @@ def books_market_wants(request):
 
 
 
+
+
+
+
 @login_required
-def send_listing_reservation_email(request, listing_id):
-    listing = get_object_or_404(Booklisting, booklistingid=listing_id, buyer=request.user)
-
-    if listing.status in ['RESERVED', 'PENDING']:
-        book = listing.book
-        recipient = request.user.email
-
-        msg = EmailMessage()
-        msg['Subject'] = os.getenv("EMAIL_SUBJECT_RESERVED").format(title=book.title)
-        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
-        msg['To'] = recipient
-        msg.set_content(os.getenv("EMAIL_BODY_RESERVED").format(title=book.title))
-
-        try:
-            with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-                smtp.login(
-                    os.getenv("ANTIKVARIAT_ADDRESS"),
-                    os.getenv("ANTIKVARIAT_PASSWORD")
-                )
-                smtp.send_message(msg)
-            messages.success(request, f"Potvrzení rezervace bylo posláno na e-mail: <strong>{recipient}</strong>.")
-        except Exception as e:
-            messages.error(request, f"Chyba při odesílání e-mailu: {e}")
-    else:
-        messages.warning(request, f"Nabídka není ve stavu pro rezervaci (status: {listing.status}).")
-
-    return redirect("listing_detail_sell", book_url=listing.book.url, listing_id=listing.booklistingid)
-
-
-
-
-
+def cancel_purchase(request, purchase_id):
+    purchase = get_object_or_404(Bookpurchase, purchaseid=purchase_id, user=request.user) 
     
-def listing_detail(request, book_url, listing_id):
-    book = get_object_or_404(Book, url=book_url)
-    listing = get_object_or_404(Booklisting, booklistingid=listing_id, book=book)
-
-    if request.method == 'POST' and request.user.is_authenticated:
-        # REZERVACE
-        if 'reserve_listing' in request.POST and request.user != listing.user:
-            if listing.status != 'ACTIVE':
-                messages.error(request, 'Nabídka již není aktivní.')
-            else:
-                listing.status = 'RESERVED'
-                listing.buyer = request.user
-                listing.save()
-                messages.success(request, 'Nabídka byla rezervována.')
-                send_listing_reservation_email(request, listing.booklistingid)
-                return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
-
-
-        # DOKONČENÍ (pro prodávajícího)
-        elif 'complete_listing' in request.POST and request.user == listing.user:
-            if listing.status != 'RESERVED':
-                messages.error(request, 'Nabídka není ve stavu pro dokončení.')
-            else:
-                listing.status = 'COMPLETED'
-                listing.completedat = timezone.now()
-                listing.save()
-                messages.success(request, 'Transakce byla dokončena.')
-                return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
-
-        # ZRUŠENÍ REZERVACE (pro kupujícího)
-        elif 'cancel_reservation' in request.POST and request.user == listing.buyer:
-            if listing.status == 'RESERVED':
-                listing.status = 'ACTIVE'
-                listing.buyer = None
-                listing.save()
-                messages.success(request, 'Rezervace byla zrušena a nabídka vrácena do aktivního stavu.')
-                return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
-            else:
-                messages.error(request, 'Tuto rezervaci nelze zrušit.')
-
-        # Hodnocení prodávající/kupující
-        elif 'sellerrating' in request.POST and request.user == listing.user:
-            if listing.buyerrating:
-                messages.error(request, 'Hodnocení již bylo přidáno.')
-            else:
-                listing.buyerrating = request.POST.get('rating')
-                listing.buyercomment = request.POST.get('comment')
-                listing.save()
-                messages.success(request, 'Hodnocení kupujícího bylo přidáno.')
-
-        elif 'buyerrating' in request.POST and request.user == listing.buyer:
-            if listing.sellerrating:
-                messages.error(request, 'Hodnocení již bylo přidáno.')
-            else:
-                listing.sellerrating = request.POST.get('rating')
-                listing.sellercomment = request.POST.get('comment')
-                listing.save()
-                messages.success(request, 'Hodnocení prodejce bylo přidáno.')
-
-    # QR platba atd – pouze pokud chceš
-    payment_info = None
-    if listing.status == 'RESERVED' and listing.buyer == request.user:
-        total_amount = float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0)
-        qr_message = f"{book.title}|{listing.user.username}"
-        # Prodej/koupě: zjisti, zda je typ 5 nebo 6 (můžeš to mít v listing.listingtype apod.)
-        format_code = "5" if listing.listingtype == "BUY" else "6"  # uprav dle své logiky
-        qr_code, vs = qr_code_market(total_amount, listing, qr_message, format_code)
-        payment_info = {
-            'total': total_amount,
-            'qr_code': qr_code,
-            'variable_symbol': vs,
-            'note': qr_message
-        }
-
-
-    elif 'cancel_offer' in request.POST and request.user == listing.user:
-            if listing.status == 'ACTIVE' or listing.status == 'RESERVED':
-                listing.delete()
-                messages.success(request, 'Nabídka byla úspěšně zrušena.')
-                return redirect('book_listings', book_url=book_url)
-            else:
-                messages.error(request, 'Tuto nabídku nelze zrušit v aktuálním stavu.')      
-
-    # Možnost hodnocení/zrušení pro správného uživatele
-    can_rate_seller = (listing.status == 'COMPLETED' and request.user == listing.buyer and not listing.sellerrating)
-    can_rate_buyer = (listing.status == 'COMPLETED' and request.user == listing.user and not listing.buyerrating)
-    can_cancel_reservation = (listing.status == 'RESERVED' and request.user == listing.buyer)
-
-    can_cancel_offer = (request.user == listing.user and listing.status in ['ACTIVE', 'RESERVED'])
-
-
-    return render(request, 'books/listing_detail.html', {
-        'book': book,
-        'listing': listing,
-        'payment_info': payment_info,
-        'can_rate_seller': can_rate_seller,
-        'can_rate_buyer': can_rate_buyer,
-        'can_cancel_reservation': can_cancel_reservation,
-        'can_cancel_offer': can_cancel_offer,
-    })
-
-
-@login_required
-def cancel_sell(request, listing_id):
-    listing_to_cancel = get_object_or_404(Booklisting, booklistingid=listing_id, user=request.user)
-
     if request.method == "POST":
-        if listing_to_cancel.status == 'ACTIVE' or listing_to_cancel.status == 'RESERVED':
-            old_status = listing_to_cancel.status
-
-            listing_to_cancel.status = "CANCELLED"
-            listing_to_cancel.active = False
+        reason = request.POST.get("cancel_reason", "Bez udání důvodu") 
+        
+        if purchase.book and purchase.book.status == 'RESERVED' and purchase.status == 'PENDING':
+            book_obj = purchase.book 
             
-            if old_status == 'RESERVED':
-                listing_to_cancel.buyer = None
-                messages.info(request, "Přiřazený kupující byl odstraněn.")
-
-            listing_to_cancel.save()
-
-            messages.success(request, f'Vaše nabídka knihy "{listing_to_cancel.book.titlecz}" byla úspěšně zrušena.')
+            book_obj.status = "ACTIVE" 
+            book_obj.save() 
             
-            return redirect('index')
+            purchase.status = "CANCELLED" 
+            purchase.cancelreason = reason
+            purchase.save()
+            
+            messages.success(request, f'Rezervace knihy "{book_obj.titlecz}" byla zrušena.')
+            if hasattr(purchase, 'listing') and purchase.listing: # Check if 'listing' attribute exists and is not None
+                send_listing_cancel_email(request, purchase.listing.booklistingid)
+            return redirect('index') 
         else:
-            messages.error(request, f'Nabídku knihy nelze zrušit".')
-            return redirect('index')
-
-    return render(request, "books/market_cancel_offer.html", {"listing_offer": listing_to_cancel})   
-
-
+            messages.error(request, 'Rezervaci nelze zrušit, protože kniha/rezervace již není ve stavu "RESERVED"/"PENDING".')
+            return redirect('index') 
 
 
 

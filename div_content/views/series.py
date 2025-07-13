@@ -387,7 +387,7 @@ def serie_detail(request, tv_url):
 
     # Získání herců a postav pro seriál
     actors_and_characters = Tvcrew.objects.filter(tvshowid=tvshow.tvshowid, roleid='378').select_related('peopleid', 'characterid')
-    actors_and_characters2 = Tvcrew.objects.filter(tvshowid=tvshow.tvshowid, roleid='378').select_related('peopleid', 'characterid')[:10]
+    actors_and_characters2 = Tvcrew.objects.filter(tvshowid=tvshow.tvshowid, roleid='378').select_related('peopleid', 'characterid').order_by('creworder')[:10]
     directors = Tvcrew.objects.filter(tvshowid=tvshow.tvshowid, roleid='383').select_related('peopleid')  # Režie
 
     # Zjistí, jestli má uživatel seriál v seznamu Oblíbené

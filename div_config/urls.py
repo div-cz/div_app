@@ -13,22 +13,30 @@ from django.contrib import admin
 from django.urls import path, include
 #from div_content import views
 #from div_content.views import articles, books, creators, games, locations, movies, users
+# ADMINs
 from div_content.views.admins import admin_assign_book, admin_index, admin_comments, admin_edit_comment, admin_odpriradit_eknihu, admin_palmknihy_preview, admin_store_ebook, admin_store_page, admin_tasks, admin_task_detail, admin_task_edit, ajax_search_books, recent_payments #admin_task_new, 
 from div_content.views.articles import article_detail, articles_index, articles_list, article_new
+# Authors
 from div_content.views.authors import (
     authors_list, author_detail, author_add, add_to_favourite_authors, remove_from_favourite_authors
     )
+# Blog
 from div_content.views.blog import blog_add_post, blog_detail, blog_index, blog_list, blog_new, blog_post_detail, blog_section_detail
-
+# Books
 from div_content.views.books import (
- add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, book_add, book_detail, books, books_search, books_market_offers, books_market_wants, cancel_purchase, confirm_sale, rate_book, ratequote, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, remove_from_book_library, character_list_ajax, set_reading_goal, books_alphabetical, book_listings, listing_detail
+ add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, book_add, book_detail, books, books_search, books_market_offers, books_market_wants, cancel_purchase, confirm_sale, rate_book, ratequote, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, remove_from_book_library, character_list_ajax, set_reading_goal, books_alphabetical, book_listings
     )
+# Creators
 from div_content.views.creators import (
     creator_detail, creators_list, toggle_favorite, add_creator_to_favourites, remove_creator_from_favourites
     )
+# DIVkvariat
+from div_content.views.divkvariat import listing_detail
+# FORUM
 from div_content.views.forum import (
     forum, forum_section_detail, create_new_topic, forum_topic_detail, comment_edit, comment_delete, comment_reply, forum_search
     )
+# E-shop
 from div_content.views.eshop import eshop_list, eshop_books, eshop_movies, eshop_games, eshop_detail
 #from div_content.views.eshop import eshop
 from div_content.views.games import (
@@ -49,10 +57,12 @@ from div_content.views.movies import (
     movies_alphabetical, redirect_view, movie_detail, search, MovieDetailView, add_to_favourites, add_to_watchlist, add_to_watched, 
     remove_from_favourites, remove_from_watchlist, remove_from_watched, add_to_movie_library, remove_from_movie_library
     )
-
+# Payments
 from div_content.views.payments import (bank_transactions, download_ebook, generate_qr, check_purchase_status, posledni_pending_purchaseid, send_to_reader, send_to_reader_modal)
 
+# Universum
 from div_content.views.universum import universum_detail, universum_list
+# Users
 from div_content.views.users import (
     contact_form, myuser_detail, rate_movie, add_to_list, ratings_profile, favorites_profile, iwantsee_profile, 
     watched_profile, favorite_movies, rated_media, rated_movies, rated_books, rated_games, favorite_media, 
@@ -61,6 +71,7 @@ from div_content.views.users import (
     update_profile, review_profile, chat, add_to_favorite_users, remove_from_favorite_users, chat_message, load_older_messages, 
     user_book_listings, user_sell_listings, user_buy_listings, search_user_in_chat
     )
+
 from div_content.views.charts import (
     award_detail, charts_index, charts_books, charts_games, charts_movies, charts_users, awards_index, awards_movies, 
     awards_books, awards_games
