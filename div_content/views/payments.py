@@ -47,6 +47,8 @@ from io import BytesIO
 # Příklady:
 # 0103821234  – Projekt DIV.cz (010), knihy (38), formát epub (2), objednávka č. 1234
 # 0103831235  – Projekt DIV.cz (010), knihy (38), formát mobi (3), objednávka č. 1235
+# 0103859999  - Projekt DIV.cz (010), knihy (38), burza koupě (5), objednávka č. 9999 / poptávka
+# 0103869999  - Projekt DIV.cz (010), knihy (38), burza prodej(6), objednávka č. 9999
 #
 # Každý projekt má svůj trojciferný kód (PPP), každý typ (TT) a formát (F) je určen tabulkou.
 # NNNN je unikátní pro každou objednávku v daném projektu a typu.
@@ -138,7 +140,34 @@ def generate_qr(request, book_id, format):
 
   
 
-  
+"""
+# Check_payments LILIEN
+def check_payments():
+
+    token = "FIO_TOKEN"  # Uloženo v .env
+    response = requests.get(f"{FIO_API_URL}last/{token}/transactions.json")
+    
+    if response.status_code == 200:
+        transactions = response.json().get("accountStatement", {}).get("transactionList", {}).get("transaction", [])
+        
+        for tx in transactions:
+            vs = tx.get("variableSymbol")
+            amount = tx.get("amount")
+            
+            # Platbu podle VS
+            purchase = Bookpurchase.objects.filter(purchaseid=vs, status="PENDING").first()
+            if purchase and float(purchase.price) == float(amount):
+                purchase.status = "PAID"
+                purchase.paymentdate = now()
+                purchase.expirationdate = now().replace(year=now().year + 3)  # Platnost 3 roky
+                purchase.save()
+
+                send_listing_payment_email_no_request(purchase.listing.booklistingid)
+
+                print(f"Platba potvrzena pro ID {vs}")
+
+    return "Kontrola dokončena"
+"""
 
 """
 def check_payments():
