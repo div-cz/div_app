@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.db.models import OuterRef, Exists
 from django.contrib.contenttypes.models import ContentType
 from div_content.models import (
-    Book, Bookauthor, Userlisttype, Userlist, Userlistitem, Userlisttype, FavoriteSum
+    Book, Bookauthor, Bookwriters, Userlisttype, Userlist, Userlistitem, Userlisttype, FavoriteSum
 )
 from div_content.forms.creators import Creatorbiography
 from django.contrib.auth.decorators import login_required
@@ -29,26 +29,23 @@ def authors_list(request):
 def author_detail(request, author_url):
     # Zobrazení detailu jednoho autora
     author = get_object_or_404(Bookauthor, url=author_url) 
-
     user = request.user
 
-    if user.is_authenticated:
-        # Získá Userlisttype objekt pro přečtené knihy
-        userlisttype = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_READLIST_ID)
+    # Definujeme seznam ID knih autora (přes Bookwriters)
+    book_ids = Bookwriters.objects.filter(author=author).values_list('book', flat=True)
 
-        # Získá uživatelovy přečtené knihy
+    if user.is_authenticated:
         read_list_items = Userlistitem.objects.filter(
             userlist__user=user,
-            userlist__listtype=userlisttype,
+            userlist__listtype_id=USERLISTTYPE_READLIST_ID,
             object_id=OuterRef("bookid")
         )
-            # Autorovy knihy seřazené od nejnovějších po nejstarší
-        # a přidá atribut is_read, pokud uživatel má v seznamu přečtených
-        books = Book.objects.filter(authorid=author.authorid).order_by("-year").annotate(
-        is_read=Exists(read_list_items)
-    )
+
+        books = Book.objects.filter(bookid__in=book_ids).annotate(
+            is_read=Exists(read_list_items)
+        ).order_by("-year")
     else:
-        books = Book.objects.filter(authorid=author.authorid).order_by("-year")
+        books = Book.objects.filter(bookid__in=book_ids).order_by("-year")
 
 
 
