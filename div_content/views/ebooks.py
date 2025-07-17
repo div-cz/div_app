@@ -71,15 +71,24 @@ API_URL = "https://nakladatelstvi.ekultura.eu/api/generate_watermarked_epub.php"
 # -------------------------------------------------------------------
 @login_required
 def download_ebook(request, isbn, format):
+    """
+    Stahování e-knih – větvení podle zdroje:
+    1) PALM – Palmknihy (API, externí zdroj)
+    2) DIV zdarma – generický lokální soubor (pdf/epub/mobi)
+    3) DIV placená – generovaný EPUB s vodoznakem (externí API)
+
+    Práva: vždy musí být purchase ve stavu PAID nebo musí být zdarma.
+    """
+
     bookisbn = get_object_or_404(Bookisbn, isbn=isbn, format=format)
     book = bookisbn.book
-
-    # Poznáš zdroj
     isbntype = (bookisbn.ISBNtype or "").upper()
 
-    # 1. PALM - stahování řešit přes Palmknihy API, přesměruj/poskytni link nebo stáhni jejich API
-    if bookisbn.ISBNtype == "PALM":
-        # Najdi nebo vytvoř purchase (objednávku), musíš mít purchaseid!
+    # =============================
+    # 1) PALM – Palmknihy
+    # =============================
+    # Stahuje se přes API Palmknihy. Práva: musí být zakoupeno (PAID).
+    if isbntype == "PALM":
         purchase = Bookpurchase.objects.filter(
             book=book,
             user=request.user,
@@ -88,8 +97,6 @@ def download_ebook(request, isbn, format):
         ).first()
         if not purchase:
             raise Http404("Nemáte zaplaceno nebo objednáno.")
-    
-        # Připrav JSON data dle příručky
         palmknihy_link = get_palmknihy_download_url(
             palmknihyid=bookisbn.palmknihyid,
             purchaseid=purchase.purchaseid,
@@ -102,10 +109,12 @@ def download_ebook(request, isbn, format):
             return HttpResponse("Palmknihy - link není dostupný.", status=404)
         return redirect(palmknihy_link)
 
-
-    # 2. DIV (nebo prázdný/ostatní) – tvůj původní kód:
+    # =============================
+    # 2) DIV zdarma – volné stažení
+    # =============================
+    # Platí pro knihy zdarma (price == 0 nebo price None).
     if bookisbn.price == 0 or bookisbn.price is None:
-        allowed = True
+        # Vytvoř purchase pokud ještě neexistuje, nebo přepni na PAID
         purchase, created = Bookpurchase.objects.get_or_create(
             book=book,
             user=request.user,
@@ -124,13 +133,43 @@ def download_ebook(request, isbn, format):
             purchase.paymentdate = now()
             purchase.expirationdate = now().replace(year=now().year + 3)
             purchase.save()
+        allowed = True
     else:
+        # Pro placené: uživatel musí mít purchase PAID
         allowed = Bookpurchase.objects.filter(
             book=book,
             user=request.user,
+            format=format,
             status="PAID"
         ).exists()
 
+    # =============================
+    # 3) DIV placená (remote EPUB)
+    # =============================
+    # Placený EPUB: generuje se personalizovaný EPUB na ekultura serveru.
+    if allowed and isbntype == "DIV" and bookisbn.price > 0 and format.lower() == "epub":
+        purchase = Bookpurchase.objects.filter(
+            book=book,
+            user=request.user,
+            format=format,
+            status="PAID"
+        ).first()
+        file_url = f"https://nakladatelstvi.ekultura.eu/api/download_epub.php?file={book.url}-{purchase.purchaseid}.epub&token={os.getenv('EKULTURA_API_EPUB_SECRET')}"
+        remote = requests.get(file_url)
+        if remote.status_code == 200:
+            response = HttpResponse(remote.content, content_type="application/epub+zip")
+            response["Content-Disposition"] = f'attachment; filename="{book.url}-{purchase.purchaseid}.epub"'
+            return response
+        else:
+            messages.error(
+                request,
+                "Soubor s e-knihou není aktuálně dostupný ani na serveru nakladatelství. Pokud myslíte, že je to chyba, napište na <a href='mailto:info@div.cz'>info@div.cz</a>."
+            )
+            return redirect("book_detail", book_url=book.url)
+
+    # =============================
+    # 4) fallback – ostatní formáty, lokální soubor
+    # =============================
     if not allowed:
         raise Http404("Nemáte oprávnění k této e-knize.")
 
@@ -145,9 +184,10 @@ def download_ebook(request, isbn, format):
         return redirect("book_detail", book_url=book.url)
 
     with open(filepath, "rb") as f:
-        response = HttpResponse(f.read(), content_type="application/pdf")
+        response = HttpResponse(f.read(), content_type=get_mimetype_from_format(format)[0])
         response["Content-Disposition"] = f"attachment; filename={filename}"
         return response
+
 
 
 # -------------------------------------------------------------------
@@ -429,7 +469,10 @@ def send_to_reader_modal(request, isbn, format):
 def send_to_reader(request, isbn, format):
     bookisbn = get_object_or_404(Bookisbn, isbn=isbn)
     book = bookisbn.book
-
+    # 1) PALM – stáhni a pošli
+    # 2) DIV zdarma – lokální soubor
+    # 3) DIV placená EPUB – stáhni z ekultura, pošli remote file_content
+    # 4) fallback
     if request.method == "POST":
         kindlemail = request.POST.get("kindlemail") or request.user.email
         purchase, created = Bookpurchase.objects.get_or_create(
@@ -490,6 +533,30 @@ def send_to_reader(request, isbn, format):
             )
             return redirect("book_detail", book_url=book.url)
         file_to_attach = filepath
+
+
+        ### DIV ePub
+        # pro EPUB/DIV/placená použij remote
+        if purchase and bookisbn.ISBNtype == "DIV" and bookisbn.price > 0 and format.lower() == "epub":
+            file_url = f"https://nakladatelstvi.ekultura.eu/api/download_epub.php?file={book.url}-{purchase.purchaseid}.epub&token={os.getenv('EKULTURA_API_EPUB_SECRET')}"
+            remote = requests.get(file_url)
+            if remote.status_code == 200:
+                file_content = remote.content
+                filename = f"{book.url}-{purchase.purchaseid}.epub"
+            else:
+                messages.error(request, "Soubor není dostupný pro odeslání do čtečky. Pokud myslíte, že je to chyba, napište na info@div.cz.")
+                return redirect("book_detail", book_url=book.url)
+        else:
+            # fallback – tvůj původní lokální soubor (pro zdarma, PALM atd.)
+            filename = f"{book.url}.{format.lower()}"
+            filepath = os.path.join(os.getenv("FREE_EBOOKS_PATH"), filename)
+            if not os.path.exists(filepath):
+                messages.error(request, "Soubor není dostupný.")
+                return redirect("book_detail", book_url=book.url)
+            with open(filepath, 'rb') as f:
+                file_content = f.read()
+        # Posíláš file_content jako attachment
+
 
     # Odeslání e-mailem (společné pro oba případy)
     msg = EmailMessage()
