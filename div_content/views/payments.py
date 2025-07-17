@@ -174,8 +174,6 @@ def check_payments():
 
 
 
-
-
 def check_payments_from_fio():
     token = os.getenv("FIO_TOKEN")
     if not token:
