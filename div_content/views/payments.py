@@ -95,7 +95,7 @@ def generate_qr(request, book_id, format):
         raise Http404("E-kniha není dostupná nebo nemá cenu.")
 
     # sync only for PALM
-    if getattr(bookisbn, "ISBNtype", "").upper() == "PALM":
+    if getattr(bookisbn, "isbntype", "").upper() == "PALM":
         fetch_and_update_bookisbn(book)
     
     amount = bookisbn.price
@@ -276,7 +276,10 @@ def check_payments_from_fio():
                 #---------
                 # Pokud je formát EPUB a typ DIV, vygeneruj personalizovaný EPUB na druhém serveru:
                 #---------
-                if purchase.format.lower() == "epub" and (purchase.ISBNtype or "").upper() == "DIV":
+                if purchase.format.lower() == "epub":
+                    bookisbn = Bookisbn.objects.filter(book=purchase.book, format=purchase.format).first()
+                    if bookisbn and (bookisbn.ISBNtype or "").upper() == "DIV":
+            
                     api_secret = os.getenv("EKULTURA_API_EPUB_SECRET")
                     bookisbn = Bookisbn.objects.filter(book=purchase.book, format="epub").first()
                     basefile = getattr(bookisbn, "file_name", None) or f"{purchase.book.url}.epub"   # fallback na slug.epub
