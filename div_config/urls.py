@@ -9,62 +9,99 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+# -------------------------------------------------------------------
+#                    URLS.PY
+# -------------------------------------------------------------------
 from django.contrib import admin
 from django.urls import path, include
 #from div_content import views
 #from div_content.views import articles, books, creators, games, locations, movies, users
-# ADMINs
+# -------------------------------------------------------------------
+#                    ADMINS
+# -------------------------------------------------------------------
 from div_content.views.admins import admin_assign_book, admin_index, admin_comments, admin_edit_comment, admin_odpriradit_eknihu, admin_palmknihy_preview, admin_store_ebook, admin_store_page, admin_tasks, admin_task_detail, admin_task_edit, ajax_search_books, recent_payments #admin_task_new, 
 from div_content.views.articles import article_detail, articles_index, articles_list, article_new
-# Authors
+# -------------------------------------------------------------------
+#                    AUTHORS
+# -------------------------------------------------------------------
 from div_content.views.authors import (
     authors_list, author_detail, author_add, add_to_favourite_authors, remove_from_favourite_authors
     )
-# Blog
+# -------------------------------------------------------------------
+#                    BLOG
+# -------------------------------------------------------------------
 from div_content.views.blog import blog_add_post, blog_detail, blog_index, blog_list, blog_new, blog_post_detail, blog_section_detail
-# Books
+# -------------------------------------------------------------------
+#                    BOOKS
+# -------------------------------------------------------------------
 from div_content.views.books import (
  add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, book_add, book_detail, books, books_search, books_market_offers, books_market_wants, cancel_purchase, confirm_sale, rate_book, ratequote, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, remove_from_book_library, character_list_ajax, set_reading_goal, books_alphabetical, book_listings
     )
-# Creators
+# -------------------------------------------------------------------
+#                    CREATORS
+# -------------------------------------------------------------------
 from div_content.views.creators import (
     creator_detail, creators_list, toggle_favorite, add_creator_to_favourites, remove_creator_from_favourites
     )
-# DIVkvariat
+# -------------------------------------------------------------------
+#                    DIVKVARIAT
+# -------------------------------------------------------------------
 from div_content.views.divkvariat import cancel_sell, listing_detail
-# eBooks 
+# -------------------------------------------------------------------
+#                    EBOOKS
+# -------------------------------------------------------------------
 from div_content.views.ebooks import download_ebook, send_to_reader, send_to_reader_modal
-# FORUM
+# -------------------------------------------------------------------
+#                    FORUM
+# -------------------------------------------------------------------
 from div_content.views.forum import (
     forum, forum_section_detail, create_new_topic, forum_topic_detail, comment_edit, comment_delete, comment_reply, forum_search
     )
-# E-shop
-from div_content.views.eshop import eshop_list, eshop_books, eshop_movies, eshop_games, eshop_detail
-#from div_content.views.eshop import eshop
+# -------------------------------------------------------------------
+#                    E-SHOP
+# -------------------------------------------------------------------
+from div_content.views.eshop import eshop_books, eshop_detail, eshop_games, eshop_list, eshop_movies
+# -------------------------------------------------------------------
+#                    GAMES
+# -------------------------------------------------------------------
 from div_content.views.games import (
-    game_detail, game_add, games, add_to_favourite_games, rate_game, developer_list_ajax, platform_list_ajax, publisher_list_ajax, country_list_ajax, universum_list_ajax, 
-    remove_from_favourite_games, 
+    game_detail, game_add, games, add_to_favourite_games, rate_game, developer_list_ajax, platform_list_ajax, publisher_list_ajax, country_list_ajax, universum_list_ajax, remove_from_favourite_games, 
     add_to_playlist_games, remove_from_playlist_games, add_to_played, remove_from_played,
     add_to_game_library, remove_from_game_library, 
     publishers_list, games_by_developer, games_by_publisher, games_by_genre, games_by_year, games_alphabetical, games_genres
     )
+# -------------------------------------------------------------------
+#                    CHARACTERS
+# -------------------------------------------------------------------
 from div_content.views.characters import (
     add_character_to_favorites, character_list, character_detail, remove_character_from_favorites
     )
+# -------------------------------------------------------------------
+#                    INDEX
+# -------------------------------------------------------------------
 from div_content.views.index import index, movies, our_team, series_genre, series_year
-
+# -------------------------------------------------------------------
+#                    LOCATIONS
+# -------------------------------------------------------------------
 from div_content.views.locations import locations, location_detail
-
+# -------------------------------------------------------------------
+#                    MOVIES
+# -------------------------------------------------------------------
 from div_content.views.movies import (
     movies_alphabetical, redirect_view, movie_detail, search, MovieDetailView, add_to_favourites, add_to_watchlist, add_to_watched, 
     remove_from_favourites, remove_from_watchlist, remove_from_watched, add_to_movie_library, remove_from_movie_library
     )
-# Payments
+# -------------------------------------------------------------------
+#                    PAYMENTS
+# -------------------------------------------------------------------
 from div_content.views.payments import (bank_transactions, generate_qr, check_purchase_status, posledni_pending_purchaseid)
-
-# Universum
+# -------------------------------------------------------------------
+#                    UNIVERSUM
+# -------------------------------------------------------------------
 from div_content.views.universum import universum_detail, universum_list
-# Users
+# -------------------------------------------------------------------
+#                    USERS
+# -------------------------------------------------------------------
 from div_content.views.users import (
     contact_form, myuser_detail, rate_movie, add_to_list, ratings_profile, favorites_profile, iwantsee_profile, 
     watched_profile, favorite_movies, rated_media, rated_movies, rated_books, rated_games, favorite_media, 
@@ -73,11 +110,16 @@ from div_content.views.users import (
     update_profile, review_profile, chat, add_to_favorite_users, remove_from_favorite_users, chat_message, load_older_messages, 
     user_book_listings, user_sell_listings, user_buy_listings, search_user_in_chat
     )
-
+# -------------------------------------------------------------------
+#                    CHARTS
+# -------------------------------------------------------------------
 from div_content.views.charts import (
     award_detail, charts_index, charts_books, charts_games, charts_movies, charts_users, awards_index, awards_movies, 
     awards_books, awards_games
 )
+# -------------------------------------------------------------------
+#                    SERIES
+# -------------------------------------------------------------------
 from div_content.views.series import (
     rate_tvshow, serie_detail, series_list, serie_season, search_tvshow, serie_episode, add_to_favourite_tvshow, 
     add_to_tvshow_library, add_to_tvshow_watchlist, add_to_watched_tvshows, remove_from_favourite_tvshow, 

@@ -29,6 +29,7 @@ from div_content.utils.palmknihy import get_catalog_product, get_palmknihy_downl
 #from div_content.utils.palmknihy_sync import fetch_and_update_bookisbn 
 
 from div_content.utils.payments import generate_qr_for_bookpurchase
+from div_content.views.ebooks import generate_div_epub
 
 from io import BytesIO
 
@@ -274,6 +275,31 @@ def check_payments_from_fio():
                 purchase.expirationdate = now().replace(year=now().year + 3)
                 purchase.save()
                 print(f"✅ Platba spárována a potvrzena pro VS {vs} (PurchaseID {purchase.purchaseid})")
+                #---------
+                # Pokud je formát EPUB a typ DIV, vygeneruj personalizovaný EPUB na druhém serveru:
+                #---------
+                if purchase.format.lower() == "epub" and (purchase.ISBNtype or "").upper() == "DIV":
+                    api_secret = os.getenv("EKULTURA_API_EPUB_SECRET")
+                    bookisbn = Bookisbn.objects.filter(book=purchase.book, format="epub").first()
+                    basefile = getattr(bookisbn, "file_name", None) or f"{purchase.book.url}.epub"   # fallback na slug.epub
+                    r = requests.post(
+                        "https://nakladatelstvi.ekultura.eu/api/generate_watermarked_epub.php",
+                        data={
+                            "basefile": basefile,
+                            "user_email": purchase.user.email if purchase.user else "",
+                            "order_id": purchase.purchaseid,
+                            "api_secret": api_secret
+                        },
+                        timeout=60
+                    )
+                    if r.status_code == 200:
+                        print("OK, EPUB vygenerováno!")
+                    else:
+                        print("Chyba generování EPUB:", r.text)
+            
+                    # Hned poslat email (volání funkce z ebooks.py)
+                    from div_content.views.ebooks import send_ebook_paid_email
+                    send_ebook_paid_email(purchase)
             else:
                 print(f"❌ Částka nesouhlasí pro VS {vs}: očekáváno {purchase.price}, přišlo {amount}")
 
