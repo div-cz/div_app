@@ -266,7 +266,7 @@
 <br style="clear:both">
 {% if can_cancel_reservation %}
 <div class="mb-3 px-3">
-    <form method="post" action="{% url 'listing_detail_sell' book_url=book.url listing_id=listing.booklistingid %}">
+    <form method="post" action="{% url 'cancel_listing_reservation' listing_id=listing.booklistingid %}">
         {% csrf_token %}
         <input type="hidden" name="cancel_reservation" value="true">
 
@@ -281,9 +281,8 @@
 
  {% if can_cancel_offer %} 
     <div class="mb-3 px-3">
-         <form method="post" action="{% url 'listing_detail_sell' book_url=book.url listing_id=listing.booklistingid %}">
-            {% csrf_token %}
-            <input type="hidden" name="cancel_offer" value="true"> 
+         <form method="post" action="{% url 'cancel_sell' listing_id=listing.booklistingid %}">
+            {% csrf_token %} 
             
             <button type="submit" class="btn btn-primary"
                     onclick="return confirm('Opravdu chcete zrušit vaši nabídku?');">
