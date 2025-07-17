@@ -278,29 +278,29 @@ def check_payments_from_fio():
                 #---------
                 if purchase.format.lower() == "epub":
                     bookisbn = Bookisbn.objects.filter(book=purchase.book, format=purchase.format).first()
-                if bookisbn and (bookisbn.ISBNtype or "").upper() == "DIV":
-        
-                api_secret = os.getenv("EKULTURA_API_EPUB_SECRET")
-                bookisbn = Bookisbn.objects.filter(book=purchase.book, format="epub").first()
-                basefile = getattr(bookisbn, "file_name", None) or f"{purchase.book.url}.epub"   # fallback na slug.epub
-                r = requests.post(
-                    "https://nakladatelstvi.ekultura.eu/api/generate_watermarked_epub.php",
-                    data={
-                        "base": basefile,
-                        "email": purchase.user.email if purchase.user else "",
-                        "order": purchase.purchaseid,
-                        "token": api_secret
-                    },
-                    timeout=60
-                )
-                if r.status_code == 200:
-                    print("OK, EPUB vygenerováno!")
-                else:
-                    print("Chyba generování EPUB:", r.text)
+                    if bookisbn and (bookisbn.ISBNtype or "").upper() == "DIV":
             
-                    # Hned poslat email (volání funkce z ebooks.py)
-                    from div_content.views.ebooks import send_ebook_paid_email
-                    send_ebook_paid_email(purchase)
+                        api_secret = os.getenv("EKULTURA_API_EPUB_SECRET")
+                        bookisbn = Bookisbn.objects.filter(book=purchase.book, format="epub").first()
+                        basefile = getattr(bookisbn, "file_name", None) or f"{purchase.book.url}.epub"   # fallback na slug.epub
+                        r = requests.post(
+                            "https://nakladatelstvi.ekultura.eu/api/generate_watermarked_epub.php",
+                            data={
+                                "base": basefile,
+                                "email": purchase.user.email if purchase.user else "",
+                                "order": purchase.purchaseid,
+                                "token": api_secret
+                            },
+                            timeout=60
+                        )
+                        if r.status_code == 200:
+                            print("OK, EPUB vygenerováno!")
+                        else:
+                            print("Chyba generování EPUB:", r.text)
+                
+                        # Hned poslat email (volání funkce z ebooks.py)
+                        from div_content.views.ebooks import send_ebook_paid_email
+                        send_ebook_paid_email(purchase)
             else:
                 print(f"❌ Částka nesouhlasí pro VS {vs}: očekáváno {purchase.price}, přišlo {amount}")
 
