@@ -254,7 +254,7 @@ def check_payments_from_fio():
                     status="PENDING"
                 ).first()
 
-                if not purchase_pending:
+                if not purchase:
                     purchase_paid = Bookpurchase.objects.filter(
                         purchaseid=int(suffix),
                         status="PAID"
