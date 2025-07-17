@@ -9,7 +9,15 @@ from io import BytesIO
 
 from django.http import HttpResponse
 
-
+# -------------------------------------------------------------------
+#                    OBSAH
+# generate_qr_for_bookpurchase
+# get_mimetype_from_format
+# prepare_qr_codes_for_book
+# qr_code_ebook
+# qr_code_market
+# 
+# -------------------------------------------------------------------
 
 # Generuje finalní kod views.payments.py
 def generate_qr_for_bookpurchase(purchase, book, user):
@@ -30,6 +38,49 @@ def generate_qr_for_bookpurchase(purchase, book, user):
     img.save(buffer, format="PNG")
     buffer.seek(0)
     return HttpResponse(buffer.getvalue(), content_type="image/png")
+
+
+
+def get_mimetype_from_format(fmt):
+    fmt = fmt.lower()
+    if fmt == "pdf":
+        return ("application/pdf", "pdf")
+    elif fmt == "mobi":
+        return ("application/x-mobipocket-ebook", "mobi")
+    elif fmt == "epub":
+        return ("application/epub+zip", "epub")
+    else:
+        return ("application/octet-stream", fmt)
+
+
+
+def prepare_qr_codes_for_book(user, book, ebook_formats):
+    from div_content.models import Bookpurchase
+
+    qr_codes = {}
+
+    if not user.is_authenticated:
+        return qr_codes
+
+    pending_purchases = {
+        p.format.lower(): p
+        for p in Bookpurchase.objects.filter(user=user, book=book, status="PENDING")
+    }
+
+    for fmt, data in ebook_formats.items():
+        if data["available"] and data["price"]:
+            if fmt not in pending_purchases:
+                purchase, _ = Bookpurchase.objects.get_or_create(
+                    user=user,
+                    book=book,
+                    format=fmt.upper(),
+                    status="PENDING",
+                    defaults={"price": data["price"]}
+                )
+                pending_purchases[fmt] = purchase
+            qr_codes[fmt] = qr_code_ebook(pending_purchases[fmt])
+
+    return qr_codes
 
 
 """
@@ -156,30 +207,3 @@ def qr_code_market(amount, listing, message=None, format_code="5"):
 
 
 
-def prepare_qr_codes_for_book(user, book, ebook_formats):
-    from div_content.models import Bookpurchase
-
-    qr_codes = {}
-
-    if not user.is_authenticated:
-        return qr_codes
-
-    pending_purchases = {
-        p.format.lower(): p
-        for p in Bookpurchase.objects.filter(user=user, book=book, status="PENDING")
-    }
-
-    for fmt, data in ebook_formats.items():
-        if data["available"] and data["price"]:
-            if fmt not in pending_purchases:
-                purchase, _ = Bookpurchase.objects.get_or_create(
-                    user=user,
-                    book=book,
-                    format=fmt.upper(),
-                    status="PENDING",
-                    defaults={"price": data["price"]}
-                )
-                pending_purchases[fmt] = purchase
-            qr_codes[fmt] = qr_code_ebook(pending_purchases[fmt])
-
-    return qr_codes

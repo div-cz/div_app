@@ -31,7 +31,9 @@ from div_content.views.creators import (
     creator_detail, creators_list, toggle_favorite, add_creator_to_favourites, remove_creator_from_favourites
     )
 # DIVkvariat
-from div_content.views.divkvariat import listing_detail
+from div_content.views.divkvariat import cancel_sell, listing_detail
+# eBooks 
+from div_content.views.ebooks import download_ebook, send_to_reader, send_to_reader_modal
 # FORUM
 from div_content.views.forum import (
     forum, forum_section_detail, create_new_topic, forum_topic_detail, comment_edit, comment_delete, comment_reply, forum_search
@@ -58,7 +60,7 @@ from div_content.views.movies import (
     remove_from_favourites, remove_from_watchlist, remove_from_watched, add_to_movie_library, remove_from_movie_library
     )
 # Payments
-from div_content.views.payments import (bank_transactions, download_ebook, generate_qr, check_purchase_status, posledni_pending_purchaseid, send_to_reader, send_to_reader_modal)
+from div_content.views.payments import (bank_transactions, generate_qr, check_purchase_status, posledni_pending_purchaseid)
 
 # Universum
 from div_content.views.universum import universum_detail, universum_list
@@ -281,8 +283,9 @@ urlpatterns = [
     path('knihy/burza-knih/nabidky/', books_market_offers, name='books_market_offers'),
     path('knihy/burza-knih/poptavky/', books_market_wants, name='books_market_wants'),
 
-    path('antikvariat/zruseni/<int:purchase_id>/', cancel_purchase, name='cancel_purchase'),
+    path('antikvariat/zruseni/<int:purchase_id>/', cancel_purchase, name='cancel_listing_reservation'),
     path('antikvariat/potvrzeni/<int:purchase_id>/', confirm_sale, name='confirm_sale'),
+    path('antikvariat/smazani/<int:listing_id>/', cancel_sell, name='cancel_sell'),    
     
     # E-KNIHY
     path('generate-qr/<int:book_id>/<str:format>/', generate_qr, name='generate_qr'),
