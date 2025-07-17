@@ -222,7 +222,7 @@ def check_payments_from_fio():
         fmt_num = m.group(1)
         suffix = m.group(2)
 
-        # === Booklisting (burza) === 
+        # --- Booklisting (DIVkvariát) ---
         if fmt_num in ["5", "6"]:
             listing = Booklisting.objects.filter(booklistingid__endswith=suffix, status="RESERVED").first()
             if listing:
@@ -231,6 +231,12 @@ def check_payments_from_fio():
                 listing.save()
                 print(f"✅ Platba spárována pro Booklisting {listing.booklistingid}")
                 continue
+            listing_paid = Booklisting.objects.filter(booklistingid__endswith=suffix, status="PAID").first()
+            if listing_paid:
+                print(f"VS {vs} (BooklistingID {suffix}) už je ve stavu PAID (dříve spárováno).")
+            else:
+                print(f"❌ Nenalezen Booklisting pro VS {vs}")
+            continue
 
         # === Bookpurchase (eKniha) ===
         if fmt_num in ["2", "3", "4"]:
@@ -247,6 +253,17 @@ def check_payments_from_fio():
                     purchaseid=int(suffix),          #purchaseid__endswith=suffix,
                     status="PENDING"
                 ).first()
+
+                if not purchase_pending:
+                    purchase_paid = Bookpurchase.objects.filter(
+                        purchaseid=int(suffix),
+                        status="PAID"
+                    ).first()
+                    if purchase_paid:
+                        print(f"VS {vs} (PurchaseID {suffix}) už je spárován a má status PAID.")
+                    else:
+                        print(f"❌ Nenalezen Bookpurchase pro VS {vs}")
+                    continue
 
             if not purchase:
                 print(f"❌ Nenalezen Bookpurchase pro VS {vs}")
