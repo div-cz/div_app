@@ -285,10 +285,10 @@ def check_payments_from_fio():
                     r = requests.post(
                         "https://nakladatelstvi.ekultura.eu/api/generate_watermarked_epub.php",
                         data={
-                            "basefile": basefile,
-                            "user_email": purchase.user.email if purchase.user else "",
-                            "order_id": purchase.purchaseid,
-                            "api_secret": api_secret
+                            "base": basefile,
+                            "email": purchase.user.email if purchase.user else "",
+                            "order": purchase.purchaseid,
+                            "token": api_secret
                         },
                         timeout=60
                     )
