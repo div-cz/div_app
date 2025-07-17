@@ -6,7 +6,7 @@
 # -------------------------------------------------------------------
 #                    OBSAH
 # -------------------------------------------------------------------
-# ### poznámky
+# ### poznámky a todo
 # ### importy
 # ### konstanty
 # ### obsah
@@ -16,13 +16,14 @@
 # generate_div_epub       | (epub nakladatelstvi.ekultura.eu
 # make_epub_download_link |
 # request_epub_generation | ()
+# send_ebook_paid_email   | e-mail poslaný po zaplacení - volá se v payments.py
 # send_to_reader_modal    | (odesílání e-knih do čteček a na mail)
 # send_to_reader          | (odesílání e-knih do čteček a na mail)
 # -------------------------------------------------------------------
 
 
 # -------------------------------------------------------------------
-#                    POZNÁMKY
+#                    POZNÁMKY A TODO
 # -------------------------------------------------------------------
 # Vše co souvisí s eKnihami
 # Tři varianty: 
@@ -55,6 +56,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage  
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.utils.timezone import now
 
 # -------------------------------------------------------------------
@@ -186,7 +188,7 @@ def make_epub_download_link(filename, purchaseid, email, validity_secs=3600):
 
 
 # -------------------------------------------------------------------
-#                    GENERATE_EBOOK
+#                    REQUEST EPUB GENERATION
 # -------------------------------------------------------------------
 
 def request_epub_generation(book_slug, user_email, order_id):
@@ -205,6 +207,41 @@ def request_epub_generation(book_slug, user_email, order_id):
     else:
         print(f"Chyba při generování EPUB: {r.text}")
         return False
+
+
+# -------------------------------------------------------------------
+#                    SEND EBOOK PAID EMAIL
+# -------------------------------------------------------------------
+def send_ebook_paid_email(purchase):
+    if not purchase.user or not purchase.user.email:
+        print("Chybí email u uživatele.")
+        return
+
+    subject = f"E-kniha {purchase.book.title} je připravena ke stažení"
+    recipient = purchase.user.email
+    detail_url = f"https://div.cz/moje-objednavky/{purchase.purchaseid}/"  # Upravit
+
+    context = {
+        "user": purchase.user,
+        "book": purchase.book,
+        "order_id": purchase.purchaseid,
+        "detail_url": detail_url,
+    }
+    html_message = render_to_string("emails/ebook_paid_message.html", context)
+
+    msg = EmailMessage(
+        subject=subject,
+        body=html_message,
+        from_email=os.getenv("EBOOK_SENDER_ADDRESS"),
+        to=[recipient],
+    )
+    msg.content_subtype = "html"
+
+    try:
+        msg.send()
+        print(f"E-mail o zaplacení odeslán: {recipient}")
+    except Exception as e:
+        print(f"Chyba při odesílání e-mailu: {e}")
 
 
 """
