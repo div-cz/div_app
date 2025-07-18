@@ -1,4 +1,7 @@
-# views/universum.py
+# -------------------------------------------------------------------
+#                    VIEWS.UNIVERSUM.PY
+#                Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------
 
 from div_content.models import Book, Bookcharacter, Charactermeta, Game, Charactergame, Movie, Moviecrew,  Metauniversum
 
@@ -56,3 +59,9 @@ def universum_detail(request, universum_url):
         'movie_characters': movie_characters,
         'game_characters': game_characters,
     })
+
+
+# -------------------------------------------------------------------
+#                    KONEC
+#           Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------

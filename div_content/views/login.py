@@ -26,3 +26,9 @@ def custom_login_view(request):
     # Pokud je požadavek GET (zobrazení přihlašovacího formuláře)
     next_url = request.GET.get('next', '/')
     return render(request, 'account/login.html', {'next': next_url})
+
+
+# -------------------------------------------------------------------
+#                    KONEC
+#           Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------

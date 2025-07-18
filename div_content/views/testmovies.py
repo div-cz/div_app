@@ -52,3 +52,9 @@ def my_view(request):
     output = request.session.pop('output', '')
 
     return render(request, 'test_movies.html', {"form": form, "output": output})
+
+
+# -------------------------------------------------------------------
+#                    KONEC
+#           Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------

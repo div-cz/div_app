@@ -24,3 +24,8 @@ def tv_detail(request, tvshow_url):
     tvser = get_object_or_404(Tvshow, url=tvshow_url)
     return render(request, 'tv/tv_detail.html', {'tvser': tvser})
 """
+
+# -------------------------------------------------------------------
+#                    KONEC
+#           Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------

@@ -28,3 +28,7 @@ def eshop_games(request):
     return render(request, 'eshop/eshop_games.html', {'games': games})
 
 
+# -------------------------------------------------------------------
+#                    KONEC
+#           Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------
