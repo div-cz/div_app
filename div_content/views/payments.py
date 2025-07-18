@@ -107,7 +107,7 @@ FIO_API_URL = "https://fioapi.fio.cz/v1/rest/periods/"
 
 
 # -------------------------------------------------------------------
-#                    BANK TRANSACTIONS
+# F:                 BANK TRANSACTIONS
 # -------------------------------------------------------------------
 def bank_transactions(request):
     if not request.user.is_superuser:
@@ -145,7 +145,7 @@ def bank_transactions(request):
 
 
 # -------------------------------------------------------------------
-#                    GENERATE QR
+# F:                 GENERATE QR
 # -------------------------------------------------------------------
 # QR kod pro zaplaceni konkretni e-knihy ve formatu SPD (FIO)
 def generate_qr(request, book_id, format):
@@ -207,7 +207,7 @@ def generate_qr(request, book_id, format):
 
 
 # -------------------------------------------------------------------
-#                    GET MIMETYPE FROM FORMAT
+# F:                 GET MIMETYPE FROM FORMAT
 # -------------------------------------------------------------------
 def get_mimetype_from_format(fmt):
     fmt = fmt.lower()
@@ -222,7 +222,7 @@ def get_mimetype_from_format(fmt):
 
 
 # -------------------------------------------------------------------
-#                    CHECK PAYMENTS FROM FIO
+# F:                 CHECK PAYMENTS FROM FIO
 # -------------------------------------------------------------------
 def check_payments_from_fio():
     token = os.getenv("FIO_TOKEN")
@@ -356,7 +356,7 @@ def check_payments_from_fio():
 
 
 # -------------------------------------------------------------------
-#                    CHECK PURCHASE STATUS
+# F:                 CHECK PURCHASE STATUS
 # -------------------------------------------------------------------
 @login_required
 def check_purchase_status(request, purchase_id):
@@ -368,7 +368,7 @@ def check_purchase_status(request, purchase_id):
 
 
 # -------------------------------------------------------------------
-#                    GET EBOOK PURCHASE STATUS
+# F:                 GET EBOOK PURCHASE STATUS
 # -------------------------------------------------------------------
 def get_ebook_purchase_status(user, book, ebook_formats):
     """
@@ -394,7 +394,7 @@ def get_ebook_purchase_status(user, book, ebook_formats):
 
 
 # -------------------------------------------------------------------
-#                    POSLEDNI PENDING PURCHASEID
+# F:                 POSLEDNI PENDING PURCHASEID
 # -------------------------------------------------------------------
 @login_required
 def posledni_pending_purchaseid(request):
@@ -412,7 +412,7 @@ def posledni_pending_purchaseid(request):
 
 
 # -------------------------------------------------------------------
-#                    STRIP DIACRITICS
+# F:                 STRIP DIACRITICS
 # -------------------------------------------------------------------
 def strip_diacritics(s):
     return unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode('ascii')
@@ -477,3 +477,7 @@ def send_to_reader(request, isbn, format):
 
 '''
 
+# -------------------------------------------------------------------
+#                    KONEC
+#           Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------

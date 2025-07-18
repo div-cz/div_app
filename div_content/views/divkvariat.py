@@ -548,4 +548,5 @@ def qr_code_market(amount, listing, message=None, format_code="5"):
 
 # -------------------------------------------------------------------
 #                    KONEC
+#           Catalog DIV.cz by eKultura
 # -------------------------------------------------------------------

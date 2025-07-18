@@ -390,3 +390,9 @@ class MovieDetailView(DetailView):
 
 def our_team(request):
     return render(request, "nas_tym.html")
+
+
+# -------------------------------------------------------------------
+#                    KONEC
+#           Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------

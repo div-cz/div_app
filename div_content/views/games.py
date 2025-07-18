@@ -481,3 +481,9 @@ def remove_from_game_library(request, gameid):
     userlistgame.delete()
     
     return redirect("game_detail", game_url=game.url)
+
+
+# -------------------------------------------------------------------
+#                    KONEC
+#           Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------

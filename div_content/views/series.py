@@ -972,3 +972,9 @@ def remove_from_watched_tvepisodes(request, tv_url, seasonurl, tvepisodeid):
     userlisttvepisode.delete()
     
     return redirect("serie_episode", tv_url=tvepisode.seasonid.tvshowid.url, seasonurl=tvepisode.seasonid.seasonurl, episodeurl=tvepisode.episodeurl)
+
+
+# -------------------------------------------------------------------
+#                    KONEC
+#           Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------

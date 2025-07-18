@@ -1,4 +1,7 @@
-# VIEWS.MOVIES.PY TEST
+# -------------------------------------------------------------------
+#                    VIEWS.MOVIES.PY
+#                Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------
 
 from datetime import date
 
@@ -53,7 +56,9 @@ def redirect_view(request):
 
 
 
-
+# -------------------------------------------------------------------
+# F:                 MOVIE DETAIL
+# -------------------------------------------------------------------
 def movie_detail(request, movie_url):
     movie = get_object_or_404(Movie, url=movie_url)
     genres = movie.moviegenre_set.all()[:3]
@@ -343,7 +348,9 @@ def movie_detail(request, movie_url):
 
 
 
-
+# -------------------------------------------------------------------
+# F:                 SEARCH
+# -------------------------------------------------------------------
 def search(request):
     movies = []
     if 'q' in request.GET:
@@ -369,13 +376,18 @@ def search(request):
     return render(request, 'movies/movies_search.html', {'form': form, 'movies': movies})
 
 
+# -------------------------------------------------------------------
+# C:                 MOVIE DETAIL VIEW
+# -------------------------------------------------------------------
 class MovieDetailView(DetailView):
     model = Movie
     template_name = 'movies/movie_detail.html'
     context_object_name = 'movie'
 
 
-
+# -------------------------------------------------------------------
+# F:                 MOVIES ALPHABETICAL
+# -------------------------------------------------------------------
 @cache_page(60 * 60 * 30)
 def movies_alphabetical(request, letter='A'):
     letter = letter.upper()
@@ -406,6 +418,10 @@ def movies_alphabetical(request, letter='A'):
         # viz users.py
 
 
+
+# -------------------------------------------------------------------
+# F:                 ADD TO FAVOURITES
+# -------------------------------------------------------------------
 # Přidat do seznamu: Oblíbený film
 @login_required
 def add_to_favourites(request, movieid):
@@ -431,7 +447,11 @@ def add_to_favourites(request, movieid):
     
     return redirect("movie_detail", movie_url=movie.url)
 
-# Přidat do seznamu: Chci vidět
+
+
+# -------------------------------------------------------------------
+# F:                 ADD TO WATCHLIST
+# -------------------------------------------------------------------
 @login_required
 def add_to_watchlist(request, movieid):
     movie = get_object_or_404(Movie, movieid=movieid)
@@ -448,11 +468,12 @@ def add_to_watchlist(request, movieid):
             content_type=content_type,
             object_id=movieid
             )
-
-    
     return redirect("movie_detail", movie_url=movie.url)    
 
-# Přidat do seznamu: Shlédnuto
+
+# -------------------------------------------------------------------
+# F:                 ADD TO WATCHED
+# -------------------------------------------------------------------
 @login_required
 def add_to_watched(request, movieid):
     movie = get_object_or_404(Movie, movieid=movieid)
@@ -474,7 +495,9 @@ def add_to_watched(request, movieid):
     return redirect("movie_detail", movie_url=movie.url)
 
 
-# Přidat do seznamu: Filmotéka
+# -------------------------------------------------------------------
+# F:                 ADD TO MOVIE LIBRARY
+# -------------------------------------------------------------------
 @login_required
 def add_to_movie_library(request, movieid):
     movie = get_object_or_404(Movie, movieid=movieid)
@@ -496,7 +519,10 @@ def add_to_movie_library(request, movieid):
     
     return redirect("movie_detail", movie_url=movie.url)
 
-# Smazat ze seznamu: Oblíbené
+
+# -------------------------------------------------------------------
+# F:                 REMOVE FROM FAVOURITES
+# -------------------------------------------------------------------
 @login_required
 def remove_from_favourites(request, movieid):
     movie = get_object_or_404(Movie, movieid=movieid)
@@ -514,7 +540,10 @@ def remove_from_favourites(request, movieid):
     
     return redirect("movie_detail", movie_url=movie.url)
 
-# Smazat ze seznamu: Chci vidět
+
+# -------------------------------------------------------------------
+# F:                 REMOVE FROM WATCHLIST
+# -------------------------------------------------------------------
 @login_required
 def remove_from_watchlist(request, movieid):
     movie = get_object_or_404(Movie, movieid=movieid)
@@ -528,7 +557,9 @@ def remove_from_watchlist(request, movieid):
     return redirect("movie_detail", movie_url=movie.url)
 
 
-# Smazat ze seznamu: Shlédnuto
+# -------------------------------------------------------------------
+# F:                 REMOVE FROM WATCHED
+# -------------------------------------------------------------------
 @login_required
 def remove_from_watched(request, movieid):
     movie = get_object_or_404(Movie, movieid=movieid)
@@ -542,7 +573,9 @@ def remove_from_watched(request, movieid):
     return redirect("movie_detail", movie_url=movie.url)
 
 
-# Smazat ze seznamu: Filmotéka
+# -------------------------------------------------------------------
+# F:                 REMOVE FROM MOVIE LIBRARY
+# -------------------------------------------------------------------
 @login_required
 def remove_from_movie_library(request, movieid):
     movie = get_object_or_404(Movie, movieid=movieid)
@@ -554,3 +587,8 @@ def remove_from_movie_library(request, movieid):
     userlistmovie.delete()
     
     return redirect("movie_detail", movie_url=movie.url)
+
+
+# -------------------------------------------------------------------
+#                    KONEC
+# -------------------------------------------------------------------

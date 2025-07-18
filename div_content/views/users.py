@@ -1,4 +1,6 @@
-# VIEWS.USERS.PY
+# -------------------------------------------------------------------
+#                    VIEWS.USERS.PY
+# -------------------------------------------------------------------
 
 from datetime import date
 
@@ -35,7 +37,9 @@ book_content_type = ContentType.objects.get_for_model(Book)
 CONTENT_TYPE_BOOK_ID = book_content_type.id
 
 
-
+# -------------------------------------------------------------------
+# F:                 USER BOOK LISTINGS
+# -------------------------------------------------------------------
 # A N T I K V A R I Á T
 def user_book_listings(request, user_id):
     """Přehledová stránka všech nabídek uživatele."""
@@ -84,6 +88,9 @@ def user_book_listings(request, user_id):
     })
 
 
+# -------------------------------------------------------------------
+# F:                 USER_SELL_LISTINGS
+# -------------------------------------------------------------------
 def user_sell_listings(request, user_id):
     """Seznam všech prodejních nabídek uživatele."""
     user = get_object_or_404(User, id=user_id)
@@ -108,6 +115,9 @@ def user_sell_listings(request, user_id):
     })
 
 
+# -------------------------------------------------------------------
+# F:                 USER BUY LISTINGS
+# -------------------------------------------------------------------
 def user_buy_listings(request, user_id):
    profile_user = get_object_or_404(User, id=user_id)
    listings = Booklisting.objects.filter(
@@ -130,6 +140,9 @@ def user_buy_listings(request, user_id):
    })
 
 
+# -------------------------------------------------------------------
+# F:                 PROFILE SHOW CASE
+# -------------------------------------------------------------------
 def profile_show_case(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)
     user_profile = Userprofile.objects.get(user=profile_user)
@@ -163,7 +176,9 @@ def profile_show_case(request, user_id):
     })
 
 
-
+# -------------------------------------------------------------------
+# F:                 ADD TO FAVORITE USERS
+# -------------------------------------------------------------------
 @login_required
 def add_to_favorite_users(request, userprofile_id):
     userprofile = get_object_or_404(Userprofile, userprofileid=userprofile_id)
@@ -183,6 +198,10 @@ def add_to_favorite_users(request, userprofile_id):
         )
     return redirect("myuser_detail", user_id=userprofile.user.id)
 
+
+# -------------------------------------------------------------------
+# F:                 REMOVE FROM FAVORITE USERS
+# -------------------------------------------------------------------
 @login_required
 def remove_from_favorite_users(request, userprofile_id):
     userprofile = get_object_or_404(Userprofile, userprofileid=userprofile_id)
@@ -194,6 +213,10 @@ def remove_from_favorite_users(request, userprofile_id):
     ).delete()
     return redirect("myuser_detail", user_id=userprofile.user.id)
 
+
+# -------------------------------------------------------------------
+# F:                 CONTACT FORM
+# -------------------------------------------------------------------
 def contact_form(request):
     message_sent = False
     if request.method == 'POST':
@@ -205,6 +228,9 @@ def contact_form(request):
     return render(request, 'user/contact.html', {'form': form, 'message_sent': message_sent})
 
 
+# -------------------------------------------------------------------
+# F:                 GET CONTENT TYPE FOR RATING
+# -------------------------------------------------------------------
 def get_content_type_for_rating(rating):
     content_object = rating.content_object
     if content_object:
@@ -212,7 +238,9 @@ def get_content_type_for_rating(rating):
     return None
 
 
-
+# -------------------------------------------------------------------
+# F:                 EDIT BANK ACCOUNT
+# -------------------------------------------------------------------
 @login_required
 def edit_bank_account(request):
     profile, created = Userprofile.objects.get_or_create(user=request.user)
@@ -264,7 +292,9 @@ def myuser_detail(request, user_id=None):
     })
 """
 
-
+# -------------------------------------------------------------------
+# F:                 MYUSER DETAIL
+# -------------------------------------------------------------------
 def myuser_detail(request, user_id=None):
     if user_id is None:
         user_id = request.user.id
@@ -334,7 +364,9 @@ def myuser_detail(request, user_id=None):
     )
 
 
-
+# -------------------------------------------------------------------
+# F:                 PROFILE ESHOP SECTION
+# -------------------------------------------------------------------
 @login_required
 def profile_eshop_section(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)
@@ -417,6 +449,9 @@ def profile_eshop_section(request, user_id):
     })
 
 
+# -------------------------------------------------------------------
+# F:                 PROFILE MOVIES SECTION
+# -------------------------------------------------------------------
 ### profile
 def profile_movies_section(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)
@@ -614,6 +649,9 @@ def profile_movies_section(request, user_id):
     })
 
 
+# -------------------------------------------------------------------
+# F:                 PROFILE SERIES SECTION
+# -------------------------------------------------------------------
 def profile_series_section(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)
     user_profile = Userprofile.objects.get(user=profile_user)
@@ -813,6 +851,9 @@ def profile_series_section(request, user_id):
     })
 
 
+# -------------------------------------------------------------------
+# F:                 PROFILE BOOKS SECTION
+# -------------------------------------------------------------------
 def profile_books_section(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)
     user_profile = Userprofile.objects.get(user=profile_user)
@@ -992,6 +1033,9 @@ def profile_books_section(request, user_id):
     })
 
 
+# -------------------------------------------------------------------
+# F:                 PROFILE COMMUNITY SECTION
+# -------------------------------------------------------------------
 def profile_community_section(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)
     profile_user = get_object_or_404(User, id=user_id)
@@ -1010,7 +1054,9 @@ def profile_community_section(request, user_id):
     )
 
 
-
+# -------------------------------------------------------------------
+# F:                 PROFILE GAMES SECTION
+# -------------------------------------------------------------------
 def profile_games_section(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)
     user_profile = Userprofile.objects.get(user=profile_user)
@@ -1165,7 +1211,9 @@ def profile_games_section(request, user_id):
     })
 
 
-
+# -------------------------------------------------------------------
+# F:                 PROFILE STATS SECTION
+# -------------------------------------------------------------------
 def profile_stats_section(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)
     user_profile = Userprofile.objects.get(user=profile_user)
@@ -1304,6 +1352,9 @@ def profile_stats_section(request, user_id):
     })
 
 
+# -------------------------------------------------------------------
+# F:                 RATE MOVIE
+# -------------------------------------------------------------------
 @login_required
 def rate_movie(request, movie_id):
     if request.method == 'POST':
@@ -1318,6 +1369,9 @@ def rate_movie(request, movie_id):
         return render(request, 'movies/movie_detail.html', {'movie_id': movie_id})
 
 
+# -------------------------------------------------------------------
+# F:                 ADD TO LIST
+# -------------------------------------------------------------------
 @csrf_exempt
 def add_to_list(request):
     if request.method == "POST":
@@ -1360,7 +1414,9 @@ def add_to_list(request):
     return JsonResponse({"success": False})
 
 
-#####
+# -------------------------------------------------------------------
+# F:                 MOVIE DETAIL
+# -------------------------------------------------------------------
 def movie_detail(request, movie_id):
     movie = get_object_or_404(Movie, movieid=movie_id)
     user = request.user
@@ -1387,7 +1443,9 @@ def movie_detail(request, movie_id):
     })
 
 
-#####
+# -------------------------------------------------------------------
+# F:                 RATINGS PROFILE
+# -------------------------------------------------------------------
 def ratings_profile(request):
     user_ratings = Movierating.objects.filter(user=request.user)
     return render(request, 'user/ratings_profile.html', {'user_ratings': user_ratings})
@@ -1419,7 +1477,9 @@ def favorites_profile(request):
         "user_profile": user_profile,
         })
 
-# Zobrazení filmů, které uživatel chce vidět
+# -------------------------------------------------------------------
+# F:                 IWANTSEE PROFILE
+# -------------------------------------------------------------------
 def iwantsee_profile(request):
     user_lists2 = Userlistmovie.objects.filter(
         userlist__listtype_id=2,
@@ -1435,7 +1495,10 @@ def iwantsee_profile(request):
         "user_profile": user_profile,
         })
 
-# Zobrazení filmů, které uživatel viděl
+
+# -------------------------------------------------------------------
+# F:                 WATCHED PROFILE
+# -------------------------------------------------------------------
 def watched_profile(request):
     user_lists3 = Userlistmovie.objects.filter(
         userlist__listtype_id=3,
@@ -1451,6 +1514,9 @@ def watched_profile(request):
         })
 
 
+# -------------------------------------------------------------------
+# F:                 FAVORITE MOVIES
+# -------------------------------------------------------------------
 @login_required
 def favorite_movies(request):
  # Získání seznamu "Oblíbené" pro aktuálně přihlášeného uživatele
@@ -1463,7 +1529,9 @@ def favorite_movies(request):
     return render(request, 'user/user_lists_favorites.html', {'favorite_movies': favorite_movies})
 
 
-# users
+# -------------------------------------------------------------------
+# F:                 RATED MEDIA
+# -------------------------------------------------------------------
 @login_required
 def rated_media(request, user_id=None):
     # Implementujte logiku pro zobrazení všeho ohodnoceného média
@@ -1507,6 +1575,9 @@ def rated_media(request, user_id=None):
         })
 
 
+# -------------------------------------------------------------------
+# F:                 REVIEW PROFILE
+# -------------------------------------------------------------------
 @login_required
 def review_profile(request):
     profile_user = get_object_or_404(User, id=request.user.id)
@@ -1591,6 +1662,10 @@ def wantsee_movies(request):
 """
 
 
+# -------------------------------------------------------------------
+# F:                 UPDATE PROFILE
+# -------------------------------------------------------------------
+@login_required
 def update_profile(request):
     avatars = Avatar.objects.all()
     # Získání instance profilu, pokud existuje, nebo vytvoření nového.
@@ -1623,7 +1698,10 @@ def update_profile(request):
         'user_div_coins': user_div_coins
         })
 
-# Index chatu (s přehledem všech zpráv)
+
+# -------------------------------------------------------------------
+# F:                 CHAT
+# -------------------------------------------------------------------
 @login_required
 def chat(request):
     sender = request.user.id
@@ -1638,7 +1716,9 @@ def chat(request):
     })
 
 
-# posilani zpravy konkretnimu uzivateli pres jeho profil
+# -------------------------------------------------------------------
+# F:                 CHAT MESSAGE
+# -------------------------------------------------------------------
 @login_required
 def chat_message(request, user_id):
     sender = request.user.id
@@ -1700,7 +1780,9 @@ def chat_message(request, user_id):
     })
 
 
-# Načte starší zprávy
+# -------------------------------------------------------------------
+# F:                 LOAD OLDER MESSAGE
+# -------------------------------------------------------------------
 @login_required
 def load_older_messages(request, user_id):
     sender = request.user
@@ -1737,7 +1819,9 @@ def load_older_messages(request, user_id):
     return JsonResponse({"messages": messages_data}, safe=False)
 
 
-# vyhleda uživatele ve zprávách v searchboxu
+# -------------------------------------------------------------------
+# F:                 SEARCH USER IN CHAT
+# -------------------------------------------------------------------
 def search_user_in_chat(request):
     query = request.GET.get("q", "").strip()
     if not query:
@@ -1745,3 +1829,9 @@ def search_user_in_chat(request):
 
     matching_users = User.objects.filter(username__icontains=query).values("id", "username")[:10]
     return JsonResponse({"users": list(matching_users)})
+
+
+# -------------------------------------------------------------------
+#                    KONEC
+#           Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------

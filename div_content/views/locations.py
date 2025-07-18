@@ -17,4 +17,7 @@ def location_detail(request, location_url):
     return render(request, 'meta/location_detail.html', {'location': location})
 
 
-
+# -------------------------------------------------------------------
+#                    KONEC
+#           Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------

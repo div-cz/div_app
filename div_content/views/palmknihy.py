@@ -4,7 +4,7 @@
 
 
 
-### Views pro napojenĂ­ na API Palmknihy
+### Views pro napojení na API Palmknihy
 
 # Obsah:
 # -------
@@ -25,3 +25,7 @@ def get_palmknihy_ebooks(limit=100):
         print(f"E: Chyba při načítání e-knih: {e}")
         return []
 
+# -------------------------------------------------------------------
+#                    KONEC
+#           Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------

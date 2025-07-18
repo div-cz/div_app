@@ -24,3 +24,9 @@ def tv_detail(request, tv_url):
     seasons = Tvseason.objects.filter(tvshowid=tvshow.tvshowid).order_by('seasonnumber')
 
     return render(request, 'tv/tv_detail.html', {'tvshow': tvshow,'seasons': seasons})
+
+
+# -------------------------------------------------------------------
+#                    KONEC
+#           Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------
