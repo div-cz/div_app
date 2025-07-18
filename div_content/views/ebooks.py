@@ -54,6 +54,7 @@ from div_content.utils.payments import get_mimetype_from_format
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage  
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils.timezone import now
@@ -166,6 +167,7 @@ def download_ebook(request, isbn, format):
                 request,
                 "Soubor s e-knihou není aktuálně dostupný ani na serveru nakladatelství. Pokud myslíte, že je to chyba, napište na <a href='mailto:info@div.cz'>info@div.cz</a>."
             )
+            print("DOWNLOAD DEBUG", book.url, purchase.purchaseid, file_url)
             return redirect("book_detail", book_url=book.url)
 
     # =============================
@@ -188,7 +190,6 @@ def download_ebook(request, isbn, format):
         response = HttpResponse(f.read(), content_type=get_mimetype_from_format(format)[0])
         response["Content-Disposition"] = f"attachment; filename={filename}"
         return response
-
 
 
 # -------------------------------------------------------------------
@@ -286,7 +287,6 @@ def send_ebook_paid_email(purchase):
         print(f"Chyba při odesílání e-mailu: {e}")
 
 
-
 """
 @require_POST
 @login_required
@@ -307,7 +307,6 @@ def send_to_reader_modal(request, isbn, format):
         # Nebudeme vůbec pokračovat, zobrazíme chybovou hlášku
         messages.error(request, "Neplatný e-mail pro odeslání do čtečky!")
         return redirect("book_detail", book_url=book.url)
-
 
     user = request.user
 
@@ -435,8 +434,9 @@ def send_to_reader_modal(request, isbn, format):
             file_url = f"https://nakladatelstvi.ekultura.eu/api/download_epub.php?file={book.url}-{purchase.purchaseid}.epub&token={os.getenv('EKULTURA_API_EPUB_SECRET')}"
             remote = requests.get(file_url)
             if remote.status_code == 200:
-                file_content = remote.content
-                filename = f"{book.url}-{purchase.purchaseid}.epub"
+                response = HttpResponse(remote.content, content_type="application/epub+zip")
+                response["Content-Disposition"] = f'attachment; filename="{book.url}-{purchase.purchaseid}.epub"'
+                return response
             else:
                 messages.error(request, "Soubor není dostupný pro odeslání do čtečky. Pokud myslíte, že je to chyba, napište na info@div.cz.")
                 return redirect("book_detail", book_url=book.url)
