@@ -2,6 +2,45 @@
 #                    VIEWS.PAYMENTS.PY
 # -------------------------------------------------------------------
 
+
+# -------------------------------------------------------------------
+#                    OBSAH
+# -------------------------------------------------------------------
+# ### poznámky a todo
+# ### importy
+# ### konstanty
+# ### variabilni symbol (metodika)
+# ### funkce
+# 
+# bank_transactions            |
+# generate_qr                  |
+# get_mimetype_from_format     |
+# check_payments_from_fio      |
+# check_purchase_status        |
+# get_ebook_purchase_status    |
+# posledni_pending_purchaseid  |
+# strip_diacritics             |
+# -------------------------------------------------------------------
+
+
+# -------------------------------------------------------------------
+#                    POZNÁMKY A TODO
+# -------------------------------------------------------------------
+# Vše co souvisí s platbami za eKnihy
+# 
+#
+#
+# -------------------------------------------------------------------
+
+
+# -------------------------------------------------------------------
+#                    IMPORTY 
+# -------------------------------------------------------------------
+# (tři skupiny - každá zvlášt abecedně)
+# 1) systémové (abecedně)
+# 2) interní (forms,models,views) (abecedně)
+# 3) third-part (třetí strana, django, auth) (abecedně)
+# -------------------------------------------------------------------
 import datetime
 import io
 import os
@@ -34,6 +73,11 @@ from div_content.views.ebooks import generate_div_epub
 from io import BytesIO
 
 
+# -------------------------------------------------------------------
+#                    KONSTANTY
+# -------------------------------------------------------------------
+FIO_API_URL = "https://fioapi.fio.cz/v1/rest/periods/"
+
 
 # =========================================================
 # Variabilní symbol pro platby – metodika DIV.cz / eKultura
@@ -62,25 +106,47 @@ from io import BytesIO
 # =========================================================
 
 
-FIO_API_URL = "https://fioapi.fio.cz/v1/rest/periods/"
+# -------------------------------------------------------------------
+#                    BANK TRANSACTIONS
+# -------------------------------------------------------------------
+def bank_transactions(request):
+    if not request.user.is_superuser:
+        raise Http404("Nepovolený přístup.")
+
+    token = os.getenv("FIO_TOKEN")  # nebo použij os.getenv("FIO_TOKEN") když budeš chtít zpátky z env
+    today = datetime.date.today()
+    from_date = (today - datetime.timedelta(days=90)).strftime("%Y-%m-%d")
+    to_date = today.strftime("%Y-%m-%d")
+    url = f"https://fioapi.fio.cz/v1/rest/periods/{token}/{from_date}/{to_date}/transactions.json"
+
+    response = requests.get(url, timeout=10)
+    fio_status = response.status_code
+    fio_text = response.text[:1000]
+
+    try:
+        data = response.json()
+    except Exception:
+        data = None
+
+    fio_raw = repr(data) if data else ""
+    transactions = []
+    if data:
+        transactions = data.get("accountStatement", {}).get("transactionList", {}).get("transaction", []) if data else []
 
 
-def get_mimetype_from_format(fmt):
-    fmt = fmt.lower()
-    if fmt == "pdf":
-        return ("application/pdf", "pdf")
-    elif fmt == "mobi":
-        return ("application/x-mobipocket-ebook", "mobi")
-    elif fmt == "epub":
-        return ("application/epub+zip", "epub")
-    else:
-        return ("application/octet-stream", fmt)
+    return render(request, "admin/banka.html", {
+        "transactions": transactions,
+        "fio_url": url,
+        "fio_status": fio_status,
+        "fio_text": fio_text,
+        "fio_token": token,
+        "fio_raw": fio_raw,
+    })
 
 
-def strip_diacritics(s):
-    return unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode('ascii')
-
-
+# -------------------------------------------------------------------
+#                    GENERATE QR
+# -------------------------------------------------------------------
 # QR kod pro zaplaceni konkretni e-knihy ve formatu SPD (FIO)
 def generate_qr(request, book_id, format):
     if not format:
@@ -115,7 +181,6 @@ def generate_qr(request, book_id, format):
         #createdat=now(),
     )
 
-
     # 2. Použij purchase.purchaseid jako X-VS
     format_code = {"epub": "2", "mobi": "3", "pdf": "4"}.get(purchase.format.lower(), "9")
     vs = f"01038{format_code}{str(purchase.purchaseid).zfill(4)}"
@@ -141,39 +206,24 @@ def generate_qr(request, book_id, format):
     return HttpResponse(buffer.getvalue(), content_type="image/png")
 
 
-  
-
-"""
-# Check_payments LILIEN
-def check_payments():
-
-    token = "FIO_TOKEN"  # Uloženo v .env
-    response = requests.get(f"{FIO_API_URL}last/{token}/transactions.json")
-    
-    if response.status_code == 200:
-        transactions = response.json().get("accountStatement", {}).get("transactionList", {}).get("transaction", [])
-        
-        for tx in transactions:
-            vs = tx.get("variableSymbol")
-            amount = tx.get("amount")
-            
-            # Platbu podle VS
-            purchase = Bookpurchase.objects.filter(purchaseid=vs, status="PENDING").first()
-            if purchase and float(purchase.price) == float(amount):
-                purchase.status = "PAID"
-                purchase.paymentdate = now()
-                purchase.expirationdate = now().replace(year=now().year + 3)  # Platnost 3 roky
-                purchase.save()
-
-                send_listing_payment_email_no_request(purchase.listing.booklistingid)
-
-                print(f"Platba potvrzena pro ID {vs}")
-
-    return "Kontrola dokončena"
-"""
+# -------------------------------------------------------------------
+#                    GET MIMETYPE FROM FORMAT
+# -------------------------------------------------------------------
+def get_mimetype_from_format(fmt):
+    fmt = fmt.lower()
+    if fmt == "pdf":
+        return ("application/pdf", "pdf")
+    elif fmt == "mobi":
+        return ("application/x-mobipocket-ebook", "mobi")
+    elif fmt == "epub":
+        return ("application/epub+zip", "epub")
+    else:
+        return ("application/octet-stream", fmt)
 
 
-
+# -------------------------------------------------------------------
+#                    CHECK PAYMENTS FROM FIO
+# -------------------------------------------------------------------
 def check_payments_from_fio():
     token = os.getenv("FIO_TOKEN")
     if not token:
@@ -195,7 +245,6 @@ def check_payments_from_fio():
     if response.status_code == 409:
         print("FIO API říká: příliš rychlé dotazy, vyčkej minutu a zkus znovu.")
         return
-
 
     try:
         data = response.json()
@@ -306,7 +355,9 @@ def check_payments_from_fio():
 
 
 
-
+# -------------------------------------------------------------------
+#                    CHECK PURCHASE STATUS
+# -------------------------------------------------------------------
 @login_required
 def check_purchase_status(request, purchase_id):
     try:
@@ -315,58 +366,10 @@ def check_purchase_status(request, purchase_id):
     except Bookpurchase.DoesNotExist:
         return JsonResponse({"status": "NOT_FOUND"}, status=404)
 
-@login_required
-def posledni_pending_purchaseid(request):
-    bookid = request.GET.get('bookid')
-    fmt = request.GET.get('format')
-    purchase = Bookpurchase.objects.filter(
-        book_id=bookid,
-        user=request.user,
-        format=fmt,
-        status="PENDING"
-    ).order_by('-purchaseid').first()
-    if purchase:
-        return JsonResponse({"purchase_id": purchase.purchaseid})
-    return JsonResponse({"purchase_id": None})
 
-
-def bank_transactions(request):
-    if not request.user.is_superuser:
-        raise Http404("Nepovolený přístup.")
-
-    token = os.getenv("FIO_TOKEN")  # nebo použij os.getenv("FIO_TOKEN") když budeš chtít zpátky z env
-    today = datetime.date.today()
-    from_date = (today - datetime.timedelta(days=90)).strftime("%Y-%m-%d")
-    to_date = today.strftime("%Y-%m-%d")
-    url = f"https://fioapi.fio.cz/v1/rest/periods/{token}/{from_date}/{to_date}/transactions.json"
-
-    response = requests.get(url, timeout=10)
-    fio_status = response.status_code
-    fio_text = response.text[:1000]
-
-    try:
-        data = response.json()
-    except Exception:
-        data = None
-
-    fio_raw = repr(data) if data else ""
-    transactions = []
-    if data:
-        transactions = data.get("accountStatement", {}).get("transactionList", {}).get("transaction", []) if data else []
-
-
-    return render(request, "admin/banka.html", {
-        "transactions": transactions,
-        "fio_url": url,
-        "fio_status": fio_status,
-        "fio_text": fio_text,
-        "fio_token": token,
-        "fio_raw": fio_raw,
-    })
-
-
-
-
+# -------------------------------------------------------------------
+#                    GET EBOOK PURCHASE STATUS
+# -------------------------------------------------------------------
 def get_ebook_purchase_status(user, book, ebook_formats):
     """
     Přidá ke každému formátu (epub/pdf/mobi...) hodnoty:
@@ -390,7 +393,29 @@ def get_ebook_purchase_status(user, book, ebook_formats):
     return ebook_formats
 
 
+# -------------------------------------------------------------------
+#                    POSLEDNI PENDING PURCHASEID
+# -------------------------------------------------------------------
+@login_required
+def posledni_pending_purchaseid(request):
+    bookid = request.GET.get('bookid')
+    fmt = request.GET.get('format')
+    purchase = Bookpurchase.objects.filter(
+        book_id=bookid,
+        user=request.user,
+        format=fmt,
+        status="PENDING"
+    ).order_by('-purchaseid').first()
+    if purchase:
+        return JsonResponse({"purchase_id": purchase.purchaseid})
+    return JsonResponse({"purchase_id": None})
 
+
+# -------------------------------------------------------------------
+#                    STRIP DIACRITICS
+# -------------------------------------------------------------------
+def strip_diacritics(s):
+    return unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode('ascii')
 
 
 '''

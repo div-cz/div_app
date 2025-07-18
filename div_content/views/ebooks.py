@@ -9,7 +9,6 @@
 # ### poznámky a todo
 # ### importy
 # ### konstanty
-# ### obsah
 # ### funkce
 # 
 # download_ebook          | (stahování eknih)
@@ -58,6 +57,8 @@ from django.core.mail import EmailMessage
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils.timezone import now
+from email.message import EmailMessage
+
 
 # -------------------------------------------------------------------
 #                    KONSTANTY
@@ -269,19 +270,21 @@ def send_ebook_paid_email(purchase):
     }
     html_message = render_to_string("emails/ebook_paid_message.html", context)
 
-    msg = EmailMessage(
-        subject=subject,
-        body=html_message,
-        from_email=os.getenv("EBOOK_SENDER_ADDRESS"),
-        to=[recipient],
-    )
-    msg.content_subtype = "html"
+    msg = EmailMessage()
+    msg['Subject'] = subject
+    msg['From'] = os.getenv("EBOOK_SENDER_ADDRESS")
+    msg['To'] = recipient
+    msg.set_content("E-kniha je připravena ke stažení.")  # fallback pro text-only
+    msg.add_alternative(html_message, subtype='html')
 
     try:
-        msg.send()
+        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+            smtp.login(os.getenv("EBOOK_SENDER_ADDRESS"), os.getenv("EBOOK_SENDER_PASSWORD"))
+            smtp.send_message(msg)
         print(f"E-mail o zaplacení odeslán: {recipient}")
     except Exception as e:
         print(f"Chyba při odesílání e-mailu: {e}")
+
 
 
 """
@@ -418,39 +421,49 @@ def send_to_reader_modal(request, isbn, format):
             messages.error(request, "Neplatný e-mail.")
             return redirect("book_detail", book_url=book.url)
         if not purchase.kindlemail:
-            # První zápis je povolený
             purchase.kindlemail = kindlemail
             purchase.save()
-        # Další pokusy už mail nemění!
         recipient = purchase.kindlemail
-
-        # ---- ODESLÁNÍ E-MAILU --------
+    
+        # Rozlišení
+        is_free_div = (bookisbn.ISBNtype or "").upper() == "DIV" and (bookisbn.price == 0 or bookisbn.price is None)
+        is_paid_div_epub = (bookisbn.ISBNtype or "").upper() == "DIV" and bookisbn.price > 0 and format.lower() == "epub"
         mimetype, ext = get_mimetype_from_format(format)
-        filename = f"{book.url}.{ext}"
-        filepath = os.path.join(os.getenv("FREE_EBOOKS_PATH"), filename)
-        if not os.path.exists(filepath):
-            messages.error(
-                request,
-                "Soubor s e-knihou není aktuálně dostupný. Pokud myslíte, že je to chyba, napište na <a href='mailto:info@div.cz'>info@div.cz</a>."
-            )
-            return redirect("book_detail", book_url=book.url)
-
+        maintype, subtype = mimetype.split('/')
+    
+        if is_paid_div_epub:
+            file_url = f"https://nakladatelstvi.ekultura.eu/api/download_epub.php?file={book.url}-{purchase.purchaseid}.epub&token={os.getenv('EKULTURA_API_EPUB_SECRET')}"
+            remote = requests.get(file_url)
+            if remote.status_code == 200:
+                file_content = remote.content
+                filename = f"{book.url}-{purchase.purchaseid}.epub"
+            else:
+                messages.error(request, "Soubor není dostupný pro odeslání do čtečky. Pokud myslíte, že je to chyba, napište na info@div.cz.")
+                return redirect("book_detail", book_url=book.url)
+        else:
+            filename = f"{book.url}.{format.lower()}"
+            filepath = os.path.join(os.getenv("FREE_EBOOKS_PATH"), filename)
+            if not os.path.exists(filepath):
+                messages.error(request, "Soubor není dostupný.")
+                return redirect("book_detail", book_url=book.url)
+            with open(filepath, 'rb') as f:
+                file_content = f.read()
+    
+        # Odeslání e-mailem
         msg = EmailMessage()
         msg['Subject'] = f"E-kniha z DIV.cz: {book.title}"
         msg['From'] = os.getenv("EBOOK_SENDER_ADDRESS")
         msg['To'] = recipient
         msg.set_content("Vaše e-kniha je v příloze. Užijte si čtení.\n\n Tým DIV.cz")
-
-        with open(filepath, 'rb') as f:
-            maintype, subtype = mimetype.split('/')
-            msg.add_attachment(f.read(), maintype=maintype, subtype=subtype, filename=filename)
-
+        msg.add_attachment(file_content, maintype=maintype, subtype=subtype, filename=filename)
+    
         with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
             smtp.login(os.getenv("EBOOK_SENDER_ADDRESS"), os.getenv("EBOOK_SENDER_PASSWORD"))
             smtp.send_message(msg)
-
+    
         messages.success(request, f"E-kniha <strong>{book.title}</strong> byla odeslána do vaší čtečky na e-mail <strong>{recipient}</strong>.")
         return redirect("book_detail", book_url=book.url)
+
 
     # ---- GET požadavek – jen zobrazení formuláře ----------
     return render(request, "books/send_to_reader_email.html", {
