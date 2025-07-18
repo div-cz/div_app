@@ -1,4 +1,7 @@
-# VIEWS.ADMINS.PY
+# -------------------------------------------------------------------
+#                    VIEWS.ADMINS.PY
+# -------------------------------------------------------------------
+
 
 import datetime
 import json
@@ -25,7 +28,9 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 
-
+# -------------------------------------------------------------------
+# F:                 ADMIN INDEX
+# -------------------------------------------------------------------
 # Kontrola pro superadminy
 """
 def is_superadmin(user):
@@ -43,6 +48,9 @@ def admin_index(request):
     return render(request, 'admin/admin_index.html', {'comments': comments})
 
 
+# -------------------------------------------------------------------
+# F:                 ADMIN ODPRIRADIT EKNIHU
+# -------------------------------------------------------------------
 @csrf_exempt
 @require_POST
 def admin_odpriradit_eknihu(request):
@@ -64,7 +72,9 @@ def admin_odpriradit_eknihu(request):
 
 
 
-
+# -------------------------------------------------------------------
+# F:                 AJAX SEARCH BOOKS
+# -------------------------------------------------------------------
 @require_GET
 def ajax_search_books(request):
     query = request.GET.get("q", "").strip()
@@ -82,7 +92,9 @@ def ajax_search_books(request):
     return JsonResponse({"results": results})
 
 
-
+# -------------------------------------------------------------------
+# F:                 ADMIN ASSIGN BOOK
+# -------------------------------------------------------------------
 @csrf_exempt
 def admin_assign_book(request):
     if request.method == "POST":
@@ -145,7 +157,9 @@ def admin_assign_book(request):
 
 
 
-
+# -------------------------------------------------------------------
+# F:                 ADMIN COMMENTS
+# -------------------------------------------------------------------
 #@user_passes_test(is_superadmin)
 def admin_comments(request):
     if request.method == 'POST':
@@ -160,7 +174,9 @@ def admin_comments(request):
 
 
 
-
+# -------------------------------------------------------------------
+# F:                 ADMIN EDIT COMMENT
+# -------------------------------------------------------------------
 """@user_passes_test(is_superadmin)"""
 def admin_edit_comment(request, commentid):
     comment = get_object_or_404(Moviecomments, pk=commentid)
@@ -176,6 +192,9 @@ def admin_edit_comment(request, commentid):
 
 
 
+# -------------------------------------------------------------------
+# F:                 ADMIN TASKS
+# -------------------------------------------------------------------
 @login_required
 def admin_tasks(request):
     tasks = AATask.objects.filter(parentid__isnull=True).order_by('-created')
@@ -183,6 +202,10 @@ def admin_tasks(request):
         'tasks': tasks
     })
 
+
+# -------------------------------------------------------------------
+# F:                 ADMIN TASK DETAIL
+# -------------------------------------------------------------------
 @login_required
 def admin_task_detail(request, task_id):
     task = get_object_or_404(AATask, id=task_id)
@@ -231,7 +254,9 @@ def admin_task_edit(request, task_id=None):
     })
 
 
-# RECENT PAYMENTS
+# -------------------------------------------------------------------
+# F:                 RECENT PAYMENTS
+# -------------------------------------------------------------------
 def recent_payments(request):
     payments = Bookpurchase.objects.filter(status="PAID").order_by("-paymentdate")[:50]
 
@@ -278,6 +303,9 @@ def recent_payments(request):
     })
 
 
+# -------------------------------------------------------------------
+# F:                 ADMIN PALMKNIHY PREVIEW
+# -------------------------------------------------------------------
 def admin_palmknihy_preview(request):
     page = int(request.GET.get("page", 1))
     raw_books = get_catalog_product(limit=50, page=page)
@@ -452,7 +480,9 @@ def admin_palmknihy_preview(request):
     })
 
 
-
+# -------------------------------------------------------------------
+# F:                 ADMIN STORE EBOOK
+# -------------------------------------------------------------------
 @csrf_exempt
 def admin_store_ebook(request):
     if request.method == "POST":
@@ -515,7 +545,9 @@ def admin_store_ebook(request):
 
 
 
-
+# -------------------------------------------------------------------
+# F:                 ADMIN STORE EBOOK
+# -------------------------------------------------------------------
 @csrf_exempt
 def admin_store_ebook(request):
     if request.method == "POST":
@@ -574,7 +606,9 @@ def admin_store_ebook(request):
 
 
 
-
+# -------------------------------------------------------------------
+# F:                 ADMIN STORE PAGE
+# -------------------------------------------------------------------
 @csrf_exempt
 def admin_store_page(request):
     if request.method == "POST":
