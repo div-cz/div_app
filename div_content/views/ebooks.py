@@ -260,13 +260,13 @@ def send_ebook_paid_email(purchase):
 
     subject = f"E-kniha {purchase.book.title} je připravena ke stažení"
     recipient = purchase.user.email
-    detail_url = f"https://div.cz/moje-objednavky/{purchase.purchaseid}/"  # Upravit
+    account_url = f"https://div.cz/uzivatel/{purchase.user.id}/eshop/#eknihy"  
 
     context = {
         "user": purchase.user,
         "book": purchase.book,
         "order_id": purchase.purchaseid,
-        "detail_url": detail_url,
+        "account_url": account_url,
     }
     html_message = render_to_string("emails/ebook_paid_message.html", context)
 
