@@ -269,7 +269,7 @@ def check_payments_from_fio():
             continue
         fmt_num = m.group(1)
         suffix = m.group(2)
-
+        # F: 0 = print, 1 = audio, 2 = epub, 3 = mobi, 4 = pdf, 5 = burza koupě, 6 = burza prodej
         # --- Booklisting (DIVkvariát) ---
         if fmt_num in ["5", "6"]:
             listing = Booklisting.objects.filter(booklistingid__endswith=suffix, status="RESERVED").first()
@@ -278,6 +278,8 @@ def check_payments_from_fio():
                 listing.paymentdate = now()
                 listing.save()
                 print(f"✅ Platba spárována pro Booklisting {listing.booklistingid}")
+                send_listing_payment_confirmation_email(request, listing_id)
+                send_listing_payment_email(listing) 
                 continue
             listing_paid = Booklisting.objects.filter(booklistingid__endswith=suffix, status="PAID").first()
             if listing_paid:

@@ -131,6 +131,12 @@ def serie_season(request, tv_url, seasonurl):
     tvshow = get_object_or_404(Tvshow, url=tv_url)
     season = get_object_or_404(Tvseason, tvshowid=tvshow.tvshowid, seasonurl=seasonurl)
     episodes = Tvepisode.objects.filter(seasonid=season.seasonid)
+
+    # DOČASNĚ
+    list(episodes)  # Vyvolá dotaz
+    from django.db import connection
+    print("DEBUG SQL:", connection.queries[-1])
+
     if episodes.exists():
         first_episode = episodes[0]  # Get the first episode if it exists
     else:

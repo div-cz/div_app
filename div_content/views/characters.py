@@ -1,4 +1,6 @@
-#  VIEWS.CHARACTERS.PY
+# -------------------------------------------------------------------
+#                    VIEWS.CHARACTERS.PY
+# -------------------------------------------------------------------
 
 
 from django.db.models import Exists, OuterRef
@@ -185,3 +187,9 @@ def remove_character_from_favorites(request, character_id):
     favourite_sum.save()
     
     return redirect("character_detail", character_url=character.characterurl)
+
+
+# -------------------------------------------------------------------
+#                    KONEC
+#           Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------

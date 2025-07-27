@@ -146,12 +146,12 @@
                     <div class="p-1 w-full">{{ p.paymentdate|date:"j. n. Y H:i" }}</div>
                     <div class="p-1 w-full">{{ p.price|floatformat:0 }} Kč</div>
                     <div class="p-1 w-full">formát: {{ p.format|upper }}</div>
+                    <div style="p-1 w-full">faktura: <a href="" class="w-full mt-2 text-center" title="Stáhnout fakturu">stáhnout (PDF)</a><br>v přípravě</div><!--% url 'download_invoice' p.purchaseid %-->
                 </div>
                 <div class="flex w-full justify-evenly mt-3">
                     {% if p.isbn %}
-                        <a href="{% url 'download_ebook' p.isbn p.format %}" class="add-book">Stáhnout</a>
-                        <a href="{% url 'send_to_reader' p.isbn p.format %}" class="add-book" title="Odeslat do čtečky">Odeslat</a>
-                        <a href="" class="add-book w-full mt-2 text-center" style="width: 100%; margin-top: 12px; text-align: center;" title="Stáhnout fakturu">Faktura (PDF) (V přípravě)</a><!--% url 'download_invoice' p.purchaseid %-->
+                        <a href="{% url 'download_ebook' p.isbn p.format %}" class="add-book ml-2">Stáhnout</a>
+                        <a href="{% url 'send_to_reader' p.isbn p.format %}" class="add-book ml-2" title="Odeslat do čtečky">Odeslat</a>
                     {% else %}
                         <span style="color:red;">Chybí ISBN pro tento formát</span>
                     {% endif %}

@@ -232,7 +232,6 @@ def make_epub_download_link(filename, purchaseid, email, validity_secs=3600):
 # -------------------------------------------------------------------
 #                    REQUEST EPUB GENERATION
 # -------------------------------------------------------------------
-
 def request_epub_generation(book_slug, user_email, order_id):
     api_secret = os.getenv("EKULTURA_API_EPUB_SECRET")
     url = "https://nakladatelstvi.ekultura.eu/api/watermark.php"
@@ -524,7 +523,7 @@ def send_to_reader(request, isbn, format):
                 "Link není dostupný. Pokud je to chyba, napište na <a href='mailto:info@div.cz'>info@div.cz</a> nebo zkontrolujte svou objednávku v DIV.cz."
             )
             return redirect("book_detail", book_url=book.url)
-        import tempfile, requests, os
+        import tempfile, requests
         resp = requests.get(palmknihy_link)
         if resp.status_code != 200:
             messages.error(

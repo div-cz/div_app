@@ -16,7 +16,7 @@
 # books_listings                    | popis
 # books_market_offers               |
 # books_market_wants                |
-# cancel_purchase                   |
+# cancel_listing_reservation        |
 # confirm_sale                      |
 # cancel_sell                       |
 # get_book_price                    |
@@ -207,14 +207,14 @@ def books_market_wants(request):
 
 
 # -------------------------------------------------------------------
-#                    CANCEL PURCHASE
+#                    CANCEL LISTING RESERVATION
 # -------------------------------------------------------------------
 @login_required
-def cancel_purchase(request, listing_id):
+def cancel_listing_reservation(request, listing_id):
     listing = get_object_or_404(Booklisting, booklistingid=listing_id, buyer=request.user)
 
     if request.method == "POST":
-        reason = request.POST.get("cancel_reason", "Bez ud  n   d  vodu")
+        reason = request.POST.get("cancel_reason", "Bez udání důvodu")
 
         if listing.status == 'RESERVED':
             book_obj = listing.book
@@ -326,16 +326,6 @@ def listing_detail(request, book_url, listing_id):
                 messages.success(request, 'Transakce byla dokončena.')
                 return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
 
-        # ZRUŠENÍ REZERVACE (pro kupujícího)
-        elif 'cancel_reservation' in request.POST and request.user == listing.buyer:
-            if listing.status == 'RESERVED':
-                listing.status = 'ACTIVE'
-                listing.buyer = None
-                listing.save()
-                messages.success(request, 'Rezervace byla zrušena a nabídka vrácena do aktivního stavu.')
-                return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
-            else:
-                messages.error(request, 'Tuto rezervaci nelze zrušit.')
 
         # Hodnocení prodávající/kupující
         elif 'sellerrating' in request.POST and request.user == listing.user:
@@ -371,14 +361,7 @@ def listing_detail(request, book_url, listing_id):
             'note': qr_message
         }
 
-
-    elif 'cancel_offer' in request.POST and request.user == listing.user:
-            if listing.status == 'ACTIVE' or listing.status == 'RESERVED':
-                listing.delete()
-                messages.success(request, 'Nabídka byla úspěšně zrušena.')
-                return redirect('book_listings', book_url=book_url)
-            else:
-                messages.error(request, 'Tuto nabídku nelze zrušit v aktuálním stavu.')      
+     
 
     # Možnost hodnocení/zrušení pro správného uživatele
     can_rate_seller = (listing.status == 'COMPLETED' and request.user == listing.buyer and not listing.sellerrating)
@@ -431,41 +414,41 @@ def send_listing_cancel_email(request, listing):
 #                    SEND LISTING PAYMENT EMAIL
 # -------------------------------------------------------------------
 @login_required
-def send_listing_payment_email(request, listing_id):
-    listing = get_object_or_404(Booklisting, booklistingid=listing_id, buyer=request.user)
+def send_listing_payment_email(listing):
+    book = listing.book
+    buyer = listing.buyer
+    recipient = buyer.email if buyer else None
+    if not recipient:
+        print("[✖] Kupující nemá e-mail – e-mail neodeslán.")
+        return
 
-    if listing.status in ['PAID']:
-        book = listing.book
-        total_amount = listing.price 
-        qr_message = f"Žádost o zaslání knihy '{book.titlecz}' - ID: {book.bookid}" 
-        shipping = listing.shipping
-        buyer_adress = UserProfile.adress
+    qr_message = f"Žádost o zaslání knihy '{book.titlecz}' - ID: {book.bookid}"
 
-        context = {
-            'buyer_name': request.user.first_name or request.user.username, 
-            'book_title': book.titlecz, 
-            'amount': listing.price,
-            'shipping': shipping,
-            'buyer_adress': buyer-adress
+    context = {
+        'buyer_name': buyer.first_name or buyer.username,
+        'book_title': book.titlecz,
+        'amount': listing.price,
+        'shipping': listing.shipping,
+        'buyer_adress': buyer.profile.adress,
+    }
 
-        }
-        recipient = request.user.email
+    html_email = render_to_string('emails/payment_message.html', context)
 
-        html_email =  render_to_string('emails/payment_message.html', context)
+    msg = EmailMessage()
+    msg['Subject'] = os.getenv("EMAIL_SUBJECT_PAID").format(title=book.titlecz)
+    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+    msg['To'] = recipient
+    msg.set_content(html_email, subtype='html')
 
-        msg = EmailMessage()
-        msg['Subject'] = os.getenv("EMAIL_SUBJECT_PAID")
-        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
-        msg['To'] = recipient
-        msg.set_content(html_email, subtype='html')
+    try:
+        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+            smtp.send_message(msg)
+        print(f"[✔] E-mail o zaplacení odeslán kupujícímu na {recipient}")
+    except Exception as e:
+        print(f"[✖] Chyba při odesílání e-mailu: {e}")
 
-        try:
-            with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
-                smtp.send_message(msg)
-            messages.success(request, f"Výzva k záslání knihy byla poslaná: <strong>{recipient}</strong>.")
-        except Exception as e:
-            messages.error(request, f"Chyba v odeslání emailu {e}")
+
 
 
 # -------------------------------------------------------------------
@@ -483,8 +466,8 @@ def send_listing_reservation_email(request, listing_id):
 
         payment_info = {
             'total': total_amount,
-            'qr_code': qr_code_market(total_amount, listing, qr_message),
-            'variable_symbol': book.bookid,
+            'qr_code': qr_code_market(total_amount, listing, qr_message)[0],
+            'variable_symbol': qr_code_market(total_amount, listing, qr_message)[1],
             'note': qr_message, 
         }
 
@@ -501,7 +484,7 @@ def send_listing_reservation_email(request, listing_id):
         html_email =  render_to_string('emails/reservation_message.html', context)
 
         msg = EmailMessage()
-        msg['Subject'] = os.getenv("EMAIL_SUBJECT_RESERVED")
+        msg['Subject'] = os.getenv("EMAIL_SUBJECT_RESERVED").format(title=book.titlecz)
         msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
         msg['To'] = recipient
         msg.set_content(html_email, subtype='html')

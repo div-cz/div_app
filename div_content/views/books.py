@@ -858,7 +858,10 @@ def add_to_readlist(request, bookid):
     
     return redirect("book_detail", book_url=book.url)   
 
-# Přidat do seznamu: Přečteno
+
+# -------------------------------------------------------------------
+# F:                 ADD TO READ BOOKS
+# -------------------------------------------------------------------
 @login_required
 def add_to_read_books(request, bookid):
     book = get_object_or_404(Book, bookid=bookid)
@@ -877,7 +880,10 @@ def add_to_read_books(request, bookid):
     
     return redirect("book_detail", book_url=book.url)   
 
-# Přidat do seznamu: Knihovna
+
+# -------------------------------------------------------------------
+# F:                 ADD TO BOOK LIBRARY
+# -------------------------------------------------------------------
 @login_required
 def add_to_book_library(request, bookid):
     book = get_object_or_404(Book, bookid=bookid)
@@ -896,7 +902,9 @@ def add_to_book_library(request, bookid):
     return redirect("book_detail", book_url=book.url) 
 
 
-# Smazat ze seznamu: Oblíbené
+# -------------------------------------------------------------------
+# F:                 REMOVE FROM FAVOURITES BOOKS
+# -------------------------------------------------------------------
 @login_required
 def remove_from_favourites_books(request, bookid):
     book = get_object_or_404(Book, bookid=bookid)
@@ -912,7 +920,10 @@ def remove_from_favourites_books(request, bookid):
     
     return redirect("book_detail", book_url=book.url)
 
-# Smazat ze seznamu: Chci číst
+
+# -------------------------------------------------------------------
+# F:                 REMOVE FROM READLIST
+# -------------------------------------------------------------------
 @login_required
 def remove_from_readlist(request, bookid):
     book = get_object_or_404(Book, bookid=bookid)
@@ -924,19 +935,31 @@ def remove_from_readlist(request, bookid):
     return redirect("book_detail", book_url=book.url)
 
 
-# Smazat ze seznamu: Přečteno
+# -------------------------------------------------------------------
+# F:                 REMOVE FROM READ BOOKS
+# -------------------------------------------------------------------
 @login_required
 def remove_from_read_books(request, bookid):
     book = get_object_or_404(Book, bookid=bookid)
-    read_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_READ_BOOKS_ID)
-    read_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=read_type)
-    userlistbook = Userlistitem.objects.get(object_id=bookid, userlist=read_list)
+    read_type = get_object_or_404(Userlisttype, userlisttypeid=USERLISTTYPE_READ_BOOKS_ID)
+    read_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=read_type)
+    
+    book_content_type = ContentType.objects.get_for_model(Book)
+    
+    userlistbook = get_object_or_404(
+        Userlistitem,
+        object_id=bookid,
+        content_type=book_content_type,
+        userlist=read_list
+    )
     userlistbook.delete()
     
     return redirect("book_detail", book_url=book.url)
 
 
-# Smazat ze seznamu: Knihovna
+# -------------------------------------------------------------------
+# F:                 REMOVE FROM BOOK LIBRARY
+# -------------------------------------------------------------------
 @login_required
 def remove_from_book_library(request, bookid):
     book = get_object_or_404(Book, bookid=bookid)
@@ -948,3 +971,7 @@ def remove_from_book_library(request, bookid):
     return redirect("book_detail", book_url=book.url)
 
 
+# -------------------------------------------------------------------
+#                    KONEC
+#           Catalog DIV.cz by eKultura
+# -------------------------------------------------------------------

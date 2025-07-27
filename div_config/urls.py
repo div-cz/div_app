@@ -35,7 +35,7 @@ from div_content.views.blog import blog_add_post, blog_detail, blog_index, blog_
 #                    BOOKS
 # -------------------------------------------------------------------
 from div_content.views.books import (
- add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, book_add, book_detail, books, books_search, books_market_offers, books_market_wants, cancel_purchase, confirm_sale, rate_book, ratequote, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, remove_from_book_library, character_list_ajax, set_reading_goal, books_alphabetical, book_listings
+ add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, book_add, book_detail, books, books_search, books_market_offers, books_market_wants, rate_book, ratequote, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, remove_from_book_library, character_list_ajax, set_reading_goal, books_alphabetical
     )
 # -------------------------------------------------------------------
 #                    CREATORS
@@ -46,7 +46,7 @@ from div_content.views.creators import (
 # -------------------------------------------------------------------
 #                    DIVKVARIAT
 # -------------------------------------------------------------------
-from div_content.views.divkvariat import cancel_sell, listing_detail
+from div_content.views.divkvariat import book_listings, cancel_listing_reservation, confirm_sale, cancel_sell, listing_detail
 # -------------------------------------------------------------------
 #                    EBOOKS
 # -------------------------------------------------------------------
@@ -325,7 +325,7 @@ urlpatterns = [
     path('knihy/burza-knih/nabidky/', books_market_offers, name='books_market_offers'),
     path('knihy/burza-knih/poptavky/', books_market_wants, name='books_market_wants'),
 
-    path('antikvariat/zruseni/<int:purchase_id>/', cancel_purchase, name='cancel_listing_reservation'),
+    path('antikvariat/zruseni/<int:listing_id>/', cancel_listing_reservation, name='cancel_listing_reservation'),
     path('antikvariat/potvrzeni/<int:purchase_id>/', confirm_sale, name='confirm_sale'),
     path('antikvariat/smazani/<int:listing_id>/', cancel_sell, name='cancel_sell'),    
     
