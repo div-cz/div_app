@@ -291,6 +291,7 @@ class Booklisting(models.Model):
     LISTING_STATUS = (
         ('ACTIVE', 'Aktivní'),
         ('RESERVED', 'Rezervováno'),
+        ('PAID', 'Zaplaceno'), 
         ('COMPLETED', 'Dokončeno'),
         ('CANCELLED', 'Zrušeno'),
         ('DELETED', 'Smazáno'),

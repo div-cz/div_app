@@ -68,6 +68,8 @@ from div_content.utils.palmknihy import get_catalog_product, get_palmknihy_downl
 #from div_content.utils.palmknihy_sync import fetch_and_update_bookisbn 
 
 from div_content.utils.payments import generate_qr_for_bookpurchase
+
+from div_content.views.divkvariat import send_listing_payment_confirmation_email
 from div_content.views.ebooks import generate_div_epub
 
 from io import BytesIO
@@ -231,7 +233,7 @@ def check_payments_from_fio():
         return
 
     today = datetime.date.today()
-    ninety_days_ago = today - datetime.timedelta(days=90)
+    ninety_days_ago = today - datetime.timedelta(days=1)
     from_date = ninety_days_ago.strftime("%Y-%m-%d")
     to_date = today.strftime("%Y-%m-%d")
     url = f"{FIO_API_URL}{token}/{from_date}/{to_date}/transactions.json"
@@ -272,16 +274,16 @@ def check_payments_from_fio():
         # F: 0 = print, 1 = audio, 2 = epub, 3 = mobi, 4 = pdf, 5 = burza koupě, 6 = burza prodej
         # --- Booklisting (DIVkvariát) ---
         if fmt_num in ["5", "6"]:
-            listing = Booklisting.objects.filter(booklistingid__endswith=suffix, status="RESERVED").first()
+            listing = Booklisting.objects.filter(booklistingid=int(suffix), status="RESERVED").first()
             if listing:
                 listing.status = "PAID"
                 listing.paymentdate = now()
                 listing.save()
                 print(f"✅ Platba spárována pro Booklisting {listing.booklistingid}")
-                send_listing_payment_confirmation_email(request, listing_id)
+                send_listing_payment_confirmation_email(listing)
                 send_listing_payment_email(listing) 
                 continue
-            listing_paid = Booklisting.objects.filter(booklistingid__endswith=suffix, status="PAID").first()
+            listing_paid = Booklisting.objects.filter(booklistingid=int(suffix), status="PAID").first()
             if listing_paid:
                 print(f"VS {vs} (BooklistingID {suffix}) už je ve stavu PAID (dříve spárováno).")
             else:

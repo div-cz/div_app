@@ -268,7 +268,7 @@ def send_ebook_paid_email(purchase):
         "order_id": purchase.purchaseid,
         "account_url": account_url,
     }
-    html_message = render_to_string("emails/ebook_paid_message.html", context)
+    html_message = render_to_string("emails/ebook_paid_confirmation_buyer.html", context)
 
     msg = EmailMessage()
     msg['Subject'] = subject
