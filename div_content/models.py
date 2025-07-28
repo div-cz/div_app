@@ -309,6 +309,7 @@ class Booklisting(models.Model):
     condition = models.CharField(db_column='Condition', max_length=50, blank=True, null=True)
     location = models.CharField(db_column='Location', max_length=100, blank=True, null=True)
     createdat = models.DateTimeField(db_column='CreateDat', auto_now_add=True)
+    updatedat = models.DateTimeField(db_column='UpdateDat', auto_now=True)
     completedat = models.DateTimeField(db_column='CompletedAt', null=True, blank=True)
     active = models.BooleanField(db_column='Active', default=True)
     status = models.CharField(db_column='Status', max_length=10, choices=LISTING_STATUS, default='ACTIVE')
