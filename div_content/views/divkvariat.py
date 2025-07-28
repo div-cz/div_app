@@ -214,7 +214,6 @@ def books_market_wants(request):
 # -------------------------------------------------------------------
 #                    CANCEL LISTING RESERVATION
 # -------------------------------------------------------------------
-@login_required
 def cancel_listing_reservation(request, listing_id):
     listing = get_object_or_404(Booklisting, booklistingid=listing_id, buyer=request.user)
 
@@ -392,14 +391,19 @@ def listing_detail(request, book_url, listing_id):
 # -------------------------------------------------------------------
 #                    SEND LISTING CANCEL EMAIL
 # -------------------------------------------------------------------
-@login_required
-def send_listing_cancel_email(request, listing):
+
+def send_listing_cancel_email(request_or_user, listing):
+    if hasattr(request_or_user, "user"):
+        user = request_or_user.user
+    else:
+        user = request_or_user
+
     book = listing.book
     context = {
-        'buyer_name': request.user.first_name or request.user.username,
+        'buyer_name': user.first_name or user.username,
         'book_title': book.titlecz,
     }
-    recipient = request.user.email
+    recipient = user.email
     html_email = render_to_string('emails/listing_cancel_reservation_buyer.html', context)
 
     msg = EmailMessage()
@@ -412,9 +416,10 @@ def send_listing_cancel_email(request, listing):
         with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
             smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
             smtp.send_message(msg)
-        messages.success(request, f"Informace o zruseni rezervace bylo poslano na email : <strong>{recipient}</strong>.")
+        print(f"[✔] E-mail o zrušení rezervace odeslán na {recipient}")
     except Exception as e:
-        messages.error(request, f"Chyba pri odeslani e-mailu: {e}")
+        print(f"[✖] Chyba při odesílání e-mailu: {e}")
+
 
 
 # -------------------------------------------------------------------

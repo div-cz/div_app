@@ -69,7 +69,7 @@ from div_content.utils.palmknihy import get_catalog_product, get_palmknihy_downl
 
 from div_content.utils.payments import generate_qr_for_bookpurchase
 
-from div_content.views.divkvariat import send_listing_payment_confirmation_email
+from div_content.views.divkvariat import send_listing_payment_confirmation_email, send_listing_payment_email
 from div_content.views.ebooks import generate_div_epub
 
 from io import BytesIO

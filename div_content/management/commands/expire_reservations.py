@@ -9,7 +9,7 @@ from div_content.views.divkvariat import send_listing_cancel_email
 from django.contrib.auth.models import AnonymousUser
 
 class Command(BaseCommand):
-    help = 'Zruší expirované rezervace (napø. starší ne 7 dny)'
+    help = 'ZruÅ¡Ã­ expirovanÃ© rezervace (napÅ™. starÅ¡Ã­ neÅ¾ 7 dny)'
 
     def handle(self, *args, **kwargs):
         expiration_limit = now() - timedelta(days=7)
@@ -21,17 +21,17 @@ class Command(BaseCommand):
 
             print(f"[!] Expirace rezervace: {book.titlecz} (ID {listing.booklistingid})")
 
-            # Zmìna stavu zpìt na ACTIVE
+            # ZmÄ›na stavu zpÄ›t na ACTIVE
             listing.status = 'ACTIVE'
             listing.buyer = None
-            listing.cancelreason = "Rezervace expirovala – nebyla uhrazena vèas."
+            listing.cancelreason = "Rezervace expirovala â€“ nebyla uhrazena vÄas."
             listing.save()
 
             book.status = 'ACTIVE'
             book.save()
 
-            # Pošli kupujícímu e-mail
+            # PoÅ¡li kupujÃ­cÃ­mu e-mail
             if buyer:
                 send_listing_cancel_email(request=AnonymousUser(), listing=listing)
 
-        print(f"[?] Dokonèeno. Zrušeno: {len(listings)} rezervací.")
+        print(f"[?] DokonÄeno. ZruÅ¡eno: {len(listings)} rezervacÃ­.")
