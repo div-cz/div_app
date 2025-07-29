@@ -455,7 +455,8 @@ def send_listing_payment_confirmation_email(listing):
 def send_listing_payment_email(listing):
     book = listing.book
     buyer = listing.buyer
-    recipient = buyer.email if buyer else None
+    seller = listing.user
+    recipient = seller.email if seller else None
     if not recipient:
         print("[✖] Kupující nemá e-mail – e-mail neodeslán.")
         return
