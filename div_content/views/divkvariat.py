@@ -467,7 +467,7 @@ def send_listing_payment_email(listing):
         'book_title': book.titlecz,
         'amount': listing.price,
         'shipping': listing.shipping,
-        'buyer_adress': buyer.profile.adress,
+        'buyer_adress': getattr(getattr(buyer, 'profile', None), 'adress', 'neuvedena'),
     }
 
     html_email = render_to_string('emails/listing_paid_confirmation_seller.html', context)
