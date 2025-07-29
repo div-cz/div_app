@@ -311,9 +311,18 @@ def listing_detail(request, book_url, listing_id):
             if listing.status != 'ACTIVE':
                 messages.error(request, 'Nabídka již není aktivní.')
             else:
+                shipping_address = request.POST.get("shipping_address", "").strip()
+                #  Uložit do Booklisting
                 listing.status = 'RESERVED'
                 listing.buyer = request.user
+                listing.shipping_address = shipping_address
                 listing.save()
+                # Uložit i do profilu
+                profile = getattr(request.user, "profile", None)
+                if profile:
+                    profile.shippingaddress = shipping_address
+                    profile.save()
+
                 messages.success(request, 'Nabídka byla rezervována.')
                 send_listing_reservation_email(request, listing.booklistingid)
                 return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
@@ -434,6 +443,7 @@ def send_listing_payment_confirmation_email(listing):
     context = {
         'book_title': book.titlecz,
         'buyer_name': user.first_name or user.username,
+        'shipping_address': listing.shipping_address,
     }
     recipient = user.email
     html_email = render_to_string('emails/listing_paid_confirmation_buyer.html', context)
@@ -468,7 +478,7 @@ def send_listing_payment_email(listing):
         'book_title': book.titlecz,
         'amount': listing.price,
         'shipping': listing.shipping,
-        'buyer_adress': getattr(getattr(buyer, 'profile', None), 'adress', 'neuvedena'),
+        'shipping_address': listing.shipping_address,
     }
 
     html_email = render_to_string('emails/listing_paid_confirmation_seller.html', context)
@@ -514,6 +524,7 @@ def send_listing_reservation_email(request, listing_id):
             'book_title': book.titlecz, 
             'amount': listing.price,
             'payment_info': payment_info,
+            'shipping_address': listing.shipping_address,
         }
 
         recipient = request.user.email

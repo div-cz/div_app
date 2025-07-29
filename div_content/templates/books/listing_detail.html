@@ -116,12 +116,16 @@
 
             {% if user.is_authenticated %}
                 {% if listing.status == 'ACTIVE' and user != listing.user %}
-                    <form method="post" class="mb-6">
-                        {% csrf_token %}
-                        <button type="submit" name="reserve_listing" style="margin: 10px 0 0 auto;"                                 class="add px-8 bg-white rounded-lg font-bold">
-                            Rezervovat
-                        </button>
-                    </form>
+                <form method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="reserve_listing" value="1">
+                  
+                  <label for="shipping_address">Kam si přejete knihu zaslat?</label><br>
+                  <textarea name="shipping_address" rows="3" class="form-control" required 
+                  placeholder="Jméno, ulice, město, PSČ (volitelně telefon)">{{ request.user.profile.shippingaddress }}</textarea>
+                
+                  <button type="submit" class="btn btn-primary mt-2">Rezervovat knihu</button>
+                </form>
                 {% endif %}
 
                 {% if listing.status == 'RESERVED' and user == listing.user %}
