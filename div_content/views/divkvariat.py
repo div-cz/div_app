@@ -311,16 +311,16 @@ def listing_detail(request, book_url, listing_id):
             if listing.status != 'ACTIVE':
                 messages.error(request, 'Nabídka již není aktivní.')
             else:
-                shipping_address = request.POST.get("shipping_address", "").strip()
+                shippingaddress = request.POST.get("shippingaddress", "").strip()
                 #  Uložit do Booklisting
                 listing.status = 'RESERVED'
                 listing.buyer = request.user
-                listing.shipping_address = shipping_address
+                listing.shippingaddress = shippingaddress
                 listing.save()
                 # Uložit i do profilu
                 profile = getattr(request.user, "profile", None)
                 if profile:
-                    profile.shippingaddress = shipping_address
+                    profile.shippingaddress = shippingaddress
                     profile.save()
 
                 messages.success(request, 'Nabídka byla rezervována.')
@@ -443,7 +443,7 @@ def send_listing_payment_confirmation_email(listing):
     context = {
         'book_title': book.titlecz,
         'buyer_name': user.first_name or user.username,
-        'shipping_address': listing.shipping_address,
+        'shippingaddress': listing.shippingaddress,
     }
     recipient = user.email
     html_email = render_to_string('emails/listing_paid_confirmation_buyer.html', context)
@@ -478,7 +478,7 @@ def send_listing_payment_email(listing):
         'book_title': book.titlecz,
         'amount': listing.price,
         'shipping': listing.shipping,
-        'shipping_address': listing.shipping_address,
+        'shippingaddress': listing.shippingaddress,
     }
 
     html_email = render_to_string('emails/listing_paid_confirmation_seller.html', context)
@@ -524,7 +524,7 @@ def send_listing_reservation_email(request, listing_id):
             'book_title': book.titlecz, 
             'amount': listing.price,
             'payment_info': payment_info,
-            'shipping_address': listing.shipping_address,
+            'shippingaddress': listing.shippingaddress,
         }
 
         recipient = request.user.email
