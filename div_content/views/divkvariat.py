@@ -451,7 +451,7 @@ def send_listing_payment_confirmation_email(listing):
 # -------------------------------------------------------------------
 #                    SEND LISTING PAYMENT EMAIL
 # -------------------------------------------------------------------
-@login_required
+
 def send_listing_payment_email(listing):
     book = listing.book
     buyer = listing.buyer
