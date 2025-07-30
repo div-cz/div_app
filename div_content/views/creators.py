@@ -60,7 +60,7 @@ CONTENTTYPE_MOVIE_ID = movie_content_type.id
 
 def creators_list(request):
     creators = Creator.objects.all()[:48] #.order_by('-popularity')
-    movies_carousel = Metaindex.objects.filter(section='Movie').order_by('-popularity').values('title', 'url', 'img', 'description')[3:7]
+    movies_carousel = Metaindex.objects.filter(section='Movie').order_by('-divrating').values('title', 'url', 'img', 'description')[3:7]
 
     return render(request, 'creators/creators_list.html', {'creators': creators, 'movies_carousel': movies_carousel})
 
