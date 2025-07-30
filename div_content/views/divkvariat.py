@@ -416,9 +416,22 @@ def listing_detail(request, book_url, listing_id):
     can_complete_transaction = (listing.status == 'SHIPPED' and request.user == listing.buyer)
 
 
+    recent_sell_listings = Booklisting.objects.filter(
+        listingtype__in=["SELL", "GIVE"], status="ACTIVE"
+    ).order_by("-createdat")[:5]
+    
+    recent_buy_listings = Booklisting.objects.filter(
+        listingtype="BUY", status="ACTIVE"
+    ).order_by("-createdat")[:5]
+
     debug_post = None
     if request.method == 'POST':
         debug_post = dict(request.POST)
+
+    print("==== RECENT ====")
+    print(recent_sell_listings)
+    print(recent_buy_listings)
+
 
     return render(request, 'books/listing_detail.html', {
         'book': book,
@@ -431,6 +444,8 @@ def listing_detail(request, book_url, listing_id):
         'can_confirm_shipping': can_confirm_shipping,    
         'can_complete_transaction': can_complete_transaction,
         'debug_post': debug_post,
+        'recent_sell_listings': recent_sell_listings,
+        'recent_buy_listings': recent_buy_listings,
     })
 
 

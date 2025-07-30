@@ -278,6 +278,10 @@ def check_payments_from_fio():
             if listing:
                 listing.status = "PAID"
                 listing.paymentdate = now()
+                listing.paid_to_seller = False
+                listing.amount_to_seller = listing.price + listing.shipping - listing.commission  
+                listing.request_payout = False
+                listing.paymentdate = now()
                 listing.save()
                 print(f"✅ Platba spárována pro Booklisting {listing.booklistingid}")
                 send_listing_payment_confirmation_email(listing)

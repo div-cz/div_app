@@ -334,7 +334,27 @@
                                 </div>
                             </div>
 
-<!-- objednávky potvrzení -->
+
+
+<!-- -->
+    {% if user.is_superuser and pending_payouts %}
+    <div class="card box-shadow mb-4">
+        <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+        <h3>Výplata pro prodejce (přehled pro superuser)</h3>
+        <ul>
+      {% for listing in pending_payouts %}
+        <li class="border-b pb-2">
+          Kniha: <strong>{{ listing.book.titlecz }}</strong><br>
+          Prodávající: {{ listing.user.username }}<br>
+          Částka k výplatě: <strong>{{ listing.amount_to_seller|default:"0" }} Kč</strong><br>
+          <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}" class="text-blue-600 hover:underline">Detail nabídky</a>
+        </li>
+      {% endfor %}
+        </ul>
+        </div>
+    </div>
+    {% endif %}
+
 <!-- objednávky potvrzení -->
 {% if user.is_authenticated %}
     <!-- Poslední nákupy eKnih -->

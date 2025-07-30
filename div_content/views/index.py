@@ -197,7 +197,8 @@ def index(request): # hlavní strana
           user_wanted_purchases = []
 
     recent_sell_listings, recent_buy_listings = get_market_listings()
-
+    pending_payouts = Booklisting.objects.filter(paid_to_seller=False)[:5]
+    request_payouts = Booklisting.objects.filter(paid_to_seller=False, request_payout=True)[:5]
     
     return render(request, 'index.html', {
             'movies': movies, 
@@ -228,6 +229,8 @@ def index(request): # hlavní strana
             'user_wanted_purchases': user_wanted_purchases,
             'recent_sell_listings': recent_sell_listings,
             'recent_buy_listings': recent_buy_listings,
+            'pending_payouts': pending_payouts,
+            'request_payouts': request_payouts,
             })  
 
 @login_required

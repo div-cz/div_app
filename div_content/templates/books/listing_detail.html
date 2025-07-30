@@ -20,7 +20,11 @@
 
 {% block content %}
 
-<div class="container mx-auto px-4 py-6">
+<div class="row container my-5">
+    <!-- Levá strana -->
+    <div class="col-lg-8">
+
+<!--<div class="container mx-auto px-4 py-6">-->
 
     <h1 class="mt-8">
         DIVkvariát / 
@@ -124,9 +128,11 @@
                         <a href="{% url 'user_sell_listings' listing.user.id %}" class="ml-2 text-blue-600 hover:underline">
                             {{ listing.user.username }}
                         </a>
-                        
-                        <a href="{% url 'chat_message' listing.user.id %}"> <i class="fa-solid fa-envelope"></i> 
-                        </a> 
+
+{% if user != listing.user %}
+<a href="{% url 'chat_message' listing.user.id %}"> <i class="fa-solid fa-envelope"></i></a> 
+{% endif %}
+
                     </div>
                 </div>
             </div>
@@ -407,5 +413,113 @@
         </div>
     </div>
 </div>
+
+
+
+
+<!-- PRAVÁ STRANA -->
+
+    <!-- Pravá strana -->
+    <div class="col-lg-4">
+
+
+
+
+{% if request.user.is_authenticated %}
+<div class="card box-shadow mb-4">
+    <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <h3 class="card-title font-bold after-h3">Můj přehled</h3>
+        <ul class="list-unstyled space-y-2">
+            <li><strong>Prodáno knih:</strong> {{ stats.books_sold|default:"0" }}</li>
+            <li><strong>Koupeno knih:</strong> {{ stats.books_bought|default:"0" }}</li>
+            <li><strong>Koupeno e-knih:</strong> {{ stats.ebooks_bought|default:"0" }}</li>
+            <li><strong>K vyplacení:</strong> {{ amount_to_payout|default:"0" }} Kč</li>
+            <!--<li><strong>DIVcoinů:</strong> {{ stats.divcoins }}</li>-->
+        </ul>
+        {% if amount_to_payout > 0 %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" name="request_payout" class="btn btn-primary mt-2">Vyžádat výplatu</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+
+                        <!-- burza knih -->
+                        <div class="card box-shadow mb-4">
+                            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+
+                                <div class="flex flex-wrap card-title after-h3">
+                                    <h3 class="font-bold">Burza knih</h3>
+                                </div>
+                                <p>Nabídek: {{ recent_sell_listings|length }} | Poptávek: {{ recent_buy_listings|length }}</p>
+                                <!-- prodej -->
+                                <div class="flex flex-wrap">
+                                    <div class="flex flex-wrap justify-between w-full">
+                                        <h4>Prodej - </h4><a href="{% url 'books_market_offers' %}"><small>Zobrazit vše</small></a>
+                                    </div>
+                                    {% for listing in recent_sell_listings %}
+                                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                                        <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+                                        {% if listing.book.img == "noimg.png" %}
+                                            <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
+                                            <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                                            {% elif listing.book.img == "GoogleID" %}
+                                            <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
+                                            <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                                            {% else %}
+                                            <!-- Jinak zobraz vlastní nahraný obrázek -->
+                                            <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                                        {% endif %}
+                                        </a>
+
+                                        <div class="ml-2 p-2" style="flex: 2;">
+                                            <p>{{ listing.book.titlecz }}</p>
+                                            <p>{{ listing.book.author }}</p>
+                                            <p>{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
+                                            <p class="text-sm text-end w-full"><small>Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</small></p>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+
+                                <hr>
+
+                                <!-- poptávka -->
+                                <div class="flex flex-wrap">
+                                    <div class="flex flex-wrap justify-between w-full">
+                                        <h4>Poptávka</h4><a href="{% url 'books_market_wants' %}"><small>Zobrazit vše</small></a>
+                                    </div>
+                                    {% for listing in recent_buy_listings %}
+                                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                                        <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">
+                                        {% if listing.book.img == "noimg.png" %}
+                                            <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
+                                            <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                                            {% elif listing.book.img == "GoogleID" %}
+                                            <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
+                                            <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                                            {% else %}
+                                            <!-- Jinak zobraz vlastní nahraný obrázek -->
+                                            <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                                        {% endif %}
+                                        </a>
+
+                                        <div class="flex flex-wrap content-between h-full p-2" style="flex: 2;">
+                                            <p class="w-full">{{ listing.book.titlecz }}</p>
+                                            <p class="w-full">{{ listing.book.author }}</p>
+                                            <p class="w-full">{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
+                                            <p class="text-sm text-end w-full"><small>Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</small></p>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+    </div><!-- // Pravá strana -->
+</div><!-- // Kontejner -->
 
 {% endblock %}

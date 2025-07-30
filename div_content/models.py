@@ -319,6 +319,11 @@ class Booklisting(models.Model):
     sellercomment = models.TextField(db_column='SellerComment', max_length=512, blank=True, null=True)
     buyerrating = models.IntegerField(db_column='BuyerRating', null=True, blank=True)
     buyercomment = models.TextField(db_column='BuyerComment', max_length=512, blank=True, null=True)
+    # Platba prodejci
+    paid_to_seller = models.BooleanField(default=False)
+    paid_at = models.DateTimeField(null=True, blank=True)
+    amount_to_seller = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    request_payout = models.BooleanField(default=False)
     class Meta:
         db_table = 'BookListing'
 
