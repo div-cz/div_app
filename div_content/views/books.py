@@ -554,6 +554,8 @@ def book_detail(request, book_url):
                 listing = booklisting_form.save(commit=False)
                 listing.user = request.user
                 listing.book = book
+                listing.paidtoseller = False
+                listing.requestpayout = False
                 listing.save()
                 messages.success(request, 'Nabídka byla úspěšně vytvořena.')
                 return redirect('book_detail', book_url=book_url)
