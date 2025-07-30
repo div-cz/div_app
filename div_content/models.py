@@ -292,7 +292,6 @@ class Booklisting(models.Model):
         ('ACTIVE', 'Aktivní'),
         ('RESERVED', 'Rezervováno'),
         ('PAID', 'Zaplaceno'), 
-        ('SHIPPED', 'Posláno'),
         ('COMPLETED', 'Dokončeno'),
         ('CANCELLED', 'Zrušeno'),
         ('DELETED', 'Smazáno'),

@@ -56,9 +56,10 @@ import os
 import qrcode
 import unicodedata
 
-from div_content.models import Book, Booklisting
+from div_content.models import Book, Booklisting, Userprofile
 
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.core.mail import EmailMessage 
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
@@ -318,13 +319,40 @@ def listing_detail(request, book_url, listing_id):
                 listing.shippingaddress = shippingaddress
                 listing.save()
                 # Uložit i do profilu
-                profile = getattr(request.user, "profile", None)
-                if profile:
+                try:
+                    profile = request.user.userprofile
+                except Userprofile.DoesNotExist:
+                    profile = None
+                if profile and not profile.shippingaddress:
                     profile.shippingaddress = shippingaddress
                     profile.save()
 
                 messages.success(request, 'Nabídka byla rezervována.')
                 send_listing_reservation_email(request, listing.booklistingid)
+                return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
+
+        # Poslánjí knihy
+        elif 'shipping_listing' in request.POST and request.user == listing.user: 
+            if listing.status != 'PAID':
+                messages.error(request, 'Nabídka není ve stavu pro potvrzení odeslání knihy.')
+            else:
+                listing.status = 'SHIPPED'
+                listing.save()
+                messages.success(request, 'Odeslání knihy bylo potvrzení')
+                send_listing_shipped_email(listing)
+                return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
+
+
+        # DOKONČENÍ (pro prodávajícího)
+        elif 'complete_listing' in request.POST and request.user == listing.buyer:
+            if listing.status not in ['SHIPPED', 'PAID']:
+                messages.error(request, 'Nabídka není ve stavu pro dokončení.')
+            else:
+                listing.status = 'COMPLETED'
+                listing.save()
+                send_listing_completed_email_buyer(listing)
+                send_listing_completed_email_seller(listing)
+                messages.success(request, 'Transakce byla dokončena.')
                 return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
 
 
@@ -343,21 +371,21 @@ def listing_detail(request, book_url, listing_id):
 
 
         # Hodnocení prodávající/kupující
-        elif 'sellerrating' in request.POST and request.user == listing.user:
-            if listing.buyerrating:
-                messages.error(request, 'Hodnocení již bylo přidáno.')
-            else:
-                listing.buyerrating = request.POST.get('rating')
-                listing.buyercomment = request.POST.get('comment')
-                listing.save()
-                messages.success(request, 'Hodnocení kupujícího bylo přidáno.')
-
-        elif 'buyerrating' in request.POST and request.user == listing.buyer:
+        elif 'sellerrating' in request.POST and request.user == listing.buyer:
             if listing.sellerrating:
                 messages.error(request, 'Hodnocení již bylo přidáno.')
             else:
                 listing.sellerrating = request.POST.get('rating')
                 listing.sellercomment = request.POST.get('comment')
+                listing.save()
+                messages.success(request, 'Hodnocení kupujícího bylo přidáno.')
+
+        elif 'buyerrating' in request.POST and request.user == listing.user:
+            if listing.buyerrating:
+                messages.error(request, 'Hodnocení již bylo přidáno.')
+            else:
+                listing.buyerrating = request.POST.get('rating')
+                listing.buyercomment = request.POST.get('comment')
                 listing.save()
                 messages.success(request, 'Hodnocení prodejce bylo přidáno.')
 
@@ -384,7 +412,13 @@ def listing_detail(request, book_url, listing_id):
     can_cancel_reservation = (listing.status == 'RESERVED' and request.user == listing.buyer)
 
     can_cancel_offer = (request.user == listing.user and listing.status in ['ACTIVE', 'RESERVED'])
+    can_confirm_shipping = (listing.status == 'PAID' and request.user == listing.user)
+    can_complete_transaction = (listing.status == 'SHIPPED' and request.user == listing.buyer)
 
+
+    debug_post = None
+    if request.method == 'POST':
+        debug_post = dict(request.POST)
 
     return render(request, 'books/listing_detail.html', {
         'book': book,
@@ -394,6 +428,9 @@ def listing_detail(request, book_url, listing_id):
         'can_rate_buyer': can_rate_buyer,
         'can_cancel_reservation': can_cancel_reservation,
         'can_cancel_offer': can_cancel_offer,
+        'can_confirm_shipping': can_confirm_shipping,    
+        'can_complete_transaction': can_complete_transaction,
+        'debug_post': debug_post,
     })
 
 
@@ -547,6 +584,40 @@ def send_listing_reservation_email(request, listing_id):
 
     else:
         messages.warning(request, f"Nabidka neni ve stavu pro rezervaci (status: {listing.status}).")
+
+
+# -------------------------------------------------------------------
+#                    SEND LISTING SHIPPED EMAIL - BUYER
+# -------------------------------------------------------------------
+def send_listing_shipped_email(listing):
+    buyer = listing.buyer
+    book = listing.book
+
+    if not buyer or not buyer.email:
+        return
+
+    context = {
+        'buyer_name': buyer.first_name or buyer.username,
+        'book_title': book.titlecz,
+        'listing_id': listing.booklistingid,
+        'book_url': book.url,
+    }
+
+    html_email = render_to_string('emails/listing_shipped_information_buyer.html', context)
+
+    msg = EmailMessage()
+    msg['Subject'] = os.getenv("EMAIL_SUBJECT_SHIPPED").format(title=book.titlecz)
+    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+    msg['To'] = buyer.email
+    msg.set_content(html_email, subtype='html')
+
+    try:
+        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+            smtp.send_message(msg)
+        print(f"[✔] E-mail o odeslání knihy poslán kupujícímu na {buyer.email}")
+    except Exception as e:
+        print(f"[✖] Chyba při odesílání e-mailu kupujícímu: {e}")
 
 
 # -------------------------------------------------------------------

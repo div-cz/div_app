@@ -305,19 +305,39 @@ urlpatterns = [
 
 
     # ANTIKVARIÁT
-    path('kniha/<str:book_url>/nabidky/', book_listings, name='book_listings'),
-    path('kniha/<str:book_url>/prodej/<int:listing_id>/', listing_detail, name='listing_detail_sell'),
-    path('kniha/<str:book_url>/poptavka/<int:listing_id>/', listing_detail, name='listing_detail_buy'),
-    path('uzivatel/<int:user_id>/prodej-knihy/', user_sell_listings, name='user_sell_listings'),
-    path('uzivatel/<int:user_id>/koupim-knihy/', user_buy_listings, name='user_buy_listings'),
-    path('uzivatel/<int:user_id>/nabidky/', user_book_listings, name='user_book_listings'),  # Přidáno
-    path('knihy/burza-knih/nabidky/', books_market_offers, name='books_market_offers'),
-    path('knihy/burza-knih/poptavky/', books_market_wants, name='books_market_wants'),
-
+    path('antikvariat/<str:book_url>/nabidky/', book_listings, name='book_listings'),
+    path('antikvariat/<str:book_url>/prodej/<int:listing_id>/', listing_detail, name='listing_detail_sell'),
+    path('antikvariat/<str:book_url>/poptavka/<int:listing_id>/', listing_detail, name='listing_detail_buy'),
+    
+    path('antikvariat/uzivatel/<int:user_id>/prodej-knihy/', user_sell_listings, name='user_sell_listings'),
+    path('antikvariat/uzivatel/<int:user_id>/koupim-knihy/', user_buy_listings, name='user_buy_listings'),
+    path('antikvariat/uzivatel/<int:user_id>/nabidky/', user_book_listings, name='user_book_listings'),
+    
+    path('antikvariat/nabidky/', books_market_offers, name='books_market_offers'),
+    path('antikvariat/poptavky/', books_market_wants, name='books_market_wants'),
+    
     path('antikvariat/zruseni/<int:listing_id>/', cancel_listing_reservation, name='cancel_listing_reservation'),
     path('antikvariat/potvrzeni/<int:purchase_id>/', confirm_sale, name='confirm_sale'),
-    path('antikvariat/smazani/<int:listing_id>/', cancel_sell, name='cancel_sell'),    
+    path('antikvariat/smazani/<int:listing_id>/', cancel_sell, name='cancel_sell'),
     
+    path('antikvariat/<str:book_url>/<int:listing_id>/confirm-shipping/', listing_detail, name='confirm_shipping'),
+    path('antikvariat/<str:book_url>/<int:listing_id>/confirm-payment/', listing_detail, name='confirm_payment'),
+
+#    path('kniha/<str:book_url>/nabidky/', book_listings, name='book_listings'),
+#    path('kniha/<str:book_url>/prodej/<int:listing_id>/', listing_detail, name='listing_detail_sell'),
+#    path('kniha/<str:book_url>/poptavka/<int:listing_id>/', listing_detail, name='listing_detail_buy'),
+#    path('uzivatel/<int:user_id>/prodej-knihy/', user_sell_listings, name='user_sell_listings'),
+#    path('uzivatel/<int:user_id>/koupim-knihy/', user_buy_listings, name='user_buy_listings'),
+#    path('uzivatel/<int:user_id>/nabidky/', user_book_listings, name='user_book_listings'),  # Přidáno
+#    path('knihy/burza-knih/nabidky/', books_market_offers, name='books_market_offers'),
+#    path('knihy/burza-knih/poptavky/', books_market_wants, name='books_market_wants'),
+
+#    path('antikvariat/zruseni/<int:listing_id>/', cancel_listing_reservation, name='cancel_listing_reservation'),
+#    path('antikvariat/potvrzeni/<int:purchase_id>/', confirm_sale, name='confirm_sale'),
+#    path('antikvariat/smazani/<int:listing_id>/', cancel_sell, name='cancel_sell'),    
+#    path('antikvariat/<str:book_url>/<int:listing_id>/confirm-shipping/', listing_detail, name='confirm_shipping'),  
+#    path('antikvariat/<str:book_url>/<int:listing_id>/confirm-payment/', listing_detail, name='confirm_payment'), 
+     
     # E-KNIHY
     path('generate-qr/<int:book_id>/<str:format>/', generate_qr, name='generate_qr'),
     path("stav-platby/<int:purchase_id>/", check_purchase_status, name="check_purchase_status"),
