@@ -187,7 +187,7 @@ class BookawardForm(BaseNomineeForm):
         if 'bookid' in self.data:
             try:
                 val = int(self.data.get('bookid'))
-                self.fields['bookid'].queryset = book.objects.filter(pk=val)
+                self.fields['bookid'].queryset = Book.objects.filter(pk=val)
             except (ValueError, TypeError):
                 pass
 
