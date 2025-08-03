@@ -505,10 +505,10 @@ urlpatterns = [
 #    path('oceneni/<str:award_name>/<int:year>/', award_detail, name='award_detail'),
 
         
-#    path('kontakt/', contact_form, name='contact'),
-#    path('prihlaseni/', LoginView.as_view(), name='login'),
-#    path('registrace/', SignupView.as_view(), name='signup'),
-#    path('odhlaseni/', LogoutView.as_view(), name='logout'),
+    path('kontakt/', contact_form, name='contact'),
+    path('prihlaseni/', LoginView.as_view(), name='login'),
+    path('registrace/', SignupView.as_view(), name='signup'),
+    path('odhlaseni/', LogoutView.as_view(), name='logout'),
 
     # Reset hesla
     path('accounts/password_reset/', 
