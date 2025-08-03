@@ -171,7 +171,7 @@ def generate_qr(request, book_id, format):
     # 1. Vytvoř záznam o zamýšlené koupi
     user = request.user if request.user.is_authenticated else None
 
-    palmknihy_id = bookisbn.palmknihyid
+    palmknihy_id = bookisbn.sourceid if bookisbn.sourcetype == "PALM" else None
     
     purchase = Bookpurchase.objects.create(
         book=book,
@@ -179,7 +179,8 @@ def generate_qr(request, book_id, format):
         format=format,
         price=bookisbn.price,
         status="PENDING",
-        palmknihyid=palmknihy_id,
+        sourcetype="PALM",
+        sourceid=palmknihy_id,
         #createdat=now(),
     )
 

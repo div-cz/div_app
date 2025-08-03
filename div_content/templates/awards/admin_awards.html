@@ -1,0 +1,122 @@
+{% extends "awards/base.html" %}
+{% load static %}
+
+{% block title %}Správa ocenění - Admin - DIV.cz{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h1 class="mb-4">&#128295; Správa ocenění</h1>
+  <div class="mb-3 d-flex gap-2 flex-wrap">
+    <a href="{% url 'admin_award_add' %}" class="btn btn-success">&#10133; Nové ocenění</a>
+    <a href="{% url 'awards_movies' %}" class="btn btn-outline-primary">&#127916; Filmy</a>
+    <a href="{% url 'awards_books' %}" class="btn btn-outline-success">&#128218; Knihy</a>
+    <a href="{% url 'awards_games' %}" class="btn btn-outline-warning">&#127918; Hry</a>
+  </div>
+
+  {% if page_obj %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Název</th>
+          <th>Typ</th>
+          <th>Rok</th>
+          <th>Nominace</th>
+          <th>Vítězové</th>
+          <th class="text-end">Akce</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for award in page_obj %}
+        <tr>
+          <td>
+            <strong><a href="{% url 'award_detail' award.slug award.year %}">{{ award.awardname }}</a></strong>
+            <br>
+            <small class="text-muted">{{ award.description|truncatewords:10 }}</small>
+          </td>
+          <td>
+            {% if award.awardtype == 'film' %} &#127916; Film
+            {% elif award.awardtype == 'book' %} &#128218; Kniha
+            {% elif award.awardtype == 'game' %} &#127918; Hra
+            {% endif %}
+          </td>
+          <td>{{ award.year }}</td>
+          <td>
+            {% if award.awardtype == 'film' %}{{ award.movieaward_set.count }}
+            {% elif award.awardtype == 'book' %}{{ award.bookaward_set.count }}
+            {% elif award.awardtype == 'game' %}{{ award.gameaward_set.count }}
+            {% endif %}
+          </td>
+          <td>
+            {% if award.awardtype == 'film' %}{{ award.movieaward_set.filter_winners.count }}
+            {% elif award.awardtype == 'book' %}{{ award.bookaward_set.filter_winners.count }}
+            {% elif award.awardtype == 'game' %}{{ award.gameaward_set.filter_winners.count }}
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <div class="btn-group btn-group-sm">
+              <a href="{% url 'admin_award_nominees' award.metaawardid %}" class="btn btn-outline-info">&#128101;</a>
+              <a href="{% url 'admin_award_edit' award.metaawardid %}" class="btn btn-outline-primary">&#9998;</a>
+              <a href="{% url 'award_detail' award.slug award.year %}" class="btn btn-outline-success">&#128065;</a>
+              <button class="btn btn-outline-danger" onclick="confirmDelete('{{ award.awardname }}', '{{ award.year }}', '{{ award.metaawardid }}')">&#10060;</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if page_obj.has_other_pages %}
+      <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+              <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  {% else %}
+    <div class="alert alert-info">Zatím nejsou žádná ocenění.</div>
+  {% endif %}
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Potvrdit smazání</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Opravdu chcete smazat ocenění <strong id="deleteAwardName"></strong> (<strong id="deleteAwardYear"></strong>)?</p>
+        <p class="text-danger">Tato akce je nevratná a smaže i všechny nominace.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zrušit</button>
+        <a href="#" class="btn btn-danger" id="confirmDeleteBtn">Smazat</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function confirmDelete(awardName, awardYear, awardId) {
+  document.getElementById('deleteAwardName').textContent = awardName;
+  document.getElementById('deleteAwardYear').textContent = awardYear;
+  document.getElementById('confirmDeleteBtn').href = "{% url 'admin_award_delete' 0 %}".replace('0', awardId);
+  const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+  modal.show();
+}
+</script>
+{% endblock %}

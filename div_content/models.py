@@ -401,6 +401,8 @@ class Bookisbn(models.Model):
     language = models.CharField(max_length=100, null=True, blank=True, db_column='Language') # e.g., English, Czech
     description = models.TextField(null=True, blank=True, db_column='Description')
     coverimage = models.URLField(max_length=200, null=True, blank=True, db_column='CoverIMG')
+    sourcetype = models.CharField(max_length=16, db_column='SourceType', null=True, blank=True)
+    sourceid = models.CharField(max_length=64, db_column='SourceID', null=True, blank=True)
     palmknihyid = models.CharField(max_length=64, db_column='PalmknihyID', null=True, blank=True) 
     class Meta:
         db_table = 'BookISBN'
@@ -1030,6 +1032,7 @@ class Metacharts(models.Model):
 class Metaaward(models.Model):
     metaawardid = models.AutoField(db_column='MetaAwardID', primary_key=True)
     awardname = models.CharField(db_column='AwardName', max_length=255)
+    slug = models.CharField(db_column='Slug', max_length=255, unique=False, blank=True)
     description = models.TextField(db_column='Description', blank=True, null=True)
     awardtype = models.CharField(
         db_column='AwardType',

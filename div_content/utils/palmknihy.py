@@ -1,4 +1,6 @@
-# utils/palmknihy.py
+# -------------------------------------------------------------------
+#                    UTILS.PALMKNIHY.PY
+# -------------------------------------------------------------------
 
 import datetime
 import json
@@ -104,7 +106,7 @@ def get_all_palmknihy_products():
 
 
 
-def get_palmknihy_download_url(palmknihyid, purchaseid, user_id, email, format, delivery_type="ebook"):
+def get_palmknihy_download_url(sourceid, purchaseid, user_id, email, format, delivery_type="ebook"):
     token = get_token() 
     endpoint = os.getenv("PALMKNIHY_API_URL") + "/partner/provision"
     headers = {
@@ -113,7 +115,7 @@ def get_palmknihy_download_url(palmknihyid, purchaseid, user_id, email, format, 
         "X-AM-Consumer-Key": os.getenv("PALMKNIHY_CLIENT_ID")
     }
     data = {
-        "product_id": palmknihyid,
+        "product_id": sourceid,
         "order_id": str(purchaseid),
         "purchase_date": datetime.datetime.now().isoformat(),  # doplň aktuální datum
         "delivery_type": delivery_type,

@@ -674,6 +674,7 @@ def profile_movies_section(request, user_id):
         'filmoteka_page_obj': filmoteka_page_obj,
         'is_favorite': is_favorite,
         'active_tab': 'filmy',
+        'movie_ratings': movie_ratings,
     })
 
 

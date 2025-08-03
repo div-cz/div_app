@@ -1,5 +1,7 @@
-# FORMS.BOOKS.PY TEST
-# forms.books.py
+# -------------------------------------------------------------------
+#                    FORMS.BOOKS.PY
+# -------------------------------------------------------------------
+
 from django import forms
 from django.contrib.auth.models import User
 from div_content.models import Book, Bookcomments, Bookcharacter, Booklisting, Bookquotes, Userprofile

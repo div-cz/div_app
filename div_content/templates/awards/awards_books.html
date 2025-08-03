@@ -1,0 +1,87 @@
+{% extends "awards/base.html" %}
+{% load static %}
+
+{% block title %}Knižní ocenění - DIV.cz{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h1 class="mb-4">&#128218; Knižní ocenění</h1>
+  <p class="text-muted">Přehled všech nominovaných knih a vítězů podle jednotlivých ocenění.</p>
+
+  <div class="row">
+    <div class="col-md-3">
+      <div class="list-group mb-4">
+        {% for award_name, years in sidebar_awards.items %}
+        <div class="mb-3">
+          <div class="fw-bold small text-uppercase text-secondary mb-1">{{ award_name }}</div>
+          {% for y in years %}
+          <a href="{% url 'award_detail' y.slug y.year %}" class="list-group-item list-group-item-action small">
+            {{ y.year }}{% if y.count %} ({{ y.count }}){% endif %}
+          </a>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="text-center">
+        <a href="?winners_only=1" class="btn btn-sm btn-warning w-100 mb-2 {% if winners_only %}active{% endif %}">&#127942; Pouze vítězové</a>
+        {% if winners_only %}
+        <a href="{% url 'awards_books' %}" class="btn btn-sm btn-outline-secondary w-100">Zobrazit vše</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="col-md-9">
+      {% if grouped_awards %}
+      {% for awardname, items in grouped_awards.items %}
+      <h4 class="mt-4">&#127942; {{ awardname }}</h4>
+      {% if items %}
+      <table class="table table-sm table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>Kniha</th>
+            <th>Autor</th>
+            <th>Rok</th>
+            <th>Status</th>
+            <th class="text-end">Akce</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr>
+            <td>
+              <a href="{% url 'book_detail' item.bookid.url %}" class="text-decoration-none">
+                {{ item.bookid.titlecz|default:item.bookid.title }}
+              </a>
+            </td>
+            <td>{{ item.bookid.author }}</td>
+            <td>{{ item.metaAwardid.year }}</td>
+            <td>
+              {% if item.winner %}<span class="badge bg-warning text-dark">&#127942; Vítěz</span>
+              {% else %}<span class="badge bg-secondary">Nominace</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <a href="{% url 'book_detail' item.bookid.url %}" class="btn btn-sm btn-outline-primary">Detail</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="alert alert-light border">Toto ocenění zatím nemá žádné nominace.{% if user.is_staff %} <a href="{% url 'admin_award_nominees' item.metaAwardid.metaawardid %}">Přidat</a>{% endif %}</div>
+      {% endif %}
+      {% endfor %}
+      {% else %}
+      <div class="alert alert-info">Žádná knižní ocenění nenalezena.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="mt-4 text-center">
+    <a href="{% url 'awards_movies' %}" class="btn btn-outline-primary me-2">&#127916; Film</a>
+    <a href="{% url 'awards_games' %}" class="btn btn-outline-warning me-2">&#127918; Hra</a>
+    <a href="{% url 'awards_index' %}" class="btn btn-outline-secondary">&#127942; Všechna ocenění</a>
+  </div>
+</div>
+{% endblock %}

@@ -11,6 +11,18 @@ from django.urls import path, include
 from div_content.views.admins import admin_assign_book, admin_index, admin_comments, admin_edit_comment, admin_odpriradit_eknihu, admin_palmknihy_preview, admin_store_ebook, admin_store_page, admin_tasks, admin_task_detail, admin_task_edit, ajax_search_books, recent_payments #admin_task_new, 
 from div_content.views.articles import article_detail, articles_index, articles_list, article_new
 # -------------------------------------------------------------------
+#                    AWARDS
+# -------------------------------------------------------------------
+from div_content.views.awards import (
+    awards_index, awards_movies, awards_books, awards_games, awards_series, award_detail,
+    # Admin views
+    admin_awards, admin_award_add, admin_award_edit, admin_award_delete, admin_award_nominees,
+    admin_add_movie_nominee, admin_add_book_nominee, admin_add_game_nominee,
+    admin_toggle_winner, admin_delete_nominee,
+    # AJAX views
+    ajax_search_movies, ajax_search_books, ajax_search_games
+)
+# -------------------------------------------------------------------
 #                    AUTHORS
 # -------------------------------------------------------------------
 from div_content.views.authors import (
@@ -66,6 +78,12 @@ from div_content.views.characters import (
     add_character_to_favorites, character_list, character_detail, remove_character_from_favorites
     )
 # -------------------------------------------------------------------
+#                    CHARTS
+# -------------------------------------------------------------------
+from div_content.views.charts import (
+    charts_index, charts_books, charts_games, charts_movies, charts_users
+)
+# -------------------------------------------------------------------
 #                    INDEX
 # -------------------------------------------------------------------
 from div_content.views.index import index, movies, our_team, series_genre, series_year
@@ -85,6 +103,17 @@ from div_content.views.movies import (
 # -------------------------------------------------------------------
 from div_content.views.payments import (bank_transactions, generate_qr, check_purchase_status, posledni_pending_purchaseid)
 # -------------------------------------------------------------------
+#                    SERIES
+# -------------------------------------------------------------------
+from div_content.views.series import (
+    rate_tvshow, serie_detail, series_list, serie_season, search_tvshow, serie_episode, add_to_favourite_tvshow, 
+    add_to_tvshow_library, add_to_tvshow_watchlist, add_to_watched_tvshows, remove_from_favourite_tvshow, 
+    remove_from_tvshow_library, remove_from_tvshow_watchlist, remove_from_watched_tvshows, add_to_favourite_tvseason,
+    add_to_tvseason_watchlist, add_to_watched_tvseasons, remove_from_favourite_tvseasons, remove_from_tvseason_watchlist,
+    remove_from_watched_tvseasons, add_to_favourite_tvepisodes, add_to_tvepisode_watchlist, add_to_watched_tvepisode, 
+    remove_from_favourite_tvepisodes, remove_from_tvepisode_watchlist, remove_from_watched_tvepisodes, series_alphabetical
+)
+# -------------------------------------------------------------------
 #                    UNIVERSUM
 # -------------------------------------------------------------------
 from div_content.views.universum import universum_detail, universum_list
@@ -99,24 +128,10 @@ from div_content.views.users import (
     update_profile, review_profile, chat, add_to_favorite_users, remove_from_favorite_users, chat_message, load_older_messages, 
     user_book_listings, user_sell_listings, user_buy_listings, search_user_in_chat
     )
+
 # -------------------------------------------------------------------
-#                    CHARTS
+#                    IMPORTY
 # -------------------------------------------------------------------
-from div_content.views.charts import (
-    award_detail, charts_index, charts_books, charts_games, charts_movies, charts_users, awards_index, awards_movies, 
-    awards_books, awards_games
-)
-# -------------------------------------------------------------------
-#                    SERIES
-# -------------------------------------------------------------------
-from div_content.views.series import (
-    rate_tvshow, serie_detail, series_list, serie_season, search_tvshow, serie_episode, add_to_favourite_tvshow, 
-    add_to_tvshow_library, add_to_tvshow_watchlist, add_to_watched_tvshows, remove_from_favourite_tvshow, 
-    remove_from_tvshow_library, remove_from_tvshow_watchlist, remove_from_watched_tvshows, add_to_favourite_tvseason,
-    add_to_tvseason_watchlist, add_to_watched_tvseasons, remove_from_favourite_tvseasons, remove_from_tvseason_watchlist,
-    remove_from_watched_tvseasons, add_to_favourite_tvepisodes, add_to_tvepisode_watchlist, add_to_watched_tvepisode, 
-    remove_from_favourite_tvepisodes, remove_from_tvepisode_watchlist, remove_from_watched_tvepisodes, series_alphabetical
-)
 from div_content.views.tv import tv, tv_detail
 
 from django.conf import settings
@@ -453,17 +468,47 @@ urlpatterns = [
     path('zebricky/filmy/', charts_movies, name='charts_movies'),
     path('zebricky/uzivatele/', charts_users, name='charts_users'),
 
+
+    # oceneni
     path('oceneni/', awards_index, name='awards_index'),
     path('oceneni/filmy/', awards_movies, name='awards_movies'),
     path('oceneni/knihy/', awards_books, name='awards_books'),
     path('oceneni/hry/', awards_games, name='awards_games'),
-    path('oceneni/<str:award_name>/<int:year>/', award_detail, name='award_detail'),
+    path('oceneni/serialy/', awards_series, name='awards_series'),
+    path('oceneni/<slug:slug>/<int:year>/', award_detail, name='award_detail'),
+    
+    # OCENĚNÍ - ADMIN SEKCE
+    path('spravce/oceneni/', admin_awards, name='admin_awards'),
+    path('spravce/oceneni/pridat/', admin_award_add, name='admin_award_add'),
+    path('spravce/oceneni/<int:award_id>/upravit/', admin_award_edit, name='admin_award_edit'),
+    path('spravce/oceneni/<int:award_id>/smazat/', admin_award_delete, name='admin_award_delete'),
+    path('spravce/oceneni/<int:award_id>/nominace/', admin_award_nominees, name='admin_award_nominees'),
+    
+    # PŘIDÁNÍ NOMINACÍ
+    path('spravce/oceneni/<int:award_id>/pridat-film/', admin_add_movie_nominee, name='admin_add_movie_nominee'),
+    path('spravce/oceneni/<int:award_id>/pridat-knihu/', admin_add_book_nominee, name='admin_add_book_nominee'),
+    path('spravce/oceneni/<int:award_id>/pridat-hru/', admin_add_game_nominee, name='admin_add_game_nominee'),
+    
+    # AJAX ENDPOINTS PRO ADMIN
+    path('ajax/awards/toggle-winner/', admin_toggle_winner, name='admin_toggle_winner'),
+    path('ajax/awards/delete-nominee/', admin_delete_nominee, name='admin_delete_nominee'),
+    
+    # AJAX VYHLEDÁVÁNÍ PRO FORMULÁŘE
+    path('ajax/awards/search-movies/', ajax_search_movies, name='ajax_search_movies'),
+    path('ajax/awards/search-books/', ajax_search_books, name='ajax_search_books'),  # Pozor - tento už máte definovaný pro admin_assign_book
+    path('ajax/awards/search-games/', ajax_search_games, name='ajax_search_games'),
+
+#    path('oceneni/', awards_index, name='awards_index'),
+#    path('oceneni/filmy/', awards_movies, name='awards_movies'),
+#    path('oceneni/knihy/', awards_books, name='awards_books'),
+#    path('oceneni/hry/', awards_games, name='awards_games'),
+#    path('oceneni/<str:award_name>/<int:year>/', award_detail, name='award_detail'),
 
         
-    path('kontakt/', contact_form, name='contact'),
-    path('prihlaseni/', LoginView.as_view(), name='login'),
-    path('registrace/', SignupView.as_view(), name='signup'),
-    path('odhlaseni/', LogoutView.as_view(), name='logout'),
+#    path('kontakt/', contact_form, name='contact'),
+#    path('prihlaseni/', LoginView.as_view(), name='login'),
+#    path('registrace/', SignupView.as_view(), name='signup'),
+#    path('odhlaseni/', LogoutView.as_view(), name='logout'),
 
     # Reset hesla
     path('accounts/password_reset/', 

@@ -1,3 +1,8 @@
+# -------------------------------------------------------------------
+#                    UTILS.CONTEXT_PRECESSOR.PY
+# -------------------------------------------------------------------
+
+
 # Tyto funkce se přidávájí do SETTINGS.PY -> TEMPLATES
 
 from div_content.models import Userprofile, Favorite

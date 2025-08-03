@@ -88,7 +88,7 @@ def admin_odpriradit_eknihu(request):
 
     if palmknihyid:
         # Odeber vazbu na všechny formáty této eknihy z Palmknih
-        Bookisbn.objects.filter(palmknihyid=palmknihyid).update(book=1)
+        Bookisbn.objects.filter(sourcetype="PALM", sourceid=palmknihyid).update(book=1)
     elif isbn:
         # Fallback: odeber jen podle ISBN (starý způsob, fallback pro nouzi)
         Bookisbn.objects.filter(isbn=isbn).update(book=1)
@@ -137,7 +137,7 @@ def admin_assign_book(request):
             return JsonResponse({"status": "error", "message": "Kniha nenalezena."})
 
         # Páruj ke všem záznamům s tímto palmknihyid (bez ohledu na typ/format)
-        qs = Bookisbn.objects.filter(palmknihyid=palmknihy_id)
+        qs = Bookisbn.objects.filter(sourcetype="PALM", sourceid=palmknihy_id)
         if not qs.exists():
             return JsonResponse({"status": "error", "message": "Nebylo nalezeno žádné ISBN k tomuto PalmknihyID. Ulož nejprve záznam/y!"})
         qs.update(book=book)
@@ -161,7 +161,7 @@ def admin_assign_book(request):
         except Book.DoesNotExist:
             return JsonResponse({"status": "error", "message": "Kniha nenalezena."})
 
-        isbns_with_palm = Bookisbn.objects.filter(palmknihyid=palmknihy_id)
+        isbns_with_palm = Bookisbn.objects.filter(sourcetype="PALM", sourceid=palmknihyid)
         if isbns_with_palm.exists():
             isbn = isbns_with_palm.first().isbn
             # Aktualizuj všechny záznamy se stejným isbn (i staré PRINT)
@@ -481,7 +481,7 @@ def admin_palmknihy_preview(request):
         else:
             # Nové: když není PRINT, zkus podle palmknihyid
             palmknihyid_api = book.get("palmknihyid")
-            isbns_by_pkid = Bookisbn.objects.filter(palmknihyid=palmknihyid_api).exclude(book_id=1)
+            isbns_by_pkid = Bookisbn.objects.filter(sourcetype="PALM", sourceid=palmknihyid_api).exclude(book_id=1)
             if isbns_by_pkid.exists():
                 assigned = isbns_by_pkid.first()
                 assigned_book = assigned.book
@@ -532,7 +532,8 @@ def admin_store_ebook(request):
             ).filter(
                 book=1
             ).update(
-                palmknihyid=palmknihyid,
+                sourcetype="PALM",
+                sourceid=palmknihyid,
                 format="PRINT",
                 language=book_data.get("language", "cs"),
                 description=book_data.get("description", "")[:500]
@@ -546,7 +547,8 @@ def admin_store_ebook(request):
                 language=book_data.get("language", "cs"),
                 price=None,
                 description=book_data.get("description", "")[:500],
-                palmknihyid=palmknihyid,
+                sourcetype="PALM",
+                sourceid=palmknihyid,
                 ISBNtype="PALM"
             )
 
@@ -561,7 +563,8 @@ def admin_store_ebook(request):
                     language=book_data.get("language", "cs"),
                     price=book_data.get("current_valid_price", {}).get("price"),
                     description=book_data.get("description", "")[:500],
-                    palmknihyid=palmknihyid,
+                    sourcetype="PALM",
+                    sourceid=palmknihyid,
                     ISBNtype="PALM"
                 )
 
