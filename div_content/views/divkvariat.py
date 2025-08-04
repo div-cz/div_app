@@ -66,6 +66,8 @@ from django.contrib import messages
 from django.template.loader import render_to_string
 
 from django.utils.timezone import now
+from django.utils import timezone
+
 
 
 from dotenv import load_dotenv
@@ -153,6 +155,26 @@ from io import BytesIO
 # - Všechny e-maily směřují na správného uživatele (buyer/user).
 # - Obsahy e-mailů a šablony najdeš v `templates/emails/`.
 # =========================================================
+
+
+# -------------------------------------------------------------------
+#                    ANTIKVARIAT HOME
+# -------------------------------------------------------------------
+def antikvariat_home(request):
+    from random import sample
+    from div_content.models import Booklisting
+
+    count_sell = Booklisting.objects.filter(listingtype__in=["SELL", "GIVE"], active=True).count()
+    count_buy = Booklisting.objects.filter(listingtype="BUY", active=True).count()
+
+    all_listings = list(Booklisting.objects.filter(active=True, status="ACTIVE")[:100])
+    random_listings = sample(all_listings, min(len(all_listings), 4))  # max 4
+
+    return render(request, "books/antikvariat_home.html", {
+        "count_sell": count_sell,
+        "count_buy": count_buy,
+        "random_listings": random_listings,
+    })
 
 
 # -------------------------------------------------------------------
@@ -312,13 +334,22 @@ def listing_detail(request, book_url, listing_id):
             if listing.status != 'ACTIVE':
                 messages.error(request, 'Nabídka již není aktivní.')
             else:
+                commission_input = request.POST.get("commission", "").strip()
+                try:
+                    commission = int(commission_input)
+                    if commission < 0:
+                        commission = 0
+                except:
+                    commission = 10  # výchozí hodnota
+    
+                listing.commission = commission
                 shippingaddress = request.POST.get("shippingaddress", "").strip()
-                #  Uložit do Booklisting
+    
                 listing.status = 'RESERVED'
                 listing.buyer = request.user
                 listing.shippingaddress = shippingaddress
                 listing.save()
-                # Uložit i do profilu
+    
                 try:
                     profile = request.user.userprofile
                 except Userprofile.DoesNotExist:
@@ -326,10 +357,11 @@ def listing_detail(request, book_url, listing_id):
                 if profile and not profile.shippingaddress:
                     profile.shippingaddress = shippingaddress
                     profile.save()
-
+    
                 messages.success(request, 'Nabídka byla rezervována.')
                 send_listing_reservation_email(request, listing.booklistingid)
                 return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
+
 
         # Poslánjí knihy
         elif 'shipping_listing' in request.POST and request.user == listing.user: 
@@ -528,7 +560,7 @@ def send_listing_payment_email(listing):
     context = {
         'buyer_name': buyer.first_name or buyer.username,
         'book_title': book.titlecz,
-        'amount': listing.price,
+        'total': float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0),
         'shipping': listing.shipping,
         'shippingaddress': listing.shippingaddress,
     }
@@ -559,12 +591,12 @@ def send_listing_reservation_email(request, listing_id):
 
     if listing.status in ['RESERVED', 'PENDING']:
         book = listing.book
-        total_amount = listing.price 
+        total_amount = int(float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0))
         qr_message = f"Platba za rezervaci knihy '{book.titlecz}' - ID: {book.bookid}"
   
 
         payment_info = {
-            'total': total_amount,
+            'amount': total_amount,
             'qr_code': qr_code_market(total_amount, listing, qr_message)[0],
             'variable_symbol': qr_code_market(total_amount, listing, qr_message)[1],
             'note': qr_message, 
@@ -574,7 +606,7 @@ def send_listing_reservation_email(request, listing_id):
         context = {
             'buyer_name': request.user.first_name or request.user.username, 
             'book_title': book.titlecz, 
-            'amount': listing.price,
+            'amount': int(float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0)),
             'payment_info': payment_info,
             'shippingaddress': listing.shippingaddress,
         }

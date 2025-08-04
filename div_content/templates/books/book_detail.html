@@ -684,13 +684,17 @@
                     </audio>-->
                 </div>
                 {% endif %}
-                
-                <button type="submit" href="#tab5" id="go-to-market" class="add-book ml-3 mt-0 mb-2" style="width: 122px; padding: 0.5em 0;"><img src="/static/img/book/book_icon.png" alt="kniha" title="kniha" class="mr-2" style="width: 35px;">
-                    <div class="flex flex-col">
-                        <p>Bazar</p>
-                        <p style="font-size: 80%;">cena kč</p> <!-- cena od do? -->
-                    </div>
-                </button>
+
+{% with total_listings=sell_listings.count|add:buy_listings.count %}
+<button type="submit" href="#tab5" id="go-to-market" class="add-book ml-3 mt-0 mb-2" style="width: 122px; padding: 0.5em 0;">
+    <img src="/static/img/book/book_icon.png" alt="kniha" title="kniha" class="mr-2" style="width: 35px;">
+    <div class="flex flex-col">
+        <p>Bazar</p>
+        <p style="font-size: 80%;">{{ total_listings }} nabídek</p>
+    </div>
+</button>
+{% endwith %}
+
             </div>
         </div>
 
@@ -961,19 +965,42 @@
                                         <span class="arrow text-xl cursor-pointer" data-ask-id="{{ listing.booklistingid }}">&#129083;</span>
                                         <div class="flex justify-between w-full p-2">
                                             <a href="{% url 'user_sell_listings' listing.user.id %}">{{ listing.user.username }}</a>
+
+<span class="text-sm text-gray-500 ml-2">
+{% if listing.status == 'RESERVED' %}
+    <strong class="" style="color:#ccc">Rezervováno</strong>
+{% elif listing.status == 'ACTIVE' %}
+    <span class="">Aktivní</span>
+{% elif listing.status == 'SHIPPED' %}
+    <span class="">Posláno</span>
+{% elif listing.status == 'COMPLETED' %}
+    <span class="">Prodáno</span>
+{% elif listing.status == 'PAID' %}
+    <span class="">Zaplaceno</span>
+{% else %}
+    <span class="text-red-500">{{ listing.status }}</span>  {# fallback pro debugging #}
+{% endif %}
+</span>
+
                                             <p>
                                                 {% if listing.listingtype == 'GIVE' %}
                                                     Daruji
                                                 {% else %}
                                                     {{ listing.price|floatformat:0 }} Kč
-                                                {% endif %}
+                                                {% endif %}<br><a href="{% url 'listing_detail_sell' book.url listing.booklistingid %}" >Detail</a>
                                             </p>
                                         </div>
                                     </div>
 
                                     <div id="ask-details-{{ listing.booklistingid }}" class="collapse flex-wrap p-2">
                                         <div class="flex w-full sm:flex-wrap items-start">
-                                            <img src="/static/img/book/book.png" class="pr-2">
+
+{% if listing.book.cover %}
+    <img src="{{ listing.book.cover.url }}" alt="{{ listing.book.titlecz }}" class="pr-2" style="max-width: 90px;">
+{% else %}
+    <img src="/static/img/book/book.png" class="pr-2" style="max-width: 90px;">
+{% endif %}
+
                                             <div class="flex flex-wrap">
                                                 {% if listing.location %}
                                                 <p class="flex justify-between w-full">

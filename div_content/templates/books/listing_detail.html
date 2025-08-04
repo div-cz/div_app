@@ -146,20 +146,19 @@
                   <label for="shippingaddress">Kam si přejete knihu zaslat?</label><br>
                   <textarea name="shippingaddress" rows="4" style="min-width:400px" class="form-control" required 
                   placeholder="Jméno, ulice, město, PSČ (volitelně telefon)">{{ request.user.userprofile.shippingaddress|default:"" }}</textarea>
+                  
+<div class="form-group">
+    <label for="commission">Příspěvek na chod webu (volitelný):</label>
+    <input type="number" name="commission" min="0" value="10" class="form-control" />
+</div>
+
+
                 
                   <button type="submit" class="btn btn-primary mt-2">Rezervovat knihu</button>
                 </form>
                 {% endif %}
 
-                {% if listing.status == 'RESERVED' and user == listing.user %}
-                    <form method="post" class="mb-6">
-                        {% csrf_token %}
-                        <button type="submit" name="complete_listing"
-                                class="w-full py-4 px-8 bg-white rounded-lg font-bold text-[#607d8b] border-2 border-[#607d8b] shadow-lg hover:bg-[#607d8b] hover:text-white transition-all active:translate-y-0.5 active:shadow-inner">
-                            Dokončit transakci 
-                        </button>
-                    </form>
-                {% endif %}
+
 
                 {% if listing.status == 'RESERVED' and listing.buyer == user %}
                     <div class="border  p-6 mt-4">
@@ -278,6 +277,8 @@
     </button>
 </form>
 {% endif %}
+
+
 
 {% if listing.status == 'PAID' and listing.buyer == user %}
         <div class="alert alert-{{ message.tags }}" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
@@ -405,6 +406,15 @@
 {% endif %} 
 
 
+                {% if listing.buyer == user and listing.status == 'SHIPPED' or listing.status == 'PAID' %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" name="complete_listing"
+                                class="btn btn-primary">
+                            Dokončit transakci 
+                        </button>
+                    </form>
+                {% endif %}
 
 
             {% else %}

@@ -238,7 +238,7 @@ class GameawardForm(BaseNomineeForm):
         if 'gameid' in self.data:
             try:
                 val = int(self.data.get('gameid'))
-                self.fields['gameid'].queryset = game.objects.filter(pk=val)
+                self.fields['gameid'].queryset = Game.objects.filter(pk=val)
             except (ValueError, TypeError):
                 pass
 

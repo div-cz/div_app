@@ -47,7 +47,7 @@ from div_content.views.creators import (
 # -------------------------------------------------------------------
 #                    DIVKVARIAT
 # -------------------------------------------------------------------
-from div_content.views.divkvariat import book_listings, cancel_listing_reservation, confirm_sale, cancel_sell, listing_detail
+from div_content.views.divkvariat import antikvariat_home, book_listings, cancel_listing_reservation, confirm_sale, cancel_sell, listing_detail
 # -------------------------------------------------------------------
 #                    EBOOKS
 # -------------------------------------------------------------------
@@ -320,6 +320,8 @@ urlpatterns = [
 
 
     # ANTIKVARIÁT
+    path('antikvariat/', antikvariat_home, name='antikvariat_home'),
+
     path('antikvariat/<str:book_url>/nabidky/', book_listings, name='book_listings'),
     path('antikvariat/<str:book_url>/prodej/<int:listing_id>/', listing_detail, name='listing_detail_sell'),
     path('antikvariat/<str:book_url>/poptavka/<int:listing_id>/', listing_detail, name='listing_detail_buy'),

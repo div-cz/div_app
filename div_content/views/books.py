@@ -65,6 +65,7 @@ from django.views.decorators.http import require_POST
 from dotenv import load_dotenv
 
 from div_content.forms.books import BookAddForm, BookDivRatingForm, BookCharacterForm, BookListingForm, Bookquoteform, CommentFormBook, SearchFormBooks
+from div_content.forms.divkvariat import BookListingForm
 from div_content.models import (
     Book, Bookauthor, Bookcharacter, Bookcomments, Bookcover, Bookgenre, Bookisbn, Booklisting, 
     Bookpublisher, Bookpurchase, Bookquotes, Bookrating, Bookwriters, Charactermeta, Metagenre, Metaindex, Metastats, Metauniversum, Userlist, Userlistbook, Userlisttype, FavoriteSum, Userbookgoal, Userlistitem
