@@ -995,11 +995,17 @@
                                     <div id="ask-details-{{ listing.booklistingid }}" class="collapse flex-wrap p-2">
                                         <div class="flex w-full sm:flex-wrap items-start">
 
-{% if listing.book.cover %}
-    <img src="{{ listing.book.cover.url }}" alt="{{ listing.book.titlecz }}" class="pr-2" style="max-width: 90px;">
+
+{% with book=listing.book %}
+{% if book.img == "noimg.png" %}
+    <img src="/static/img/book/book.png" alt="{{ book.titlecz|default:book.title }}" class="pr-2" style="max-width: 90px;">
+{% elif book.img == "GoogleID" %}
+    <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}" class="pr-2" style="max-width: 90px;">
 {% else %}
-    <img src="/static/img/book/book.png" class="pr-2" style="max-width: 90px;">
+    <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="pr-2" style="max-width: 90px;">
 {% endif %}
+{% endwith %}
+
 
                                             <div class="flex flex-wrap">
                                                 {% if listing.location %}

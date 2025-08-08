@@ -399,7 +399,65 @@ def myuser_detail(request, user_id=None):
 def profile_eshop_section(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)
     user_profile = Userprofile.objects.get(user=profile_user)
+    user = get_object_or_404(User, id=user_id)
     user_div_coins = get_object_or_404(Userdivcoins, user_id=profile_user.id)
+ 
+      # Získání hodnocení jako prodejce
+    seller_ratings = Booklisting.objects.filter(
+        user=user,
+        status='COMPLETED',
+        sellerrating__isnull=False
+    )
+    avg_seller_rating = seller_ratings.aggregate(Avg('sellerrating'))['sellerrating__avg']
+    seller_ratings_count = seller_ratings.count()
+    
+    # Získání hodnocení jako kupující
+    buyer_ratings = Booklisting.objects.filter(
+        buyer=user,
+        status='COMPLETED',
+        buyerrating__isnull=False
+    )
+
+    
+    avg_buyer_rating = buyer_ratings.aggregate(Avg('buyerrating'))['buyerrating__avg']
+    buyer_ratings_count = buyer_ratings.count()
+
+    seller_listings_rated_by_buyer = Booklisting.objects.filter(
+        user=profile_user,
+        buyerrating__isnull=False, 
+        status='COMPLETED' 
+    ).select_related('buyer', 'book').order_by('-completedat') 
+
+   
+    buyer_listings_rated_by_seller = Booklisting.objects.filter(
+        buyer=profile_user,
+        sellerrating__isnull=False, 
+        status='COMPLETED'
+    ).select_related('user', 'book').order_by('-completedat')
+
+    all_individual_ratings = []
+
+ # Přidání hodnocení, kde byl profile_user hodnocen jako PRODEJCE
+    for listing in seller_listings_rated_by_buyer:
+        all_individual_ratings.append({
+            'value': listing.buyerrating,
+            'comment': listing.buyercomment,
+            'type': 'jako prodávající', 
+            'rater': listing.buyer,
+            'listing_title': listing.book.title if listing.book else 'Neznámá kniha',
+            'created_at': listing.completedat 
+        })
+
+    # Přidání hodnocení, kde byl profile_user hodnocen jako KUPUJÍCÍ
+    for listing in buyer_listings_rated_by_seller:
+        all_individual_ratings.append({
+            'value': listing.sellerrating,
+            'comment': listing.sellercomment,
+            'type': 'jako kupující',
+            'rater': listing.user, 
+            'listing_title': listing.book.title if listing.book else 'Neznámá kniha',
+            'created_at': listing.completedat 
+        })
 
     # Historie nákupů (příklad, může být upraven podle DB struktury)
     #purchase_history = Userlistitem.objects.filter(
@@ -474,8 +532,12 @@ def profile_eshop_section(request, user_id):
         "ebook_isbns": ebook_isbns,
         "burza_bought": burza_bought,
         "burza_sold": burza_sold,
+        'avg_seller_rating': avg_seller_rating,
+        'seller_ratings_count': seller_ratings_count,
+        'avg_buyer_rating': avg_buyer_rating,
+        'buyer_ratings_count': buyer_ratings_count,
+        'all_individual_ratings': all_individual_ratings, 
     })
-
 
 # -------------------------------------------------------------------
 # F:                 PROFILE MOVIES SECTION

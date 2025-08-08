@@ -820,16 +820,93 @@
 <!-- === === === === -->
 <!-- Tab Hodnocení -->
 <!-- === === === === -->
-            <div id="hodnoceni" class="tab-show w-full {% if category == 'hodnoceni' %}active{% endif %}">
-                <h3 class="after-h3 padding">Hodnocení (V přípravě)</h3>
-                <div class="flex flex-wrap">
-                    <div class="table ">
-                        <div class="grid obchod-grid bg-[#c0c0c0] dark:text-black">
-                            <div class="text-center font-bold p-1" style="border-right: 1px solid #fffefe;">Datum</div>
-                            <div class="text-center font-bold p-1" style="border-right: 1px solid #fffefe;">Hodnocení</div>
-                            <div class="text-center font-bold p-1">Komentář</div>
+          <div id="hodnoceni" class="tab-show w-full {% if category == 'hodnoceni' %}active{% endif %}">
+    
+    {% if avg_seller_rating %}
+        <h3 class="after-h3 padding"> Celkové hodnocení prodávajícího </h3>
+        <div class="flex flex-wrap">
+            <div class="table ">
+                <div class="grid obchod-grid bg-[#c0c0c0] dark:text-black">
+                    <div class="text-center font-bold p-1" style="border-right: 1px solid #fffefe;">{{ avg_seller_rating|floatformat:1 }}/5</div>
+                    <div class="">
+                        {% for i in "12345"|make_list %}
+                            {% if forloop.counter <= avg_seller_rating %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="ml-2">({{ seller_ratings_count }} hodnocení)</span>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if avg_buyer_rating %}
+        <h3 class="after-h3 padding"> Celkové hodnocení kupujícího </h3>
+        <div class="flex flex-wrap">
+            <div class="table ">
+                <div class="grid obchod-grid bg-[#c0c0c0] dark:text-black">
+                    <div class="text-center font-bold p-1" style="border-right: 1px solid #fffefe;">{{ avg_buyer_rating|floatformat:1 }}/5</div>
+                    <div class="">
+                        {% for i in "12345"|make_list %}
+                            {% if forloop.counter <= avg_buyer_rating %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="ml-2">({{ buyer_ratings_count }} hodnocení)</span>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+
+
+    <h3 class="after-h3 padding mt-8">Jednotlivá hodnocení</h3>
+    <div class="flex flex-wrap">
+        <div class="table w-full">
+            <div class="grid obchod-grid bg-[#c0c0c0] dark:text-black" style="grid-template-columns: 1fr 1fr 1fr 2fr 1fr 1.5fr;">
+                <div class="text-center font-bold p-1 border-r border-white">Datum</div>
+                <div class="text-center font-bold p-1 border-r border-white">Hodnocení</div>
+                <div class="text-center font-bold p-1 border-r border-white">Hodnocen</div>
+                <div class="text-center font-bold p-1 border-r border-white">Komentář</div>
+                <div class="text-center font-bold p-1 border-r border-white">Hodnotil</div>
+                <div class="text-center font-bold p-1">Inzerát</div>
+            </div>
+            
+            {% if all_individual_ratings %}
+                {% for rating_data in all_individual_ratings %}
+                    <div class="grid obchod-grid border-b border-gray-200" style="grid-template-columns: 1fr 1fr 1fr 2fr 1fr 1.5fr;">
+                        <div class="text-center p-1 border-r border-gray-200">{{ rating_data.created_at|date:"d.m.Y" }}</div>
+                        <div class="text-center p-1 border-r border-gray-200">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= rating_data.value %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="text-center p-1 border-r border-gray-200">{{ rating_data.type }}</div>
+                        <div class="text-left p-1 border-r border-gray-200">{{ rating_data.comment }}</div>
+                        <div class="text-center p-1 border-r border-gray-200">
+                            {% if rating_data.rater %}
+                                <a href="{% url 'myuser_detail' user_id=rating_data.rater.id %}" class="text-blue-600 hover:underline">{{ rating_data.rater.username }}</a>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </div>
+                        <div class="text-center p-1">
+                            {% if rating_data.listing_id %}
+                                <a href="{% url 'listings_detail' listing_id=rating_data.listing_id %}" class="text-blue-600 hover:underline">{{ rating_data.listing_title }}</a>
+                            {% else %}
+                                N/A
+                            {% endif %}
                         </div>
                     </div>
+                {% endfor %}
+            {% else %}
+                <div class="grid obchod-grid">
+                    <div class="p-4 col-span-6 text-center">Tento uživatel zatím neobdržel žádná jednotlivá hodnocení.</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div> 
+           
+
 
                     <!--<div class="w-full">
                         <div class="grid border obchod-grid sudy">
@@ -875,7 +952,7 @@
                     </span>
                 </div> 
                 
-                <p class="p-3">Žádné hodnocení</p>
+               
                                         
             </div>
 

@@ -592,7 +592,7 @@ def send_listing_reservation_email(request, listing_id):
     if listing.status in ['RESERVED', 'PENDING']:
         book = listing.book
         total_amount = int(float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0))
-        qr_message = f"Platba za rezervaci knihy '{book.titlecz}' - ID: {book.bookid}"
+        qr_message = f"Platba za knihu {book.titlecz} na DIV.cz - ID: {book.bookid}"
   
 
         payment_info = {
@@ -625,7 +625,7 @@ def send_listing_reservation_email(request, listing_id):
             with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
                 smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
                 smtp.send_message(msg)
-            messages.success(request, f"Potvrzeni rezervace bylo poslano na vas  e-mail: <strong>{recipient}</strong>.")
+            messages.success(request, f"Potvrzeni rezervace bylo poslano na vas  e-mail: <strong>{recipient}</strong>. Zaplatte prosím pomocí QR kodu na této stránce nebo v emailu. Zkontrolujte radši i spam. :)")
         except Exception as e:
             messages.error(request, f"Chyba pri odeslani e-mailu: {e}")
 

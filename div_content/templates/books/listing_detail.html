@@ -95,6 +95,15 @@
                     </div>
                 </div>
 
+
+{% if listing.status in 'RESERVED PAID SHIPPED COMPLETED' and listing.shippingaddress and listing.user == user %}
+    <hr><div class="mt-4 p-4 bg-gray-100 border rounded">
+        <p class="font-medium">Knihu zašlete na adresu:</p>
+        <p>{{ listing.shippingaddress }}</p>
+    </div><hr>
+{% endif %}
+
+
                 <div class="mb-6 after">
                     <span class="">Popis: </span>
                     {{ listing.description|linebreaks }}
@@ -316,19 +325,19 @@
         <ol class="list-decimal ml-6 space-y-1">
            <li>
                 <input type="checkbox" id="step1" {% if listing.status == 'RESERVED' or listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}checked{% endif %} disabled>
-                <label for="step1">Kupující provedl rezervaci</label>
+                <label for="step1"><span style="{% if listing.status == 'RESERVED' or listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}color:green;font-weight:bold{% endif %}">Kupující provedl rezervaci</span></label>
             </li>
             <li>
                 <input type="checkbox" id="step2" {% if listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}checked{% endif %} disabled>
-                <label for="step2">Kupující pošle platbu na účet eKultury</label>
+                <label for="step2"><span style="{% if listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}color:green;font-weight:bold{% endif %}">Kupující pošle platbu na účet eKultury</span></label>
             </li>
             <li>
                 <input type="checkbox" id="step3" {% if listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}checked{% endif %} disabled>
-                <label for="step3">Prodávající odešle knihu</label>
+                <label for="step3"><span style="{% if listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}color:green;font-weight:bold{% endif %}">Prodávající odešle knihu</span></label>
             </li>
             <li>
                 <input type="checkbox" id="step4" {% if listing.status == 'COMPLETED' %}checked{% endif %} disabled>
-                <label for="step4">Obchod je dokončen</label>
+                <label for="step4"><span style="{% if listing.status == 'COMPLETED' %}color:green;font-weight:bold{% endif %}">Obchod je dokončen</span></label>
             </li>
         </ol>
         </form>
@@ -410,7 +419,7 @@
                     <form method="post">
                         {% csrf_token %}
                         <button type="submit" name="complete_listing"
-                                class="btn btn-primary">
+                                class="btn btn-primary mt-4 ml-4">
                             Dokončit transakci 
                         </button>
                     </form>
