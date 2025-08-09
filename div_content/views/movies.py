@@ -157,9 +157,10 @@ def movie_detail(request, movie_url):
     # Použijeme tento QuerySet pro výpočet průměru
     average_rating_result = base_ratings.aggregate(average=Avg('score'))
     average_rating = average_rating_result.get('average')
-    
+
     if average_rating is not None:
-        average_rating = math.ceil(average_rating)
+        # přepočet z 0–5 hvězdiček na 0–100 %
+        average_rating = round(average_rating * 20)
     else:
         average_rating = 0
     

@@ -1,23 +1,23 @@
 # -------------------------------------------------------------------
-#                    METODIKA POJMENOVÁNÍ ŠABLON
+#                    METODIKA POJMENOVï¿½Nï¿½ ï¿½ABLON
 # -------------------------------------------------------------------
 
 
 
-# NÁVRH
-[typ produktu][akce/scénáø][kanál/úèel][_[formát/variant]]
+# NÃVRH
+[typ produktu][akce/scï¿½nï¿½ï¿½][kanï¿½l/ï¿½ï¿½el][_[formï¿½t/variant]]
 
-# Zkrácenì
-[typ produktu][akce][kanál][_varianta]
+# Zkrï¿½cenï¿½
+[typ produktu][akce][kanï¿½l][_varianta]
 
 
 typ produktu: ebook, listing, audiobook, print
 
-akce/scénáø: paid, pending, send, reminder, expired, failed, refund, info
+akce/scï¿½nï¿½ï¿½: paid, pending, send, reminder, expired, failed, refund, info
 
-kanál/úèel: message (pro e-mail), modal, admin, download, to_reader
+kanÃ¡l/ÃºÄel: message (pro e-mail), modal, admin, download, to_reader
 
-volitelnì: KOMU nebo formát nebo varianta (epub, mobi, div, palm..., buyer, seller, message)
+volitelnÄ›: KOMU nebo formï¿½t nebo varianta (epub, mobi, div, palm..., buyer, seller, message)
 
 
 
@@ -26,4 +26,4 @@ volitelnì: KOMU nebo formát nebo varianta (epub, mobi, div, palm..., buyer, sell
 listing_paid_confirmation_message.html
 
 
-=== V PØÍPRAVÌ ===
+=== V PÅ˜ÃPRAVÄš ===
