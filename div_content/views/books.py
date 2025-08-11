@@ -52,8 +52,7 @@ from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 
 from django.db import models
-from django.db.models import Avg, Count
-from django.db.models import Avg
+from django.db.models import Avg, Count, Case, When, Value, IntegerField
 
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -112,7 +111,19 @@ class DecimalEncoder(json.JSONEncoder):
             return float(obj)
         return super().default(obj)
 
-
+def order_listings(qs):
+    status_order = Case(
+        When(status='ACTIVE',    then=Value(0)),
+        When(status='RESERVED',  then=Value(1)),
+        When(status='PAID',      then=Value(2)),
+        When(status='SHIPPED',   then=Value(3)),   # pokud používáš
+        When(status='COMPLETED', then=Value(99)),  # „Prodáno“ až na konec
+        When(status='CANCELLED', then=Value(100)),
+        When(status='DELETED',   then=Value(101)),
+        default=Value(200),
+        output_field=IntegerField(),
+    )
+    return qs.annotate(status_order=status_order).order_by('status_order', '-createdat')
 
 def normalize(text):
     return (text or "").lower().strip().replace("á", "a").replace("č", "c").replace("ď", "d")\
@@ -564,9 +575,11 @@ def book_detail(request, book_url):
             booklisting_form = BookListingForm()
 
     # Načtení nabídek
-    listings = Booklisting.objects.filter(book_id=book.bookid, active=True).order_by('-createdat')
+    listings = order_listings(
+        Booklisting.objects.filter(book_id=book.bookid, active=True)
+    )
     sell_listings = listings.filter(listingtype__in=['SELL', 'GIVE'])
-    buy_listings = listings.filter(listingtype='BUY')
+    buy_listings  = listings.filter(listingtype='BUY')
 
 
     if book.universumid:
