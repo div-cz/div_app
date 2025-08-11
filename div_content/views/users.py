@@ -122,10 +122,12 @@ def user_book_listings(request, user_id):
 def user_sell_listings(request, user_id):
     """Seznam všech prodejních nabídek uživatele."""
     user = get_object_or_404(User, id=user_id)
-    listings = Booklisting.objects.filter(
-        user=user,
-        listingtype__in=['SELL', 'GIVE']
-    ).order_by('-createdat')
+    listings = (
+        Booklisting.objects
+        .filter(user=user, listingtype__in=['SELL', 'GIVE'], status='ACTIVE')
+        .order_by('-createdat')
+    )
+
     
     # Získání průměrného hodnocení jako prodejce
     sellerratings = Booklisting.objects.filter(
@@ -147,25 +149,27 @@ def user_sell_listings(request, user_id):
 # F:                 USER BUY LISTINGS
 # -------------------------------------------------------------------
 def user_buy_listings(request, user_id):
-   profile_user = get_object_or_404(User, id=user_id)
-   listings = Booklisting.objects.filter(
-       user=profile_user,
-       listingtype='BUY'
-   ).order_by('-createdat')
+    profile_user = get_object_or_404(User, id=user_id)
+    listings = (Booklisting.objects.filter(
+        user=profile_user,
+        listingtype='BUY',
+        status='ACTIVE'
+    ).order_by('-createdat')
+    )
    
-   buyer_ratings = Booklisting.objects.filter(
-       buyer=profile_user,
-       status='COMPLETED',
-       buyerrating__isnull=False
-   )
-   avg_rating = buyer_ratings.aggregate(Avg('buyerrating'))['buyerrating__avg']
+    buyer_ratings = Booklisting.objects.filter(
+        buyer=profile_user,
+        status='COMPLETED',
+        buyerrating__isnull=False
+    )
+    avg_rating = buyer_ratings.aggregate(Avg('buyerrating'))['buyerrating__avg']
    
-   return render(request, 'user/user_book_buy.html', {
+    return render(request, 'user/user_book_buy.html', {
        'profile_user': profile_user,
-       'listings': listings,
-       'avg_rating': avg_rating, 
-       'total_ratings': buyer_ratings.count()
-   })
+        'listings': listings,
+        'avg_rating': avg_rating, 
+        'total_ratings': buyer_ratings.count()
+    })
 
 
 # -------------------------------------------------------------------

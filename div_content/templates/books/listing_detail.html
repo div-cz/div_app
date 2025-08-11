@@ -26,14 +26,14 @@
 
 <!--<div class="container mx-auto px-4 py-6">-->
 
-    <h1 class="mt-8">
+    <h1 class="mt-8" style="">
         DIVkvariát / 
         <a href="{% if listing.listingtype == 'SELL' %}/antikvariat/nabidky/{% else %}/antikvariat/poptavky/{% endif %}">
             {% if listing.listingtype == 'SELL' %}Nabídky{% else %}Poptávky{% endif %}
         </a>
     </h1>
 
-
+<hr>
 
 {% if messages %}
     <div class="mt-3">
@@ -47,24 +47,41 @@
 
 
 
-    <div class="mt-8">
-        <div class="mb-6">
-            <h2 class="font-bold mb-2">{{ book.titlecz|default:book.title }}</h2>
-            <p class="">{{ book.author }}</p>
-        </div>
+<div style="overflow:hidden; margin-bottom:16px;">  {# clearfix #}
 
-        <div class="flex flex-wrap p-6">
+  <a href="/kniha/{{ book.url }}">
+    {% if book.img == "noimg.png" %}
+      <img src="/static/img/book/book.png"
+           alt="{{ book.titlecz|default:book.title }}"
+           style="float:left; width:200px; height:auto; margin:0 16px 8px 0; border-radius:6px;">
+    {% elif book.img == "GoogleID" %}
+      <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+           alt="{{ book.titlecz|default:book.title }}"
+           style="float:left; width:200px; height:auto; margin:0 16px 8px 0; border-radius:6px;">
+    {% else %}
+      <img src="https://media.div.cz/knihy/{{ book.img }}"
+           alt="{{ book.titlecz|default:book.title }}"
+           style="float:left; width:200px; height:auto; margin:0 16px 8px 0; border-radius:6px;">
+    {% endif %}
+  </a>
 
-            {% if book.img == "noimg.png" %}
-                <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
-                <img src="/static/img/book/book.png" class="pr-2" style="width: 200px;" alt="Kniha {{ book.titlecz }}"> 
-                {% elif book.img == "GoogleID" %}
-                <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
-                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="pr-2" style="width: 200px;" >
-                {% else %}
-                <!-- Jinak zobraz vlastní nahraný obrázek -->
-                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz }}" class="pr-2" style="width: 200px;" >
-            {% endif %}
+  <h2 style="margin:0 0 6px;">
+    <a href="/kniha/{{ book.url }}" style="text-decoration:none;">
+      {{ book.titlecz|default:book.title }}
+    </a>
+  </h2>
+  <p style="margin:0 0 10px; color:#666;">{{ book.author }}</p>
+
+  <p style="margin:0 0 4px;">
+    <strong>Cena:</strong>
+    {% if listing.listingtype == 'GIVE' %}Daruji{% else %}{{ listing.price|price }} Kč{% endif %}
+    {% if listing.shipping %}<span>(+ {{ listing.shipping|price }} Kč poštovné)</span>{% endif %}
+  </p>
+
+
+</div>
+
+<hr>
 
             <div class="" style="width: calc(100vh -  160px);">
                 <div class="flex flex-wrap justify-between items-start mb-6 after">
