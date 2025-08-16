@@ -525,10 +525,16 @@ def send_listing_payment_confirmation_email(listing):
     user = listing.buyer
     if not user or not user.email:
         return
+
+    amount = int(float(listing.price or 0) + float(listing.commission or 0))
+    shipping = int(float(listing.shipping or 0))
     context = {
         'book_title': book.titlecz,
         'buyer_name': user.first_name or user.username,
         'shippingaddress': listing.shippingaddress,
+        'amount': amount,
+        'shipping': shipping,
+        'seller_name': listing.user.first_name or listing.user.username if listing.user else "",
     }
     recipient = user.email
     html_email = render_to_string('emails/listing_paid_confirmation_buyer.html', context)
@@ -556,14 +562,18 @@ def send_listing_payment_email(listing):
         print("[✖] Kupující nemá e-mail – e-mail neodeslán.")
         return
 
+    amount = int(float(listing.price or 0) + float(listing.commission or 0))
+    shipping = int(float(listing.shipping or 0))
+
     qr_message = f"Žádost o zaslání knihy '{book.titlecz}' - ID: {book.bookid}"
 
     context = {
         'buyer_name': buyer.first_name or buyer.username,
         'book_title': book.titlecz,
-        'total': float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0),
-        'shipping': listing.shipping,
+        'amount': amount,
+        'shipping': shipping,
         'shippingaddress': listing.shippingaddress,
+        'user_name': seller.first_name or seller.username if seller else "",
     }
 
     html_email = render_to_string('emails/listing_paid_confirmation_seller.html', context)
@@ -607,6 +617,8 @@ def send_listing_reservation_email(request, listing_id):
         context = {
             'buyer_name': request.user.first_name or request.user.username, 
             'book_title': book.titlecz, 
+            'book': book,
+            'listing': listing,
             'amount': int(float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0)),
             'payment_info': payment_info,
             'shippingaddress': listing.shippingaddress,
