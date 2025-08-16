@@ -400,6 +400,7 @@ class Bookisbn(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, db_column='Price', null=True, blank=True) 
     language = models.CharField(max_length=100, null=True, blank=True, db_column='Language') # e.g., English, Czech
     description = models.TextField(null=True, blank=True, db_column='Description')
+    url = models.CharField(max_length=255, null=True, blank=True, db_column='URL') 
     coverimage = models.URLField(max_length=200, null=True, blank=True, db_column='CoverIMG')
     sourcetype = models.CharField(max_length=16, db_column='SourceType', null=True, blank=True)
     sourceid = models.CharField(max_length=64, db_column='SourceID', null=True, blank=True)
