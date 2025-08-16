@@ -369,15 +369,6 @@
 
 
 
-{% if listing.status == 'PAID' and user == listing.user %}
-<form action="{% url 'confirm_shipping' book_url=book.url listing_id=listing.booklistingid %}" method="post">
-    {% csrf_token %}
-    <button type="submit" name="shipping_listing" class="btn btn-primary mt-4">
-        Potvrdit odeslání knihy
-    </button>
-</form>
-{% endif %}
-
 {% if listing.status == 'PAID' and listing.buyer == user %}
         <div class="alert alert-{{ message.tags }}" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
             Čekáme na potvrzení, že prodejce poslal knihu. <br>
