@@ -134,9 +134,10 @@
                     <li><strong>Datum úmrtí:</strong> {{ creator.deathdate }}</li>
                     {% endif %}
 
-                    {% if creator.countryid %}
-                    <li><strong>Místo narození:</strong> {{ creator.countryid.countrynamecz }}</li>
-                    {% endif %}
+{% if creator.countryid and creator.countryid.pk|default:0 > 0 %}
+<li><strong>Místo narození:</strong> {{ creator.countryid.countrynamecz }}</li>
+{% endif %}
+
 
                     <li><strong>Nominace:</strong></li>
 

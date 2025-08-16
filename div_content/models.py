@@ -259,7 +259,7 @@ class Book(models.Model):
     special = models.IntegerField(db_column='Special', db_index=True, blank=True, null=True)
     year = models.IntegerField(db_column='Year', null=True, blank=True)
     pages = models.IntegerField(db_column='Pages', null=True, blank=True)
-    url = models.CharField(db_column='URL', max_length=512, blank=True, null=True, db_index=True)
+    url = models.CharField(db_column='URL', max_length=512, blank=True, null=True, db_index=True, unique=True)
     img = models.CharField(db_column='IMG', max_length=255, default="noimg.png")
     subtitle = models.CharField(db_column='Subtitle', max_length=255, blank=True, null=True)
     author = models.CharField(db_column='Author', max_length=255)
