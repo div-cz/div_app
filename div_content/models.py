@@ -268,7 +268,8 @@ class Book(models.Model):
     googleid = models.CharField(db_column='GoogleID', max_length=16, null=True)
     description = models.TextField(db_column='Description', blank=True, null=True)
     goodreads = models.CharField(db_column='GoodreadsID', max_length=12, blank=True, null=True)
-    databazeknih = models.CharField(db_column='SourceID', max_length=16, blank=True, null=True)
+    sourcetype = models.CharField(max_length=16, db_column='SourceType', null=True, blank=True)
+    sourceid = models.CharField(db_column='SourceID', max_length=16, blank=True, null=True)
     language = models.CharField(db_column='Language', max_length=2, null=True, blank=True)
     universumid = models.ForeignKey('Metauniversum', models.DO_NOTHING, db_column='UniversumID', null=True)
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True)
@@ -405,6 +406,7 @@ class Bookisbn(models.Model):
     sourcetype = models.CharField(max_length=16, db_column='SourceType', null=True, blank=True)
     sourceid = models.CharField(max_length=64, db_column='SourceID', null=True, blank=True)
     palmknihyid = models.CharField(max_length=64, db_column='PalmknihyID', null=True, blank=True) 
+    lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
     class Meta:
         db_table = 'BookISBN'
 

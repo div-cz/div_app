@@ -51,7 +51,7 @@ from div_content.views.divkvariat import antikvariat_home, book_listings, cancel
 # -------------------------------------------------------------------
 #                    EBOOKS
 # -------------------------------------------------------------------
-from div_content.views.ebooks import download_ebook, send_to_reader, send_to_reader_modal
+from div_content.views.ebooks import all_ebooks, download_ebook, free_ebooks, paid_ebooks, send_to_reader, send_to_reader_modal
 # -------------------------------------------------------------------
 #                    FORUM
 # -------------------------------------------------------------------
@@ -325,7 +325,7 @@ urlpatterns = [
     path('antikvariat/<str:book_url>/nabidky/', book_listings, name='book_listings'),
     path('antikvariat/<str:book_url>/prodej/<int:listing_id>/', listing_detail, name='listing_detail_sell'),
     path('antikvariat/<str:book_url>/poptavka/<int:listing_id>/', listing_detail, name='listing_detail_buy'),
-    
+
     path('antikvariat/uzivatel/<int:user_id>/prodej-knihy/', user_sell_listings, name='user_sell_listings'),
     path('antikvariat/uzivatel/<int:user_id>/koupim-knihy/', user_buy_listings, name='user_buy_listings'),
     path('antikvariat/uzivatel/<int:user_id>/nabidky/', user_book_listings, name='user_book_listings'),
@@ -366,6 +366,10 @@ urlpatterns = [
     path('poslat-do-ctecky/<str:isbn>/<str:format>/', send_to_reader, name='send_to_reader'),
     path('poslat-do-ctecky2/<str:isbn>/<str:format>/', send_to_reader_modal, name='send_to_reader_modal'),
 
+	# E-knihy zdarma
+    path("eknihy/", all_ebooks, name="all_ebooks"),
+    path("eknihy/zdarma/", free_ebooks, name="free_ebooks"),
+    path("eknihy/placene/", paid_ebooks, name="paid_ebooks"),
     # path('spisovatele/', authors_list, name='authors_list'),
     # path('spisovatel/<str:author_url>', author_detail, name='author_detail'), 
     # path('spisovatel/pridat/', author_add, name='author_add'),

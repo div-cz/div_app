@@ -620,16 +620,44 @@ def book_detail(request, book_url):
 
     ALLOWED_EBOOK_FORMATS = ["EPUB", "MOBI", "PDF", "AUDIO"]
     bookisbns = Bookisbn.objects.filter(book=book, format__in=ALLOWED_EBOOK_FORMATS)
-    ebook_formats = {
-        b.format.lower(): {
+    primary_source = None
+    primary_source_url = None
+    primary_source_id = None
+
+    if bookisbns.exists():
+        main_isbn = bookisbns.first()
+        primary_source = (main_isbn.sourcetype or "").upper()
+        if primary_source == "MLP":
+            primary_source_url = main_isbn.url
+        elif primary_source == "PALM":
+            primary_source_id = main_isbn.sourceid
+
+    ebook_formats = {}
+    for b in bookisbns:
+        if not b.isbn or not b.format:
+            continue
+
+        sourcetype = (b.sourcetype or "").upper()
+        fmt = b.format.lower()
+
+        data = {
             "isbn": b.isbn,
             "price": b.price,
             "free": b.price is not None and b.price == 0,
             "available": b.price is not None,
             "type": b.ISBNtype,
+            "sourcetype": sourcetype,
         }
-        for b in bookisbns if b.isbn and b.format
-    }
+
+        # ✅ externí zdroje – vždy považuj za dostupné, pokud mají URL
+        if sourcetype in ["MLP", "PALM", "GUTENBERG", "NDB"]:
+            if b.url or b.sourceid:  # nějaký externí identifikátor
+                data["available"] = True
+
+        ebook_formats[fmt] = data
+
+
+
     ebook_formats = get_ebook_purchase_status(request.user, book, ebook_formats)
     ebook_info = next(iter(ebook_formats.values()), None)
     has_ebook = any(data.get("available") for data in ebook_formats.values())
@@ -741,6 +769,9 @@ def book_detail(request, book_url):
         'qr_codes': qr_codes,
         'qr_code_base64': qr_code_base64,
         'prices': prices,
+        'primary_source': primary_source,
+        'primary_source_url': primary_source_url,
+        'primary_source_id': primary_source_id,
         'palmknihy_data': matched,
         'ebook_info': ebook_info,
         'has_ebook': has_ebook,

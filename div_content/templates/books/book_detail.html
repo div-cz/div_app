@@ -329,33 +329,24 @@
 
 
 <!-- E-Book zdarma -->
-{% for fmt, data in ebook_formats.items %}
-    {% if data.free %}
-        {% if user.is_authenticated %}
-            <li>
-                <a href="{% url 'download_ebook' data.isbn fmt %}" class="small" style="font-size:80%">
-                    Stáhnout {{ fmt|upper }}
-                </a>
-            </li>
-            <li>
-                <a href="{% url 'send_to_reader_modal' data.isbn fmt %}" class="small" style="font-size:80%">
-                    Poslat do čtečky ({{ fmt|upper }})
-                </a>
-            </li>
-        {% else %}
-            <li>
-                <a href="#" class="small" style="font-size:80%">
-                    Stáhnout {{ fmt|upper }} <span style="color: #888;">(jen pro přihlášené)</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" class="small" style="font-size:80%">
-                    Poslat do čtečky ({{ fmt|upper }}) <span style="color: #888;">(jen pro přihlášené)</span>
-                </a>
-            </li>
-        {% endif %}
+    {% if primary_source == "MLP" %}
+    	<br>Zdroj e-knihy: <br>
+        <a href="https://www.mlp.cz/cz/" target="_blank">
+            <img src="https://media.div.cz/logo/eknihy/mlp.png" 
+                 alt="MLP" title="Městská knihovna v Praze" 
+                 style="height:60px;margin-left:8px;">
+        </a>
+    {% elif primary_source == "PALM" %}
+    	<br>Zdroj e-knihy: <br>
+            <img src="https://media.div.cz/logo/eknihy/palmknihy.png" 
+                 alt="Palmknihy" title="Palmknihy" 
+                 style="height:60px;margin-left:8px;">
+    {% elif primary_source == "DIV" %}
+    	<br>Zdroj e-knihy: <br>
+        <img src="https://media.div.cz/logo/eknihy/div.png" 
+             alt="DIV" title="DIV e-knihy" 
+             style="height:60px;margin-left:8px;">
     {% endif %}
-{% endfor %}
 
 
 
@@ -552,12 +543,13 @@
                 {% endfor %}
             </div>
 
+
+{% if primary_source != "MLP" %}
     <!-- Email pouze jednou! -->
 <div id="kindle-block" style="margin-top: 12px; display: none;">
     <div style="margin-top: 12px;">
 
 {{ format_kindlemails|json_script:"formatKindlemailsData" }}
-
 
         <label for="kindlemail">E-mail čtečky:</label>
         <input type="email" name="kindlemail" id="kindlemail"
@@ -573,7 +565,7 @@
 
     </div>
 </div>
-
+{% endif %}
 
 
 
@@ -1620,10 +1612,12 @@ function renderEbookActions() {
 
             </div>
         `;
-    } else if (data.is_paid || data.is_free_div) {
+    } else if (data.is_paid || data.is_free_div || data.is_external_free) {
         html += `
             <div style="margin-top:15px;">
+            	{% if primary_source != "MLP" %}
                 <button type="submit" class="btn btn-primary" id="send-to-reader-btn">Poslat do čtečky</button>
+                {% endif %}
                 <a id="download-link" href="/stahnout-eknihu/${data.isbn}/${fmt}/" class="btn btn-success">Stáhnout</a>
             </div>
         `;

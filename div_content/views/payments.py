@@ -392,21 +392,37 @@ def get_ebook_purchase_status(user, book, ebook_formats):
     - is_paid: True/False
     - show_qr: True/False
     - is_free_div: True/False
+    - is_external_free: True/False
     """
     if not user.is_authenticated:
         for fmt, data in ebook_formats.items():
+            sourcetype = (data.get("sourcetype") or "").upper()
+            data['is_external_free'] = False
+            if sourcetype in ["MLP", "PALM", "GUTENBERG"]:
+                data['is_external_free'] = True
+                continue  # externí zdroje necháváme jak jsou
+
             data['is_paid'] = False
             data['show_qr'] = data.get('price', 0) > 0
-            data['is_free_div'] = data.get('type') == 'DIV' and (data.get('price') == 0 or not data.get('price'))
+            data['is_free_div'] = sourcetype == 'DIV' and (data.get('price') == 0 or not data.get('price'))
         return ebook_formats
 
     paid_purchases = Bookpurchase.objects.filter(user=user, book=book, status="PAID")
     paid_formats = {p.format.lower() for p in paid_purchases}
+
     for fmt, data in ebook_formats.items():
+        sourcetype = (data.get("sourcetype") or "").upper()
+        data['is_external_free'] = False
+        if sourcetype in ["MLP", "PALM", "GUTENBERG"]:
+            data['is_external_free'] = True
+            continue
+
         data['is_paid'] = fmt in paid_formats
         data['show_qr'] = data.get('price', 0) > 0 and not data['is_paid']
-        data['is_free_div'] = data.get('type') == 'DIV' and (data.get('price') == 0 or not data.get('price'))
+        data['is_free_div'] = sourcetype == 'DIV' and (data.get('price') == 0 or not data.get('price'))
     return ebook_formats
+
+
 
 
 # -------------------------------------------------------------------

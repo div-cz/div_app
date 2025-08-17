@@ -53,7 +53,10 @@ from div_content.utils.payments import get_mimetype_from_format
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.mail import EmailMessage  
+from django.core.mail import EmailMessage 
+from django.core.paginator import Paginator
+from django.db.models import Min
+
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -69,6 +72,20 @@ API_URL = "https://nakladatelstvi.ekultura.eu/api/generate_watermarked_epub.php"
 
 
 # -------------------------------------------------------------------
+#                    ALL EBOOKS
+# -------------------------------------------------------------------
+def all_ebooks(request):
+    all_isbns = Bookisbn.objects.exclude(format__isnull=True).exclude(format__exact="").select_related("book")
+    books = (Book.objects.filter(bookisbn__in=all_isbns)
+             .annotate(min_price=Min("bookisbn__price")))
+    page_obj = paginate_books(request, books)
+    return render(request, "books/ebook_list.html", {
+        "page_obj": page_obj,
+        "page_title": "Všechny e-knihy",
+        "page_type": "all",
+    })
+
+# -------------------------------------------------------------------
 #                    DOWNLOAD_EBOOK
 # -------------------------------------------------------------------
 @login_required
@@ -82,15 +99,19 @@ def download_ebook(request, isbn, format):
     Práva: vždy musí být purchase ve stavu PAID nebo musí být zdarma.
     """
 
-    bookisbn = get_object_or_404(Bookisbn, isbn=isbn, format=format)
+    try:
+        bookisbn = Bookisbn.objects.get(isbn=isbn, format=format)
+    except Bookisbn.DoesNotExist:
+        raise Http404("E-kniha neexistuje.")
     book = bookisbn.book
-    isbntype = (bookisbn.ISBNtype or "").upper()
+    #isbntype = (bookisbn.ISBNtype or "").upper()
+    sourcetype = (bookisbn.sourcetype or "").upper()
 
     # =============================
     # 1) PALM – Palmknihy
     # =============================
     # Stahuje se přes API Palmknihy. Práva: musí být zakoupeno (PAID).
-    if isbntype == "PALM":
+    if sourcetype == "PALM":
         purchase = Bookpurchase.objects.filter(
             book=book,
             user=request.user,
@@ -112,44 +133,74 @@ def download_ebook(request, isbn, format):
         return redirect(palmknihy_link)
 
     # =============================
+    # 2) MLP – přímý link
+    # =============================
+    if sourcetype == "MLP":
+        if not bookisbn.url:
+            return HttpResponse("MLP odkaz není dostupný.", status=404)
+
+		# vynutit stáhnutí PDF (neotevirat v prohlizeci)
+        #response = requests.get(bookisbn.url, stream=True)
+        #if response.status_code != 200:
+        #    return HttpResponse("Soubor není dostupný.", status=404)
+        #filename = os.path.basename(bookisbn.url) or f"{book.url}.{format.lower()}"
+        #django_response = HttpResponse(response.content, content_type="application/pdf")
+        #django_response["Content-Disposition"] = f'attachment; filename="{filename}"'
+        #return django_response
+
+
+        # Pokud je kniha placená, kontrolujeme nákup
+        if bookisbn.price and bookisbn.price > 0:
+            purchase = Bookpurchase.objects.filter(
+                book=book,
+                user=request.user,
+                format=format,
+                status="PAID"
+            ).first()
+            if not purchase:
+                raise Http404("Nemáte zaplaceno.")
+        return redirect(bookisbn.url)
+
+    # =============================
     # 2) DIV zdarma – volné stažení
     # =============================
+    if sourcetype == "DIV":
     # Platí pro knihy zdarma (price == 0 nebo price None).
-    if bookisbn.price == 0 or bookisbn.price is None:
-        # Vytvoř purchase pokud ještě neexistuje, nebo přepni na PAID
-        purchase, created = Bookpurchase.objects.get_or_create(
-            book=book,
-            user=request.user,
-            format=format,
-            defaults={
-                "status": "PAID",
-                "price": 0,
-                "paymentdate": now(),
-                "expirationdate": now().replace(year=now().year + 3),
-                "source": isbntype,
-            },
-        )
-        if not created and purchase.status != "PAID":
-            purchase.status = "PAID"
-            purchase.price = 0
-            purchase.paymentdate = now()
-            purchase.expirationdate = now().replace(year=now().year + 3)
-            purchase.save()
-        allowed = True
-    else:
-        # Pro placené: uživatel musí mít purchase PAID
-        allowed = Bookpurchase.objects.filter(
-            book=book,
-            user=request.user,
-            format=format,
-            status="PAID"
-        ).exists()
+        if bookisbn.price == 0 or bookisbn.price is None:
+            # Vytvoř purchase pokud ještě neexistuje, nebo přepni na PAID
+            purchase, created = Bookpurchase.objects.get_or_create(
+                book=book,
+                user=request.user,
+                format=format,
+                defaults={
+                    "status": "PAID",
+                    "price": 0,
+                    "paymentdate": now(),
+                    "expirationdate": now().replace(year=now().year + 3),
+                    "source": sourcetype,
+                },
+            )
+            if not created and purchase.status != "PAID":
+                purchase.status = "PAID"
+                purchase.price = 0
+                purchase.paymentdate = now()
+                purchase.expirationdate = now().replace(year=now().year + 3)
+                purchase.save()
+            allowed = True
+        else:
+            # Pro placené: uživatel musí mít purchase PAID
+            allowed = Bookpurchase.objects.filter(
+                book=book,
+                user=request.user,
+                format=format,
+                status="PAID"
+            ).exists()
 
     # =============================
     # 3) DIV placená (remote EPUB)
     # =============================
     # Placený EPUB: generuje se personalizovaný EPUB na ekultura serveru.
-    if allowed and isbntype == "DIV" and bookisbn.price > 0 and format.lower() == "epub":
+    if allowed and sourcetype == "DIV" and bookisbn.price > 0 and format.lower() == "epub":
         purchase = Bookpurchase.objects.filter(
             book=book,
             user=request.user,
@@ -193,6 +244,22 @@ def download_ebook(request, isbn, format):
 
 
 # -------------------------------------------------------------------
+#                    FREE EBOOKS
+# -------------------------------------------------------------------
+def free_ebooks(request):
+    free_isbns = Bookisbn.objects.filter(price=0).exclude(format__isnull=True).exclude(format__exact="").select_related("book")
+    books = (Book.objects.filter(bookisbn__in=free_isbns)
+             .annotate(min_price=Min("bookisbn__price")))
+    page_obj = paginate_books(request, books)
+    return render(request, "books/ebook_list.html", {
+        "page_obj": page_obj,
+        "page_title": "E-knihy zdarma",
+        "page_type": "free",
+    })
+
+
+
+# -------------------------------------------------------------------
 #                    GENERATE DIV EPUB
 # -------------------------------------------------------------------
 def generate_div_epub(book_title, user_email, order_id):
@@ -228,6 +295,28 @@ def make_epub_download_link(filename, purchaseid, email, validity_secs=3600):
         f"?file={filename}&pid={purchaseid}&email={email}&expires={expires}&h={h}"
     )
 
+
+# -------------------------------------------------------------------
+#                    PAID BOOKS
+# -------------------------------------------------------------------
+def paid_ebooks(request):
+    paid_isbns = Bookisbn.objects.filter(price__gt=0).exclude(format__isnull=True).exclude(format__exact="").select_related("book")
+    books = (Book.objects.filter(bookisbn__in=paid_isbns)
+             .annotate(min_price=Min("bookisbn__price")))
+    page_obj = paginate_books(request, books)
+    return render(request, "books/ebook_list.html", {
+        "page_obj": page_obj,
+        "page_title": "E-knihy placené",
+        "page_type": "paid",
+    })
+
+# -------------------------------------------------------------------
+#                    PAGINATE BOOKS
+# -------------------------------------------------------------------
+def paginate_books(request, queryset, per_page=20):
+    paginator = Paginator(queryset.distinct(), per_page)
+    page_number = request.GET.get("page")
+    return paginator.get_page(page_number)
 
 # -------------------------------------------------------------------
 #                    REQUEST EPUB GENERATION

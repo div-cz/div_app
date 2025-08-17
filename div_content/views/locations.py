@@ -6,7 +6,7 @@
 # -------------------------------------------------------------------
 #                    OBSAH
 # -------------------------------------------------------------------
-# ### poznámky a todo
+# ### poznÂ·mky a todo
 # ### importy
 # ### konstanty
 # ### funkce
@@ -15,19 +15,19 @@
 
 
 # -------------------------------------------------------------------
-#                    POZNÁMKY A TODO
+#                    POZNÂ¡MKY A TODO
 # -------------------------------------------------------------------
-# Poznámky a todo
+# PoznÂ·mky a todo
 # -------------------------------------------------------------------
 
 
 # -------------------------------------------------------------------
 #                    IMPORTY 
 # -------------------------------------------------------------------
-# (tøi skupiny - kadá zvlášt abecednì)
-# 1) systémové (abecednì)
-# 2) interní (forms,models,views) (abecednì)
-# 3) third-part (tøetí strana, django, auth) (abecednì)
+# (tÂ¯i skupiny - kaÃ»dÂ· zvlÂ·Ã¶t abecednÃ)
+# 1) systÃˆmovÃˆ (abecednÃ)
+# 2) internÃŒ (forms,models,views) (abecednÃ)
+# 3) third-part (tÂ¯etÃŒ strana, django, auth) (abecednÃ)
 # -------------------------------------------------------------------
 from django.shortcuts import get_object_or_404, render
 from div_content.models import Metacity, Metalocation

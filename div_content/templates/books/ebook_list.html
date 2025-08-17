@@ -1,0 +1,156 @@
+{% extends "books/base.html" %}
+{% block title %}{{ page_title }} | DIV.cz{% endblock %}
+
+{% block meta %}
+
+    {% if page_type == "all" %}
+        <meta name="description" content="Všechny e-knihy na DIV.cz. Objevte databázi e-knih zdarma i placených, recenze a dostupné formáty.">
+        <link rel="canonical" href="https://div.cz/eknihy/">
+        <meta name="keywords" content="e-knihy, elektronické knihy, databáze e-knih, zdarma e-knihy, placené e-knihy, recenze e-knih">
+        <meta property="og:title" content="Všechny e-knihy | DIV.cz">
+        <meta property="og:description" content="Prozkoumejte databázi e-knih na DIV.cz — zdarma i placené, s recenzemi a dostupnými formáty.">
+        <meta property="og:image" content="https://div.cz/img/book/eknihy-div.webp">
+        <meta property="og:url" content="https://div.cz/eknihy/">
+
+    {% elif page_type == "free" %}
+        <meta name="description" content="E-knihy zdarma na DIV.cz. Stahujte legální e-knihy ve formátech ePub, PDF a další bezplatně.">
+        <link rel="canonical" href="https://div.cz/eknihy/zdarma/">
+        <meta name="keywords" content="e-knihy zdarma, elektronické knihy zdarma, ePub zdarma, PDF zdarma, volně dostupné knihy">
+        <meta property="og:title" content="E-knihy zdarma | DIV.cz">
+        <meta property="og:description" content="Prozkoumejte e-knihy zdarma na DIV.cz — legální tituly ke stažení ve formátech ePub, PDF a dalších.">
+        <meta property="og:image" content="https://div.cz/img/book/eknihy-zdarma.webp">
+        <meta property="og:url" content="https://div.cz/eknihy/zdarma/">
+
+    {% elif page_type == "paid" %}
+        <meta name="description" content="Placené e-knihy na DIV.cz. Objevte databázi elektronických knih k zakoupení ve formátech ePub, PDF a dalších.">
+        <link rel="canonical" href="https://div.cz/eknihy/placene/">
+        <meta name="keywords" content="placené e-knihy, elektronické knihy k prodeji, ePub e-knihy, PDF e-knihy, koupit e-knihu">
+        <meta property="og:title" content="Placené e-knihy | DIV.cz">
+        <meta property="og:description" content="Prohlédněte si placené e-knihy na DIV.cz — široká nabídka titulů ve formátech ePub, PDF a dalších.">
+        <meta property="og:image" content="https://div.cz/img/book/eknihy-placene.webp">
+        <meta property="og:url" content="https://div.cz/eknihy/placene/">
+    {% endif %}
+
+<style>
+a.btn.books {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 180px;
+    height: 52px;               /* pevná výška */
+    line-height: 52px;          /* vertikální zarovnání textu */
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    text-align: center;
+    transition: all 0.2s ease-in-out;
+    box-sizing: border-box;     /* aby border nezvětšoval velikost */
+}
+
+/* Aktivní */
+
+a.btn.books.add-book {
+    background-color: #61872B !important;
+    color: #fff !important;
+    border: 1px solid #61872B !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    position: relative;
+    top: -10px;   /* posun nahoru */
+}
+
+/* Neaktivní */
+a.btn.books.btn-outline-secondary {
+    background-color: #fff !important;
+    border: 1px solid #61872B !important;
+    color: #61872B !important;
+}
+
+</style>
+
+{% endblock %}
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4 font-bold text-2xl">{{ page_title }}</h1>
+
+
+
+<div class="mb-4 flex gap-2">
+    <a href="/eknihy/" 
+       class="btn books {% if page_type == 'all' %}add-book{% else %}btn-outline-secondary{% endif %}">
+       Všechny e-knihy
+    </a>
+    <a href="/eknihy/zdarma/" 
+       class="btn books {% if page_type == 'free' %}add-book{% else %}btn-outline-secondary{% endif %}">
+       Jen zdarma
+    </a>
+    <a href="/eknihy/placene/" 
+       class="btn books {% if page_type == 'paid' %}add-book{% else %}btn-outline-secondary{% endif %}">
+       Jen placené
+    </a>
+</div>
+
+
+
+
+
+
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% for book in page_obj %}
+        <div class="flex border rounded-lg bg-[#F9F9F9] dark:bg-[#1A161F] p-2">
+            <a href="/kniha/{{ book.url }}" class="flex-shrink-0" style="width:100px;">
+                {% if book.img == "noimg.png" %}
+                    <img src="/static/img/book/book.png" alt="{{ book.titlecz|default:book.title }}" class="rounded w-full">
+                {% elif book.img == "GoogleID" %}
+                    <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}" class="rounded w-full">
+                {% else %}
+                    <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="rounded w-full">
+                {% endif %}
+            </a>
+
+<div class="ml-3 flex-1">
+    <h4 class="font-bold"><a href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a></h4>
+    <p class="text-sm text-gray-700 dark:text-gray-300">{{ book.author }}</p>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ book.description|default_if_none:""|truncatewords:20 }}</p>
+
+    <p class="text-sm mt-1">
+        📖 Formáty:
+        {% for isbn in book.bookisbn_set.all %}
+            {% if isbn.format %}
+                <span class="inline-block bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">{{ isbn.format|upper }}</span>
+            {% endif %}
+        {% endfor %}
+    </p>
+
+    <p class="text-sm mt-2 font-semibold">
+        {% if book.min_price == 0 %}
+            💰 Zdarma
+        {% elif book.min_price %}
+            💰 od {{ book.min_price|floatformat:0 }} Kč
+        {% else %}
+            💰 Není dostupná cena
+        {% endif %}
+    </p>
+</div>
+
+
+        </div>
+        {% empty %}
+        <p>Žádné knihy k dispozici.</p>
+        {% endfor %}
+    </div>
+
+    <div class="pagination mt-6">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; první</a>
+            <a href="?page={{ page_obj.previous_page_number }}">předchozí</a>
+        {% endif %}
+        <span class="current">Stránka {{ page_obj.number }} z {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">další</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">poslední &raquo;</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
