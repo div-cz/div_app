@@ -850,7 +850,7 @@ def books_search(request):
         if form.is_valid():
             query = form.cleaned_data['q']
             # Použití select_related pro připojení autora k výsledkům
-            books = (Book.objects.filter(title__icontains=query)
+            books = (Book.objects.filter(titlecz__icontains=query)
                 .select_related('authorid')  # Připojení modelu Bookauthor
                 .values('title', 'titlecz', 'url', 'year', 'googleid', 'pages', 'img', 'author', 'authorid__url', 'authorid__firstname', 'authorid__lastname')[:50])
     else:

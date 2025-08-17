@@ -77,7 +77,8 @@ API_URL = "https://nakladatelstvi.ekultura.eu/api/generate_watermarked_epub.php"
 def all_ebooks(request):
     all_isbns = Bookisbn.objects.exclude(format__isnull=True).exclude(format__exact="").select_related("book")
     books = (Book.objects.filter(bookisbn__in=all_isbns)
-             .annotate(min_price=Min("bookisbn__price")))
+             .annotate(min_price=Min("bookisbn__price"))
+              .order_by("-divrating"))
     page_obj = paginate_books(request, books)
     return render(request, "books/ebook_list.html", {
         "page_obj": page_obj,
@@ -249,7 +250,8 @@ def download_ebook(request, isbn, format):
 def free_ebooks(request):
     free_isbns = Bookisbn.objects.filter(price=0).exclude(format__isnull=True).exclude(format__exact="").select_related("book")
     books = (Book.objects.filter(bookisbn__in=free_isbns)
-             .annotate(min_price=Min("bookisbn__price")))
+             .annotate(min_price=Min("bookisbn__price"))
+              .order_by("-divrating"))
     page_obj = paginate_books(request, books)
     return render(request, "books/ebook_list.html", {
         "page_obj": page_obj,
@@ -302,7 +304,8 @@ def make_epub_download_link(filename, purchaseid, email, validity_secs=3600):
 def paid_ebooks(request):
     paid_isbns = Bookisbn.objects.filter(price__gt=0).exclude(format__isnull=True).exclude(format__exact="").select_related("book")
     books = (Book.objects.filter(bookisbn__in=paid_isbns)
-             .annotate(min_price=Min("bookisbn__price")))
+             .annotate(min_price=Min("bookisbn__price"))
+              .order_by("-divrating"))
     page_obj = paginate_books(request, books)
     return render(request, "books/ebook_list.html", {
         "page_obj": page_obj,
