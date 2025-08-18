@@ -448,8 +448,8 @@ class Bookpurchase(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, db_column='BookID')
     format = models.CharField(db_column='Format', max_length=10, choices=[('mobi', 'MOBI'), ('pdf', 'PDF'), ('epub', 'EPUB')])
     price = models.DecimalField(db_column='Price', max_digits=10, decimal_places=2)
-    palmknihyid = models.CharField(db_column='PalmknihyID', max_length=64, blank=True, null=True) 
-    source = models.CharField(db_column='Source', max_length=16, blank=True, null=True) 
+    sourcetype = models.CharField(max_length=20, null=True, blank=True)  # např. "PALM", "DIV"
+    sourceid = models.CharField(max_length=255, null=True, blank=True)   #  ID u Palmknih
     orderdate = models.DateTimeField(db_column='OrderDate', auto_now_add=True)
     paymentdate = models.DateTimeField(db_column='PaymentDate', null=True, blank=True)
     expirationdate = models.DateTimeField(db_column='ExpirationDate', null=True, blank=True)
@@ -461,6 +461,19 @@ class Bookpurchase(models.Model):
     class Meta:
         db_table = 'BookPurchase'
 
+class Booksource(models.Model):
+    booksourceid = models.AutoField(db_column='BookSourceID', primary_key=True)
+    bookid = models.ForeignKey('Book', models.DO_NOTHING, db_column='BookID', null=True, blank=True)
+    sourcetype = models.CharField(db_column='SourceType', max_length=20)
+    externalid = models.CharField(db_column='ExternalID', max_length=100)
+    externaltitle = models.CharField(db_column='ExternalTitle', max_length=2048, null=True, blank=True)
+    externalauthors = models.CharField(db_column='ExternalAuthors', max_length=2048, null=True, blank=True)
+    externalurl = models.CharField(db_column='ExternalURL', max_length=1024)
+    createdat = models.DateTimeField(db_column='CreatedAt', auto_now_add=True)
+
+    class Meta:
+        db_table = 'BookSource'
+        unique_together = (('sourcetype', 'externalid'),)
 
 
 class Bookquotes(models.Model):

@@ -272,7 +272,7 @@
 
             <div class="flex flex-wrap content-between flex-grow-1 sm:mt-5 w-full lg:w-55">
                 <ul class="list-unstyled">
-                    <li><strong>Originální název: </strong>{{ book.title }}</li>
+                    <li><strong>Originální název: </strong>{{ book.title|default:"" }}</li>
 
                     <!-- AUTOR -->
                     {% if authors %}
@@ -632,7 +632,7 @@
         <p style="margin-bottom:0;">Audio</p>
         <p style="font-size:80%;margin:0;">
             {% if has_audio %}
-                od {{ audio_price|default:"???" }} Kč
+                od {{ audio_price|default:"" }} Kč
             {% else %}
                 nedostupné
             {% endif %}
@@ -646,7 +646,7 @@
                 <!-- náhled poslechu -->
                 <div class="overlay hidden" id="audio-overlay"></div>
                 <div class="popup hidden" id="audio-popup">
-                <p>Audio verze se připravuje nebo není dostupná.</p>
+                <p>{{ audio.description }}</p>
                     <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closeAudioPopup">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
@@ -785,7 +785,7 @@
 
 
                             
-                        {% if is_crew %}<!-- CREW -->
+                        {% if is_staff %}<!-- CREW -->
                         <button type="submit" name="add_character" class="add-book">Přidat postavu</button>
                         {% else %}
                             <p class="text-muted text-sm">

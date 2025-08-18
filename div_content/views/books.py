@@ -618,7 +618,7 @@ def book_detail(request, book_url):
 
     bookisbns = Bookisbn.objects.filter(book=book)
 
-    ALLOWED_EBOOK_FORMATS = ["EPUB", "MOBI", "PDF", "AUDIO"]
+    ALLOWED_EBOOK_FORMATS = ["EPUB", "MOBI", "PDF", "DIV-AUDIO"]
     bookisbns = Bookisbn.objects.filter(book=book, format__in=ALLOWED_EBOOK_FORMATS)
     primary_source = None
     primary_source_url = None
