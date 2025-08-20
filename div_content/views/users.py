@@ -41,6 +41,9 @@ from div_content.models import (
     )
 from div_content.views.login import custom_login_view
 
+from django.contrib import messages
+
+from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -327,74 +330,55 @@ def myuser_detail(request, user_id=None):
 # -------------------------------------------------------------------
 # F:                 MYUSER DETAIL
 # -------------------------------------------------------------------
+@login_required(login_url='login')
 def myuser_detail(request, user_id=None):
     if user_id is None:
-        user_id = request.user.id
+        profile_user = request.user  # jistě autentizovaný díky @login_required
+    else:
+        profile_user = get_object_or_404(User, id=user_id)
 
-    profile_user = get_object_or_404(User, id=user_id)
+    # 2) Profil a doplňková data
+    user_profile, _ = Userprofile.objects.get_or_create(user=profile_user)
+    user_div_coins = Userdivcoins.objects.filter(user_id=profile_user.id).first()
 
-    # Get the user profile
-    user_profile = Userprofile.objects.get(user=profile_user)  
 
-    # Get the user's DivCoins data
-    user_div_coins = get_object_or_404(Userdivcoins, user_id=profile_user.id)
+    # ContentTypes
+    movie_ct_id = ContentType.objects.get_for_model(Movie).id
+    book_ct_id = ContentType.objects.get_for_model(Book).id
+    userprofile_ct_id = ContentType.objects.get_for_model(Userprofile).id
 
-    # Assuming content_type_id for movies is defined
-    #movie_content_type_id = 33
-    movie_content_type = ContentType.objects.get_for_model(Movie)
-    movie_content_type_id = movie_content_type.id
+    # Hodnocení
+    movie_ratings_qs = (UserRating.objects
+                        .filter(user_id=profile_user.id, rating__content_type_id=movie_ct_id)
+                        .order_by('-modified'))
+    book_ratings_qs = (UserRating.objects
+                       .filter(user_id=profile_user.id, rating__content_type_id=book_ct_id)
+                       .order_by('-modified'))
 
-    #book_content_type_id = 9
-    book_content_type = ContentType.objects.get_for_model(Book)
-    book_content_type_id = book_content_type.id
-
-    #userprofile_content_type_id = 37
-    userprofile_content_type = ContentType.objects.get_for_model(Userprofile)
-    userprofile_content_type_id = userprofile_content_type.id
-
-    # 7 = article, --- může být jiné při změně tabulek a nové migrai!!!!
-
-    movie_ratings = UserRating.objects.filter(user_id=user_id, rating__content_type_id=movie_content_type_id).order_by('-modified')[:5]
-    book_ratings = UserRating.objects.filter(user_id=user_id, rating__content_type_id=book_content_type_id).order_by('-modified')[:5]
-    
-    # Vyhledá jestli má uživatel oblíbené uživatele
-    favorite_users_query = Favorite.objects.filter(user=user_profile.user.id, content_type_id=userprofile_content_type_id)
-    favorite_users = [favorite.content_object for favorite in favorite_users_query]
-
-    # Vyhledá jestli je uživatel mezi oblíbenými u jiných uživatelů 
-    im_favorite_user = Favorite.objects.filter(content_type_id=userprofile_content_type_id, object_id=user_profile.userprofileid)
-
-    # Zjistí jestli je uživatel můj oblíbený (pro tlačítko "Oblíbený")
-    is_favorite = False
-    if Favorite.objects.filter(user=request.user.id, content_type_id=userprofile_content_type_id, object_id=user_profile.userprofileid).exists():
-        is_favorite = True
-
+    # Stránkování
     items_per_page = 10
-    movie_paginator = Paginator(movie_ratings, items_per_page)
-    book_paginator = Paginator(book_ratings, items_per_page)
+    movie_page = Paginator(movie_ratings_qs, items_per_page).get_page(request.GET.get('movie_page'))
+    book_page = Paginator(book_ratings_qs, items_per_page).get_page(request.GET.get('book_page'))
 
-    movie_page_number = request.GET.get('movie_page')
-    book_page_number = request.GET.get('book_page')
+    # Oblíbení
+    favorite_users_query = Favorite.objects.filter(user=profile_user.id, content_type_id=userprofile_ct_id)
+    favorite_users = [fav.content_object for fav in favorite_users_query]
+    im_favorite_user = Favorite.objects.filter(content_type_id=userprofile_ct_id, object_id=user_profile.userprofileid)
 
-    movie_page = movie_paginator.get_page(movie_page_number)
-    book_page = book_paginator.get_page(book_page_number)
-    
+    is_favorite = Favorite.objects.filter(
+        user=request.user.id, content_type_id=userprofile_ct_id, object_id=user_profile.userprofileid
+    ).exists()
 
-    template_name = 'user/profile.html' if profile_user == request.user else 'user/profile.html'
-
-    return render(request, template_name, {
+    return render(request, 'user/profile.html', {
         'profile_user': profile_user,
         'user_div_coins': user_div_coins,
         'movie_page': movie_page,
-        'book_ratings': book_page,
-        'user_profile': user_profile,  
-        "movie_ratings": movie_ratings,
+        'book_page': book_page, 
+        'user_profile': user_profile,
         'favorite_users': favorite_users,
         'im_favorite_user': im_favorite_user,
         'is_favorite': is_favorite,
-         }
-    )
-
+    })
 
 # -------------------------------------------------------------------
 # F:                 PROFILE ESHOP SECTION

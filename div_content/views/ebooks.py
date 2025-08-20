@@ -57,7 +57,8 @@ from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db.models import Min
 
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
+
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils.timezone import now
@@ -99,6 +100,10 @@ def download_ebook(request, isbn, format):
 
     Práva: vždy musí být purchase ve stavu PAID nebo musí být zdarma.
     """
+    # 0) výchozí hodnoty – ZABRÁNÍ UnboundLocalError
+    allowed = False
+    reason = "init"
+
 
     try:
         bookisbn = Bookisbn.objects.get(isbn=isbn, format=format)

@@ -713,24 +713,44 @@
                             </div>
                            
                             <!-- Nejnovější komentáře -->
-                            <div class="card box-shadow mb-4">
-                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                    <h3 class="card-title font-bold after-h3">Nejnovější komentáře</h3>
-                                    <div class="flex flex-wrap">        
-                                    {% for comment in movies_comments_9 %}
-                                    <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
-                                        <a href="/film/{{ comment.movieid__url }}">{{ comment.movieid__titlecz }}</a>
-                                        <p class="before after">{{ comment.comment|truncatewords:20 }}</p>
-                                        <div style="text-align:right">
-                                            <small><p>Uživatel: 
-                                                <a href="/uzivatel/{{ comment.user }}">{{ comment.user__username }}</a>
-                                            <p></small>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
+<div class="card box-shadow mb-4">
+  <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+    <h3 class="card-title font-bold after-h3">Nejnovější filmové a knižní recenze</h3>
+    <div class="flex flex-wrap">        
+      {% for comment in latest_comments %}
+        <div class="card card-body w-full p-3 mb-2 border rounded 
+            {% if comment.bookid %} border-green-400 {% else %} border-blue-400 {% endif %}">
+          
+          <!-- Tag -->
+
+{% if comment.movieid %}
+  <a href="/film/{{ comment.movieid.url }}" class="font-bold flex items-center gap-1">
+    <span>&#127916;</span> {{ comment.movieid.titlecz }}
+  </a>
+{% elif comment.bookid %}
+  <a href="/kniha/{{ comment.bookid.url }}" class="font-bold flex items-center gap-1">
+    <span>&#128214;</span> {{ comment.bookid.titlecz }}
+  </a>
+{% endif %}
+
+
+          <!-- Text komentáře -->
+          <p class="mt-1 text-sm">{{ comment.comment|truncatewords:20 }}</p>
+
+          <!-- Uživatel -->
+          <div style="text-align:right">
+            <small>
+              Uživatel: <a href="/uzivatel/{{ comment.user.username }}">{{ comment.user.username }}</a>
+            </small>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+
+
 
                         </div>
                     </div>
@@ -770,23 +790,42 @@
                             </div>
                         </div>
 
+
+
                         <!-- články -->
-                        <div class="card box-shadow mb-4">
-                            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                <div class="flex flex-wrap justify-between card-title after-h3">
-                                    <h3 class="font-bold">Články</h3><a href="{% url 'articles_index' %}"><small>Zobrazit vše</small></a>
-                                </div>
-                                {% for article in articles %}
-                                <div class="flex flex-wrap items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
-                                    <img class="article-thumbnail rounded-l" src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ article.img }}';" style="width:100px; height:fit-content; aspect-ratio: 3 / 4; object-fit: contain; margin-right:5px">
-                                    <div class="flex flex-wrap article-content p-2" style="flex:2;">
-                                        <a href="{{ article.url }}">{{ article.title }}</a>
-                                        <p>{{ article.perex|truncatewords:9 }}</p>
-                                    </div>
-                                </div>               
-                                {% endfor %}
-                            </div>
-                        </div>
+<div class="card box-shadow mb-4">
+  <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+    <div class="flex flex-wrap justify-between card-title after-h3">
+      <h3 class="font-bold">Články</h3>
+      <a href="{% url 'articles_index' %}"><small>Zobrazit vše</small></a>
+    </div>
+
+    {% for article in articles %}
+      <div class="flex flex-wrap items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+        {% if article.img1600 %}
+          <img
+            class="article-thumbnail rounded-l"
+            src="{{ article.img1600 }}"
+            alt="{{ article.title }}"
+            style="width:100px; height:fit-content; aspect-ratio:3/4; object-fit:contain; margin-right:5px">
+        {% elif article.img %}
+          <img
+            class="article-thumbnail rounded-l"
+            src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ article.img }}"
+            alt="{{ article.title }}"
+            style="width:100px; height:fit-content; aspect-ratio:3/4; object-fit:contain; margin-right:5px">
+        {% endif %}
+
+        <div class="flex flex-wrap article-content p-2" style="flex:2;">
+          <a href="{{ article.url }}">{{ article.title }}</a>
+          <p>{{ article.perex|truncatewords:9 }}</p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+
                         
                         <!-- burza knih -->
                         <div class="card box-shadow mb-4">

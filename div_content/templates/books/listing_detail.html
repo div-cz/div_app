@@ -296,12 +296,15 @@
 
 
 {% if listing.status == 'PAID' and user == listing.user %}
+<div class="alert alert-{{ message.tags }}" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
+            Kupující zaplatil knihu, odešlete prosím knihu. <br>
 <form action="{% url 'confirm_shipping' book_url=book.url listing_id=listing.booklistingid %}" method="post">
     {% csrf_token %}
     <button type="submit" name="shipping_listing" class="btn btn-primary mt-4">
         Potvrdit odeslání knihy
     </button>
 </form>
+</div>
 {% endif %}
 
 
@@ -320,12 +323,15 @@
 {% endif %}
 
 {% if listing.status == 'SHIPPED' and listing.buyer == user %}
+<div class="alert alert-{{ message.tags }}" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
+            Prodejce již odeslal knihu, prosím potvrďte přijetí. <br>
 <form action="{% url 'confirm_payment' book_url=book.url listing_id=listing.booklistingid %}" method="post">
     {% csrf_token %}
     <button type="submit" name="complete_listing" class="btn btn-primary mt-4">
         Potvrdit obdržení knihy
     </button>
 </form>
+</div>
 {% endif %}
 
 

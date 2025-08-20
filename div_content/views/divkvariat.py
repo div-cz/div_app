@@ -483,6 +483,76 @@ def listing_detail(request, book_url, listing_id):
 
 
 # -------------------------------------------------------------------
+# SEND LISTING AUTO-COMPLETED EMAIL - BUYER
+# -------------------------------------------------------------------
+def send_listing_auto_completed_email_buyer(listing):
+    book = listing.book
+    buyer = listing.buyer
+    recipient = buyer.email if buyer else None
+    if not recipient:
+        print("[✖] Kupující nemá e-mail – automatický e-mail neodeslán.")
+        return
+
+    context = {
+        'buyer_name': buyer.first_name or buyer.username,
+        'book_title': book.titlecz,
+        'book_url': book.url,
+        'listing_id': listing.booklistingid,
+    }
+
+    html_email = render_to_string('emails/listing_auto_completed_buyer.html', context)
+
+    msg = EmailMessage()
+    msg['Subject'] = os.getenv("EMAIL_SUBJECT_AUTO_COMPLETED_BUYER").format(title=book.titlecz)
+    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+    msg['To'] = recipient
+    msg.set_content(html_email, subtype='html')
+
+    try:
+        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+            smtp.send_message(msg)
+        print(f"[✔] Automatický e-mail o dokončení (kupující) odeslán na {recipient}")
+    except Exception as e:
+        print(f"[✖] Chyba při odesílání automatického e-mailu kupujícímu: {e}")
+
+
+# -------------------------------------------------------------------
+# SEND LISTING AUTO-COMPLETED EMAIL - SELLER
+# -------------------------------------------------------------------
+def send_listing_auto_completed_email_seller(listing):
+    book = listing.book
+    seller = listing.user
+    recipient = seller.email if seller else None
+    if not recipient:
+        print("[✖] Prodávající nemá e-mail – automatický e-mail neodeslán.")
+        return
+
+    context = {
+        'seller_name': seller.first_name or seller.username,
+        'book_title': book.titlecz,
+        'book_url': book.url,
+        'listing_id': listing.booklistingid,
+    }
+
+    html_email = render_to_string('emails/listing_auto_completed_seller.html', context)
+
+    msg = EmailMessage()
+    msg['Subject'] = os.getenv("EMAIL_SUBJECT_AUTO_COMPLETED_SELLER").format(title=book.titlecz)
+    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+    msg['To'] = recipient
+    msg.set_content(html_email, subtype='html')
+
+    try:
+        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+            smtp.send_message(msg)
+        print(f"[✔] Automatický e-mail o dokončení (prodávající) odeslán na {recipient}")
+    except Exception as e:
+        print(f"[✖] Chyba při odesílání automatického e-mailu prodávajícímu: {e}")
+
+
+# -------------------------------------------------------------------
 #                    SEND LISTING CANCEL EMAIL
 # -------------------------------------------------------------------
 

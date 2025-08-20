@@ -14,7 +14,7 @@ from div_content.forms.index import ArticleForm, ArticlenewsForm
 from div_content.forms.movies import CommentForm, SearchForm
 from div_content.models import (
 
-    AATask, Article, Articlenews, Book, Booklisting, Bookpurchase, Creator, Creatorbiography, Game, Metacharts, Metagenre, Metaindex, Metalocation,  Metastats, Movie, Moviecinema, Moviedistributor, Moviecomments, Moviecrew, Moviegenre, Movierating, Tvgenre, Tvshow, User, Userprofile
+    AATask, Article, Articlenews, Book, Bookcomments, Booklisting, Bookpurchase, Creator, Creatorbiography, Game, Metacharts, Metagenre, Metaindex, Metalocation,  Metastats, Movie, Moviecinema, Moviedistributor, Moviecomments, Moviecrew, Moviegenre, Movierating, Tvgenre, Tvshow, User, Userprofile
 
 )
 from div_content.utils.books import get_market_listings
@@ -30,6 +30,9 @@ from django.views.generic import DetailView
 from django.db import models
 from django.db.models import Avg, Count
 from django.db.models.functions import ExtractYear
+
+from itertools import chain
+from operator import attrgetter
 
 from star_ratings.models import Rating, UserRating
 
@@ -137,6 +140,16 @@ def index(request): # hlavní strana
     movies_comments_5 = Moviecomments.objects.select_related('movieid', 'user').order_by(
             '-commentid').values('comment', 'movieid__titlecz', 'movieid__url', 'movieid', 'user', 'user__username')[:5]
 
+    movies_comments = Moviecomments.objects.select_related('movieid', 'user').order_by('-commentid')[:10]
+    books_comments = Bookcomments.objects.select_related('bookid', 'user').order_by('-commentid')[:10]
+
+    # Spojení a seřazení podle data
+    latest_comments = sorted(
+        chain(movies_comments, books_comments),
+        key=attrgetter('commentid'),  # pokud oba modely mají `commentid` autoincrement
+        reverse=True
+    )[:10]  # omezíme na 10 nejnovějších
+
 
     # Filmy v kinech
     movies_in_cinema = Moviecinema.objects.select_related('movieid', 'distributorid').order_by('-releasedate').values(
@@ -211,6 +224,7 @@ def index(request): # hlavní strana
             'users_list_4': users_list_4, 
             'movies_comments_9': movies_comments_9,
             'movies_comments_5': movies_comments_5,
+            'latest_comments': latest_comments,
             'movies_in_cinema': movies_in_cinema, 
             'stats_book': stats_book,
             'stats_movie': stats_movie,
