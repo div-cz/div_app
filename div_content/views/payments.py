@@ -355,23 +355,23 @@ def check_payments_from_fio():
                             "with_watermark": True,
                         }
 						
-						try:
-							r = requests.post(
-								"https://nakladatelstvi.ekultura.eu/api/epub2/api_generate.php",
-								json=payload,
-								timeout=60
-							)
-							if r.status_code == 200:
-								print("✅ EPUB vygenerováno přes nové API!")
-							else:
-								print("❌ Chyba generování EPUB:", r.status_code, r.text)
-						except Exception as e:
-							print("❌ Výjimka při volání API generování EPUB:", e)
+                        try:
+                            r = requests.post(
+                                "https://nakladatelstvi.ekultura.eu/api/epub2/api_generate.php",
+                                json=payload,
+                                timeout=60
+                            )
+                            if r.status_code == 200:
+                                print("✅ EPUB vygenerováno přes nové API!")
+                            else:
+                                print("❌ Chyba generování EPUB:", r.status_code, r.text)
+                        except Exception as e:
+                            print("❌ Výjimka při volání API generování EPUB:", e)
 						
 						# Hned poslat email (volání funkce z ebooks.py)
-						from div_content.views.ebooks import send_ebook_paid_email
-						send_ebook_paid_email(purchase)
-			else:
+                        from div_content.views.ebooks import send_ebook_paid_email
+                        send_ebook_paid_email(purchase)
+            else:
                 print(f"❌ Částka nesouhlasí pro VS {vs}: očekáváno {purchase.price}, přišlo {amount}")
 
 

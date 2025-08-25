@@ -145,7 +145,7 @@ def download_ebook(request, isbn, format):
         if not bookisbn.url:
             return HttpResponse("MLP odkaz není dostupný.", status=404)
 
-		# vynutit stáhnutí PDF (neotevirat v prohlizeci)
+	    # vynutit stáhnutí PDF (neotevirat v prohlizeci)
         #response = requests.get(bookisbn.url, stream=True)
         #if response.status_code != 200:
         #    return HttpResponse("Soubor není dostupný.", status=404)
@@ -332,16 +332,16 @@ def paginate_books(request, queryset, per_page=20):
 # -------------------------------------------------------------------
 def request_epub_generation(book_slug, user_email, order_id):
     api_secret = os.getenv("EKULTURA_API_EPUB_SECRET")
-	url = "https://nakladatelstvi.ekultura.eu/api/epub2/api_generate.php"
-	payload = {
-		"token": api_secret,
-		"book_slug": book_slug,
-		"user_email": user_email,
-		"order_id": str(order_id),
-		"user_id": "000",
-		"with_watermark": True,
-	}
-	r = requests.post(url, json=payload, timeout=60)
+    url = "https://nakladatelstvi.ekultura.eu/api/epub2/api_generate.php"
+    payload = {
+        "token": api_secret,
+        "book_slug": book_slug,
+        "user_email": user_email,
+        "order_id": str(order_id),
+        "user_id": "000",
+        "with_watermark": True,
+    }
+    r = requests.post(url, json=payload, timeout=60)
     if r.status_code == 200:
         print("EPUB generace úspěšná!")
         return True
