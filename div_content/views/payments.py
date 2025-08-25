@@ -346,14 +346,14 @@ def check_payments_from_fio():
                     if bookisbn and (bookisbn.ISBNtype or "").upper() == "DIV":
             
                         api_secret = os.getenv("EKULTURA_API_EPUB_SECRET")
-						payload = {
-							"token": api_secret,
-							"book_slug": purchase.book.url,   # slug knihy
-							"user_email": purchase.user.email if purchase.user else "",
-							"order_id": str(purchase.purchaseid),
-							"user_id": str(purchase.user.id if purchase.user else "000"),
-							"with_watermark": True,
-						}
+                        payload = {
+                            "token": api_secret,
+                            "book_slug": purchase.book.url,   # slug knihy
+                            "user_email": purchase.user.email if purchase.user else "",
+                            "order_id": str(purchase.purchaseid),
+                            "user_id": str(purchase.user.id if purchase.user else "000"),
+                            "with_watermark": True,
+                        }
 						
 						try:
 							r = requests.post(
