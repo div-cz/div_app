@@ -68,8 +68,10 @@ from email.message import EmailMessage
 # -------------------------------------------------------------------
 #                    KONSTANTY
 # -------------------------------------------------------------------
-EKULTURA_API_SECRET = os.getenv("EKULTURA_API_EPUB_SECRET")
+#EKULTURA_API_SECRET = os.getenv("EKULTURA_API_EPUB_SECRET")
 API_URL = "https://nakladatelstvi.ekultura.eu/api/epub2/api_generate.php"
+def get_api_secret():
+    return os.getenv("EKULTURA_API_EPUB_SECRET")
 
 
 # -------------------------------------------------------------------
@@ -271,7 +273,7 @@ def free_ebooks(request):
 # -------------------------------------------------------------------
 def generate_div_epub(book_slug, user_email, order_id, user_id="000"):
     payload = {
-        "token": EKULTURA_API_SECRET,
+        "token": get_api_secret(),
         "book_slug": book_slug,
         "user_email": user_email,
         "order_id": str(order_id),
