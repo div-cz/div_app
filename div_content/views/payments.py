@@ -346,29 +346,33 @@ def check_payments_from_fio():
                     if bookisbn and (bookisbn.ISBNtype or "").upper() == "DIV":
             
                         api_secret = os.getenv("EKULTURA_API_EPUB_SECRET")
-                        bookisbn = Bookisbn.objects.filter(book=purchase.book, format="epub").first()
-                        basefile = getattr(bookisbn, "file_name", None) or f"{purchase.book.url}.epub"   # fallback na slug.epub
-                        r = requests.post(
-                            "https://nakladatelstvi.ekultura.eu/api/generate_watermarked_epub.php",
-                            data={
-                                "base": basefile,
-                                "email": purchase.user.email if purchase.user else "",
-                                "order": purchase.purchaseid,
-                                "token": api_secret
-                            },
-                            timeout=60
-                        )
-                        if r.status_code == 200:
-                            print("OK, EPUB vygenerováno!")
-                        else:
-                            print("Chyba generování EPUB:", r.text)
-                
-                        # Hned poslat email (volání funkce z ebooks.py)
-                        from div_content.views.ebooks import send_ebook_paid_email
-                        send_ebook_paid_email(purchase)
-            else:
+						payload = {
+							"token": api_secret,
+							"book_slug": purchase.book.url,   # slug knihy
+							"user_email": purchase.user.email if purchase.user else "",
+							"order_id": str(purchase.purchaseid),
+							"user_id": str(purchase.user.id if purchase.user else "000"),
+							"with_watermark": True,
+						}
+						
+						try:
+							r = requests.post(
+								"https://nakladatelstvi.ekultura.eu/api/epub2/api_generate.php",
+								json=payload,
+								timeout=60
+							)
+							if r.status_code == 200:
+								print("✅ EPUB vygenerováno přes nové API!")
+							else:
+								print("❌ Chyba generování EPUB:", r.status_code, r.text)
+						except Exception as e:
+							print("❌ Výjimka při volání API generování EPUB:", e)
+						
+						# Hned poslat email (volání funkce z ebooks.py)
+						from div_content.views.ebooks import send_ebook_paid_email
+						send_ebook_paid_email(purchase)
+			else:
                 print(f"❌ Částka nesouhlasí pro VS {vs}: očekáváno {purchase.price}, přišlo {amount}")
-
 
 
 # -------------------------------------------------------------------

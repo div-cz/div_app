@@ -69,7 +69,7 @@ from email.message import EmailMessage
 #                    KONSTANTY
 # -------------------------------------------------------------------
 EKULTURA_API_SECRET = os.getenv("EKULTURA_API_EPUB_SECRET")
-API_URL = "https://nakladatelstvi.ekultura.eu/api/generate_watermarked_epub.php"
+API_URL = "https://nakladatelstvi.ekultura.eu/api/epub2/api_generate.php"
 
 
 # -------------------------------------------------------------------
@@ -213,7 +213,7 @@ def download_ebook(request, isbn, format):
             format=format,
             status="PAID"
         ).first()
-        file_url = f"https://nakladatelstvi.ekultura.eu/api/download_epub.php?file={book.url}-{purchase.purchaseid}.epub&token={os.getenv('EKULTURA_API_EPUB_SECRET')}"
+        file_url = f"https://nakladatelstvi.ekultura.eu/api/epub2/api_download.php?file={book.url}-{purchase.purchaseid}.epub&token={os.getenv('EKULTURA_API_EPUB_SECRET')}"
         remote = requests.get(file_url)
         if remote.status_code == 200:
             response = HttpResponse(remote.content, content_type="application/epub+zip")
@@ -269,18 +269,19 @@ def free_ebooks(request):
 # -------------------------------------------------------------------
 #                    GENERATE DIV EPUB
 # -------------------------------------------------------------------
-def generate_div_epub(book_title, user_email, order_id):
-    params = {
-        "base": f"{book_title}.epub",
-        "email": user_email,
-        "order_id": str(order_id),
+def generate_div_epub(book_slug, user_email, order_id, user_id="000"):
+    payload = {
         "token": EKULTURA_API_SECRET,
+        "book_slug": book_slug,
+        "user_email": user_email,
+        "order_id": str(order_id),
+        "user_id": str(user_id),
+        "with_watermark": True,
     }
     try:
-        resp = requests.get(API_URL, params=params, timeout=30)
+        resp = requests.post(API_URL, json=payload, timeout=30)
         if resp.status_code == 200:
-            # Název souboru (+objednavka Master-KETO-Plan-123.epub)
-            return f"{book_title}-{order_id}.epub"
+            return f"{book_slug}-{order_id}.epub"
         else:
             print("Chyba při generování EPUB:", resp.text)
             return None
@@ -331,14 +332,16 @@ def paginate_books(request, queryset, per_page=20):
 # -------------------------------------------------------------------
 def request_epub_generation(book_slug, user_email, order_id):
     api_secret = os.getenv("EKULTURA_API_EPUB_SECRET")
-    url = "https://nakladatelstvi.ekultura.eu/api/watermark.php"
-    params = {
-        "book": book_slug,  # nebo slug/filename, jak máš v PHP
-        "user_email": user_email,
-        "order_id": order_id,
-        "token": api_secret
-    }
-    r = requests.get(url, params=params, timeout=60)
+	url = "https://nakladatelstvi.ekultura.eu/api/epub2/api_generate.php"
+	payload = {
+		"token": api_secret,
+		"book_slug": book_slug,
+		"user_email": user_email,
+		"order_id": str(order_id),
+		"user_id": "000",
+		"with_watermark": True,
+	}
+	r = requests.post(url, json=payload, timeout=60)
     if r.status_code == 200:
         print("EPUB generace úspěšná!")
         return True
@@ -527,7 +530,7 @@ def send_to_reader_modal(request, isbn, format):
         maintype, subtype = mimetype.split('/')
     
         if is_paid_div_epub:
-            file_url = f"https://nakladatelstvi.ekultura.eu/api/download_epub.php?file={book.url}-{purchase.purchaseid}.epub&token={os.getenv('EKULTURA_API_EPUB_SECRET')}"
+            file_url = f"https://nakladatelstvi.ekultura.eu/api/epub2/api_download.php?file={book.url}-{purchase.purchaseid}.epub&token={os.getenv('EKULTURA_API_EPUB_SECRET')}"
             remote = requests.get(file_url)
             if remote.status_code == 200:
                 response = HttpResponse(remote.content, content_type="application/epub+zip")
@@ -647,7 +650,7 @@ def send_to_reader(request, isbn, format):
         ### DIV ePub
         # pro EPUB/DIV/placená použij remote
         if purchase and bookisbn.ISBNtype == "DIV" and bookisbn.price > 0 and format.lower() == "epub":
-            file_url = f"https://nakladatelstvi.ekultura.eu/api/download_epub.php?file={book.url}-{purchase.purchaseid}.epub&token={os.getenv('EKULTURA_API_EPUB_SECRET')}"
+            file_url = f"https://nakladatelstvi.ekultura.eu/api/epub2/api_download.php?file={book.url}-{purchase.purchaseid}.epub&token={os.getenv('EKULTURA_API_EPUB_SECRET')}"
             remote = requests.get(file_url)
             if remote.status_code == 200:
                 file_content = remote.content
