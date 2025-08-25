@@ -405,7 +405,6 @@ class Bookisbn(models.Model):
     coverimage = models.URLField(max_length=200, null=True, blank=True, db_column='CoverIMG')
     sourcetype = models.CharField(max_length=16, db_column='SourceType', null=True, blank=True)
     sourceid = models.CharField(max_length=64, db_column='SourceID', null=True, blank=True)
-    palmknihyid = models.CharField(max_length=64, db_column='PalmknihyID', null=True, blank=True) 
     lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
     class Meta:
         db_table = 'BookISBN'
