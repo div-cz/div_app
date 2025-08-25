@@ -147,7 +147,7 @@ def download_ebook(request, isbn, format):
         if not bookisbn.url:
             return HttpResponse("MLP odkaz není dostupný.", status=404)
 
-	    # vynutit stáhnutí PDF (neotevirat v prohlizeci)
+        # vynutit stáhnutí PDF (neotevirat v prohlizeci)
         #response = requests.get(bookisbn.url, stream=True)
         #if response.status_code != 200:
         #    return HttpResponse("Soubor není dostupný.", status=404)
@@ -532,15 +532,15 @@ def send_to_reader_modal(request, isbn, format):
         maintype, subtype = mimetype.split('/')
     
         if is_paid_div_epub:
-            file_url = f"https://nakladatelstvi.ekultura.eu/api/epub2/api_download.php?file={book.url}-{purchase.purchaseid}.epub&token={os.getenv('EKULTURA_API_EPUB_SECRET')}"
-            remote = requests.get(file_url)
+            file_url = f"https://nakladatelstvi.ekultura.eu/api/epub2/api_download.php?file={book.url}-{purchase.purchaseid}.epub&token={get_api_secret()}"
+            remote = requests.get(file_url, timeout=30)
             if remote.status_code == 200:
-                response = HttpResponse(remote.content, content_type="application/epub+zip")
-                response["Content-Disposition"] = f'attachment; filename="{book.url}-{purchase.purchaseid}.epub"'
-                return response
+                file_content = remote.content
+                filename = f"{book.url}-{purchase.purchaseid}.epub"
             else:
                 messages.error(request, "Soubor není dostupný pro odeslání do čtečky. Pokud myslíte, že je to chyba, napište na info@div.cz.")
                 return redirect("book_detail", book_url=book.url)
+
         else:
             filename = f"{book.url}.{format.lower()}"
             filepath = os.path.join(os.getenv("FREE_EBOOKS_PATH"), filename)
@@ -556,8 +556,8 @@ def send_to_reader_modal(request, isbn, format):
         msg['From'] = os.getenv("EBOOK_SENDER_ADDRESS")
         msg['To'] = recipient
         msg.set_content("Vaše e-kniha je v příloze. Užijte si čtení.\n\n Tým DIV.cz")
-        msg.add_attachment(file_content, maintype=maintype, subtype=subtype, filename=filename)
-    
+        msg.add_attachment(file_content, maintype="application", subtype="epub+zip", filename=filename)
+
         with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
             smtp.login(os.getenv("EBOOK_SENDER_ADDRESS"), os.getenv("EBOOK_SENDER_PASSWORD"))
             smtp.send_message(msg)
