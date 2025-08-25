@@ -356,18 +356,18 @@ def check_payments_from_fio():
                         }
                         
                         try:
-                        r = requests.post(
-                            "https://nakladatelstvi.ekultura.eu/api/epub2/api_generate.php",
-                            data={
-                                "token": api_secret,
-                                "book_slug": purchase.book.url,   # slug knihy
-                                "user_email": purchase.user.email if purchase.user else "",
-                                "order_id": str(purchase.purchaseid),
-                                "user_id": str(purchase.user.id if purchase.user else "000"),
-                                "with_watermark": "true",   # poslat jako string
-                            },
-                            timeout=60
-                        )
+                            r = requests.post(
+                                "https://nakladatelstvi.ekultura.eu/api/epub2/api_generate.php",
+                                data={
+                                    "token": api_secret,
+                                    "book_slug": purchase.book.url,   # slug knihy
+                                    "user_email": purchase.user.email if purchase.user else "",
+                                    "order_id": str(purchase.purchaseid),
+                                    "user_id": str(purchase.user.id if purchase.user else "000"),
+                                    "with_watermark": "true",   # poslat jako string
+                                },
+                                timeout=60
+                            )
                             if r.status_code == 200:
                                 print("✅ EPUB vygenerováno přes nové API!")
                             else:
