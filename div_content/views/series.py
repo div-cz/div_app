@@ -243,7 +243,7 @@ def serie_season(request, tv_url, seasonurl):
     average_rating_result = ratings.aggregate(average=Avg('score'))
     average_rating = average_rating_result.get('average')
     if average_rating is not None:
-        average_rating = math.ceil(average_rating)
+        average_rating = round(float(average_rating) * 20)
     else:
         average_rating = 0
 
@@ -350,7 +350,7 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
     average_rating_result = ratings.aggregate(average=Avg('score'))
     average_rating = average_rating_result.get('average')
     if average_rating is not None:
-        average_rating = math.ceil(average_rating)
+        average_rating = round(float(average_rating) * 20)
     else:
         average_rating = 0
 
@@ -410,7 +410,7 @@ def serie_detail(request, tv_url):
     average_rating_result = ratings.aggregate(average=Avg('score'))
     average_rating = average_rating_result.get('average')
     if average_rating is not None:
-        average_rating = math.ceil(average_rating)
+        average_rating = round(float(average_rating) * 20)
     else:
         average_rating = 0
 
