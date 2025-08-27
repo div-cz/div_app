@@ -1597,6 +1597,7 @@ class Tvepisode(models.Model):
     description = models.TextField(db_column='Description')
     episodetype = models.CharField(db_column='EpisodeType', max_length=16, null=True, blank=True)
     runtime = models.IntegerField(db_column='Runtime', null=True, blank=True)
+    averagerating = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, db_column='AverageRating')
     seasonid = models.ForeignKey('Tvseason', models.DO_NOTHING, db_column='SeasonID', null=True, blank=True)
 
     class Meta:
@@ -1635,7 +1636,7 @@ class Tvseason(models.Model):
     description = models.TextField(db_column='Description', blank=True, null=True)
     img = models.CharField(db_column='IMG', max_length=255, null=True, blank=True)
     seasonepisode = models.IntegerField(db_column='SeasonEpisode', null=True, blank=True)
-
+    averagerating = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, db_column='AverageRating')
     premieredate = models.DateField(db_column='PremiereDate')
     tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')
 
@@ -1657,6 +1658,7 @@ class Tvshow(models.Model):
     enddate = models.DateField(db_column='EndDate')
     divrating = models.IntegerField(db_column='DIVRating', default="0", db_index=True, blank=True, null=True)
     popularity = models.IntegerField(db_column='Popularity', null=True, db_index=True)
+    averagerating = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, db_column='AverageRating')
     language = models.CharField(db_column='Language', max_length=4, null=True, blank=True)
     countryid = models.ForeignKey(Metacountry, models.DO_NOTHING, db_column='CountryID')
     universumid = models.ForeignKey(Metauniversum, models.DO_NOTHING, db_column='UniversumID', null=True, blank=True)
