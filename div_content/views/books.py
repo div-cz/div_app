@@ -511,7 +511,7 @@ def book_detail(request, book_url):
 
     # Calculate average rating
     average_rating_result = ratings.aggregate(average=Avg('score'))
-    average_rating = average_rating_result.get('average')
+    average_rating =  round(float(average_rating) * 20)
 
     if average_rating is not None:
         average_rating = math.ceil(average_rating)
