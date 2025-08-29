@@ -506,17 +506,18 @@ def book_detail(request, book_url):
     comments = Bookcomments.objects.filter(bookid=book).order_by('-commentid')
 
     # Fetch book ratings
+    # Calculate average rating
     book_content_type = ContentType.objects.get_for_model(Book)
     ratings = UserRating.objects.filter(rating__content_type=book_content_type, rating__object_id=book.bookid)
-
-    # Calculate average rating
+    
     average_rating_result = ratings.aggregate(average=Avg('score'))
-    average_rating =  round(float(average_rating) * 20)
-
+    average_rating = average_rating_result["average"]
+    
     if average_rating is not None:
-        average_rating = math.ceil(average_rating)
+        average_rating = math.ceil(float(average_rating) * 20)  # převod na %
     else:
         average_rating = 0
+
 
     # Fetch user's rating for the book
     user_rating = None
