@@ -335,7 +335,7 @@ def books(request):
     #book_list_15 = Book.objects.all().order_by('-divrating')[:30]
     # Získáme knihy včetně jejich hodnocení
     book_content_type = ContentType.objects.get_for_model(Book)
-    book_list_15 = Book.objects.all().annotate(
+    """book_list_15 = Book.objects.all().annotate(
         average_rating=models.Subquery(
             Rating.objects.filter(
                 content_type=book_content_type,
@@ -352,20 +352,35 @@ def books(request):
         'authorid',
         'googleid',
         'average_rating'
-    )[:30]
+    )[:30]"""
+
+    book_list_15 = (
+        Book.objects
+        .select_related("authorid")  # JOIN na autora
+        .annotate(
+            average_rating=models.Subquery(
+                Rating.objects.filter(
+                    content_type=book_content_type,
+                    object_id=models.OuterRef('bookid')
+                ).values('average')[:1]
+            )
+        )
+        .order_by('-divrating')[:30]
+    )
+
     # Zaokrouhlíme hodnoty na celá čísla a převedeme na procenta
     for book in book_list_15:
-        if book['average_rating'] is not None:
-            book['average_rating'] = round(float(book['average_rating']) * 20)  # převod z 5 na 100%
+        if book.average_rating is not None:
+            book.average_rating = round(float(book.average_rating) * 20)
         else:
-            book['average_rating'] = 0
+            book.average_rating = 0
     #větší než 2022
     #book_list_15 = Book.objects.filter(year__gt=2022).order_by('-divrating')[20:35]
 
     # Knihy podle popularity
     # book_list_15 = Metaindex.objects.filter(year__gt=2018).order_by("-popularity").values('title', 'url', 'img', 'description')[:15]
 
-    top_books = Book.objects.order_by('-divrating')[:10]
+    top_books = Book.objects.select_related("authorid").order_by('-divrating')[:10]
 
     stats_book = Metastats.objects.filter(tablemodel='Book').first()
     stats_writters = Metastats.objects.filter(tablemodel='BookAuthor').first()

@@ -28,6 +28,11 @@ class BookListingForm(forms.ModelForm):
         label='Osobní převzetí',
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     )
+    phone = forms.CharField(
+        required=True,
+        label='Telefon',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'required': 'required'})
+    )
     class Meta:
         model = Booklisting
         fields = ['listingtype', 'price', 'shipping', 'description', 'condition', 'location', 'personal_pickup']

@@ -172,12 +172,27 @@
                   <label for="shippingaddress">Kam si přejete knihu zaslat?</label><br>
                   <textarea name="shippingaddress" rows="4" style="min-width:400px" class="form-control" required 
                   placeholder="Jméno, ulice, město, PSČ (volitelně telefon)">{{ request.user.userprofile.shippingaddress|default:"" }}</textarea>
-                  
+             
+                  <div class="form-group mt-2">
+                      <label for="phone">Telefon (pro zásilkovnu):</label>
+                      <input type="tel" name="phone" class="form-control" required
+                             value="{{ request.user.userprofile.phone|default:'' }}">
+                  </div>
+     
 <div class="form-group">
     <label for="commission">Příspěvek na chod webu (volitelný):</label>
     <input type="number" name="commission" min="0" value="10" class="form-control" />
 </div>
 
+
+<div class="form-group mt-3">
+  <label>
+    <input type="checkbox" name="agree_terms" required>
+    Souhlasím s předáním údajů (jméno, adresa, telefon) prodejci za účelem zaslání knihy 
+    a se <a href="/podminky-pouziti" target="_blank">Podmínkami používání</a> 
+    a <a href="/ochrana-osobnich-udaju" target="_blank">Ochranou osobních údajů</a>.
+  </label>
+</div>
 
                 
                   <button type="submit" class="btn btn-primary mt-2">Rezervovat knihu</button>

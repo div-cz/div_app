@@ -69,7 +69,16 @@
                         {{ book.titlecz|default:book.title }}
                     </h3>
                 </a>
-                <p class="w-full" style="min-height: 46px;">{{ book.author }}</p>
+
+<p class="w-full" style="min-height: 46px;">
+  {% if book.authorid %}
+    <a href="{% url 'author_detail' author_url=book.authorid.url %}">{{ book.author }}</a>
+  {% else %}
+    {{ book.author }}
+  {% endif %}
+</p>
+
+
             </div>
             {% endfor %}
         </div>
@@ -166,7 +175,7 @@ Ne
                                     </a>
                                 </h4>
                                 <h5 class="card-title">
-                                    {% if book.authorid and book.authorid.url %}
+                                    {% if book.authorid %}
                                         <a href="{% url 'author_detail' author_url=book.authorid.url %}">{{ book.author }}</a>
                                     {% else %}
                                         {{ book.author }}

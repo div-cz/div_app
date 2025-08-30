@@ -1867,6 +1867,7 @@ class Userprofile(models.Model):
     avatar = models.ForeignKey(Avatar, db_column='Avatar', null=True, blank=True, on_delete=models.SET_NULL)
     bankaccount = models.CharField(db_column='BankAccount', max_length=32, blank=True, null=True, verbose_name="Číslo účtu")
     shippingaddress = models.CharField(db_column='ShippingAddress', max_length=1024, blank=True, null=True)
+    phone = models.CharField(db_column='Phone', max_length=32, blank=True, null=True, verbose_name="Telefon")
 
     
     class Meta:

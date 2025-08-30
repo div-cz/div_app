@@ -357,6 +357,12 @@ def listing_detail(request, book_url, listing_id):
                 if profile and not profile.shippingaddress:
                     profile.shippingaddress = shippingaddress
                     profile.save()
+
+
+                phone = request.POST.get("phone", "").strip()
+                if profile and not profile.phone:
+                    profile.phone = phone
+                    profile.save()
     
                 messages.success(request, 'Nabídka byla rezervována.')
                 send_listing_reservation_email(request, listing.booklistingid)
@@ -643,6 +649,7 @@ def send_listing_payment_email(listing):
         'amount': amount,
         'shipping': shipping,
         'shippingaddress': listing.shippingaddress,
+        'buyer_phone': listing.buyer.userprofile.phone,
         'user_name': seller.first_name or seller.username if seller else "",
     }
 
@@ -692,6 +699,7 @@ def send_listing_reservation_email(request, listing_id):
             'amount': int(float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0)),
             'payment_info': payment_info,
             'shippingaddress': listing.shippingaddress,
+            'uyer_phone': listing.buyer.userprofile.phone,
         }
 
         recipient = request.user.email
