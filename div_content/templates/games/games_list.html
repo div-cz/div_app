@@ -24,7 +24,6 @@
 
 <div class="row container my-4">
 
-
 <!-- UNDER CONSTRUCTION -->
     <div class="mt-3">
         <div class="alert alert-danger" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
@@ -45,17 +44,15 @@
         {% endfor %}
         </div>
 
-
-{% if messages %}
-    <div class="mt-3">
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
-            {{ message|safe }}
+        {% if messages %}
+        <div class="mt-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
+                {{ message|safe }}
+            </div>
+        {% endfor %}
         </div>
-    {% endfor %}
-    </div>
-{% endif %}
-
+        {% endif %}
 
         <!-- generování her -->
         <div class="row my-4">
@@ -66,10 +63,10 @@
                     <a href="/hra/{{ game.url }}" style="width: 130px;">
                     {% if game.img %}
                         {% if game.img == "rawg.io" %}
-                            <img src="https://rawg.io/ ... ... .../{{ game.img }}" alt="{{ game.title }}" class="card-img-top rounded-l-lg h-full">
-                            {% else %}
-                            <img src="/static/hra{{ game.img }}" alt="{{ game.title }}" class="card-img-top rounded-l-lg h-full">
-                            {% endif %}
+                        <img src="https://rawg.io/ ... ... .../{{ game.img }}" alt="{{ game.title }}" class="card-img-top rounded-l-lg h-full">
+                        {% else %}
+                        <img src="https://media.div.cz/hry{{ game.img }}" alt="{{ game.title }}" class="card-img-top rounded-l-lg h-full">
+                        {% endif %}
                         {% else %}
                         <img src="/static/img/game/game.png" alt="{{ game.title }}" class="card-img-top rounded-l-lg h-full">
                     {% endif %}
@@ -101,53 +98,56 @@
             </div>
         </div>
 
-<div class="card box-shadow mb-4">
-    <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-        <div class="flex flex-wrap justify-between card-title after-h3">
-            <h3 class="font-bold">Má komunita</h3>
-            <a href="/hry/"> <small>Zobrazit vše</small></a> 
-        </div>
-        <div class="after last-line"> 
-            {% if latest_comments %} 
-                {% for comment in latest_comments %}   
+        <!-- Má komunita -->
+        <div class="card box-shadow mb-4">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <div class="flex flex-wrap justify-between card-title after-h3">
+                    <h3 class="font-bold">Má komunita</h3>
+                    <a href="/hry/"> <small>Zobrazit vše</small></a> 
+                </div>
+                <div class="after last-line"> 
+                {% if latest_comments %} 
+                    {% for comment in latest_comments %}   
                     <div class="flex mb-3"> 
-                        <div class="mr-4 flex" style="width:100px; max-width:100px; flex-shrink: 0;"> 
-                             {% if game.img %}
-                    {% if game.img == "rawg.io" %}
-                        <img src="/img/{{ game.img }}" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
-                    {% else %}
-                        <img src="/static/hra{{ game.img }}" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
-                    {% endif %}
-                {% else %}
-                    <img src="/static/img/game/game.png" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
-                {% endif %}
+                        <div class="mr-4 flex" style="width:100px; max-width:100px; flex-shrink:0;"> 
+                        {% if game.img %}
+                            {% if game.img == "rawg.io" %}
+                            <img src="/img/{{ game.img }}" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
+                            {% else %}
+                            <img src="/static/hra{{ game.img }}" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
+                            {% endif %}
+                            {% else %}
+                            <img src="/static/img/game/game.png" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
+                        {% endif %}
                         </div>    
- <div class="flex flex-wrap content-start ml-2" style="flex: 2;"> 
-                           
-                            <a class="w-full font-semibold" href="{% url 'game_detail' comment.gameid.url %}">{{ comment.gameid.titlecz }}</a>
+
+                        <div class="flex flex-wrap content-between ml-2" style="flex: 2;"> 
+                            <div class="flex flex-wrap">
+                                <a class="w-full font-semibold" href="{% url 'game_detail' comment.gameid.url %}">{{ comment.gameid.titlecz }}</a>
+                                <p class="w-full text-sm">{{ comment.comment|truncatewords:30 }}</p>
+                            </div>
                             
-                            <p class="w-full text-sm text-gray-700 dark:text-gray-300">{{ comment.comment|truncatewords:30 }}</p>
-                           
-                            <p class="w-full text-xs text-gray-500 dark:text-gray-400 mt-2"> 
-                                Uživatel:
+                            <div class="w-full flex justify-end" style="font-size: small;"> 
+                                <p>Uživatel:
                                 {% if comment.user %}
-                                    <a href="/uzivatel/{{ comment.user.id }}/" class="ml-1 text-blue-600 dark:text-blue-400">{{ comment.user.username }}</a>
+                                    <a href="/uzivatel/{{ comment.user.id }}/">{{ comment.user.username }}</a>
                                 {% endif %}
-                                <span class="ml-2">| {{ comment.dateadded|date:"d.m.Y H:i" }}</span>
-                            </p>
+                                </p>
+                                <span class="ml-1">| {{ comment.dateadded|date:"d.m.Y H:i" }}</span>
+                            </div>
                         </div>
                     </div> 
 
                     {% if not forloop.last %}
-                        <hr class="my-3 border-gray-300 dark:border-gray-700">
+                    <hr class="my-3">
                     {% endif %}
-                {% endfor %}
-            {% else %}
-                <p>Zatím žádné recenze od komunity.</p>
-            {% endif %}
-        </div>
-    </div>
-</div>   
+                    {% endfor %}
+                    {% else %}
+                    <p>Zatím žádné recenze od komunity.</p>
+                {% endif %}
+                </div>
+            </div>
+        </div>   
 
     </div>
     

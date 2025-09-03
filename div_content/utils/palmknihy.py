@@ -29,7 +29,7 @@ def normalize(text):
     text = re.sub(r'[^a-zA-Z0-9]+', '', text).lower()
     return text
 
-
+""" stará funkce, ale funkční - generuje tokeny porad
 def get_token():
     data = {
         "grant_type": "client_credentials",
@@ -47,6 +47,48 @@ def get_token():
         raise Exception("&#10060; Token se nepodařilo načíst – chybí pole 'data.token'.")
 
     return result["data"]["token"]
+"""
+# div_content/utils/palmknihy.py
+
+from django.core.cache import cache
+from datetime import datetime, timedelta
+import requests
+
+def get_token():
+    """Získá JWT token s cachováním"""
+    
+    # Zkus načíst z cache
+    cached_token = cache.get('palmknihy_jwt_token')
+    if cached_token:
+        return cached_token
+    
+    # Generuj nový token
+    data = {
+        "grant_type": "client_credentials", 
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET
+    }
+    
+    try:
+        response = requests.post(AUTH_URL, data=data, timeout=10)
+        result = response.json()
+        
+        print("🔑 Generuji nový JWT token z Palmknihy API")
+        
+        if "data" not in result or "token" not in result["data"]:
+            print("Palmknihy odpověď:", response.text)
+            raise Exception("Token se nepodařilo načíst – chybí pole 'data.token'.")
+        
+        token = result["data"]["token"]
+        
+        # Cache token na 8 minut (token vyprší za 10, cache za 8)
+        cache.set('palmknihy_jwt_token', token, 480)  # 8 minut = 480 sekund
+        
+        return token
+        
+    except Exception as e:
+        print(f"❌ Chyba při získávání tokenu: {e}")
+        raise
 
 
 

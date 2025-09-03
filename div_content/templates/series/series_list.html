@@ -48,51 +48,52 @@
             </div>
         </div>
 
-<div class="card box-shadow mb-4">
-    <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-        <div class="flex flex-wrap justify-between card-title after-h3">
-            <h3 class="font-bold">Poslední seriálové recenze<!--Má komunita--></h3>
-            <a href=""><small>Zobrazit vše</small></a> 
-        </div>
-        <div>
-            {% if latest_comments %}
-                {% for comment in latest_comments %}  
+        <!-- Poslední seriálové recenze -->
+        <div class="card box-shadow mb-4">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <div class="flex flex-wrap justify-between card-title after-h3">
+                    <h3 class="font-bold">Poslední seriálové recenze</h3>
+                    <a href=""><small>Zobrazit vše</small></a> 
+                </div>
+                <div>
+                {% if latest_comments %}
+                    {% for comment in latest_comments %}  
                     <div class="flex mb-3"> 
-                        <div class="mr-4 flex" style="width:100px; max-width:100px; flex-shrink: 0;"> 
-                              {% if comment.tvshowkid.imgposter == "noimg.png" %}
-                             <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ comment.tvshowkid.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px; height: fit-content;">
+                        <div class="mr-4 flex" style="width:100px; max-width:100px; flex-shrink:0;"> 
+                            {% if comment.tvshowkid.imgposter == "noimg.png" %}
+                            <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ comment.tvshowkid.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px; height: fit-content;">
                             {% else %}
                             <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ comment.tvshowkid.imgposter }}" alt="{{ comment.tvshowkid.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px; height: fit-content;">
-                         {% endif %}
+                            {% endif %}
                         </div>
-       
- <div class="flex flex-wrap content-start ml-2" style="flex: 2;">
-                           <a class="w-full font-semibold" href="{% url 'serie_detail'  comment.tvshowkid.url  %}">{{ comment.tvshowkid.titlecz  }}</a>
-                            <p class="w-full text-sm text-gray-700 dark:text-gray-300">{{ comment.comment|truncatewords:30  }}</p>
-                            <div class="flex justify-end w-full text-xs text-gray-500 dark:text-gray-400"> 
-                               <p> Uživatel: </p>
+            
+                        <div class="flex flex-wrap content-between ml-2" style="flex: 2;">
+                            <div class="flex flex-wrap">
+                                <a class="w-full font-semibold" href="{% url 'serie_detail'  comment.tvshowkid.url  %}">{{ comment.tvshowkid.titlecz  }}</a>
+                                <p class="w-full text-sm">{{ comment.comment|truncatewords:30  }}</p>
+                            </div>
+                            
+                            <div class="w-full flex justify-end" style="font-size: small;"> 
+                                <p>Uživatel:
                                 {% if comment.user %}
-                                    <a href="/uzivatel/{{ comment.user.id }}/" class="ml-1 text-blue-600 dark:text-blue-400">{{ comment.user.username }}</a>
-                              
+                                    <a href="/uzivatel/{{ comment.user.id }}/">{{ comment.user.username }}</a>
+                                </p>
                                 {% endif %}    
-                                <span class="ml-2">| {{ comment.dateadded|date:"d.m.Y H:i" }}</span>
+                                <span class="ml-1">| {{ comment.dateadded|date:"d.m.Y H:i" }}</span>
                             </div>
                         </div>  
                     </div>  
                     {% if not forloop.last %}
-                        <hr class="my-3 border-gray-300 dark:border-gray-700">
+                    <hr class="my-3">
                     {% endif %}
-                {% endfor %}
-            {% else %}
-                <p>Zatím žádné recenze od komunity.</p>
-            {% endif %}
-        </div>
+                    {% endfor %}
+                    {% else %}
+                    <p>Zatím žádné recenze od komunity.</p>
+                {% endif %}
+                </div>
+            </div>
+        </div>    
     </div>
-</div>    
-
-
-</div>
-
 
     <!-- PRAVÁ STRANA -->
     <div class="col-lg-4 article-section">
@@ -106,7 +107,6 @@
                     <li class="after last-line">
                         <a href="{% url 'serie_season' tv_url=season.tvshowid.url seasonurl=season.seasonurl %}">
                             {{ season.tvshowid.titlecz }}: S{{ season.seasonnumber|stringformat:"02d" }}
-                            
                         </a>
                         <p><small>(premiéra {{ season.premieredate|date:"j.n.Y" }})</small></p>
                     </li>

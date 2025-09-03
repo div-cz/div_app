@@ -4,11 +4,119 @@
 
 from django import forms
 from django.contrib.auth.models import User
-from div_content.models import Book, Bookcomments, Bookcharacter, Booklisting, Bookquotes, Userprofile
+from django.core.exceptions import ValidationError
+from div_content.models import Book, Bookauthor, Bookcomments, Bookcharacter, Booklisting, Bookpublisher, Bookquotes, Metagenre, Userprofile
 
+#    FORMULÁŘE
+# ManualBookForms
+# Bookquoteform
+# BookListingForm
+# BookDivRatingForm
+# BookCharacterForm
+# CommentFormBook
+# BookDivRatingForm
+# SearchFormBooks
+# BookAddForm
+class ManualBookForm(forms.ModelForm):
+    authorid = forms.ModelChoiceField(
+        queryset=Bookauthor.objects.all().order_by('lastname', 'firstname'),
+        required=False,
+        label="Autor",
+        empty_label="-- Vyberte autora --",
+        widget=forms.Select(attrs={'class': 'form-control select2'})
+    )
+    
+    genres = forms.ModelMultipleChoiceField(
+        queryset=Metagenre.objects.all().order_by('genrenamecz'),
+        required=False,
+        label="Žánry",
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'})
+    )
+    
+    publisher = forms.ModelChoiceField(
+        queryset=Bookpublisher.objects.all().order_by('publishername'),
+        required=False,
+        label="Nakladatelství",
+        empty_label="-- Vyberte nakladatelství --",
+        widget=forms.Select(attrs={'class': 'form-control select2'})
+    )
+    
+    cover_image = forms.ImageField(
+        required=False,
+        label="Obrázek obálky",
+        widget=forms.ClearableFileInput(attrs={
+            'class': 'form-control-file',
+            'accept': 'image/*'
+        })
+    )
+
+    class Meta:
+        model = Book
+        fields = [
+            "title", "titlecz", "subtitle", "author", "authorid", 
+            "year", "pages", "description", "language"
+        ]
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Název knihy *'
+            }),
+            'titlecz': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Český název'
+            }),
+            'subtitle': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Podtitul'
+            }),
+            'author': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Jméno autora (text)'
+            }),
+            'year': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 1000,
+                'max': 2030
+            }),
+            'pages': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 1
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Popis knihy...'
+            }),
+            'language': forms.Select(attrs={'class': 'form-control'})
+        }
+        labels = {
+            'title': 'Název knihy *',
+            'titlecz': 'Český název',
+            'subtitle': 'Podtitul',
+            'author': 'Autor (text)',
+            'year': 'Rok vydání',
+            'pages': 'Počet stránek',
+            'description': 'Popis',
+            'language': 'Jazyk'
+        }
+
+    def clean_title(self):
+        title = self.cleaned_data.get('title', '').strip()
+        if not title:
+            raise ValidationError("Název knihy je povinný.")
+        return title
+
+    def clean_year(self):
+        year = self.cleaned_data.get('year')
+        if year and (year < 1000 or year > 2030):
+            raise ValidationError("Neplatný rok vydání.")
+        return year
+
+# -------------------------------------------------------------------
+# -------------------------------------------------------------------
+# -------------------------------------------------------------------
 class BookAddForm(forms.Form):
     identifier = forms.CharField(label='ISBN nebo Google ID', max_length=255)
-
 
 
 class SearchFormBooks(forms.Form):
@@ -25,7 +133,6 @@ class BookDivRatingForm(forms.ModelForm):
         labels = {
             'divrating': 'DIV Rating (0-99)',
         }
-
 
 class CommentFormBook(forms.ModelForm):
     comment = forms.CharField(widget=forms.Textarea(attrs={'class': 'w-100',  'style': 'height:120px'})) #bg-dark text-white 
@@ -59,7 +166,6 @@ class BookCharacterForm(forms.ModelForm):
             'charactermain': 'Typ postavy',
         }
 
-
 class BookDivRatingForm(forms.ModelForm):
     class Meta:
         model = Book
@@ -70,7 +176,6 @@ class BookDivRatingForm(forms.ModelForm):
         labels = {
             'divrating': 'DIV Rating (0-99)',
         }
-
 
 class BookListingForm(forms.ModelForm):
     price = forms.DecimalField(

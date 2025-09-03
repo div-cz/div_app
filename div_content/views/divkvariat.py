@@ -63,6 +63,7 @@ from django.contrib import messages
 from django.core.mail import EmailMessage 
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
+from django.db.models import Sum, F
 from django.template.loader import render_to_string
 
 from django.utils.timezone import now
@@ -319,18 +320,129 @@ def get_market_listings(limit=5):
      .order_by('-createdat')[:limit])
     
     return sell_listings
+# -------------------------------------------------------------------
+#                    REQUEST PAYMENT
+# -------------------------------------------------------------------
+#def request_seller_payment(request, listing_id):
+    #listing = get_object_or_404(Booklisting, booklistingid=listing_id, user=request.user)
 
+
+# -------------------------------------------------------------------
+#                    REQUEST PAYMENT EMAIL
+# -------------------------------------------------------------------
+def send_listing_request_seller_payment(listing):
+    user=listing.user
+    amounttoseller = listing.amounttoseller 
+    recipient = ['lilien-rose@seznam.cz'] #finance@div.cz
+    if not recipient:
+        print("[✖] Superuser nemá e-mail – automatický e-mail neodeslán.")
+        return
+
+    context = {
+        'seller_name': user.first_name or user.username,
+        'amount_to_seller': amounttoseller,
+    }
+
+    html_email = render_to_string('emails/listing_request_seller_payment.html', context)
+
+    msg = EmailMessage()
+    msg['Subject'] = os.getenv("EMAIL_SUBJECT_REQUEST")
+    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+    msg['To'] = recipient
+    msg.set_content(html_email, subtype='html')
+
+    try:
+        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+            smtp.send_message(msg)
+        print(f"[✔] Superuser dostal e-mail ohledně žádosti o vyplácení odeslán na {recipient}")
+    except Exception as e:
+        print(f"[✖] Chyba při odesílání automatického e-mailu pro superuser: {e}")
 
 # -------------------------------------------------------------------
 #                    LISTING DETAIL
 # -------------------------------------------------------------------
+
 def listing_detail(request, book_url, listing_id):
     book = get_object_or_404(Book, url=book_url)
     listing = get_object_or_404(Booklisting, booklistingid=listing_id, book=book)
+    user = request.user
+    
+    # Výpočet proměnné pro množství k vyplacení
+    amount_to_pay = Booklisting.objects.filter(
+        user=user,
+        status='COMPLETED',
+        paidtoseller=False,
+    )
+    
+    pay_to_user = amount_to_pay.aggregate(total_price=Sum(F('price')))
+    
+    total_user_payment = pay_to_user['total_price']
+    
+    
+    # Výpočet prodaných knih
+    user_sold_books = Booklisting.objects.filter(
+        user=user,
+        status='COMPLETED',
+        listingtype__in=['SELL', 'GIVE'],
+    ).count()
+
+    # Výpočet koupených knih
+    user_buyed_books = Booklisting.objects.filter(
+        buyer=user,
+        status='COMPLETED',
+        listingtype__in=['SELL', 'GIVE'],
+    ).count()
+
+    # Výpočet knih, které uživatel prodává
+    user_pending_books = Booklisting.objects.filter(
+        user=user,
+        status__in=['ACTIVE', 'RESERVED'],
+        listingtype__in=['SELL', 'GIVE'],
+    ).count()
+
+    user_pending_amount = Booklisting.objects.filter(
+        user=user,
+        status__in=['ACTIVE', 'RESERVED'],
+        listingtype__in=['SELL', 'GIVE'],
+    )
+
+    pending_to_user = user_pending_amount.aggregate(pending_price=Sum(F('price')))
+    
+    total_user_pending = pending_to_user['pending_price']
+
+    user_paid_amount = Booklisting.objects.filter(
+        user=user,
+        status='completed',
+        paidtoseller= True,
+    )
+
+    paid_to_user = user_paid_amount.aggregate(total_price=Sum(F('price')))
+    total_user_paid_amount = paid_to_user['total_price'] or 0
 
     if request.method == 'POST' and request.user.is_authenticated:
+        if 'request_payout' in request.POST:
+            amount_to_pay_for_update = Booklisting.objects.filter(
+                user=user,
+                status='COMPLETED',
+                paidtoseller=False,
+                requestpayout=False,
+            )
+            pay_to_user_update = amount_to_pay_for_update.aggregate(total_price=Sum(F('price')))
+            total_user_payment_update = pay_to_user_update['total_price']
+
+            if total_user_payment_update is not None and total_user_payment_update > 0:
+                amount_to_pay_for_update.update(
+                    requestpayout=True,
+                )
+                send_listing_request_seller_payment(listing)
+                messages.success(request, f'Žádost o vyplacení částky {total_user_payment_update} Kč byla odeslána. Počkejte prosím na zpracování.')
+                return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
+            else:
+                messages.error(request, 'Neexistují žádné nevyplacené transakce.')
+        
         # REZERVACE
-        if 'reserve_listing' in request.POST and request.user != listing.user:
+        elif 'reserve_listing' in request.POST and request.user != listing.user:
             if listing.status != 'ACTIVE':
                 messages.error(request, 'Nabídka již není aktivní.')
             else:
@@ -340,7 +452,7 @@ def listing_detail(request, book_url, listing_id):
                     if commission < 0:
                         commission = 0
                 except:
-                    commission = 10  # výchozí hodnota
+                    commission = 10 
     
                 listing.commission = commission
                 shippingaddress = request.POST.get("shippingaddress", "").strip()
@@ -357,46 +469,25 @@ def listing_detail(request, book_url, listing_id):
                 if profile and not profile.shippingaddress:
                     profile.shippingaddress = shippingaddress
                     profile.save()
-
-
-                phone = request.POST.get("phone", "").strip()
-                if profile and not profile.phone:
-                    profile.phone = phone
-                    profile.save()
     
                 messages.success(request, 'Nabídka byla rezervována.')
                 send_listing_reservation_email(request, listing.booklistingid)
                 return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
-
-
-        # Poslánjí knihy
+        
+        # Poslání knihy
         elif 'shipping_listing' in request.POST and request.user == listing.user: 
             if listing.status != 'PAID':
                 messages.error(request, 'Nabídka není ve stavu pro potvrzení odeslání knihy.')
             else:
                 listing.status = 'SHIPPED'
                 listing.save()
-                messages.success(request, 'Odeslání knihy bylo potvrzení')
+                messages.success(request, 'Odeslání knihy bylo potvrzeno')
                 send_listing_shipped_email(listing)
                 return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
 
-
-        # DOKONČENÍ (pro prodávajícího)
+        # DOKONČENÍ (pro kupujícího)
         elif 'complete_listing' in request.POST and request.user == listing.buyer:
             if listing.status not in ['SHIPPED', 'PAID']:
-                messages.error(request, 'Nabídka není ve stavu pro dokončení.')
-            else:
-                listing.status = 'COMPLETED'
-                listing.save()
-                send_listing_completed_email_buyer(listing)
-                send_listing_completed_email_seller(listing)
-                messages.success(request, 'Transakce byla dokončena.')
-                return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
-
-
-        # DOKONČENÍ (pro prodávajícího)
-        elif 'complete_listing' in request.POST and request.user == listing.user:
-            if listing.status != 'RESERVED':
                 messages.error(request, 'Nabídka není ve stavu pro dokončení.')
             else:
                 listing.status = 'COMPLETED'
@@ -407,6 +498,18 @@ def listing_detail(request, book_url, listing_id):
                 messages.success(request, 'Transakce byla dokončena.')
                 return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
 
+        # DOKONČENÍ (pro prodávajícího)
+       # elif 'complete_listing' in request.POST and request.user == listing.user:
+          #  if listing.status != 'RESERVED':
+              #  messages.error(request, 'Nabídka není ve stavu pro dokončení.')
+          #  else:
+          #      listing.status = 'COMPLETED'
+           #     listing.completedat = timezone.now()
+         #      listing.save()
+         #       send_listing_completed_email_buyer(listing)
+         #       send_listing_completed_email_seller(listing)
+        #       messages.success(request, 'Transakce byla dokončena.')
+        #        return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
 
         # Hodnocení prodávající/kupující
         elif 'sellerrating' in request.POST and request.user == listing.buyer:
@@ -417,7 +520,7 @@ def listing_detail(request, book_url, listing_id):
                 listing.sellercomment = request.POST.get('comment')
                 listing.save()
                 messages.success(request, 'Hodnocení kupujícího bylo přidáno.')
-
+        
         elif 'buyerrating' in request.POST and request.user == listing.user:
             if listing.buyerrating:
                 messages.error(request, 'Hodnocení již bylo přidáno.')
@@ -442,9 +545,7 @@ def listing_detail(request, book_url, listing_id):
             'variable_symbol': vs,
             'note': qr_message
         }
-
-     
-
+    
     # Možnost hodnocení/zrušení pro správného uživatele
     can_rate_seller = (listing.status == 'COMPLETED' and request.user == listing.buyer and not listing.sellerrating)
     can_rate_buyer = (listing.status == 'COMPLETED' and request.user == listing.user and not listing.buyerrating)
@@ -453,7 +554,6 @@ def listing_detail(request, book_url, listing_id):
     can_cancel_offer = (request.user == listing.user and listing.status in ['ACTIVE', 'RESERVED'])
     can_confirm_shipping = (listing.status == 'PAID' and request.user == listing.user)
     can_complete_transaction = (listing.status == 'SHIPPED' and request.user == listing.buyer)
-
 
     recent_sell_listings = Booklisting.objects.filter(
         listingtype__in=["SELL", "GIVE"], status="ACTIVE"
@@ -471,7 +571,6 @@ def listing_detail(request, book_url, listing_id):
     print(recent_sell_listings)
     print(recent_buy_listings)
 
-
     return render(request, 'books/listing_detail.html', {
         'book': book,
         'listing': listing,
@@ -485,6 +584,12 @@ def listing_detail(request, book_url, listing_id):
         'debug_post': debug_post,
         'recent_sell_listings': recent_sell_listings,
         'recent_buy_listings': recent_buy_listings,
+        'total_user_payment': total_user_payment,
+        'user_sold_books': user_sold_books,
+        'user_buyed_books': user_buyed_books,
+        'user_pending_books': user_pending_books,
+        'total_user_pending': total_user_pending,
+        'total_user_paid_amount':total_user_paid_amount,
     })
 
 
@@ -649,7 +754,6 @@ def send_listing_payment_email(listing):
         'amount': amount,
         'shipping': shipping,
         'shippingaddress': listing.shippingaddress,
-        'buyer_phone': listing.buyer.userprofile.phone,
         'user_name': seller.first_name or seller.username if seller else "",
     }
 
@@ -699,7 +803,6 @@ def send_listing_reservation_email(request, listing_id):
             'amount': int(float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0)),
             'payment_info': payment_info,
             'shippingaddress': listing.shippingaddress,
-            'uyer_phone': listing.buyer.userprofile.phone,
         }
 
         recipient = request.user.email

@@ -1,137 +1,263 @@
-<!-- NOVÉ OD WENDY -->
-{% extends "books/base.html" %}
-{% load i18n %}
-{% load ratings %}
-{% load static %}
+<!-- templates/books/book_add.html -->
+{% extends "admin/base.html" %}
 
-{% block title %} {{ book.titlecz }} | DIV.cz{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
-
-<link rel="stylesheet" href="/static/css/add_book.css">
-
-<div class="row container my-5">
-    <h1 class="w-full mb-8">Přidat knihu</h1>
-
-
-
-<!--
-<p>Formulář na přidávání knih je skryt.</p>
-<p>Pro přidání knihy napište prosím sem <a href="https://div.cz/forum/knihy/chybejici-kniha-v-db">do fóra na div.cz</a>.</p>
-
-<p>Děkujeme!</p>
-<p>Tým DIV.cz</p>-->
-
-
-
-    <!-- Přidání knihy -->
-    <div id="manual-tab" class="tabcontent w-full">
-        <form class="w-4/5 flex-col" style="margin: 0 auto;" method="post" action="{% url 'add_book' %}" id="manual-form">
-            {% csrf_token %}
-            <!-- NÁZEV KNIHY V ČEŠTINĚ -->
-            <div class="form-group">
-                <label for="manual-title">Název knihy: ( musí být vyplněno )</label>
-                <input type="text" id="manual-title" name="title" placeholder="Moje kniha">
-            </div>
-            <!-- ORIGINÁLNÍ NÁZEV -->
-            <div class="form-group">
-                <label for="manual-title">Originální název: ( musí být vyplněno )</label>
-                <input type="text" id="manual-title" name="title" placeholder="My book (2016) - nejlépe i s rokem">
-            </div>
-            <!-- AUTOR -->
-            <div class="form-group">
-                <label for="manual-author">Autor: ( musí být vyplněno )</label>
-                <input type="text" id="manual-author" name="author" placeholder="vyber autora" class="readonly">
-                <ul id="manual-author-results" class="list-group"></ul>
-            </div>
-            <!-- ROZBALOVACÍ MENU? POKUD TO MÁ SÉRIE -->
-            <div class="form-group">
-                <label for="manual-serie">Série: </label>
-                <input type="text" id="manual-serie" name="serie" placeholder="vyber sérii, pokud do nějaké patří">
-                <ul id="manual-series-results" class="list-group"></ul>
-            </div>   
-            <!-- ROK VYDÁNÍ -->     
-            <div class="form-group">
-                <label for="manual-year">Rok: </label>
-                <input type="number" id="manual-year" name="year" placeholder="2000">
-            </div>
-            <!-- POČET STRAN -->
-            <div class="form-group">
-                <label for="manual-pages">Počet stránek: </label>
-                <input type="number" id="manual-pages" name="pages" class="required-input" placeholder="321">
-            </div>
-            <!-- POPIS KNIHY -->
-            <div class="form-group">
-                <label for="manual-description">Popis knihy: ( max 1800 znaků )</label>
-                <textarea id="manual-description" name="description"></textarea>
-            </div>
-            <!-- JAZYK -->
-            <div class="form-group">
-                <label for="manual-language">Jazyk: ( 2 znaky -> cs:čestina, en:angličtina, jp:japonština... )</label>
-                <input type="text" id="manual-language" name="language">
-            </div>
-
-            <div class="form-group">
-                <label for="manual-googleid">GoogleID:</label>
-                <input type="text" id="manual-googleid" name="googleid">
-            </div>
-            <!-- VLOŽENÍ OBRÁZKU -->
-            <div class="form-group">
-                <label>Vyberte způsob přidání obrázku:</label>
-                <div class="radio-group mt-3">
-                    <div class="flex">
-                        <input type="radio" id="manual-google-id-option" name="manual-img-option" value="google-id">
-                        <label class="ml-2 mb-0" for="manual-google-id-option">Použít Google ID</label>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1 class="mb-4">{{ page_title }}</h1>
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
-                    <div class="flex">
-                        <input type="radio" id="manual-no-img-option" name="manual-img-option" value="no-img" checked>
-                        <label class="ml-2 mb-0" for="manual-no-img-option">Použít výchozí obrázek</label>
+                {% endfor %}
+            {% endif %}
+            
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Základní informace</h5>
                     </div>
-                    <div class="flex">
-                        <input type="radio" id="manual-upload-img-option" name="manual-img-option" value="upload-img">
-                        <label class="ml-2 mb-0" for="manual-upload-img-option">Nahrát vlastní obrázek</label>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.title.id_for_label }}" class="form-label">
+                                        {{ form.title.label }}
+                                    </label>
+                                    {{ form.title }}
+                                    {% if form.title.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.title.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.titlecz.id_for_label }}" class="form-label">
+                                        {{ form.titlecz.label }}
+                                    </label>
+                                    {{ form.titlecz }}
+                                    {% if form.titlecz.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.titlecz.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.subtitle.id_for_label }}" class="form-label">
+                                {{ form.subtitle.label }}
+                            </label>
+                            {{ form.subtitle }}
+                            {% if form.subtitle.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.subtitle.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.author.id_for_label }}" class="form-label">
+                                        {{ form.author.label }}
+                                    </label>
+                                    {{ form.author }}
+                                    {% if form.author.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.author.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.authorid.id_for_label }}" class="form-label">
+                                        {{ form.authorid.label }}
+                                    </label>
+                                    {{ form.authorid }}
+                                    {% if form.authorid.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.authorid.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.year.id_for_label }}" class="form-label">
+                                        {{ form.year.label }}
+                                    </label>
+                                    {{ form.year }}
+                                    {% if form.year.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.year.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.pages.id_for_label }}" class="form-label">
+                                        {{ form.pages.label }}
+                                    </label>
+                                    {{ form.pages }}
+                                    {% if form.pages.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.pages.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.language.id_for_label }}" class="form-label">
+                                        {{ form.language.label }}
+                                    </label>
+                                    {{ form.language }}
+                                    {% if form.language.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.language.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                {{ form.description.label }}
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.description.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Kontejner pro nahrávání obrázku -->
-            <div class="form-group" id="update-img-file-container">
-                <label class="mb-0" for="update-img-file">Vyberte obrázek:</label>
-                <input type="file" id="update-img-file" name="img-file" accept="image/*">
-                <input type="text" id="update-img" readonly>
-            </div>
-            <!-- ŽÁNR -->
-            <div class="form-group">
-                <label for="manual-genre-search">Žánry: ( zadejte 3 znaky pro nápovědu ) lze přidat více žánrů</label>
-                <input type="text" id="manual-genre-search">
-                <ul id="manual-genre-results" class="list-group"></ul>
-                <ul id="manual-selected-genres" class="list-group"></ul>
-            </div>
-
-            <!-- Pole pro zadání ISBN a typu ISBN -->
-            <div id="manual-isbn-fields-container">
-                <!-- Dynamicky generovaná pole pro ISBN a typ ISBN budou vložena sem -->
-            </div>
-            <div class="form-group">
-                <button type="button" class="add-isbn-btn add" data-tab="manual">Přidat ISBN</button>
-            </div>
-
-            <div class="form-group">
-                <label for="manual-publisher-search">Vydavatel: ( zadejte 3 znaky pro nápovědu ) - pouze jeden vydavatel pro všechna ISBN</label>
-                <input type="text" id="manual-publisher-search">
-                <ul id="manual-publisher-results" class="list-group"></ul>
-                <input type="hidden" id="manual-publisherid" name="publisherid" class="readonly">
-                <ul id="manual-selected-publisher" class="list-group"></ul>
-            </div>
-            
-            <div class="form-group">
-                <button class="add" type="submit" id="manual-form-submit">Přidat Knihu</button>
-            </div>
-        </form>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Kategorizace</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.genres.id_for_label }}" class="form-label">
+                                        {{ form.genres.label }}
+                                    </label>
+                                    {{ form.genres }}
+                                    <small class="form-text text-muted">
+                                        Držte Ctrl (Cmd) pro výběr více žánrů
+                                    </small>
+                                    {% if form.genres.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.genres.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.publisher.id_for_label }}" class="form-label">
+                                        {{ form.publisher.label }}
+                                    </label>
+                                    {{ form.publisher }}
+                                    {% if form.publisher.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.publisher.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Obrázek obálky</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="{{ form.cover_image.id_for_label }}" class="form-label">
+                                {{ form.cover_image.label }}
+                            </label>
+                            {{ form.cover_image }}
+                            <small class="form-text text-muted">
+                                Maximální velikost: 10MB. Formáty: JPG, PNG
+                            </small>
+                            {% if form.cover_image.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.cover_image.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-save"></i> Uložit knihu
+                    </button>
+                    <a href="{% url 'admin:index' %}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times"></i> Zrušit
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-
-
-
+<script>
+// Initialize Select2 for better UX (optional)
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof $ !== 'undefined' && $.fn.select2) {
+        $('.select2').select2({
+            placeholder: "Vyberte...",
+            allowClear: true,
+            width: '100%'
+        });
+    }
+    
+    // Image preview
+    const imageInput = document.getElementById('{{ form.cover_image.id_for_label }}');
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    let preview = document.getElementById('image-preview');
+                    if (!preview) {
+                        preview = document.createElement('div');
+                        preview.id = 'image-preview';
+                        preview.className = 'mt-3';
+                        imageInput.parentNode.appendChild(preview);
+                    }
+                    preview.innerHTML = `<img src="${e.target.result}" class="img-thumbnail" style="max-height: 200px;">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

@@ -37,22 +37,21 @@
                             {{ error }}
                             {% endfor %}
                             </small>
-                        {% endif %}
+                            {% endif %}
 
-<div class="form-group w-full">
-    <label class="font-bold" for="id_bankaccount">Číslo účtu (pro výběr v Divkvariát):</label>
-    <input type="text" name="bankaccount" maxlength="32" id="id_bankaccount"
-           value="{{ form.bankaccount.value|default_if_none:'' }}" class="form-control" placeholder="Nepovinné">
+                            <div class="form-group w-full">
+                                <label class="font-bold" for="id_bankaccount">Číslo účtu (pro výběr v Divkvariát):</label>
+                                <input type="text" name="bankaccount" maxlength="32" id="id_bankaccount"
+                                    value="{{ form.bankaccount.value|default_if_none:'' }}" class="form-control" placeholder="Nepovinné">
 
-    {% if form.bankaccount.errors %}
-    <small class="text-danger">
-        {% for error in form.bankaccount.errors %}
-        {{ error }}
-        {% endfor %}
-    </small>
-    {% endif %}
-</div>
-
+                                {% if form.bankaccount.errors %}
+                                <small class="text-danger">
+                                    {% for error in form.bankaccount.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </small>
+                                {% endif %}
+                            </div>
                         </div>
                         
                         <div class="flex flex-wrap lg:ml-4">
@@ -68,14 +67,17 @@
                                     {% endfor %}
                                 </small>
                                 {% endif %}
-    <label class="font-bold">E-mail:</label>
-    <input type="email" class="form-control" value="{{ user.email }}" readonly disabled>
-    <small class="text-muted">Tento e-mail slouží k potvrzení rezervací a nákupů.</small>
+                                <div>
+                                    <label class="font-bold">E-mail:</label>
+                                    <input type="email" class="form-control" value="{{ user.email }}" readonly disabled>
+                                    <small class="text-muted">Tento e-mail slouží k potvrzení rezervací a nákupů.</small>
+                                </div>
+                                <div>
+                                    <label class="font-bold">Telefon:</label>
+                                    <input type="phone" class="form-control" value="" placeholder="+420 123 456 789">
+                                    <small class="text-muted">Tento telefon slouží ke komunikaci mezi prodejce a kupujícím.</small>
+                                </div>
                             </div>
-
-
-
-
 
                             <!-- Pole Location -->
                             <div class="form-group w-full">

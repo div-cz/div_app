@@ -2,11 +2,8 @@
 #                    FORMS.DIVKVARIAT.PY
 # -------------------------------------------------------------------
 
-
 from django import forms
-#from django.contrib.auth.models import User
 from div_content.models import Booklisting
-
 
 class BookListingForm(forms.ModelForm):
     price = forms.DecimalField(
@@ -29,10 +26,11 @@ class BookListingForm(forms.ModelForm):
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     )
     phone = forms.CharField(
-        required=True,
-        label='Telefon',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'required': 'required'})
+        required=False,   # <- už není povinný
+        label='Telefon (volitelně)',
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
+
     class Meta:
         model = Booklisting
         fields = ['listingtype', 'price', 'shipping', 'description', 'condition', 'location', 'personal_pickup']
@@ -51,20 +49,35 @@ class BookListingForm(forms.ModelForm):
             'condition': forms.TextInput(attrs={'class': 'form-control'}),
             'location': forms.TextInput(attrs={'class': 'form-control'})
         }
+
     def __init__(self, *args, **kwargs):
+        # nově přijímáme user
+        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+
         if not self.initial.get('listingtype'):
             self.initial['listingtype'] = 'SELL'
         if self.initial.get('listingtype') == 'GIVE':
             self.fields['price'].widget = forms.HiddenInput()
             self.fields['shipping'].widget = forms.HiddenInput()
-            self.fields['commission'].widget = forms.HiddenInput()
-    
+            # pozor: commission tu ani není field → tohle by klidně mohlo pryč
+            # self.fields['commission'].widget = forms.HiddenInput()
+
+        # předvyplnění telefonu z profilu
+        if self.user and hasattr(self.user, "userprofile") and self.user.userprofile.phone:
+            self.fields['phone'].initial = self.user.userprofile.phone
+
     def save(self, commit=True):
         instance = super().save(commit=False)
         if instance.listingtype == 'SELL':
             instance.commission = 0
         if commit:
             instance.save()
-        return instance
 
+            # pokud user vyplnil telefon, ulož ho do profilu
+            if self.user and self.cleaned_data.get("phone"):
+                profile = getattr(self.user, "userprofile", None)
+                if profile:
+                    profile.phone = self.cleaned_data["phone"]
+                    profile.save()
+        return instance

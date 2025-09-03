@@ -44,7 +44,9 @@ import unicodedata
 from datetime import datetime
 from decimal import Decimal
 
-from django.contrib.auth.decorators import login_required
+from django.conf import settings
+
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 
@@ -63,11 +65,11 @@ from django.views.decorators.http import require_POST
 
 from dotenv import load_dotenv
 
-from div_content.forms.books import BookAddForm, BookDivRatingForm, BookCharacterForm, BookListingForm, Bookquoteform, CommentFormBook, SearchFormBooks
+from div_content.forms.books import BookAddForm, BookDivRatingForm, BookCharacterForm, BookListingForm, Bookquoteform, CommentFormBook, ManualBookForm, SearchFormBooks
 from div_content.forms.divkvariat import BookListingForm
 from div_content.models import (
     Book, Bookauthor, Bookcharacter, Bookcomments, Bookcover, Bookgenre, Bookisbn, Booklisting, 
-    Bookpublisher, Bookpurchase, Bookquotes, Bookrating, Bookwriters, Charactermeta, Metagenre, Metaindex, Metastats, Metauniversum, Userlist, Userlistbook, Userlisttype, FavoriteSum, Userbookgoal, Userlistitem
+    Bookpublisher, Bookpurchase, Bookquotes, Bookrating, Booksource, Bookwriters, Charactermeta, Metagenre, Metaindex, Metastats, Metauniversum, Userlist, Userlistbook, Userlisttype, FavoriteSum, Userbookgoal, Userlistitem
 )
 
 from div_content.utils.books import get_market_listings
@@ -102,6 +104,10 @@ USERLISTTYPE_BOOK_LIBRARY_ID = 10 # Knihovna
 #CONTENT_TYPE_BOOK_ID = 9
 book_content_type = ContentType.objects.get_for_model(Book)
 CONTENT_TYPE_BOOK_ID = book_content_type.id
+
+def is_staff(user):
+    return user.is_staff or user.is_superuser
+
 
 
 
@@ -588,7 +594,7 @@ def book_detail(request, book_url):
                 messages.success(request, 'Nabídka byla úspěšně vytvořena.')
                 return redirect('book_detail', book_url=book_url)
         else:
-            booklisting_form = BookListingForm()
+            booklisting_form = BookListingForm(user=request.user)
 
     # Načtení nabídek
     listings = order_listings(
@@ -885,23 +891,113 @@ def books_search(request):
 #    return render(request, 'books/books_search.html', {'books': books})
 
 
+#def book_add(request):
+#    return render(request, "books/book_add.html")
+
+@login_required
+@user_passes_test(is_staff)
 def book_add(request):
-    form = BookAddForm(request.POST or None)
-    book_data = None
-    status_code = None
-    api_response = None
-
-    if request.method == 'POST' and form.is_valid():
-        api_key = os.getenv('GOOGLE_API_KEY')
-        identifier = form.cleaned_data['identifier']
-        book_data, status_code, api_response = fetch_book_from_google_by_id(api_key, identifier)
-
-    return render(request, 'books/book_add.html', {
-        'form': form,
-        'book_data': book_data,
-        'status_code': status_code,
-        'api_response': api_response
+    if request.method == "POST":
+        form = ManualBookForm(request.POST, request.FILES)
+        if form.is_valid():
+            book = form.save(commit=False)
+            
+            # Vygeneruj URL slug
+            from div_management.shared.universal_url_cleaner import clean_url
+            if not book.url:
+                base_url = clean_url(book.title)
+                if not base_url:
+                    base_url = "kniha"
+                
+                # Zajisti unikátnost
+                counter = 1
+                unique_url = base_url
+                while Book.objects.filter(url=unique_url).exists():
+                    unique_url = f"{base_url}-{counter}"
+                    counter += 1
+                
+                book.url = unique_url
+            
+            # Nastav výchozí hodnoty
+            if not book.titlecz:
+                book.titlecz = book.title
+            book.img = 'noimg.png'
+            book.divrating = 0
+            
+            book.save()
+            
+            # Zpracuj autor -> BookWriters
+            if book.authorid:
+                Bookwriters.objects.get_or_create(book=book, author=book.authorid)
+                if not book.author:
+                    book.author = f"{book.authorid.firstname} {book.authorid.lastname}".strip()
+                    book.save()
+            
+            # Zpracuj žánry
+            genres = form.cleaned_data.get("genres", [])
+            for genre in genres:
+                Bookgenre.objects.get_or_create(bookid=book, genreid=genre)
+            
+            # Zpracuj obrázek
+            cover_image = form.cleaned_data.get('cover_image')
+            if cover_image:
+                image_path = save_book_cover(book, cover_image)
+                if image_path:
+                    book.img = image_path
+                    book.save()
+            
+            # Vytvoř záznam zdroje
+            Booksource.objects.create(
+                bookid=book,
+                sourcetype="MANUAL",
+                externalid=f"manual-{book.bookid}",
+                externaltitle=book.title,
+                externalauthors=book.author or "",
+                externalurl=f"/knihy/{book.url}/"
+            )
+            
+            messages.success(request, f"Kniha '{book.title}' byla úspěšně přidána.")
+            return redirect("book_detail", book_url=book.url)
+            
+        else:
+            messages.error(request, "Formulář obsahuje chyby. Zkontrolujte zadané údaje.")
+    
+    else:
+        form = ManualBookForm()
+    
+    return render(request, "books/book_add.html", {
+        "form": form,
+        "page_title": "Přidat knihu ručně"
     })
+
+def save_book_cover(book, image_file):
+    """Uloží obrázek obálky knihy"""
+    try:
+        # Validace velikosti
+        if image_file.size > 10 * 1024 * 1024:  # 10MB
+            return None
+        
+        # Vytvoř cestu
+        year = datetime.now().year
+        media_path = f"/var/www/media.div.cz/knihy/{year}/"
+        os.makedirs(media_path, exist_ok=True)
+        
+        # Název souboru
+        filename = f"{book.bookid}-{book.url}.jpg"
+        full_path = os.path.join(media_path, filename)
+        
+        # Ulož soubor
+        with open(full_path, 'wb+') as destination:
+            for chunk in image_file.chunks():
+                destination.write(chunk)
+        
+        # Vrať relativní cestu
+        return f"knihy/{year}/{filename}"
+        
+    except Exception as e:
+        print(f"Chyba při ukládání obrázku: {e}")
+        return None
+
 
 
 # Přidat do sezanmu: Oblíbené knihy

@@ -31,6 +31,59 @@
         border-radius: 10px;
         width: 50%;
     }
+   .rating-comment-container {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.comment-popup {
+    visibility: hidden;
+    width: 250px;
+    background-color: #f9f9f9;
+    color: #333;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1000;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -125px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.rating-comment-container:hover .comment-popup {
+    visibility: visible;
+    opacity: 1;
+}
+
+.comment-popup::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #f9f9f9 transparent transparent transparent;
+}
+
+.obchod-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 2fr 1fr 1.5fr;
+}
+
+@media (max-width: 768px) {
+    .obchod-grid {
+        grid-template-columns: 1fr 1fr 2fr 1fr 1.5fr;
+    }
+    .hide-on-mobile {
+        display: none;
+    }
+}
 
 </style>
 
@@ -260,13 +313,13 @@
 
 <div id="burza-knih" class="tab-show w-full {% if category == 'burza-knih' %}active{% endif %}">
     <div class="profile-card-tab">
-        <h3 class="after-h3 padding">Zakoupené knihy (z Burzy)</h3>
+        <h3 class="after-h3 padding">Zakoupené knihy (z burzy - divkvariát)</h3>
         <div class="flex flex-wrap">
             {% if burza_bought %}
                 {% for b in burza_bought %}
                     <div class="flex border w-full md:w-1/2 p-3 mb-3">
                         <div>
-                            <img src="{% if b.book.img and b.book.img != 'noimg.png' %}/static/kniha/{{ b.book.img }}{% else %}https://div.cz/static/img/book/book.png{% endif %}" alt="{{ b.book.titlecz|default:b.book.title }}" style="max-width: 150px;">
+                            <img src="{% if b.book.img and b.book.img != 'noimg.png' %}https://media.div.cz/knihy/{{ b.book.img }}{% else %}https://div.cz/static/img/book/book.png{% endif %}" alt="{{ b.book.titlecz|default:b.book.title }}" style="max-width: 150px;">
                         </div>
                         <div class="flex flex-wrap content-between w-full">
                             <div class="p-1 w-full">
@@ -278,11 +331,11 @@
                                 {% endfor %}
                             </div>
                             <div class="p-1 w-full">{{ b.completedat|date:"j. n. Y H:i" }}</div>
-                            <div class="p-1 w-full">{{ b.price|floatformat:0 }} Kč</div>
+                            <div class="p-1 w-full">Cena: {{ b.price|floatformat:0 }} Kč</div>
                             <div class="flex flex-wrap justify-between items-center w-full">
-                                <div class="p-1"><a href="/uzivatel/{{ b.user.id }}/">{{ b.user.username }}</a></div>
+                                <div class="p-1">Prodejce: <a href="/uzivatel/{{ b.user.id }}/">{{ b.user.username }}</a></div>
                                 <div>
-                                    <button class="add-book m-0">recenze</button>
+                                    <!--<button class="add-book m-0">recenze</button>-->
                                     <!-- Popup pro recenzi viz původní blok – stejný jako ve tvém zadání -->
                                     {% if user.is_authenticated %}
                                         <div class="overlay hidden"></div>
@@ -341,13 +394,13 @@
 
         <hr>
 
-        <h3 class="after-h3 mt-8 padding">Prodané knihy (z Burzy)</h3>
+        <h3 class="after-h3 mt-8 padding">Prodané knihy (z burzy - divkvariát)</h3>
         <div class="flex flex-wrap">
             {% if burza_sold %}
                 {% for s in burza_sold %}
                     <div class="flex border w-full md:w-1/2 p-3 mb-3">
                         <div>
-                            <img src="{% if s.book.img and s.book.img != 'noimg.png' %}/static/kniha/{{ s.book.img }}{% else %}https://div.cz/static/img/book/book.png{% endif %}" alt="{{ s.book.titlecz|default:s.book.title }}" style="max-width: 150px;">
+                            <img src="{% if s.book.img and s.book.img != 'noimg.png' %}https://media.div.cz/knihy/{{ s.book.img }}{% else %}https://div.cz/static/img/book/book.png{% endif %}" alt="{{ s.book.titlecz|default:s.book.title }}" style="max-width: 150px;">
                         </div>
                         <div class="flex flex-wrap content-between w-full">
                             <div class="p-1 w-full">
@@ -359,17 +412,17 @@
                                 {% endfor %}
                             </div>
                             <div class="p-1 w-full">{{ s.completedat|date:"j. n. Y H:i" }}</div>
-                            <div class="p-1 w-full">{{ s.price|floatformat:0 }} Kč</div>
+                            <div class="p-1 w-full">Cena: {{ s.price|floatformat:0 }} Kč</div>
                             <div class="flex flex-wrap justify-between items-center w-full">
                                 <div class="p-1">
                                     {% if s.buyer %}
-                                        <a href="/uzivatel/{{ s.buyer.id }}/">{{ s.buyer.username }}</a>
+                                        Prodejce: <a href="/uzivatel/{{ s.buyer.id }}/">{{ s.buyer.username }}</a>
                                     {% else %}
                                         <span class="text-gray-400">—</span>
                                     {% endif %}
                                 </div>
                                 <div>
-                                    <button class="add-book m-0">recenze</button>
+                                    <!--<button class="add-book m-0">recenze</button>-->
                                     <!-- Popup stejný jako výše -->
                                     {% if user.is_authenticated %}
                                         <div class="overlay hidden"></div>
@@ -464,7 +517,7 @@
                                         <a href="">prodejce</a>
                                     </div>
                                     <div>
-                                        <button class="add-book m-0">recenze</button> <!-- pokud bude udělena recenze, tak asi zneaktivovat?-->
+                                        <!--<button class="add-book m-0">recenze</button> --><!-- pokud bude udělena recenze, tak asi zneaktivovat?-->
 
                                         <!-- Popup okno -->
                                         {% if user.is_authenticated %}
@@ -541,7 +594,7 @@
                                         <a href="">prodejce</a>
                                     </div>
                                     <div>
-                                        <button class="add-book m-0">recenze</button> <!-- pokud bude udělena recenze, tak asi zneaktivovat?-->
+                                        <!--<button class="add-book m-0">recenze</button>--> <!-- pokud bude udělena recenze, tak asi zneaktivovat?-->
 
                                         <!-- Popup okno -->
                                         {% if user.is_authenticated %}
@@ -654,7 +707,7 @@
                                             <a href="">kupující</a>
                                         </div>
                                         <div>
-                                            <button class="add-book m-0">recenze</button> <!-- pokud bude udělena recenze, tak asi zneaktivovat?-->
+                                            <!--<button class="add-book m-0">recenze</button>--> <!-- pokud bude udělena recenze, tak asi zneaktivovat?-->
 
                                             <!-- Popup okno -->
                                             {% if user.is_authenticated %}
@@ -731,7 +784,7 @@
                                             <a href="">kupující</a>
                                         </div>
                                         <div>
-                                            <button class="add-book m-0">recenze</button> <!-- pokud bude udělena recenze, tak asi zneaktivovat?-->
+                                            <!--<button class="add-book m-0">recenze</button>--> <!-- pokud bude udělena recenze, tak asi zneaktivovat?-->
 
                                             <!-- Popup okno -->
                                             {% if user.is_authenticated %}
@@ -856,58 +909,61 @@
         </div>
     {% endif %}
 
-
-
-    <h3 class="after-h3 padding mt-8">Jednotlivá hodnocení</h3>
-    <div class="flex flex-wrap">
-        <div class="table w-full">
-            <div class="grid obchod-grid bg-[#c0c0c0] dark:text-black" style="grid-template-columns: 1fr 1fr 1fr 2fr 1fr 1.5fr;">
-                <div class="text-center font-bold p-1 border-r border-white">Datum</div>
-                <div class="text-center font-bold p-1 border-r border-white">Hodnocení</div>
-                <div class="text-center font-bold p-1 border-r border-white">Hodnocen</div>
-                <div class="text-center font-bold p-1 border-r border-white">Komentář</div>
-                <div class="text-center font-bold p-1 border-r border-white">Hodnotil</div>
-                <div class="text-center font-bold p-1">Inzerát</div>
-            </div>
-            
-            {% if all_individual_ratings %}
-                {% for rating_data in all_individual_ratings %}
-                    <div class="grid obchod-grid border-b border-gray-200" style="grid-template-columns: 1fr 1fr 1fr 2fr 1fr 1.5fr;">
-                        <div class="text-center p-1 border-r border-gray-200">{{ rating_data.created_at|date:"d.m.Y" }}</div>
-                        <div class="text-center p-1 border-r border-gray-200">
-                            {% for i in "12345"|make_list %}
-                                {% if forloop.counter <= rating_data.value %}★{% else %}☆{% endif %}
-                            {% endfor %}
-                        </div>
-                        <div class="text-center p-1 border-r border-gray-200">{{ rating_data.type }}</div>
-                        <div class="text-left p-1 border-r border-gray-200">{{ rating_data.comment }}</div>
-                        <div class="text-center p-1 border-r border-gray-200">
-                            {% if rating_data.rater %}
-                                <a href="{% url 'myuser_detail' user_id=rating_data.rater.id %}" class="text-blue-600 hover:underline">{{ rating_data.rater.username }}</a>
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </div>
-                        <div class="text-center p-1">
-                            {% if rating_data.listing_id %}
-                                <a href="{% url 'listings_detail' listing_id=rating_data.listing_id %}" class="text-blue-600 hover:underline">{{ rating_data.listing_title }}</a>
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <div class="grid obchod-grid">
-                    <div class="p-4 col-span-6 text-center">Tento uživatel zatím neobdržel žádná jednotlivá hodnocení.</div>
-                </div>
-            {% endif %}
-        </div>
+<div class="filter-options" style="float: right; margin-bottom: 10px;" >
+    <label for="sort_by">Seřadit podle:</label>
+    <select name="sort_by" id="sort_by" style="color: black;" onchange="window.location.href = this.value;">
+        <option value="{% url 'profile_eshop_section' user_id=profile_user.id %}?sort=newest#hodnoceni" {% if current_sort == 'newest' %}selected{% endif %}>Nejnovější</option>
+        <option value="{% url 'profile_eshop_section' user_id=profile_user.id %}?sort=highest#hodnoceni" {% if current_sort == 'highest' %}selected{% endif %}>Nejvyšší hodnocení</option>
+        <option value="{% url 'profile_eshop_section' user_id=profile_user.id %}?sort=lowest#hodnoceni" {% if current_sort == 'lowest' %}selected{% endif %}>Nejnižší hodnocení</option>
+        <option value="{% url 'profile_eshop_section' user_id=profile_user.id %}?sort=oldest#hodnoceni" {% if current_sort == 'oldest' %}selected{% endif %}>Nejstarší</option>
+    </select>
+</div>
+<div style="clear: both;"></div>
+<div class="table w-full">
+     <div class="table w-full">
+    <div class="grid obchod-grid bg-[#c0c0c0] dark:text-black grid-cols-5 md:grid-cols-6">
+        <div class="text-center font-bold p-1 border-r border-white">Datum</div>
+        <div class="text-center font-bold p-1 border-r border-white">Hodnocení</div>
+        <div class="text-center font-bold p-1 border-r border-white hide-on-mobile">Hodnocen</div>
+        <div class="text-center font-bold p-1 border-r border-white">Komentář</div>
+        <div class="text-center font-bold p-1 border-r border-white">Hodnotil</div>
     </div>
-</div> 
-           
 
-
+    {% if ratings_page_obj %}
+        {% for rating_data in ratings_page_obj %}
+            <div class="grid obchod-grid border-b border-gray-200 grid-cols-5 md:grid-cols-6">
+                <div class="text-center p-1 border-r border-gray-200">{{ rating_data.created_at|default:"-" }}</div>
+                <div class="text-center p-1 border-r border-gray-200">
+                    {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= rating_data.value %}★{% else %}☆{% endif %}
+                    {% endfor %}
+                </div>
+                <div class="text-center p-1 border-r border-gray-200 hide-on-mobile">{{ rating_data.type }}</div>
+                <div class="text-left p-1 border-r border-gray-200">
+                    {% if rating_data.comment %}
+                        {% if rating_data.comment|length > 30 %}
+                            <div class="rating-comment-container">
+                                {{ rating_data.comment|truncatechars:30 }}
+                                <div class="comment-popup">
+                                    <p>{{ rating_data.comment }}</p>
+                                </div>
+                            </div>
+                        {% else %}
+                            {{ rating_data.comment }}
+                        {% endif %}
+                    {% else %}
+                        Bez komentáře.
+                    {% endif %}
+                </div>
+                <div class="text-center p-1 border-r border-gray-200"> <a href="{% url 'myuser_detail' user_id=rating_data.rater.id %}">{% if rating_data.rater %}{{ rating_data.rater }}</a>{% else %}Anonymní{% endif %}</div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="grid obchod-grid grid-cols-5 md:grid-cols-6">
+            <div class="p-4 col-span-6 text-center">Tento uživatel zatím neobdržel žádná jednotlivá hodnocení.</div>
+        </div>
+    {% endif %}
+</div>
                     <!--<div class="w-full">
                         <div class="grid border obchod-grid sudy">
                             <div class="text-center p-1" style="border-right: 1px solid #c0c0c0;">datum</div>
@@ -927,32 +983,31 @@
                 </div>
 
                 <!-- paginátor -->
-                <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
-                        
-                        <div>
-                            <a href="">&laquo; první</a>
-                            <a href="">předchozí</a>
-                        </div>
-                        
+         {% if ratings_page_obj.paginator.num_pages > 1 %}
+    <div class="pagination mt-8">
+        <span class="step-links flex justify-center">
 
-                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                        
-                        <span class="current-page mx-4">
-                        Stránka  / 
-                        </span>
-                        
+            {% if ratings_page_obj.has_previous %}
+                <div>
+                    <a href="{% url 'profile_eshop_section' user_id=profile_user.id %}?page=1&sort={{ current_sort }}#hodnoceni">&laquo; první</a>
+                    <a href="{% url 'profile_eshop_section' user_id=profile_user.id %}?page={{ ratings_page_obj.previous_page_number }}&sort={{ current_sort }}#hodnoceni">předchozí</a>
+                </div>
+            {% endif %}
 
-                        
-                        <div>
-                            <a href="">další</a>
-                            <a href="">poslední &raquo;</a>
-                        </div>
-                        
-                    </span>
-                </div> 
-                
-               
+            <span class="current-page mx-4">
+                Stránka {{ ratings_page_obj.number }} / {{ ratings_page_obj.paginator.num_pages }}
+            </span>
+
+            {% if ratings_page_obj.has_next %}
+                <div>
+                    <a href="{% url 'profile_eshop_section' user_id=profile_user.id %}?page={{ ratings_page_obj.next_page_number }}&sort={{ current_sort }}#hodnoceni">další</a>
+                    <a href="{% url 'profile_eshop_section' user_id=profile_user.id %}?page={{ ratings_page_obj.paginator.num_pages }}&sort={{ current_sort }}#hodnoceni">poslední &raquo;</a>
+                </div>
+            {% endif %}
+
+        </span>
+    </div>
+{% endif %}
                                         
             </div>
 
@@ -995,5 +1050,25 @@
         });
     });
 </script>
+<script>
+function showCommentModal(comment) {
+    var modal = document.getElementById('commentModal');
+    var commentText = document.getElementById('commentText');
+    commentText.textContent = comment;
+    modal.style.display = 'block';
+}
 
+var modal = document.getElementById('commentModal');
+var closeButton = document.getElementsByClassName("close-button")[0];
+
+closeButton.onclick = function() {
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+</script>
 {% endblock %}

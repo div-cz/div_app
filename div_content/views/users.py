@@ -390,7 +390,7 @@ def profile_eshop_section(request, user_id):
     user = get_object_or_404(User, id=user_id)
     user_div_coins = get_object_or_404(Userdivcoins, user_id=profile_user.id)
  
-      # Získání hodnocení jako prodejce
+    # Získání hodnocení jako prodejce
     seller_ratings = Booklisting.objects.filter(
         user=user,
         status='COMPLETED',
@@ -405,47 +405,69 @@ def profile_eshop_section(request, user_id):
         status='COMPLETED',
         buyerrating__isnull=False
     )
-
-    
     avg_buyer_rating = buyer_ratings.aggregate(Avg('buyerrating'))['buyerrating__avg']
     buyer_ratings_count = buyer_ratings.count()
 
-    seller_listings_rated_by_buyer = Booklisting.objects.filter(
+    listings_where_user_is_seller = Booklisting.objects.filter(
         user=profile_user,
-        buyerrating__isnull=False, 
-        status='COMPLETED' 
+        sellerrating__isnull=False,
+        status='COMPLETED'
     ).select_related('buyer', 'book').order_by('-completedat') 
 
-   
-    buyer_listings_rated_by_seller = Booklisting.objects.filter(
+    listings_where_user_is_buyer = Booklisting.objects.filter(
         buyer=profile_user,
-        sellerrating__isnull=False, 
+        buyerrating__isnull=False,
         status='COMPLETED'
     ).select_related('user', 'book').order_by('-completedat')
 
+
     all_individual_ratings = []
 
- # Přidání hodnocení, kde byl profile_user hodnocen jako PRODEJCE
-    for listing in seller_listings_rated_by_buyer:
-        all_individual_ratings.append({
-            'value': listing.buyerrating,
-            'comment': listing.buyercomment,
-            'type': 'jako prodávající', 
-            'rater': listing.buyer,
-            'listing_title': listing.book.title if listing.book else 'Neznámá kniha',
-            'created_at': listing.completedat 
-        })
-
-    # Přidání hodnocení, kde byl profile_user hodnocen jako KUPUJÍCÍ
-    for listing in buyer_listings_rated_by_seller:
+    # Přidání hodnocení, kde byl profile_user hodnocen jako seller
+    for listing in listings_where_user_is_seller:
         all_individual_ratings.append({
             'value': listing.sellerrating,
             'comment': listing.sellercomment,
-            'type': 'jako kupující',
-            'rater': listing.user, 
-            'listing_title': listing.book.title if listing.book else 'Neznámá kniha',
-            'created_at': listing.completedat 
+            'type': 'Jako prodávající',
+            'rater': listing.buyer,  
+            'created_at': listing.completedat.date() if listing.completedat else None,
         })
+
+    # Přidání hodnocení, kde byl profile_user hodnocen jako buyer
+    for listing in listings_where_user_is_buyer:
+        all_individual_ratings.append({
+            'value': listing.buyerrating,  
+            'comment': listing.buyercomment,
+            'type': 'Jako kupující',
+            'rater': listing.user,  
+            'created_at': listing.completedat.date() if listing.completedat else None,
+        })
+
+
+#Filtry pro hodnocení
+    sort_by = request.GET.get('sort', 'newest')
+
+
+    ratings_with_date = [rating for rating in all_individual_ratings if rating['created_at'] is not None]
+    ratings_without_date = [rating for rating in all_individual_ratings if rating['created_at'] is None]
+
+    all_individual_ratings = ratings_with_date + ratings_without_date
+
+    if sort_by == 'lowest':
+        all_individual_ratings = sorted(all_individual_ratings, key=lambda x: x['value'])
+    elif sort_by == 'highest':
+        all_individual_ratings = sorted(all_individual_ratings, key=lambda x: x['value'], reverse=True)
+    elif sort_by == 'newest':
+        ratings_with_date = sorted(ratings_with_date, key=lambda x: x['created_at'], reverse=True)
+        all_individual_ratings = ratings_with_date + ratings_without_date
+    elif sort_by == 'oldest':
+        ratings_with_date = sorted(ratings_with_date, key=lambda x: x['created_at'])
+        all_individual_ratings = ratings_with_date + ratings_without_date
+
+
+    paginator = Paginator(all_individual_ratings, 10)  
+    page_number = request.GET.get('page')
+    ratings_page_obj = paginator.get_page(page_number) 
 
     # Historie nákupů (příklad, může být upraven podle DB struktury)
     #purchase_history = Userlistitem.objects.filter(
@@ -454,16 +476,15 @@ def profile_eshop_section(request, user_id):
     #).select_related("content_type").order_by("-addedat")
 
     # Seznam zakoupených e-knih (status PAID, platnost do budoucna, řazení od nejnovějších)
-    purchased_ebooks = Bookpurchase.objects.filter(user=profile_user, status='PAID').select_related('book')
-    for p in purchased_ebooks:
-        bookisbn = Bookisbn.objects.filter(book=p.book, format__iexact=p.format).first()
-        p.isbn = bookisbn.isbn if bookisbn else None
+    #purchased_ebooks = Bookpurchase.objects.filter(user=profile_user, status='PAID').select_related('book')
+    #for p in purchased_ebooks:
+    #    bookisbn = Bookisbn.objects.filter(book=p.book, format__iexact=p.format).first()
+    #    p.isbn = bookisbn.isbn if bookisbn else None
 
-    ebook_isbns = {}
-    for p in purchased_ebooks:
-        bookisbn = p.book.bookisbn_set.filter(format__iexact=p.format).first()
-        p.isbn = bookisbn.isbn if bookisbn else None
-
+    #ebook_isbns = {}
+    #for p in purchased_ebooks:
+    #    bookisbn = p.book.bookisbn_set.filter(format__iexact=p.format).first()
+    #    p.isbn = bookisbn.isbn if bookisbn else None
 
     # --- Zakoupené e-knihy ---
     ebooks_qs = Bookpurchase.objects.filter(
@@ -473,9 +494,9 @@ def profile_eshop_section(request, user_id):
     page_number = request.GET.get('page', 1)
     paginator = Paginator(ebooks_qs, 10)  # 10 na stránku
     page_obj = paginator.get_page(page_number)
-    for p in page_obj.object_list:
-        bookisbn = Bookisbn.objects.filter(book=p.book, format__iexact=p.format).first()
-        p.isbn = bookisbn.isbn if bookisbn else None
+    #for p in page_obj.object_list:
+    #    bookisbn = Bookisbn.objects.filter(book=p.book, format__iexact=p.format).first()
+    #    p.isbn = bookisbn.isbn if bookisbn else None
 
     # Zakoupené audioknihy 
     audiobooks_qs = Bookpurchase.objects.filter(
@@ -489,7 +510,8 @@ def profile_eshop_section(request, user_id):
 
     # Burza knih – moje nákupy
     burza_bought_qs = Booklisting.objects.filter(
-        buyer=profile_user
+        buyer=profile_user, 
+        status='COMPLETED'
     ).select_related('book', 'user').order_by('-completedat')
     burza_bought_page = request.GET.get('burza_bought_page', 1)
     paginator_bought = Paginator(burza_bought_qs, 8)
@@ -497,14 +519,12 @@ def profile_eshop_section(request, user_id):
 
     # Burza knih – moje prodeje
     burza_sold_qs = Booklisting.objects.filter(
-        user=profile_user
+        user=profile_user, 
+        status='COMPLETED'
     ).select_related('book', 'buyer').order_by('-completedat')
     burza_sold_page = request.GET.get('burza_sold_page', 1)
     paginator_sold = Paginator(burza_sold_qs, 8)
     burza_sold = paginator_sold.get_page(burza_sold_page)
-
-
-
 
     # TODO: případně filtr na expiraci:
     # .filter(Q(expirationdate__isnull=True) | Q(expirationdate__gte=now()))
@@ -515,9 +535,9 @@ def profile_eshop_section(request, user_id):
         "user_div_coins": user_div_coins,
         "active_tab": "obchod",
         "category": request.GET.get("category", "e-knihy"),
-        "purchased_ebooks": purchased_ebooks,
+        #"purchased_ebooks": purchased_ebooks,
         "purchased_audiobooks": purchased_audiobooks,
-        "ebook_isbns": ebook_isbns,
+        #"ebook_isbns": ebook_isbns,
         "burza_bought": burza_bought,
         "burza_sold": burza_sold,
         'avg_seller_rating': avg_seller_rating,
@@ -525,6 +545,9 @@ def profile_eshop_section(request, user_id):
         'avg_buyer_rating': avg_buyer_rating,
         'buyer_ratings_count': buyer_ratings_count,
         'all_individual_ratings': all_individual_ratings, 
+        'current_sort': sort_by,
+        'page_obj': page_obj,
+        'ratings_page_obj':ratings_page_obj,
     })
 
 # -------------------------------------------------------------------
