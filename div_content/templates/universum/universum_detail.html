@@ -21,7 +21,7 @@
             <div class="col-lg-8">
             {% endif %}
                 <h1>{{ universum.universumnamecz|default:universum.universumname }}</h1>
-                <p>{{ universum.universumdescriptioncz|default:universum.universumdescription }}</p>
+                <p>{{ universum.universumdescriptioncz|default:"" }}</p>
                 <div class="ml-8 mt-8">
                     <h2>Filmy ze stejného světa</h2>
                     <ul class="list-group ml-8">
@@ -47,7 +47,7 @@
                         {% for book in books %}
                         <li class="list-group-item">
                             <a class="books" href="{% url 'book_detail' book_url=book.url %}">
-                                {{  book.titlecz|default:book.title }} ({{ book.year }})
+                                {{  book.titlecz|default:book.title }} {% if book.year %}({{ book.year|default:"" }}){% endif %}
                             </a>
                         </li>
                         {% endfor %}

@@ -191,17 +191,20 @@
         <div id="divcoiny" class="tab-show w-full sx:p-0 active">
             <h3 class="after-h3 sx:padding">Uživatelé s nejvíce DIVcoiny</h3>
             <div class="table lg:pr-5">
+                {% for udc in top_users %}
                 <div class="grid items-center p-1 border charts-grid sudy">
                     <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                         <div class="users">
-                            <p><a href="/uzivatel/{{ user.id }}">{{ user.username }}</a></p>
-                            <p>počet DIVcoinů</p> 
+                            <p><a href="/uzivatel/{{ udc.user.id }}">{{ forloop.counter }}. {{ udc.user.username }}</a></p>
+                            <p>počet DIVcoinů: {{ udc.totaldivcoins }} DIV</p> 
                         </div>
-
                     </div>
                 </div>
-
+                {% endfor %}
             </div>
+
+    
+
         </div>
 
     </div>

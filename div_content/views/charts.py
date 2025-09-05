@@ -29,6 +29,7 @@
 # 2) interní (forms,models,views) (abecedně)
 # 3) third-part (třetí strana, django, auth) (abecedně)
 # -------------------------------------------------------------------
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.db import models
@@ -36,7 +37,7 @@ from django.db import models
 from django.db.models import Avg, Count, Q, F, OuterRef, Subquery, FloatField
 from django.shortcuts import get_object_or_404, render
 
-from div_content.models import Book, Bookauthor, Bookaward, Bookpublisher, Creator, Favorite, Game, Gameaward, Gamepublisher, Metagenre, Movie, Moviecrew, Moviegenre, Tvcountries, Tvcrew, Tvshow, Metaaward, Metacountry, Movieaward, Moviecountries
+from div_content.models import Book, Bookauthor, Bookaward, Bookpublisher, Creator, Favorite, Game, Gameaward, Gamepublisher, Metagenre, Movie, Moviecrew, Moviegenre, Metaaward, Metacountry, Movieaward, Moviecountries, Tvcountries, Tvcrew, Tvshow, Userdivcoins
 
 from star_ratings.models import Rating, UserRating
 
@@ -303,7 +304,13 @@ def charts_movies(request):
 
 
 def charts_users(request):
-    return render(request, "charts/charts_users.html")
+    # Top 20 uživatelů podle počtu DIVcoinů
+    top_users = Userdivcoins.objects.select_related('user').order_by('-totaldivcoins')[:20]
+
+    return render(request, "charts/charts_users.html", {
+        "top_users": top_users,
+        "tab": "divcoiny",
+    })
 
 
 
