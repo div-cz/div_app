@@ -600,8 +600,8 @@ def book_detail(request, book_url):
     listings = order_listings(
         Booklisting.objects.filter(book_id=book.bookid, active=True)
     )
-    sell_listings = listings.filter(listingtype__in=['SELL', 'GIVE'])
-    buy_listings  = listings.filter(listingtype='BUY')
+    sell_listings = listings.filter(listingtype__in=['SELL', 'GIVE'], status='ACTIVE')
+    buy_listings  = listings.filter(listingtype='BUY', status='ACTIVE')
 
 
     if book.universumid:
