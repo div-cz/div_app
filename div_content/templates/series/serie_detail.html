@@ -315,13 +315,39 @@
 
                     <ul class="list-unstyled mt-3 komentar">
                         {% for comment in comments %}
-                        <li class="card card-body w-full p-3 mb-2 border rounded">
-                            <p class="koment after">{{ comment.comment }}</p>
-                            <div class="user">
-                                <p>{{ comment.dateadded }}</p>
-                                <p>Přidal: <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a></p>
-                            </div>
-                        </li>
+
+<li class="card card-body w-full p-3 mb-2 border rounded">
+    <p class="koment after">{{ comment.comment }}</p>
+
+    <div class="user flex justify-between items-center">
+        <a href="{% url 'user_profile_with_profil' comment.user.pk %}" class="font-bold text-red-600">
+            {{ comment.user }}
+        </a>
+        <p class="text-sm text-gray-400">{{ comment.dateadded|date:"j. F Y H:i" }}</p>
+    </div>
+
+    <!-- drobečky pod user/date -->
+    <div class="text-xs text-gray-500 mt-1" style="font-size:80%">
+        {% if comment.tvepisode %}
+            <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">{{ comment.tvshowkid.title }}</a>
+            &raquo; <a href="{% url 'serie_season' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl %}">
+                {{ comment.tvseason.seasonnumber }}. {{ comment.tvseason.titlecz|default:comment.tvseason.title|default:"Sezóna " }}
+            </a>
+            &raquo; <a href="{% url 'serie_episode' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl episodeurl=comment.tvepisode.episodeurl %}">
+                {{ comment.tvepisode.titlecz|default:comment.tvepisode.title }}
+            </a>
+        {% elif comment.tvseason %}
+            <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">{{ comment.tvshowkid.title }}</a>
+            &raquo; <a href="{% url 'serie_season' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl %}">
+                {{ comment.tvseason.seasonnumber }}. {{ comment.tvseason.titlecz|default:comment.tvseason.title|default:"Sezóna " }}
+            </a>
+        {% else %}
+            <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">{{ comment.tvshowkid.title }}</a>
+        {% endif %}
+    </div>
+</li>
+
+
                         {% endfor %}
                     </ul>
                 </div>

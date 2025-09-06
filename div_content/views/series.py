@@ -248,6 +248,23 @@ def serie_season(request, tv_url, seasonurl):
         average_rating = 0
 
 
+
+    if user.is_authenticated and 'comment' in request.POST:
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            Tvshowcomments.objects.create(
+                comment=comment_form.cleaned_data['comment'],
+                tvshowkid=tvshow,
+                tvseason=season,
+                user=request.user
+            )
+            return redirect('serie_season', tv_url=tvshow.url, seasonurl=season.seasonurl)
+    else:
+        comment_form = CommentForm(request=request)
+
+    comments = Tvshowcomments.objects.filter(tvseason=season).order_by('-dateadded')
+
+
     return render(request, 'series/serie_season.html', {
         'tvshow': tvshow,
         'season': season,
@@ -265,7 +282,8 @@ def serie_season(request, tv_url, seasonurl):
         'is_in_watched': is_in_watched,
         'ratings': ratings,
         'average_rating': average_rating,
-
+        'comments': comments,
+        'comment_form': comment_form,
     })
 
 
@@ -354,6 +372,24 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
     else:
         average_rating = 0
 
+
+    if user.is_authenticated and 'comment' in request.POST:
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            Tvshowcomments.objects.create(
+                comment=comment_form.cleaned_data['comment'],
+                tvshowkid=tvshow,
+                tvseason=season,
+                tvepisode=episode,
+                user=request.user
+            )
+            return redirect('serie_episode', tv_url=tvshow.url, seasonurl=season.seasonurl, episodeurl=episode.episodeurl)
+    else:
+        comment_form = CommentForm(request=request)
+
+    comments = Tvshowcomments.objects.filter(tvepisode=episode).order_by('-dateadded')
+
+
     return render(request, 'series/serie_episode.html', {
         'tvshow': tvshow,
         'season': season,
@@ -371,6 +407,8 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
         'quotes': quotes,
         'ratings': ratings,
         'average_rating': average_rating,
+        'comments': comments,
+        'comment_form': comment_form,
     })
 
 
@@ -475,8 +513,10 @@ def serie_detail(request, tv_url):
         if 'comment' in request.POST:
             comment_form = CommentForm(request.POST)
             if comment_form.is_valid():
-                comment = comment_form.cleaned_data['comment']
-                Tvshowcomments.objects.create(comment=comment, tvshowkid=tvshow, user=request.user)
+                Tvshowcomments.objects.create(
+                    comment=comment_form.cleaned_data['comment'], 
+                    tvshowkid=tvshow, 
+                    user=request.user)
                 return redirect('serie_detail', tv_url=tvshow.url)
             else:
                 print(comment_form.errors)
