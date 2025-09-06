@@ -675,7 +675,18 @@
                     <img src="/static/img/book/book_icon.png" alt="kniha" title="kniha" class="mr-2" style="width: 35px;">
                     <div class="flex flex-col">
                         <p>Bazar</p>
-                        <p style="font-size: 80%;">{{ total_listings }} nabídek</p>
+                        <p style="font-size: 80%;">
+{% with c=sell_listings.count %}
+        {{ c }}
+        {% if c == 1 %}
+            inzerát
+        {% elif c >= 2 and c <= 4 %}
+            inzeráty
+        {% else %}
+            inzerátů
+        {% endif %}
+{% endwith %}
+                        </p>
                     </div>
                 </button>
                 {% endwith %}

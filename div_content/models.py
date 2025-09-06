@@ -1672,6 +1672,8 @@ class Tvshowcomments(models.Model):
     comment = models.TextField(db_column='Comment')
 ##    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
     tvshowkid = models.ForeignKey(Tvshow, models.DO_NOTHING, db_column='TVShowID')
+    tvseason = models.ForeignKey(Tvseason, on_delete=models.CASCADE, null=True, blank=True, db_column='TVSeasonID')
+    tvepisode = models.ForeignKey(Tvepisode, on_delete=models.CASCADE, null=True, blank=True, db_column='TVEpisodeID')
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     dateadded = models.DateTimeField(db_column='DateAdded', auto_now_add=True)
 
