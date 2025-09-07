@@ -163,19 +163,102 @@ from io import BytesIO
 # -------------------------------------------------------------------
 def antikvariat_home(request):
     from random import sample
-    from div_content.models import Booklisting
+
+    if request.method == 'POST' and request.user.is_authenticated:
+        if 'request_payout' in request.POST:
+            user = request.user
+            listings_to_update = Booklisting.objects.filter(
+                user=user,
+                status='COMPLETED',
+                paidtoseller=False,
+                requestpayout=False,
+            )
+
+            if listings_to_update.exists():
+                total_user_payment_update = listings_to_update.aggregate(total_price=Sum(F('price') + F('shipping')))['total_price']
+
+                for listing in listings_to_update:
+                    listing.requestpayout = True
+                    listing.save()
+                    send_listing_request_seller_payment(listing, total_user_payment_update)
+
+                messages.success(request, f'Žádost o vyplacení částky {total_user_payment_update} Kč byla odeslána. Počkejte prosím na zpracování.')
+                return redirect('antikvariat_home')
+            else:
+                messages.error(request, 'Neexistují žádné nevyplacené transakce.')
 
     count_sell = Booklisting.objects.filter(listingtype__in=["SELL", "GIVE"], active=True).count()
     count_buy = Booklisting.objects.filter(listingtype="BUY", active=True).count()
-
     all_listings = list(Booklisting.objects.filter(active=True, status="ACTIVE")[:100])
-    random_listings = sample(all_listings, min(len(all_listings), 4))  # max 4
+    random_listings = sample(all_listings, min(len(all_listings), 4))
 
-    return render(request, "books/antikvariat_home.html", {
+    if request.user.is_authenticated:
+        user = request.user
+        amount_to_pay = Booklisting.objects.filter(
+            user=user,
+            status='COMPLETED',
+            paidtoseller=False,
+        )
+        
+        pay_to_user = amount_to_pay.aggregate(
+             total_price=Sum(F('price') + F('shipping'))
+         )
+
+        total_user_payment = pay_to_user['total_price'] or 0
+        button_appear = Booklisting.objects.filter(
+            user=user,
+            status='COMPLETED',
+            paidtoseller=False,
+            requestpayout=False,
+        ).exists()
+        user_sold_books = Booklisting.objects.filter(
+            user=user,
+            status='COMPLETED',
+            listingtype__in=['SELL', 'GIVE'],
+        ).count()
+        user_buyed_books = Booklisting.objects.filter(
+            buyer=user,
+            status='COMPLETED',
+            listingtype__in=['SELL', 'GIVE'],
+        ).count()
+        user_pending_books = Booklisting.objects.filter(
+            user=user,
+            status__in=['ACTIVE', 'RESERVED'],
+            listingtype__in=['SELL', 'GIVE'],
+        ).count()
+        user_pending_amount = Booklisting.objects.filter(
+            user=user,
+            status__in=['ACTIVE', 'RESERVED'],
+            listingtype__in=['SELL', 'GIVE'],
+        )
+        pending_to_user = user_pending_amount.aggregate(pending_price=Sum(F('price')))
+        total_user_pending = pending_to_user['pending_price'] or 0
+        user_paid_amount = Booklisting.objects.filter(
+            user=user,
+            status='completed',
+            paidtoseller= True,
+        )
+        paid_to_user= user_paid_amount.aggregate(total_price=Sum(F('price') + F('shipping')))
+        total_user_paid_amount = paid_to_user['total_price'] or 0
+        context_data = {
+            "total_user_payment": total_user_payment,
+            "button_appear": button_appear,
+            "user_sold_books": user_sold_books,
+            "user_buyed_books": user_buyed_books,
+            "user_pending_books": user_pending_books,
+            "total_user_pending": total_user_pending,
+            "total_user_paid_amount": total_user_paid_amount,
+        }
+    else:
+        context_data = {}
+    
+    final_context = {
         "count_sell": count_sell,
         "count_buy": count_buy,
         "random_listings": random_listings,
-    })
+        **context_data, 
+    }
+    return render(request, "books/antikvariat_home.html", final_context)
 
 
 # -------------------------------------------------------------------
@@ -320,30 +403,26 @@ def get_market_listings(limit=5):
      .order_by('-createdat')[:limit])
     
     return sell_listings
-# -------------------------------------------------------------------
-#                    REQUEST PAYMENT
-# -------------------------------------------------------------------
-#def request_seller_payment(request, listing_id):
-    #listing = get_object_or_404(Booklisting, booklistingid=listing_id, user=request.user)
-
 
 # -------------------------------------------------------------------
 #                    REQUEST PAYMENT EMAIL
 # -------------------------------------------------------------------
-def send_listing_request_seller_payment(listing):
+def send_listing_request_seller_payment(listing,total_user_payment):
     user=listing.user
-    amounttoseller = listing.amounttoseller 
-    recipient = ['lilien-rose@seznam.cz'] #finance@div.cz
+    amounttoseller = total_user_payment
+    bankaccount = user.userprofile.bankaccount 
+    recipient = ['lilien-rose@seznam.cz'] #lilien-rose@seznam.cz / finance@div.cz
     if not recipient:
         print("[✖] Superuser nemá e-mail – automatický e-mail neodeslán.")
         return
 
     context = {
         'seller_name': user.first_name or user.username,
-        'amount_to_seller': amounttoseller,
+        'total_user_payment': total_user_payment,
+        'bank_account': bankaccount,
     }
 
-    html_email = render_to_string('emails/listing_request_seller_payment.html', context)
+    html_email = render_to_string('emails/listing_request_payment_seller.html', context)
 
     msg = EmailMessage()
     msg['Subject'] = os.getenv("EMAIL_SUBJECT_REQUEST")
@@ -375,9 +454,18 @@ def listing_detail(request, book_url, listing_id):
         paidtoseller=False,
     )
     
-    pay_to_user = amount_to_pay.aggregate(total_price=Sum(F('price')))
-    
+    pay_to_user = amount_to_pay.aggregate(
+    total_price=Sum(F('price') + F('shipping'))
+     )
+
     total_user_payment = pay_to_user['total_price']
+
+    button_appear = Booklisting.objects.filter(
+        user=user,
+        status='COMPLETED',
+        paidtoseller=False,
+        requestpayout=False,
+    ).exists()
     
     
     # Výpočet prodaných knih
@@ -417,7 +505,9 @@ def listing_detail(request, book_url, listing_id):
         paidtoseller= True,
     )
 
-    paid_to_user = user_paid_amount.aggregate(total_price=Sum(F('price')))
+    paid_to_user = user_paid_amount.aggregate(
+        total_price=Sum(F('price') + F('shipping'))
+    )    
     total_user_paid_amount = paid_to_user['total_price'] or 0
 
     if request.method == 'POST' and request.user.is_authenticated:
@@ -435,7 +525,7 @@ def listing_detail(request, book_url, listing_id):
                 amount_to_pay_for_update.update(
                     requestpayout=True,
                 )
-                send_listing_request_seller_payment(listing)
+                send_listing_request_seller_payment(listing, total_user_payment)
                 messages.success(request, f'Žádost o vyplacení částky {total_user_payment_update} Kč byla odeslána. Počkejte prosím na zpracování.')
                 return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
             else:
@@ -590,6 +680,7 @@ def listing_detail(request, book_url, listing_id):
         'user_pending_books': user_pending_books,
         'total_user_pending': total_user_pending,
         'total_user_paid_amount':total_user_paid_amount,
+        'button_appear':button_appear,
     })
 
 

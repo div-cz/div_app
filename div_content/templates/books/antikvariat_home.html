@@ -11,16 +11,54 @@
     <h1 class="text-3xl font-semibold mb-4">DIVkvariát</h1>
     <p class="mb-8 text-lg">Burza knih mezi čtenáři – přehledné nabídky a poptávky z druhé ruky.</p>
 
-    <div class="flex flex-col sm:flex-row gap-4 mb-12">
-        <a href="{% url 'books_market_offers' %}" class="flex-1 border rounded p-4 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition">
-            <div class="text-xl font-bold mb-2">&#128218; Nabídky</div>
-            <div class="text-green-700 font-medium">{{ count_sell }} aktivních knih k prodeji či darování</div>
-        </a>
-        <a href="{% url 'books_market_wants' %}" class="flex-1 border rounded p-4 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition">
-            <div class="text-xl font-bold mb-2">&#128214; Poptávky</div>
-            <div class="text-green-700 font-medium">{{ count_buy }} čtenářských přání</div>
-        </a>
+
+{% if messages %}
+    <div class="mt-3">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
+            {{ message|safe }}
+        </div>
+    {% endfor %}
     </div>
+{% endif %}
+
+
+<div class="flex flex-col sm:flex-row gap-4 mb-12">
+    <a href="{% url 'books_market_offers' %}" class="flex-1 border rounded p-4 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition">
+        <div class="text-xl font-bold mb-2">&#128218; Nabídky</div>
+        <div class="text-green-700 font-medium">{{ count_sell }} aktivních knih k prodeji či darování</div>
+    </a>
+    <a href="{% url 'books_market_wants' %}" class="flex-1 border rounded p-4 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition">
+        <div class="text-xl font-bold mb-2">&#128214; Poptávky</div>
+        <div class="text-green-700 font-medium">{{ count_buy }} čtenářských přání</div>
+    </a>
+
+    {% if request.user.is_authenticated %}
+    <div class="flex-1 border rounded p-4 bg-[#F9F9F9] dark:bg-[#1A161F]">
+        <div class="text-xl font-bold mb-2">&#128179; Výplata</div>
+        <ul class="text-sm space-y-1">
+            <li><strong>K vyplacení:</strong> {{ total_user_payment|default:"0" }} Kč</li>
+            <li><strong>Vyplaceno:</strong> {{ total_user_paid_amount|default:"0" }} Kč</li>
+        </ul>
+
+        {% if total_user_payment > 0 and button_appear %}
+            {% if user.userprofile.bankaccount %}
+            <form method="post" class="mt-2">
+                {% csrf_token %}
+                <button type="submit" name="request_payout" class="btn btn-primary w-full">
+                    Vyžádat výplatu
+                </button>
+            </form>
+            {% else %}
+            <p class="text-xs mt-2">Pro výplatu je nutné vyplnit číslo účtu na 
+                <a href="/ucet/upravit/" class="underline">profilu</a>.
+            </p>
+            {% endif %}
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
 
     {% if random_listings %}
         <h2 class="text-2xl font-semibold mb-4 mt-10">&#128161; Náhodné nabídky</h2>

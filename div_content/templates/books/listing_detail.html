@@ -73,6 +73,32 @@
             </p>
         </div>
 
+
+<!-- ODESLAT KNIHU ALERT -->
+                {% if listing.status in 'RESERVED PAID SHIPPED' and listing.shippingaddress and listing.user == user %}
+                <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
+                    <p class="font-medium">Knihu zašlete na adresu:</p>
+                    <p>{{ listing.shippingaddress }}</p>
+                </div>
+                {% endif %}
+
+<!-- HODNOCENÍ ALERT -->
+{% if listing.status == 'COMPLETED' %}
+    {% if listing.user == user and not listing.buyerrating %}
+    <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
+        <p class="font-medium">Ohodnoťte prosím kupujícího a můžete přidat i krátký komentář.</p>
+    </div>
+    {% endif %}
+
+    {% if listing.buyer == user and not listing.sellerrating %}
+    <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
+        <p class="font-medium">Ohodnoťte prosím prodejce a klidně napište i krátký komentář.</p>
+    </div>
+    {% endif %}
+{% endif %}
+
+
+
         <div class="card box-shadow mb-4">
             <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <div class="flex flex-wrap justify-between items-start mb-6 after">
@@ -103,12 +129,7 @@
                     </div>
                 </div>
 
-                {% if listing.status in 'RESERVED PAID SHIPPED COMPLETED' and listing.shippingaddress and listing.user == user %}
-                <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
-                    <p class="font-medium">Knihu zašlete na adresu:</p>
-                    <p>{{ listing.shippingaddress }}</p>
-                </div>
-                {% endif %}
+
 
                 <div class="mb-6 after">
                     <span class="">Popis: </span>
@@ -302,6 +323,7 @@
         </div>
         {% endif %}
 
+<!-- POTVRZENÍ OBRDRŽENÍ KNIHY PAID -->
         {% if listing.status == 'PAID' and listing.buyer == user %}
         <div class="alert alert-{{ message.tags }}" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
             Čekáme na potvrzení, že prodejce poslal knihu. <br>
@@ -314,7 +336,7 @@
             </form>
         </div>
         {% endif %}
-
+<!-- POTVRZENÍ OBRDRŽENÍ KNIHY SHIPPED -->
         {% if listing.status == 'SHIPPED' and listing.buyer == user %}
         <div class="alert alert-{{ message.tags }}" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">Prodejce již odeslal knihu, prosím potvrďte přijetí. <br>
             <form action="{% url 'confirm_payment' book_url=book.url listing_id=listing.booklistingid %}" method="post">
@@ -325,7 +347,8 @@
             </form>
         </div>
         {% endif %}
-
+ 
+ 
         {% if listing.status == 'RESERVED' or listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' and listing.buyer == user or listing.user == user %}
         <div class="card box-shadow mb-4">
             <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
@@ -361,27 +384,6 @@
                     <p class="text-sm">Po tomto datu bude rezervace automaticky zrušena a peníze vráceny.</p>
                 </div>
 
-                {% if listing.status == 'PAID' and listing.buyer == user %}
-                <div class="alert alert-{{ message.tags }}" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
-                    Čekáme na potvrzení, že prodejce poslal knihu. <br>
-                    Kontaktovat ho můžete přes <a href="{% url 'chat_message' listing.user.id %}"> Chat <span style="color:blue">&#x2709;</span></a> 
-                    <form action="{% url 'confirm_payment' book_url=book.url listing_id=listing.booklistingid %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" name="complete_listing" class="add-book mt-4">
-                            Potvrdit obdržení knihy
-                        </button>
-                    </form>
-                </div>
-                {% endif %}
-
-                {% if listing.status == 'SHIPPED' and listing.buyer == user %}
-                <form action="{% url 'confirm_payment' book_url=book.url listing_id=listing.booklistingid %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" name="complete_listing" class="add-book mt-4">
-                        Potvrdit obdržení knihy
-                    </button>
-                </form>
-                {% endif %}
 
                 {% if can_cancel_reservation %}
                 <div class="mb-3 px-3">
@@ -431,26 +433,33 @@
 
     <!-- PRAVÁ STRANA -->
     <div class="col-lg-4">
-        {% if request.user.is_authenticated %}
-        <div class="card box-shadow mb-4">
-            <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <h3 class="card-title font-bold after-h3">Můj přehled</h3>
-                <ul class="list-unstyled space-y-2">
-                    <li><strong>Prodáno knih:</strong> {{ stats.books_sold|default:"0" }}</li>
-                    <li><strong>Koupeno knih:</strong> {{ stats.books_bought|default:"0" }}</li>
-                    <li><strong>Koupeno e-knih:</strong> {{ stats.ebooks_bought|default:"0" }}</li>
-                    <li><strong>K vyplacení:</strong> {{ amount_to_payout|default:"0" }} Kč</li>
-                    <!--<li><strong>DIVcoinů:</strong> {{ stats.divcoins }}</li>-->
-                </ul>
-                {% if amount_to_payout > 0 %}
-                <form method="post">
-                    {% csrf_token %}
-                    <button type="submit" name="request_payout" class="add-book mt-2">Vyžádat výplatu</button>
-                </form>
-                {% endif %}
-            </div>
-        </div>
+{% if request.user.is_authenticated %}
+<div class="card box-shadow mb-4">
+    <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <h3 class="card-title font-bold after-h3">Můj přehled</h3>
+        <ul class="list-unstyled space-y-2">
+            <li><strong>Prodáno knih:</strong> {{ user_sold_books|default:"0" }}</li>
+            <li><strong>Koupeno knih:</strong> {{ user_buyed_books|default:"0" }}</li>
+            <li><strong>Právě prodávám:</strong> {{ user_pending_books|default:"0" }} knih za {{ total_user_pending|default:"0" }} Kč  </li>
+            <li><strong>K vyplacení:</strong> {{ total_user_payment |default:"0" }} Kč</li>
+            <li><strong>Vyplaceno:</strong> {{ total_user_paid_amount|default:"0" }} Kč</li>
+            <!--<li><strong>DIVcoinů:</strong> {{ stats.divcoins }}</li>-->
+        </ul>
+        {% if total_user_payment > 0 and button_appear %}
+        {% if user.userprofile.bankaccount %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" name="request_payout" class="btn btn-primary mt-2">Vyžádat výplatu</button>
+        </form>
         {% endif %}
+        {% endif %}
+         {% if not user.userprofile.bankaccount %}
+        <hr>
+        <p> Aby bylo možné peníze vyplatit, prosím vyplňte své číslo účtu na <a href="/ucet/upravit/">profilu. </a> </p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
 
         <!-- burza knih -->
         <div class="card box-shadow mb-4">

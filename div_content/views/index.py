@@ -6,7 +6,7 @@ import qrcode
 
 from datetime import date
 from io import BytesIO
-
+from django.contrib import messages
 from div_content.views.login import custom_login_view
 
 from div_content.forms.admins import TaskCommentForm, TaskForm
@@ -30,27 +30,19 @@ from django.views.generic import DetailView
 from django.db import models
 from django.db.models import Avg, Count
 from django.db.models.functions import ExtractYear
-
+from django.db.models import F, Sum, Count
+from django.utils import timezone
 from itertools import chain
 from operator import attrgetter
 
 from star_ratings.models import Rating, UserRating
 
 
-
-
-
-
-
-
-
 #Carouse = .values('title', 'titlecz', 'url', 'img', 'description')
 #List = .values('title', 'titlecz', 'url', 'img', 'description')
 def redirect_view(request):
-    # Zde můžete přidat logiku pro určení, kam přesměrovat
 
     return redirect('https://div.cz')
-
 
 
 # TASK MANAGEMENT 
@@ -80,10 +72,9 @@ def get_sorted_tasks(user):
             '-commentid').values('comment', 'movieid__titlecz', 'movieid__url', 'movieid', 'user', 'user__username')[:5]
 
 
-
-
 def index(request): # hlavní strana
     user = request.user if request.user.is_authenticated else None
+
     #ARTICLE NEWS
     if request.user.is_superuser or request.user.is_staff:
         article_form = ArticleForm(request.POST or None)
@@ -104,22 +95,52 @@ def index(request): # hlavní strana
         article_form = None
         articlenews_form = None
 
+    # Zpracování POST požadavku na vyplacení peněz (pouze pro superuživatele)
+    pending_payouts_list = None
+    if request.user.is_authenticated and request.user.is_superuser:
+        if request.method == 'POST' and 'confirm_user_payment' in request.POST:
+            user_id_to_pay = request.POST.get('user_id')
+            if user_id_to_pay:
+                transactions_to_pay = Booklisting.objects.filter(
+                    user_id=user_id_to_pay,
+                    status='COMPLETED',
+                    paidtoseller=False,
+                    requestpayout=True,
+                )
+                
+                total_amount_for_user = transactions_to_pay.aggregate(total_amount=Sum(F('price') + F('shipping')))['total_amount'] or 0
 
+                if transactions_to_pay.exists():
+                    transactions_to_pay.update(
+                        paidtoseller=True,
+                        paidat=timezone.now(),
+                        requestpayout=False,
+                        amounttoseller=F('price') + F('shipping'), 
+                    )
+                    messages.success(request, f'Vyplacení částky {total_amount_for_user} Kč bylo potvrzeno.')
+                else:
+                    messages.warning(request, 'Pro tohoto uživatele nebyly nalezeny žádné čekající žádosti o vyplacení.')
+                return redirect('index')
+                
+        # Získání záznamů, které mají flag requestpayout=True
+        pending_payouts_list = Booklisting.objects.filter(
+            status='COMPLETED',
+            paidtoseller=False,
+            requestpayout=True,
+        ).values('user').annotate(
+            total_amount=Sum(F('price') + F('shipping')),
+            user_name=F('user__first_name'),
+            username=F('user__username'),
+        )
 
-#        movies_carousel = Metaindex.objects.filter(section='Movie').order_by('-divrating').values('title', 'url', 'img', 'description')[2:8]
+    # Ostatní výpočty pro všechny uživatele
     movies_list_6 = Metaindex.objects.filter(section='Movie').order_by('-indexid').values('title', 'url', 'img', 'description')[:6]
-        
-        #latest_articles = Article.objects.filter(typ='Článek').order_by('-created').values('url', 'title')[:3]
-
     articles = Article.objects.exclude(typ='Site').order_by('-created').values('url', 'title', 'img', 'img400x250', 'perex')[:2]
     articlenews = Articlenews.objects.all().order_by('-created')[:5]
-
-
     movies = Movie.objects.all().order_by('-divrating').values('title', 'titlecz', 'url', 'img', 'description')[:40]
     today = date.today()
     current_month = today.month
     current_day = today.day
-    #creators_list_8 = Creator.objects.filter(birthdate__month=current_month, birthdate__day=current_day).order_by('-divrating')[:8]
     creators_list_8 = Creator.objects.filter(
         birthdate__month=current_month,
         birthdate__day=current_day,
@@ -133,30 +154,21 @@ def index(request): # hlavní strana
         comment_rating_sum=Count('moviecomments')+Count('userrating')
         ).order_by('-rating_count')[:9]
 
-
-    movies_comments_9 = Moviecomments.objects.select_related('movieid', 'user').order_by(
-            '-commentid').values('comment', 'movieid__titlecz', 'movieid__url', 'movieid', 'user', 'user__username')[:5]
-
-    movies_comments_5 = Moviecomments.objects.select_related('movieid', 'user').order_by(
-            '-commentid').values('comment', 'movieid__titlecz', 'movieid__url', 'movieid', 'user', 'user__username')[:5]
-
+    movies_comments_9 = Moviecomments.objects.select_related('movieid', 'user').order_by('-commentid').values('comment', 'movieid__titlecz', 'movieid__url', 'movieid', 'user', 'user__username')[:5]
+    movies_comments_5 = Moviecomments.objects.select_related('movieid', 'user').order_by('-commentid').values('comment', 'movieid__titlecz', 'movieid__url', 'movieid', 'user', 'user__username')[:5]
     movies_comments = Moviecomments.objects.select_related('movieid', 'user').order_by('-commentid')[:10]
     books_comments = Bookcomments.objects.select_related('bookid', 'user').order_by('-commentid')[:10]
-
-    # Spojení a seřazení podle data
     latest_comments = sorted(
         chain(movies_comments, books_comments),
-        key=attrgetter('commentid'),  # pokud oba modely mají `commentid` autoincrement
+        key=attrgetter('commentid'), 
         reverse=True
-    )[:10]  # omezíme na 10 nejnovějších
-
+    )[:10]
 
     # Filmy v kinech
     movies_in_cinema = Moviecinema.objects.select_related('movieid', 'distributorid').order_by('-releasedate').values(
         'movieid__title', 'movieid__titlecz', 'movieid__img', 'releasedate', 'distributorid__name', 'movieid__url')[:10]
         
-
-        # Statistiky
+    # Statistiky
     stats_book = Metastats.objects.filter(tablemodel='Book').first()
     stats_movie = Metastats.objects.filter(tablemodel='Movie').first()
     stats_writters = Metastats.objects.filter(tablemodel='BookAuthor').first()
@@ -169,7 +181,6 @@ def index(request): # hlavní strana
         tasks = get_sorted_tasks(request.user)
     else:
         tasks = []
-
 
     # Data pro jednotlivé karusely z MetaIndex
     movies_carousel = Metaindex.objects.filter(
@@ -190,24 +201,18 @@ def index(request): # hlavní strana
     
     recent_listings = get_market_listings()
 
-
     # Poslední nákupy eKnih pro superusera
     last_ebook_purchases = []
-    
-
-
     if request.user.is_authenticated:
-          user_ebook_purchases = Bookpurchase.objects.filter(user=request.user, status="PAID").order_by('-purchaseid')[:3]
-      #prodej a darování knih na divkvariátu
-          seller_pending_listings = Booklisting.objects.filter(user=request.user, listingtype__in=['SELL', 'GIVE'], ).order_by('-createdat')[:5]
-          pending_book_purchases = Booklisting.objects.filter(buyer=request.user, status='PENDING').order_by('-createdat')[:5]
-      #poptávka knih na div kvatiátu
-          user_wanted_purchases = Booklisting.objects.filter(user=request.user, listingtype='BUY').order_by('-createdat')[:5]
+        user_ebook_purchases = Bookpurchase.objects.filter(user=request.user, status="PAID").order_by('-purchaseid')[:3]
+        seller_pending_listings = Booklisting.objects.filter(user=request.user, listingtype__in=['SELL', 'GIVE']).order_by('-createdat')[:5]
+        pending_book_purchases = Booklisting.objects.filter(buyer=request.user, status='PENDING').order_by('-createdat')[:5]
+        user_wanted_purchases = Booklisting.objects.filter(user=request.user, listingtype='BUY').order_by('-createdat')[:5]
     else:
-          user_ebook_purchases = []
-          seller_pending_listings = []
-          pending_book_purchases = []
-          user_wanted_purchases = []
+        user_ebook_purchases = []
+        seller_pending_listings = []
+        pending_book_purchases = []
+        user_wanted_purchases = []
 
     recent_sell_listings, recent_buy_listings = get_market_listings()
     pending_payouts = Booklisting.objects.filter(paidtoseller=False)[:5]
@@ -243,8 +248,10 @@ def index(request): # hlavní strana
             'user_wanted_purchases': user_wanted_purchases,
             'recent_sell_listings': recent_sell_listings,
             'recent_buy_listings': recent_buy_listings,
-            'pending_payouts': pending_payouts,
             'request_payouts': request_payouts,
+            'pending_payouts': pending_payouts,
+            'pending_payouts_list': pending_payouts_list,
+            #'request_payouts_list': request_payouts_list,
             })  
 
 @login_required

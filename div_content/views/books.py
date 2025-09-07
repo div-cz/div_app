@@ -371,7 +371,7 @@ def books(request):
                 ).values('average')[:1]
             )
         )
-        .order_by('-divrating')[:30]
+        .order_by('-divrating')[:10]
     )
 
     # Zaokrouhlíme hodnoty na celá čísla a převedeme na procenta
