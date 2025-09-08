@@ -446,69 +446,85 @@ def listing_detail(request, book_url, listing_id):
     book = get_object_or_404(Book, url=book_url)
     listing = get_object_or_404(Booklisting, booklistingid=listing_id, book=book)
     user = request.user
-    
+
+    # defaulty pro nepřihlášeného
+    total_user_payment = 0
+    button_appear = False
+    user_sold_books = 0
+    user_buyed_books = 0
+    user_pending_books = 0
+    total_user_pending = 0
+    total_user_paid_amount = 0
+
     # Výpočet proměnné pro množství k vyplacení
-    amount_to_pay = Booklisting.objects.filter(
-        user=user,
-        status='COMPLETED',
-        paidtoseller=False,
-    )
-    
-    pay_to_user = amount_to_pay.aggregate(
-    total_price=Sum(F('price') + F('shipping'))
-     )
+def listing_detail(request, book_url, listing_id):
+    book = get_object_or_404(Book, url=book_url)
+    listing = get_object_or_404(Booklisting, booklistingid=listing_id, book=book)
+    user = request.user
 
-    total_user_payment = pay_to_user['total_price']
+    # defaulty pro nepřihlášeného
+    total_user_payment = 0
+    button_appear = False
+    user_sold_books = 0
+    user_buyed_books = 0
+    user_pending_books = 0
+    total_user_pending = 0
+    total_user_paid_amount = 0
 
-    button_appear = Booklisting.objects.filter(
-        user=user,
-        status='COMPLETED',
-        paidtoseller=False,
-        requestpayout=False,
-    ).exists()
-    
-    
-    # Výpočet prodaných knih
-    user_sold_books = Booklisting.objects.filter(
-        user=user,
-        status='COMPLETED',
-        listingtype__in=['SELL', 'GIVE'],
-    ).count()
+    if request.user.is_authenticated:
+        amount_to_pay = Booklisting.objects.filter(
+            user=user,
+            status='COMPLETED',
+            paidtoseller=False,
+        )
+        pay_to_user = amount_to_pay.aggregate(
+            total_price=Sum(F('price') + F('shipping'))
+        )
+        total_user_payment = pay_to_user['total_price'] or 0
 
-    # Výpočet koupených knih
-    user_buyed_books = Booklisting.objects.filter(
-        buyer=user,
-        status='COMPLETED',
-        listingtype__in=['SELL', 'GIVE'],
-    ).count()
+        button_appear = Booklisting.objects.filter(
+            user=user,
+            status='COMPLETED',
+            paidtoseller=False,
+            requestpayout=False,
+        ).exists()
 
-    # Výpočet knih, které uživatel prodává
-    user_pending_books = Booklisting.objects.filter(
-        user=user,
-        status__in=['ACTIVE', 'RESERVED'],
-        listingtype__in=['SELL', 'GIVE'],
-    ).count()
+        user_sold_books = Booklisting.objects.filter(
+            user=user,
+            status='COMPLETED',
+            listingtype__in=['SELL', 'GIVE'],
+        ).count()
 
-    user_pending_amount = Booklisting.objects.filter(
-        user=user,
-        status__in=['ACTIVE', 'RESERVED'],
-        listingtype__in=['SELL', 'GIVE'],
-    )
+        user_buyed_books = Booklisting.objects.filter(
+            buyer=user,
+            status='COMPLETED',
+            listingtype__in=['SELL', 'GIVE'],
+        ).count()
 
-    pending_to_user = user_pending_amount.aggregate(pending_price=Sum(F('price')))
-    
-    total_user_pending = pending_to_user['pending_price']
+        user_pending_books = Booklisting.objects.filter(
+            user=user,
+            status__in=['ACTIVE', 'RESERVED'],
+            listingtype__in=['SELL', 'GIVE'],
+        ).count()
 
-    user_paid_amount = Booklisting.objects.filter(
-        user=user,
-        status='completed',
-        paidtoseller= True,
-    )
+        user_pending_amount = Booklisting.objects.filter(
+            user=user,
+            status__in=['ACTIVE', 'RESERVED'],
+            listingtype__in=['SELL', 'GIVE'],
+        )
+        pending_to_user = user_pending_amount.aggregate(pending_price=Sum(F('price')))
+        total_user_pending = pending_to_user['pending_price'] or 0
 
-    paid_to_user = user_paid_amount.aggregate(
-        total_price=Sum(F('price') + F('shipping'))
-    )    
-    total_user_paid_amount = paid_to_user['total_price'] or 0
+        user_paid_amount = Booklisting.objects.filter(
+            user=user,
+            status='completed',
+            paidtoseller=True,
+        )
+        paid_to_user = user_paid_amount.aggregate(
+            total_price=Sum(F('price') + F('shipping'))
+        )
+        total_user_paid_amount = paid_to_user['total_price'] or 0
+
 
     if request.method == 'POST' and request.user.is_authenticated:
         if 'request_payout' in request.POST:
