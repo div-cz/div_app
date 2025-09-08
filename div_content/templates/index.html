@@ -334,40 +334,12 @@
                             </div>
 
 
-{% if user.is_superuser and request_payouts_list %}
-<div class="card box-shadow mb-4">
-  <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-    <h3>Výplata pro prodejce (přehled pro superuser)</h3>
-
-    {% for user_request in request_payouts_list %}
-      <div class="p-3 border-b">
-        <p><strong>Prodávající:</strong>
-          {% if user_request.user__first_name %}
-            {{ user_request.user__first_name }}
-          {% else %}
-            {{ user_request.user__username }}
-          {% endif %}
-        </p>
-        <p>Celková částka k vyplacení: {{ user_request.total_amount|default:"0" }} Kč</p>
-        <form method="post">
-          {% csrf_token %}
-          <input type="hidden" name="user_id" value="{{ user_request.user_id }}">
-          <button type="submit" name="confirm_user_payment" class="btn btn-primary">
-            Potvrdit vyplacení
-          </button>
-        </form>
-      </div>
-    {% endfor %}
-  </div>
-</div>
-{% endif %}
-
 
 <!-- -->
 {% if pending_payouts_list and user.is_superuser %}
 <div class="card box-shadow mb-4">
     <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-        <h3>Výplata pro prodejce (přehled pro superuser)</h3>
+        <h3>Výplata pro prodejcee (přehled pro superuser)</h3>
         <div class="flex flex-col gap-4">
             {% for user_request in pending_payouts_list%}
             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center">
@@ -435,7 +407,8 @@
     </div>
     {% endif %}
 
-    <!-- Moje prodeje v DIVkvariátu -->
+
+
    <!-- Moje prodeje v DIVkvariátu -->
 {% if my_active_actions %}
 <div class="card box-shadow mb-4">
