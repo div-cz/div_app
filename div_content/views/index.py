@@ -28,7 +28,7 @@ from django.views.generic import DetailView
 
 # for index
 from django.db import models
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Q
 from django.db.models.functions import ExtractYear
 from django.db.models import F, Sum, Count
 from django.utils import timezone
@@ -217,7 +217,34 @@ def index(request): # hlavní strana
     recent_sell_listings, recent_buy_listings = get_market_listings()
     pending_payouts = Booklisting.objects.filter(paidtoseller=False)[:5]
     request_payouts = Booklisting.objects.filter(paidtoseller=False, requestpayout=True)[:5]
+
+    if request.user.is_authenticated:
+        # obchody, kde jsem prodávající nebo kupující
+        my_active_actions = Booklisting.objects.filter(
+            Q(user=request.user) | Q(buyer=request.user),
+            status__in=['RESERVED', 'PAID', 'SHIPPED', 'COMPLETED']
+        ).select_related('book', 'user', 'buyer')
     
+        # jen ty, kde je opravdu akce
+        my_active_actions = [
+            l for l in my_active_actions
+            if (
+                # kupující čeká na zaplacení
+                (l.status == 'RESERVED' and l.buyer == request.user) or
+                # kupující už zaplatil, čeká na odeslání
+                (l.status == 'PAID' and l.user == request.user) or
+                # kupující čeká na potvrzení, že kniha došla
+                (l.status in ['PAID', 'SHIPPED'] and l.buyer == request.user) or
+                # hotovo, ale ještě chybí hodnocení
+                (l.status == 'COMPLETED' and (
+                    (l.user == request.user and not l.buyerrating) or
+                    (l.buyer == request.user and not l.sellerrating)
+                ))
+            )
+        ]
+    else:
+        my_active_actions = []
+
     return render(request, 'index.html', {
             'movies': movies, 
             'movies_list_6': movies_list_6, 
@@ -252,6 +279,7 @@ def index(request): # hlavní strana
             'pending_payouts': pending_payouts,
             'pending_payouts_list': pending_payouts_list,
             #'request_payouts_list': request_payouts_list,
+            'my_active_actions': my_active_actions,
             })  
 
 @login_required
