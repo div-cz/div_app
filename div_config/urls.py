@@ -211,7 +211,7 @@ urlpatterns = [
     path('film/odebrat-z-filmoteky-<int:movieid>', remove_from_movie_library, name='remove_from_movie_library'),
 
     path('film/<str:movie_url>', movie_detail, name='movie_detail'),
-    path('film/<int:pk>/', MovieDetailView.as_view(), name='movie_detail'),
+    path('film/<int:pk>/', MovieDetailView.as_view(), name='movie_detail_id'),
     path('film/<int:pk>/rate/', rate_movie, name='movie_rate'),
     path('film/add-to-list/', add_to_list, name='add_to_list'),
   
