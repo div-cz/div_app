@@ -384,7 +384,7 @@
                     <p class="text-sm">Po tomto datu bude rezervace automaticky zrušena a peníze vráceny.</p>
                 </div>
 
-
+			{% if user.is_authenticated %}
                 {% if can_cancel_reservation %}
                 <div class="mb-3 px-3">
                     <form method="post" action="{% url 'cancel_listing_reservation' listing_id=listing.booklistingid %}">
@@ -411,7 +411,7 @@
                     </form>
                 </div>
                 {% endif %} 
-
+			{% endif %}
                 <!--{% if listing.buyer == user and listing.status == 'SHIPPED' or listing.status == 'PAID' %}
                     <form method="post">
                         {% csrf_token %}
