@@ -69,13 +69,7 @@
                         {{ book.titlecz|default:book.title }}
                     </h3>
                 </a>
-                <p class="w-full" style="min-height: 46px;">
-                  {% if book.authorid %}
-                    <a href="{% url 'author_detail' author_url=book.authorid.url %}">{{ book.author }}</a>
-                  {% else %}
-                    {{ book.author }}
-                  {% endif %}
-                </p>
+                <p class="w-full" style="min-height: 46px;">{{ book.author }}</p>
             </div>
             {% endfor %}
         </div>
@@ -145,7 +139,6 @@
             <div class="flex flex-wrap gap-2">
                 {% for book in book_list_15 %} 
                 <div class="w-full flex box-shadow bg-[#F9F9F9] dark:bg-[#1A161F] border rounded-1xl">
-
                     <a href="/kniha/{{ book.url }}" style="width: 130px;">
                     {% if book.img == "noimg.png" %}
                         <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
@@ -187,9 +180,8 @@
                         <p class="card-text">{{ book.description|default_if_none:""|safe|truncatewords:40 }}</p>
                         
                     </div>
-                    
                 </div>
-                {% endfor %}
+            {% endfor %}
             </div>
         </div>
 
@@ -218,6 +210,7 @@
                                 <a class="w-full font-semibold" href="{% url 'book_detail' comment.bookid.url %}#recenze">{{ comment.bookid.titlecz|default:comment.bookid.title }}</a>
                                 <p class="w-full text-sm">{{ comment.comment|truncatewords:30 }}</p>
                             </div>
+                            
                             <div class="w-full flex justify-end" style="font-size: small;">
                                 <p>Uživatel:
                                 {% if comment.user %}
@@ -385,7 +378,7 @@
                         {% endif %}
                         </a>
 
-                        <div class="ml-2" style="flex: 2;">
+                        <div class="flex flex-wrap content-between h-full p-2" style="flex: 2;">
                             <p><a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">{{ listing.book.titlecz|default:listing.book.title }}</a></p>
                             <p>{{ listing.book.author }}</p>
                             <p>{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>

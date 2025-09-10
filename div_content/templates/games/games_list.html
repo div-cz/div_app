@@ -31,14 +31,12 @@
         </div>
     </div>
     
-    
     <!-- LEVÁ STRANA -->
     <div class="col-lg-8">
-        <!-- carousel - nejlépe hodnocené -->
+        <!-- carousel -->
         <div class="expandable">
         {% for game in carousel_games %}
-            <div class="panel {% if forloop.first %}active{% endif %} border box-shadow" 
-                 style="background-image: url('{% if game.img == "rawg.io" %}https://rawg.io/img/{{ game.img }}{% elif game.img %}/static/hra/{{ game.img }}{% else %}/static/img/game/game.png{% endif %}')">
+            <div class="panel {% if forloop.first %}active{% endif %} border box-shadow" style="background-image: url('{% if game.img == "rawg.io" %}https://rawg.io/img/{{ game.img }}{% elif game.img %}https://media.div.cz/hry{{ game.img }}{% else %}/static/img/game/game.png{% endif %}')">
                 <!--<a href="/hra/{{ game.url }}"><h3>{{ game.title }}</h3></a>-->
             </div>
         {% endfor %}
@@ -58,24 +56,27 @@
         <div class="row my-4">
             <div class="flex flex-wrap gap-2">
             {% for game in games %}
-                <div class="game-card flex box-shadow w-full bg-[#F9F9F9] dark:bg-[#1A161F] border rounded-1xl">
-
+                <div class="w-full flex box-shadow bg-[#F9F9F9] dark:bg-[#1A161F] border rounded-1xl">
                     <a href="/hra/{{ game.url }}" style="width: 130px;">
                     {% if game.img %}
                         {% if game.img == "rawg.io" %}
-                        <img src="https://rawg.io/ ... ... .../{{ game.img }}" alt="{{ game.title }}" class="card-img-top rounded-l-lg h-full">
+                        <img src="https://rawg.io/ ... ... .../{{ game.img }}" alt="{{ game.title }}" class="card-img-top rounded-l-lg">
                         {% else %}
-                        <img src="https://media.div.cz/hry{{ game.img }}" alt="{{ game.title }}" class="card-img-top rounded-l-lg h-full">
+                        <img src="https://media.div.cz/hry/{{ game.img }}" alt="{{ game.title }}" class="card-img-top rounded-l-lg">
                         {% endif %}
                         {% else %}
-                        <img src="/static/img/game/game.png" alt="{{ game.title }}" class="card-img-top rounded-l-lg h-full">
+                        <img src="/static/img/game/game.png" alt="{{ game.title }}" class="card-img-top rounded-l-lg">
                     {% endif %}
                     </a>
 
                     <div class="card-body w-min">
                         <div class="flex justify-between">
-                            <h4 class="card-title"><a href="/hra/{{ game.url }}">{{ game.title }}</a> ({{ game.year }})</h4>
-                            
+                            <div>
+                                <h4 class="card-title">
+                                    <a href="/hra/{{ game.url }}">{{ game.title }}</a> ({{ game.year }})
+                                </h4>
+                            </div>
+
                             <!-- hodnocení -->
                             <div class="flex" style="width: 50px;">
                                 <div class="rating box-shadow" data-rating="{{ game.average_rating }}">
@@ -98,11 +99,11 @@
             </div>
         </div>
 
-        <!-- Má komunita -->
+        <!-- Poslední herní recenze -->
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <div class="flex flex-wrap justify-between card-title after-h3">
-                    <h3 class="font-bold">Má komunita</h3>
+                    <h3 class="font-bold">Poslední herní recenze</h3>
                     <a href="/hry/"> <small>Zobrazit vše</small></a> 
                 </div>
                 <div class="after last-line"> 
@@ -114,7 +115,7 @@
                             {% if game.img == "rawg.io" %}
                             <img src="/img/{{ game.img }}" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
                             {% else %}
-                            <img src="/static/hra{{ game.img }}" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
+                            <img src="https://media.div.cz/hry/{{ game.img }}" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
                             {% endif %}
                             {% else %}
                             <img src="/static/img/game/game.png" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
@@ -168,6 +169,65 @@
                     <li><a href="/hra/avowed">Avowed</a></li>
                     <li><a href="/hra/prince-of-persia-the-sands-of-time-remake">Prince of Persia</a></li>
                 </ul>
+            </div>
+        </div>
+
+        <!-- BURZA HER -->
+        <div class="card box-shadow mb-4">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                <div class="flex flex-wrap card-title after-h3">
+                <h3 class="font-bold">Burza her</h3>
+                </div>
+
+                <!-- prodej -->
+                <div class="flex flex-wrap">
+                    <div class="flex flex-wrap justify-between w-full">
+                        <h4>Prodej</h4>
+                        <div>
+                        <a href="#"><small>Zobrazit vše</small></a> | 
+                        <a href="#"><small>Zobrazit moje</small></a>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                        <a href="#">
+                            <img src="" alt="" class="rounded-l" style="width: 80px;">
+                        </a>
+                        <div class="flex flex-wrap content-between h-full p-2" style="flex: 2;">
+                            <p class="w-full"><a href="#">Název hry</a></p>
+                            <p class="w-full">150 Kč</p>
+                            <p class="text-sm text-end w-full">
+                                <small>Přidal: <a href="#">Uživatel123</a> | 31.8.2025</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- poptávka -->
+                <div class="flex flex-wrap">
+                    <div class="flex flex-wrap justify-between w-full">
+                        <h4>Poptávka</h4>
+                        <div>
+                            <a href="#"><small>Zobrazit vše</small></a> | 
+                            <a href="#"><small>Zobrazit moje</small></a>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                        <a href="#">
+                            <img src="" alt="" class="rounded-l" style="width: 80px;">
+                        </a>
+                        <div class="flex flex-wrap content-between h-full p-2" style="flex: 2;">
+                            <p><a href="#">Hledaná hra</a></p>
+                            <p>Daruji</p>
+                            <p class="text-sm text-end w-full">
+                                <small>Přidal: <a href="#">Uživatelka</a> | 28.8.2025</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 

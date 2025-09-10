@@ -7,7 +7,6 @@ import qrcode
 from datetime import date
 from io import BytesIO
 from django.contrib import messages
-from div_content.views.login import custom_login_view
 
 from div_content.forms.admins import TaskCommentForm, TaskForm
 from div_content.forms.index import ArticleForm, ArticlenewsForm
@@ -19,12 +18,22 @@ from div_content.models import (
 )
 from div_content.utils.books import get_market_listings
 
+from div_content.views.divkvariat import qr_code_market, send_listing_payment_request_confirmed
+from div_content.views.login import custom_login_view
+
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.contenttypes.models import ContentType
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import DetailView
+
+#importy pro zasílání e-mailu
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from dotenv import load_dotenv
+import os
+import smtplib
 
 # for index
 from django.db import models
@@ -73,9 +82,13 @@ def get_sorted_tasks(user):
 
 
 def index(request): # hlavní strana
-    user = request.user if request.user.is_authenticated else None
+    user = request.user 
+    request_qr_code = None
+    bankaccount = None
+    if request.user.is_authenticated:
+         bankaccount = request.user.userprofile.bankaccount
 
-    #ARTICLE NEWS
+    # Články
     if request.user.is_superuser or request.user.is_staff:
         article_form = ArticleForm(request.POST or None)
         articlenews_form = ArticlenewsForm(request.POST or None)
@@ -110,13 +123,21 @@ def index(request): # hlavní strana
                 
                 total_amount_for_user = transactions_to_pay.aggregate(total_amount=Sum(F('price') + F('shipping')))['total_amount'] or 0
 
-                if transactions_to_pay.exists():
+                listing = transactions_to_pay.first()
+
+                if listing:
                     transactions_to_pay.update(
                         paidtoseller=True,
                         paidat=timezone.now(),
                         requestpayout=False,
                         amounttoseller=F('price') + F('shipping'), 
                     )
+
+                    qr_code_base64, vs = qr_code_market(total_amount_for_user, listing)
+                    request_qr_code = qr_code_base64
+
+                    # Předáme vypočtenou hodnotu "total_amount_for_user" přímo do funkce.
+                    send_listing_payment_request_confirmed(listing, total_amount_for_user)
                     messages.success(request, f'Vyplacení částky {total_amount_for_user} Kč bylo potvrzeno.')
                 else:
                     messages.warning(request, 'Pro tohoto uživatele nebyly nalezeny žádné čekající žádosti o vyplacení.')
@@ -132,6 +153,62 @@ def index(request): # hlavní strana
             user_name=F('user__first_name'),
             username=F('user__username'),
         )
+
+
+        # QR 
+        if pending_payouts_list:
+            first_payout_data = pending_payouts_list.order_by('user').first()
+            first_listing = Booklisting.objects.filter(user_id=first_payout_data['user']).first()
+            if first_listing:
+                # původní volání
+                qr_code_base64, vs = qr_code_market(first_payout_data['total_amount'], first_listing)
+
+                import base64, qrcode
+                from io import BytesIO
+
+                # převod číslo/kód na IBAN
+                def to_iban(account_number: str) -> str:
+                    account_number = account_number.replace(" ", "")
+                    if "/" not in account_number:
+                        raise ValueError("Účet musí být ve formátu číslo/kód, např. 2401444218/2010")
+                    number, bank_code = account_number.split("/")
+                    if "-" in number:
+                        prefix, base = number.split("-")
+                    else:
+                        prefix, base = "0", number
+                    prefix = prefix.zfill(6)
+                    base = base.zfill(10)
+                    bban = f"{bank_code}{prefix}{base}"
+                    tmp = bban + "123500"  # "CZ00" → C=12, Z=35, 00
+                    check = 98 - (int(tmp) % 97)
+                    return f"CZ{check:02d}{bban}"
+
+                # IBAN pro účet z profilu nebo fallback
+                profile = getattr(first_listing.user, "userprofile", None)
+                account_raw = None
+                if profile and profile.bankaccount:
+                    account_raw = profile.bankaccount.strip().replace(" ", "")
+                if not account_raw:
+                    account_raw = "2401444218/2010"  # fallback
+
+                iban = to_iban(account_raw)
+                amount = float(first_payout_data['total_amount'])
+                vs = vs or ""
+                msg = "DIV.cz"
+
+                qr_string = (
+                    f"SPD*1.0*ACC:{iban}"
+                    f"*AM:{amount:.2f}"
+                    f"*CC:CZK*MSG:{msg}*X-VS:{vs}"
+                )
+
+                img = qrcode.make(qr_string)
+                buf = BytesIO()
+                img.save(buf, format="PNG")
+                request_qr_code = base64.b64encode(buf.getvalue()).decode("utf-8")
+            else:
+                request_qr_code = qr_code_base64
+
 
     # Ostatní výpočty pro všechny uživatele
     movies_list_6 = Metaindex.objects.filter(section='Movie').order_by('-indexid').values('title', 'url', 'img', 'description')[:6]
@@ -280,6 +357,8 @@ def index(request): # hlavní strana
             'pending_payouts_list': pending_payouts_list,
             #'request_payouts_list': request_payouts_list,
             'my_active_actions': my_active_actions,
+            'bank_account': bankaccount,
+            'request_qr_code':request_qr_code,
             })  
 
 @login_required

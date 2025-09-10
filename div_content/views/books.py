@@ -90,7 +90,7 @@ from io import BytesIO
 
 from star_ratings.models import Rating, UserRating
 
-
+from div_content.search.es_client import es
 
 
 
@@ -108,6 +108,15 @@ CONTENT_TYPE_BOOK_ID = book_content_type.id
 def is_staff(user):
     return user.is_staff or user.is_superuser
 
+
+def elastic_books(request):
+    q = request.GET.get("q", "")
+    page = request.GET.get("page", 1)
+    size = request.GET.get("size", 20)
+
+    data = search_books_service(q=q, page=page, size=size)
+
+    return JsonResponse(data, json_dumps_params={"ensure_ascii": False})
 
 
 

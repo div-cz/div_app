@@ -411,7 +411,7 @@ def send_listing_request_seller_payment(listing,total_user_payment):
     user=listing.user
     amounttoseller = total_user_payment
     bankaccount = user.userprofile.bankaccount 
-    recipient = ['lilien-rose@seznam.cz'] #lilien-rose@seznam.cz / finance@div.cz
+    recipient = ['finance@div.cz'] #lilien-rose@seznam.cz / 
     if not recipient:
         print("[✖] Superuser nemá e-mail – automatický e-mail neodeslán.")
         return
@@ -879,6 +879,43 @@ def send_listing_payment_email(listing):
         print(f"[✔] E-mail o zaplacení odeslán kupujícímu na {recipient}")
     except Exception as e:
         print(f"[✖] Chyba při odesílání e-mailu: {e}")
+
+
+# -------------------------------------------------------------------
+#                    SEND LISTING PAYMENT REQUEST CONFIRMED
+# -------------------------------------------------------------------
+# Email po vyplacení
+def send_listing_payment_request_confirmed(listing, amount_to_seller):
+    
+    amounttoseller = amount_to_seller
+    seller = listing.user
+    bankaccount = seller.userprofile.bankaccount 
+    
+    recipient = seller.email if seller else None
+    if not recipient:
+        print("[✖] Uživatel nemá e-mail – automatický e-mail neodeslán.")
+        return
+
+    context = {
+        'amount_to_seller': amounttoseller,
+        'bank_account': bankaccount,
+    }
+
+    html_email = render_to_string('emails/listing_payment_request_confirmed.html', context)
+
+    msg = EmailMessage()
+    msg['Subject'] = os.getenv("EMAIL_SUBJECT_REQUEST_CONFIRMED")
+    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+    msg['To'] = recipient
+    msg.set_content(html_email, subtype='html')
+
+    try:
+        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+            smtp.send_message(msg)
+        print(f"[✔] Uživatel dostal e-mail ohledně potvrzení o vyplácení odeslán na {recipient}")
+    except Exception as e:
+        print(f"[✖] Chyba při odesílání automatického e-mailu pro uživatele: {e}")
 
 
 # -------------------------------------------------------------------

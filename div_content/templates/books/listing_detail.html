@@ -176,6 +176,9 @@
 
         {% if user.is_authenticated %}
         {% if listing.status == 'ACTIVE' and user != listing.user %}
+        <div class="card box-shadow mb-4">
+            <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+
         <form method="post">
             {% csrf_token %}
             <input type="hidden" name="reserve_listing" value="1">
@@ -206,6 +209,8 @@
 
             <button type="submit" class="add-book mt-2">Rezervovat knihu</button>
         </form>
+                    </div>
+        </div>
         {% endif %}
 
         {% if listing.status == 'RESERVED' and listing.buyer == user %}
@@ -449,7 +454,7 @@
         {% if user.userprofile.bankaccount %}
         <form method="post">
             {% csrf_token %}
-            <button type="submit" name="request_payout" class="btn btn-primary mt-2">Vyžádat výplatu</button>
+            <button type="submit" name="request_payout" class="add-book mt-2">Vyžádat výplatu</button>
         </form>
         {% endif %}
         {% endif %}
@@ -537,3 +542,4 @@
 </div>
 
 {% endblock %}
+ s
