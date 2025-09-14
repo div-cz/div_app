@@ -83,6 +83,8 @@ from div_content.views.login import custom_login_view
 from div_content.views.palmknihy import get_palmknihy_ebooks
 from div_content.views.payments import get_ebook_purchase_status
 
+from div_content.views.search import search_books_service
+
 from email.message import EmailMessage
 
 
@@ -874,23 +876,96 @@ def ratequote(request, quote_id):
 
 
 
+# def books_search(request):
+#     books = None
+#     if 'q' in request.GET:
+#         form = SearchFormBooks(request.GET)
+#         if form.is_valid():
+#             query = form.cleaned_data['q']
+#             # Použití select_related pro připojení autora k výsledkům
+#             books = (Book.objects.filter(titlecz__icontains=query)
+#                 .select_related('authorid')  # Připojení modelu Bookauthor
+#                 .values('title', 'titlecz', 'url', 'year', 'googleid', 'pages', 'img', 'author', 'authorid__url', 'authorid__firstname', 'authorid__lastname')[:50])
+#     else:
+#         form = SearchFormBooks()
+
+#     return render(request, 'books/books_search.html', {'form': form, 'books': books})
+
+
 def books_search(request):
     books = None
+    total = 0
+    page = 1
+    size = 30
+
     if 'q' in request.GET:
         form = SearchFormBooks(request.GET)
         if form.is_valid():
-            query = form.cleaned_data['q']
-            # Použití select_related pro připojení autora k výsledkům
-            books = (Book.objects.filter(titlecz__icontains=query)
-                .select_related('authorid')  # Připojení modelu Bookauthor
-                .values('title', 'titlecz', 'url', 'year', 'googleid', 'pages', 'img', 'author', 'authorid__url', 'authorid__firstname', 'authorid__lastname')[:50])
+            q = form.cleaned_data['q']
+
+            page = request.GET.get("page", 1)
+            size = request.GET.get("size", 20)
+
+            data = search_books_service(q=q, page=page, size=size)
+            total = data["total"]
+            page = data["page"]
+            size = data["size"]
+            books_hits = data["results"]
+
+            book_ids = [int(hit["id"]) for hit in books_hits]
+            books_by_id = Book.objects.in_bulk(book_ids)
+            author_ids = [h.get("authorid") for h in books_hits if h.get("authorid") is not None]
+            authors_by_id = Bookauthor.objects.in_bulk(author_ids)
+
+            ct = ContentType.objects.get_for_model(Book)
+            rating_rows = (
+                Rating.objects
+                .filter(content_type=ct, object_id__in=book_ids)
+                .values("object_id", "average")
+            )
+
+            ratings_by_book = {
+                row["object_id"]: {
+                    "rating_avg": float(row["average"]) if row["average"] is not None else None,
+                }
+                for row in rating_rows
+            }
+
+            merged = []
+            for hit in books_hits:
+                b = books_by_id.get(int(hit["id"])) if hit.get("id") is not None else None
+                aid = hit.get("authorid")
+                author_obj = authors_by_id.get(aid) if aid is not None else None
+
+                r = ratings_by_book.get(int(hit["id"]), {})
+                rating_avg = r.get("rating_avg")
+
+                merged.append({
+                    "id": hit.get("id"),
+                    "score": hit.get("score"),
+                    "title": hit.get("title"),
+                    "titlecz": hit.get("titlecz"),
+                    "author": hit.get("author"),
+                    "authorid": aid,
+                    "authorurl": getattr(author_obj, "url", "") or "",
+                    "url": getattr(b, "url", "") or "",
+                    "img": getattr(b, "img", "") or "",
+                    "year": getattr(b, "year", None),
+                    "ratingaverage": rating_avg,
+                })
+
+            books = merged
     else:
         form = SearchFormBooks()
 
-    return render(request, 'books/books_search.html', {'form': form, 'books': books})
-
-
-
+    ctx = {
+        "form": form,
+        "books": books,
+        "total": total,
+        "page": page,
+        "size": size,
+    }
+    return render(request, 'books/books_search.html', ctx)
 
 
 
