@@ -370,7 +370,9 @@ def cancel_sell(request, listing_id):
 
     if request.method == "POST":
         if listing_to_cancel.status == 'ACTIVE' or listing_to_cancel.status == 'RESERVED':
-            listing_to_cancel.delete()
+            #listing_to_cancel.delete()
+            listing_to_cancel.status = 'CANCELLED'
+            listing_to_cancel.save()
             messages.success(request, f'Vaše nabídka knihy "{listing_to_cancel.book.titlecz}" byla úspěšně smazána.')
             return redirect('index')
         else:
