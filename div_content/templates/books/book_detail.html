@@ -765,10 +765,38 @@
             <div id="tab2" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F] ">
                 <div class=""> 
                     <div>
-                        <h3 class="after-h3">Informace o postavách knihy</h3>
+                        <h3 class="after-h3">Seznam postav v knize</h3>
 
+                    {% for character_with_role in characters_with_roles %}
+                    <div style="font-size:16px">
+                        {% with character=character_with_role.characterid %}
+                            {% if character.characterbio %}
+                            <a href="/postava/{{ character.characterurl }}">
+                                {% if character.characternamecz %}
+                                    {{ character.characternamecz }}
+                                {% else %}
+                                    {{ character.charactername }}
+                            {% endif %}
+                            </a>
+                            {% else %}
+                                {% if character.characternamecz %}
+                                    {{ character.characternamecz }}
+                                {% else %}
+                                    {{ character.charactername }}
+                                {% endif %}
+                            {% endif %}
+                            {% if character_with_role.characterrole %}
+                                - {{ character_with_role.characterrole }}
+                            {% endif %}
+                        {% endwith %}
+                        {% if not forloop.last %}
+
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+            
                         {% if user.is_authenticated %}
-                        <h4>Přidat postavu ke knize</h4>
+                        <hr><h4>Přidat postavu ke knize</h4>
                         <p>Z důvodu milionů postav trvá načítání řádově vteřiny</p>
                         <form method="post" name="character_form">
                             {% csrf_token %}
@@ -824,34 +852,6 @@
                         </script>
                         {% endif %}
                     </div>
-
-                    {% for character_with_role in characters_with_roles %}
-                    <div style="">
-                        {% with character=character_with_role.characterid %}
-                            {% if character.characterbio %}
-                            <a href="/postava/{{ character.characterurl }}">
-                                {% if character.characternamecz %}
-                                    {{ character.characternamecz }}
-                                {% else %}
-                                    {{ character.charactername }}
-                            {% endif %}
-                            </a>
-                            {% else %}
-                                {% if character.characternamecz %}
-                                    {{ character.characternamecz }}
-                                {% else %}
-                                    {{ character.charactername }}
-                                {% endif %}
-                            {% endif %}
-                            {% if character_with_role.characterrole %}
-                                - {{ character_with_role.characterrole }}
-                            {% endif %}
-                        {% endwith %}
-                        {% if not forloop.last %}
-
-                        {% endif %}
-                    </div>
-                    {% endfor %}
 
                 </div>
             </div>
