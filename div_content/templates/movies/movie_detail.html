@@ -424,7 +424,7 @@
                     <form method="post" action="">
                         {% csrf_token %}
                         <textarea name="trivia_text" class="w-full p-2 mb-2" rows="3" placeholder="Zadejte zajímavost"></textarea>
-                        {% if is_crew %}<!-- CREW -->
+                        {% if user.is_staff %}<!-- CREW -->
                         <button type="submit" class="add-movie">Vložit zajímavost</button>
                         {% else %}
                             <p class="text-muted text-sm">
@@ -448,7 +448,7 @@
                             {% csrf_token %}
                             {{ trailer_form.as_p }}
                             
-                        {% if is_crew %}<!-- CREW -->
+                        {% if user.is_staff %}<!-- CREW -->
                         <button type="submit" class="add-movie mt-3">Přidat trailer (Jen YoutubeID: dGzY9zp46KI)</button>
                         {% else %}
                             <p class="text-muted text-sm">

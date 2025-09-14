@@ -6,7 +6,7 @@
 {% block title %} {{ book.titlecz|default:book.title }} | DIV.cz{% endblock %}
 
 {% block meta %}
-<meta name="description" content="{{ book.description|striptags|truncatewords:30 }}"> 
+<meta name="description" content="{{ book.description|default:""|striptags|truncatewords:30 }}"> 
 <meta name="keywords" content="{{ book.titlecz|default:book.title }}, knihy, literatura, DIV.cz"> 
 <meta property="og:title" content="{{ book.titlecz|default:book.title }}"> 
 <meta property="og:description" content="{{ book.description|striptags|truncatewords:30 }}"> 
@@ -858,24 +858,7 @@
 
             <!-- CICÁTY -->
             <div id="tab3" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F] ">
-                <h3 class="after-h3">Citáty z knihy</h3>
-                <!-- přidat citát -->
-                {% if user.is_authenticated %}
-                <h4>Přidat nový citát</h4>
-                <form method="post" class="">
-                    {% csrf_token %}
-                    {{ quote_form.as_p }}
-
-                 {% if user.is_staff %}<!-- CREW -->
-                    <button type="submit" class="add-book">Přidat citát</button>
-                    {% else %}
-                    <p class="text-muted text-sm">
-                        Chcete přidávat citáty? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
-                    </p>
-                {% endif %}<!-- // CREW -->
-                        
-                </form>
-                {% endif %}
+                <h3 class="after-h3">Citáty z knihy {{ book.titlecz|default:book.title }}</h3>
 
                 <!-- výpis citátů -->
                 <div class="mt-4">
@@ -903,6 +886,24 @@
                     </div>
                     {% endfor %}
                 </div>
+
+                <!-- přidat citát -->
+                {% if user.is_authenticated %}
+                <hr><h4>Přidat nový citát</h4>
+                <form method="post" class="">
+                    {% csrf_token %}
+                    {{ quote_form.as_p }}
+
+                 {% if user.is_staff %}<!-- CREW -->
+                    <button type="submit" class="add-book">Přidat citát</button>
+                    {% else %}
+                    <p class="text-muted text-sm">
+                        Chcete přidávat citáty? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
+                    </p>
+                {% endif %}<!-- // CREW -->
+                        
+                </form>
+                {% endif %}
             </div>
 
             <!-- ZAJÍMAVOSTI
