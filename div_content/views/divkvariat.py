@@ -930,11 +930,13 @@ def send_listing_reservation_email(request, listing_id):
         total_amount = int(float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0))
         qr_message = f"Platba za knihu {book.titlecz} na DIV.cz - ID: {book.bookid}"
   
+        format_code = "5" if listing.listingtype == "BUY" else "6"
+        qr_code, vs = qr_code_market(total_amount, listing, qr_message, format_code)
 
         payment_info = {
             'amount': total_amount,
-            'qr_code': qr_code_market(total_amount, listing, qr_message)[0],
-            'variable_symbol': qr_code_market(total_amount, listing, qr_message)[1],
+            'qr_code': qr_code,
+            'variable_symbol': vs,
             'note': qr_message, 
         }
 
@@ -944,7 +946,7 @@ def send_listing_reservation_email(request, listing_id):
             'book_title': book.titlecz, 
             'book': book,
             'listing': listing,
-            'amount': int(float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0)),
+            'amount': total_amount,
             'payment_info': payment_info,
             'shippingaddress': listing.shippingaddress,
         }
