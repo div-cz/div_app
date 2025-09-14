@@ -927,6 +927,9 @@ def send_listing_reservation_email(request, listing_id):
 
     if listing.status in ['RESERVED', 'PENDING']:
         book = listing.book
+        buyer = request.user
+        book_title = book.titlecz or book.title or ""
+        
         total_amount = int(float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0))
         qr_message = f"DIV.cz | {book_title} | {buyer.username}"
   
