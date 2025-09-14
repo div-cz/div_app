@@ -641,7 +641,7 @@ def listing_detail(request, book_url, listing_id):
     if listing.status == 'RESERVED' and listing.buyer == request.user:
         total_amount = float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0)
         book_title = book.titlecz or book.title or ""
-        qr_message = f"{book_title}|{listing.user.username}"
+        qr_message = f"DIV.cz | {book_title} | {listing.user.username}"
         # Prodej/koupě: zjisti, zda je typ 5 nebo 6 (můžeš to mít v listing.listingtype apod.)
         format_code = "5" if listing.listingtype == "BUY" else "6"  
         qr_code, vs = qr_code_market(total_amount, listing, qr_message, format_code)
@@ -928,7 +928,7 @@ def send_listing_reservation_email(request, listing_id):
     if listing.status in ['RESERVED', 'PENDING']:
         book = listing.book
         total_amount = int(float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0))
-        qr_message = f"Platba za knihu {book.titlecz} na DIV.cz - ID: {book.bookid}"
+        qr_message = f"DIV.cz | {book_title} | {buyer.username}"
   
         format_code = "5" if listing.listingtype == "BUY" else "6"
         qr_code, vs = qr_code_market(total_amount, listing, qr_message, format_code)
