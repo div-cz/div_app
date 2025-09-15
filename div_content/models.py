@@ -314,6 +314,8 @@ class Booklisting(models.Model):
     completedat = models.DateTimeField(db_column='CompletedAt', null=True, blank=True)
     active = models.BooleanField(db_column='Active', default=True)
     status = models.CharField(db_column='Status', max_length=10, choices=LISTING_STATUS, default='ACTIVE')
+    # Shipping
+    shippingoptions= models.CharField(db_column='ShippingOptions', max_length=255, blank=True, null=True)
     shippingaddress = models.CharField(db_column='ShippingAddress', max_length=1024, blank=True, null=True)
     # Hodnocení transakce
     sellerrating = models.IntegerField(db_column='SellerRating', null=True, blank=True)
