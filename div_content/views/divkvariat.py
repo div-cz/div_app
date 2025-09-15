@@ -933,7 +933,7 @@ def send_listing_reservation_email(request, listing_id):
         book_title = book.titlecz or book.title or ""
         
         total_amount = int(float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0))
-        qr_message = f"DIV.cz | {book_title} | {buyer.username}"
+        qr_message = f"DIV.cz | {book_title} | {listing.user.username}"
   
         format_code = "5" if listing.listingtype == "BUY" else "6"
         qr_code, vs = qr_code_market(total_amount, listing, qr_message, format_code)
