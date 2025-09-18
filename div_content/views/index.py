@@ -312,6 +312,8 @@ def index(request): # hlavní strana
                 (l.status == 'PAID' and l.user == request.user) or
                 # kupující čeká na potvrzení, že kniha došla
                 (l.status in ['PAID', 'SHIPPED'] and l.buyer == request.user) or
+                # prodávající vidí, že kniha byla odeslána
+                (l.status == 'SHIPPED' and l.user == request.user) or
                 # hotovo, ale ještě chybí hodnocení
                 (l.status == 'COMPLETED' and (
                     (l.user == request.user and not l.buyerrating) or

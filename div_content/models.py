@@ -284,6 +284,13 @@ class Book(models.Model):
 
 
 class Booklisting(models.Model):
+    CONDITION_CHOICES = [
+        ("nova", "Nová"),
+        ("jako-nova", "Použitá, jako nová"),
+        ("dobry", "Použitá, dobrý stav"),
+        ("zachovaly", "Použitá, zachovalý stav"),
+        ("spatny", "Špatný stav"),
+    ]
     LISTING_TYPES = (
         ('SELL', 'Prodám'),
         ('BUY', 'Koupím'),
@@ -293,6 +300,7 @@ class Booklisting(models.Model):
         ('ACTIVE', 'Aktivní'),
         ('RESERVED', 'Rezervováno'),
         ('PAID', 'Zaplaceno'), 
+        ('SHIPPED', 'Posláno'),
         ('COMPLETED', 'Dokončeno'),
         ('CANCELLED', 'Zrušeno'),
         ('DELETED', 'Smazáno'),
@@ -304,10 +312,10 @@ class Booklisting(models.Model):
     listingtype = models.CharField(db_column='ListingType', max_length=4, choices=LISTING_TYPES)
     price = models.DecimalField(db_column='Price', max_digits=10, decimal_places=2, null=True, blank=True)
     shipping = models.DecimalField(db_column='Shipping', max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Poštovné')
-    commission = models.IntegerField(db_column='Commission', verbose_name='Provize na chod webu')
+    commission = models.IntegerField(db_column='Commission', verbose_name='Provize na chod webu', default=0)
     personal_pickup = models.BooleanField(db_column='PersonalPickup', verbose_name='Osobní převzetí')
     description = models.TextField(db_column='Description', max_length=512, blank=True, null=True)
-    condition = models.CharField(db_column='Condition', max_length=50, blank=True, null=True)
+    condition = models.CharField(db_column='Condition', max_length=50, choices=CONDITION_CHOICES, blank=True, null=True)
     location = models.CharField(db_column='Location', max_length=100, blank=True, null=True)
     createdat = models.DateTimeField(db_column='CreateDat', auto_now_add=True)
     updatedat = models.DateTimeField(db_column='UpdateDat', auto_now=True)

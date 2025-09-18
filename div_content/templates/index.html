@@ -466,10 +466,20 @@
                                class="text-[#61872B] font-medium">
                                Kupující zaplatil – odešlete knihu
                             </a>
-                        {% elif listing.status in 'PAID SHIPPED' and listing.buyer == request.user %}
+                        {% elif listing.status in 'PAID' and listing.buyer == request.user %}
                             <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
                                class="text-[#00A0E3] font-medium">
                                Čekáme na doručení knihy
+                            </a>
+                        {% elif listing.status in 'SHIPPED' and listing.buyer == request.user %}
+                            <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                               class="text-[#00A0E3] font-medium">
+                               Čekáme na doručení knihy
+                            </a>
+                        {% elif listing.status in 'SHIPPED' and listing.user == request.user %}
+                            <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                               class="text-[#00A0E3] font-medium">
+                               Čekáme na potvrzení převzetí
                             </a>
                         {% elif listing.status == 'COMPLETED' and listing.user == request.user and not listing.buyerrating %}
                             <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"

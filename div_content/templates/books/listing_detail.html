@@ -12,6 +12,20 @@
         clear: both;
         order: 999; 
     }
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.form-group label {
+  margin-right: 10px;
+  min-width: 120px;
+}
+.form-group input {
+  margin-left: auto;
+  max-width: 100px;
+}
+
 </style>
 
 
@@ -66,11 +80,22 @@
             </h2>
             <p style="margin:0 0 10px; color:#666;">{{ book.author }}</p>
 
-            <p style="margin:0 0 4px;">
-                <strong>Cena:</strong>
-                {% if listing.listingtype == 'GIVE' %}Daruji{% else %}{{ listing.price|price }} Kč{% endif %}
-                {% if listing.shipping %}<span>(+ {{ listing.shipping|price }} Kč poštovné)</span>{% endif %}
-            </p>
+<p style="margin:0 0 4px;">
+    <strong>Cena:</strong>
+    {% if listing.listingtype == 'GIVE' %}
+        Daruji
+    {% else %}
+        {{ listing.price|price }} Kč
+    {% endif %}
+    {% if listing.status == 'ACTIVE' %}
+       <span>(poštovné od 
+         {{ listing.shippingoptions|div_split:","|first|div_split:":"|div_get:1 }} Kč)
+       </span>
+    {% elif listing.shipping %}
+       <span>(+ {{ listing.shipping|price }} Kč poštovné)</span>
+    {% endif %}
+</p>
+
         </div>
 
 
@@ -111,9 +136,15 @@
                                 {{ listing.price|price }} Kč
                             {% endif %}
                         </span>
-                        {% if listing.shipping %}
-                            <span class=" ml-2">(+ {{ listing.shipping|price }} Kč poštovné)</span>
-                        {% endif %}
+
+{% if listing.status == 'ACTIVE' %}
+   <span class="ml-2">(poštovné od 
+     {{ listing.shippingoptions|div_split:","|first|div_split:":"|div_get:1 }} Kč)
+   </span>
+{% elif listing.shipping %}
+   <span class="ml-2">(+ {{ listing.shipping|price }} Kč poštovné)</span>
+{% endif %}
+
                     </div>
                     <div class="text-right">
                         <span class="">{{ listing.createdat|date:"j. n. Y" }}</span>
@@ -140,7 +171,7 @@
                     {% if listing.condition %}
                     <div>
                         <span class="">Stav: </span>
-                        <span class="ml-2">{{ listing.condition }}</span>
+                        <span class="ml-2">{{ listing.get_condition_display }}</span>
                     </div>
                     {% endif %}
                     {% if listing.location %}
@@ -153,12 +184,16 @@
                         <span class="">Osobní převzetí: </span>
                         <span class="ml-2">{% if listing.personal_pickup %}Ano{% else %}Ne{% endif %}</span>
                     </div>
-                    <div>
-                        <span class="">Pošta: </span>
-                        {% if listing.shipping %}
-                            <span class=" ml-2">+ {{ listing.shipping|price }} Kč</span>
-                        {% endif %}
-                    </div>
+<div>
+  <span class="">Pošta: </span>
+  {% if listing.status == 'ACTIVE' %}
+    {% with first=listing.shippingoptions|div_split:","|first %}
+      <span class="ml-2">od {{ first|div_split:":"|div_get:1 }} Kč</span>
+    {% endwith %}
+  {% elif listing.shipping %}
+      <span class="ml-2">+ {{ listing.shipping|price }} Kč</span>
+  {% endif %}
+</div>
                     <div>
                         <span class="">Prodávající: </span>
                         <a href="{% url 'user_sell_listings' listing.user.id %}" class="ml-2">
@@ -189,10 +224,36 @@
             placeholder="Jméno, ulice, město, PSČ (volitelně telefon)">{{ request.user.userprofile.shippingaddress|default:"" }}</textarea>
 
                 <div class="form-group mt-2">
-                    <label for="phone">Telefon (pro zásilkovnu):</label>
-                    <input type="tel" name="phone" class="form-control" required
+                    <label for="phone">Telefon (pro zásilkovnu,balíkovnu):</label>
+                    <input type="tel" name="phone" class="form-control" style="max-width:300px" required
                         value="{{ request.user.userprofile.phone|default:'' }}">
                 </div>
+
+<select name="shipping_option" id="shipping_option" required onchange="updateShippingPrice()">
+  {% for option in listing.shippingoptions|div_split:"," %}
+    <option value="{{ option|div_split:":"|div_get:1 }}">
+      {{ option|div_split:":"|div_get:0|capfirst }} – {{ option|div_split:":"|div_get:1 }} Kč
+    </option>
+  {% endfor %}
+</select>
+
+<input type="hidden" name="shipping" id="shipping" value="">
+
+<script>
+function updateShippingPrice() {
+    const select = document.getElementById("shipping_option");
+    const hidden = document.getElementById("shipping");
+    const summary = document.getElementById("shipping_summary");
+
+    hidden.value = select.value;  // uloží cenu pro backend
+    if (summary) {
+        summary.textContent = "(+ " + select.value + " Kč poštovné)";
+    }
+}
+document.addEventListener("DOMContentLoaded", updateShippingPrice);
+</script>
+
+
 
             <div class="form-group">
                 <label for="commission">Příspěvek na chod webu (volitelný):</label>
@@ -549,4 +610,3 @@
 </div>
 
 {% endblock %}
- s
