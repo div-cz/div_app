@@ -54,6 +54,7 @@ import base64
 import smtplib
 import os
 import qrcode
+import threading
 import unicodedata
 
 from div_content.models import Book, Booklisting, Userprofile
@@ -708,262 +709,25 @@ def listing_detail(request, book_url, listing_id):
 # SEND LISTING AUTO-COMPLETED EMAIL - BUYER
 # -------------------------------------------------------------------
 def send_listing_auto_completed_email_buyer(listing):
-    book = listing.book
-    buyer = listing.buyer
-    recipient = buyer.email if buyer else None
-    if not recipient:
-        print("[✖] Kupující nemá e-mail – automatický e-mail neodeslán.")
-        return
-
-    context = {
-        'buyer_name': buyer.first_name or buyer.username,
-        'book_title': book.titlecz,
-        'book_url': book.url,
-        'listing_id': listing.booklistingid,
-    }
-
-    html_email = render_to_string('emails/listing_auto_completed_buyer.html', context)
-
-    msg = EmailMessage()
-    msg['Subject'] = os.getenv("EMAIL_SUBJECT_AUTO_COMPLETED_BUYER").format(title=book.titlecz)
-    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
-    msg['To'] = recipient
-    msg.set_content(html_email, subtype='html')
-
-    try:
-        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
-            smtp.send_message(msg)
-        print(f"[✔] Automatický e-mail o dokončení (kupující) odeslán na {recipient}")
-    except Exception as e:
-        print(f"[✖] Chyba při odesílání automatického e-mailu kupujícímu: {e}")
-
-
-# -------------------------------------------------------------------
-# SEND LISTING AUTO-COMPLETED EMAIL - SELLER
-# -------------------------------------------------------------------
-def send_listing_auto_completed_email_seller(listing):
-    book = listing.book
-    seller = listing.user
-    recipient = seller.email if seller else None
-    if not recipient:
-        print("[✖] Prodávající nemá e-mail – automatický e-mail neodeslán.")
-        return
-
-    context = {
-        'seller_name': seller.first_name or seller.username,
-        'book_title': book.titlecz,
-        'book_url': book.url,
-        'listing_id': listing.booklistingid,
-    }
-
-    html_email = render_to_string('emails/listing_auto_completed_seller.html', context)
-
-    msg = EmailMessage()
-    msg['Subject'] = os.getenv("EMAIL_SUBJECT_AUTO_COMPLETED_SELLER").format(title=book.titlecz)
-    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
-    msg['To'] = recipient
-    msg.set_content(html_email, subtype='html')
-
-    try:
-        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
-            smtp.send_message(msg)
-        print(f"[✔] Automatický e-mail o dokončení (prodávající) odeslán na {recipient}")
-    except Exception as e:
-        print(f"[✖] Chyba při odesílání automatického e-mailu prodávajícímu: {e}")
-
-
-# -------------------------------------------------------------------
-#                    SEND LISTING CANCEL EMAIL
-# -------------------------------------------------------------------
-
-def send_listing_cancel_email(request_or_user, listing):
-    if hasattr(request_or_user, "user"):
-        user = request_or_user.user
-    else:
-        user = request_or_user
-
-    book = listing.book
-    context = {
-        'buyer_name': user.first_name or user.username,
-        'book_title': book.titlecz,
-    }
-    recipient = user.email
-    html_email = render_to_string('emails/listing_cancel_reservation_buyer.html', context)
-
-    msg = EmailMessage()
-    msg['Subject'] = os.getenv("EMAIL_SUBJECT_ACTIVE").format(title=book.title)
-    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
-    msg['To'] = recipient
-    msg.set_content(html_email, subtype='html')
-
-    try:
-        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
-            smtp.send_message(msg)
-        print(f"[✔] E-mail o zrušení rezervace odeslán na {recipient}")
-    except Exception as e:
-        print(f"[✖] Chyba při odesílání e-mailu: {e}")
-
-
-
-# -------------------------------------------------------------------
-#                    SEND LISTING PAYMENT EMAIL
-# -------------------------------------------------------------------
-
-def send_listing_payment_confirmation_email(listing):
-    book = listing.book
-    user = listing.buyer
-    if not user or not user.email:
-        return
-
-    amount = int(float(listing.price or 0) + float(listing.commission or 0))
-    shipping = int(float(listing.shipping or 0))
-    context = {
-        'book_title': book.titlecz,
-        'buyer_name': user.first_name or user.username,
-        'shippingaddress': listing.shippingaddress,
-        'amount': amount,
-        'shipping': shipping,
-        'seller_name': listing.user.first_name or listing.user.username if listing.user else "",
-    }
-    recipient = user.email
-    html_email = render_to_string('emails/listing_paid_confirmation_buyer.html', context)
-
-    msg = EmailMessage()
-    msg['Subject'] = os.getenv("EMAIL_SUBJECT_PAID").format(title=book.titlecz)
-    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
-    msg['To'] = recipient
-    msg.set_content(html_email, subtype='html')
-
-    with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-        smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
-        smtp.send_message(msg)
-
-# -------------------------------------------------------------------
-#                    SEND LISTING PAYMENT EMAIL
-# -------------------------------------------------------------------
-
-def send_listing_payment_email(listing):
-    book = listing.book
-    buyer = listing.buyer
-    seller = listing.user
-    recipient = seller.email if seller else None
-    if not recipient:
-        print("[✖] Kupující nemá e-mail – e-mail neodeslán.")
-        return
-
-    amount = int(float(listing.price or 0) + float(listing.commission or 0))
-    shipping = int(float(listing.shipping or 0))
-
-    qr_message = f"Žádost o zaslání knihy '{book.titlecz}' - ID: {book.bookid}"
-
-    context = {
-        'buyer_name': buyer.first_name or buyer.username,
-        'book_title': book.titlecz,
-        'amount': amount,
-        'shipping': shipping,
-        'shippingaddress': listing.shippingaddress,
-        'user_name': seller.first_name or seller.username if seller else "",
-    }
-
-    html_email = render_to_string('emails/listing_paid_confirmation_seller.html', context)
-
-    msg = EmailMessage()
-    msg['Subject'] = os.getenv("EMAIL_SUBJECT_PAID").format(title=book.titlecz)
-    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
-    msg['To'] = recipient
-    msg.set_content(html_email, subtype='html')
-
-    try:
-        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
-            smtp.send_message(msg)
-        print(f"[✔] E-mail o zaplacení odeslán kupujícímu na {recipient}")
-    except Exception as e:
-        print(f"[✖] Chyba při odesílání e-mailu: {e}")
-
-
-# -------------------------------------------------------------------
-#                    SEND LISTING PAYMENT REQUEST CONFIRMED
-# -------------------------------------------------------------------
-# Email po vyplacení
-def send_listing_payment_request_confirmed(listing, amount_to_seller):
-    
-    amounttoseller = amount_to_seller
-    seller = listing.user
-    bankaccount = seller.userprofile.bankaccount 
-    
-    recipient = seller.email if seller else None
-    if not recipient:
-        print("[✖] Uživatel nemá e-mail – automatický e-mail neodeslán.")
-        return
-
-    context = {
-        'amount_to_seller': amounttoseller,
-        'bank_account': bankaccount,
-    }
-
-    html_email = render_to_string('emails/listing_payment_request_confirmed.html', context)
-
-    msg = EmailMessage()
-    msg['Subject'] = os.getenv("EMAIL_SUBJECT_REQUEST_CONFIRMED")
-    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
-    msg['To'] = recipient
-    msg.set_content(html_email, subtype='html')
-
-    try:
-        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
-            smtp.send_message(msg)
-        print(f"[✔] Uživatel dostal e-mail ohledně potvrzení o vyplácení odeslán na {recipient}")
-    except Exception as e:
-        print(f"[✖] Chyba při odesílání automatického e-mailu pro uživatele: {e}")
-
-
-# -------------------------------------------------------------------
-#                    SEND LISTING RESERVATION EMAIL
-# -------------------------------------------------------------------
-@login_required
-def send_listing_reservation_email(request, listing_id):
-    listing = get_object_or_404(Booklisting, booklistingid=listing_id, buyer=request.user)
-
-    if listing.status in ['RESERVED', 'PENDING']:
+    def _send(listing):
         book = listing.book
-        buyer = request.user
-        book_title = book.titlecz or book.title or ""
-        
-        total_amount = int(float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0))
-        qr_message = f"DIV.cz | {book_title} | {listing.user.username}"
-  
-        format_code = "5" if listing.listingtype == "BUY" else "6"
-        qr_code, vs = qr_code_market(total_amount, listing, qr_message, format_code)
-
-        payment_info = {
-            'amount': total_amount,
-            'qr_code': qr_code,
-            'variable_symbol': vs,
-            'note': qr_message, 
-        }
-
+        buyer = listing.buyer
+        recipient = buyer.email if buyer else None
+        if not recipient:
+            print("[✖] Kupující nemá e-mail – automatický e-mail neodeslán.")
+            return
 
         context = {
-            'buyer_name': request.user.first_name or request.user.username, 
-            'book_title': book.titlecz, 
-            'book': book,
-            'listing': listing,
-            'amount': total_amount,
-            'payment_info': payment_info,
-            'shippingaddress': listing.shippingaddress,
+            'buyer_name': buyer.first_name or buyer.username,
+            'book_title': book.titlecz,
+            'book_url': book.url,
+            'listing_id': listing.booklistingid,
         }
 
-        recipient = request.user.email
-
-        html_email =  render_to_string('emails/listing_send_reservation_buyer.html', context)
+        html_email = render_to_string('emails/listing_auto_completed_buyer.html', context)
 
         msg = EmailMessage()
-        msg['Subject'] = os.getenv("EMAIL_SUBJECT_RESERVED").format(title=book.titlecz)
+        msg['Subject'] = os.getenv("EMAIL_SUBJECT_AUTO_COMPLETED_BUYER").format(title=book.titlecz)
         msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
         msg['To'] = recipient
         msg.set_content(html_email, subtype='html')
@@ -972,116 +736,384 @@ def send_listing_reservation_email(request, listing_id):
             with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
                 smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
                 smtp.send_message(msg)
-            messages.success(request, f"Potvrzeni rezervace bylo poslano na vas  e-mail: <strong>{recipient}</strong>. Zaplatte prosím pomocí QR kodu na této stránce nebo v emailu. Zkontrolujte radši i spam. :)")
+            print(f"[✔] Automatický e-mail o dokončení (kupující) odeslán na {recipient}")
         except Exception as e:
-            messages.error(request, f"Chyba pri odeslani e-mailu: {e}")
+            print(f"[✖] Chyba při odesílání automatického e-mailu kupujícímu: {e}")
 
+    threading.Thread(target=_send, args=(listing,)).start()
+
+
+# -------------------------------------------------------------------
+# SEND LISTING AUTO-COMPLETED EMAIL - SELLER
+# -------------------------------------------------------------------
+def send_listing_auto_completed_email_seller(listing):
+    def _send(listing):
+        book = listing.book
+        seller = listing.user
+        recipient = seller.email if seller else None
+        if not recipient:
+            print("[✖] Prodávající nemá e-mail – automatický e-mail neodeslán.")
+            return
+
+        context = {
+            'seller_name': seller.first_name or seller.username,
+            'book_title': book.titlecz,
+            'book_url': book.url,
+            'listing_id': listing.booklistingid,
+        }
+
+        html_email = render_to_string('emails/listing_auto_completed_seller.html', context)
+
+        msg = EmailMessage()
+        msg['Subject'] = os.getenv("EMAIL_SUBJECT_AUTO_COMPLETED_SELLER").format(title=book.titlecz)
+        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['To'] = recipient
+        msg.set_content(html_email, subtype='html')
+
+        try:
+            with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.send_message(msg)
+            print(f"[✔] Automatický e-mail o dokončení (prodávající) odeslán na {recipient}")
+        except Exception as e:
+            print(f"[✖] Chyba při odesílání automatického e-mailu prodávajícímu: {e}")
+
+    threading.Thread(target=_send, args=(listing,)).start()
+
+
+# -------------------------------------------------------------------
+#                    SEND LISTING CANCEL EMAIL
+# -------------------------------------------------------------------
+
+def send_listing_cancel_email(request_or_user, listing):
+    def _send(user, listing):
+        book = listing.book
+        context = {
+            'buyer_name': user.first_name or user.username,
+            'book_title': book.titlecz,
+        }
+        recipient = user.email
+        if not recipient:
+            print("[✖] Kupující nemá e-mail – e-mail neodeslán.")
+            return
+
+        html_email = render_to_string('emails/listing_cancel_reservation_buyer.html', context)
+
+        msg = EmailMessage()
+        msg['Subject'] = os.getenv("EMAIL_SUBJECT_ACTIVE").format(title=book.title)
+        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['To'] = recipient
+        msg.set_content(html_email, subtype='html')
+
+        try:
+            with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.send_message(msg)
+            print(f"[✔] E-mail o zrušení rezervace odeslán na {recipient}")
+        except Exception as e:
+            print(f"[✖] Chyba při odesílání e-mailu: {e}")
+
+    # zjistíme správného uživatele
+    if hasattr(request_or_user, "user"):
+        user = request_or_user.user
     else:
-        messages.warning(request, f"Nabidka neni ve stavu pro rezervaci (status: {listing.status}).")
+        user = request_or_user
+
+    threading.Thread(target=_send, args=(user, listing)).start()
+
+
+# -------------------------------------------------------------------
+#                    SEND LISTING PAYMENT EMAIL
+# -------------------------------------------------------------------
+def send_listing_payment_confirmation_email(listing):
+    def _send(listing):
+        book = listing.book
+        user = listing.buyer
+        if not user or not user.email:
+            print("[✖] Kupující nemá e-mail – e-mail neodeslán.")
+            return
+
+        amount = int(float(listing.price or 0) + float(listing.commission or 0))
+        shipping = int(float(listing.shipping or 0))
+        context = {
+            'book_title': book.titlecz,
+            'buyer_name': user.first_name or user.username,
+            'shippingaddress': listing.shippingaddress,
+            'amount': amount,
+            'shipping': shipping,
+            'seller_name': listing.user.first_name or listing.user.username if listing.user else "",
+        }
+
+        recipient = user.email
+        html_email = render_to_string('emails/listing_paid_confirmation_buyer.html', context)
+
+        msg = EmailMessage()
+        msg['Subject'] = os.getenv("EMAIL_SUBJECT_PAID").format(title=book.titlecz)
+        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['To'] = recipient
+        msg.set_content(html_email, subtype='html')
+
+        try:
+            with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.send_message(msg)
+            print(f"[✔] Potvrzení platby odesláno kupujícímu na {recipient}")
+        except Exception as e:
+            print(f"[✖] Chyba při odesílání potvrzení platby: {e}")
+
+    threading.Thread(target=_send, args=(listing,)).start()
+
+
+# -------------------------------------------------------------------
+#                    SEND LISTING PAYMENT EMAIL
+# -------------------------------------------------------------------
+def send_listing_payment_email(listing):
+    def _send(listing):
+        book = listing.book
+        buyer = listing.buyer
+        seller = listing.user
+        recipient = seller.email if seller else None
+        if not recipient:
+            print("[✖] Prodávající nemá e-mail – e-mail neodeslán.")
+            return
+
+        amount = int(float(listing.price or 0) + float(listing.commission or 0))
+        shipping = int(float(listing.shipping or 0))
+
+        qr_message = f"Žádost o zaslání knihy '{book.titlecz}' - ID: {book.bookid}"
+
+        context = {
+            'buyer_name': buyer.first_name or buyer.username,
+            'book_title': book.titlecz,
+            'amount': amount,
+            'shipping': shipping,
+            'shippingaddress': listing.shippingaddress,
+            'user_name': seller.first_name or seller.username if seller else "",
+        }
+
+        html_email = render_to_string('emails/listing_paid_confirmation_seller.html', context)
+
+        msg = EmailMessage()
+        msg['Subject'] = os.getenv("EMAIL_SUBJECT_PAID").format(title=book.titlecz)
+        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['To'] = recipient
+        msg.set_content(html_email, subtype='html')
+
+        try:
+            with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.send_message(msg)
+            print(f"[✔] E-mail o zaplacení odeslán prodávajícímu na {recipient}")
+        except Exception as e:
+            print(f"[✖] Chyba při odesílání e-mailu: {e}")
+
+    threading.Thread(target=_send, args=(listing,)).start()
+
+
+# -------------------------------------------------------------------
+#                    SEND LISTING PAYMENT REQUEST CONFIRMED
+# -------------------------------------------------------------------
+# Email po vyplacení
+def send_listing_payment_request_confirmed(listing, amount_to_seller):
+    def _send(listing, amount_to_seller):
+        seller = listing.user
+        bankaccount = seller.userprofile.bankaccount if hasattr(seller, "userprofile") else None
+        recipient = seller.email if seller else None
+
+        if not recipient:
+            print("[✖] Uživatel nemá e-mail – automatický e-mail neodeslán.")
+            return
+
+        context = {
+            'amount_to_seller': amount_to_seller,
+            'bank_account': bankaccount,
+        }
+
+        html_email = render_to_string('emails/listing_payment_request_confirmed.html', context)
+
+        msg = EmailMessage()
+        msg['Subject'] = os.getenv("EMAIL_SUBJECT_REQUEST_CONFIRMED")
+        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['To'] = recipient
+        msg.set_content(html_email, subtype='html')
+
+        try:
+            with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.send_message(msg)
+            print(f"[✔] Uživatel dostal e-mail ohledně potvrzení o vyplácení odeslán na {recipient}")
+        except Exception as e:
+            print(f"[✖] Chyba při odesílání automatického e-mailu pro uživatele: {e}")
+
+    threading.Thread(target=_send, args=(listing, amount_to_seller)).start()
+
+
+# -------------------------------------------------------------------
+#                    SEND LISTING RESERVATION EMAIL
+# -------------------------------------------------------------------
+@login_required
+def send_listing_reservation_email(request, listing_id):
+    def _send(listing, request):
+        if listing.status in ['RESERVED', 'PENDING']:
+            book = listing.book
+            buyer = request.user
+            book_title = book.titlecz or book.title or ""
+            
+            total_amount = int(float(listing.price or 0) + float(listing.shipping or 0) + float(listing.commission or 0))
+            qr_message = f"DIV.cz | {book_title} | {listing.user.username}"
+      
+            format_code = "5" if listing.listingtype == "BUY" else "6"
+            qr_code, vs = qr_code_market(total_amount, listing, qr_message, format_code)
+
+            payment_info = {
+                'amount': total_amount,
+                'qr_code': qr_code,
+                'variable_symbol': vs,
+                'note': qr_message, 
+            }
+
+            context = {
+                'buyer_name': buyer.first_name or buyer.username, 
+                'book_title': book.titlecz, 
+                'book': book,
+                'listing': listing,
+                'amount': total_amount,
+                'payment_info': payment_info,
+                'shippingaddress': listing.shippingaddress,
+            }
+
+            recipient = buyer.email
+            html_email = render_to_string('emails/listing_send_reservation_buyer.html', context)
+
+            msg = EmailMessage()
+            msg['Subject'] = os.getenv("EMAIL_SUBJECT_RESERVED").format(title=book.titlecz)
+            msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+            msg['To'] = recipient
+            msg.set_content(html_email, subtype='html')
+
+            try:
+                with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+                    smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                    smtp.send_message(msg)
+                print(f"[✔] Rezervační e-mail odeslán na {recipient}")
+            except Exception as e:
+                print(f"[✖] Chyba při odesílání e-mailu: {e}")
+        else:
+            print(f"[!] Nabídka není ve stavu pro rezervaci (status: {listing.status}).")
+
+    # získání listing jen jednou na začátku
+    listing = get_object_or_404(Booklisting, booklistingid=listing_id, buyer=request.user)
+
+    # spuštění v threadu
+    threading.Thread(target=_send, args=(listing, request)).start()
 
 
 # -------------------------------------------------------------------
 #                    SEND LISTING SHIPPED EMAIL - BUYER
 # -------------------------------------------------------------------
 def send_listing_shipped_email(listing):
-    buyer = listing.buyer
-    book = listing.book
+    def _send(listing):
+        buyer = listing.buyer
+        book = listing.book
+        if not buyer or not buyer.email:
+            return
+        context = {
+            'buyer_name': buyer.first_name or buyer.username,
+            'book_title': book.titlecz,
+            'listing_id': listing.booklistingid,
+            'book_url': book.url,
+        }
+        html_email = render_to_string('emails/listing_shipped_information_buyer.html', context)
+        msg = EmailMessage()
+        msg['Subject'] = os.getenv("EMAIL_SUBJECT_SHIPPED").format(title=book.titlecz)
+        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['To'] = buyer.email
+        msg.set_content(html_email, subtype='html')
+        try:
+            with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.send_message(msg)
+        except Exception as e:
+            print(f"[✖] Chyba při odesílání e-mailu: {e}")
 
-    if not buyer or not buyer.email:
-        return
-
-    context = {
-        'buyer_name': buyer.first_name or buyer.username,
-        'book_title': book.titlecz,
-        'listing_id': listing.booklistingid,
-        'book_url': book.url,
-    }
-
-    html_email = render_to_string('emails/listing_shipped_information_buyer.html', context)
-
-    msg = EmailMessage()
-    msg['Subject'] = os.getenv("EMAIL_SUBJECT_SHIPPED").format(title=book.titlecz)
-    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
-    msg['To'] = buyer.email
-    msg.set_content(html_email, subtype='html')
-
-    try:
-        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
-            smtp.send_message(msg)
-        print(f"[✔] E-mail o odeslání knihy poslán kupujícímu na {buyer.email}")
-    except Exception as e:
-        print(f"[✖] Chyba při odesílání e-mailu kupujícímu: {e}")
+    threading.Thread(target=_send, args=(listing,)).start()
 
 
 # -------------------------------------------------------------------
-#                    SEND LISTING COMPLETED EMAIL - BUYER
+#                   SEND LISTING COMPLETED EMAIL - BUYER
 # -------------------------------------------------------------------
 def send_listing_completed_email_buyer(listing):
-    book = listing.book
-    buyer = listing.buyer
-    recipient = buyer.email if buyer else None
-    if not recipient:
-        print("[✖] Kupující nemá e-mail – e-mail neodeslán.")
-        return
+    def _send(listing):
+        book = listing.book
+        buyer = listing.buyer
+        recipient = buyer.email if buyer else None
+        if not recipient:
+            print("[✖] Kupující nemá e-mail – e-mail neodeslán.")
+            return
 
-    context = {
-        'buyer_name': buyer.first_name or buyer.username,
-        'book_title': book.titlecz,
-        'book_url': book.url,
-        'listing_id': listing.booklistingid,
-    }
+        context = {
+            'buyer_name': buyer.first_name or buyer.username,
+            'book_title': book.titlecz,
+            'book_url': book.url,
+            'listing_id': listing.booklistingid,
+        }
 
-    html_email = render_to_string('emails/listing_completed_confirmation_buyer.html', context)
+        html_email = render_to_string('emails/listing_completed_confirmation_buyer.html', context)
 
-    msg = EmailMessage()
-    msg['Subject'] = os.getenv("EMAIL_SUBJECT_COMPLETED_BUYER").format(title=book.titlecz)
-    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
-    msg['To'] = recipient
-    msg.set_content(html_email, subtype='html')
+        msg = EmailMessage()
+        msg['Subject'] = os.getenv("EMAIL_SUBJECT_COMPLETED_BUYER").format(title=book.titlecz)
+        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['To'] = recipient
+        msg.set_content(html_email, subtype='html')
 
-    try:
-        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
-            smtp.send_message(msg)
-        print(f"[✔] E-mail o dokončení obchodu (kupující) odeslán na {recipient}")
-    except Exception as e:
-        print(f"[✖] Chyba při odesílání e-mailu kupujícímu: {e}")
+        try:
+            with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.send_message(msg)
+            print(f"[✔] E-mail o dokončení obchodu (kupující) odeslán na {recipient}")
+        except Exception as e:
+            print(f"[✖] Chyba při odesílání e-mailu kupujícímu: {e}")
+
+    threading.Thread(target=_send, args=(listing,)).start()
 
 
 # -------------------------------------------------------------------
 #                    SEND LISTING COMPLETED EMAIL - SELLER
 # -------------------------------------------------------------------
 def send_listing_completed_email_seller(listing):
-    book = listing.book
-    seller = listing.user
-    recipient = seller.email if seller else None
-    if not recipient:
-        print("[✖] Prodávající nemá e-mail – e-mail neodeslán.")
-        return
+    def _send(listing):
+        book = listing.book
+        seller = listing.user
+        recipient = seller.email if seller else None
+        if not recipient:
+            print("[✖] Prodávající nemá e-mail – e-mail neodeslán.")
+            return
 
-    context = {
-        'seller_name': seller.first_name or seller.username,
-        'book_title': book.titlecz,
-        'book_url': book.url,
-        'listing_id': listing.booklistingid,
-    }
+        context = {
+            'seller_name': seller.first_name or seller.username,
+            'book_title': book.titlecz,
+            'book_url': book.url,
+            'listing_id': listing.booklistingid,
+        }
 
-    html_email = render_to_string('emails/listing_completed_confirmation_seller.html', context)
+        html_email = render_to_string('emails/listing_completed_confirmation_seller.html', context)
 
-    msg = EmailMessage()
-    msg['Subject'] = os.getenv("EMAIL_SUBJECT_COMPLETED_SELLER").format(title=book.titlecz)
-    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
-    msg['To'] = recipient
-    msg.set_content(html_email, subtype='html')
+        msg = EmailMessage()
+        msg['Subject'] = os.getenv("EMAIL_SUBJECT_COMPLETED_SELLER").format(title=book.titlecz)
+        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['To'] = recipient
+        msg.set_content(html_email, subtype='html')
 
-    try:
-        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
-            smtp.send_message(msg)
-        print(f"[✔] E-mail o dokončení obchodu (prodávající) odeslán na {recipient}")
-    except Exception as e:
-        print(f"[✖] Chyba při odesílání e-mailu prodávajícímu: {e}")
+        try:
+            with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.send_message(msg)
+            print(f"[✔] E-mail o dokončení obchodu (prodávající) odeslán na {recipient}")
+        except Exception as e:
+            print(f"[✖] Chyba při odesílání e-mailu prodávajícímu: {e}")
+
+    threading.Thread(target=_send, args=(listing,)).start()
+
 
 
 # -------------------------------------------------------------------
