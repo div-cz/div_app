@@ -875,6 +875,27 @@ def ratequote(request, quote_id):
     return response
 
 
+@login_required
+def remove_book_rating(request, book_url):
+    book = get_object_or_404(Book, url=book_url)
+    book_content_type = ContentType.objects.get_for_model(Book)
+
+    user_rating = UserRating.objects.filter(
+        user=request.user,
+        rating__content_type=book_content_type,
+        rating__object_id=book.bookid
+    ).first()
+
+    if user_rating:
+        user_rating.delete()
+        messages.success(request, f'Hodnocení knihy „{book.titlecz or book.title}“ bylo smazáno.')
+    else:
+        messages.warning(request, 'Nemáš žádné hodnocení, které by šlo smazat.')
+
+    return redirect('book_detail', book_url=book.url)
+
+
+
 
 # def books_search(request):
 #     books = None

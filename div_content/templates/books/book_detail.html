@@ -1198,6 +1198,12 @@
                     </ul>
                     {% endif %}
                 </div>
+{% if user_rating %}
+    <form method="post" action="{% url 'remove_book_rating' book_url=book.url %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger btn-sm mt-2">Smazat hodnocení</button>
+    </form>
+{% endif %}
             </div>
         </div>
 
