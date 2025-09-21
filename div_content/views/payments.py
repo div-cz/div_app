@@ -279,7 +279,7 @@ def check_payments_from_fio():
             if listing:
                 listing.status = "PAID"
                 listing.paymentdate = now()
-                listing.paid_to_seller = False
+                listing.paidtoseller = False
                 
                 #listing.amount_to_seller = listing.price + listing.shipping - listing.commission
                 price = listing.price or Decimal("0.00")
