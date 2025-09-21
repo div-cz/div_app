@@ -447,7 +447,7 @@ document.addEventListener("DOMContentLoaded", updateShippingPrice);
                 </div>
 
                 <div class="bg-gray-100 p-4 rounded">
-                    <p class="text-sm">Prosím dokončete transakci do 7 dnů od: <strong>{{ completedat|date:"j. n. Y" }}</strong></p>
+                    <p class="text-sm">Prosím dokončete transakci do 7 dnů od: <strong>{{ listing.updatedat|date:"j. n. Y" }}</strong></p>
                     <p class="text-sm">Po tomto datu bude rezervace automaticky zrušena a peníze vráceny.</p>
                 </div>
 
@@ -546,13 +546,13 @@ document.addEventListener("DOMContentLoaded", updateShippingPrice);
                         <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
                         {% if listing.book.img == "noimg.png" %}
                             <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
-                            <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                            <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;">
                             {% elif listing.book.img == "GoogleID" %}
                             <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
                             <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
                             {% else %}
                             <!-- Jinak zobraz vlastní nahraný obrázek -->
-                            <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                            <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;">
                         {% endif %}
                         </a>
 

@@ -60,19 +60,19 @@
 </div>
 
 
-    {% if random_listings %}
-        <h2 class="text-2xl font-semibold mb-4 mt-10">&#128161; Náhodné nabídky</h2>
+    {% if listings_sell %}
+        <h2 class="text-2xl font-semibold mb-4 mt-10">&#128218; Nejnovější nabídky</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {% for listing in random_listings %}
+            {% for listing in listings_sell %}
                 <div class="border rounded bg-white dark:bg-[#0d0c0f] p-4">
                     <div class="flex gap-4">
-                        <a href="{% url 'book_detail' listing.book.url %}">
+                        <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
                             {% if listing.book.img == "noimg.png" %}
-                                <img src="/static/img/book/book.png" alt="{{ listing.book.titlecz }}" class="w-16 rounded">
+                                <img src="/static/img/book/book.png" alt="{{ listing.book.titlecz }}" class="w-16 rounded" style="max-width:180px">
                             {% elif listing.book.img == "GoogleID" %}
                                 <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1" class="w-16 rounded">
                             {% else %}
-                                <img src="https://media.div.cz/knihy/{{ listing.book.img }}" class="w-16 rounded" alt="{{ listing.book.titlecz }}">
+                                <img src="https://media.div.cz/knihy/{{ listing.book.img }}" class="w-16 rounded" alt="{{ listing.book.titlecz }}" style="max-width:180px">
                             {% endif %}
                         </a>
                         <div class="flex flex-col justify-between flex-1">
@@ -91,6 +91,21 @@
                 </div>
             {% endfor %}
         </div>
+
+        <div class="mt-4 flex justify-between items-center">
+            {% if listings_sell.has_previous %}
+                <a href="?page_sell={{ listings_sell.previous_page_number }}">◀ Předchozí</a>
+            {% else %}
+                <span></span>
+            {% endif %}
+            <span>Strana {{ listings_sell.number }} z {{ listings_sell.paginator.num_pages }}</span>
+            {% if listings_sell.has_next %}
+                <a href="?page_sell={{ listings_sell.next_page_number }}">Další ▶</a>
+            {% else %}
+                <span></span>
+            {% endif %}
+        </div>
     {% endif %}
+
 </div>
 {% endblock %}

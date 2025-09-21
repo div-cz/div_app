@@ -62,8 +62,10 @@ from div_content.models import Book, Booklisting, Userprofile
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.mail import EmailMessage 
+from django.core.paginator import Paginator
+
 from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib import messages
+
 from django.db.models import Sum, F
 from django.template.loader import render_to_string
 
@@ -191,7 +193,26 @@ def antikvariat_home(request):
     count_sell = Booklisting.objects.filter(listingtype__in=["SELL", "GIVE"], active=True).count()
     count_buy = Booklisting.objects.filter(listingtype="BUY", active=True).count()
     all_listings = list(Booklisting.objects.filter(active=True, status="ACTIVE")[:100])
-    random_listings = sample(all_listings, min(len(all_listings), 4))
+    #random_listings = sample(all_listings, min(len(all_listings), 4))
+    # Nabídky
+    sell_listings = Booklisting.objects.filter(
+        listingtype__in=["SELL", "GIVE"], active=True, status="ACTIVE"
+    ).order_by("-createdat")
+
+    # Poptávky
+    buy_listings = Booklisting.objects.filter(
+        listingtype="BUY", active=True, status="ACTIVE"
+    ).order_by("-createdat")
+
+    # Stránkování ( 24 na stránku)
+    paginator_sell = Paginator(sell_listings, 24)
+    paginator_buy = Paginator(buy_listings, 24)
+
+    page_sell = request.GET.get("page_sell")
+    page_buy = request.GET.get("page_buy")
+
+    listings_sell = paginator_sell.get_page(page_sell)
+    listings_buy = paginator_buy.get_page(page_buy)
 
     if request.user.is_authenticated:
         user = request.user
@@ -256,7 +277,9 @@ def antikvariat_home(request):
     final_context = {
         "count_sell": count_sell,
         "count_buy": count_buy,
-        "random_listings": random_listings,
+        "listings_sell": listings_sell,
+        "listings_buy": listings_buy,
+        #"random_listings": random_listings,
         **context_data, 
     }
     return render(request, "books/antikvariat_home.html", final_context)
@@ -342,7 +365,7 @@ def cancel_listing_reservation(request, listing_id):
             messages.success(request, f'Rezervace knihy "{book_obj.titlecz}" byla zrušena.')
 
             send_listing_cancel_email(request, listing)
-            return redirect('index') 
+            return redirect('antikvariat_home') 
         else:
             messages.error(request, 'Rezervaci této knihy nelze zrušit, protože není ve stavu "REZERVACE".')
             return redirect('index')
