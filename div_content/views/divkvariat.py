@@ -907,6 +907,8 @@ def send_listing_payment_email(listing):
 
         context = {
             'buyer_name': buyer.first_name or buyer.username,
+            'buyer_id': buyer.id if buyer else "",
+            'buyer_phone': buyer.userprofile.phone if hasattr(buyer, "userprofile") else "",
             'book_title': book.titlecz,
             'amount': amount,
             'shipping': shipping,
