@@ -33,20 +33,19 @@
 
 <style>
 a.btn.books {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 180px;
-    height: 52px;               /* pevná výška */
-    line-height: 52px;          /* vertikální zarovnání textu */
+    display: flex;
+    align-items: center;      /* vertikální zarovnání doprostřed */
+    justify-content: center;  /* horizontální zarovnání doprostřed */
+    padding: 12px 24px;       /* místo pevné výšky použij padding */
     font-weight: 600;
     font-size: 16px;
     border-radius: 6px;
-    margin-bottom: 12px;
+    margin: 8px 0;
     text-align: center;
     transition: all 0.2s ease-in-out;
-    box-sizing: border-box;     /* aby border nezvětšoval velikost */
+    box-sizing: border-box;
 }
+
 
 /* Aktivní */
 
@@ -56,7 +55,6 @@ a.btn.books.add-book {
     border: 1px solid #61872B !important;
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     position: relative;
-    top: -10px;   /* posun nahoru */
 }
 
 /* Neaktivní */
@@ -64,6 +62,36 @@ a.btn.books.btn-outline-secondary {
     background-color: #fff !important;
     border: 1px solid #61872B !important;
     color: #61872B !important;
+}
+
+/* Desktop */
+@media (min-width: 769px) {
+    .buttons-row {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-start;
+    }
+    .buttons-row .btn.books {
+        margin: 0; /* jen vodorovná mezera, protože flex */
+    }
+    a.btn.books.add-book {
+        top: 0px;  /* ✅ posunutí jen na PC */
+    }
+}
+
+/* Mobil */
+@media (max-width: 768px) {
+    .buttons-row {
+        display: block;
+    }
+    .buttons-row .btn.books {
+        display: block;
+        width: 100%;
+        margin: 10px 0; /* krásně stejné rozestupy */
+    }
+    a.btn.books.add-book {
+        top: 0; /* ✅ žádný posun na mobilu */
+    }
 }
 
 </style>
@@ -75,7 +103,7 @@ a.btn.books.btn-outline-secondary {
 
 
 
-<div class="mb-4 flex gap-2">
+<div class="buttons-row mb-4">
     <a href="/eknihy/" 
        class="btn books {% if page_type == 'all' %}add-book{% else %}btn-outline-secondary{% endif %}">
        Všechny e-knihy
@@ -89,6 +117,7 @@ a.btn.books.btn-outline-secondary {
        Jen placené
     </a>
 </div>
+
 
 
 
