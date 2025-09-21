@@ -96,7 +96,7 @@ from div_content.views.locations import locations, location_detail
 # -------------------------------------------------------------------
 from div_content.views.movies import (
     movies_alphabetical, redirect_view, movie_detail, search, MovieDetailView, add_to_favourites, add_to_watchlist, add_to_watched, 
-    remove_from_favourites, remove_from_watchlist, remove_from_watched, add_to_movie_library, remove_from_movie_library
+    remove_from_favourites, remove_from_watchlist, remove_from_watched, add_to_movie_library, remove_from_movie_library, remove_movie_rating
     )
 # -------------------------------------------------------------------
 #                    PAYMENTS
@@ -209,6 +209,7 @@ urlpatterns = [
     path('film/odebrat-ze-chci-videt-<int:movieid>', remove_from_watchlist, name='remove_from_watchlist'),
     path('film/odebrat-ze-shlednuto-<int:movieid>', remove_from_watched, name='remove_from_watched'),
     path('film/odebrat-z-filmoteky-<int:movieid>', remove_from_movie_library, name='remove_from_movie_library'),
+    path("film/<slug:movie_url>/smazat-hodnoceni/", remove_movie_rating, name="remove_movie_rating"),
 
     path('film/<str:movie_url>', movie_detail, name='movie_detail'),
     path('film/<int:pk>/', MovieDetailView.as_view(), name='movie_detail_id'),

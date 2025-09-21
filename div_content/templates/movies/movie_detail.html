@@ -589,6 +589,12 @@
                     </ul>
                     {% endif %}
                 </div>
+{% if user_rating %}
+<form method="post" action="{% url 'remove_movie_rating' movie_url=movie.url %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger btn-sm">Smazat hodnocení</button>
+</form>
+{% endif %}
             </div>
         </div>
 

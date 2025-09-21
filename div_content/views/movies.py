@@ -177,8 +177,6 @@ def movie_detail(request, movie_url):
 
 
     if user.is_authenticated:
-        user_rating = Movierating.objects.filter(user=user, movieid=movie).first()
-        
         if 'comment' in request.POST:
             comment_form = CommentForm(request.POST)
             if comment_form.is_valid():
@@ -188,7 +186,7 @@ def movie_detail(request, movie_url):
             else:
                 print(comment_form.errors)
         else:
-            comment_form = CommentForm(request=request)  # Create an empty CommentForm regardless of the request type.
+            comment_form = CommentForm(request=request)
 
 
     # Výpočet průměrného hodnocení
@@ -615,6 +613,39 @@ def remove_from_movie_library(request, movieid):
     
     return redirect("movie_detail", movie_url=movie.url)
 
+
+# -------------------------------------------------------------------
+# F:                 REMOVE MOVIE RATING
+# -------------------------------------------------------------------
+@login_required
+def remove_movie_rating(request, movie_url):
+    movie = get_object_or_404(Movie, url=movie_url)
+    movie_content_type = ContentType.objects.get_for_model(Movie)
+
+    user_rating = UserRating.objects.filter(
+        user=request.user,
+        rating__content_type=movie_content_type,
+        rating__object_id=movie.movieid
+    ).first()
+
+    if user_rating:
+        user_rating.delete()
+        # přepočet průměru
+        rating_obj = Rating.objects.filter(
+            content_type=movie_content_type,
+            object_id=movie.movieid
+        ).first()
+        if rating_obj:
+            agg = UserRating.objects.filter(rating=rating_obj).aggregate(avg=Avg("score"), count=Count("id"))
+            rating_obj.average = agg["avg"] or 0
+            rating_obj.count = agg["count"] or 0
+            rating_obj.save()
+
+        messages.success(request, f"Hodnocení filmu „{movie.titlecz or movie.title}“ bylo smazáno.")
+    else:
+        messages.warning(request, "Nemáš žádné hodnocení, které by šlo smazat.")
+
+    return redirect("movie_detail", movie_url=movie.url)
 
 # -------------------------------------------------------------------
 #                    KONEC
