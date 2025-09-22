@@ -848,6 +848,67 @@ class Gamedevelopers(models.Model):
     def __str__(self):
         return str(self.developerid) 
 
+
+class Gamelisting(models.Model):
+    LISTING_TYPES = (
+        ('SELL', 'Prodám'),
+        ('BUY', 'Koupím'),
+        ('GIVE', 'Daruji'),
+    )
+    LISTING_STATUS = (
+        ('ACTIVE', 'Aktivní'),
+        ('RESERVED', 'Rezervováno'),
+        ('PAID', 'Zaplaceno'),
+        ('COMPLETED', 'Dokončeno'),
+        ('CANCELLED', 'Zrušeno'),
+        ('DELETED', 'Smazáno'),
+    )
+
+    gamelistingid = models.AutoField(db_column='GameListingID', primary_key=True)
+    user = models.ForeignKey(User, db_column='user_id', on_delete=models.CASCADE)
+    buyer = models.ForeignKey(
+        User,
+        db_column='BuyerID',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='games_bought'
+    )
+    game = models.ForeignKey('Game', db_column='game_id', on_delete=models.CASCADE)
+    listingtype = models.CharField(db_column='ListingType', max_length=4, choices=LISTING_TYPES)
+    price = models.DecimalField(db_column='Price', max_digits=10, decimal_places=2, null=True, blank=True)
+    shipping = models.DecimalField(db_column='Shipping', max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Poštovné')
+    commission = models.IntegerField(db_column='Commission', verbose_name='Provize na chod webu')
+    personal_pickup = models.BooleanField(db_column='PersonalPickup', verbose_name='Osobní převzetí')
+    description = models.TextField(db_column='Description', max_length=512, blank=True, null=True)
+    condition = models.CharField(db_column='Condition', max_length=50, blank=True, null=True)
+    location = models.CharField(db_column='Location', max_length=100, blank=True, null=True)
+    createdat = models.DateTimeField(db_column='CreateDat', auto_now_add=True)
+    updatedat = models.DateTimeField(db_column='UpdateDat', auto_now=True)
+    completedat = models.DateTimeField(db_column='CompletedAt', null=True, blank=True)
+    active = models.BooleanField(db_column='Active', default=True)
+    status = models.CharField(db_column='Status', max_length=10, choices=LISTING_STATUS, default='ACTIVE')
+    shippingaddress = models.CharField(db_column='ShippingAddress', max_length=1024, blank=True, null=True)
+
+    # Hodnocení transakce
+    sellerrating = models.IntegerField(db_column='SellerRating', null=True, blank=True)
+    sellercomment = models.TextField(db_column='SellerComment', max_length=512, blank=True, null=True)
+    buyerrating = models.IntegerField(db_column='BuyerRating', null=True, blank=True)
+    buyercomment = models.TextField(db_column='BuyerComment', max_length=512, blank=True, null=True)
+
+    # Platba prodejci
+    paidtoseller = models.BooleanField(db_column='PaidToSeller', default=False)
+    paidat = models.DateTimeField(db_column='PaidAt', null=True, blank=True)
+    amounttoseller = models.DecimalField(db_column='AmountToSeller', max_digits=8, decimal_places=2, null=True, blank=True)
+    requestpayout = models.BooleanField(db_column='RequestPayout', default=False)
+
+    class Meta:
+        db_table = 'GameListing'
+
+    def __str__(self):
+        return f"{self.game} ({self.listingtype})"
+
+
 class Gameseason(models.Model):
     seasonid = models.AutoField(db_column='SeasonID', primary_key=True)
     gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID', related_name='seasons')
