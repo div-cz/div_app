@@ -270,6 +270,7 @@
             <ul class="tab-links">
                 <li class="karta"><a href="#tab1" class="active">Recenze</a></li>
                 <li class="karta"><a href="#tab2">Postavy</a></li>
+                <li class="karta"><a href="#tab3">Gamekvariát</a></li>
                 <!--<li class="karta"><a href="#tab3">Systémové požadavky</a></li>-->
                 <!--<li class="karta"><a href="#tab4"></a></li>-->
             </ul>
@@ -324,6 +325,59 @@
 
             </div>-->
 
+    <!-- NABÍDKY -->
+    <div id="tab3" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
+        <h3 class="after-h3">Nabídky a poptávky</h3>
+
+        {% if user.is_authenticated %}
+        <h4>Přidat nabídku</h4>
+        <form method="post" action="{% url 'game_detail' game_url=game.url %}">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="gamelisting">
+            {{ gamelisting_form.as_p }}
+            <button type="submit" class="btn btn-success">Vložit nabídku</button>
+        </form>
+        {% else %}
+        <p>Pro přidání nabídky se <a href="/prihlaseni/">přihlaste</a>.</p>
+        {% endif %}
+
+        <h4 class="mt-4">Aktivní nabídky</h4>
+        {% if sell_listings %}
+            <ul class="list-unstyled">
+                {% for listing in sell_listings %}
+                <li class="card card-body mb-2">
+                    <strong>{{ listing.user.username }}</strong> –
+                    {% if listing.price %}
+                        {{ listing.price|floatformat:0 }} Kč
+                    {% else %}
+                        Daruji
+                    {% endif %}
+                    <br>
+                    <small>{{ listing.condition }}</small><br>
+                    <a href="{% url 'game_listing_detail' game.url listing.gamelistingid %}" class="text-success">Detail</a>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Zatím žádné nabídky.</p>
+        {% endif %}
+
+        <h4 class="mt-4">Poptávky</h4>
+        {% if buy_listings %}
+            <ul class="list-unstyled">
+                {% for listing in buy_listings %}
+                <li class="card card-body mb-2">
+                    <strong>{{ listing.user.username }}</strong> chce koupit
+                    {% if listing.price %}
+                        za {{ listing.price|floatformat:0 }} Kč
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Zatím žádné poptávky.</p>
+        {% endif %}
+    </div>
 
         </div>
     </div>

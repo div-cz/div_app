@@ -3,9 +3,10 @@
 import math
 
 from div_content.models import (
-    Game, Gamecomments, Gamedevelopers, Gamegenre, Gameplatform, Gamepublisher, Gamepurchase, Gamerating, Metacountry, Metadeveloper, Metagenre, Metaplatform, Metapublisher, Metauniversum, Userlisttype, Userlist, 
+    Game, Gamecomments, Gamedevelopers, Gamegenre, Gamelisting, Gameplatform, Gamepublisher, Gamepurchase, Gamerating, Metacountry, Metadeveloper, Metagenre, Metaplatform, Metapublisher, Metauniversum, Userlisttype, Userlist, 
     Userlistgame, FavoriteSum, Userlistitem
 )
+from div_content.forms.gamekvariat import GameListingForm
 from div_content.forms.games import CommentFormGame, GameForm, GameDivRatingForm
 from div_content.utils.metaindex import add_to_metaindex
 
@@ -146,6 +147,26 @@ def game_detail(request, game_url):
 
     genres = Gamegenre.objects.filter(gameid=game).select_related('genreid')
 
+    # Formulář a jeho odeslání
+    gamelisting_form = None
+    if request.user.is_authenticated:
+        if request.method == "POST" and request.POST.get("form_type") == "gamelisting":
+            gamelisting_form = GameListingForm(request.POST, user=request.user)
+            if gamelisting_form.is_valid():
+                instance = gamelisting_form.save(commit=False)
+                instance.user = request.user
+                instance.game = game
+                instance.save()
+                messages.success(request, "Nabídka byla úspěšně vložena.")
+                return redirect("game_detail", game_url=game_url)
+        else:
+            gamelisting_form = GameListingForm(user=request.user)
+
+    # Aktivní nabídky a poptávky
+    sell_listings = Gamelisting.objects.filter(game=game, listingtype="SELL", status="ACTIVE")
+    buy_listings = Gamelisting.objects.filter(game=game, listingtype="BUY", status="ACTIVE")
+
+
     developers = Gamedevelopers.objects.filter(gameid=game)
     platforms = Gameplatform.objects.filter(gameid=game)
     publishers = Gamepublisher.objects.filter(gameid=game)
@@ -257,6 +278,9 @@ def game_detail(request, game_url):
     return render(request, 'games/game_detail.html', {
         'game': game,
         'genres': genres,
+        "sell_listings": sell_listings,
+        "buy_listings": buy_listings,
+        "gamelisting_form": gamelisting_form,
         'developers': developers,
         'platforms': platforms,
         'publishers': publishers,

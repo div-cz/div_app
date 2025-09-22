@@ -63,6 +63,10 @@ from div_content.views.forum import (
 # -------------------------------------------------------------------
 from div_content.views.eshop import eshop_books, eshop_detail, eshop_games, eshop_list, eshop_movies
 # -------------------------------------------------------------------
+#                    GAMEKVARIAT
+# -------------------------------------------------------------------
+from div_content.views.gamekvariat import game_listing_detail, games_market_offers, games_market_wants
+# -------------------------------------------------------------------
 #                    GAMES
 # -------------------------------------------------------------------
 from div_content.views.games import (
@@ -289,6 +293,11 @@ urlpatterns = [
     path('hra/ajax/publishers/', publisher_list_ajax, name='ajax_publishers'),
     path('hra/ajax/countries/', country_list_ajax, name='ajax_countries'),
     path('hra/ajax/universes/', universum_list_ajax, name='ajax_universes'),
+
+    # GAMEKVARIAT
+    path("gamekvariat/poptavky/", games_market_wants, name="games_market_wants"),
+    path("gamekvariat/nabidky/", games_market_offers, name="games_market_offers"),
+    path("hra/<slug:game_url>/nabidka/<int:listing_id>/", game_listing_detail, name="game_listing_detail"),
 
     # SEKCE KNIHY
     path('autori/', authors_list, name='authors_list'),

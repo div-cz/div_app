@@ -3,9 +3,22 @@
 # -------------------------------------------------------------------
 
 from django.core.paginator import Paginator
-from django.shortcuts import render
-from div_content.models import Gamelisting  # předpokládám, že máš model Gamelisting (podobně jako Booklisting)
+from django.shortcuts import render, get_object_or_404
+from div_content.models import Gamelisting, Game 
 
+
+# -------------------------------------------------------------------
+# F:                 GAME LISTING DETAIL
+# -------------------------------------------------------------------
+def game_listing_detail(request, game_url, listing_id):
+    game = get_object_or_404(Game, url=game_url)
+    listing = get_object_or_404(Gamelisting, pk=listing_id, game=game)
+
+    return render(request, "games/listing_detail.html", {
+        "game": game,
+        "listing": listing,
+    })
+    
 # -------------------------------------------------------------------
 # F:                 GAME MARKET - OFFERS
 # -------------------------------------------------------------------
