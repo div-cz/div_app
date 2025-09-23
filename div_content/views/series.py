@@ -264,6 +264,21 @@ def serie_season(request, tv_url, seasonurl):
 
     comments = Tvshowcomments.objects.filter(tvseason=season).order_by('-dateadded')
 
+    # Zajímavosti k sezóně
+    trivia = Tvshowtrivia.objects.filter(seasonid=season).order_by('-divrating')
+
+    # Přidání nové zajímavosti pro sezónu
+    if request.method == 'POST' and 'trivia_text' in request.POST:
+        trivia_text = request.POST.get('trivia_text').strip()
+        if trivia_text:
+            Tvshowtrivia.objects.create(
+                trivia=trivia_text,
+                tvshowid=tvshow,
+                seasonid=season,
+                userid=request.user if request.user.is_authenticated else None,
+                divrating=0
+            )
+            return redirect('serie_season', tv_url=tvshow.url, seasonurl=season.seasonurl)
 
     return render(request, 'series/serie_season.html', {
         'tvshow': tvshow,
@@ -284,6 +299,7 @@ def serie_season(request, tv_url, seasonurl):
         'average_rating': average_rating,
         'comments': comments,
         'comment_form': comment_form,
+        'trivia': trivia,
     })
 
 
@@ -389,6 +405,22 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
 
     comments = Tvshowcomments.objects.filter(tvepisode=episode).order_by('-dateadded')
 
+    # Zajímavosti k epizodě
+    trivia = Tvshowtrivia.objects.filter(episodeid=episode).order_by('-divrating')
+
+    # Přidání nové zajímavosti pro epizodu
+    if request.method == 'POST' and 'trivia_text' in request.POST:
+        trivia_text = request.POST.get('trivia_text').strip()
+        if trivia_text:
+            Tvshowtrivia.objects.create(
+                trivia=trivia_text,
+                tvshowid=tvshow,
+                seasonid=season,
+                episodeid=episode,
+                userid=request.user if request.user.is_authenticated else None,
+                divrating=0
+            )
+            return redirect('serie_episode', tv_url=tvshow.url, seasonurl=season.seasonurl, episodeurl=episode.episodeurl)
 
     return render(request, 'series/serie_episode.html', {
         'tvshow': tvshow,
@@ -409,6 +441,7 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
         'average_rating': average_rating,
         'comments': comments,
         'comment_form': comment_form,
+        'trivia': trivia,
     })
 
 
@@ -553,7 +586,6 @@ def serie_detail(request, tv_url):
             return redirect('serie_detail', tv_url=tvshow.url)
 
     tvshow_trailer = Tvshowtrailer.objects.filter(tvshowid=tvshow.tvshowid).order_by('-trailerid').first()
-    trivia = Tvshowtrivia.objects.filter(tvshowid=tvshow.tvshowid).order_by('-divrating')
 
     if request.method == 'POST':
         if 'youtubeurl' in request.POST:
@@ -564,16 +596,21 @@ def serie_detail(request, tv_url):
                 trailer.save()
                 return redirect('serie_detail', tv_url=tvshow.url)
 
-        elif 'trivia_text' in request.POST:
-            trivia_text = request.POST.get('trivia_text').strip()
-            if trivia_text:
-                Tvshowtrivia.objects.create(
-                    trivia=trivia_text,
-                    tvshowid=tvshow,
-                    divrating=0,
-                    userid=request.user if request.user.is_authenticated else None
-                )
-                return redirect('serie_detail', tv_url=tvshow.url)
+    # Zajímavosti k seriálu
+    trivia = Tvshowtrivia.objects.filter(tvshowid=tvshow, seasonid__isnull=True, episodeid__isnull=True).order_by('-divrating')
+
+    # Přidání nové zajímavosti
+    if request.method == 'POST' and 'trivia_text' in request.POST:
+        trivia_text = request.POST.get('trivia_text').strip()
+        if trivia_text:
+            Tvshowtrivia.objects.create(
+                trivia=trivia_text,
+                tvshowid=tvshow,
+                userid=request.user if request.user.is_authenticated else None,
+                divrating=0
+            )
+            return redirect('serie_detail', tv_url=tvshow.url)
+
 
     else:
         trailer_form = TrailerForm()

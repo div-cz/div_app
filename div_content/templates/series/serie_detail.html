@@ -395,37 +395,43 @@
                 </div>
             </div>
 
-            <!-- ZAJÍMAVOSTI -->
-            <div id="tab3" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
-                <h3 class="after-h3">Zajímavosti ze seriálu</h3>
-            
-                {% if user.is_authenticated %}
-                <h4>Přidat novou zajímavost</h4>
-                <form method="post">
-                    {% csrf_token %}
-                    <textarea name="trivia_text" class="w-full p-2 mb-2" rows="3" required></textarea>
-                    <button type="submit" class="add-movie">Vložit zajímavost</button>
-                </form>
+
+<!-- ZAJÍMAVOSTI -->
+<div id="tab3" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
+    <h3 class="after-h3">Zajímavosti ze seriálu</h3>
+
+    {% if user.is_authenticated %}
+    <h4>Přidat novou zajímavost</h4>
+    <form method="post" action="">
+        {% csrf_token %}
+        <textarea name="trivia_text" class="w-full p-2 mb-2" rows="3" required></textarea>
+        <button type="submit" class="add-movie">Vložit zajímavost</button>
+    </form>
+    {% endif %}
+
+    <!-- výpis zajímavostí -->
+    <div class="mt-4">
+        {% for item in trivia %}
+        <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
+            <p class="text-sm after">{{ item.trivia }}</p>
+            <div class="mt-2 text-end">
+                <span>Přidal: </span>
+                {% if item.userid %}
+                    <a href="{% url 'user_profile_with_profil' item.userid.id %}">{{ item.userid.username }}</a>
+                {% else %}
+                    Anonym
                 {% endif %}
-            
-                <!-- výpis zajímavostí -->
-                <div class="mt-4">
-                    {% for item in trivia %}
-                    <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
-                        <p class="text-sm after">{{ item.trivia }}</p>
-                        <div class="mt-2 text-end">
-                            <p>Přidal: 
-                                {% if item.userid %}
-                                    <a href="{% url 'user_profile_with_profil' user_id=item.userid.id %}">{{ item.userid.username }}</a>
-                                {% else %}
-                                    Anonym
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
             </div>
+
+            <!-- drobečky -->
+            <div class="text-xs text-gray-500 mt-1" style="font-size:80%">
+                <a href="{% url 'serie_detail' tv_url=tvshow.url %}">{{ tvshow.titlecz|default:tvshow.title }}</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
 
             <!-- TRAILER -->
             <div id="tab4" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
