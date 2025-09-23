@@ -376,12 +376,31 @@
             </div>
 
             <!-- drobečky -->
-            <div class="text-xs text-gray-500 mt-1" style="font-size:80%">
-                <a href="{% url 'serie_detail' tv_url=tvshow.url %}">{{ tvshow.titlecz|default:tvshow.title }}</a>
-                &raquo; <a href="{% url 'serie_season' tv_url=tvshow.url seasonurl=season.seasonurl %}">
-                    {{ season.seasonnumber }}. {{ season.titlecz|default:season.title|default:"Sezóna" }}
-                </a>
-            </div>
+<div class="text-xs text-gray-500 mt-1" style="font-size:80%">
+    {% if item.episodeid %}
+        <a href="{% url 'serie_detail' tv_url=item.tvshowid.url %}">
+            {{ item.tvshowid.titlecz|default:item.tvshowid.title }}
+        </a>
+        &raquo; <a href="{% url 'serie_season' tv_url=item.tvshowid.url seasonurl=item.seasonid.seasonurl %}">
+            {{ item.seasonid.seasonnumber }}. {{ item.seasonid.titlecz|default:item.seasonid.title|default:"Sezóna" }}
+        </a>
+        &raquo; <a href="{% url 'serie_episode' tv_url=item.tvshowid.url seasonurl=item.seasonid.seasonurl episodeurl=item.episodeid.episodeurl %}">
+            {{ item.episodeid.titlecz|default:item.episodeid.title }}
+        </a>
+    {% elif item.seasonid %}
+        <a href="{% url 'serie_detail' tv_url=item.tvshowid.url %}">
+            {{ item.tvshowid.titlecz|default:item.tvshowid.title }}
+        </a>
+        &raquo; <a href="{% url 'serie_season' tv_url=item.tvshowid.url seasonurl=item.seasonid.seasonurl %}">
+            {{ item.seasonid.seasonnumber }}. {{ item.seasonid.titlecz|default:item.seasonid.title|default:"Sezóna" }}
+        </a>
+    {% else %}
+        <a href="{% url 'serie_detail' tv_url=item.tvshowid.url %}">
+            {{ item.tvshowid.titlecz|default:item.tvshowid.title }}
+        </a>
+    {% endif %}
+</div>
+
         </div>
         {% endfor %}
     </div>

@@ -597,7 +597,7 @@ def serie_detail(request, tv_url):
                 return redirect('serie_detail', tv_url=tvshow.url)
 
     # Zajímavosti k seriálu
-    trivia = Tvshowtrivia.objects.filter(tvshowid=tvshow, seasonid__isnull=True, episodeid__isnull=True).order_by('-divrating')
+    trivia = Tvshowtrivia.objects.filter(tvshowid=tvshow).order_by('-divrating')
 
     # Přidání nové zajímavosti
     if request.method == 'POST' and 'trivia_text' in request.POST:
