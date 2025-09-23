@@ -29,12 +29,17 @@
 # 2) interní (forms,models,views) (abecedně)
 # 3) third-part (třetí strana, django, auth) (abecedně)
 # -------------------------------------------------------------------
+
+import math
+
 from datetime import date
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from django.core.paginator import Paginator
+
+from django.db.models import Avg, Count, F
 
 
 from django.db import connection
@@ -46,18 +51,15 @@ from django.views.generic import DetailView
 
 from div_content.forms.movies import CommentForm, MovieCinemaForm, MovieDivRatingForm, MovieErrorForm, SearchForm, TrailerForm
 from div_content.models import (
-    Article, Book, Creator, Creatorbiography, Game, Metalocation, Metagenre,
-
-    Movie, Moviecinema, Moviecomments, Moviecountries, Moviecrew, Moviedistributor, Movieerror, Moviegenre, Movielocation, Moviequotes, Movierating, Movietrailer, Movietrivia, User, Userprofile, Moviekeywords,
-    Userlisttype, Userlist, Userlistmovie, FavoriteSum, Userlistitem
+    Article, Book, Creator, Creatorbiography, FavoriteSum, Game, 
+    Metalocation, Metagenre, Movie, Moviecinema, Moviecomments, Moviecountries, Moviecrew, Moviedistributor, Movieerror, Moviegenre, Movielocation, Moviequotes, Movierating, Movietrailer, Movietrivia, Moviekeywords,
+    User, Userlist, Userlistitem, Userlisttype, Userlistmovie, Userprofile
 
 )
 from div_content.utils.metaindex import add_to_metaindex
 
 from star_ratings.models import Rating, UserRating
-# for index
-from django.db.models import Avg, Count
-import math
+
 from django.contrib import messages
 
 
@@ -640,6 +642,15 @@ def remove_movie_rating(request, movie_url):
             rating_obj.average = agg["avg"] or 0
             rating_obj.count = agg["count"] or 0
             rating_obj.save()
+
+        # odečti DivCoiny (-0.01 ze všech metrik)
+        coins, created = Userdivcoins.objects.get_or_create(user_id=request.user.id)
+        coins.totaldivcoins   = F('totaldivcoins')   - Decimal("0.01")
+        coins.weeklydivcoins  = F('weeklydivcoins')  - Decimal("0.01")
+        coins.monthlydivcoins = F('monthlydivcoins') - Decimal("0.01")
+        coins.yearlydivcoins  = F('yearlydivcoins')  - Decimal("0.01")
+        coins.save(update_fields=["totaldivcoins", "weeklydivcoins", "monthlydivcoins", "yearlydivcoins"])
+        coins.refresh_from_db()
 
         messages.success(request, f"Hodnocení filmu „{movie.titlecz or movie.title}“ bylo smazáno.")
     else:

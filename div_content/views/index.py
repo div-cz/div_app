@@ -170,7 +170,9 @@ def index(request): # hlavní strana
                 def to_iban(account_number: str) -> str:
                     account_number = account_number.replace(" ", "")
                     if "/" not in account_number:
-                        raise ValueError("Účet musí být ve formátu číslo/kód, např. 2401444218/2010")
+                        # jen zalogovat a nepadat
+                        print(f"[!] Účet bez kódu banky: {account_number}")
+                        return ""
                     number, bank_code = account_number.split("/")
                     if "-" in number:
                         prefix, base = number.split("-")

@@ -54,7 +54,7 @@ from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 
 from django.db import models
-from django.db.models import Avg, Count, Case, When, Value, IntegerField
+from django.db.models import Avg, Count, Case, F, IntegerField, Value, When
 
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -69,7 +69,9 @@ from div_content.forms.books import BookAddForm, BookDivRatingForm, BookCharacte
 from div_content.forms.divkvariat import BookListingForm
 from div_content.models import (
     Book, Bookauthor, Bookcharacter, Bookcomments, Bookcover, Bookgenre, Bookisbn, Booklisting, 
-    Bookpublisher, Bookpurchase, Bookquotes, Bookrating, Booksource, Bookwriters, Charactermeta, Metagenre, Metaindex, Metastats, Metauniversum, Userlist, Userlistbook, Userlisttype, FavoriteSum, Userbookgoal, Userlistitem
+    Bookpublisher, Bookpurchase, Bookquotes, Bookrating, Booksource, Bookwriters, Charactermeta, 
+    Metagenre, Metaindex, Metastats, Metauniversum, 
+    Userdivcoins, Userlist, Userlistbook, Userlisttype, FavoriteSum, Userbookgoal, Userlistitem
 )
 
 from div_content.utils.books import get_market_listings
@@ -888,6 +890,15 @@ def remove_book_rating(request, book_url):
 
     if user_rating:
         user_rating.delete()
+
+        coins, created = Userdivcoins.objects.get_or_create(user_id=request.user.id)
+        coins.totaldivcoins = F('totaldivcoins') - Decimal("0.01")
+        coins.weeklydivcoins = F('weeklydivcoins') - Decimal("0.01")
+        coins.monthlydivcoins = F('monthlydivcoins') - Decimal("0.01")
+        coins.yearlydivcoins = F('yearlydivcoins') - Decimal("0.01")
+        coins.save(update_fields=["totaldivcoins", "weeklydivcoins", "monthlydivcoins", "yearlydivcoins"])
+        coins.refresh_from_db()
+
         messages.success(request, f'Hodnocení knihy „{book.titlecz or book.title}“ bylo smazáno.')
     else:
         messages.warning(request, 'Nemáš žádné hodnocení, které by šlo smazat.')
