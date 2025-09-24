@@ -705,6 +705,17 @@ def listing_detail(request, book_url, listing_id):
     print(recent_sell_listings)
     print(recent_buy_listings)
 
+    buyer_email = None
+    buyer_phone = None
+
+    if listing.buyer:
+        buyer_email = listing.buyer.email
+        try:
+            profile = listing.buyer.userprofile
+            buyer_phone = profile.phone
+        except Userprofile.DoesNotExist:
+            buyer_phone = None
+        
     return render(request, 'books/listing_detail.html', {
         'book': book,
         'listing': listing,
@@ -723,8 +734,10 @@ def listing_detail(request, book_url, listing_id):
         'user_buyed_books': user_buyed_books,
         'user_pending_books': user_pending_books,
         'total_user_pending': total_user_pending,
-        'total_user_paid_amount':total_user_paid_amount,
-        'button_appear':button_appear,
+        'total_user_paid_amount': total_user_paid_amount,
+        'button_appear': button_appear,
+        'buyer_email': buyer_email,
+        'buyer_phone': buyer_phone,
     })
 
 
