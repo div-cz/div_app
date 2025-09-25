@@ -73,7 +73,6 @@
                 list-style: none;
                 flex: 0 0 25%;
                 box-sizing: border-box;
-                max-width: 100px;
                 margin-left: 5px;
             }
 
@@ -110,9 +109,8 @@
                 opacity: 1;
             }
 
-            .swiper-button-next,
-            .swiper-button-prev {
-            	transform: scale(0.2);
+            .button-next,
+            .button-prev {
                 z-index: 10;
             }
 
@@ -128,7 +126,7 @@
                 display: flex;
             }
 
-            .swiper-button-next:after, .swiper-button-prev:after {
+            .button-next:after, .button-prev:after {
                 font-family: swiper-icons;
                 font-size: 20px;
                 text-transform: none !important;
@@ -138,26 +136,54 @@
                 color: #607d8b;
             }
 
-            .swiper-button-prev {
+            .button-prev {
                 height: 100%;
                 top: 0;
                 box-shadow: 10px 0px 20px 0px #f8f8f8;
             }
 
-            .swiper-button-prev:is(.dark *) {
+            .button-prev:is(.dark *) {
                 box-shadow: 10px 0px 20px 0px #1a161f;
             }
 
-            .swiper-button-next {
+            .button-next {
                 height: 100%;
                 top: 0;
                 box-shadow: -10px 0px 20px 0px #f8f8f8;
             }
 
-            .swiper-button-next:is(.dark *) {
+            .button-next:is(.dark *) {
                 box-shadow: -10px 0px 20px 0px #1a161f;
             }
 
+            .button-next, .button-prev {
+                align-items: center;
+                color: #007aff;
+                cursor: pointer;
+                display: flex;
+                height: 44px;
+                justify-content: center;
+                position: absolute;
+                width: 36px;
+                z-index: 10;
+                height: 100%;
+            }
+
+            .button-next, .button-prev {
+                svg {
+                    height: 20px;
+                    object-fit: contain;
+                    transform-origin: center;
+                    width: 100%;
+                    fill: currentColor;
+                    pointer-events: none;
+                }
+            }
+
+            .swiper-button-next {
+                left: auto;
+                right: 4px;
+            }
 
             @media screen and (max-width: 1024px) {
                 .card-list .card-item {
@@ -237,16 +263,31 @@
             }
 
 
-            .swiper-horizontal {
-                .swiper-button-next, .swiper-button-prev, ~.swiper-button-next, ~.swiper-button-prev {
+            /* .swiper-horizontal {
+                .button-next, .button-prev, ~.button-next, ~.button-prev {
                     margin-left: 0;
                     margin-top: calc(0px - 44px / 2);
                     top: 0;
                 }
+            } */
+
+            .swiper-horizontal {
+                &.swiper-rtl .button-prev, &.swiper-rtl~.swiper-button-prev, &~.swiper-button-next, .swiper-button-next {
+                    left: auto;
+                    right: var(--swiper-navigation-sides-offset, 4px);
+                }
             }
 
-            .swiper-button-next svg path,
-            .swiper-button-prev svg path {
+            .swiper-horizontal {
+                .swiper-button-next, .swiper-button-prev, ~.swiper-button-next, ~.swiper-button-prev {
+                    margin-left: 0;
+                    margin-top: calc(0px - var(--swiper-navigation-size) / 2);
+                    top: 0;
+                }
+            }
+
+            .button-next svg path,
+            .button-prev svg path {
                 stroke: currentColor;
                 stroke-width: 2;
             }
@@ -607,8 +648,8 @@
                                             </div>
                                             
                                             <div class="swiper-pagination"></div>
-                                            <div class="swiper-slide-button swiper-button-prev"></div>
-                                            <div class="swiper-slide-button swiper-button-next"></div>
+                                            <div class="swiper-slide-button swiper-button-prev button-prev"></div>
+                                            <div class="swiper-slide-button swiper-button-next button-next"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -640,8 +681,8 @@
                                             </div>
                                             
                                             <div class="swiper-pagination"></div>
-                                            <div class="swiper-slide-button swiper-button-prev"></div>
-                                            <div class="swiper-slide-button swiper-button-next"></div>
+                                            <div class="swiper-slide-button swiper-button-prev button-prev"></div>
+                                            <div class="swiper-slide-button swiper-button-next button-next"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -676,8 +717,8 @@
                                             </div>
                                             
                                             <div class="swiper-pagination"></div>
-                                            <div class="swiper-slide-button swiper-button-prev"></div>
-                                            <div class="swiper-slide-button swiper-button-next"></div>
+                                            <div class="swiper-slide-button swiper-button-prev button-prev"></div>
+                                            <div class="swiper-slide-button swiper-button-next button-next"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -711,8 +752,8 @@
                                             </div>
                                             
                                             <div class="swiper-pagination"></div>
-                                            <div class="swiper-slide-button swiper-button-prev"></div>
-                                            <div class="swiper-slide-button swiper-button-next"></div>
+                                            <div class="swiper-slide-button swiper-button-prev button-prev"></div>
+                                            <div class="swiper-slide-button swiper-button-next button-next"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -778,44 +819,39 @@
                             </div>
                            
                             <!-- Nejnovější komentáře -->
-<div class="card box-shadow mb-4">
-  <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-    <h3 class="card-title font-bold after-h3">Nejnovější filmové a knižní recenze</h3>
-    <div class="flex flex-wrap">        
-      {% for comment in latest_comments %}
-        <div class="card card-body w-full p-3 mb-2 border rounded 
-            {% if comment.bookid %} border-green-400 {% else %} border-blue-400 {% endif %}">
-          
-          <!-- Tag -->
+                            <div class="card box-shadow mb-4">
+                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                    <h3 class="card-title font-bold after-h3">Nejnovější filmové a knižní recenze</h3>
+                                    <div class="flex flex-wrap">        
+                                    {% for comment in latest_comments %}
+                                        <div class="card card-body w-full p-3 mb-2 border rounded 
+                                            {% if comment.bookid %} border-green-400 {% else %} border-blue-400 {% endif %}">
+                                        
+                                            <!-- Tag -->
+                                            {% if comment.movieid %}
+                                            <a href="/film/{{ comment.movieid.url }}" class="font-bold flex items-center gap-1">
+                                                <span>&#127916;</span> {{ comment.movieid.titlecz }}
+                                            </a>
+                                            {% elif comment.bookid %}
+                                            <a href="/kniha/{{ comment.bookid.url }}" class="font-bold flex items-center gap-1">
+                                                <span>&#128214;</span> {{ comment.bookid.titlecz }}
+                                            </a>
+                                            {% endif %}
 
-{% if comment.movieid %}
-  <a href="/film/{{ comment.movieid.url }}" class="font-bold flex items-center gap-1">
-    <span>&#127916;</span> {{ comment.movieid.titlecz }}
-  </a>
-{% elif comment.bookid %}
-  <a href="/kniha/{{ comment.bookid.url }}" class="font-bold flex items-center gap-1">
-    <span>&#128214;</span> {{ comment.bookid.titlecz }}
-  </a>
-{% endif %}
+                                            <!-- Text komentáře -->
+                                            <p class="mt-1 text-sm">{{ comment.comment|truncatewords:20 }}</p>
 
-
-          <!-- Text komentáře -->
-          <p class="mt-1 text-sm">{{ comment.comment|truncatewords:20 }}</p>
-
-          <!-- Uživatel -->
-          <div style="text-align:right">
-            <small>
-              Uživatel: <a href="/uzivatel/{{ comment.user.username }}">{{ comment.user.username }}</a>
-            </small>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-</div>
-
-
-
+                                            <!-- Uživatel -->
+                                            <div style="text-align:right">
+                                                <small>
+                                                Uživatel: <a href="/uzivatel/{{ comment.user.username }}">{{ comment.user.username }}</a>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
 
                         </div>
                     </div>
@@ -1060,8 +1096,8 @@
                     },
 
                     navigation: {
-                        nextEl: '.swiper-button-next',
-                        prevEl: '.swiper-button-prev',
+                        nextEl: '.button-next',
+                        prevEl: '.button-prev',
                     },
 
                     breakpoints: {
