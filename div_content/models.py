@@ -1763,15 +1763,26 @@ class Tvshowtrailer(models.Model):
     class Meta:
         db_table = 'TvshowTrailer'
 
+
 class Tvshowtrivia(models.Model):
     triviaid = models.AutoField(db_column='TriviaID', primary_key=True)
     trivia = models.TextField(db_column='Trivia')
-    tvshowid = models.ForeignKey('Tvshow', on_delete=models.CASCADE, db_column='TvshowID')
-    userid = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID', null=True, blank=True)
+
+    # Vazby
+    tvshowid = models.ForeignKey('Tvshow', on_delete=models.SET_NULL, null=True, db_column='TVShowID')
+    seasonid = models.ForeignKey('Tvseason', on_delete=models.SET_NULL, null=True, db_column='SeasonID')
+    episodeid = models.ForeignKey('Tvepisode', on_delete=models.SET_NULL, null=True, db_column='EpisodeID')
+
+    userid = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, db_column='UserID')
+    parenttriviaid = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, db_column='ParentTriviaID')
+
     divrating = models.IntegerField(db_column='DIVRating', default=0, db_index=True, blank=True, null=True)
 
     class Meta:
-        db_table = 'TvshowTrivia'
+        db_table = 'TVShowTrivia'
+
+    def __str__(self):
+        return f"{self.trivia[:50]}..."
 
 
 class Tvshowquotes(models.Model):
