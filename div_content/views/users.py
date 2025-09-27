@@ -57,11 +57,18 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from star_ratings.models import UserRating
-import json
 
 from django.utils.formats import date_format
 from django.utils.timezone import localtime
 from django.http import JsonResponse
+
+from email.message import EmailMessage
+from django.template.loader import render_to_string
+
+import json
+import os
+import smtplib
+import threading
 
 
 book_content_type = ContentType.objects.get_for_model(Book)
@@ -1802,6 +1809,31 @@ def update_profile(request):
 
 
 # -------------------------------------------------------------------
+# F:                 SEND CHAT NOTIFICATION EMAIL
+# -------------------------------------------------------------------
+def send_chat_notification_email(subject, to, template, context=None):
+    context = context or {}
+    html_email = render_to_string(template, context)
+
+    msg = EmailMessage()
+    msg['Subject'] = subject
+    msg['From'] = os.getenv("NOREPLY_EMAIL")
+    msg['To'] = to
+    msg.set_content(html_email, subtype='html')
+
+    def _send():
+        try:
+            with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+                smtp.login(os.getenv("NOREPLY_EMAIL"), os.getenv("NOREPLY_PASSWORD"))
+                smtp.send_message(msg)
+            print(f"[✔] E-mail odeslán na {to}")
+        except Exception as e:
+            print(f"[✖] Chyba při odesílání e-mailu: {e}")
+
+    threading.Thread(target=_send).start()
+
+
+# -------------------------------------------------------------------
 # F:                 CHAT
 # -------------------------------------------------------------------
 @login_required
@@ -1845,6 +1877,21 @@ def chat_message(request, user_id):
             new_message.sender = request.user
             new_message.chatsession = chat_session
             new_message.save()
+
+            # ✅ poslat e-mail jen pokud je příjemce staff
+            if receiver.is_staff and receiver.email:
+                send_chat_notification_email(
+                    subject="Nová soukromá zpráva na DIV.cz",
+                    to=receiver.email,
+                    template="emails/chat_new_private_message.html",
+                    context = {
+                        "receiver_name": receiver.first_name or receiver.username,
+                        "sender_name": request.user.first_name or request.user.username,
+                        "message_content": new_message.message,
+                        "receiver_id": receiver.id,
+                    },
+                )
+
             return redirect("chat_message", user_id=receiver.id)
     else:
         form = UserMessageForm()

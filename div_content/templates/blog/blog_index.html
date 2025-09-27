@@ -46,4 +46,49 @@ Blog Div.cz | Diskuzní fórum
 </div>
 
 
+
+<!-- Poslední příspěvky -->
+<h3 class="mt-10 mb-3">📌 Poslední příspěvky</h3>
+
+<section class="my-4 w-3/4">
+    {% if latest_posts %}
+        {% for post in latest_posts %}
+        <ol class="border mb-2">
+            <!-- Titulek příspěvku -->
+            <li class="flex justify-between">
+                <a class="hover:underline font-semibold" 
+                   href="{% url 'blog_post_detail' blog_slug=post.articleblog.slug post_slug=post.slug %}">
+                    {{ post.title }}
+                </a>
+                <span class="flex items-center gap-1">
+                    {% if post.articleblog.blog_type == "movie" %}
+                        <span class="text-red-600">&#127916; Filmy</span>
+                    {% elif post.articleblog.blog_type == "book" %}
+                        <span class="text-green-700">&#128214; Knihy</span>
+                    {% elif post.articleblog.blog_type == "game" %}
+                        <span class="text-blue-700">&#127918; Hry</span>
+                    {% else %}
+                        <span class="text-gray-600">&#128172; Obecné</span>
+                    {% endif %}
+                </span>
+            </li>
+            <hr style="width: 98%; margin: 0 auto;">
+            <!-- Info -->
+            <li>
+                <small>
+                    <strong>{{ post.user.username|default:"Smazaný uživatel" }}</strong> · 
+                    {{ post.published_at|date:"d.m.Y H:i" }}
+                </small>
+                <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                    {{ post.content|striptags|truncatechars:120 }}
+                </p>
+            </li>
+        </ol>
+        {% endfor %}
+    {% else %}
+        <p>Zatím žádné příspěvky.</p>
+    {% endif %}
+</section>
+
+
 {% endblock content %}

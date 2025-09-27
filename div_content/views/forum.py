@@ -14,8 +14,15 @@ from div_content.views.login import custom_login_view
 # index
 def forum(request):
     all_forum_sections = Forumsection.objects.all()
+
+ # posledních 10 komentářů napříč fórem
+    latest_comments = Forumcomment.objects.filter(
+        isdeleted=False
+    ).select_related("topic", "user", "topic__section").order_by("-createdat")[:10]
+
     return render(request, 'forum/forum_index.html', {
         "all_forum_sections": all_forum_sections,
+        "latest_comments": latest_comments,
     })
 
 # obsah sekce s diskuzními vlákny

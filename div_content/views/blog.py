@@ -123,7 +123,11 @@ def blog_index(request):
     #     'movie_blogs': movie_blogs,
     #     'general_blogs': general_blogs,
     # }
-    return render(request, 'blog/blog_index.html')
+    latest_posts = Articleblogpost.objects.select_related("articleblog", "user").order_by("-published_at")[:10]
+
+    return render(request, 'blog/blog_index.html', {
+        "latest_posts": latest_posts,
+    })
     # return render(request, "blog/blog_section_menu.html")
 
 

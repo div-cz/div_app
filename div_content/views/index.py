@@ -239,7 +239,7 @@ def index(request): # hlavní strana
     books_comments = Bookcomments.objects.select_related('bookid', 'user').order_by('-commentid')[:10]
     latest_comments = sorted(
         chain(movies_comments, books_comments),
-        key=attrgetter('commentid'), 
+        key=attrgetter('dateadded'), 
         reverse=True
     )[:10]
 

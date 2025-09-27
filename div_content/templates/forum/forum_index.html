@@ -25,6 +25,54 @@
     </div>
 {% endfor %}
 </div>
+
+
+
+<h3 class="mt-10 mb-3">📌 Poslední příspěvky</h3>
+
+<section class="my-4 w-3/4">
+    {% if latest_comments %}
+        {% for comment in latest_comments %}
+        <ol class="border mb-2">
+            <!-- Titulek vlákna -->
+            <li class="flex justify-between">
+                <a class="hover:underline font-semibold" 
+                   href="{% url 'forum_topic_detail' slug=comment.topic.section.slug topicurl=comment.topic.topicurl %}">
+                    {{ comment.topic.title }}
+                </a>
+                <span class="flex items-center gap-1">
+                    {% if comment.topic.section.slug == "filmy" %}
+                        <span class="movies">&#127916; Filmy</span>
+                    {% elif comment.topic.section.slug == "knihy" %}
+                        <span class="books">&#128214; Knihy</span>
+                    {% elif comment.topic.section.slug == "hry" %}
+                        <span class="games">&#127918; Hry</span>
+                    {% elif comment.topic.section.slug == "obecne" %}
+                        <span class="text-gray-600">&#128172; Ostatní</span>
+                    {% endif %}
+                </span>
+            </li>
+            <hr style="width: 98%; margin: 0 auto;">
+            <!-- Info o komentáři -->
+            <li>
+                <small>
+                    <strong>{{ comment.user.username|default:"Smazaný uživatel" }}</strong> · 
+                    {{ comment.createdat|date:"d.m.Y H:i" }}
+                </small>
+                <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                    {{ comment.body|striptags|truncatechars:120 }}
+                </p>
+            </li>
+        </ol>
+        {% endfor %}
+    {% else %}
+        <p>Zatím žádné příspěvky.</p>
+    {% endif %}
+</section>
+
+
+
+
 {% endblock content %}
 
 {% block script %}

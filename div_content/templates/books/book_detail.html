@@ -213,17 +213,15 @@
         {% endif %}
         </h2>
 
-
-{% if messages %}
-    <div class="mt-3">
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
-            {{ message|safe }}
+    {% if messages %}
+        <div class="mt-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
+                {{ message|safe }}
+            </div>
+        {% endfor %}
         </div>
-    {% endfor %}
-    </div>
-{% endif %}
-
+    {% endif %}
 
         <!-- Info Bar -->
         <div class="rounded-3 p-2 mb-3 d-flex w-full bg-[#F9F9F9] dark:bg-[#1A161F] border-[#ccc] rounded-1xl justify-between">
@@ -296,10 +294,10 @@
                     <!-- AUTOR -->
                     {% if authors %}
                     <li><strong>Autor:</strong>
-                        {% for author in authors %}
-                            <a href="/autor/{{ author.url }}">{{ author.firstname }} {{ author.lastname }}</a>
-                            {% if not forloop.last %}, {% endif %}
-                        {% endfor %}
+                    {% for author in authors %}
+                        <a href="/autor/{{ author.url }}">{{ author.firstname }} {{ author.lastname }}</a>
+                        {% if not forloop.last %}, {% endif %}
+                    {% endfor %}
                     </li>
                     {% elif book.author %}
                     <li><strong>Autor:</strong> {{ book.author }}</li>
@@ -316,18 +314,19 @@
                     {% endif %}
             
                     <!-- SÉRIE -->
-        {% if series %}
-                    <li><strong>Série:</strong>  <a href="/svet/{{ series.universumurl }}">
-{% if series.universumnamecz %}
-  {{ series.universumnamecz }}
-{% else %}
-  {{ series.universumname }}
-{% endif %}
-
-                    </a></li>
-        {% else %}
+                    {% if series %}
+                    <li><strong>Série:</strong>  
+                        <a href="/svet/{{ series.universumurl }}">
+                        {% if series.universumnamecz %}
+                        {{ series.universumnamecz }}
+                        {% else %}
+                        {{ series.universumname }}
+                        {% endif %}
+                        </a>
+                    </li>
+                    {% else %}
                     <li><strong>Série:</strong> -</li>
-        {% endif %}
+                    {% endif %}
 
                     <!-- JAZYK -->
                     {% if book.language %}
@@ -347,25 +346,25 @@
                     </li>
 
 
-<!-- E-Book zdarma -->
-    {% if primary_source == "MLP" %}
-    	<br>Zdroj e-knihy: <br>
-        <a href="https://www.mlp.cz/cz/" target="_blank">
-            <img src="https://media.div.cz/logo/eknihy/mlp.png" 
-                 alt="MLP" title="Městská knihovna v Praze" 
-                 style="height:60px;margin-left:8px;">
-        </a>
-    {% elif primary_source == "PALM" %}
-    	<br>Zdroj e-knihy: <br>
-            <img src="https://media.div.cz/logo/eknihy/palmknihy.png" 
-                 alt="Palmknihy" title="Palmknihy" 
-                 style="height:60px;margin-left:8px;">
-    {% elif primary_source == "DIV" %}
-    	<br>Zdroj e-knihy: <br>
-        <img src="https://media.div.cz/logo/eknihy/div.png" 
-             alt="DIV" title="DIV e-knihy" 
-             style="height:60px;margin-left:8px;">
-    {% endif %}
+                <!-- E-Book zdarma -->
+                    {% if primary_source == "MLP" %}
+                        <br>Zdroj e-knihy: <br>
+                        <a href="https://www.mlp.cz/cz/" target="_blank">
+                            <img src="https://media.div.cz/logo/eknihy/mlp.png" 
+                                alt="MLP" title="Městská knihovna v Praze" 
+                                style="height:60px;margin-left:8px;">
+                        </a>
+                    {% elif primary_source == "PALM" %}
+                        <br>Zdroj e-knihy: <br>
+                            <img src="https://media.div.cz/logo/eknihy/palmknihy.png" 
+                                alt="Palmknihy" title="Palmknihy" 
+                                style="height:60px;margin-left:8px;">
+                    {% elif primary_source == "DIV" %}
+                        <br>Zdroj e-knihy: <br>
+                        <img src="https://media.div.cz/logo/eknihy/div.png" 
+                            alt="DIV" title="DIV e-knihy" 
+                            style="height:60px;margin-left:8px;">
+                    {% endif %}
 
 
 
@@ -413,7 +412,7 @@
 
                     <!-- Tlačítka -->
                     {% if user.is_authenticated %}
-                    <div class="favorite-menu grid sm:grid-colums-2 justify-items-center w-full border rounded-1xl mt-4">
+                    <div class="favorite-menu grid sm:grid-colums-2 justify-items-center w-full dark:bg-[#727271] border rounded-1xl mt-4">
                         
                         <!-- OBLÍBENÉ -->
                         {% if not is_in_favourites %}
@@ -476,139 +475,99 @@
             </div>
         </div>
 
-
-
-
-
-
-
-
-
         <!-- KOUPIT -->
         <div class="flex flex-wrap items-center" style="margin: 20px 0;">
             <h3 class="mb-3 sm:w-full">KOUPIT</h3>
             <div class="flex flex-wrap">
+                <!-- Tlačítko E-kniha -->
+                <button type="button"
+                    class="add-book ml-3 mt-0 mb-2"
+                    id="e-book-btn"
+                    {% if not has_ebook %}
+                        disabled
+                        style="width:140px; padding:0.5em 0; background:#e5e5e5; color:#444; border:1px solid #bbb; cursor:not-allowed; box-shadow:none; opacity:1;"
+                    {% else %}
+                        style="width:140px; padding:0.5em 0;"
+                    {% endif %}>
+                    <img src="/static/img/book/e-book_icon.png" alt="e-kniha" class="mr-2" style="width:35px;">
+                    <div class="flex flex-col">
+                        <p style="margin-bottom:0;">E-kniha</p>
+                        <p style="font-size:80%;margin:0;">
+                            {% if cena_od %}
+                                od {{ cena_od|floatformat:0 }} Kč
+                            {% elif has_ebook %}
+                                zdarma
+                            {% else %}
+                                nedostupné
+                            {% endif %}
+                        </p>
+                    </div>
+                </button>
 
+                {% if ebook_formats %}
+                <!-- Overlay a Modal -->
+                <div class="overlay hidden" id="ebook-overlay"></div>
+                <div class="popup hidden" id="ebook-popup">
+                    <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closePopup">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <div>
+                        <h3>Vyberte formát e-knihy</h3>
+                        <form id="ebook-form" method="post" action="">
+                            {% csrf_token %}
+                            <div style="margin-bottom: 12px;">
+                                {% for fmt, data in ebook_formats.items %}
+                                <label style="margin-right:10px;opacity:{% if not data.available %}0.5{% else %}1{% endif %};">
+                                    <input type="radio" name="format"
+                                            value="{{ fmt }}"
+                                            data-isbn="{{ data.isbn }}"
+                                            {% if forloop.first and data.available %}{% endif %}
+                                            {% if not data.available %}disabled{% endif %}>
+                                    {{ fmt|upper }}
+                                    {% if data.price is not None and data.price > 0 %}
+                                        ({{ data.price|floatformat:0 }} Kč)
+                                    {% elif data.free %}
+                                        Zdarma
+                                    {% else %}
+                                        Zdarma
+                                    {% endif %}
+                                </label>
+                                {% endfor %}
+                            </div>
 
+                            {% if primary_source != "MLP" %}
+                            <!-- Email pouze jednou! -->
+                            <div id="kindle-block" style="margin-top: 12px; display: none;">
+                                <div style="margin-top: 12px;">
+                                    {{ format_kindlemails|json_script:"formatKindlemailsData" }}
+                                    <label for="kindlemail">E-mail čtečky:</label>
+                                    <input type="email" name="kindlemail" id="kindlemail" value="{{ kindlemail }}" placeholder="vasectecka@kindle.com" style="width:220px;" {% if readonly %}readonly{% endif %}>
+                                    <div class="kindleinfo text-muted mt-2" style="display:none;font-size:90%">
+                                        Tento e-mail je napevno spojen s objednávkou.<br>
+                                        V případě dotazů kontaktujte podporu info@div.cz.
+                                    </div>
 
-<!-- Tlačítko E-kniha -->
-<button type="button"
-    class="add-book ml-3 mt-0 mb-2"
-    id="e-book-btn"
-    {% if not has_ebook %}
-        disabled
-        style="
-            width:140px;
-            padding:0.5em 0;
-            background:#e5e5e5;
-            color:#444;
-            border:1px solid #bbb;
-            cursor:not-allowed;
-            box-shadow:none;
-            opacity:1;
-        "
-    {% else %}
-        style="width:140px; padding:0.5em 0;"
-    {% endif %}
->
-    <img src="/static/img/book/e-book_icon.png" alt="e-kniha" class="mr-2" style="width:35px;">
-    <div class="flex flex-col">
-        <p style="margin-bottom:0;">E-kniha</p>
-        <p style="font-size:80%;margin:0;">
-            {% if cena_od %}
-                od {{ cena_od|floatformat:0 }} Kč
-            {% elif has_ebook %}
-                zdarma
-            {% else %}
-                nedostupné
-            {% endif %}
-        </p>
-    </div>
-</button>
+                                </div>
+                            </div>
+                            {% endif %}
 
-
-
-
-
-
-{% if ebook_formats %}
-<!-- Overlay a Modal -->
-<div class="overlay hidden" id="ebook-overlay"></div>
-<div class="popup hidden" id="ebook-popup">
-    <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closePopup">
-        <i class="fa-solid fa-xmark"></i>
-    </button>
-    <div>
-        <h3>Vyberte formát e-knihy</h3>
-        <form id="ebook-form" method="post" action="">
-            {% csrf_token %}
-            <div style="margin-bottom: 12px;">
-                {% for fmt, data in ebook_formats.items %}
-                    <label style="margin-right:10px;opacity:{% if not data.available %}0.5{% else %}1{% endif %};">
-                        <input type="radio" name="format"
-                               value="{{ fmt }}"
-                               data-isbn="{{ data.isbn }}"
-                               {% if forloop.first and data.available %}{% endif %}
-                               {% if not data.available %}disabled{% endif %}>
-                        {{ fmt|upper }}
-                        {% if data.price is not None and data.price > 0 %}
-                            ({{ data.price|floatformat:0 }} Kč)
-                        {% elif data.free %}
-                            Zdarma
-                        {% else %}
-                            Zdarma
+                            {% if user.is_authenticated %}
+                            <input type="hidden" id="js-bookid" value="{{ book.bookid }}">
+                            <!-- Blok akcí pro vybraný formát -->
+                            <div id="ebook-action-block"></div>
+                            {% else %}
+                            <div class="my-2">
+                                <a href="/prihlaseni/" class="add-book">Přihlaš se</a>
+                                nebo
+                                <a href="/registrace/" class="add-book">Registruj se</a>
+                                <br>
+                                <span class="text-muted">Pro nákup a stažení e-knihy je nutné mít účet.</span>
+                            </div>
                         {% endif %}
-                    </label>
-                {% endfor %}
-            </div>
-
-
-{% if primary_source != "MLP" %}
-    <!-- Email pouze jednou! -->
-<div id="kindle-block" style="margin-top: 12px; display: none;">
-    <div style="margin-top: 12px;">
-
-{{ format_kindlemails|json_script:"formatKindlemailsData" }}
-
-        <label for="kindlemail">E-mail čtečky:</label>
-        <input type="email" name="kindlemail" id="kindlemail"
-               value="{{ kindlemail }}"
-               placeholder="vasectecka@kindle.com"
-               style="width:220px;"
-               {% if readonly %}readonly{% endif %}>
-
-<div class="kindleinfo text-muted mt-2" style="display:none;font-size:90%">
-    Tento e-mail je napevno spojen s objednávkou.<br>
-    V případě dotazů kontaktujte podporu info@div.cz.
-</div>
-
-    </div>
-</div>
-{% endif %}
-
-
-
-            {% if user.is_authenticated %}
-                <input type="hidden" id="js-bookid" value="{{ book.bookid }}">
-                <!-- Blok akcí pro vybraný formát -->
-                <div id="ebook-action-block"></div>
-            {% else %}
-                <div class="my-2">
-                    <a href="/prihlaseni/" class="add-book">Přihlaš se</a>
-                    nebo
-                    <a href="/registrace/" class="add-book">Registruj se</a>
-                    <br>
-                    <span class="text-muted">Pro nákup a stažení e-knihy je nutné mít účet.</span>
+                        </form>
+                    </div>
                 </div>
-            {% endif %}
-        </form>
-    </div>
-</div>
-{% endif %}
-
-
-
-
+                {% endif %}
             
                 <!-- AUDIO - PRIPRAVENO -->
                 <!-- Tlačítko AUDIO -->
@@ -620,8 +579,7 @@
                         style="width:140px; padding:0.5em 0; background:#e5e5e5; color:#444; border:1px solid #bbb; cursor:not-allowed; box-shadow:none; opacity:1;"
                     {% else %}
                         style="width:140px; padding:0.5em 0;"
-                    {% endif %}
-                >
+                    {% endif %}>
                     <img src="/static/img/book/cd_icon.png" alt="audiokniha" class="mr-2" style="width:35px;">
                     <div class="flex flex-col">
                         <p style="margin-bottom:0;">Audio</p>
@@ -639,7 +597,7 @@
                 <!-- náhled poslechu -->
                 <div class="overlay hidden" id="audio-overlay"></div>
                 <div class="popup hidden" id="audio-popup">
-                <p>{{ audio.description }}</p>
+                    <p>{{ audio.description }}</p>
                     <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closeAudioPopup">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
@@ -655,7 +613,7 @@
                 {% else %}
                 <div class="overlay hidden" id="audio-overlay"></div>
                 <div class="popup hidden" id="audio-popup">
-                <p>Audio kniha pouze pro <a href="/prihlaseni/">přihlášené</a> a <a href="https://div.cz/registrace/">registrované</a>.</p>
+                    <p>Audio kniha pouze pro <a href="/prihlaseni/">přihlášené</a> a <a href="https://div.cz/registrace/">registrované</a>.</p>
                     <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closeAudioPopup">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
@@ -676,16 +634,16 @@
                     <div class="flex flex-col">
                         <p>Bazar</p>
                         <p style="font-size: 80%;">
-{% with c=sell_listings.count %}
-        {{ c }}
-        {% if c == 1 %}
-            inzerát
-        {% elif c >= 2 and c <= 4 %}
-            inzeráty
-        {% else %}
-            inzerátů
-        {% endif %}
-{% endwith %}
+                        {% with c=sell_listings.count %}
+                                {{ c }}
+                                {% if c == 1 %}
+                                    inzerát
+                                {% elif c >= 2 and c <= 4 %}
+                                    inzeráty
+                                {% else %}
+                                    inzerátů
+                                {% endif %}
+                        {% endwith %}
                         </p>
                     </div>
                 </button>
@@ -694,16 +652,14 @@
             </div>
         </div>
 
-
-<!-- IF PALMINKY DATA -->
-<!--{% if palmknihy_data %}
-<div class="mt-6 bg-gray-100 p-4 rounded text-sm">
-    <h4 class="font-bold">Testovací výpis z Palmknihy API</h4>
-    <pre>{{ palmknihy_data|safe }}</pre>
-</div>
-{% endif %}-->
-<!-- // IF PALMINKY DATA -->
-
+        <!-- IF PALMINKY DATA -->
+        <!--{% if palmknihy_data %}
+        <div class="mt-6 bg-gray-100 p-4 rounded text-sm">
+            <h4 class="font-bold">Testovací výpis z Palmknihy API</h4>
+            <pre>{{ palmknihy_data|safe }}</pre>
+        </div>
+        {% endif %}-->
+        <!-- // IF PALMINKY DATA -->
 
         <!-- POPIS KNIHY -->
         <div class="w-full">
@@ -1198,12 +1154,12 @@
                     </ul>
                     {% endif %}
                 </div>
-{% if user_rating %}
-    <form method="post" action="{% url 'remove_book_rating' book_url=book.url %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger btn-sm mt-2">Smazat hodnocení</button>
-    </form>
-{% endif %}
+                {% if user_rating %}
+                <form method="post" action="{% url 'remove_book_rating' book_url=book.url %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm mt-2">Smazat hodnocení</button>
+                </form>
+            {% endif %}
             </div>
         </div>
 
@@ -1299,7 +1255,9 @@
                 <h3 class="card-title font-bold after-h3">Tagy</h3>
                 <div class="flex flex-wrap gap-1">
                     {% for book_genre in genres %}
-                    <span class="rounded bg-secondary p-1" style="color:white"> <a href="https://div.cz/filmy/{{ book_genre.genreid.genrenamecz }}"></a></span> 
+                    <span class="rounded bg-[#c0c0c0] dark:bg-[#0d0c0f] p-1 label"> 
+                        <a href="https://div.cz/filmy/{{ book_genre.genreid.genrenamecz }}"></a>
+                    </span> 
                     {% if not forloop.last %} 
                     {% endif %}
                     {% endfor %}
