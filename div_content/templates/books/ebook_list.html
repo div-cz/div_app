@@ -32,98 +32,88 @@
     {% endif %}
 
 <style>
-a.btn.books {
-    display: flex;
-    align-items: center;      /* vertikální zarovnání doprostřed */
-    justify-content: center;  /* horizontální zarovnání doprostřed */
-    padding: 12px 24px;       /* místo pevné výšky použij padding */
-    font-weight: 600;
-    font-size: 16px;
-    border-radius: 6px;
-    margin: 8px 0;
-    text-align: center;
-    transition: all 0.2s ease-in-out;
-    box-sizing: border-box;
-}
-
-
-/* Aktivní */
-
-a.btn.books.add-book {
-    background-color: #61872B !important;
-    color: #fff !important;
-    border: 1px solid #61872B !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    position: relative;
-}
-
-/* Neaktivní */
-a.btn.books.btn-outline-secondary {
-    background-color: #fff !important;
-    border: 1px solid #61872B !important;
-    color: #61872B !important;
-}
-
-/* Desktop */
-@media (min-width: 769px) {
-    .buttons-row {
+    a.btn.books {
         display: flex;
-        gap: 10px;
-        justify-content: flex-start;
+        align-items: center;      /* vertikální zarovnání doprostřed */
+        justify-content: center;  /* horizontální zarovnání doprostřed */
+        padding: 12px 24px;       /* místo pevné výšky použij padding */
+        font-weight: 600;
+        font-size: 16px;
+        border-radius: 6px;
+        margin: 8px 0;
+        text-align: center;
+        transition: all 0.2s ease-in-out;
+        box-sizing: border-box;
     }
-    .buttons-row .btn.books {
-        margin: 0; /* jen vodorovná mezera, protože flex */
-    }
-    a.btn.books.add-book {
-        top: 0px;  /* ✅ posunutí jen na PC */
-    }
-}
 
-/* Mobil */
-@media (max-width: 768px) {
-    .buttons-row {
-        display: block;
-    }
-    .buttons-row .btn.books {
-        display: block;
-        width: 100%;
-        margin: 10px 0; /* krásně stejné rozestupy */
-    }
+    /* Aktivní */
     a.btn.books.add-book {
-        top: 0; /* ✅ žádný posun na mobilu */
+        background-color: #61872B !important;
+        color: #fff !important;
+        border: 1px solid #61872B !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        position: relative;
     }
-}
+
+    /* Neaktivní */
+    a.btn.books.btn-outline-secondary {
+        background-color: #fff !important;
+        border: 1px solid #61872B !important;
+        color: #61872B !important;
+    }
+
+    /* Desktop */
+    @media (min-width: 769px) {
+        .buttons-row {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-start;
+        }
+        .buttons-row .btn.books {
+            margin: 0; /* jen vodorovná mezera, protože flex */
+        }
+        a.btn.books.add-book {
+            top: 0px;  /* ✅ posunutí jen na PC */
+        }
+    }
+
+    /* Mobil */
+    @media (max-width: 768px) {
+        .buttons-row {
+            display: block;
+        }
+        .buttons-row .btn.books {
+            display: block;
+            width: 100%;
+            margin: 10px 0; /* krásně stejné rozestupy */
+        }
+        a.btn.books.add-book {
+            top: 0; /* ✅ žádný posun na mobilu */
+        }
+    }
 
 </style>
 
 {% endblock %}
+
 {% block content %}
 <div class="container my-4">
     <h1 class="mb-4 font-bold text-2xl">{{ page_title }}</h1>
 
-
-
-<div class="buttons-row mb-4">
-    <a href="/eknihy/" 
-       class="btn books {% if page_type == 'all' %}add-book{% else %}btn-outline-secondary{% endif %}">
-       Všechny e-knihy
-    </a>
-    <a href="/eknihy/zdarma/" 
-       class="btn books {% if page_type == 'free' %}add-book{% else %}btn-outline-secondary{% endif %}">
-       Jen zdarma
-    </a>
-    <a href="/eknihy/placene/" 
-       class="btn books {% if page_type == 'paid' %}add-book{% else %}btn-outline-secondary{% endif %}">
-       Jen placené
-    </a>
-</div>
-
-
-
-
-
-
-
+    <div class="buttons-row mb-4">
+        <a href="/eknihy/" 
+        class="btn books {% if page_type == 'all' %}add-book{% else %}btn-outline-secondary{% endif %}">
+        Všechny e-knihy
+        </a>
+        <a href="/eknihy/zdarma/" 
+        class="btn books {% if page_type == 'free' %}add-book{% else %}btn-outline-secondary{% endif %}">
+        Jen zdarma
+        </a>
+        <a href="/eknihy/placene/" 
+        class="btn books {% if page_type == 'paid' %}add-book{% else %}btn-outline-secondary{% endif %}">
+        Jen placené
+        </a>
+    </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         {% for book in page_obj %}
@@ -138,31 +128,30 @@ a.btn.books.btn-outline-secondary {
                 {% endif %}
             </a>
 
-<div class="ml-3 flex-1">
-    <h4 class="font-bold"><a href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a></h4>
-    <p class="text-sm text-gray-700 dark:text-gray-300">{{ book.author }}</p>
-    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ book.description|default_if_none:""|truncatewords:20 }}</p>
+            <div class="ml-3 flex-1">
+                <h4 class="font-bold"><a href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a></h4>
+                <p class="text-sm text-gray-700 dark:text-gray-300">{{ book.author }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ book.description|default_if_none:""|truncatewords:20 }}</p>
 
-    <p class="text-sm mt-1">
-        📖 Formáty:
-        {% for isbn in book.bookisbn_set.all %}
-            {% if isbn.format %}
-                <span class="inline-block bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">{{ isbn.format|upper }}</span>
-            {% endif %}
-        {% endfor %}
-    </p>
+                <p class="text-sm mt-1">
+                    📖 Formáty:
+                    {% for isbn in book.bookisbn_set.all %}
+                        {% if isbn.format %}
+                            <span class="inline-block bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">{{ isbn.format|upper }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </p>
 
-    <p class="text-sm mt-2 font-semibold">
-        {% if book.min_price == 0 %}
-            💰 Zdarma
-        {% elif book.min_price %}
-            💰 od {{ book.min_price|floatformat:0 }} Kč
-        {% else %}
-            💰 Není dostupná cena
-        {% endif %}
-    </p>
-</div>
-
+                <p class="text-sm mt-2 font-semibold">
+                    {% if book.min_price == 0 %}
+                        💰 Zdarma
+                    {% elif book.min_price %}
+                        💰 od {{ book.min_price|floatformat:0 }} Kč
+                    {% else %}
+                        💰 Není dostupná cena
+                    {% endif %}
+                </p>
+            </div>
 
         </div>
         {% empty %}
@@ -182,4 +171,5 @@ a.btn.books.btn-outline-secondary {
         {% endif %}
     </div>
 </div>
+
 {% endblock %}
