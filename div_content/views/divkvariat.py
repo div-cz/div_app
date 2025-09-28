@@ -190,8 +190,8 @@ def antikvariat_home(request):
             else:
                 messages.error(request, 'Neexistují žádné nevyplacené transakce.')
 
-    count_sell = Booklisting.objects.filter(listingtype__in=["SELL", "GIVE"], active=True).count()
-    count_buy = Booklisting.objects.filter(listingtype="BUY", active=True).count()
+    count_sell = Booklisting.objects.filter(listingtype__in=["SELL", "GIVE"], active=True, status="ACTIVE").count()
+    count_buy = Booklisting.objects.filter(listingtype="BUY", active=True, status="ACTIVE").count()
     all_listings = list(Booklisting.objects.filter(active=True, status="ACTIVE")[:100])
     #random_listings = sample(all_listings, min(len(all_listings), 4))
     # Nabídky
