@@ -159,16 +159,27 @@
         {% endfor %}
     </div>
 
-    <div class="pagination mt-6">
-        {% if page_obj.has_previous %}
-            <a href="?page=1">&laquo; první</a>
-            <a href="?page={{ page_obj.previous_page_number }}">předchozí</a>
-        {% endif %}
-        <span class="current">Stránka {{ page_obj.number }} z {{ page_obj.paginator.num_pages }}</span>
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">další</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">poslední &raquo;</a>
-        {% endif %}
+    <!-- paginátor -->
+    <div class="pagination mt-8">
+        <span class="step-links flex justify-center">
+            <div>
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; první</a>
+                <a href="?page={{ page_obj.previous_page_number }}">předchozí</a>
+            {% endif %}
+            </div>
+
+            <span class="current-page mx-4">
+                Stránka {{ page_obj.number }} z {{ page_obj.paginator.num_pages }}
+            </span>
+
+            <div>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">další</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">poslední &raquo;</a>
+            {% endif %}
+            </div>
+        </span>
     </div>
 </div>
 

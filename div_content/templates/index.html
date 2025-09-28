@@ -58,72 +58,9 @@
         <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 
         <style>
-            .card-wrapper {
-                max-width: 1100px;
-                margin: 0 40px 35px;
-                overflow: hidden;
-            }
-
-            .swiper-wrapper {
-                display: flex;
-                margin-top: 5px;
-            }
-
-            .card-list .card-item {
-                list-style: none;
-                flex: 0 0 25%;
-                box-sizing: border-box;
-                margin-left: 5px;
-            }
-
-            .card-list .card-item .card-link {
-                user-select: none;
-                display: block;
-                background: #fff;
-                border-radius: 12px;
-                text-decoration: none;
-                border: 2px solid transparent;
-                /* box-shadow: 0 10px 10px rgba(0, 0, 0, 30%); */
-                transition: 0.2s ease;
-            }
-
-            .card-list .card-item .card-link:active {
-                cursor: grabbing;
-            }
-
-            .card-list .card-item .card-link .card-image {
-                max-width: 100px; 
-                height: 150px;
-                object-fit: cover;
-                border-radius: 10px;
-            }
-
-            .swiper-pagination-bullet {
-                height: 13px;
-                width: 13px;
-                opacity: 0.5;
-                background: #607d8b;
-            }
-
-            .swiper-pagination-bullet-active {
-                opacity: 1;
-            }
-
             .button-next,
             .button-prev {
                 z-index: 10;
-            }
-
-            /* Vylepšení zobrazení pagination */
-            .swiper-pagination {
-                position: absolute;
-                bottom: 10px;
-                left: 50%;
-                transform: translateX(-50%);
-            }
-
-            .swiper-slide {
-                display: flex;
             }
 
             .button-next:after, .button-prev:after {
@@ -179,97 +116,34 @@
                     pointer-events: none;
                 }
             }
+            
+            /* Vylepšení zobrazení pagination */
+            .swiper-pagination {
+                position: absolute;
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .swiper-slide {
+                display: flex;
+            }
 
             .swiper-button-next {
                 left: auto;
                 right: 4px;
             }
 
-            @media screen and (max-width: 1024px) {
-                .card-list .card-item {
-                    flex: 1 0 33%; /* Pro obrazovky menší než 1024px bude zobrazeno 3 karty */
-                }
+            .swiper-pagination-bullet {
+                height: 13px;
+                width: 13px;
+                opacity: 0.5;
+                background: #607d8b;
             }
 
-            @media screen and (max-width: 768px) {
-                .card-list .card-item {
-                    flex: 1 0 50%; /* Pro obrazovky menší než 768px (mobilní zařízení) budou zobrazeny 2 karty */
-                }
+            .swiper-pagination-bullet-active {
+                opacity: 1;
             }
-
-
-
-            .rating {
-                position: relative;
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                padding: 0;
-            }
-
-            .rating::before {
-                content: '';
-                position: absolute;
-                top: 3px;
-                left: 3px;
-                width: 44px;
-                height: 44px;
-                background: #444444;
-                border-radius: 50%;
-                z-index: 2;
-            }
-
-            .rating::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 50px;
-                height: 50px;
-                background: conic-gradient(
-                    var(--gradient-color, #0a0) 0%,
-                    var(--gradient-color, #0a0) var(--gradient-value, 50%),
-                    #777777 var(--gradient-value, 50%)
-                );
-                border-radius: 50%;
-                z-index: 1;
-            }
-
-            .rating-inner {
-                position: relative;
-                z-index: 3;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                color: #fff;
-                font-size: 16px;
-                font-weight: bold;
-            }
-
-            .rating-inner span {
-                font-size: 10px;
-                margin-left: 2px;
-                color: #ffd700;
-            }
-
-            .rating-shadow {
-                box-shadow: 3px 3px 10px rgb(147 147 147);
-            }
-
-            .rating-shadow:is(.dark *) {
-                box-shadow: none;
-            }
-
-
-            /* .swiper-horizontal {
-                .button-next, .button-prev, ~.button-next, ~.button-prev {
-                    margin-left: 0;
-                    margin-top: calc(0px - 44px / 2);
-                    top: 0;
-                }
-            } */
 
             .swiper-horizontal {
                 &.swiper-rtl .button-prev, &.swiper-rtl~.swiper-button-prev, &~.swiper-button-next, .swiper-button-next {
@@ -476,13 +350,13 @@
                                             <div class="flex items-start">
                                                 <!-- Obrázek knihy -->
                                                 <div class="mr-4" style="width:80px;">
-                                                    {% if listing.book.img == "noimg.png" %}
-                                                        <img src="/static/img/book/book.png" class="w-full rounded">
+                                                {% if listing.book.img == "noimg.png" %}
+                                                    <img src="/static/img/book/book.png" class="w-full rounded">
                                                     {% elif listing.book.img == "GoogleID" %}
-                                                        <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1" class="w-full rounded">
+                                                    <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1" class="w-full rounded">
                                                     {% else %}
-                                                        <img src="https://media.div.cz/knihy/{{ listing.book.img }}" class="w-full rounded">
-                                                    {% endif %}
+                                                    <img src="https://media.div.cz/knihy/{{ listing.book.img }}" class="w-full rounded">
+                                                {% endif %}
                                                 </div>
 
                                                 <!-- Info -->
@@ -823,7 +697,7 @@
                                     <h3 class="card-title font-bold after-h3">Nejnovější filmové a knižní recenze</h3>
                                     <div class="flex flex-wrap">        
                                     {% for comment in latest_comments %}
-                                        <div class="card card-body w-full p-3 mb-2 border rounded 
+                                        <div class="card card-body w-full p-3 mb-2 border rounded dark:bg-[#0d0c0f]
                                             {% if comment.bookid %} border-green-400 {% else %} border-blue-400 {% endif %}">
                                         
                                             <!-- Tag -->

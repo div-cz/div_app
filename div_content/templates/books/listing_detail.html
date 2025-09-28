@@ -23,7 +23,7 @@
         margin-right: 10px;
         min-width: 120px;
     }
-    
+
     .form-group input {
         margin-left: auto;
         max-width: 100px;
@@ -216,11 +216,11 @@
                     
                     <label for="shippingaddress">Kam si přejete knihu zaslat?</label><br>
                     <small>Výchozí doručení je na nejbližší Zásilkovnu dle vaší adresy (nejvýhodnější varianta).</small>
-                    <textarea name="shippingaddress" rows="4" style="min-width:400px" class="form-control" required 
-                    placeholder="Jméno, ulice, město, PSČ (volitelně telefon)">{{ request.user.userprofile.shippingaddress|default:"" }}</textarea>
+                    <textarea name="shippingaddress" rows="4" style="mam-width:400px" class="form-control" required 
+                    placeholder="Jméno, ulice, město, PSČ">{{ request.user.userprofile.shippingaddress|default:"" }}</textarea>
 
                     <div class="form-group mt-2">
-                        <label for="phone">Telefon (pro zásilkovnu,balíkovnu):</label>
+                        <label for="phone" title="pro zásilkovnu, balíkovnu">Telefon:</label>
                         <input type="tel" name="phone" class="form-control" style="max-width:300px" required
                             value="{{ request.user.userprofile.phone|default:'' }}">
                     </div>
@@ -335,7 +335,7 @@
                     </div>
                     <div class="mb-4">
                         <label class="block text-gray-700 mb-2">Komentář:</label>
-                        <textarea name="comment" class="w-full border  p-2" rows="3"></textarea>
+                        <textarea name="comment" class="w-full border p-2" rows="3"></textarea>
                     </div>
                     <button type="submit" name="sellerrating" value="1" class="add-book mt-2">Odeslat hodnocení</button>
                 </form>
@@ -361,7 +361,7 @@
                     </div>
                     <div class="mb-4">
                         <label class="block text-gray-700 mb-2">Komentář:</label>
-                        <textarea name="comment" class="w-full border  p-2" rows="3"></textarea>
+                        <textarea name="comment" class="w-full border p-2" rows="3"></textarea>
                     </div>
                     <button type="submit" name="buyerrating" 
                             value="1" 
@@ -410,7 +410,6 @@
         </div>
         {% endif %}
  
- 
         {% if listing.status == 'RESERVED' or listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' and listing.buyer == user or listing.user == user %}
         <div class="card box-shadow mb-4">
             <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
@@ -420,24 +419,24 @@
                 <div class="space-y-2 mb-4">
                     <p><strong>Proces prodeje:</strong></p>
                     <form method="post" class="reserve-form">
-                    <ol class="list-decimal ml-6 space-y-1">
-                    <li>
-                            <input type="checkbox" id="step1" {% if listing.status == 'RESERVED' or listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}checked{% endif %} disabled>
-                            <label for="step1"><span style="{% if listing.status == 'RESERVED' or listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}color:#4FB021;font-weight:bold{% endif %}">Kupující provedl rezervaci</span></label>
-                        </li>
-                        <li>
-                            <input type="checkbox" id="step2" {% if listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}checked{% endif %} disabled>
-                            <label for="step2"><span style="{% if listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}color:#4FB021;font-weight:bold{% endif %}">Kupující pošle platbu na účet eKultury</span></label>
-                        </li>
-                        <li>
-                            <input type="checkbox" id="step3" {% if listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}checked{% endif %} disabled>
-                            <label for="step3"><span style="{% if listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}color:#4FB021;font-weight:bold{% endif %}">Prodávající odešle knihu</span></label>
-                        </li>
-                        <li>
-                            <input type="checkbox" id="step4" {% if listing.status == 'COMPLETED' %}checked{% endif %} disabled>
-                            <label for="step4"><span style="{% if listing.status == 'COMPLETED' %}color:#4FB021;font-weight:bold{% endif %}">Obchod je dokončen</span></label>
-                        </li>
-                    </ol>
+                        <ol class="list-decimal ml-6 space-y-1">
+                            <li>
+                                <input type="checkbox" id="step1" {% if listing.status == 'RESERVED' or listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}checked{% endif %} disabled>
+                                <label for="step1"><span style="{% if listing.status == 'RESERVED' or listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}color:#4FB021;font-weight:bold{% endif %}">Kupující provedl rezervaci</span></label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="step2" {% if listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}checked{% endif %} disabled>
+                                <label for="step2"><span style="{% if listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}color:#4FB021;font-weight:bold{% endif %}">Kupující pošle platbu na účet eKultury</span></label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="step3" {% if listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}checked{% endif %} disabled>
+                                <label for="step3"><span style="{% if listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}color:#4FB021;font-weight:bold{% endif %}">Prodávající odešle knihu</span></label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="step4" {% if listing.status == 'COMPLETED' %}checked{% endif %} disabled>
+                                <label for="step4"><span style="{% if listing.status == 'COMPLETED' %}color:#4FB021;font-weight:bold{% endif %}">Obchod je dokončen</span></label>
+                            </li>
+                        </ol>
                     </form>
                 </div>
 
@@ -453,8 +452,7 @@
                         {% csrf_token %}
                         <input type="hidden" name="cancel_reservation" value="true">
 
-                        <button type="submit" class="add-book"
-                                onclick="return confirm('Opravdu chcete zrušit rezervaci?');">
+                        <button type="submit" class="add-book" onclick="return confirm('Opravdu chcete zrušit rezervaci?');">
                             Zrušit rezervaci
                         </button>
                     </form>
@@ -466,8 +464,7 @@
                     <form method="post" action="{% url 'cancel_sell' listing_id=listing.booklistingid %}">
                         {% csrf_token %} 
                         
-                        <button type="submit" class="add-book"
-                                onclick="return confirm('Opravdu chcete zrušit vaši nabídku?');">
+                        <button type="submit" class="add-book" onclick="return confirm('Opravdu chcete zrušit vaši nabídku?');">
                             Zrušit moji nabídku
                         </button>
                     </form>
