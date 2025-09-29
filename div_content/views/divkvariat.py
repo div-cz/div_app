@@ -23,6 +23,9 @@
 # get_market_listings               |
 # listing_detail                    |
 # send_listing_cancel_email         |
+# send_listing_expired_email_buyer  |
+# send_listing_paid_expired_email_buyer
+# send_listing_paid_expired_email_seller
 # send_listing_payment_confirmation_email
 # send_listing_payment_email        |
 # send_listing_reservation_email    |
@@ -820,7 +823,6 @@ def send_listing_auto_completed_email_seller(listing):
 # -------------------------------------------------------------------
 #                    SEND LISTING CANCEL EMAIL
 # -------------------------------------------------------------------
-
 def send_listing_cancel_email(request_or_user, listing):
     def _send(user, listing):
         book = listing.book
@@ -856,6 +858,103 @@ def send_listing_cancel_email(request_or_user, listing):
         user = request_or_user
 
     threading.Thread(target=_send, args=(user, listing)).start()
+
+
+# -------------------------------------------------------------------
+#                    SEND LISTING EXPIRED EMAIL BUYER
+# -------------------------------------------------------------------
+def send_listing_expired_email_buyer(listing):
+    """Pošle e-mail kupujícímu o vypršení zaplacené transakce (PAID -> EXPIRED)."""
+    buyer = listing.buyer
+    if not buyer or not buyer.email:
+        return
+
+    book = listing.book
+    book_title = book.titlecz or book.title
+
+    context = {
+        'buyer_name': buyer.first_name or buyer.username,
+        'book_title': book_title,
+        'listing': listing,
+    }
+
+    html_email = render_to_string('emails/listing_expired_buyer.html', context)
+
+    msg = EmailMessage()
+    msg['Subject'] = f"Rezervace knihy {book_title} vypršela"
+    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+    msg['To'] = buyer.email
+    msg.set_content(html_email, subtype='html')
+
+    try:
+        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+            smtp.send_message(msg)
+        print(f"[✔] Automatický e-mail o vypršení rezervace odeslán na {buyer.email}")
+    except Exception as e:
+        print(f"[✖] Chyba při odesílání e-mailu (EXPIRED): {e}")
+
+
+# -------------------------------------------------------------------
+#                    SEND LISTING PAID EXPIRED EMAIL BUYER
+# -------------------------------------------------------------------
+def send_listing_paid_expired_email_buyer(listing):
+    """Pošle e-mail kupujícímu, že jeho zaplacená objednávka byla zrušena (prodejce nepotvrdil odeslání)."""
+    book = listing.book
+    buyer = listing.buyer
+
+    context = {
+        'buyer_name': buyer.first_name or buyer.username,
+        'book_title': book.titlecz or book.title,
+    }
+
+    recipient = buyer.email
+    html_email = render_to_string('emails/listing_paid_expired_buyer.html', context)
+
+    msg = EmailMessage()
+    msg['Subject'] = f"Objednávka knihy {book.titlecz or book.title} – zrušena"
+    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+    msg['To'] = recipient
+    msg.set_content(html_email, subtype='html')
+
+    try:
+        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+            smtp.send_message(msg)
+        print(f"[✔] E-mail kupujícímu {recipient} o expirované objednávce byl odeslán.")
+    except Exception as e:
+        print(f"[✖] Chyba při odesílání e-mailu kupujícímu: {e}")
+
+
+# -------------------------------------------------------------------
+#                    SEND LISTING PAID EXPIRED EMAIL SELLER
+# -------------------------------------------------------------------
+def send_listing_paid_expired_email_seller(listing):
+    """Pošle e-mail prodejci, že jeho nabídka byla zrušena (nepotvrdil odeslání)."""
+    book = listing.book
+    seller = listing.user
+
+    context = {
+        'seller_name': seller.first_name or seller.username,
+        'book_title': book.titlecz or book.title,
+    }
+
+    recipient = seller.email
+    html_email = render_to_string('emails/listing_paid_expired_seller.html', context)
+
+    msg = EmailMessage()
+    msg['Subject'] = f"Nabídka knihy {book.titlecz or book.title} – zrušena"
+    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+    msg['To'] = recipient
+    msg.set_content(html_email, subtype='html')
+
+    try:
+        with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+            smtp.send_message(msg)
+        print(f"[✔] E-mail prodejci {recipient} o expirované nabídce byl odeslán.")
+    except Exception as e:
+        print(f"[✖] Chyba při odesílání e-mailu prodejci: {e}")
 
 
 # -------------------------------------------------------------------

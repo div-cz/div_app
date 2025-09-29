@@ -13,7 +13,9 @@ from div_content.forms.index import ArticleForm, ArticlenewsForm
 from div_content.forms.movies import CommentForm, SearchForm
 from div_content.models import (
 
-    AATask, Article, Articlenews, Book, Bookcomments, Booklisting, Bookpurchase, Creator, Creatorbiography, Game, Metacharts, Metagenre, Metaindex, Metalocation,  Metastats, Movie, Moviecinema, Moviedistributor, Moviecomments, Moviecrew, Moviegenre, Movierating, Tvgenre, Tvshow, User, Userprofile
+    AATask, Article, Articlenews, Book, Bookcomments, Booklisting, Bookpurchase, Creator, Creatorbiography, Game, Gamecomments, 
+    Metacharts, Metagenre, Metaindex, Metalocation,  Metastats, Movie, Moviecinema, Moviedistributor, Moviecomments, Moviecrew, Moviegenre, Movierating, 
+    Tvgenre, Tvshow, User, Userprofile
 
 )
 from div_content.utils.books import get_market_listings
@@ -235,8 +237,9 @@ def index(request): # hlavní strana
 
     movies_comments_9 = Moviecomments.objects.select_related('movieid', 'user').order_by('-commentid').values('comment', 'movieid__titlecz', 'movieid__url', 'movieid', 'user', 'user__username')[:5]
     movies_comments_5 = Moviecomments.objects.select_related('movieid', 'user').order_by('-commentid').values('comment', 'movieid__titlecz', 'movieid__url', 'movieid', 'user', 'user__username')[:5]
-    movies_comments = Moviecomments.objects.select_related('movieid', 'user').order_by('-commentid')[:10]
-    books_comments = Bookcomments.objects.select_related('bookid', 'user').order_by('-commentid')[:10]
+    movies_comments = Moviecomments.objects.select_related('movieid', 'user').order_by('-dateadded')[:10]
+    books_comments = Bookcomments.objects.select_related('bookid', 'user').order_by('-dateadded')[:10]
+    games_comments = Gamecomments.objects.select_related('gameid', 'user').order_by('-dateadded')[:10]
     latest_comments = sorted(
         chain(movies_comments, books_comments),
         key=attrgetter('dateadded'), 
