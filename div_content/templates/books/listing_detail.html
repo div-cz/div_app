@@ -441,10 +441,44 @@
                     </form>
                 </div>
 
-                <div class="bg-gray-100 p-4 rounded">
-                    <p class="text-sm">Prosím dokončete transakci do 7 dnů od: <strong>{{ listing.updatedat|date:"j. n. Y" }}</strong></p>
-                    <p class="text-sm">Po tomto datu bude rezervace automaticky zrušena a peníze vráceny.</p>
-                </div>
+
+
+{% if deadline_date %}
+  <div class="bg-gray-100 p-4 rounded">
+    {% if listing.status == "RESERVED" %}
+      <p class="text-sm">
+        Prosím dokončete platbu do: 
+        <strong>{{ deadline_date|date:"j. n. Y" }}</strong>
+      </p>
+      <p class="text-sm">Po tomto datu bude rezervace automaticky zrušena.</p>
+    {% elif listing.status == "PAID" %}
+      <p class="text-sm">
+        Prodejce má čas potvrdit odeslání do: 
+        <strong>{{ deadline_date|date:"j. n. Y" }}</strong>
+      </p>
+      <p class="text-sm">Pokud kniha nebude odeslána, objednávka bude zrušena a peníze vráceny.</p>
+    {% endif %}
+  </div>
+{% endif %}
+
+{% if shipped_deadline %}
+  <div class="bg-gray-100 p-4 rounded">
+    <p class="text-sm">
+      Potvrďte prosím obdržení knihy do: 
+      <strong>{{ shipped_deadline|date:"j. n. Y" }}</strong>
+    </p>
+    <p class="text-sm">Po tomto datu bude transakce automaticky uzavřena.</p>
+  </div>
+{% endif %}
+
+{% if listing.status == 'COMPLETED' %}
+<div class="bg-gray-100 p-4 rounded">
+    <p class="text-sm">
+        <strong>Obchod byl ukončen dne:</strong> 
+        {{ listing.completedat|date:"j. n. Y" }}
+    </p>
+</div>
+{% endif %}
 
 			{% if user.is_authenticated %}
                 {% if can_cancel_reservation %}

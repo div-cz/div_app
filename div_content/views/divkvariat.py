@@ -60,6 +60,8 @@ import qrcode
 import threading
 import unicodedata
 
+from datetime import timedelta
+
 from div_content.models import Book, Booklisting, Userprofile
 
 from django.contrib.auth.decorators import login_required
@@ -470,7 +472,6 @@ def send_listing_request_seller_payment(listing,total_user_payment):
 # -------------------------------------------------------------------
 #                    LISTING DETAIL
 # -------------------------------------------------------------------
-
 def listing_detail(request, book_url, listing_id):
     book = get_object_or_404(Book, url=book_url)
     listing = get_object_or_404(Booklisting, booklistingid=listing_id, book=book)
@@ -484,21 +485,16 @@ def listing_detail(request, book_url, listing_id):
     user_pending_books = 0
     total_user_pending = 0
     total_user_paid_amount = 0
+    deadline_date = None
+    shipped_deadline = None
 
-    # Výpočet proměnné pro množství k vyplacení
-def listing_detail(request, book_url, listing_id):
-    book = get_object_or_404(Book, url=book_url)
-    listing = get_object_or_404(Booklisting, booklistingid=listing_id, book=book)
-    user = request.user
-
-    # defaulty pro nepřihlášeného
-    total_user_payment = 0
-    button_appear = False
-    user_sold_books = 0
-    user_buyed_books = 0
-    user_pending_books = 0
-    total_user_pending = 0
-    total_user_paid_amount = 0
+    # Výpočet deadlinů podle stavu
+    if listing.status == "RESERVED":
+        deadline_date = listing.updatedat + timedelta(days=7)
+    elif listing.status == "PAID":
+        deadline_date = listing.updatedat + timedelta(days=10)
+    elif listing.status == "SHIPPED":
+        shipped_deadline = listing.updatedat + timedelta(days=10)
 
     if request.user.is_authenticated:
         amount_to_pay = Booklisting.objects.filter(
@@ -723,6 +719,8 @@ def listing_detail(request, book_url, listing_id):
         'book': book,
         'listing': listing,
         'payment_info': payment_info,
+        'deadline_date': deadline_date,
+        'shipped_deadline': shipped_deadline, 
         'can_rate_seller': can_rate_seller,
         'can_rate_buyer': can_rate_buyer,
         'can_cancel_reservation': can_cancel_reservation,
