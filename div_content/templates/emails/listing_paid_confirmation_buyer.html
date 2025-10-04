@@ -1,15 +1,17 @@
 {% extends "emails/base_emails.html" %}
-
 {% block content %}
-
 <p style="margin-bottom: 10px;">Dobrý den <strong>{{ buyer_name }}</strong>,</p>
+<p>Vaše platba knihy: <strong>{{ book_title }}</strong> byla úspěšná.</p>
+<p>Zaplacená částka: <strong>{{ amount }} Kč</strong> 
+{% if shipping > 0 %}+ poštovné {{ shipping }} Kč{% else %}(osobní odběr){% endif %}</p>
 
-<p>Vaše platba knihy: <strong>{{ book_title }}</strong> byla úspěšná. </p>
-<p>Zaplacená částka: <strong>{{ amount }} Kč</strong> + poštovné {{shipping}} Kč</p>
-<p>Kupujícímu {{ seller_name }} byl zaslán e-mail s žádostí o zaslání knihy. Pokud vás do sedmi dnů nekontaktuje vrátíme vám plnou částku na účet.</p>
+{% if shipping > 0 %}
+<p>Prodávajícímu {{ seller_name }} byl zaslán e-mail s žádostí o zaslání knihy. Pokud vás do sedmi dnů nekontaktuje, vrátíme vám plnou částku na účet.</p>
+{% else %}
+<p>Domluvte se s prodávajícím {{ seller_name }} na předání knihy. Pokud se do sedmi dnů nedohodnete, vrátíme vám plnou částku na účet.</p>
+{% endif %}
+
 <p>V případě dotazů nás neváhejte kontaktovat na info@div.cz.</p>
-
 <p style="margin-top: 10px;">S pozdravem,</p>
 <p>Váš Divkvariát</p>
-
-{% endblock %} 
+{% endblock %}

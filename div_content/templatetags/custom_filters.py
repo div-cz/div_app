@@ -38,3 +38,14 @@ def div_get(value, index):
         return value[int(index)]
     except (IndexError, ValueError, TypeError):
         return ""
+
+@register.filter
+def format_shipping_name(name):
+    """Převede shipping_option na hezký název"""
+    mapping = {
+        'osobni_odber': 'Osobní odběr',
+        'zasilkovna': 'Zásilkovna',
+        'balikovna': 'Balíkovna',
+        'posta': 'Česká pošta',
+    }
+    return mapping.get(name.lower(), name.capitalize())

@@ -140,6 +140,9 @@ class BookListingForm(forms.ModelForm):
     def save(self, commit=True):
         instance = super().save(commit=False)
         options = []
+
+        if self.cleaned_data.get("personal_pickup"):
+            options.append("osobni_odber:0")
         if self.cleaned_data.get("shipping_zasilkovna"):
             price = self.cleaned_data.get("shipping_zasilkovna_price") or 0
             options.append(f"ZASILKOVNA:{price}")

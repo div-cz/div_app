@@ -1,28 +1,37 @@
 {% extends "emails/base_emails.html" %}
 
+
 {% block content %}
-
 <p style="margin-bottom: 10px;">Dobrý den <strong>{{ user_name }}</strong>,</p>
-
-<p>Vaše kniha: <strong>{{ book_title }}</strong> byla zakoupená uživatelem 
-
+<p>Vaše kniha: <strong>{{ book_title }}</strong> byla zakoupena uživatelem 
    {% if buyer_id %}
       <a href="https://div.cz/{% url 'myuser_detail' buyer_id %}">{{ buyer_name }}</a>
    {% else %}
       {{ buyer_name }}
    {% endif %}
-
 </p>
-<p>Zaplacená částka: <strong>{{ amount }} Kč</strong> + poštovné {{shipping}} Kč</p>
-<p> Adresa kupujícího: <strong>{{ shippingaddress }}</strong></p>
-<p>E-mail pro zásilkovnu: <strong>{{ buyer_email }}</strong></p>
-{% if buyer_phone %}
-<p> Telefon kupujícího: <strong>{{ buyer_phone }}</strong></p>
-{% endif %}
-<p>Prosím co nejdříve kupujícímu zašlete knihu.</p>
-<p>V případě dotazů nás neváhejte kontaktovat.</p>
+<p>Zaplacená částka: <strong>{{ amount }} Kč</strong> 
+{% if shipping > 0 %}+ poštovné {{ shipping }} Kč{% else %}(osobní odběr){% endif %}</p>
 
+{% if shipping > 0 %}
+<p>Adresa kupujícího: <strong>{{ shippingaddress }}</strong></p>
+<p>E-mail: <strong>{{ buyer_email }}</strong></p>
+{% if buyer_phone %}
+<p>Telefon: <strong>{{ buyer_phone }}</strong></p>
+{% endif %}
+<p><strong>Prosím co nejdříve kupujícímu zašlete knihu.</strong></p>
+{% else %}
+<p><strong>POZOR: Osobní odběr!</strong> Neposílejte knihu poštou.</p>
+<p>Kontakt na kupujícího pro domluvu předání:</p>
+<p>E-mail: <strong>{{ buyer_email }}</strong></p>
+{% if buyer_phone %}
+<p>Telefon: <strong>{{ buyer_phone }}</strong></p>
+{% endif %}
+<p><strong>Domluvte se s kupujícím na místě a čase předání knihy.</strong></p>
+{% endif %}
+
+
+<p>V případě dotazů nás neváhejte kontaktovat na info@div.cz.</p>
 <p style="margin-top: 10px;">S pozdravem,</p>
 <p>Váš Divkvariát</p>
-
-{% endblock %} 
+{% endblock %}

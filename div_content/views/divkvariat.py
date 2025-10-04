@@ -584,10 +584,11 @@ def listing_detail(request, book_url, listing_id):
                         commission = 0
                 except:
                     commission = 10 
-    
+
+
                 listing.commission = commission
                 shipping_price = request.POST.get("shipping")
-                listing.shipping = shipping_price or 0
+                listing.shipping = int(float(shipping_price)) if shipping_price else 0
                 shippingaddress = request.POST.get("shippingaddress", "").strip()
     
                 listing.status = 'RESERVED'

@@ -225,13 +225,16 @@
                             value="{{ request.user.userprofile.phone|default:'' }}">
                     </div>
 
-                    <select name="shipping_option" id="shipping_option" required onchange="updateShippingPrice()">
+
+                    <select name="shipping_option" id="shipping_option" class="dark:bg-[#1A161F]" required onchange="updateShippingPrice()">
                     {% for option in listing.shippingoptions|div_split:"," %}
                         <option value="{{ option|div_split:":"|div_get:1 }}">
-                        {{ option|div_split:":"|div_get:0|capfirst }} – {{ option|div_split:":"|div_get:1 }} Kč
+                            {{ option|div_split:":"|div_get:0|format_shipping_name }} – {{ option|div_split:":"|div_get:1 }} Kč
                         </option>
                     {% endfor %}
                     </select>
+
+
 
                     <input type="hidden" name="shipping" id="shipping" value="">
 
