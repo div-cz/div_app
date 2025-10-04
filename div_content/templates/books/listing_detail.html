@@ -99,13 +99,21 @@
             </p>
         </div>
 
-        <!-- ODESLAT KNIHU ALERT -->
-        {% if listing.status in 'RESERVED PAID SHIPPED' and listing.shippingaddress and listing.user == user %}
-        <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
-            <p class="font-medium">Knihu zašlete na adresu:</p>
-            <p>{{ listing.shippingaddress }}</p>
-        </div>
-        {% endif %}
+
+<!-- ODESLAT KNIHU ALERT -->
+{% if listing.status in 'RESERVED PAID SHIPPED' and listing.user == user %}
+    {% if listing.shipping and listing.shipping > 0 and listing.shippingaddress %}
+    <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
+        <p class="font-medium">Knihu zašlete na adresu:</p>
+        <p>{{ listing.shippingaddress }}</p>
+    </div>
+    {% elif listing.shipping == 0 %}
+    <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
+        <p class="font-medium">Osobní odběr - domluvte se s kupujícím na předání knihy</p>
+        <p>Kontakt: {{ listing.buyer.email }}{% if buyer_phone %}, tel: {{ buyer_phone }}{% endif %}</p>
+    </div>
+    {% endif %}
+{% endif %}
 
         <!-- HODNOCENÍ ALERT -->
         {% if listing.status == 'COMPLETED' %}
@@ -324,12 +332,12 @@
         <div class="card box-shadow mb-4">
             <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="text-xl font-semibold mb-4">Ohodnotit prodávajícího</h3>
-                <form method="post">
+                <form method="post" class="dark:bg-[#1A161F]">
                     {% csrf_token %}
                     <div class="mb-4">
                         <label class="block text-gray-700 mb-2">Hodnocení (1-5):</label>
-                        <select name="rating" class="w-full border  p-2">
-                            <option value="5">5 - Výborné</option>
+                        <select name="rating" class="w-full border  p-2" class="dark:bg-[#1A161F]">
+                            <option value="5" class="dark:bg-[#1A161F]">5 - Výborné</option>
                             <option value="4">4 - Velmi dobré</option>
                             <option value="3">3 - Dobré</option>
                             <option value="2">2 - Dostatečné</option>
@@ -350,11 +358,11 @@
         <div class="card box-shadow mb-4">
             <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="text-xl font-semibold mb-4">Ohodnotit kupujícího</h3>
-                <form method="post">
+                <form method="post" class="dark:bg-[#1A161F]">
                     {% csrf_token %}
                     <div class="mb-4">
                         <label class="block text-gray-700 mb-2">Hodnocení (1-5):</label>
-                        <select name="rating" class="w-full border  p-2">
+                        <select name="rating" class="w-full border  p-2" class="dark:bg-[#1A161F]">
                             <option value="5">5 - Výborné</option>
                             <option value="4">4 - Velmi dobré</option>
                             <option value="3">3 - Dobré</option>
@@ -377,11 +385,12 @@
         {% endif %}
 
         {% if listing.status == 'PAID' and user == listing.user %}
-        <div class="my-5 p-4 rounded-1xl bg-[#cfefcf] dark:bg-[#4FB021] alert-{{ message.tags }}" role="alert">Kupující zaplatil knihu, odešlete prosím knihu. <br>
+        <div class="my-5 p-4 rounded-1xl bg-[#cfefcf] dark:bg-[#4FB021] alert-{{ message.tags }}" role="alert">
+        Kupující zaplatil knihu. Předejte/odešlete ji prosím kupujícímu. <br>
             <form action="{% url 'confirm_shipping' book_url=book.url listing_id=listing.booklistingid %}" method="post">
                 {% csrf_token %}
                 <button type="submit" name="shipping_listing" class="add-book mt-4">
-                    Potvrdit odeslání knihy
+                    Potvrdit předání knihy
                 </button>
             </form>
         </div>
@@ -390,8 +399,8 @@
         <!-- POTVRZENÍ OBRDRŽENÍ KNIHY PAID -->
         {% if listing.status == 'PAID' and listing.buyer == user %}
         <div class="my-5 p-4 rounded-1xl bg-[#cfefcf] dark:bg-[#4FB021] alert-{{ message.tags }}" role="alert">
-            Čekáme na potvrzení, že prodejce poslal knihu. <br>
-            Kontaktovat ho můžete přes <a href="{% url 'chat_message' listing.user.id %}"> Chat <span style="color:blue">&#x2709;</span></a> 
+            Čekáme na potvrzení, že prodejce poslal/předal knihu. <br>
+            Kontaktovat ho můžete přes <a href="{% url 'chat_message' listing.user.id %}" style="color:blue"> Chat <span style="color:blue">&#x2709;</span></a> 
             <form action="{% url 'confirm_payment' book_url=book.url listing_id=listing.booklistingid %}" method="post">
                 {% csrf_token %}
                 <button type="submit" name="complete_listing" class="add-book mt-4">
