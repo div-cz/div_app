@@ -267,7 +267,7 @@ def check_payments_from_fio():
         if amount <= 0:
             continue  # zajímají nás jen příchozí platby            
         print("Kontroluji VS:", vs, "částka:", amount)
-        m = re.match(r"01038([23456])(\d{4})$", vs)
+        m = re.match(r"0?1038([23456])(\d{4})$", vs)
         if not m:
             continue
         fmt_num = m.group(1)
@@ -304,7 +304,7 @@ def check_payments_from_fio():
 
         # === Bookpurchase (eKniha) ===
         if fmt_num in ["2", "3", "4"]:
-            m = re.match(r"01038([23456])(\d{4})$", vs)
+            m = re.match(r"0?1038([23456])(\d{4})$", vs)
             if not m:
                 print(f"❌ VS {vs} neodpovídá očekávanému tvaru.")
                 continue

@@ -39,8 +39,11 @@ from div_content.models import (
 
 from div_content.forms.series import CommentForm, SearchForm, TrailerForm, TVShowDivRatingForm
 
+from django.contrib import messages
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
+
 from django.core.paginator import Paginator
 
 from django.db import models 
@@ -141,12 +144,14 @@ def series_list(request):
     )[:9]
 
     latest_comments = Tvshowcomments.objects.select_related('tvshowkid').filter(tvshowkid__isnull=False).order_by('-dateadded')[:3]
-  
+    total_tvshows = Tvshow.objects.count()
+
     return render(request, 'series/series_list.html', {
         'tvshows_list': tvshows_list, 
         'latest_seasons': latest_seasons,
         'category_key': 'filmy',
         'latest_comments': latest_comments,
+        'stats_tvshows': {'value':total_tvshows},
         })
 
 
@@ -626,7 +631,7 @@ def serie_detail(request, tv_url):
             messages.info(request, "Záznam už existuje.")
         else:
             messages.error(request, "Nepodařilo se přidat.")
-        return redirect('series_detail', show_url=tvshow.url)
+        return redirect('serie_detail', tv_url=tvshow.url)
 
     return render(request, 'series/serie_detail.html', {
         'tvshow': tvshow,

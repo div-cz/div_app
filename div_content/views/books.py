@@ -41,7 +41,7 @@ import requests
 import smtplib
 import unicodedata
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 from django.conf import settings
@@ -851,8 +851,16 @@ def rate_book(request, book_id):
 @login_required
 def ratequote(request, quote_id):
     quote = get_object_or_404(Bookquotes, pk=quote_id)
-    action = request.POST.get('action')
-
+    
+    # Parse JSON z body (místo request.POST)
+    try:
+        body_data = json.loads(request.body.decode('utf-8'))
+        action = body_data.get('action')
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({'error': 'Neplatný požadavek.'}, status=400)
+    
+    print(f"DEBUG: Action = {action}, Quote ID = {quote_id}, Initial thumbsup = {quote.thumbsup}")
+    
     # Zkontroluje cookies
     cookie_name = f'voted_{quote_id}'
     if request.COOKIES.get(cookie_name):
@@ -865,13 +873,18 @@ def ratequote(request, quote_id):
     elif action == 'thumbsdown':
         quote.thumbsdown += 1
         quote.divrating = (quote.divrating or 0) - 1
-
+    else:
+        return JsonResponse({'error': 'Neplatná akce.'}, status=400)
+    
+    print(f"DEBUG: After update - thumbsup = {quote.thumbsup}, divrating = {quote.divrating}")
+    
     quote.save()
+    print(f"DEBUG: Save succeeded? thumbsup in DB = {Bookquotes.objects.get(pk=quote_id).thumbsup}")  # Nech to pro test
 
     response = JsonResponse({'thumbsup': quote.thumbsup, 'thumbsdown': quote.thumbsdown, 'divrating': quote.divrating})
     
     # Nastaví cookie na týden
-    expires = timezone.now() + datetime.timedelta(days=7)
+    expires = timezone.now() + timedelta(days=7)
     response.set_cookie(cookie_name, 'voted', expires=expires)
     
     return response

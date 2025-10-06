@@ -235,22 +235,27 @@ class BookListingForm(forms.ModelForm):
 
 
 class Bookquoteform(forms.ModelForm):
-    bookcharacter = forms.ModelChoiceField(
-        queryset=Bookcharacter.objects.all(),
-        required=False,
-        label="Postava"
-    )
+    #POSTAVA
+    #bookcharacter = forms.ModelChoiceField(
+    #    queryset=Bookcharacter.objects.all(),
+    #    required=False,
+    #    label="Postava"
+    #)
     chapter = forms.IntegerField(
         required=False,
-        label="Kapitola"
+        label="Kapitola",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-input',  # CSS třída pro stylování
+            'placeholder': '1'  # Pomůže s uživatelskou přívětivostí
+        })
     )
     
     class Meta:
         model = Bookquotes
-        fields = ['quote', 'bookcharacter', 'chapter']  # Změna názvu pole zde
+        fields = ['quote', 'chapter']  # Změna názvu pole zde
         labels = {
             'quote': '',
-            'bookcharacter': 'Postava',  # Změna názvu pole zde
+            #'bookcharacter': 'Postava',  
             'chapter': 'Kapitola',
         }
         widgets = {
@@ -260,17 +265,18 @@ class Bookquoteform(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         bookid = kwargs.pop('bookid', None)  # Získáme `bookid` z kwargs
         super().__init__(*args, **kwargs)
-        if bookid:
-            self.fields['bookcharacter'].queryset = Bookcharacter.objects.filter(bookid=bookid)
+        # Postava
+        #if bookid:
+        #    self.fields['bookcharacter'].queryset = Bookcharacter.objects.filter(bookid=bookid)
 
     def save(self, commit=True, book=None):
         instance = super(Bookquoteform, self).save(commit=False)
-        # Nastavení správné instance Charactermeta na základě výběru z Bookcharacter
-        bookcharacter = self.cleaned_data.get('bookcharacter', None)
-        if bookcharacter:
-            instance.characterid = bookcharacter.characterid
-        else:
-            instance.characterid = None  # Nastavení prázdného řetězce, pokud není vybrána postava
+        # Postava
+        #bookcharacter = self.cleaned_data.get('bookcharacter', None)
+        #if bookcharacter:
+        #    instance.characterid = bookcharacter.characterid
+        #else:
+        #    instance.characterid = None  # Nastavení prázdného řetězce, pokud není vybrána postava
 
         # Nastavení bookid a následně authorid
         if book:

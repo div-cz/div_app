@@ -44,8 +44,8 @@ class Command(BaseCommand):
         )
         for listing in paid_listings:
             listing.status = 'EXPIRED'
-            listing.cancelreason = "Prodejce nepotvrdil odeslání knihy včas."
-            listing.save(update_fields=['status', 'cancelreason'])
+            #listing.cancelreason = "Prodejce nepotvrdil odeslání knihy včas."
+            listing.save(update_fields=['status'])
             print(f"[✔] Automaticky zrušeno (PAID -> EXPIRED): {listing.book.titlecz} (ID {listing.booklistingid})")
             try:
                 send_listing_paid_expired_email_buyer(listing)
