@@ -106,11 +106,26 @@
                                 <h4 class="card-title">
                                     <a href="/hra/{{ game.url }}">{{ game.title }}</a> ({{ game.year }})
                                 </h4>
+                                
                                 <div class="flex flex-wrap gap-1">
-                                    <span class="rounded bg-[#c0c0c0] dark:bg-[#0d0c0f] p-1 label"> 
-                                        <a href="">štítek</a>
+                                {% if game.platforms %}
+                                    {% for gameplatform in game.platforms %}
+                                    
+                                    <span class="rounded bg-[#c0c0c0] dark:bg-[#0d0c0f] p-1 label">
+                                        {% if gameplatform.url %}
+                                        <a href="{% url 'games_by_platform' gameplatform.url %}">{{ gameplatform.platform }}</a>
+                                        {% else %}
+                                            {{ gameplatform.platform }}
+                                        {% endif %}
                                     </span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="opacity-70">Žádné platformy</span>
+                                
+                                {% endif %}
                                 </div>
+
+
                             </div>
 
                             <!-- hodnocení -->

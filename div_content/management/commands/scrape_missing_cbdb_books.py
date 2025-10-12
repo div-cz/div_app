@@ -16,6 +16,8 @@ HEADERS = {
     "Accept-Language": "cs-CZ,cs;q=0.9,en;q=0.8",
 }
 
+#  nohup python manage.py scrape_missing_cbdb_books   --start-id 207198 --end-id 1000000   --output /div_app/div_app/cbdb_missing_03.jsonl   --delay 10 --resume --skip-jsonl   > /div_app/div_app/missing_cbdb_scraper.log 2>&1 &
+
 def build_book_url(book_id: int) -> str:
     return f"https://cbdb.cz/kniha-{book_id}"
 

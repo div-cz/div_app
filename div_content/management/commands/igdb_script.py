@@ -6,15 +6,15 @@ import time
 from div_content.models import Game
 from django.core.management.base import BaseCommand
 
-# nohup python manage.py igdb_script > div_app/igdb_log_02.log 2>&1 &
+# nohup python manage.py igdb_script > div_app/igdb_log_03.log 2>&1 &
 
 # Hide into env variables
 IGDB_ID = "wyfdqx678alz66zr0coud8ex9qxn3e"
 IGDB_SECRET = "qjvl95ic0wrwqa6mfdidbee54oc1on "
 IGDB_TOKEN = "o8s0odvsflgvt573dmfyca0v1bqhbn" # Renew every 60? days
 
-OUTPUT = "div_app/igdb_mapping_02.jsonl"
-NOT_FOUND_OUTPUT = "div_app/igdb_not_found_02.jsonl"
+OUTPUT = "div_app/igdb_mapping_04.jsonl"
+NOT_FOUND_OUTPUT = "div_app/igdb_not_found_03.jsonl"
 
 CONTROL_CHARS_RE = re.compile(r"[\x00-\x1F\x7F]")
 
@@ -38,7 +38,7 @@ class Command(BaseCommand):
         }
 
         with open(OUTPUT, "w", encoding="utf-8") as f:
-            games = Game.objects.filter(gameid__gte=10012)
+            games = Game.objects.filter(gameid__gte=98782) # ID hry
             for game in games: # modify
                 self.stdout.write(f"Hledám hru: {game.title}")
 
@@ -111,4 +111,4 @@ class Command(BaseCommand):
 
                 self.stdout.write(self.style.SUCCESS(f"{game.title} zapsán úspěšně pod {igdb_game}"))
 
-                time.sleep(0.3)
+                time.sleep(0.4)

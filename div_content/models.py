@@ -304,6 +304,7 @@ class Booklisting(models.Model):
         ('COMPLETED', 'Dokončeno'),
         ('CANCELLED', 'Zrušeno'),
         ('DELETED', 'Smazáno'),
+        ('EXPIRED', 'Expirováno'),
     )
     booklistingid = models.AutoField(db_column='BookListingID', primary_key=True)
     user = models.ForeignKey(User, db_column='user_id', on_delete=models.CASCADE)

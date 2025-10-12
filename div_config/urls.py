@@ -73,7 +73,7 @@ from div_content.views.games import (
     game_detail, game_add, games, add_to_favourite_games, rate_game, developer_list_ajax, platform_list_ajax, publisher_list_ajax, country_list_ajax, universum_list_ajax, remove_from_favourite_games, 
     add_to_playlist_games, remove_from_playlist_games, add_to_played, remove_from_played,
     add_to_game_library, remove_from_game_library, 
-    publishers_list, games_by_developer, games_by_publisher, games_by_genre, games_by_year, games_alphabetical, games_genres
+    publishers_list, games_by_developer, games_by_publisher, games_by_platform, games_by_genre, games_by_year, games_alphabetical, games_genres
     )
 # -------------------------------------------------------------------
 #                    CHARACTERS
@@ -266,6 +266,7 @@ urlpatterns = [
     # SEKCE HRY
     path('hry/', games, name='games_index'),
     path('hry/abecedne/', games_alphabetical, name='games_alphabetical'),
+    path('hry/platforma/<str:platform_url>', games_by_platform, name='games_by_platform'),
     path('hry/vydavatele/', publishers_list, name='publishers_list'),
     path('hry/vydavatel/<str:publisher_url>', games_by_publisher, name='games_by_publisher'),
     path('hry/vyvojar/<str:developer_url>', games_by_developer, name='games_by_developer'),
