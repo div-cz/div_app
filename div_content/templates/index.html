@@ -281,7 +281,7 @@
 
                                             <img src="data:image/png;base64,{{ request_qr_code }}" alt="QR Kód pro platbu" style="width: 192px;">
 
-                                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                                <p class="text-sm dark:text-gray-400">
                                                     Celková částka k vyplacení:
                                                     <span class="font-semibold text-blue-600 dark:text-blue-400">
                                                         {{ user_request.total_amount }} Kč
@@ -309,14 +309,14 @@
                             {% if user.is_superuser and last_ebook_purchases %}
                             <div class="card box-shadow mb-4">
                                 <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                <h3>Poslední nákupy eKnih (přehled pro superuser)</h3>
-                                <ul>
+                                    <h3>Poslední nákupy eKnih (přehled pro superuser)</h3>
+                                    <ul>
                                     {% for purchase in last_ebook_purchases %}
                                         <li>
                                             {{ purchase.user.username }} koupil {{ purchase.book.titlecz }} - {{ purchase.status }}
                                         </li>
                                     {% endfor %}
-                                </ul>
+                                    </ul>
                                 </div>
                             </div>
                             {% endif %}
@@ -346,7 +346,7 @@
                                     <h3>Moje obchody, které čekají na akci</h3>
                                     <ul>
                                     {% for listing in my_active_actions %}
-                                        <li class="mb-3">
+                                        <li class="mb-3 after last-line">
                                             <div class="flex items-start">
                                                 <!-- Obrázek knihy -->
                                                 <div class="mr-4" style="width:80px;">
@@ -362,19 +362,19 @@
                                                 <!-- Info -->
                                                 <div class="flex-grow">
                                                     <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
-                                                    class="text-blue-600 hover:underline font-semibold">
+                                                    class="ml-1">
                                                     {{ listing.book.titlecz|default:listing.book.title }}
                                                     </a><br>
 
-                                                    <span class="text-sm text-gray-600">
+                                                    <span class="text-sm">
                                                         Role: {% if listing.user == request.user %}Prodejce{% else %}Kupující{% endif %}
                                                     </span><br>
 
-                                                    <span class="text-sm text-gray-600">
+                                                    <span class="text-sm">
                                                         Datum: {{ listing.createdat|date:"j. n. Y" }}
                                                     </span><br>
 
-                                                    <span class="text-sm text-gray-600">
+                                                    <span class="text-sm">
                                                         Cena: {% if listing.price %}{{ listing.price }} Kč{% else %}0 Kč{% endif %}
                                                         {% if listing.shipping %}+ {{ listing.shipping }} Kč poštovné{% endif %}
                                                     </span><br>
@@ -453,24 +453,29 @@
                             <!--Moje potávky v div kvariátu-->
                             {% if user_wanted_purchases  %}
                             <div class="card box-shadow mb-4">
-                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                                <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                                     <h3>Moje poptávky v DIVkvariátu</h3>
                                     <ul>
-                                        {% for listing in user_wanted_purchases %}
+                                    {% for listing in user_wanted_purchases %}
                                         <li class="mb-3">
-                                            <div class="flex items-start"> 
-                                                <div class="mr-4 flex" style="width:100px; max-width:100px; flex-shrink: 0;">
-                                                    {% if listing.book.img == "noimg.png" %}
-                                                        <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
+                                            <div class="flex items-start">
+                                                <!-- Obrázek knihy -->
+                                                <div class="mr-4" style="width:80px;">
+                                                {% if listing.book.img == "noimg.png" %}
+                                                    <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz }}" class="w-full rounded">
                                                     {% elif  listing.book.img == "GoogleID" %}
-                                                        <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px;">
+                                                    <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz }}" class="w-full rounded">
                                                     {% else %}
-                                                        <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
-                                                    {% endif %}
+                                                    <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}" class="w-full rounded">
+                                                {% endif %}
                                                 </div>
                                 
+                                                <!-- Info -->
                                                 <div class="flex-grow">
-                                                    <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}" class="ml-1 text-blue-600 hover:underline">{{ listing.book.titlecz }}</a>
+                                                    <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}" class="ml-1">{{ listing.book.titlecz }}</a><br>
+
+                                                    <span class="text-sm mr-2 mb-2"> Cena: {{ listing.price }} Kč </span><br>
+
                                                     <div class="mt-1 font-semibold">
                                                         <span class="px-1 rounded-full text-sm
                                                             {% if listing.status == 'ACTIVE' %} text-[#61872B]
@@ -481,10 +486,6 @@
                                                         </span>
                                                     </div>
                                                     <span class="px-1 text-sm"> Datum vytvoření: {{ listing.createdat }}</span>
-                                                </div>
-
-                                                <div class="flex-shrink-0 ml-auto flex items-end"> 
-                                                    <span class="text-sm mr-2 mb-2"> Cena: {{ listing.price }} Kč </span>
                                                 </div>
                                             </div>
                                         </li>
