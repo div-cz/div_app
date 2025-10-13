@@ -280,7 +280,28 @@ def index(request): # hlavní strana
     games_carousel = Metaindex.objects.filter(
         section='Game'
     ).order_by('-indexid')[:10]
-    
+
+    # Mapování modelů
+    section_to_model = {
+        'Movie': Movie,
+        'TVShow': Tvshow,
+        'Book': Book,
+        'Game': Game,
+    }
+
+    # Získání průměrného hodnocení z tabulky star_ratings
+    for carousel in [movies_carousel, series_carousel, books_carousel, games_carousel]:
+        for item in carousel:
+            model_class = section_to_model.get(item.section)
+            if not model_class:
+                item.real_rating = 0
+                continue
+            content_type = ContentType.objects.get_for_model(model_class)
+            rating = Rating.objects.filter(content_type=content_type, object_id=item.item_id).first()
+            item.real_rating = round(float(rating.average) * 20) if rating and rating.average else 0
+
+
+
     recent_listings = get_market_listings()
 
     # Poslední nákupy eKnih pro superusera
