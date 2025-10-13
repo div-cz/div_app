@@ -267,19 +267,19 @@ def index(request): # hlavní strana
     # Data pro jednotlivé karusely z MetaIndex
     movies_carousel = Metaindex.objects.filter(
         section='Movie'
-    ).order_by('-divrating')[:7]  # Můžete upravit počet položek
+    ).order_by('-indexid')[:10]  # Můžete upravit počet položek
     
     series_carousel = Metaindex.objects.filter(
         section='TVShow'
-    ).order_by('-divrating')[:7]
+    ).order_by('-indexid')[:10]
     
     books_carousel = Metaindex.objects.filter(
         section='Book'
-    ).order_by('-divrating')[:7]
+    ).order_by('-indexid')[:10]
     
     games_carousel = Metaindex.objects.filter(
         section='Game'
-    ).order_by('-divrating')[:7]
+    ).order_by('-indexid')[:10]
     
     recent_listings = get_market_listings()
 

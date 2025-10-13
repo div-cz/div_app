@@ -12,6 +12,15 @@ DEFAULT_SHIPPING = {
     "posta": 99,
     }
 class BookListingForm(forms.ModelForm):
+    listingtype = forms.ChoiceField(
+        choices=[
+            ('SELL', 'Prodám'),
+            ('BUY', 'Koupím'),
+        ],
+        initial='SELL',
+        label='Typ',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
     CONDITION_CHOICES = [
         ("nova", "Nová"),
         ("jako-nova", "Použitá, jako nová"),
@@ -112,7 +121,7 @@ class BookListingForm(forms.ModelForm):
             'location': 'Místo'
         }
         widgets = {
-            'listingtype': forms.Select(attrs={'class': 'form-control'}),
+            #'listingtype': forms.Select(attrs={'class': 'form-control'}),
             'price': forms.NumberInput(attrs={'class': 'form-control'}),
             'shipping': forms.NumberInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'style': 'height:100px !important'}),

@@ -9,7 +9,7 @@
 <meta name="description" content="{{ book.description|default:""|striptags|truncatewords:30 }}"> 
 <meta name="keywords" content="{{ book.titlecz|default:book.title }}, knihy, literatura, DIV.cz"> 
 <meta property="og:title" content="{{ book.titlecz|default:book.title }}"> 
-<meta property="og:description" content="{{ book.description|striptags|truncatewords:30 }}"> 
+<meta property="og:description" content="{{ book.description|default:""|striptags|truncatewords:30 }}"> 
 <meta property="og:image" content="{% if book.img and book.img != 'noimg.png' %}https://media.div.cz/knihy/{{ book.img }}{% else %}/static/img/book/book.png{% endif %}"> 
 <meta property="og:url" content="https://div.cz/kniha/{{ book.url }}"> 
 <meta name="author" content="eKultura">
@@ -874,6 +874,39 @@
                 </form>               
             </div> -->
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const typeSelect = document.getElementById('id_listingtype');
+  const priceField = document.getElementById('id_price');
+  const priceWrapper = priceField?.closest('p'); // Najde <p> obal kolem price fieldu
+
+  function toggleFields() {
+    if (typeSelect.value === 'GIVE') {
+      // ✅ Nastav na 0 a změň typ na hidden (místo disabled)
+      priceField.value = 0;
+      priceField.type = 'hidden';
+      // Skryj label a celý wrapper
+      if (priceWrapper) {
+        priceWrapper.style.display = 'none';
+      }
+    } else {
+      // ✅ Vrať zpět na number input a zobraz
+      priceField.type = 'number';
+      if (priceWrapper) {
+        priceWrapper.style.display = 'block';
+      }
+      if (!priceField.value || priceField.value == 0) {
+        priceField.value = 100;
+      }
+    }
+  }
+
+  if (typeSelect) {
+    typeSelect.addEventListener('change', toggleFields);
+    toggleFields(); // init
+  }
+});
+</script>
             <!-- DIVKVARIÁT -->
             <div id="market">
                 <div id="tab5" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">

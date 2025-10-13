@@ -58,6 +58,17 @@
         </div>
         {% endif %}
 
+
+{% if listing.user == user and listing.status == 'ACTIVE' %}
+<div class="d-flex justify-content-end mb-3"> 
+    <a href="{% url 'listing_detail_edit' book_url=book.url listing_id=listing.booklistingid %}" 
+       class="btn btn-primary">
+        <i class="fas fa-pencil-alt"></i> Upravit nabídku
+    </a>
+</div>
+{% endif %}
+
+
         <div style="overflow:hidden; margin-bottom:16px;">  {# clearfix #}
             <a href="/kniha/{{ book.url }}">
                 {% if book.img == "noimg.png" %}
@@ -331,7 +342,7 @@
         {% if can_rate_seller %}
         <div class="card box-shadow mb-4">
             <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <h3 class="text-xl font-semibold mb-4">Ohodnotit prodávajícího</h3>
+                <h3 class="text-xl font-semibold mb-4">Ohodnotit prodávajícího {{ listing.user.username }}</h3>
                 <form method="post" class="dark:bg-[#1A161F]">
                     {% csrf_token %}
                     <div class="mb-4">
@@ -357,7 +368,7 @@
         {% if can_rate_buyer %}
         <div class="card box-shadow mb-4">
             <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <h3 class="text-xl font-semibold mb-4">Ohodnotit kupujícího</h3>
+                <h3 class="text-xl font-semibold mb-4">Ohodnotit kupujícího {{ listing.buyer.username }}</h3>
                 <form method="post" class="dark:bg-[#1A161F]">
                     {% csrf_token %}
                     <div class="mb-4">

@@ -177,7 +177,17 @@ class BookDivRatingForm(forms.ModelForm):
             'divrating': 'DIV Rating (0-99)',
         }
 
+# IMPORTUJE SE Z DIVKVARIATU
 class BookListingForm(forms.ModelForm):
+    listingtype = forms.ChoiceField(
+        choices=[
+            ('SELL', 'Prodám'),
+            ('BUY', 'Koupím'),
+        ],
+        initial='SELL',
+        label='Typ',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
     price = forms.DecimalField(
         max_digits=10, 
         required=True, 
@@ -215,7 +225,6 @@ class BookListingForm(forms.ModelForm):
             'location': 'Místo'
         }
         widgets = {
-            'listingtype': forms.Select(attrs={'class': 'form-control'}),
             'price': forms.NumberInput(attrs={'class': 'form-control'}),
             'shipping': forms.NumberInput(attrs={'class': 'form-control'}),
             'commission': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -227,11 +236,23 @@ class BookListingForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if not self.initial.get('listingtype'):
             self.initial['listingtype'] = 'SELL'
-        if self.initial.get('listingtype') == 'GIVE':
-            self.fields['price'].widget = forms.HiddenInput()
-            self.fields['shipping'].widget = forms.HiddenInput()
-            self.fields['commission'].widget = forms.HiddenInput()
-
+    
+    def clean(self):
+        """Validace - pokud je typ GIVE, vynuluj cenu a zkontroluj povinnost ceny"""
+        cleaned_data = super().clean()
+        listingtype = cleaned_data.get('listingtype')
+        price = cleaned_data.get('price')
+        
+        if listingtype == 'GIVE':
+            # ✅ Pro GIVE nastav cenu a provizi na 0
+            cleaned_data['price'] = 0
+            cleaned_data['commission'] = 0
+        else:
+            # ✅ Pro ostatní typy je cena povinná
+            if not price:
+                self.add_error('price', 'Cena je povinná pro prodej nebo koupi.')
+        
+        return cleaned_data
 
 
 class Bookquoteform(forms.ModelForm):

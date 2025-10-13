@@ -21,7 +21,9 @@
 # cancel_sell                       |
 # get_book_price                    |
 # get_market_listings               |
+# listing_add_book                  |
 # listing_detail                    |
+# listing_search_book               |
 # send_listing_cancel_email         |
 # send_listing_expired_email_buyer  |
 # send_listing_paid_expired_email_buyer
@@ -62,6 +64,7 @@ import unicodedata
 
 from datetime import timedelta
 
+from div_content.forms.divkvariat import BookListingForm
 from div_content.models import Book, Booklisting, Userprofile
 
 from django.contrib.auth.decorators import login_required
@@ -69,9 +72,10 @@ from django.contrib import messages
 from django.core.mail import EmailMessage 
 from django.core.paginator import Paginator
 
-from django.shortcuts import get_object_or_404, redirect, render
+from django.db.models import Sum, F, Q
+from django.http import JsonResponse
 
-from django.db.models import Sum, F
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 
 from django.utils.timezone import now
@@ -315,7 +319,7 @@ def book_listings(request, book_url):
 def books_market_offers(request):
     #View for sell/give offers
     sell_listings = (Booklisting.objects
-        .filter(listingtype__in=['SELL', 'GIVE'], active=True, status='ACTIVE')
+        .filter(listingtype__in=['SELL'], active=True, status='ACTIVE')
         .select_related('book', 'user')
         .order_by('-createdat'))
     
@@ -468,6 +472,60 @@ def send_listing_request_seller_payment(listing,total_user_payment):
         print(f"[✔] Superuser dostal e-mail ohledně žádosti o vyplácení odeslán na {recipient}")
     except Exception as e:
         print(f"[✖] Chyba při odesílání automatického e-mailu pro superuser: {e}")
+
+
+# -------------------------------------------------------------------
+#                    LISTING ADD_BOOK
+# -------------------------------------------------------------------
+def listing_add_book(request):
+    """Stránka pro přidání inzerátu - nejdřív vybereš knihu"""
+    user = request.user
+    
+    if not user.is_authenticated:
+        messages.warning(request, 'Pro vytvoření nabídky se musíte přihlásit.')
+        return redirect('login')
+    
+    booklisting_form = None
+    selected_book = None
+    
+    # Pokud už má book_id v GET (po výběru knihy)
+    book_id = request.GET.get('book_id')
+    if book_id:
+        try:
+            selected_book = Book.objects.get(bookid=book_id)
+        except Book.DoesNotExist:
+            messages.error(request, 'Kniha nebyla nalezena.')
+    
+    # POST - odesílání formuláře
+    if request.method == 'POST' and request.POST.get('form_type') == 'booklisting':
+        book_id = request.POST.get('book_id')
+        if not book_id:
+            messages.error(request, 'Musíte vybrat knihu.')
+        else:
+            try:
+                book = Book.objects.get(bookid=book_id)
+                booklisting_form = BookListingForm(request.POST, user=request.user)
+                
+                if booklisting_form.is_valid():
+                    listing = booklisting_form.save(commit=False)
+                    listing.user = request.user
+                    listing.book = book
+                    listing.paidtoseller = False
+                    listing.requestpayout = False
+                    listing.save()
+                    
+                    messages.success(request, f'Nabídka pro knihu "{book.title}" byla úspěšně vytvořena.')
+                    return redirect('book_detail', book_url=book.url)
+            except Book.DoesNotExist:
+                messages.error(request, 'Kniha nebyla nalezena.')
+    else:
+        if selected_book:
+            booklisting_form = BookListingForm(user=request.user)
+    
+    return render(request, 'books/listing_add_book.html', {
+        'booklisting_form': booklisting_form,
+        'selected_book': selected_book,
+    })
 
 # -------------------------------------------------------------------
 #                    LISTING DETAIL
@@ -742,6 +800,123 @@ def listing_detail(request, book_url, listing_id):
         'buyer_phone': buyer_phone,
     })
 
+
+
+# -------------------------------------------------------------------
+#                    LISTING DETAIL EDIT
+# -------------------------------------------------------------------
+@login_required
+def listing_detail_edit(request, book_url, listing_id):
+    """Editace existující nabídky - samostatná stránka"""
+    book = get_object_or_404(Book, url=book_url)
+    listing = get_object_or_404(Booklisting, booklistingid=listing_id, book=book, user=request.user)
+
+    # DEBUG - PŘIDEJ TOHLE
+    print("=" * 50)
+    print(f"DEBUG EDIT FORM:")
+    print(f"listing.price = {listing.price}")
+    print(f"type(listing.price) = {type(listing.price)}")
+    print(f"listing.price repr = {repr(listing.price)}")
+    print("=" * 50)
+    # KONEC DEBUG
+    
+    # Pouze ACTIVE nabídky lze editovat
+    if listing.status != 'ACTIVE':
+        messages.error(request, 'Tuto nabídku už nelze upravovat.')
+        return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
+    
+    if request.method == 'POST':
+        try:
+            new_price = int(request.POST.get('new_price', 0))
+        except (ValueError, TypeError):
+            new_price = listing.price or 0
+            
+        new_description = request.POST.get('new_description', '')
+        new_personal_pickup = 'new_personal_pickup' in request.POST
+        new_location = request.POST.get('new_location', '')
+        new_condition = request.POST.get('new_condition', '')
+        
+        # Zpracování shipping options
+        zasilkovna = request.POST.get('shipping_zasilkovna', '')
+        balikovna = request.POST.get('shipping_balikovna', '')
+        osobni = request.POST.get('shipping_osobni', '')
+        
+        # Vytvoření shippingoptions stringu
+        shipping_options = []
+        if zasilkovna:
+            shipping_options.append(f"zasilkovna:{zasilkovna}")
+        if balikovna:
+            shipping_options.append(f"balikovna:{balikovna}")
+        if osobni is not None and osobni != '':
+            shipping_options.append(f"osobni:{osobni}")
+        
+        listing.price = new_price
+        listing.shippingoptions = ",".join(shipping_options) if shipping_options else listing.shippingoptions
+        listing.personal_pickup = new_personal_pickup
+        listing.description = new_description
+        listing.location = new_location
+        listing.condition = new_condition
+        
+        listing.save()
+        
+        messages.success(request, 'Nabídka byla úspěšně aktualizována!')
+        return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
+    
+    # Parsování současných shipping options pro předvyplnění formuláře
+    current_shipping = {'zasilkovna': '49', 'balikovna': '69', 'osobni': '0'}
+    if listing.shippingoptions:
+        for opt in listing.shippingoptions.split(','):
+            parts = opt.split(':')
+            if len(parts) == 2:
+                current_shipping[parts[0]] = parts[1]
+    
+    # Debug - vypsat hodnoty
+    print(f"DEBUG: listing.price = {listing.price}, type = {type(listing.price)}")
+    
+    # Zajistit, že price je číslo nebo prázdný string
+    display_price = listing.price if listing.price is not None else ''
+    
+    return render(request, 'books/listing_edit.html', {
+        'book': book,
+        'listing': listing,
+        'current_shipping': current_shipping,
+        'display_price': display_price,  # Přidáno
+    })
+
+
+# -------------------------------------------------------------------
+# LISTING SEARCH BOOKS
+# -------------------------------------------------------------------
+def listing_search_books(request):
+    """Ajax endpoint pro vyhledávání knih"""
+    if request.method == 'GET' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        query = request.GET.get('q', '').strip()
+        
+        if len(query) < 2:
+            return JsonResponse({'results': []})
+        
+        # Hledání podle názvu nebo autora
+        books = Book.objects.filter(
+            Q(title__icontains=query) | 
+            Q(titlecz__icontains=query) |
+            Q(author__icontains=query)
+        ).order_by('-divrating')[:20]
+        
+        results = []
+        for book in books:
+            results.append({
+                'bookid': book.bookid,
+                'title': book.titlecz or book.title,
+                'author': book.author,
+                'year': book.year,
+                'img': book.img,
+                'googleid': book.googleid,
+                'url': book.url,
+            })
+        
+        return JsonResponse({'results': results})
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 # -------------------------------------------------------------------
 # SEND LISTING AUTO-COMPLETED EMAIL - BUYER

@@ -47,7 +47,7 @@ from div_content.views.creators import (
 # -------------------------------------------------------------------
 #                    DIVKVARIAT
 # -------------------------------------------------------------------
-from div_content.views.divkvariat import antikvariat_home, book_listings, cancel_listing_reservation, confirm_sale, cancel_sell, listing_detail
+from div_content.views.divkvariat import antikvariat_home, book_listings, cancel_listing_reservation, confirm_sale, cancel_sell, listing_add_book, listing_detail, listing_detail_edit, listing_search_books
 # -------------------------------------------------------------------
 #                    EBOOKS
 # -------------------------------------------------------------------
@@ -339,6 +339,7 @@ urlpatterns = [
     path('antikvariat/<str:book_url>/nabidky/', book_listings, name='book_listings'),
     path('antikvariat/<str:book_url>/prodej/<int:listing_id>/', listing_detail, name='listing_detail_sell'),
     path('antikvariat/<str:book_url>/poptavka/<int:listing_id>/', listing_detail, name='listing_detail_buy'),
+    path('antikvariat/<str:book_url>/prodej/<int:listing_id>/upravit', listing_detail_edit, name='listing_detail_edit'),
 
     path('antikvariat/uzivatel/<int:user_id>/prodej-knihy/', user_sell_listings, name='user_sell_listings'),
     path('antikvariat/uzivatel/<int:user_id>/koupim-knihy/', user_buy_listings, name='user_buy_listings'),
@@ -354,6 +355,8 @@ urlpatterns = [
     path('antikvariat/<str:book_url>/<int:listing_id>/confirm-shipping/', listing_detail, name='confirm_shipping'),
     path('antikvariat/<str:book_url>/<int:listing_id>/confirm-payment/', listing_detail, name='confirm_payment'),
 
+    path('antikvariat/pridat-knihu/', listing_add_book, name='listing_add_book'),
+    path('antikvariat/search-books/', listing_search_books, name='listing_search_books'),  
 #    path('kniha/<str:book_url>/nabidky/', book_listings, name='book_listings'),
 #    path('kniha/<str:book_url>/prodej/<int:listing_id>/', listing_detail, name='listing_detail_sell'),
 #    path('kniha/<str:book_url>/poptavka/<int:listing_id>/', listing_detail, name='listing_detail_buy'),

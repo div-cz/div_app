@@ -603,6 +603,11 @@ def book_detail(request, book_url):
                 listing.book = book
                 listing.paidtoseller = False
                 listing.requestpayout = False
+                # ✅ Pokud je typ "GIVE", vynuluj cenu, poštovné a provizi
+                if listing.listingtype == 'GIVE':
+                    listing.price = 0
+                    listing.commission = 0
+
                 listing.save()
                 messages.success(request, 'Nabídka byla úspěšně vytvořena.')
                 return redirect('book_detail', book_url=book_url)
@@ -613,7 +618,7 @@ def book_detail(request, book_url):
     listings = order_listings(
         Booklisting.objects.filter(book_id=book.bookid, active=True)
     )
-    sell_listings = listings.filter(listingtype__in=['SELL', 'GIVE'], status='ACTIVE')
+    sell_listings = listings.filter(listingtype__in=['SELL'], status='ACTIVE')
     buy_listings  = listings.filter(listingtype='BUY', status='ACTIVE')
 
 

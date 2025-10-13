@@ -2,6 +2,10 @@
 
 """Django Management Command pre aktualizáciu kníh z Dobrovský"""
 
+# python manage.py update_books --limit=100
+
+
+
 import logging
 from datetime import datetime
 
