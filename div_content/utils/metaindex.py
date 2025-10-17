@@ -1,4 +1,6 @@
-# utils/metaindex.py
+# -------------------------------------------------------------------
+#                    UTILS.METAINDEX.PY
+# -------------------------------------------------------------------
 
 from div_content.models import Metaindex
 from datetime import date

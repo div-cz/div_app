@@ -1,3 +1,7 @@
+# -------------------------------------------------------------------
+#                    VIEWS.FORUM.PY
+# -------------------------------------------------------------------
+
 from django.shortcuts import render, get_object_or_404, redirect
 from div_content.models import Forumsection, Forumtopic, Forumcomment
 from div_content.forms.forum import ForumTopicForm, ForumCommentForm, EditCommentForm, SearchForm
