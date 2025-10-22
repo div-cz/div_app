@@ -100,7 +100,8 @@ from div_content.views.locations import locations, location_detail
 # -------------------------------------------------------------------
 from div_content.views.movies import (
     movies_alphabetical, redirect_view, movie_detail, search, MovieDetailView, add_to_favourites, add_to_watchlist, add_to_watched, 
-    remove_from_favourites, remove_from_watchlist, remove_from_watched, add_to_movie_library, remove_from_movie_library, remove_movie_rating
+    ratequote_movie, remove_from_favourites, remove_from_watchlist, remove_from_watched, add_to_movie_library, 
+    remove_from_movie_library, remove_movie_rating
     )
 # -------------------------------------------------------------------
 #                    PAYMENTS
@@ -402,8 +403,9 @@ urlpatterns = [
     path('postava/odebrat-z-oblibenych-<int:character_id>', remove_character_from_favorites, name='remove_character_from_favorites'),
     path('postava/<str:character_url>', character_detail, name='character_detail'),
 
-
+	# Quotes
     path('quote/<int:quote_id>/rate/', ratequote, name='ratequote'),
+    path('moviequote/<int:quote_id>/rate/', ratequote_movie, name='ratequote_movie'),
 
 
     path('ratings/', include('star_ratings.urls', namespace='ratings')),

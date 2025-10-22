@@ -1574,6 +1574,9 @@ class Moviequotes(models.Model):
     quote = models.TextField(db_column='Quote')
     parentquote = models.ForeignKey('self', on_delete=models.CASCADE, db_column='ParentQuoteID', null=True, blank=True)
     divrating = models.IntegerField(db_column='DIVRating', default="0", db_index=True, blank=True, null=True)
+    divrating = models.IntegerField(db_column='DIVRating', default="0", db_index=True, blank=True, null=True)
+    thumbsup = models.IntegerField(default=0, db_column='ThumbsUp')
+    thumbsdown = models.IntegerField(default=0, db_column='ThumbsDown')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, db_column='user_id')  
 
     class Meta:

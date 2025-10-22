@@ -33,6 +33,8 @@
 import math
 
 from datetime import date
+from decimal import Decimal
+
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -43,10 +45,12 @@ from django.db.models import Avg, Count, F
 
 
 from django.db import connection
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from django.views.decorators.cache import cache_page
+from django.views.decorators.http import require_POST
+
 from django.views.generic import DetailView
 
 from div_content.forms.movies import CommentForm, MovieCinemaForm, MovieDivRatingForm, MovieErrorForm, SearchForm, TrailerForm
@@ -373,6 +377,53 @@ def movie_detail(request, movie_url):
     })
 
 
+# -------------------------------------------------------------------
+# F:                 RATEQUOTE MOVIE
+# -------------------------------------------------------------------
+@require_POST
+@login_required
+def ratequote_movie(request, quote_id):
+    from django.utils import timezone
+    from datetime import timedelta
+    import json
+    
+    quote = get_object_or_404(Moviequotes, quoteid=quote_id)
+    
+    # Parse JSON z body
+    try:
+        body_data = json.loads(request.body.decode('utf-8'))
+        action = body_data.get('action')
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({'error': 'Neplatný požadavek.'}, status=400)
+    
+    # Zkontroluje cookies
+    cookie_name = f'voted_movie_{quote_id}'
+    if request.COOKIES.get(cookie_name):
+        return JsonResponse({'error': 'Již jste hlasoval/a.'})
+
+    # Aktualizuje hodnocení
+    if action == 'thumbsup':
+        quote.thumbsup = (quote.thumbsup or 0) + 1
+        quote.divrating = (quote.divrating or 0) + 1
+    elif action == 'thumbsdown':
+        quote.thumbsdown = (quote.thumbsdown or 0) + 1
+        quote.divrating = (quote.divrating or 0) - 1
+    else:
+        return JsonResponse({'error': 'Neplatná akce.'}, status=400)
+    
+    quote.save()
+    
+    response = JsonResponse({
+        'thumbsup': quote.thumbsup or 0,
+        'thumbsdown': quote.thumbsdown or 0,
+        'divrating': quote.divrating or 0
+    })
+    
+    # Nastaví cookie na týden
+    expires = timezone.now() + timedelta(days=7)
+    response.set_cookie(cookie_name, 'voted', expires=expires)
+    
+    return response
 
 
 # -------------------------------------------------------------------
