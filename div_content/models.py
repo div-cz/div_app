@@ -1787,7 +1787,10 @@ class Tvshowtrivia(models.Model):
 
     def __str__(self):
         return f"{self.trivia[:50]}..."
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6cbfd91afd5c931668b1b2f5c38039b33b34d76f
 
 
 class Tvshowquotes(models.Model):

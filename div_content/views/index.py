@@ -189,6 +189,7 @@ def index(request): # hlavní strana
                     check = 98 - (int(tmp) % 97)
                     return f"CZ{check:02d}{bban}"
 
+
                 # IBAN pro účet z profilu nebo fallback
                 profile = getattr(first_listing.user, "userprofile", None)
                 account_raw = None

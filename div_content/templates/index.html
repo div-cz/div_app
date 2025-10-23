@@ -450,54 +450,50 @@
 
                             {% endif %}
 
-                            <!--Moje potávky v div kvariátu-->
-                            {% if user_wanted_purchases  %}
-                            <div class="card box-shadow mb-4">
-                                <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                                    <h3>Moje poptávky v DIVkvariátu</h3>
-                                    <ul>
-                                    {% for listing in user_wanted_purchases %}
-                                        <li class="mb-3">
-                                            <div class="flex items-start">
-                                                <!-- Obrázek knihy -->
-                                                <div class="mr-4" style="width:80px;">
-                                                {% if listing.book.img == "noimg.png" %}
-                                                    <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz }}" class="w-full rounded">
-                                                    {% elif  listing.book.img == "GoogleID" %}
-                                                    <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz }}" class="w-full rounded">
-                                                    {% else %}
-                                                    <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}" class="w-full rounded">
-                                                {% endif %}
-                                                </div>
-                                
-                                                <!-- Info -->
-                                                <div class="flex-grow">
-                                                    <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}" class="ml-1">{{ listing.book.titlecz }}</a><br>
+  <!--Moje potávky v div kvariátu-->
+{% if user_wanted_purchases  %}
+<div class="card box-shadow mb-4">
+    <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+        <h3>Moje poptávky v DIVkvariátu</h3>
+        <ul>
+            {% for listing in user_wanted_purchases %}
+            <li class="mb-3">
+                <div class="flex items-start"> 
+                    <div class="mr-4 flex" style="width:100px; max-width:100px; flex-shrink: 0;">
+                        {% if listing.book.img == "noimg.png" %}
+                            <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
+                        {% elif  listing.book.img == "GoogleID" %}
+                            <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px;">
+                        {% else %}
+                            <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
+                        {% endif %}
+                    </div>
+       
+    <div class="flex-grow">
+                        <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}" class="ml-1 text-blue-600 hover:underline">{{ listing.book.titlecz }}</a>
+                        <div class="mt-1 font-semibold">
+                            <span class="px-1 rounded-full text-sm
+                                {% if listing.status == 'ACTIVE' %} text-[#61872B]
+                                {% elif listing.status == 'RESERVED' %} text-[#A52B21]
+                                {% elif listing.status == 'COMPLETED' %} text-[#00A0E3]
+                                {% else %}{% endif %}">
+                                Status: {{ listing.get_status_display }}
+                            </span>
+                        </div>
+                        <span class="px-1 text-sm"> Datum vytvoření: {{ listing.createdat }}</span>
+                    </div>
 
-                                                    <span class="text-sm mr-2 mb-2"> Cena: {{ listing.price }} Kč </span><br>
+                    <div class="flex-shrink-0 ml-auto flex items-end"> 
+                        <span class="text-sm mr-2 mb-2"> Cena: {{ listing.price }} Kč </span>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
 
-                                                    <div class="mt-1 font-semibold">
-                                                        <span class="px-1 rounded-full text-sm
-                                                            {% if listing.status == 'ACTIVE' %} text-[#61872B]
-                                                            {% elif listing.status == 'RESERVED' %} text-[#A52B21]
-                                                            {% elif listing.status == 'COMPLETED' %} text-[#00A0E3]
-                                                            {% else %}{% endif %}">
-                                                            Status: {{ listing.get_status_display }}
-                                                        </span>
-                                                    </div>
-                                                    <span class="px-1 text-sm"> Datum vytvoření: {{ listing.createdat }}</span>
-                                                </div>
-
-                                                <div class="flex-shrink-0 ml-auto flex items-end"> 
-                                                    <span class="text-sm mr-2 mb-2"> Cena: {{ listing.price }} Kč </span>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            </div>
-                            {% endif %}
+{% endif %}
 
                             <!-- carousel filmy -->
                             <div class="card box-shadow mb-4">
@@ -722,17 +718,21 @@
                                             <!-- Text komentáře -->
                                             <p class="mt-1 text-sm">{{ comment.comment|truncatewords:20 }}</p>
 
-                                            <!-- Uživatel -->
-                                            <div style="text-align:right">
-                                                <small>
-                                                Uživatel: <a href="/uzivatel/{{ comment.user.username }}">{{ comment.user.username }}</a>
-                                                </small>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
+          <!-- Uživatel -->
+          <div style="text-align:right">
+            <small>
+              Uživatel: <a href="/uzivatel/{{ comment.user.username }}">{{ comment.user.username }}</a>
+            </small>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+
+
+
                         </div>
                     </div>
 
@@ -772,12 +772,12 @@
                         </div>
 
                         <!-- články -->
-                            <div class="card box-shadow mb-4">
-                            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                <div class="flex flex-wrap justify-between card-title after-h3">
-                                <h3 class="font-bold">Články</h3>
-                                <a href="{% url 'articles_index' %}"><small>Zobrazit vše</small></a>
-                                </div>
+<div class="card box-shadow mb-4">
+  <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+    <div class="flex flex-wrap justify-between card-title after-h3">
+      <h3 class="font-bold">Články</h3>
+      <a href="{% url 'articles_index' %}"><small>Zobrazit vše</small></a>
+    </div>
 
                                 {% for article in articles %}
                                 <div class="flex flex-wrap items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">

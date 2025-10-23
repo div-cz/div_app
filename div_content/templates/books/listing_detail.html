@@ -108,7 +108,15 @@
             </p>
         </div>
 
+        <!-- ODESLAT KNIHU ALERT -->
+        {% if listing.status in 'RESERVED PAID SHIPPED' and listing.shippingaddress and listing.user == user %}
+        <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
+            <p class="font-medium">Knihu zašlete na adresu:</p>
+            <p>{{ listing.shippingaddress }}</p>
+        </div>
+        {% endif %}
 
+<<<<<<< HEAD
         <!-- ODESLAT KNIHU ALERT -->
         {% if listing.status in 'RESERVED PAID SHIPPED' and listing.user == user %}
             {% if listing.shipping and listing.shipping > 0 and listing.shippingaddress %}
@@ -124,6 +132,8 @@
             {% endif %}
         {% endif %}
 
+=======
+>>>>>>> 6cbfd91afd5c931668b1b2f5c38039b33b34d76f
         <!-- HODNOCENÍ ALERT -->
         {% if listing.status == 'COMPLETED' %}
             {% if listing.user == user and not listing.buyerrating %}
@@ -245,7 +255,11 @@
                     <select name="shipping_option" id="shipping_option" required onchange="updateShippingPrice()">
                     {% for option in listing.shippingoptions|div_split:"," %}
                         <option value="{{ option|div_split:":"|div_get:1 }}">
+<<<<<<< HEAD
                             {{ option|div_split:":"|div_get:0|format_shipping_name }} – {{ option|div_split:":"|div_get:1 }} Kč
+=======
+                        {{ option|div_split:":"|div_get:0|capfirst }} – {{ option|div_split:":"|div_get:1 }} Kč
+>>>>>>> 6cbfd91afd5c931668b1b2f5c38039b33b34d76f
                         </option>
                     {% endfor %}
                     </select>
@@ -391,8 +405,12 @@
         {% endif %}
 
         {% if listing.status == 'PAID' and user == listing.user %}
+<<<<<<< HEAD
         <div class="my-5 p-4 rounded-1xl bg-[#cfefcf] dark:bg-[#4FB021] alert-{{ message.tags }}" role="alert">
         Kupující zaplatil knihu. Předejte/odešlete ji prosím kupujícímu. <br>
+=======
+        <div class="my-5 p-4 rounded-1xl bg-[#cfefcf] dark:bg-[#4FB021] alert-{{ message.tags }}" role="alert">Kupující zaplatil knihu, odešlete prosím knihu. <br>
+>>>>>>> 6cbfd91afd5c931668b1b2f5c38039b33b34d76f
             <form action="{% url 'confirm_shipping' book_url=book.url listing_id=listing.booklistingid %}" method="post">
                 {% csrf_token %}
                 <button type="submit" name="shipping_listing" class="add-book mt-4">
@@ -405,8 +423,13 @@
         <!-- POTVRZENÍ OBRDRŽENÍ KNIHY PAID -->
         {% if listing.status == 'PAID' and listing.buyer == user %}
         <div class="my-5 p-4 rounded-1xl bg-[#cfefcf] dark:bg-[#4FB021] alert-{{ message.tags }}" role="alert">
+<<<<<<< HEAD
             Čekáme na potvrzení, že prodejce poslal/předal knihu. <br>
             Kontaktovat ho můžete přes <a href="{% url 'chat_message' listing.user.id %}" style="color:blue"> Chat <span style="color:blue">&#x2709;</span></a> 
+=======
+            Čekáme na potvrzení, že prodejce poslal knihu. <br>
+            Kontaktovat ho můžete přes <a href="{% url 'chat_message' listing.user.id %}"> Chat <span style="color:blue">&#x2709;</span></a> 
+>>>>>>> 6cbfd91afd5c931668b1b2f5c38039b33b34d76f
             <form action="{% url 'confirm_payment' book_url=book.url listing_id=listing.booklistingid %}" method="post">
                 {% csrf_token %}
                 <button type="submit" name="complete_listing" class="add-book mt-4">

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% extends "user/base.html" %}
 
 {% load i18n %}
@@ -441,4 +442,453 @@
 
 {% block script %}
 <script src="/static/js/profileScrollScript.js"></script>
+=======
+{% extends "user/base.html" %}
+
+{% load i18n %}
+
+{% block title %}Profil  {{ profile_user.username }} {% endblock title %}
+
+{% block h1 %}{{ profile_user.username }}{% endblock h1 %}
+{% block text_muted %} na DIV.cz{% endblock text_muted %}
+
+{% block content %}
+
+<div class="mt-5">
+    <!-- Sekce záložek pro filmy, knihy, hry, statistiky -->
+    <div class="tab-profil md:pr-0 flex overflow-scroll lg:fit-content rounded-1xl dark:bg-[#1A161F] bg-[#FFFFFF]">
+        <div class="tab {% if active_tab == 'filmy' %}active{% endif %}">
+            <h3>
+                <i class="fa-solid fa-film mr-2"></i>
+                <a class="movies" href="{% url 'profile_movies_section' profile_user.id %}">Filmy</a>
+            </h3>
+        </div>
+        <div class="tab {% if active_tab == 'serialy' %}active{% endif %}">
+            <h3>
+                <i class="fa-solid fa-video mr-2"></i>
+                <a class="movies" href="{% url 'profile_series_section' profile_user.id %}">Seriály</a>
+            </h3>
+        </div>
+        <div class="tab {% if active_tab == 'knihy' %}active{% endif %}">
+            <h3>
+                <i class="fa-solid fa-book mr-2"></i>
+                <a class="books" href="{% url 'profile_books_section' profile_user.id %}">Knihy</a>
+            </h3>
+        </div>
+        <div class="tab {% if active_tab == 'hry' %}active{% endif %}">
+            <h3>
+                <i class="fa-solid fa-gamepad mr-2"></i>
+                <a class="games" href="{% url 'profile_games_section' profile_user.id %}">Hry</a>
+            </h3>
+        </div>
+        <!--<div class="tab {% if active_tab == 'statistiky' %}active{% endif %}">
+            <h3>
+                <i class="fas fa-star mr-2"></i>
+                <a class="stats" href="{% url 'profile_stats_section' profile_user.id %}">Statistiky</a>
+            </h3>
+        </div>-->
+        <!--<div class="tab {% if active_tab == 'vitrina' %}active{% endif %}">
+            <h3>
+                <i class="fa-solid fa-trophy mr-2"></i> 
+                <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
+            </h3>
+        </div>-->
+        <div class="tab {% if active_tab == 'obchod' %}active{% endif %}">
+            <h3>
+                <i class="fa-solid fa-cart-shopping mr-2"></i> 
+                <a class="stats" href="{% url 'profile_eshop_section' profile_user.id %}">Obchod</a>
+            </h3>
+        </div>
+        <!--<div class="tab {% if active_tab == 'komunita' %}active{% endif %}" >
+            <h3>
+                <i class="fas fa-user mr-2"></i>
+                <a class="stats" href="{% url 'profile_community_section' profile_user.id %}">Má komunita</a>
+            </h3>
+        </div>-->
+
+        <!-- Indikátor pozadí -->
+        <div class="background rounded-1xl"></div>
+
+    </div>
+    
+    <!-- Podkategorie záložek (hodnocení, oblíbené atd.) -->
+    <div class="row mt-5">
+        <ul class="nav nav-tabs overflow-scroll nav-tabs rounded-t-lg border dark:bg-[#1A161F] bg-[#FFFFFF]">
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link active" href="#" id="tab-hodnoceni" onclick="updateNavTabSelector(this)">Hodnocení</a>
+            </li>
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link" href="#" id="tab-oblibene" onclick="updateNavTabSelector(this)">Oblíbené</a>
+            </li>
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link" href="#" id="tab-recenze" onclick="updateNavTabSelector(this)">Recenze</a>
+            </li>
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link" href="#" id="tab-chci-hrat" onclick="updateNavTabSelector(this)">Chci hrát</a>
+            </li>
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link" href="#" id="tab-odehrano" onclick="updateNavTabSelector(this)">Odehráno</a>
+            </li>
+            <li class="nav-tabs-item">
+                <a class="nav-tabs-link" href="#" id="tab-gamoteka" onclick="updateNavTabSelector(this)">Gamotéka</a>
+            </li>
+            <!-- Indikátor pozadí -->
+            <div class="background"></div>
+        </ul>
+
+        <div class="tab-content w-full mb-3 bg-[#F9F9F9] dark:bg-[#1A161F]">
+            <!-- Tab Hodnocení -->
+            <div id="hodnoceni" class="tab-show w-full active {% if category == 'hodnoceni' %}active{% endif %}">
+                <h3 class="after-h3 padding">Hodnocení her</h3>
+                {% if game_ratings %}
+                <div class="table ">
+                    <div class="grid my-grid bg-[#c0c0c0] dark:text-black">
+                        <div class="font-bold p-1">Název</div>
+                        <div class="text-center font-bold p-1">Hodnocení</div>
+                        <div class="text-center font-bold p-1">Datum</div>
+                    </div>
+                    <div class="">
+                        {% for user_rating in game_page_obj.object_list %}
+                        <div class="grid border my-grid sudy">
+                            <div class="p-1">
+                                <a class="games" href="/hra/{{ user_rating.rating.content_object.url }}">
+                                    {% if user_rating.rating.content_object.titlecz %}
+                                    {{ user_rating.rating.content_object.titlecz }}
+                                    {% else %}
+                                    {{ user_rating.rating.content_object.title }}
+                                    {% endif %}
+                                </a> ({{ user_rating.rating.content_object.year }})
+                            </div>
+                            <div class="text-center p-1">
+                                {% with rating=user_rating.score %}
+                                <span class="text-warning h4 games">
+                                    {% for i in "12345" %}
+                                        {% if rating >= forloop.counter %}
+                                            &#9733;
+                                        {% else %}
+                                            &#9734;
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                                {% endwith %}
+                            </div>
+                            <div class="text-center p-1"> {{ user_rating.modified|date:"j. n Y" }} </div> <!-- datum -->
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- paginátor -->
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+                        {% if game_page_obj.has_previous %}
+                        <div>
+                            <a class="mr-4" href="?page=1#hodnoceni">&laquo; první</a>
+                            <a href="?page={{ game_page_obj.previous_page_number }}#hodnoceni">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if game_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page mx-4">
+                        Stránka {{ game_page_obj.number }} / {{ game_page_obj.paginator.num_pages }}
+                        </span>
+                        {% endif %}
+
+                        {% if game_page_obj.has_next %}
+                        <div>
+                            <a href="?page={{ game_page_obj.next_page_number }}#hodnoceni">další</a>
+                            <a class="ml-4" href="?page={{ game_page_obj.paginator.num_pages }}#hodnoceni">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>
+                {% else %}
+                <p  class="p-3">Žádné ohodnocené hry.</p>    
+                {% endif %}                      
+            </div>
+
+            <!-- Tab Oblíbené -->
+            <div id="oblibene" class="tab-show w-full {% if category == 'oblibene' %}active{% endif %}">
+                <h3 class="after-h3 padding">Oblíbené hry</h3>
+                {% if favorite_page_obj %}
+                <div class="table ">
+                    <div class="grid favorite-grid bg-[#c0c0c0] dark:text-black">
+                        <div class="font-bold p-1">Název</div>
+                        <div class="text-center font-bold p-1">Datum</div>
+                    </div>
+                    <div class="">
+                        {% for game, item in favorite_page_obj %}
+                        <div class="grid border favorite-grid sudy">
+                            <div class="p-1">
+                                <a class="games" href="/hra/{{ game.url }}">
+                                    {% if game.titlecz %}{{ game.titlecz }}{% else %}{{ game.title }}{% endif %}
+                                </a> ({{ game.year }})
+                            </div>
+                            <div class="text-center p-1"> {{ item.addedat|date:"j. n. Y" }} </div> <!-- datum -->
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- paginátor -->
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+                        {% if favorite_page_obj.has_previous %}
+                        <div>
+                            <a class="mr-4" href="?favorite_page=1#oblibene">&laquo; první</a>
+                            <a href="?favorite_page={{ favorite_page_obj.previous_page_number }}#oblibene">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if favorite_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page mx-4">
+                        Stránka {{ favorite_page_obj.number }} / {{ favorite_page_obj.paginator.num_pages }}
+                        </span>
+                        {% endif %}
+
+                        {% if favorite_page_obj.has_next %}
+                        <div>
+                            <a href="?favorite_page={{ favorite_page_obj.next_page_number }}#oblibene">další</a>
+                            <a class="ml-4" href="?favorite_page={{ favorite_page_obj.paginator.num_pages }}#oblibene">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>
+                {% else %}
+                    <p  class="p-3">Žádné oblíbené hry.</p>
+                {% endif %}
+            </div>
+
+            <!-- Tab Recenze -->
+            <div id="recenze" class="tab-show w-full {% if category == 'recenze' %}active{% endif %}">
+                <h3 class="after-h3 padding">Recenze her</h3>
+                {% if reviews_page_obj %}
+                <div class="table ">
+                    {% for review in reviews_page_obj %}
+                    <div class="flex border sudy">
+                        <div class="p-1">
+                            <img src="" style="object-fit: cover; width: 50px; height: auto;">
+                        </div>
+                        <div class="w-full">
+                            <div class="flex justify-between w-full">
+                                <div class="p-1"> <!-- HRA -->
+                                    <a class="games" href="/hra/{{ review.gameid.url }}">
+                                        {% if review.gameid.titlecz %}{{ review.gameid.titlecz }}{% else %}{{ review.gameid.title }}{% endif %}
+                                    </a> ({{ review.gameid.year }})
+                                </div>
+                                <div class="text-center p-1">
+                                    dd.mm.yyyy
+                                </div> <!-- KDY RECENZOVÁNO -->
+                            </div>
+                            <div class="p-1">
+                                {{ review.comment|truncatewords:10 }}
+                            </div> <!-- RECENZE -->
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- paginátor -->
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+
+                        {% if reviews_page_obj.has_previous %}
+                        <div>
+                            <a class="mr-4" href="?reviews_page=1#recenze">&laquo; první</a>
+                            <a href="?reviews_page={{ reviews_page_obj.previous_page_number }}#recenze">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if reviews_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page mx-4">
+                            Stránka {{ reviews_page_obj.number }} / {{ reviews_page_obj.paginator.num_pages }}</span>
+                        {% endif %}
+
+                        {% if reviews_page_obj.has_next %}
+                        <div>
+                            <a href="?reviews_page={{ reviews_page_obj.next_page_number }}#recenze">další</a>
+                            <a class="ml-4" href="?reviews_page={{ reviews_page_obj.paginator.num_pages }}#recenze">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>
+                {% else %}
+                    <p  class="p-3">Žádné recenze.</p>
+                {% endif %}
+
+            </div>
+
+            <!-- Tab Chci hrát -->
+            <div id="chci-hrat" class="tab-show w-full {% if category == 'chci-hrat' %}active{% endif %}">
+                <h3 class="after-h3 padding">Hry, které si chci zahrát</h3>
+                {% if wantplay_page_obj %}
+                <div class="table ">
+                    <div class="grid favorite-grid bg-[#c0c0c0] dark:text-black">
+                        <div class="font-bold p-1">Název</div>
+                        <div class="text-center font-bold p-1">Datum</div>
+                    </div>
+                    <div class="">
+                        
+                        {% for game, item in wantplay_page_obj %}
+                        <div class="grid border favorite-grid sudy">
+                            <div class="p-1">
+                                <a class="games" href="/hra/{{ game.url }}">
+                                    {% if game.titlecz %}{{ game.titlecz }}{% else %}{{ game.title }}{% endif %}
+                                </a> ({{ game.year }})
+                            </div>
+                            <div class="text-center p-1"> {{ item.addedat|date:"j. n. Y" }} </div> <!-- datum -->
+                        </div>
+                        {% endfor %}
+                       
+                    </div>
+                </div>
+
+                <!-- paginátor -->
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+                        {% if wantplay_page_obj.has_previous %}
+                        <div>
+                            <a class="mr-4" href="?wantplay_page=1#chci-hrat">&laquo; první</a>
+                            <a href="?wantplay_page={{ wantplay_page_obj.previous_page_number }}#chci-hrat">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if wantplay_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page mx-4">
+                        Stránka {{ wantplay_page_obj.number }} / {{ wantplay_page_obj.paginator.num_pages }}
+                        </span>
+                        {% endif %}
+
+                        {% if wantplay_page_obj.has_next %}
+                        <div>
+                            <a href="?wantplay_page={{ wantplay_page_obj.next_page_number }}#chci-hrat">další</a>
+                            <a class="ml-4" href="?wantplay_page={{ wantplay_page_obj.paginator.num_pages }}#chci-hrat">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>
+                {% else %}
+                    <p  class="p-3">Žádné hry v seznamu „Chci hrát“.</p>
+                {% endif %}
+            </div>
+
+            <!-- Tab Odehráno -->
+            <div id="odehrano" class="tab-show w-full {% if category == 'odehrano' %}active{% endif %}">
+                <h3 class="after-h3 padding">Odehrané hry</h3>
+                {% if played_page_obj %}
+                <div class="table ">
+                    <div class="grid favorite-grid bg-[#c0c0c0] dark:text-black">
+                        <div class="font-bold p-1">Název</div>
+                        <div class="text-center font-bold p-1">Datum</div>
+                    </div>
+                    <div class="">
+                        {% for game, item in played_page_obj %}
+                        <div class="grid border favorite-grid sudy">
+                            <div class="p-1">
+                                <a class="games" href="/hra/{{ game.url }}">
+                                    {% if game.titlecz %}{{ game.titlecz }}{% else %}{{ game.title }}{% endif %}
+                                </a> ({{ game.year }})
+                            </div>
+                            <div class="text-center p-1"> {{ item.addedat|date:"j. n. Y" }} </div> <!-- datum -->
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- paginátor -->
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+                        {% if played_page_obj.has_previous %}
+                        <div>
+                            <a class="mr-4" href="?playedgames_page=1#odehrano">&laquo; první</a>
+                            <a href="?playedgames_page={{ played_page_obj.previous_page_number }}#odehrano">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if played_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page mx-4">
+                        Stránka {{ played_page_obj.number }} / {{ played_page_obj.paginator.num_pages }}
+                        </span>
+                        {% endif %}
+
+                        {% if played_page_obj.has_next %}
+                        <div>
+                            <a href="?playedgames_page={{ played_page_obj.next_page_number }}#odehrano">další</a>
+                            <a class="ml-4" href="?playedgames_page={{ played_page_obj.paginator.num_pages }}#odehrano">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>
+                {% else %}
+                    <p  class="p-3">Žádné odehrané hry.</p>
+                {% endif %}
+            </div>
+
+            <!-- Tab Gamotéka -->
+            <div id="gamoteka" class="tab-show w-full {% if category == 'gamoteka' %}active{% endif %}">
+                <h3 class="after-h3 padding">Gamotéka</h3>
+                {% if gamoteka_page_obj %}
+                <div class="table ">
+                    <div class="grid favorite-grid bg-[#c0c0c0] dark:text-black">
+                        <div class="font-bold p-1">Název</div>
+                        <div class="text-center font-bold p-1">Datum</div>
+                    </div>
+                    <div class="">
+                        {% for game, item in gamoteka_page_obj %}
+                        <div class="grid border favorite-grid sudy">
+                            <div class="p-1">
+                                <a class="games" href="/hra/{{ game.url }}">
+                                    {% if game.titlecz %}{{ game.titlecz }}{% else %}{{ game.title }}{% endif %}
+                                </a> ({{ game.year }})
+                            </div>
+                            <div class="text-center p-1"> {{ item.addedat|date:"j. n. Y" }} </div> <!-- datum -->
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- paginátor -->
+                <div class="pagination mt-8">
+                    <span class="step-links flex justify-center">
+                        {% if gamoteka_page_obj.has_previous %}
+                        <div>
+                            <a class="mr-4" href="?gamoteka_page=1#gamoteka">&laquo; první</a>
+                            <a href="?gamoteka_page={{ gamoteka_page_obj.previous_page_number }}#gamoteka">předchozí</a>
+                        </div>
+                        {% endif %}
+
+                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
+                        {% if gamoteka_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page mx-4">
+                        Stránka {{ gamoteka_page_obj.number }} / {{ gamoteka_page_obj.paginator.num_pages }}
+                        </span>
+                        {% endif %}
+
+                        {% if gamoteka_page_obj.has_next %}
+                        <div>
+                            <a href="?gamoteka_page={{ gamoteka_page_obj.next_page_number }}#gamoteka">další</a>
+                            <a class="ml-4" href="?gamoteka_page={{ gamoteka_page_obj.paginator.num_pages }}#gamoteka">poslední &raquo;</a>
+                        </div>
+                        {% endif %}
+                    </span>
+                </div>
+                {% else %}
+                    <p  class="p-3">Žádné hry v Gamotéce.</p>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block script %}
+<script src="/static/js/profileScrollScript.js"></script>
+>>>>>>> 6cbfd91afd5c931668b1b2f5c38039b33b34d76f
 {% endblock %}

@@ -19,7 +19,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
 
 from django.db import models
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Prefetch, Subquery, OuterRef
 
 from django.http import JsonResponse
 
@@ -47,32 +47,45 @@ def games(request):
     #games = Game.objects.all().order_by('-divrating')[:20] 
     # Získáme hry včetně jejich hodnocení
     game_content_type = ContentType.objects.get_for_model(Game)
-    games = Game.objects.all().annotate(
-        average_rating=models.Subquery(
-            Rating.objects.filter(
-                content_type=game_content_type,
-                object_id=models.OuterRef('gameid')
-            ).values('average')[:1]
-        )
-    ).order_by('-divrating').values(
-        'title', 
-        'titlecz', 
-        'description', 
-        'descriptioncz', 
-        'year',
-        'url', 
-        'img',
-        'average_rating'
-    )[:20]
+    # games = Game.objects.all(
+    #     ).annotate( average_rating=models.Subquery( 
+    #         Rating.objects.filter( 
+    #             content_type=game_content_type, object_id=models.OuterRef('gameid') ).values('average')[:1] ) 
+    #             ).order_by('-divrating').values( 'title', 'titlecz', 'description', 'descriptioncz', 'year', 'url', 'img', 'average_rating' )[:20]
 
+    # latest_comments = Gamecomments.objects.order_by('-dateadded')[:3]
+    # # Zaokrouhlíme hodnoty na celá čísla a převedeme na procenta
+    # for game in games:
+    #     if game['average_rating'] is not None:
+    #         game['average_rating'] = round(float(game['average_rating']) * 20)  # převod z 5 na 100%
+    #     else:
+    #         game['average_rating'] = 0
+
+    games = (
+        Game.objects.annotate(
+            average_rating=models.Subquery(
+                Rating.objects.filter(
+                    content_type=game_content_type,
+                    object_id=models.OuterRef('gameid')
+                ).values('average')[:1]
+            )
+        ).prefetch_related(
+            Prefetch(
+                'gameplatform_set',
+                queryset=Gameplatform.objects.select_related('platformid'),
+                to_attr='platform_links'
+            )
+        ).order_by('-divrating')[:20]
+    )
     latest_comments = Gamecomments.objects.order_by('-dateadded')[:3]
-    # Zaokrouhlíme hodnoty na celá čísla a převedeme na procenta
+    
     for game in games:
-        if game['average_rating'] is not None:
-            game['average_rating'] = round(float(game['average_rating']) * 20)  # převod z 5 na 100%
+        if game.average_rating is not None:
+            game.average_rating = round(float(game.average_rating) * 20)
         else:
-            game['average_rating'] = 0
-    # //
+            game.average_rating = 0
+        game.platforms = [gameplatform.platformid for gameplatform in getattr(game, 'platform_links', [])]
+
     return render(request, 'games/games_list.html', {
         'games': games, 
         'carousel_games': carousel_games,
@@ -109,6 +122,20 @@ def games_by_developer(request, developer_url):
 
     return render(request, 'games/games_by_developer.html', {
         'developer': developer,
+        'games': games
+    })
+
+
+def games_by_platform(request, platform_url):
+    platform = get_object_or_404(Metaplatform, url=platform_url)
+    games = Game.objects.filter(gameplatform__platformid=platform).distinct()
+    
+    paginator = Paginator(games, 50)
+    page_number = request.GET.get('page')
+    games = paginator.get_page(page_number)
+
+    return render(request, 'games/games_by_platform.html', {
+        'platform': platform,
         'games': games
     })
 
