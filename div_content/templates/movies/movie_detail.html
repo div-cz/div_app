@@ -467,78 +467,71 @@
             <div id="tab5" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">        
                 <h3 class="after-h3">Známé hlášky z filmu</h3>
 
+                <!-- Výpis hlášek -->
+                <div class="mt-4">
+                    {% for quote in quotes %}
+                    <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded" data-quote-id="{{ quote.quoteid }}">
+                        <p class="text-sm after">{{ quote.quote }}</p>
+                        <div class="mt-2 text-end">
+                            <p>Vložil:
+                            {% if quote.user %}
+                                <a href="{% url 'user_profile_with_profil' user_id=quote.user.id %}">
+                                    {{ quote.user.username }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">Anonym</span>
+                            {% endif %}
+                            </p>
 
-<!-- Výpis hlášek -->
-<div class="mt-4">
-    {% for quote in quotes %}
-    <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded" data-quote-id="{{ quote.quoteid }}">
-        <p class="mb-1 text-sm">{{ quote.quote }}</p>
-        <hr class="my-2">
-        <div class="flex justify-between m-2">
-            <p class="mb-0">
-                Vložil:
-                {% if quote.user %}
-                    <a href="{% url 'user_profile_with_profil' user_id=quote.user.id %}" class="fw-bold text-success">
-                        {{ quote.user.username }}
-                    </a>
-                {% else %}
-                    <span class="text-muted">Anonym</span>
-                {% endif %}
-            </p>
+                            <div class="rating-buttons">
+                                <button class="thumb-btn" data-action="thumbsup" style="background:none;border:none;cursor:pointer;">
+                                    👍 <span>{{ quote.thumbsup|default:0 }}</span>
+                                </button>
+                                <button class="thumb-btn" data-action="thumbsdown" style="background:none;border:none;cursor:pointer;">
+                                    👎 <span>{{ quote.thumbsdown|default:0 }}</span>
+                                </button>
+                                <div class="star-display" style="display:inline-block;">
+                                    ⭐ <span>{{ quote.divrating|default:0 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-<div class="rating-buttons">
-    <button class="thumb-btn" data-action="thumbsup" style="background:none;border:none;cursor:pointer;">
-        👍 <span>{{ quote.thumbsup|default:0 }}</span>
-    </button>
-    <button class="thumb-btn" data-action="thumbsdown" style="background:none;border:none;cursor:pointer;">
-        👎 <span>{{ quote.thumbsdown|default:0 }}</span>
-    </button>
-    <div class="star-display" style="display:inline-block;">
-        ⭐ <span>{{ quote.divrating|default:0 }}</span>
-    </div>
-</div>
+                    {% empty %}
+                        <p>Žádná hláška u filmu není k dispozici.</p>
+                    {% endfor %}
+                </div>
 
-        </div>
-    </div>
-
-
-    {% empty %}
-        <p>Žádná hláška u filmu není k dispozici.</p>
-    {% endfor %}
-</div>
-
-<script>
-document.querySelectorAll('.thumb-btn').forEach(btn => {
-  btn.addEventListener('click', async e => {
-    const block = e.target.closest('[data-quote-id]');
-    if (!block) return;
-    const id = block.dataset.quoteId;
-    const action = e.target.dataset.action;
-    try {
-      const r = await fetch(`/moviequote/${id}/rate/`, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': '{{ csrf_token }}',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ action })
-      });
-      const data = await r.json();
-      if (data.error) {
-        alert(data.error);
-      } else {
-        block.querySelector('[data-action="thumbsup"] span').textContent = data.thumbsup;
-        block.querySelector('[data-action="thumbsdown"] span').textContent = data.thumbsdown;
-        block.querySelector('.star-display span').textContent = data.divrating;
-      }
-    } catch (err) {
-      console.error('Fetch error:', err);
-    }
-  });
-});
-</script>
-
-
+                <script>
+                    document.querySelectorAll('.thumb-btn').forEach(btn => {
+                        btn.addEventListener('click', async e => {
+                            const block = e.target.closest('[data-quote-id]');
+                            if (!block) return;
+                            const id = block.dataset.quoteId;
+                            const action = e.target.dataset.action;
+                            try {
+                            const r = await fetch(`/moviequote/${id}/rate/`, {
+                                method: 'POST',
+                                headers: {
+                                'X-CSRFToken': '{{ csrf_token }}',
+                                'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ action })
+                            });
+                            const data = await r.json();
+                            if (data.error) {
+                                alert(data.error);
+                            } else {
+                                block.querySelector('[data-action="thumbsup"] span').textContent = data.thumbsup;
+                                block.querySelector('[data-action="thumbsdown"] span').textContent = data.thumbsdown;
+                                block.querySelector('.star-display span').textContent = data.divrating;
+                            }
+                            } catch (err) {
+                                console.error('Fetch error:', err);
+                            }
+                        });
+                    });
+                </script>
 
                 <!-- přidat hlášku -->
                 {% if user.is_authenticated %}

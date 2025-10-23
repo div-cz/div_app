@@ -874,39 +874,40 @@
                 </form>               
             </div> -->
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const typeSelect = document.getElementById('id_listingtype');
-  const priceField = document.getElementById('id_price');
-  const priceWrapper = priceField?.closest('p'); // Najde <p> obal kolem price fieldu
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const typeSelect = document.getElementById('id_listingtype');
+                    const priceField = document.getElementById('id_price');
+                    const priceWrapper = priceField?.closest('p'); // Najde <p> obal kolem price fieldu
 
-  function toggleFields() {
-    if (typeSelect.value === 'GIVE') {
-      // ✅ Nastav na 0 a změň typ na hidden (místo disabled)
-      priceField.value = 0;
-      priceField.type = 'hidden';
-      // Skryj label a celý wrapper
-      if (priceWrapper) {
-        priceWrapper.style.display = 'none';
-      }
-    } else {
-      // ✅ Vrať zpět na number input a zobraz
-      priceField.type = 'number';
-      if (priceWrapper) {
-        priceWrapper.style.display = 'block';
-      }
-      if (!priceField.value || priceField.value == 0) {
-        priceField.value = 100;
-      }
-    }
-  }
+                    function toggleFields() {
+                        if (typeSelect.value === 'GIVE') {
+                        // ✅ Nastav na 0 a změň typ na hidden (místo disabled)
+                        priceField.value = 0;
+                        priceField.type = 'hidden';
+                        // Skryj label a celý wrapper
+                        if (priceWrapper) {
+                            priceWrapper.style.display = 'none';
+                        }
+                        } else {
+                        // ✅ Vrať zpět na number input a zobraz
+                        priceField.type = 'number';
+                        if (priceWrapper) {
+                            priceWrapper.style.display = 'block';
+                        }
+                        if (!priceField.value || priceField.value == 0) {
+                            priceField.value = 100;
+                        }
+                        }
+                    }
 
-  if (typeSelect) {
-    typeSelect.addEventListener('change', toggleFields);
-    toggleFields(); // init
-  }
-});
-</script>
+                    if (typeSelect) {
+                        typeSelect.addEventListener('change', toggleFields);
+                        toggleFields(); // init
+                    }
+                });
+            </script>
+
             <!-- DIVKVARIÁT -->
             <div id="market">
                 <div id="tab5" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">

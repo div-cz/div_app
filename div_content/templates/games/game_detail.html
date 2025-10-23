@@ -5,8 +5,6 @@
 
 {% block title %}{{ game.title }} | DIV.cz{% endblock %}
 
-
-
 {% block meta %}
 
 <meta property="og:url" content="https://div.cz/hra/{{ game.url }}">
@@ -105,9 +103,9 @@
             <!-- Kontrola, zda existuje seznam žánrů a není prázdný -->
             {% if genres %}
             <span>
-                {% for game_genre in genres %}
-                    <a href="/hry/zanr/{{ game_genre.genreid.url }}">{{ game_genre.genreid.genrenamecz }}</a>{% if not forloop.last %}, {% endif %}
-                {% endfor %}
+            {% for game_genre in genres %}
+                <a href="/hry/zanr/{{ game_genre.genreid.url }}">{{ game_genre.genreid.genrenamecz }}</a>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
             </span>
             &nbsp;|&nbsp;
             {% endif %}
@@ -166,12 +164,12 @@
                     </li>
                     
                     <li><strong>Vydavatel:</strong> 
-                        {% for publisher in publishers %}
-                            <a href="{% url 'games_by_publisher' publisher_url=publisher.publisherid.publisherurl %}">
-                                {{ publisher.publisherid.publisher }}
-                            </a>
-                            {% if not forloop.last %}, {% endif %}
-                        {% endfor %}
+                    {% for publisher in publishers %}
+                        <a href="{% url 'games_by_publisher' publisher_url=publisher.publisherid.publisherurl %}">
+                            {{ publisher.publisherid.publisher }}
+                        </a>
+                        {% if not forloop.last %}, {% endif %}
+                    {% endfor %}
                     </li>
                 </ul>
 

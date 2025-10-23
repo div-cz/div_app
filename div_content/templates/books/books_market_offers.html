@@ -61,13 +61,14 @@
             {% endfor %}
         </div>
 
+        <!-- paginátor -->
         <div class="pagination mt-8">
             <span class="step-links flex justify-center">
                 <div>
-                    {% if listings.has_previous %}
-                        <a href="?page=1">&laquo; první</a>
-                        <a href="?page={{ listings.previous_page_number }}">předchozí</a>
-                    {% endif %}
+                {% if listings.has_previous %}
+                    <a class="mr-4" href="?page=1">&laquo; první</a>
+                    <a href="?page={{ listings.previous_page_number }}">předchozí</a>
+                {% endif %}
                 </div>
 
                 <span class="current-page mx-4">
@@ -75,10 +76,10 @@
                 </span>
 
                 <div>
-                    {% if listings.has_next %}
-                        <a href="?page={{ listings.next_page_number }}">další</a>
-                        <a href="?page={{ listings.paginator.num_pages }}">poslední &raquo;</a>
-                    {% endif %}
+                {% if listings.has_next %}
+                    <a href="?page={{ listings.next_page_number }}">další</a>
+                    <a class="ml-4" href="?page={{ listings.paginator.num_pages }}">poslední &raquo;</a>
+                {% endif %}
                 </div>
             </span>
         </div>
