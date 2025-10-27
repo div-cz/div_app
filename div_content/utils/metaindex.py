@@ -35,7 +35,7 @@ def add_to_metaindex(instance, section):
             year=str(instance.releaseyear or ""),
             description=(instance.description or "")[:255],
             divrating=str(instance.divrating or "0"),
-            img=instance.img,
+            img=instance.imgposter,
             url=instance.url
         )
         return "added"

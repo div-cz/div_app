@@ -825,7 +825,7 @@
                                 {% cache 28800 creators_list_birth %} 
                                     {% for creator in creators_list_8 %}
                                     <div class="flex flex-wrap after last-line">
-                                        <img src="https://www.themoviedb.org/t/p/w300/{{ creator.img }}" class="" alt="{{ creator.lastname }}" style="width:100px;margin-right:10px;">
+                                        <img src="{% if creator.img == 'noimg.png' %}http://media.div.cz/media/noperson.svg{% else %}https://www.themoviedb.org/t/p/w300/{{ creator.img }}{% endif %}" class="" alt="{{ creator.lastname }}" style="width:100px;margin-right:10px;">
                                         <div class="flex flex-wrap" style="flex: 2;">
                                             <h3 class="mt-2"><a href="{% url 'creator_detail' creator.url %}" class="mb-4 w-full font-bold">{{ creator.firstname }} {{ creator.lastname }}</a></h3>
                                             <p class="card-text w-full">{{ creator.birthdate|date:"d.m.Y" }}</p>

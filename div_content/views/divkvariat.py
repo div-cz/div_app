@@ -514,7 +514,8 @@ def listing_add_book(request):
                     listing.requestpayout = False
                     listing.save()
                     
-                    messages.success(request, f'Nabídka pro knihu "{book.title}" byla úspěšně vytvořena.')
+                    title = book.title or book.titlecz
+                    messages.success(request, f'Nabídka pro knihu "{title}" byla úspěšně vytvořena - <a href=\"https://magic.div.cz/antikvariat/pridat-knihu/\">Vytvořit novou</a>.')
                     return redirect('book_detail', book_url=book.url)
             except Book.DoesNotExist:
                 messages.error(request, 'Kniha nebyla nalezena.')
