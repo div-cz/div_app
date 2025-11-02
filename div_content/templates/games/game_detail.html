@@ -294,9 +294,9 @@
 
                     <!-- výpis recenzí -->
                     {% if comments %}
-                    <ul class="list-unstyled mt-3 komentar">
+                    <ul class="list-unstyled card komentar">
                         {% for comment in comments %}
-                        <li class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
+                        <li class="card-body">
                             <p class="koment after">{{ comment.comment }}</p>
                             <div class="user">
                                 <p>{{ comment.dateadded }}</p>
@@ -343,9 +343,9 @@
 
                 <h4 class="mt-4">Aktivní nabídky</h4>
                 {% if sell_listings %}
-                    <ul class="list-unstyled">
+                    <ul class="list-unstyled card ">
                         {% for listing in sell_listings %}
-                        <li class="card card-body mb-2">
+                        <li class="card-body">
                             <strong>{{ listing.user.username }}</strong> –
                             {% if listing.price %}
                                 {{ listing.price|floatformat:0 }} Kč
@@ -364,9 +364,9 @@
 
                 <h4 class="mt-4">Poptávky</h4>
                 {% if buy_listings %}
-                <ul class="list-unstyled">
+                <ul class="list-unstyled card ">
                     {% for listing in buy_listings %}
-                    <li class="card card-body mb-2">
+                    <li class="card-body">
                         <strong>{{ listing.user.username }}</strong> chce koupit
                         {% if listing.price %}
                             za {{ listing.price|floatformat:0 }} Kč
@@ -386,8 +386,8 @@
     <div class="right-side">
 
         <!-- Hodnocení -->
-        <div class="card box-shadow mb-4 mt-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 style="text-align:center" class="after font-bold">Hodnocení</h3>
                 <div class="grid columns">
                     <div class="rating" data-rating="{{ game.average_rating }}">
@@ -432,8 +432,8 @@
         </div>
 
         {% if request.user.is_superuser %}
-        <div class="card box-shadow mb-3">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title">Přidat na hlavní stranu</h3>
                 <form method="post">
                     {% csrf_token %}
@@ -446,8 +446,8 @@
         {% endif %}
         
         {% if request.user.is_superuser %}
-        <div class="card box-shadow mb-3">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title">Upravit DIV Rating</h3>
                 <form method="post">
                     {% csrf_token %}
@@ -458,8 +458,8 @@
         </div>
         {% endif %}
 
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title font-bold after-h3">{{ game.titlecz }}</h3>
                 <p class="card-text">Sdílet na:</p>
 
@@ -487,8 +487,8 @@
         </div>
 
         <!-- Tags -->
-        <div class="card box-shadow mb-3 d-none d-lg-block">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title font-bold after-h3">Tagy</h3>
                 <div class="flex flex-wrap gap-1">
                     {% for game_genre in genres %}

@@ -226,8 +226,8 @@
 
         <p>{{ tvshow.description|default:"Žádný popis není k dispozici. Máš informace o tomto seriálu? Pomoz nám doplnit popis."|safe }}</p>
         
-        <div class="my-4">
-            <div class="card card-body box-shadow w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="after-h3">Sezóny</h3>
                 <div class="grid lg:grid-colums-2 dm:grid-colums-1">
                     {% if content_season_page %}
@@ -312,9 +312,9 @@
                     Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
                     {% endif %}
 
-                    <ul class="list-unstyled mt-3 komentar">
+                    <ul class="list-unstyled card komentar">
                         {% for comment in comments %}
-                        <li class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
+                        <li class="card-body">
                             <p class="koment after">{{ comment.comment }}</p>
 
                             <div class="user flex justify-between items-center">
@@ -405,9 +405,9 @@
                 {% endif %}
 
                 <!-- výpis zajímavostí -->
-                <div class="mt-4">
+                <div class="card">
                     {% for item in trivia %}
-                    <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
+                    <div class="card-body">
                         <p class="after">{{ item.trivia|safe }}</p>
                         <div class="mt-2 text-end">
                             <p>Přidal: 
@@ -481,9 +481,9 @@
                 {% endif %}
 
                 <!-- výpis hlášek -->
-                <div class="mt-4">
+                <div class="card">
                     {% for quote in quotes %}
-                    <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
+                    <div class="card-body">
                         <p class="after">{{ quote.quote }}</p>
                         <div class="mt-2 text-end">
                             <span>Přidal: </span>
@@ -506,8 +506,8 @@
     <div class="right-side">
 
         <!-- Hodnocení -->
-        <div class="card box-shadow mb-4 mt-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 style="text-align:center" class="after font-bold">Hodnocení</h3>
                 <div class="grid columns">
                     <div class="rating" data-rating="{{ average_rating }}">
@@ -560,8 +560,8 @@
         </form>-->
         {% endif %}
         {% if request.user.is_superuser or request.user.is_staff %}
-        <div class="card box-shadow mb-3">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title">Upravit DIV Rating</h3>
                 <form method="post">
                     {% csrf_token %}
@@ -572,8 +572,8 @@
         </div>
         {% endif %}
 
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title font-bold after-h3">Sezóny</h3>
                 <div class="flex flex-wrap">
                     {% if serie_page %}
@@ -611,8 +611,8 @@
             </div>
         </div>
 
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title font-bold after-h3">{{ tvshow.titlecz }}</h3>
                 <p class="card-text">Sdílet na:</p>
 
@@ -639,8 +639,8 @@
         </div>
 
         <!-- Tags -->
-        <div class="card box-shadow mb-3 d-none d-lg-block">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title font-bold after-h3">Tagy</h3>
                 <div class="flex flex-wrap gap-1">
                     <span class="rounded bg-[#c0c0c0] dark:bg-[#0d0c0f] p-1 label"> 

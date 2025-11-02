@@ -181,7 +181,7 @@
                 
                 <div class="container">
                     <!-- LEVÁ STRANA-->
-                    <div class="col-lg-8">
+                    <div class="left-side">
                         <!-- carousel -->
                         <div class="carousel-container-index box-shadow rounded-1xl relative flex items-center mb-4">
                             <div id="films-carousel" class="carousel-index carousel-fade">
@@ -244,19 +244,19 @@
                             </div>
                         </div>
 
-{% if messages %}
-    <div class="mt-3">
-    {% for message in messages %}
-        <div class="my-5 p-4 rounded-1xl bg-[#cfefcf] dark:bg-[#4FB021] alert-{{ message.tags }}" role="alert">
-            {{ message|safe }}
-        </div>
-    {% endfor %}
-    </div>
-{% endif %}
+                        {% if messages %}
+                        <div class="mt-3">
+                        {% for message in messages %}
+                            <div class="my-5 p-4 rounded-1xl bg-[#cfefcf] dark:bg-[#4FB021] alert-{{ message.tags }}" role="alert">
+                                {{ message|safe }}
+                            </div>
+                        {% endfor %}
+                        </div>
+                        {% endif %}
 
                         <div class="grid grid-cols-1">
-                            <div class="card box-shadow mb-4">
-                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                            <div class="card">
+                                <div class="card-body">
                                     <p class="text-center">
                                         DIV.cz je stránka, která propojuje <a href="/knihy/">knihy</a>, <a href="/filmy/">filmy</a> a <a href="/hry/">hry</a> skrze postavy, lokality a
                                         další prvky.
@@ -264,171 +264,171 @@
                                 </div>
                             </div>
 
-<!-- -->
-{% if pending_payouts_list and user.is_superuser and user.username == "Martin" %}
-<div class="card box-shadow mb-4">
-    <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-        <h3>Výplata pro prodejcee (přehled pro superuser)</h3>
-        <div class="flex flex-col gap-4">
-            {% for user_request in pending_payouts_list%}
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center">
-                <div>
-                    <p class="mb-1 text-lg font-bold text-gray-900 dark:text-gray-100">
-                        Prodávající: {{ user_request.user_name|default:user_request.username }}
-                        <br>
-                        Číslo účtu: {{ bank_account}}
-                    </p>
+                            <!-- -->
+                            {% if pending_payouts_list and user.is_superuser and user.username == "Martin" %}
+                            <div class="card">
+                                <div class="card-body">
+                                    <h3>Výplata pro prodejcee (přehled pro superuser)</h3>
+                                    <div class="flex flex-col gap-4">
+                                        {% for user_request in pending_payouts_list%}
+                                        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center">
+                                            <div>
+                                                <p class="mb-1 text-lg font-bold text-gray-900 dark:text-gray-100">
+                                                    Prodávající: {{ user_request.user_name|default:user_request.username }}
+                                                    <br>
+                                                    Číslo účtu: {{ bank_account}}
+                                                </p>
 
-                <img src="data:image/png;base64,{{ request_qr_code }}" alt="QR Kód pro platbu" style="width: 192px;">
+                                            <img src="data:image/png;base64,{{ request_qr_code }}" alt="QR Kód pro platbu" style="width: 192px;">
 
-                    <p class="text-sm dark:text-gray-400">
-                        Celková částka k vyplacení:
-                        <span class="font-semibold text-blue-600 dark:text-blue-400">
-                            {{ user_request.total_amount }} Kč
-                        </span>
-                    </p>
-                </div>
-                <form method="post" class="ml-4">
-                    {% csrf_token %}
-                    <input type="hidden" name="user_id" value="{{ user_request.user }}">
-                    <button type="submit" name="confirm_user_payment"
-                            class="btn btn-primary mt-2">
-                        Potvrdit vyplacení
-                    </button>
-                </form>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-{% endif %}
+                                                <p class="text-sm dark:text-gray-400">
+                                                    Celková částka k vyplacení:
+                                                    <span class="font-semibold text-blue-600 dark:text-blue-400">
+                                                        {{ user_request.total_amount }} Kč
+                                                    </span>
+                                                </p>
+                                            </div>
+                                            <form method="post" class="ml-4">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="user_id" value="{{ user_request.user }}">
+                                                <button type="submit" name="confirm_user_payment"
+                                                        class="btn btn-primary mt-2">
+                                                    Potvrdit vyplacení
+                                                </button>
+                                            </form>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
 
-<!-- objednávky potvrzení -->
-{% if user.is_authenticated %}
-    <!-- Poslední nákupy eKnih -->
-    {% if user.is_superuser and last_ebook_purchases %}
-    <div class="card box-shadow mb-4">
-        <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-        <h3>Poslední nákupy eKnih (přehled pro superuser)</h3>
-        <ul>
-            {% for purchase in last_ebook_purchases %}
-                <li>
-                    {{ purchase.user.username }} koupil {{ purchase.book.titlecz }} - {{ purchase.status }}
-                </li>
-            {% endfor %}
-        </ul>
-        </div>
-    </div>
-    {% endif %}
+                            <!-- objednávky potvrzení -->
+                            {% if user.is_authenticated %}
+                                <!-- Poslední nákupy eKnih -->
+                                {% if user.is_superuser and last_ebook_purchases %}
+                                <div class="card">
+                                    <div class="card-body">
+                                    <h3>Poslední nákupy eKnih (přehled pro superuser)</h3>
+                                    <ul>
+                                        {% for purchase in last_ebook_purchases %}
+                                            <li>
+                                                {{ purchase.user.username }} koupil {{ purchase.book.titlecz }} - {{ purchase.status }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                    </div>
+                                </div>
+                                {% endif %}
 
-    <!-- Moje nákupy v DIVkvariátu -->
-    {% if pending_book_purchases %}
-    <div class="card box-shadow mb-4">
-        <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-            <h3>Moje nákupy v DIVkvariátu</h3>
-            <ul>
-                {% for listing in pending_book_purchases %}
-                    <li>
-                        {{ listing.book.titlecz }} - Čeká na platbu
-                        <br>
-                        <img src="{% url 'show_qr_payment' listing.id %}" alt="QR kód pro platbu">
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-    {% endif %}
+                                <!-- Moje nákupy v DIVkvariátu -->
+                                {% if pending_book_purchases %}
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h3>Moje nákupy v DIVkvariátu</h3>
+                                        <ul>
+                                            {% for listing in pending_book_purchases %}
+                                                <li>
+                                                    {{ listing.book.titlecz }} - Čeká na platbu
+                                                    <br>
+                                                    <img src="{% url 'show_qr_payment' listing.id %}" alt="QR kód pro platbu">
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                {% endif %}
 
-   <!-- Moje prodeje v DIVkvariátu -->
-{% if my_active_actions %}
-<div class="card box-shadow mb-4">
-    <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-        <h3>Moje obchody, které čekají na akci</h3>
-        <ul>
-        {% for listing in my_active_actions %}
-            <li class="mb-3 after last-line">
-                <div class="flex items-start">
-                    <!-- Obrázek knihy -->
-                    <div class="mr-4" style="width:80px;">
-                        {% if listing.book.img == "noimg.png" %}
-                            <img src="/static/img/book/book.png" class="w-full rounded">
-                        {% elif listing.book.img == "GoogleID" %}
-                            <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1" class="w-full rounded">
-                        {% else %}
-                            <img src="https://media.div.cz/knihy/{{ listing.book.img }}" class="w-full rounded">
-                        {% endif %}
-                    </div>
+                            <!-- Moje prodeje v DIVkvariátu -->
+                            {% if my_active_actions %}
+                            <div class="card">
+                                <div class="card-body">
+                                    <h3>Moje obchody, které čekají na akci</h3>
+                                    <ul>
+                                    {% for listing in my_active_actions %}
+                                        <li class="mb-3 after last-line">
+                                            <div class="flex items-start">
+                                                <!-- Obrázek knihy -->
+                                                <div class="mr-4" style="width:80px;">
+                                                    {% if listing.book.img == "noimg.png" %}
+                                                        <img src="/static/img/book/book.png" class="w-full rounded">
+                                                    {% elif listing.book.img == "GoogleID" %}
+                                                        <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1" class="w-full rounded">
+                                                    {% else %}
+                                                        <img src="https://media.div.cz/knihy/{{ listing.book.img }}" class="w-full rounded">
+                                                    {% endif %}
+                                                </div>
 
-                    <!-- Info -->
-                    <div class="flex-grow">
-                        <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
-                           class="ml-1">
-                           {{ listing.book.titlecz|default:listing.book.title }}
-                        </a><br>
+                                                <!-- Info -->
+                                                <div class="flex-grow">
+                                                    <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                                                    class="ml-1">
+                                                    {{ listing.book.titlecz|default:listing.book.title }}
+                                                    </a><br>
 
-                        <span class="text-sm">
-                            Role: {% if listing.user == request.user %}Prodejce{% else %}Kupující{% endif %}
-                        </span><br>
+                                                    <span class="text-sm">
+                                                        Role: {% if listing.user == request.user %}Prodejce{% else %}Kupující{% endif %}
+                                                    </span><br>
 
-                        <span class="text-sm">
-                            Datum: {{ listing.createdat|date:"j. n. Y" }}
-                        </span><br>
+                                                    <span class="text-sm">
+                                                        Datum: {{ listing.createdat|date:"j. n. Y" }}
+                                                    </span><br>
 
-                        <span class="text-sm">
-                            Cena: {% if listing.price %}{{ listing.price }} Kč{% else %}0 Kč{% endif %}
-                            {% if listing.shipping %}+ {{ listing.shipping }} Kč poštovné{% endif %}
-                        </span><br>
+                                                    <span class="text-sm">
+                                                        Cena: {% if listing.price %}{{ listing.price }} Kč{% else %}0 Kč{% endif %}
+                                                        {% if listing.shipping %}+ {{ listing.shipping }} Kč poštovné{% endif %}
+                                                    </span><br>
 
-                        <!-- Výzvy k akci -->
-                        {% if listing.status == 'RESERVED' and listing.buyer == request.user %}
-                            <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
-                               class="text-[#A52B21] font-medium">
-                               Čeká se na zaplacení
-                            </a>
-                        {% elif listing.status == 'PAID' and listing.user == request.user %}
-                            <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
-                               class="text-[#61872B] font-medium">
-                               Kupující zaplatil – odešlete knihu
-                            </a>
-                        {% elif listing.status in 'PAID' and listing.buyer == request.user %}
-                            <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
-                               class="text-[#00A0E3] font-medium">
-                               Čekáme na doručení knihy
-                            </a>
-                        {% elif listing.status in 'SHIPPED' and listing.buyer == request.user %}
-                            <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
-                               class="text-[#00A0E3] font-medium">
-                               Čekáme na doručení knihy
-                            </a>
-                        {% elif listing.status in 'SHIPPED' and listing.user == request.user %}
-                            <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
-                               class="text-[#00A0E3] font-medium">
-                               Čekáme na potvrzení převzetí
-                            </a>
-                        {% elif listing.status == 'COMPLETED' and listing.user == request.user and not listing.buyerrating %}
-                            <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
-                               class="text-[#FF6D00] font-medium">
-                               Ohodnoťte kupujícího
-                            </a>
-                        {% elif listing.status == 'COMPLETED' and listing.buyer == request.user and not listing.sellerrating %}
-                            <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
-                               class="text-[#FF6D00] font-medium">
-                               Ohodnoťte prodejce
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </li>
-        {% endfor %}
-        </ul>
-    </div>
-</div>
-{% endif %}
+                                                    <!-- Výzvy k akci -->
+                                                    {% if listing.status == 'RESERVED' and listing.buyer == request.user %}
+                                                        <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                                                        class="text-[#A52B21] font-medium">
+                                                        Čeká se na zaplacení
+                                                        </a>
+                                                    {% elif listing.status == 'PAID' and listing.user == request.user %}
+                                                        <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                                                        class="text-[#61872B] font-medium">
+                                                        Kupující zaplatil – odešlete knihu
+                                                        </a>
+                                                    {% elif listing.status in 'PAID' and listing.buyer == request.user %}
+                                                        <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                                                        class="text-[#00A0E3] font-medium">
+                                                        Čekáme na doručení knihy
+                                                        </a>
+                                                    {% elif listing.status in 'SHIPPED' and listing.buyer == request.user %}
+                                                        <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                                                        class="text-[#00A0E3] font-medium">
+                                                        Čekáme na doručení knihy
+                                                        </a>
+                                                    {% elif listing.status in 'SHIPPED' and listing.user == request.user %}
+                                                        <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                                                        class="text-[#00A0E3] font-medium">
+                                                        Čekáme na potvrzení převzetí
+                                                        </a>
+                                                    {% elif listing.status == 'COMPLETED' and listing.user == request.user and not listing.buyerrating %}
+                                                        <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                                                        class="text-[#FF6D00] font-medium">
+                                                        Ohodnoťte kupujícího
+                                                        </a>
+                                                    {% elif listing.status == 'COMPLETED' and listing.buyer == request.user and not listing.sellerrating %}
+                                                        <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                                                        class="text-[#FF6D00] font-medium">
+                                                        Ohodnoťte prodejce
+                                                        </a>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endif %}
 
     <!-- Moje eKnihy -->
     {% if user_ebook_purchases %}
-    <div class="card box-shadow mb-4">
-        <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+    <div class="card">
+        <div class="card-body">
             <h3>Moje eKnihy</h3>
             <ul>
                 {% for purchase in user_ebook_purchases %}
@@ -452,8 +452,8 @@
 
   <!--Moje potávky v div kvariátu-->
 {% if user_wanted_purchases  %}
-<div class="card box-shadow mb-4">
-    <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+<div class="card">
+    <div class="card-body">
         <h3>Moje poptávky v DIVkvariátu</h3>
         <ul>
             {% for listing in user_wanted_purchases %}
@@ -496,8 +496,8 @@
 {% endif %}
 
                             <!-- carousel filmy -->
-                            <div class="card box-shadow mb-4">
-                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                            <div class="card">
+                                <div class="card-body">
                                     <h3 class="card-title font-bold after-h3">Ze světa filmů</h3>
                                     <div class="swiper">
                                         <div class="card-wrapper">
@@ -529,8 +529,8 @@
                             </div>
 
                             <!-- carousel seriály -->
-                            <div class="card box-shadow mb-4">
-                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                            <div class="card">
+                                <div class="card-body">
                                     <h3 class="card-title font-bold after-h3">Ze světa seriálů</h3>
                                     <div class="swiper">
                                         <div class="card-wrapper">
@@ -562,8 +562,8 @@
                             </div>
 
                             <!-- carousel knihy -->
-                            <div class="card box-shadow mb-4">
-                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                            <div class="card">
+                                <div class="card-body">
                                     <h3 class="card-title font-bold after-h3">Ze světa knih</h3>
                                     <div class="swiper">
                                         <div class="card-wrapper">
@@ -598,8 +598,8 @@
                             </div>
 
                             <!-- carousel hry -->
-                            <div class="card box-shadow mb-4">
-                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                            <div class="card">
+                                <div class="card-body">
                                     <h3 class="card-title font-bold after-h3">Ze světa her</h3>
                                     <div class="swiper">
                                         <div class="card-wrapper">
@@ -633,8 +633,8 @@
                             </div>
 
                             <!-- novinky -->
-                            <div class="card box-shadow mb-4">
-                                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                            <div class="card">
+                                <div class="card-body">
                                     <h3 class="card-title font-bold after-h3">Novinky</h3>
 
                                     <!-- H O V I N K A    add by M a r t i n  -->
@@ -692,13 +692,12 @@
                             </div>
                            
                             <!-- Nejnovější komentáře -->
-<div class="card box-shadow mb-4">
-  <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-    <h3 class="card-title font-bold after-h3">Nejnovější filmové a knižní recenze</h3>
-    <div class="flex flex-wrap">        
-      {% for comment in latest_comments %}
-        <div class="card card-body w-full p-3 mb-2 border rounded dark:bg-[#0d0c0f]
-            {% if comment.bookid %} border-green-400 {% else %} border-blue-400 {% endif %}">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h3 class="card-title font-bold after-h3">Nejnovější filmové a knižní recenze</h3>
+                                    <div class="flex flex-wrap">        
+                                    {% for comment in latest_comments %}
+                                        <div class="card card-body">
           
                                             <!-- Tag -->
                                             {% if comment.movieid %}
@@ -738,11 +737,11 @@
                     </div>
 
                     <!-- PRAVÁ STRANA -->
-                    <div class="col-lg-4 article-section">
+                    <div class="right-side">
 
                         <!-- narozeniny -->
-                        <div class="card box-shadow mb-4">
-                            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                        <div class="card">
+                            <div class="card-body">
                             <h3 class="card-title font-bold after-h3">Narozeniny slaví</h3>
                             {% load cache %}
                                 {% cache 28800 creators_list_birth %} 
@@ -773,8 +772,8 @@
                         </div>
 
                         <!-- články -->
-<div class="card box-shadow mb-4">
-  <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+<div class="card">
+  <div class="card-body">
     <div class="flex flex-wrap justify-between card-title after-h3">
       <h3 class="font-bold">Články</h3>
       <a href="{% url 'articles_index' %}"><small>Zobrazit vše</small></a>
@@ -806,8 +805,8 @@
 </div>
                         
                         <!-- burza knih -->
-                        <div class="card box-shadow mb-4">
-                            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                        <div class="card">
+                            <div class="card-body">
                                 <div class="flex flex-wrap card-title after-h3">
                                     <h3 class="font-bold">Burza knih</h3>
                                 </div>
@@ -876,8 +875,8 @@
                         </div>
 
                         <!-- licence her -->
-                        <div class="card box-shadow mb-4">
-                            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+                        <div class="card">
+                            <div class="card-body">
                                 <h3 class="card-title font-bold after-h3">Licence her</h3>
                                 <ul>
                                     <li>Playstation Store<!--, kredit 500,--></li>

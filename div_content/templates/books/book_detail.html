@@ -702,9 +702,9 @@
 
                     <!-- výpis recenzí -->
                     {% if comments %}
-                    <ul class="list-unstyled mt-3 komentar">
+                    <ul class="list-unstyled card mt-3 komentar">
                         {% for comment in comments %}
-                        <li class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
+                        <li class="card-body">
                             <p class="koment after">{{ comment.comment }}</p>
                             <div class="user">
                                 <p>{{ comment.dateadded }}</p>
@@ -817,9 +817,9 @@
                 <h3 class="after-h3">Citáty z knihy {{ book.titlecz|default:book.title }}</h3>
 
                 <!-- výpis citátů -->
-                <div class="mt-4">
+                <div class="card">
                     {% for quote in quotes %}
-                    <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded" id="quote-{{ quote.quoteid }}">
+                    <div class="card-body" id="quote-{{ quote.quoteid }}">
                         <p class="after">{{ quote.quote }}</p>
                         {% comment %}{% if quote.chapter %}
                             <br><small>Kapitola: {{ quote.chapter }}</small>
@@ -874,39 +874,40 @@
                 </form>               
             </div> -->
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const typeSelect = document.getElementById('id_listingtype');
-  const priceField = document.getElementById('id_price');
-  const priceWrapper = priceField?.closest('p'); // Najde <p> obal kolem price fieldu
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const typeSelect = document.getElementById('id_listingtype');
+                    const priceField = document.getElementById('id_price');
+                    const priceWrapper = priceField?.closest('p'); // Najde <p> obal kolem price fieldu
 
-  function toggleFields() {
-    if (typeSelect.value === 'GIVE') {
-      // ✅ Nastav na 0 a změň typ na hidden (místo disabled)
-      priceField.value = 0;
-      priceField.type = 'hidden';
-      // Skryj label a celý wrapper
-      if (priceWrapper) {
-        priceWrapper.style.display = 'none';
-      }
-    } else {
-      // ✅ Vrať zpět na number input a zobraz
-      priceField.type = 'number';
-      if (priceWrapper) {
-        priceWrapper.style.display = 'block';
-      }
-      if (!priceField.value || priceField.value == 0) {
-        priceField.value = 100;
-      }
-    }
-  }
+                    function toggleFields() {
+                        if (typeSelect.value === 'GIVE') {
+                        // ✅ Nastav na 0 a změň typ na hidden (místo disabled)
+                        priceField.value = 0;
+                        priceField.type = 'hidden';
+                        // Skryj label a celý wrapper
+                        if (priceWrapper) {
+                            priceWrapper.style.display = 'none';
+                        }
+                        } else {
+                        // ✅ Vrať zpět na number input a zobraz
+                        priceField.type = 'number';
+                        if (priceWrapper) {
+                            priceWrapper.style.display = 'block';
+                        }
+                        if (!priceField.value || priceField.value == 0) {
+                            priceField.value = 100;
+                        }
+                        }
+                    }
 
-  if (typeSelect) {
-    typeSelect.addEventListener('change', toggleFields);
-    toggleFields(); // init
-  }
-});
-</script>
+                    if (typeSelect) {
+                        typeSelect.addEventListener('change', toggleFields);
+                        toggleFields(); // init
+                    }
+                });
+            </script>
+
             <!-- DIVKVARIÁT -->
             <div id="market">
                 <div id="tab5" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
@@ -915,8 +916,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     <!-- PRODAM / KOUPIM -->
                     <details class="my-4">
                         <summary style="font-size: 1.17rem;">Vytvořit nabídku (PRODÁM / KOUPÍM)</summary>
-                        <div class="card mt-3">
-                            <div class="card-body dark:bg-[#0d0c0f] rounded-1xl">
+                        <div class="card">
+                            <div class="card-body">
                                 {% if user.is_authenticated %}
                                     <form method="post" name="booklisting_form">
                                         {% csrf_token %}
@@ -1142,11 +1143,11 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 
     <!-- Pravá strana -->
-    <div class="col-lg-4">
+    <div class="right-side">
 
         <!-- Hodnocení -->
-        <div class="card box-shadow mb-4 mt-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 style="text-align:center" class="after font-bold">Hodnocení</h3>
                 <div class="grid columns">
                     <div class="rating" data-rating="{{ average_rating }}">
@@ -1198,8 +1199,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         <!-- Série -->
         {% if series %}
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title font-bold after-h3">
                     Série:  <a href="/svet/{{ series.universumurl }}">
                         {% if series.universumnamecz %}
@@ -1217,8 +1218,8 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
         {% else %}
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title font-bold after-h3">Další díla</h3>
                 <div class="flex flex-wrap">
                     Ke knize neevidujeme pokračování
@@ -1228,8 +1229,8 @@ document.addEventListener('DOMContentLoaded', function() {
         {% endif %}
 
         {% if request.user.is_superuser %}
-        <div class="card box-shadow mb-3">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title">Přidat na hlavní stranu</h3>
                 <form method="post">
                 {% csrf_token %}
@@ -1242,8 +1243,8 @@ document.addEventListener('DOMContentLoaded', function() {
         {% endif %}
 
         {% if request.user.is_superuser %}
-        <div class="card box-shadow mb-3">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title">Upravit DIV Rating</h3>
                 <form method="post">
                     {% csrf_token %}
@@ -1254,8 +1255,8 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
         {% endif %}
 
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl ">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title font-bold after-h3">{{ book.titlecz|default:book.title }}</h3>
                 <p class="card-text">Sdílet na:</p>
 
@@ -1283,8 +1284,8 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
 
         <!-- Tags -->
-        <div class="card box-shadow mb-3 d-none d-lg-block">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl ">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title font-bold after-h3">Tagy</h3>
                 <div class="flex flex-wrap gap-1">
                     {% for book_genre in genres %}

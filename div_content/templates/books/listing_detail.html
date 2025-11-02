@@ -110,21 +110,20 @@
             </p>
         </div>
 
-
-<!-- ODESLAT KNIHU ALERT -->
-{% if listing.status in 'RESERVED PAID SHIPPED' and listing.user == user %}
-    {% if listing.shipping and listing.shipping > 0 and listing.shippingaddress %}
-    <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
-        <p class="font-medium">Knihu zašlete na adresu:</p>
-        <p>{{ listing.shippingaddress }}</p>
-    </div>
-    {% elif listing.shipping == 0 %}
-    <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
-        <p class="font-medium">Osobní odběr - domluvte se s kupujícím na předání knihy</p>
-        <p>Kontakt: {{ listing.buyer.email }}{% if buyer_phone %}, tel: {{ buyer_phone }}{% endif %}</p>
-    </div>
-    {% endif %}
-{% endif %}
+        <!-- ODESLAT KNIHU ALERT -->
+        {% if listing.status in 'RESERVED PAID SHIPPED' and listing.user == user %}
+            {% if listing.shipping and listing.shipping > 0 and listing.shippingaddress %}
+            <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
+                <p class="font-medium">Knihu zašlete na adresu:</p>
+                <p>{{ listing.shippingaddress }}</p>
+            </div>
+            {% elif listing.shipping == 0 %}
+            <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
+                <p class="font-medium">Osobní odběr - domluvte se s kupujícím na předání knihy</p>
+                <p>Kontakt: {{ listing.buyer.email }}{% if buyer_phone %}, tel: {{ buyer_phone }}{% endif %}</p>
+            </div>
+            {% endif %}
+        {% endif %}
 
         <!-- HODNOCENÍ ALERT -->
         {% if listing.status == 'COMPLETED' %}
@@ -141,8 +140,8 @@
             {% endif %}
         {% endif %}
 
-        <div class="card box-shadow mb-4">
-            <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <div class="flex flex-wrap justify-between items-start mb-6 after">
                     <div>
                         <p>Cena: </p>
@@ -226,9 +225,8 @@
 
         {% if user.is_authenticated %}
         {% if listing.status == 'ACTIVE' and user != listing.user %}
-        <div class="card box-shadow mb-4">
-            <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-
+        <div class="card">
+            <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
                     <input type="hidden" name="reserve_listing" value="1">
@@ -292,8 +290,8 @@
         {% endif %}
 
         {% if listing.status == 'RESERVED' and listing.buyer == user %}
-        <div class="card box-shadow mb-4">
-            <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="text-xl font-semibold mb-4">Platební údaje</h3>
                 
                 <div class="grid grid-cols-2 gap-4 mb-4">
@@ -340,8 +338,8 @@
         {% endif %}
 
         {% if can_rate_seller %}
-        <div class="card box-shadow mb-4">
-            <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="text-xl font-semibold mb-4">Ohodnotit prodávajícího {{ listing.user.username }}</h3>
                 <form method="post" class="dark:bg-[#1A161F]">
                     {% csrf_token %}
@@ -366,8 +364,8 @@
         {% endif %}
 
         {% if can_rate_buyer %}
-        <div class="card box-shadow mb-4">
-            <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="text-xl font-semibold mb-4">Ohodnotit kupujícího {{ listing.buyer.username }}</h3>
                 <form method="post" class="dark:bg-[#1A161F]">
                     {% csrf_token %}
@@ -435,8 +433,8 @@
  
  
         {% if listing.status == 'RESERVED' or listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' and listing.buyer == user or listing.user == user %}
-        <div class="card box-shadow mb-4">
-            <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="text-xl font-semibold mb-4">Informace o procesu prodeje</h3>
                 
                 <p class="mb-4">Vaše platba bude dočasně uložena na transparentním účtu neziskové organizace eKultura. Připravili jsme i článek <a href="https://div.cz/jak-nakupovat-knihy">Jak nakupovat</a>, kde snad najdete vše potřebné. Nebo napište na info@div.cz</p>
@@ -553,8 +551,8 @@
     <!-- PRAVÁ STRANA -->
     <div class="col-lg-4">
         {% if request.user.is_authenticated %}
-        <div class="card box-shadow mb-4">
-            <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title font-bold after-h3">Můj přehled</h3>
                 <ul class="list-unstyled space-y-2">
                     <li><strong>Prodáno knih:</strong> {{ user_sold_books|default:"0" }}</li>
@@ -581,9 +579,8 @@
         {% endif %}
 
         <!-- burza knih -->
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-
+        <div class="card">
+            <div class="card-body">
                 <div class="flex flex-wrap card-title after-h3">
                     <h3 class="font-bold">Burza knih</h3>
                 </div>

@@ -248,43 +248,42 @@
                     Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
                     {% endif %}
 
-                    <ul class="list-unstyled mt-3 komentar">
+                    <ul class="list-unstyled card komentar">
                         {% for comment in comments %}
+                        <li class="card-body">
+                            <p class="koment after">{{ comment.comment }}</p>
 
-<li class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
-    <p class="koment after">{{ comment.comment }}</p>
+                            <div class="user flex justify-between items-center">
+                                <a href="{% url 'user_profile_with_profil' comment.user.pk %}" class="font-bold text-red-600">
+                                    {{ comment.user }}
+                                </a>
+                                <p class="text-sm text-gray-400">{{ comment.dateadded|date:"j. F Y H:i" }}</p>
+                            </div>
 
-    <div class="user flex justify-between items-center">
-        <a href="{% url 'user_profile_with_profil' comment.user.pk %}" class="font-bold text-red-600">
-            {{ comment.user }}
-        </a>
-        <p class="text-sm text-gray-400">{{ comment.dateadded|date:"j. F Y H:i" }}</p>
-    </div>
-
-    <!-- drobečky pod user/date -->
-    <div class="text-xs text-gray-500 mt-1" style="font-size:80%">
-        {% if comment.tvepisode %}
-            <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">
-            {{ comment.tvshowkid.titlecz|default:comment.tvshowkid.title }}
-            </a>
-            &raquo; <a href="{% url 'serie_season' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl %}">
-                {{ comment.tvseason.seasonnumber }}. 
-                {{ comment.tvseason.titlecz|default:comment.tvseason.title|default:"Sezóna " }}
-            </a>
-            &raquo; <a href="{% url 'serie_episode' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl episodeurl=comment.tvepisode.episodeurl %}">
-                {{ comment.tvepisode.titlecz|default:comment.tvepisode.title }}
-            </a>
-        {% elif comment.tvseason %}
-            <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">{{ comment.tvshowkid.title }}</a>
-            &raquo; <a href="{% url 'serie_season' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl %}">
-                {{ comment.tvseason.seasonnumber }}. 
-                {{ comment.tvseason.titlecz|default:comment.tvseason.title|default:"Sezóna " }}
-            </a>
-        {% else %}
-            <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">{{ comment.tvshowkid.title }}</a>
-        {% endif %}
-    </div>
-</li>
+                            <!-- drobečky pod user/date -->
+                            <div class="text-xs text-gray-500 mt-1" style="font-size:80%">
+                                {% if comment.tvepisode %}
+                                    <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">
+                                    {{ comment.tvshowkid.titlecz|default:comment.tvshowkid.title }}
+                                    </a>
+                                    &raquo; <a href="{% url 'serie_season' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl %}">
+                                        {{ comment.tvseason.seasonnumber }}. 
+                                        {{ comment.tvseason.titlecz|default:comment.tvseason.title|default:"Sezóna " }}
+                                    </a>
+                                    &raquo; <a href="{% url 'serie_episode' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl episodeurl=comment.tvepisode.episodeurl %}">
+                                        {{ comment.tvepisode.titlecz|default:comment.tvepisode.title }}
+                                    </a>
+                                {% elif comment.tvseason %}
+                                    <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">{{ comment.tvshowkid.title }}</a>
+                                    &raquo; <a href="{% url 'serie_season' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl %}">
+                                        {{ comment.tvseason.seasonnumber }}. 
+                                        {{ comment.tvseason.titlecz|default:comment.tvseason.title|default:"Sezóna " }}
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">{{ comment.tvshowkid.title }}</a>
+                                {% endif %}
+                            </div>
+                        </li>
 
                         {% endfor %}
                     </ul>
@@ -344,9 +343,9 @@
                 </form>
                 {% endif %}
 
-                <div class="mt-4">
+                <div class="card">
                     {% for item in trivia %}
-                    <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
+                    <div class="card-body">
                         <p class="after">{{ item.trivia }}</p>
                         <div class="mt-2 text-end">
                             <span>Přidal: </span>
@@ -402,9 +401,9 @@
                 {% endif %}
 
                 <!-- výpis hlášek -->
-                <div class="mt-4">
+                <div class="card">
                     {% for quote in quotes %}
-                    <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
+                    <div class="card-body">
                         <p class="after">{{ quote.quote }}</p>
                         <div class="mt-2 text-end">
                             <span>Přidal: </span>
@@ -427,8 +426,8 @@
     <div class="right-side">
 
         <!-- Hodnocení -->
-        <div class="card box-shadow mb-4 mt-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 style="text-align:center" class="after font-bold">Hodnocení</h3>
                 <div class="grid columns">
                     <div class="rating" data-rating="{{ average_rating }}">
@@ -473,8 +472,8 @@
             </div>
         </div>
 
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title font-bold after-h3">Sezóny</h3>
                 <div class="flex flex-wrap">
                 {% for season in seasons %}
@@ -490,8 +489,8 @@
             </div>
         </div>
 
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title font-bold after-h3">{{ tvshow.titlecz }}</h3>
                 <p class="card-text">Sdílet na:</p>
 
@@ -518,8 +517,8 @@
         </div>
 
         <!-- Tags -->
-        <div class="card box-shadow mb-3 d-none d-lg-block">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <div class="card">
+            <div class="card-body">
                 <h3 class="card-title font-bold after-h3">Tagy</h3>
                 <div class="flex flex-wrap gap-1">
 

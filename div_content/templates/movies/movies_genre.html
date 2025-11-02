@@ -11,11 +11,9 @@
 <div class="container">
     <h2 class="mb-4 px-4">Seznam filmů žánru: {{ genre.genrenamecz  }}</h2>
     <div class="row">
-        <!-- Hlavní obsah (Levý sloupec) -->
-
-
+        <!-- LEVÁ STRANA -->
         {% cache 86400 'genre_page' genre.id %}
-        <div class="col-md-8 my-3">
+        <div class="left-side">
             <!-- Seznam filmů -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {% for movie in movies_list_30_genre %}
@@ -41,10 +39,10 @@
         </div>
         {% endcache %}
 
-        <!-- Pravý sloupec -->
-        <div class="col-md-4 my-3">
-            <div class="card box-shadow mb-4">
-                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <!-- Pravá strana -->
+        <div class="right-side">
+            <div class="card">
+                <div class="card-body">
                     <h3 class="card-title font-bold after-h3">Žánry</h3>
                     <div>
                         <a href="/filmy/akcni">Akční</a> |
@@ -70,8 +68,8 @@
                 </div>
             </div>
 
-            <div class="card box-shadow mb-4">
-                <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+            <div class="card">
+                <div class="card-body">
                     <h3 class="card-title font-bold after-h3">Roky</h3>
                     <div>
                         <a href="/filmy/2024">2024</a> |

@@ -21,27 +21,26 @@
     
     <div class="container">
 
-            <!-- Seznam postav -->
-            <div class="row w-full">
-                <div class="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-colums-3 sm:grid-colums-2 gap-4 w-full mb-3">
-                {% for character in characters %}
-                    <div class="card box-shadow bg-[#F9F9F9] dark:bg-[#1A161F] ">
-                        <a href="/postava/{{ character.characterurl }}">
-                        {% if not character.characterimg or character.characterimg == "" %}
-                            <img src="/static/img/creator/noperson.svg" alt="{{ character.charactername }}" class="rounded-t-lg" style="object-fit: cover;">
-                            {% else %}
-                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ character.characterimg }}" alt="{{ character.charactername }}" class="rounded-t-lg" style="object-fit: cover;">
-                        {% endif %}
-                        </a>
-                        <h4 class="card-title text-center mt-3">{{ character.charactername }} <!--<span class="text-muted">({{ character.birthdate|date:"Y"  }})</span>--></h4>
-                    </div>
-                {% endfor %}
+        <!-- Seznam postav -->
+        <div class="row w-full">
+            <div class="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-colums-3 sm:grid-colums-2 gap-4 w-full mb-3">
+            {% for character in characters %}
+                <div class="card card-body">
+                    <a href="/postava/{{ character.characterurl }}">
+                    {% if not character.characterimg or character.characterimg == "" %}
+                        <img src="/static/img/creator/noperson.svg" alt="{{ character.charactername }}" class="rounded-t-lg" style="object-fit: cover;">
+                        {% else %}
+                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ character.characterimg }}" alt="{{ character.charactername }}" class="rounded-t-lg" style="object-fit: cover;">
+                    {% endif %}
+                    </a>
+                    <h4 class="card-title text-center mt-3">{{ character.charactername }} <!--<span class="text-muted">({{ character.birthdate|date:"Y"  }})</span>--></h4>
                 </div>
-                
+            {% endfor %}
             </div>
+            
         </div>
-
     </div>
+
 </div>
 
 {% endblock %}

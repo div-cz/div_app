@@ -70,8 +70,8 @@
 
             <!-- PRAVÁ STRANA -->
             <div class="right-side">
-                <div class="mb-4">
-                    <div class="card-body w-full">
+                <div class="card">
+                    <div class="card-body">
                         <h3 class="card-title font-bold after-h3">Lokality</h3>
                         <ul class="w-full" style="list-style-type:none">
                             <!--<li><a href="">Bradavice</a></li>
@@ -84,8 +84,9 @@
                     </div>
                 </div>
 
-                <div class="mb-4"><!-- Postavy -->
-                    <div class="card-body w-full">
+                <!-- Postavy -->
+                <div class="card">
+                    <div class="card-body">
                         <!--<h3 class="card-title font-bold after-h3">Postavy</h3>
                         <ul>
                             <li><a href="">Harry Potter</a></li>
@@ -96,48 +97,49 @@
                             <li><a href="">Skorobezhlavý Nick</a></li>
                         </ul>-->
 
-<!-- POSTAVY Z KNIH -->
-{% if book_characters %}
-<h3 class="card-title font-bold after-h3">Postavy v knihách tohoto světa</h3>
-<ul class="w-full" style="list-style-type:none">
-  {% for char in book_characters %}
-    <li><a href="{% url 'character_detail' character_url=char.characterurl %}">
-      {{ char.characternamecz|default:char.charactername }}
-    </a></li>
-  {% endfor %}
-</ul>
-{% endif %}
+                        <!-- POSTAVY Z KNIH -->
+                        {% if book_characters %}
+                        <h3 class="card-title font-bold after-h3">Postavy v knihách tohoto světa</h3>
+                        <ul class="w-full" style="list-style-type:none">
+                        {% for char in book_characters %}
+                            <li><a href="{% url 'character_detail' character_url=char.characterurl %}">
+                            {{ char.characternamecz|default:char.charactername }}
+                            </a></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
 
-<!-- POSTAVY Z FILMŮ -->
-{% if movie_characters %}
-<h3 class="card-title font-bold after-h3">Postavy ve filmech tohoto světa</h3>
-<ul class="w-full" style="list-style-type:none">
-  {% for char in movie_characters %}
-    <li><!--<a href="{% url 'character_detail' character_url=char.characterurl %}">-->
-      {{ char.characternamecz|default:char.charactername }}
-    <!--</a>--></li>
-  {% endfor %}
-</ul>
-{% endif %}
+                        <!-- POSTAVY Z FILMŮ -->
+                        {% if movie_characters %}
+                        <h3 class="card-title font-bold after-h3">Postavy ve filmech tohoto světa</h3>
+                        <ul class="w-full" style="list-style-type:none">
+                        {% for char in movie_characters %}
+                            <li><!--<a href="{% url 'character_detail' character_url=char.characterurl %}">-->
+                            {{ char.characternamecz|default:char.charactername }}
+                            <!--</a>--></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
 
 
-<!-- POSTAVY Z FILMŮ -->
-{% if game_characters %}
-<h3 class="card-title font-bold after-h3">Postavy ve hrách tohoto světa</h3>
-<ul class="w-full" style="list-style-type:none">
-  {% for char in game_characters %}
-    <li><a href="{% url 'character_detail' character_url=char.characterurl %}">
-      {{ char.characternamecz|default:char.charactername }}
-    </a></li>
-  {% endfor %}
-</ul>
-{% endif %}
+                        <!-- POSTAVY Z FILMŮ -->
+                        {% if game_characters %}
+                        <h3 class="card-title font-bold after-h3">Postavy ve hrách tohoto světa</h3>
+                        <ul class="w-full" style="list-style-type:none">
+                        {% for char in game_characters %}
+                            <li><a href="{% url 'character_detail' character_url=char.characterurl %}">
+                            {{ char.characternamecz|default:char.charactername }}
+                            </a></li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
 
                     </div>
-                </div><!-- // Postavy -->
-
-                <div class="mb-4">
-                    <div class="card-body w-full">
+                </div>
+            
+                <!-- // Postavy -->
+                <div class="card">
+                    <div class="card-body">
                         <h3 class="card-title font-bold after-h3">Jídlo ze světa</h3>
                         <ul class="w-full" style="list-style-type:none">
                             <!--<li><a href="">Máslový ležák</a></li>
