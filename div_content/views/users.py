@@ -36,7 +36,7 @@ from div_content.forms.users import ContactForm, UserBankAccountForm, UserProfil
 
 from div_content.models import (
     Avatar, Book, Bookauthor, Bookcomments, Bookgenre, Bookisbn, Booklisting, Bookpurchase, Creator, Favorite, Charactermeta, Game, Gamecomments, Metacountry, Metagenre, Movie, Moviecomments, Moviecountries, 
-    Moviegenre, Movierating, Tvshow, Tvshowcomments, Userdivcoins, Userlist, Userlistbook, Userlistgame, Userlistmovie, Userlisttype, Userprofile,
+    Moviegenre, Movierating, Tvshow, Tvseason, Tvepisode, Tvshowcomments, Userdivcoins, Userlist, Userlistbook, Userlistgame, Userlistmovie, Userlisttype, Userprofile,
     Usermessage, Userchatsession, Userlisttvshow, Userlistitem
     )
 from div_content.views.login import custom_login_view
@@ -771,10 +771,20 @@ def profile_series_section(request, user_id):
 
     # Získání hodnocených seriálů
     #series_content_type_id = 40
+    # Získání hodnocených seriálů
+    # Získání hodnocených seriálů (jako u filmů)
     series_content_type = ContentType.objects.get_for_model(Tvshow)
     series_content_type_id = series_content_type.id
 
-    series_ratings = UserRating.objects.filter(user_id=user_id, rating__content_type_id=series_content_type_id).order_by('-modified')
+    series_ratings = (
+        UserRating.objects
+        .filter(user_id=user_id, rating__content_type_id=series_content_type_id)
+        .select_related('rating')  # ✅ content_object je GenericForeignKey – neselektujeme
+        .order_by('-modified')
+    )
+
+
+
     series_paginator = Paginator(series_ratings, items_per_page)
     series_page_number = request.GET.get('page', 1)
     series_page_obj = series_paginator.get_page(series_page_number)
@@ -946,6 +956,8 @@ def profile_series_section(request, user_id):
         'user_profile': user_profile,
         'user_div_coins': user_div_coins,
         'series_page_obj': series_page_obj,
+        'serie_ratings': series_ratings,
+        'serie_ratings': series_page_obj,  # kvůli šabloně
         'favorite_page_obj': favorite_page_obj,
         'fav_characters_page_obj': fav_characters_page_obj,
         'fav_creators_page_obj': fav_creators_page_obj,
