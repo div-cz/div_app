@@ -24,7 +24,7 @@
 
 
     <meta property="og:type" content="movie">
-    <meta property="og:site_name" content="Databáze DIV">
+    <meta property="og:site_name" content="Databï¿½ze DIV">
     <meta property="og:title" content="{{ movie.titlecz }} ({{ movie.releaseyear }})">
     <meta property="og:description" content="{{ movie.description|striptags|truncatechars:180 }}">
     <meta property="og:image" content="{% if movie.imgposter and movie.imgposter != "noimg.png" %}https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ movie.imgposter }}{% else %}https://di.cz/static/img/movie/w200/nomovie.jpg{% endif %}">
@@ -35,28 +35,28 @@
 
 
 <style>
-/* Zmìna barvy odkazù pro postavy */
+/* Zmï¿½na barvy odkazï¿½ pro postavy */
 .character-link {
-    color: #007BFF; /* Modrá barva odkazù */
-    text-decoration: none; /* Bez podtržení */
+    color: #007BFF; /* Modrï¿½ barva odkazï¿½ */
+    text-decoration: none; /* Bez podtrï¿½enï¿½ */
 }
 
 .character-link:hover {
-    text-decoration: underline; /* Podtržení pøi najetí myší */
+    text-decoration: underline; /* Podtrï¿½enï¿½ pï¿½i najetï¿½ myï¿½ï¿½ */
 }
 
-/* Pøípadnì s odlišným pozadím */
+/* Pï¿½ï¿½padnï¿½ s odliï¿½nï¿½m pozadï¿½m */
 .character-link {
-    background-color: #f0f0f0; /* Svìtlé pozadí */
-    color: #0056b3; /* Tmavší modrá */
-    padding: 2px 5px; /* Malý padding kolem textu */
-    border-radius: 3px; /* Zakulacené rohy */
+    background-color: #f0f0f0; /* Svï¿½tlï¿½ pozadï¿½ */
+    color: #0056b3; /* Tmavï¿½ï¿½ modrï¿½ */
+    padding: 2px 5px; /* Malï¿½ padding kolem textu */
+    border-radius: 3px; /* Zakulacenï¿½ rohy */
 }
 
 
 
 
-@media (max-width: 768px) { /* Pøíklad pro zaøízení s menší obrazovkou */
+@media (max-width: 768px) { /* Pï¿½ï¿½klad pro zaï¿½ï¿½zenï¿½ s menï¿½ï¿½ obrazovkou */
     .smaller-stars .star-ratings-rating-full, 
     .smaller-stars .star-ratings-rating-empty {
         width: 16px;
@@ -86,7 +86,7 @@
 
 
 <!-- Main Content -->
-<main class="container my-5">
+<main class="container">
   <div class="row">
     <!-- Left Column: Film Detail -->
     <div class="col-lg-8">
@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var thankYouMessage = document.getElementById('rating-thankyou');
             thankYouMessage.style.display = 'block';
 
-            // Skryjte hlášku po 3 sekundách
+            // Skryjte hlï¿½ku po 3 sekundï¿½ch
             setTimeout(function() {
                 thankYouMessage.style.display = 'none';
             }, 4000);
@@ -165,22 +165,22 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="smaller-stars">{% ratings movie %}</div>
 <!--    {% if user.is_authenticated %}
         {% if user_rating_value != 'Nehodnoceno' %}
-            <span style="font-size: 14px;">Tvé hodnocení: {{ user_rating_value }} / 5</span>
+            <span style="font-size: 14px;">Tvï¿½ hodnocenï¿½: {{ user_rating_value }} / 5</span>
         {% else %}
             <span style="font-size: 14px;">{{ user_rating_value }}</span>
         {% endif %}
     {% else %}
-        <span style="font-size: 14px;">Prùmìrné hodnocení: {{ average_rating|floatformat:1 }} / 5</span>
+        <span style="font-size: 14px;">Prï¿½mï¿½rnï¿½ hodnocenï¿½: {{ average_rating|floatformat:1 }} / 5</span>
     {% endif %}-->
 
 <div id="rating-thankyou" class="alert alert-success" style="display: none;">
-    Dìkujeme za hodnocení!</div>
+    Dï¿½kujeme za hodnocenï¿½!</div>
 </div>
 </div>
 
           <ul class="list-unstyled">
 {% if genres %}
-    <li><strong>Žánr:</strong>
+    <li><strong>ï¿½ï¿½nr:</strong>
         {% for movie_genre in genres %}
             <a href="/filmy/{{ movie_genre.genreid.url }}">{{ movie_genre.genreid.genrenamecz }}</a>{% if not forloop.last %}, {% endif %}
         {% endfor %}
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function() {
 {% endif %}
 
 {% if countries %}
-    <li><strong>Zemì:</strong>
+    <li><strong>Zemï¿½:</strong>
         {% for movie_country in countries %}
             {{ movie_country.countryid.countrynamecz }}{% if not forloop.last %}, {% endif %}
         {% endfor %}
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
 {% endif %}
 
 {% if directors %}
-    <li><strong>Režie:</strong>
+    <li><strong>Reï¿½ie:</strong>
         {% for director in directors %}
             <a href="/tvurce/{{ director.peopleid.url }}"> {{ director.peopleid.firstname }} {{ director.peopleid.lastname }}</a>{% if not forloop.last %}, {% endif %}
         {% endfor %}
@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
 {% endif %}
 
 {% if writers %}
-    <li><strong>Scénáø:</strong> 
+    <li><strong>Scï¿½nï¿½ï¿½:</strong> 
         {% for writer in writers %}
             {{ writer.peopleid.firstname }}{% if not forloop.last %},{% endif %}
         {% endfor %}
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <!--
 
 {% if actors_and_characters %}
-    <li><strong>Hrají:</strong>
+    <li><strong>Hrajï¿½:</strong>
         {% for actor in actors_and_characters|slice:":12" %}
             <a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a> jako 
             {% if actor.characterid.characternamecz %}
@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 {% if actors_and_characters %}
-<li><strong>Hrají:</strong>
+<li><strong>Hrajï¿½:</strong>
     {% for actor in actors_and_characters|slice:":12" %}
         {% if forloop.first == False %}, {% endif %}
         <a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a>
@@ -261,28 +261,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
           </ul>
-        <!-- Tlaèítka -->
+        <!-- Tlaï¿½ï¿½tka -->
 
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Získáme CSRF token z vygenerovaného skrytého inputu
+    // Zï¿½skï¿½me CSRF token z vygenerovanï¿½ho skrytï¿½ho inputu
     var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
 
     document.querySelectorAll('.btn-action').forEach(function(button) {
         button.addEventListener('click', function(e) {
-            e.preventDefault(); // Zamezíme výchozí akci tlaèítka, pokud je nìjaká
+            e.preventDefault(); // Zamezï¿½me vï¿½chozï¿½ akci tlaï¿½ï¿½tka, pokud je nï¿½jakï¿½
 
             var movieId = button.getAttribute('data-movie-id');
             var listType = button.getAttribute('data-list-type');
             var thankYouMessage = document.getElementById('add-thankyou');
 
-            // Odesílání požadavku na server
+            // Odesï¿½lï¿½nï¿½ poï¿½adavku na server
             fetch("/film/add-to-list/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRFToken": csrfToken  // Pøidání CSRF token
+                    "X-CSRFToken": csrfToken  // Pï¿½idï¿½nï¿½ CSRF token
                 },
                 body: JSON.stringify({
                     media_id: movieId,
@@ -300,12 +300,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     thankYouMessage.style.display = 'block';
 
-                    // Skryjeme hlášku po 4 sekundách
+                    // Skryjeme hlï¿½ku po 4 sekundï¿½ch
                     setTimeout(function() {
                         thankYouMessage.style.display = 'none';
                     }, 4000);
                 } else {
-                    alert("Nìco se pokazilo. Zkuste to prosím znovu.");
+                    alert("Nï¿½co se pokazilo. Zkuste to prosï¿½m znovu.");
                 }
             });
         });
@@ -316,27 +316,27 @@ document.addEventListener('DOMContentLoaded', function() {
 {% if user.is_authenticated %}
 {% csrf_token %}
 <div class="d-flex justify-content-end mt-3">
-<button class="btn btn-primary mb-2 mr-1 btn-action" data-movie-id="{{ movie.movieid }}" data-list-type="favorite" data-message-added="Film byl pøidán k oblíbeným!" data-message-removed="Film byl odebrán z oblíbených!">
-    <i class="fa fa-heart{% if is_favorite %} text-danger{% else %}{% endif %}"></i> <span class="d-none d-md-inline">Oblíbené</span>
+<button class="btn btn-primary mb-2 mr-1 btn-action" data-movie-id="{{ movie.movieid }}" data-list-type="favorite" data-message-added="Film byl pï¿½idï¿½n k oblï¿½benï¿½m!" data-message-removed="Film byl odebrï¿½n z oblï¿½benï¿½ch!">
+    <i class="fa fa-heart{% if is_favorite %} text-danger{% else %}{% endif %}"></i> <span class="d-none d-md-inline">Oblï¿½benï¿½</span>
 </button>
-<button class="btn btn-secondary mb-2 mr-1 btn-action" data-movie-id="{{ movie.movieid }}" data-list-type="want-to-see" data-message-added="Film byl pøidán do Chci vidìt!" data-message-removed="Film byl odebrán z Chci vidìt!">
-    <i class="fa fa-eye {% if is_want_to_see %}text-success{% else %}text-secondary{% endif %}"></i> <span class="d-none d-md-inline">Chci vidìt!</span>
+<button class="btn btn-secondary mb-2 mr-1 btn-action" data-movie-id="{{ movie.movieid }}" data-list-type="want-to-see" data-message-added="Film byl pï¿½idï¿½n do Chci vidï¿½t!" data-message-removed="Film byl odebrï¿½n z Chci vidï¿½t!">
+    <i class="fa fa-eye {% if is_want_to_see %}text-success{% else %}text-secondary{% endif %}"></i> <span class="d-none d-md-inline">Chci vidï¿½t!</span>
 </button>
 
 </div>
-<div id="add-thankyou" class="alert alert-success" style="display: none;">Film pøidán do seznamu!</div>
+<div id="add-thankyou" class="alert alert-success" style="display: none;">Film pï¿½idï¿½n do seznamu!</div>
 
 {% else %}
 <div class="d-flex justify-content-end mt-3">
-    <button class="btn btn-primary mb-2 mr-1 btn-action" data-message="Pro pøidání do seznamu se musíte pøihlásit.">
-        <i class="fa fa-heart"></i> <span class="d-none d-md-inline">Oblíbené</span>
+    <button class="btn btn-primary mb-2 mr-1 btn-action" data-message="Pro pï¿½idï¿½nï¿½ do seznamu se musï¿½te pï¿½ihlï¿½sit.">
+        <i class="fa fa-heart"></i> <span class="d-none d-md-inline">Oblï¿½benï¿½</span>
     </button>
-    <button class="btn btn-secondary mb-2 mr-1 btn-action"" data-message="Pro pøidání do seznamu se musíte pøihlásit.">
-        <i class="fa fa-eye"></i> <span class="d-none d-md-inline">Chci vidìt!</span>
+    <button class="btn btn-secondary mb-2 mr-1 btn-action"" data-message="Pro pï¿½idï¿½nï¿½ do seznamu se musï¿½te pï¿½ihlï¿½sit.">
+        <i class="fa fa-eye"></i> <span class="d-none d-md-inline">Chci vidï¿½t!</span>
     </button>
 </div>
 
-<div id="add-thankyou" class="alert alert-success" style="display: none;">Pro pøidání do seznamu se musíte pøihlásit.</div>
+<div id="add-thankyou" class="alert alert-success" style="display: none;">Pro pï¿½idï¿½nï¿½ do seznamu se musï¿½te pï¿½ihlï¿½sit.</div>
 {% endif %}
     </div>
 </div>
@@ -358,15 +358,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
         </div>
-        <button type="submit" class="btn btn-primary">Odeslat komentáø</button>
+        <button type="submit" class="btn btn-primary">Odeslat komentï¿½ï¿½</button>
     </form>
     {% else %}
-    <p>Pro komentování je nutné být <a href="/prihlaseni/">pøihlášený</a>.<br>
-    Nemáš úèet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
+    <p>Pro komentovï¿½nï¿½ je nutnï¿½ bï¿½t <a href="/prihlaseni/">pï¿½ihlï¿½enï¿½</a>.<br>
+    Nemï¿½ ï¿½ï¿½et? Nevadï¿½, <a href="/registrace/">rychlï¿½ registrace!</a></p>
     {% endif %}
 
     {% if comments %}
-        <h3 class="mt-4">Komentáøe k filmu</h3>
+        <h3 class="mt-4">Komentï¿½ï¿½e k filmu</h3>
             <ul class="list-unstyled mt-3">
                 {% for comment in comments %}
                 <li class="mb-2">{{ comment.comment }}</li>
@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </ul>
 
     {% else %}
-    <p>Zatím nejsou žádné komentáøe k tomuto filmu.</p>
+    <p>Zatï¿½m nejsou ï¿½ï¿½dnï¿½ komentï¿½ï¿½e k tomuto filmu.</p>
     {% endif %}
 </div>
 
@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="card rounded mb-4">
             <div class="card-body">
 
-<h4>Hodnocení</h4>
+<h4>Hodnocenï¿½</h4>
 <script>console.log("Script running!");
 document.addEventListener('DOMContentLoaded', function() {
     console.log("Script running!");
@@ -402,7 +402,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var thankYouMessage = document.getElementById('rating-thankyou2');
             thankYouMessage.style.display = 'block';
 
-            // Skryjte hlášku po 3 sekundách
+            // Skryjte hlï¿½ku po 3 sekundï¿½ch
             setTimeout(function() {
                 thankYouMessage.style.display = 'none';
             }, 4000);
@@ -413,11 +413,11 @@ document.addEventListener('DOMContentLoaded', function() {
 {% ratings movie %}
         {% if user.is_authenticated %}
         {% else %}
-        <p>Pro hodnocení je tøeba se <a href="/prihlaseni/">Pøihlásit!</a></p>
+        <p>Pro hodnocenï¿½ je tï¿½eba se <a href="/prihlaseni/">Pï¿½ihlï¿½sit!</a></p>
         {% endif %}
 
 <div id="rating-thankyou2" class="alert alert-success" style="display: none;">
-    Dìkujeme za hodnocení!
+    Dï¿½kujeme za hodnocenï¿½!
 </div>
 
 {% if ratings %}
@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <span class="right">
     {% for _ in "12345" %}
     {% if forloop.counter <= rating.score %}
-        <span class="text-warning">?</span>  {# Tøída `text-warning` v Bootstrapu nastaví žlutou barvu #}
+        <span class="text-warning">?</span>  {# Tï¿½ï¿½da `text-warning` v Bootstrapu nastavï¿½ ï¿½lutou barvu #}
     {% else %}
         ?
     {% endif %}
@@ -449,14 +449,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 {% if user.is_authenticated %}
     <h4>{{ user.username }} </h4>
-    <p>Vítejte, {{ user.username }} ,<!--<a href="{% url 'logout' %}">Odhlásit se</a>--></p>
+    <p>Vï¿½tejte, {{ user.username }} ,<!--<a href="{% url 'logout' %}">Odhlï¿½sit se</a>--></p>
     
 {% if request.user.is_superuser %}
 <p>I am superuser! 
 <ul>
 <li><a href="https://api.themoviedb.org/3/movie/{{ movie.movieid }}?api_key=c4efc14c22a10ea59174b7bf4f94310b">API tmdb</a> (<a href="https://api.themoviedb.org/3/movie/{{ movie.movieid }}?api_key=c4efc14c22a10ea59174b7bf4f94310b&language=cs-CZ">CZ</a>) - <a href="https://test.div.cz/film/{{ movie.iddiv }}-{{ movie.url }}">TEST</a></li>
 <li>ID: {{ movie.movieid }}</li>
-<li><a href="https://fdk.cz/div/movies/pridat-do-kina.php?id={{ movie.movieid }}">Pøidat film do kina</a></li>
+<li><a href="https://fdk.cz/div/movies/pridat-do-kina.php?id={{ movie.movieid }}">Pï¿½idat film do kina</a></li>
 
 
 <li><a href="https://fdk.cz/div/movies/tmdbManualMovie.php?id={{ movie.movieid }}">UPDATE filmu</a> 
@@ -467,24 +467,24 @@ document.addEventListener('DOMContentLoaded', function() {
     <li><a target="_blank" href="https://fdk.cz/div/movies/update-filmu-nocz-rok-2.php?id={{ movie.movieid }}">neCZ nazev-rok-2</a></li>
     </ol></li>
 
-<li><a href="https://fdk.cz/div/movies/pridat-na-hlavni-stranu.php?id={{ movie.movieid }}">PØIDAT NA HLAVNÍ STRANU</a></li>
+<li><a href="https://fdk.cz/div/movies/pridat-na-hlavni-stranu.php?id={{ movie.movieid }}">Pï¿½IDAT NA HLAVNï¿½ STRANU</a></li>
 </ul>
 </p>
 {% else %}
 {% endif %}
 
 {% else %}
-    <h4>Pøihlášení</h4>
+    <h4>Pï¿½ihlï¿½enï¿½</h4>
     <form method="post" action="{% url 'login' %}">
         {% csrf_token %}
         {{ form.username.label_tag }}
         {{ form.username }}
         {{ form.password.label_tag }}
         {{ form.password }}
-        <button type="submit" class="btn btn-primary">Pøihlásit se</button>
+        <button type="submit" class="btn btn-primary">Pï¿½ihlï¿½sit se</button>
     </form>
     <div class="mt-3">
-        <p>Nemáte úèet? <a href="{% url 'signup' %}">Registrace</a></p>
+        <p>Nemï¿½te ï¿½ï¿½et? <a href="{% url 'signup' %}">Registrace</a></p>
     </div>
 {% endif %}
 
@@ -496,7 +496,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="card rounded mb-4">
     <div class="card-body">
         <h5 class="card-title">{{ movie.titlecz }}</h5>
-        <p class="card-text">Sdílet na:</p>
+        <p class="card-text">Sdï¿½let na:</p>
 
         <!-- Facebook Share Button -->
         <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/film/{{ movie.url }}" class="btn btn-primary mb-2 mr-1" target="_blank">
@@ -514,7 +514,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </a>
 
         <!-- Email Share Button -->
-        <a href="mailto:?subject={{ movie.titlecz }}&body=Podívej se na https://div.cz/film/{{ movie.url }}" class="btn btn-dark mb-2 mr-1">
+        <a href="mailto:?subject={{ movie.titlecz }}&body=Podï¿½vej se na https://div.cz/film/{{ movie.url }}" class="btn btn-dark mb-2 mr-1">
             <i class="fas fa-envelope"></i>
         </a>
 

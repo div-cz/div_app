@@ -11,25 +11,26 @@
         <link rel="stylesheet" href="{% static 'star-ratings/css/star-ratings.css' %}">
         <script src="{% static 'star-ratings/js/dist/star-ratings.min.js' %}"></script>
 
-        <link href="https://media.div.cz/css/books.css" rel="stylesheet">
-        <link href="https://media.div.cz/css/navbar.css" rel="stylesheet">
+        <link href="/static/css/books.css" rel="stylesheet">
+        <link href="/static/css/navbar.css" rel="stylesheet">
 
         {% block meta %}
         {% endblock %}
 
     </head>
 
-    <body class="bg-[#FFFFFF] text-[#0d0c0f] dark:bg-[#0d0c0f] dark:text-[#F9F9F9] d-flex flex-column min-vh-100">
+    <body>
 
         {% include "../inc/navbar_books.html" %}
 
-        <main class="flex-grow-1 max-w-[1440px] lg:mx-auto">
-            <section class="text-[#0d0c0f] dark:text-[#F9F9F9] max-w-[1440px] flex flex-col lg:flex-row">
-                <aside class="lg:min-w-[200px] max-h-full bg-light border-right">
+        <main>
+            <section>
+                <aside>
                     <div class="lg:min-w-[200px] max-h-full">
                         <!-- Menu -->
-                        <div class="menu-section flex justify-center lg:flex-col lg:justify-normal lg:h-screen lg:block">
+                        <div class="menu-section">
                             <div class="w-full">
+                                <!-- vyhledávání -->
                                 <form class="searching" action="/hledani-knih/" method="get">
                                     <input type="search" placeholder="Vyhledávání knih" aria-label="Vyhledávání" name="q">
                                     <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -39,8 +40,9 @@
                                     </svg>
                                 </form>
 
-                                <div class="after flex flex-wrap justify-between">
+                                <div class="menu after">
                                     <h3 class="ml-8 lg:pt-11 mb-2 font-bold sm:mt-4">Menu</h3>
+                                    <!-- mode -->
                                     <div class="flex gap-4 mb-2 mr-4 items-end">
                                         <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                                             class="size-6 sun cursor-pointer ">
@@ -60,7 +62,7 @@
                                         <div class="flex flex-col w-full">
                                             <ul class="sidebar-list">
                                                 <li>&#128172; <a href="/forum/knihy">Fórum</a></li>
-                                                <li>&#128214; <a href="{% url 'blog_section_detail' section='knizni' %}">Blogy</a></li>
+                                                <li>&#128209; <a href="{% url 'blog_section_detail' section='knizni' %}">Blogy</a></li>
                                                 <li>&#128240; <a href="{% url 'articles_list' category='knihy' %}">Články</a></li>
                                                 <li>&#128200; <a href="{% url 'charts_books' %}">Žebříčky</a></li>
                                                 <li>&#127942; <a href="{% url 'awards_books' %}">Ocenění</a></li>
@@ -68,9 +70,9 @@
                                                 <li>&#128100; <a href="/postavy/">Postavy</a></li>
 
                                                 <hr class="hr-hidden">
-                                                <li>&#128230; <a href="/antikvariat/">DIVkvariát</a>
+                                                <li>&#128214; <a href="/antikvariat/">DIVkvariát</a>
                                                 </li>
-                                                <li>&#10133;&#128218; <a href="/antikvariat/pridat-knihu/">Prodat knihu</a></li>
+                                                <li>&#128215; <a href="/antikvariat/pridat-knihu/">Prodat knihu</a></li>
                                                 <!--<li>&#128229; <a href="{% url 'books_market_wants' %}">Poptávka knih</a></li>-->
 
                                                 <li>&#128218; <a href="/eknihy/">E-Knihy</a></li>

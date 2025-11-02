@@ -7,18 +7,18 @@
 
 {% block content %}
 
-<div class="my-6 container mx-auto row">
+<div class="container">
     <div class="mb-3 px-4 w-full">
         <div class="mt-5">
             <h2 class="w-full">Seznam vydavatelů</h2>
             <ul class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 ml-6 mt-6">
-                {% for publisher in publishers %}
-                    <li>
-                        <a href="{% url 'games_by_publisher' publisher_url=publisher.publisherurl %}">
-                            {{ publisher.publisher }}
-                        </a>
-                    </li>
-                {% endfor %}
+            {% for publisher in publishers %}
+                <li>
+                    <a href="{% url 'games_by_publisher' publisher_url=publisher.publisherurl %}">
+                        {{ publisher.publisher }}
+                    </a>
+                </li>
+            {% endfor %}
             </ul>
 
             <hr> 
@@ -26,9 +26,9 @@
             {% if publishers.has_other_pages %}
             <div class="pagination mt-6 text-center">
                 <span class="step-links">
-                    {% if publishers.has_previous %}
-                        <a href="?page=1">&laquo; První</a>
-                        <a href="?page={{ publishers.previous_page_number }}" class="ml-2">Předchozí</a>
+                {% if publishers.has_previous %}
+                    <a href="?page=1">&laquo; První</a>
+                    <a href="?page={{ publishers.previous_page_number }}" class="ml-2">Předchozí</a>
                     {% endif %}
 
                     <span class="current ml-2">
@@ -36,9 +36,9 @@
                     </span>
 
                     {% if publishers.has_next %}
-                        <a href="?page={{ publishers.next_page_number }}" class="ml-2">Další</a>
-                        <a href="?page={{ publishers.paginator.num_pages }}" class="ml-2">Poslední &raquo;</a>
-                    {% endif %}
+                    <a href="?page={{ publishers.next_page_number }}" class="ml-2">Další</a>
+                    <a href="?page={{ publishers.paginator.num_pages }}" class="ml-2">Poslední &raquo;</a>
+                {% endif %}
                 </span>
             </div>
             {% endif %}

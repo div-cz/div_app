@@ -42,75 +42,76 @@
             https://div.cz/static/img/site/soutez/soutez_wallpaper.png
         {% endif %}
             ">
-{% endblock %}
 
-{% block content %}
+    {% endblock %}
 
-<style>
-    .rating {
-        position: relative;
-        width: 90px;
-        height: 90px;
-        border-radius: 50%;
-        margin: 0 auto;
-        padding: 0;
-        margin-bottom: 10px;
-    }
+    {% block content %}
 
-    .rating::before {
-        content: '';
-        position: absolute;
-        top: 5px;
-        left: 5px;
-        width: 75px;
-        height: 75px;
-        background: #444444;
-        border-radius: 50%;
-        z-index: 2;
-        margin: 4px;
-    }
+    <style>
+        .rating {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            margin: 0 auto;
+            padding: 0;
+            margin-bottom: 10px;
+        }
 
-    .rating::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 85px;
-        height: 85px;
-        background: conic-gradient(
-            var(--gradient-color, #0a0) 0%,
-            var(--gradient-color, #0a0) var(--gradient-value, 50%),
-            #777777 var(--gradient-value, 50%)
-        );
-        border-radius: 50%;
-        z-index: 1;
-        margin: 4px;
-    }
+        .rating::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 75px;
+            height: 75px;
+            background: #444444;
+            border-radius: 50%;
+            z-index: 2;
+            margin: 4px;
+        }
 
-    .rating-inner {
-        position: relative;
-        z-index: 3;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #fff;
-        font-size: 30px;
-        font-weight: bold;
-    }
+        .rating::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 85px;
+            height: 85px;
+            background: conic-gradient(
+                var(--gradient-color, #0a0) 0%,
+                var(--gradient-color, #0a0) var(--gradient-value, 50%),
+                #777777 var(--gradient-value, 50%)
+            );
+            border-radius: 50%;
+            z-index: 1;
+            margin: 4px;
+        }
 
-    .rating-inner span {
-        font-size: 10px;
-        margin-left: 2px;
-        color: #ffd700;
-        margin-top: -10px;
-    }
-</style>
+        .rating-inner {
+            position: relative;
+            z-index: 3;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 30px;
+            font-weight: bold;
+        }
 
-    <div class="row container my-5">
+        .rating-inner span {
+            font-size: 10px;
+            margin-left: 2px;
+            color: #ffd700;
+            margin-top: -10px;
+        }
+    </style>
+
+    <div class="container">
         <!-- Levá strana -->
-        <div class="col-lg-8">
+        <div class="left-side">
             <h2>{{ movie.titlecz }}</h2>
             {% if messages %}
             <div class="mt-3">
@@ -123,7 +124,7 @@
             {% endif %}
 
         <!-- Info Bar -->
-        <div class="rounded-3 p-2 mb-3 d-flex w-full bg-[#F9F9F9] dark:bg-[#1A161F] border-[#ccc] rounded-1xl">
+        <div class="info-bar">
             <span><a href="https://div.cz/filmy/{{ movie.releaseyear }}" title="Filmy roku {{ movie.releaseyear }} | {{ movie.movieid }}">{{ movie.releaseyear }}</a></span>
             &nbsp;|&nbsp;
             <span>
@@ -403,7 +404,7 @@
                     <!-- Výpis zajímavostí -->
                     {% for item in trivia %}
                     <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
-                        <p class="text-sm after">{{ item.trivia|safe }}</p>
+                        <p class="after">{{ item.trivia|safe }}</p>
                         <div class="mt-2 text-end">
                             <p>Přidal: 
                                 {% if not item.userid.id is None %}
@@ -457,7 +458,7 @@
                         {% endif %}<!-- // CREW -->
                         
                         </form>
-                    {% else %}
+                        {% else %}
                         <p>Žádný trailer není k dispozici, přidej nějaký.</p>
                     {% endif %}
                 {% endif %}
@@ -467,78 +468,71 @@
             <div id="tab5" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">        
                 <h3 class="after-h3">Známé hlášky z filmu</h3>
 
+                <!-- Výpis hlášek -->
+                <div class="mt-4">
+                    {% for quote in quotes %}
+                    <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded" data-quote-id="{{ quote.quoteid }}">
+                        <p class="mb-1 text-sm">{{ quote.quote }}</p>
+                        <hr class="my-2">
+                        <div class="flex justify-between m-2">
+                            <p class="mb-0">Vložil:
+                            {% if quote.user %}
+                                <a href="{% url 'user_profile_with_profil' user_id=quote.user.id %}" class="fw-bold text-success">{{ quote.user.username }}
+                                </a>
+                                {% else %}
+                                <span class="text-muted">Anonym</span>
+                            {% endif %}
+                            </p>
 
-<!-- Výpis hlášek -->
-<div class="mt-4">
-    {% for quote in quotes %}
-    <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded" data-quote-id="{{ quote.quoteid }}">
-        <p class="mb-1 text-sm">{{ quote.quote }}</p>
-        <hr class="my-2">
-        <div class="flex justify-between m-2">
-            <p class="mb-0">
-                Vložil:
-                {% if quote.user %}
-                    <a href="{% url 'user_profile_with_profil' user_id=quote.user.id %}" class="fw-bold text-success">
-                        {{ quote.user.username }}
-                    </a>
-                {% else %}
-                    <span class="text-muted">Anonym</span>
-                {% endif %}
-            </p>
+                            <div class="rating-buttons">
+                                <button class="thumb-btn" data-action="thumbsup" style="background:none;border:none;cursor:pointer;">
+                                    👍 <span>{{ quote.thumbsup|default:0 }}</span>
+                                </button>
+                                <button class="thumb-btn" data-action="thumbsdown" style="background:none;border:none;cursor:pointer;">
+                                    👎 <span>{{ quote.thumbsdown|default:0 }}</span>
+                                </button>
+                                <div class="star-display" style="display:inline-block;">
+                                    ⭐ <span>{{ quote.divrating|default:0 }}</span>
+                                </div>
+                            </div>
 
-<div class="rating-buttons">
-    <button class="thumb-btn" data-action="thumbsup" style="background:none;border:none;cursor:pointer;">
-        👍 <span>{{ quote.thumbsup|default:0 }}</span>
-    </button>
-    <button class="thumb-btn" data-action="thumbsdown" style="background:none;border:none;cursor:pointer;">
-        👎 <span>{{ quote.thumbsdown|default:0 }}</span>
-    </button>
-    <div class="star-display" style="display:inline-block;">
-        ⭐ <span>{{ quote.divrating|default:0 }}</span>
-    </div>
-</div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>Žádná hláška u filmu není k dispozici.</p>
+                {% endfor %}
+                </div>
 
-        </div>
-    </div>
-
-
-    {% empty %}
-        <p>Žádná hláška u filmu není k dispozici.</p>
-    {% endfor %}
-</div>
-
-<script>
-document.querySelectorAll('.thumb-btn').forEach(btn => {
-  btn.addEventListener('click', async e => {
-    const block = e.target.closest('[data-quote-id]');
-    if (!block) return;
-    const id = block.dataset.quoteId;
-    const action = e.target.dataset.action;
-    try {
-      const r = await fetch(`/moviequote/${id}/rate/`, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': '{{ csrf_token }}',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ action })
-      });
-      const data = await r.json();
-      if (data.error) {
-        alert(data.error);
-      } else {
-        block.querySelector('[data-action="thumbsup"] span').textContent = data.thumbsup;
-        block.querySelector('[data-action="thumbsdown"] span').textContent = data.thumbsdown;
-        block.querySelector('.star-display span').textContent = data.divrating;
-      }
-    } catch (err) {
-      console.error('Fetch error:', err);
-    }
-  });
-});
-</script>
-
-
+                <script>
+                    document.querySelectorAll('.thumb-btn').forEach(btn => {
+                        btn.addEventListener('click', async e => {
+                            const block = e.target.closest('[data-quote-id]');
+                            if (!block) return;
+                            const id = block.dataset.quoteId;
+                            const action = e.target.dataset.action;
+                            try {
+                            const r = await fetch(`/moviequote/${id}/rate/`, {
+                                method: 'POST',
+                                headers: {
+                                'X-CSRFToken': '{{ csrf_token }}',
+                                'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ action })
+                            });
+                            const data = await r.json();
+                            if (data.error) {
+                                alert(data.error);
+                            } else {
+                                block.querySelector('[data-action="thumbsup"] span').textContent = data.thumbsup;
+                                block.querySelector('[data-action="thumbsdown"] span').textContent = data.thumbsdown;
+                                block.querySelector('.star-display span').textContent = data.divrating;
+                            }
+                            } catch (err) {
+                                console.error('Fetch error:', err);
+                            }
+                        });
+                    });
+                </script>
 
                 <!-- přidat hlášku -->
                 {% if user.is_authenticated %}
@@ -565,7 +559,7 @@ document.querySelectorAll('.thumb-btn').forEach(btn => {
                 <div class="mt-4">
                     {% for error in errors %}
                     <div class="card card-body dark:bg-[#0d0c0f] w-full p-3 mb-2 border rounded">
-                        <p class="text-sm after">{{ error.error }}</p>
+                        <p class="after">{{ error.error }}</p>
                         <div class="mt-2 text-end">
                             <p>Přidal: 
                                 {% if error.userid %}
@@ -596,7 +590,7 @@ document.querySelectorAll('.thumb-btn').forEach(btn => {
     </div>
 
     <!-- Pravá strana -->
-    <div class="col-lg-4">
+    <div class="right-side">
         
         <!-- Hodnocení -->
         <div class="card box-shadow mb-4 mt-4">
