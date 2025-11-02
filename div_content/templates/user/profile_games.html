@@ -133,33 +133,29 @@
                     </div>
                 </div>
 
-                <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
-                        {% if game_page_obj.has_previous %}
-                        <div>
-                            <a href="?page=1#hodnoceni">&laquo; první</a>
-                            <a href="?page={{ game_page_obj.previous_page_number }}#hodnoceni">předchozí</a>
-                        </div>
-                        {% endif %}
+                <!-- PAGINÁTOR -->
+                <div class="pagination">
+                    <span class="step-links">
+                    {% if game_page_obj.has_previous %}
+                        <a class="first-page" href="?page=1#hodnoceni">&laquo; První</a>
+                        <a href="?page={{ game_page_obj.previous_page_number }}#hodnoceni">Předchozí</a>
+                    {% endif %}
 
-                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                        {% if game_page_obj.paginator.num_pages > 1 %}
-                        <span class="current-page mx-4">
-                        Stránka {{ game_page_obj.number }} / {{ game_page_obj.paginator.num_pages }}
+                    {% if game_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page">
+                            {{ game_page_obj.number }} / {{ game_page_obj.paginator.num_pages }}
                         </span>
-                        {% endif %}
+                    {% endif %}
 
-                        {% if game_page_obj.has_next %}
-                        <div>
-                            <a href="?page={{ game_page_obj.next_page_number }}#hodnoceni">další</a>
-                            <a href="?page={{ game_page_obj.paginator.num_pages }}#hodnoceni">poslední &raquo;</a>
-                        </div>
-                        {% endif %}
+                    {% if game_page_obj.has_next %}
+                        <a href="?page={{ game_page_obj.next_page_number }}#hodnoceni">Další</a>
+                        <a class="last-page" href="?page={{ game_page_obj.paginator.num_pages }}#hodnoceni">Poslední &raquo;</a>
+                    {% endif %}
                     </span>
                 </div>
                 {% else %}
-                <p  class="p-3">Žádné ohodnocené hry.</p>    
-                {% endif %}                      
+                <p class="p-3">Žádné ohodnocené hry.</p>    
+            {% endif %}                      
             </div>
 
             <!-- Tab Oblíbené -->
@@ -185,33 +181,29 @@
                     </div>
                 </div>
                 
-                <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
-                        {% if favorite_page_obj.has_previous %}
-                        <div>
-                            <a href="?favorite_page=1#oblibene">&laquo; první</a>
-                            <a href="?favorite_page={{ favorite_page_obj.previous_page_number }}#oblibene">předchozí</a>
-                        </div>
-                        {% endif %}
+                <!-- PAGINÁTOR -->
+                <div class="pagination">
+                    <span class="step-links">
+                    {% if favorite_page_obj.has_previous %}
+                        <a class="first-page" href="?favorite_page=1#oblibene">&laquo; První</a>
+                        <a href="?favorite_page={{ favorite_page_obj.previous_page_number }}#oblibene">Předchozí</a>
+                    {% endif %}
 
-                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                        {% if favorite_page_obj.paginator.num_pages > 1 %}
-                        <span class="current-page mx-4">
-                        Stránka {{ favorite_page_obj.number }} / {{ favorite_page_obj.paginator.num_pages }}
+                    {% if favorite_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page">
+                            {{ favorite_page_obj.number }} / {{ favorite_page_obj.paginator.num_pages }}
                         </span>
-                        {% endif %}
+                    {% endif %}
 
-                        {% if favorite_page_obj.has_next %}
-                        <div>
-                            <a href="?favorite_page={{ favorite_page_obj.next_page_number }}#oblibene">další</a>
-                            <a href="?favorite_page={{ favorite_page_obj.paginator.num_pages }}#oblibene">poslední &raquo;</a>
-                        </div>
-                        {% endif %}
+                    {% if favorite_page_obj.has_next %}
+                        <a href="?favorite_page={{ favorite_page_obj.next_page_number }}#oblibene">Další</a>
+                        <a class="last-page" href="?favorite_page={{ favorite_page_obj.paginator.num_pages }}#oblibene">Poslední &raquo;</a>
+                    {% endif %}
                     </span>
                 </div>
                 {% else %}
-                    <p  class="p-3">Žádné oblíbené hry.</p>
-                {% endif %}
+                <p  class="p-3">Žádné oblíbené hry</p>
+            {% endif %}
             </div>
 
             <!-- Tab Recenze -->
@@ -243,34 +235,29 @@
                     {% endfor %}
                 </div>
 
-                <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
+                <!-- PAGINÁTOR -->
+                <div class="pagination">
+                    <span class="step-links">
+                    {% if reviews_page_obj.has_previous %}
+                        <a class="first-page" href="?reviews_page=1#recenze">&laquo; První</a>
+                        <a href="?reviews_page={{ reviews_page_obj.previous_page_number }}#recenze">Předchozí</a>
+                    {% endif %}
 
-                        {% if reviews_page_obj.has_previous %}
-                        <div>
-                            <a href="?reviews_page=1#recenze">&laquo; první</a>
-                            <a href="?reviews_page={{ reviews_page_obj.previous_page_number }}#recenze">předchozí</a>
-                        </div>
-                        {% endif %}
+                    {% if reviews_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page">
+                            {{ reviews_page_obj.number }} / {{ reviews_page_obj.paginator.num_pages }}
+                        </span>
+                    {% endif %}
 
-                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                        {% if reviews_page_obj.paginator.num_pages > 1 %}
-                        <span class="current-page mx-4">
-                            Stránka {{ reviews_page_obj.number }} / {{ reviews_page_obj.paginator.num_pages }}</span>
-                        {% endif %}
-
-                        {% if reviews_page_obj.has_next %}
-                        <div>
-                            <a href="?reviews_page={{ reviews_page_obj.next_page_number }}#recenze">další</a>
-                            <a href="?reviews_page={{ reviews_page_obj.paginator.num_pages }}#recenze">poslední &raquo;</a>
-                        </div>
-                        {% endif %}
+                    {% if reviews_page_obj.has_next %}
+                        <a href="?reviews_page={{ reviews_page_obj.next_page_number }}#recenze">Další</a>
+                        <a class="last-page" href="?reviews_page={{ reviews_page_obj.paginator.num_pages }}#recenze">Poslední &raquo;</a>
+                    {% endif %}
                     </span>
                 </div>
                 {% else %}
-                    <p  class="p-3">Žádné recenze.</p>
-                {% endif %}
-
+                <p  class="p-3">Žádné recenze.</p>
+            {% endif %}
             </div>
 
             <!-- Tab Chci hrát -->
@@ -298,33 +285,29 @@
                     </div>
                 </div>
 
-                <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
-                        {% if wantplay_page_obj.has_previous %}
-                        <div>
-                            <a href="?wantplay_page=1#chci-hrat">&laquo; první</a>
-                            <a href="?wantplay_page={{ wantplay_page_obj.previous_page_number }}#chci-hrat">předchozí</a>
-                        </div>
-                        {% endif %}
+                <!-- PAGINÁTOR -->
+                <div class="pagination">
+                    <span class="step-links">
+                    {% if wantplay_page_obj.has_previous %}
+                        <a class="first-page" href="?wantplay_page=1#chci-hrat">&laquo; První</a>
+                        <a href="?wantplay_page={{ wantplay_page_obj.previous_page_number }}#chci-hrat">Předchozí</a>
+                    {% endif %}
 
-                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                        {% if wantplay_page_obj.paginator.num_pages > 1 %}
-                        <span class="current-page mx-4">
-                        Stránka {{ wantplay_page_obj.number }} / {{ wantplay_page_obj.paginator.num_pages }}
+                    {% if wantplay_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page">
+                            {{ wantplay_page_obj.number }} / {{ wantplay_page_obj.paginator.num_pages }}
                         </span>
-                        {% endif %}
+                    {% endif %}
 
-                        {% if wantplay_page_obj.has_next %}
-                        <div>
-                            <a href="?wantplay_page={{ wantplay_page_obj.next_page_number }}#chci-hrat">další</a>
-                            <a href="?wantplay_page={{ wantplay_page_obj.paginator.num_pages }}#chci-hrat">poslední &raquo;</a>
-                        </div>
-                        {% endif %}
+                    {% if wantplay_page_obj.has_next %}
+                        <a href="?wantplay_page={{ wantplay_page_obj.next_page_number }}#chci-hrat">Další</a>
+                        <a class="last-page" href="?wantplay_page={{ wantplay_page_obj.paginator.num_pages }}#chci-hrat">Poslední &raquo;</a>
+                    {% endif %}
                     </span>
                 </div>
                 {% else %}
-                    <p  class="p-3">Žádné hry v seznamu „Chci hrát“.</p>
-                {% endif %}
+                <p  class="p-3">Žádné hry v seznamu „Chci hrát“.</p>
+            {% endif %}
             </div>
 
             <!-- Tab Odehráno -->
@@ -350,33 +333,29 @@
                     </div>
                 </div>
 
-                <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
-                        {% if played_page_obj.has_previous %}
-                        <div>
-                            <a href="?playedgames_page=1#odehrano">&laquo; první</a>
-                            <a href="?playedgames_page={{ played_page_obj.previous_page_number }}#odehrano">předchozí</a>
-                        </div>
-                        {% endif %}
+                <!-- PAGINÁTOR -->
+                <div class="pagination">
+                    <span class="step-links">
+                    {% if played_page_obj.has_previous %}
+                        <a class="first-page" href="?playedgames_page=1#odehrano">&laquo; První</a>
+                        <a href="?playedgames_page={{ played_page_obj.previous_page_number }}#odehrano">Předchozí</a>
+                    {% endif %}
 
-                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                        {% if played_page_obj.paginator.num_pages > 1 %}
-                        <span class="current-page mx-4">
+                    {% if played_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page">
                         Stránka {{ played_page_obj.number }} / {{ played_page_obj.paginator.num_pages }}
                         </span>
-                        {% endif %}
+                    {% endif %}
 
-                        {% if played_page_obj.has_next %}
-                        <div>
-                            <a href="?playedgames_page={{ played_page_obj.next_page_number }}#odehrano">další</a>
-                            <a href="?playedgames_page={{ played_page_obj.paginator.num_pages }}#odehrano">poslední &raquo;</a>
-                        </div>
-                        {% endif %}
+                    {% if played_page_obj.has_next %}
+                        <a href="?playedgames_page={{ played_page_obj.next_page_number }}#odehrano">Další</a>
+                        <a class="last-page" href="?playedgames_page={{ played_page_obj.paginator.num_pages }}#odehrano">Poslední &raquo;</a>
+                    {% endif %}
                     </span>
                 </div>
                 {% else %}
-                    <p  class="p-3">Žádné odehrané hry.</p>
-                {% endif %}
+                <p class="p-3">Žádné odehrané hry.</p>
+            {% endif %}
             </div>
 
             <!-- Tab Gamotéka -->
@@ -402,33 +381,29 @@
                     </div>
                 </div>
 
-                <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
-                        {% if gamoteka_page_obj.has_previous %}
-                        <div>
-                            <a href="?gamoteka_page=1#gamoteka">&laquo; první</a>
-                            <a href="?gamoteka_page={{ gamoteka_page_obj.previous_page_number }}#gamoteka">předchozí</a>
-                        </div>
-                        {% endif %}
+                <!-- PAGINÁTOR -->
+                <div class="pagination">
+                    <span class="step-links">
+                    {% if gamoteka_page_obj.has_previous %}
+                        <a class="first-page" href="?gamoteka_page=1#gamoteka">&laquo; První</a>
+                        <a href="?gamoteka_page={{ gamoteka_page_obj.previous_page_number }}#gamoteka">Předchozí</a>
+                    {% endif %}
 
-                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                        {% if gamoteka_page_obj.paginator.num_pages > 1 %}
-                        <span class="current-page mx-4">
-                        Stránka {{ gamoteka_page_obj.number }} / {{ gamoteka_page_obj.paginator.num_pages }}
+                    {% if gamoteka_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page">
+                            {{ gamoteka_page_obj.number }} / {{ gamoteka_page_obj.paginator.num_pages }}
                         </span>
-                        {% endif %}
+                    {% endif %}
 
-                        {% if gamoteka_page_obj.has_next %}
-                        <div>
-                            <a href="?gamoteka_page={{ gamoteka_page_obj.next_page_number }}#gamoteka">další</a>
-                            <a href="?gamoteka_page={{ gamoteka_page_obj.paginator.num_pages }}#gamoteka">poslední &raquo;</a>
-                        </div>
-                        {% endif %}
+                    {% if gamoteka_page_obj.has_next %}
+                        <a href="?gamoteka_page={{ gamoteka_page_obj.next_page_number }}#gamoteka">Další</a>
+                        <a class="last-page" href="?gamoteka_page={{ gamoteka_page_obj.paginator.num_pages }}#gamoteka">Poslední &raquo;</a>
+                    {% endif %}
                     </span>
                 </div>
                 {% else %}
-                    <p  class="p-3">Žádné hry v Gamotéce.</p>
-                {% endif %}
+                <p class="p-3">Žádné hry v Gamotéce.</p>
+            {% endif %}
             </div>
 
         </div>

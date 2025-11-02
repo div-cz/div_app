@@ -97,26 +97,21 @@
     </div>
 
     <!-- paginátor -->
-    <div class="pagination mt-8">
-        <span class="step-links flex justify-center">
-            <div>
+    <div class="pagination">
+        <span class="step-links">
             {% if listings_sell.has_previous %}
-                <a href="?page_sell={{ listings_sell.previous_page_number }}">&laquo; Předchozí</a>
+                <a class="first-page" href="?page_sell={{ listings_sell.previous_page_number }}">&laquo; Předchozí</a>
                 {% else %}
-                <span></span>
             {% endif %}
-            </div>
 
-            <span class="current-page mx-4">
-                Strana {{ listings_sell.number }} z {{ listings_sell.paginator.num_pages }}</span>
+            <span class="current-page">
+                {{ listings_sell.number }} / {{ listings_sell.paginator.num_pages }}
+            </span>
 
-            <div>
             {% if listings_sell.has_next %}
-                <a href="?page_sell={{ listings_sell.next_page_number }}">Další &raquo;</a>
+                <a class="last-page" href="?page_sell={{ listings_sell.next_page_number }}">Další &raquo;</a>
                 {% else %}
-                <span></span>
             {% endif %}
-            </div>
         </span>
     </div>
 {% endif %}

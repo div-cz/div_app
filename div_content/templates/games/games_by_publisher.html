@@ -30,22 +30,23 @@
 
                 <hr> 
 
+                <!-- PAGINÁTOR -->
                 {% if games.has_other_pages %}
-                <div class="pagination mt-6 text-center">
+                <div class="pagination">
                     <span class="step-links">
-                        {% if games.has_previous %}
-                            <a href="?page=1">&laquo; První</a>
-                            <a href="?page={{ games.previous_page_number }}" class="ml-2">Předchozí</a>
-                        {% endif %}
+                    {% if games.has_previous %}
+                        <a class="first-page" href="?page=1">&laquo; První</a>
+                        <a href="?page={{ games.previous_page_number }}">Předchozí</a>
+                    {% endif %}
 
-                        <span class="current ml-2">
-                            Stránka {{ games.number }} z {{ games.paginator.num_pages }}.
-                        </span>
+                    <span class="current-page">
+                        {{ games.number }} / {{ games.paginator.num_pages }}.
+                    </span>
 
-                        {% if games.has_next %}
-                            <a href="?page={{ games.next_page_number }}" class="ml-2">Další</a>
-                            <a href="?page={{ games.paginator.num_pages }}" class="ml-2">Poslední &raquo;</a>
-                        {% endif %}
+                    {% if games.has_next %}
+                        <a href="?page={{ games.next_page_number }}">Další</a>
+                        <a class="last-page" href="?page={{ games.paginator.num_pages }}">Poslední &raquo;</a>
+                    {% endif %}
                     </span>
                 </div>
                 {% endif %}

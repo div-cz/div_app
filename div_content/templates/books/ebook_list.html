@@ -170,16 +170,23 @@ a.btn.books.btn-outline-secondary {
         {% endfor %}
     </div>
 
-    <div class="pagination mt-6">
+    <!-- PAGINÁTOR -->
+    <div class="pagination">
+        <span class="step-links">
         {% if page_obj.has_previous %}
-            <a href="?page=1">&laquo; první</a>
-            <a href="?page={{ page_obj.previous_page_number }}">předchozí</a>
+            <a class="first-page" href="?page=1">&laquo; První</a>
+            <a href="?page={{ page_obj.previous_page_number }}">Předchozí</a>
         {% endif %}
-        <span class="current">Stránka {{ page_obj.number }} z {{ page_obj.paginator.num_pages }}</span>
+
+        <span class="current-page">
+            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+        </span>
+
         {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">další</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">poslední &raquo;</a>
+            <a href="?page={{ page_obj.next_page_number }}">Další</a>
+            <a class="last-page" href="?page={{ page_obj.paginator.num_pages }}">Poslední &raquo;</a>
         {% endif %}
+        </span>
     </div>
 </div>
 {% endblock %}

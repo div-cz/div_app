@@ -133,32 +133,29 @@
                     </div>
                 </div>
 
-                <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
-                        {% if series_page_obj.has_previous %}
-                        <div>
-                            <a href="?page=1#hodnoceni">&laquo; první</a>
-                            <a href="?page={{ series_page_obj.previous_page_number }}#hodnoceni">předchozí</a>
-                        </div>
-                        {% endif %}
+                <!-- PAGINÁTOR -->
+                <div class="pagination">
+                    <span class="step-links">
+                    {% if series_page_obj.has_previous %}
+                        <a class="first-page" href="?page=1#hodnoceni">&laquo; První</a>
+                        <a href="?page={{ series_page_obj.previous_page_number }}#hodnoceni">Předchozí</a>
+                    {% endif %}
 
-                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                        {% if series_page_obj.paginator.num_pages > 1 %}
-                        <span class="current-page mx-4">
-                            Stránka {{ series_page_obj.number }} / {{ series_page_obj.paginator.num_pages }}</span>
-                        {% endif %}
+                    {% if series_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page">
+                            {{ series_page_obj.number }} / {{ series_page_obj.paginator.num_pages }}
+                        </span>
+                    {% endif %}
 
-                        {% if series_page_obj.has_next %}
-                        <div>
-                            <a href="?page={{ series_page_obj.next_page_number }}#hodnoceni">další</a>
-                            <a href="?page={{ series_page_obj.paginator.num_pages }}#hodnoceni">poslední &raquo;</a>
-                        </div>
-                        {% endif %}
+                    {% if series_page_obj.has_next %}
+                        <a href="?page={{ series_page_obj.next_page_number }}#hodnoceni">Další</a>
+                        <a class="last-page" href="?page={{ series_page_obj.paginator.num_pages }}#hodnoceni">Poslední &raquo;</a>
+                    {% endif %}
                     </span>
                 </div>
                 {% else %}
-                <p  class="p-3">Žádné ohodnocené seriály.</p>    
-                {% endif %} 
+                <p class="p-3">žádné ohodnocené seriály</p>    
+            {% endif %} 
             </div>
 
             <!-- Tab Oblíbené -->
@@ -188,32 +185,29 @@
                     </div>
                 </div>
                 
-                <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
-                        {% if favorite_page_obj.has_previous %}
-                        <div>
-                            <a href="?favorite_page=1xoblibene">&laquo; první</a>
-                            <a href="?favorite_page={{ favorite_page_obj.previous_page_number }}#oblibene">předchozí</a>
-                        </div>
-                        {% endif %}
+                <!-- PAGINÁTOR -->
+                <div class="pagination">
+                    <span class="step-links">
+                    {% if favorite_page_obj.has_previous %}
+                        <a class="first-page" href="?favorite_page=1xoblibene">&laquo; První</a>
+                        <a href="?favorite_page={{ favorite_page_obj.previous_page_number }}#oblibene">Předchozí</a>
+                    {% endif %}
 
-                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                        {% if favorite_page_obj.paginator.num_pages > 1 %}
-                        <span class="current-page mx-4">
-                            Stránka {{ favorite_page_obj.number }} / {{ favorite_page_obj.paginator.num_pages }}</span>
-                        {% endif %}
+                    {% if favorite_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page">
+                            {{ favorite_page_obj.number }} / {{ favorite_page_obj.paginator.num_pages }}
+                        </span>
+                    {% endif %}
 
-                        {% if favorite_page_obj.has_next %}
-                        <div>
-                            <a href="?favorite_page={{ favorite_page_obj.next_page_number }}#oblibene">další</a>
-                            <a href="?favorite_page={{ favorite_page_obj.paginator.num_pages }}#oblibene">poslední &raquo;</a>
-                        </div>
-                        {% endif %}
+                    {% if favorite_page_obj.has_next %}
+                        <a href="?favorite_page={{ favorite_page_obj.next_page_number }}#oblibene">Další</a>
+                        <a class="last-page" href="?favorite_page={{ favorite_page_obj.paginator.num_pages }}#oblibene">Poslední &raquo;</a>
+                    {% endif %}
                     </span>
                 </div>
 
                 {% else %}
-                <p  class="p-3">Žádné oblíbené seriály.</p>
+                <p class="p-3">žádné oblíbené seriály</p>
                 {% endif %}
 
                 <hr>
@@ -223,14 +217,14 @@
                     <h3 class="after-h3 mt-8 padding">Oblíbení tvůrci</h3>
                     {% if fav_creators_page_obj %}
                         <div class="flex flex-wrap w-full">
-                            {% for creator in fav_creators_page_obj %}
+                        {% for creator in fav_creators_page_obj %}
                             <div class="mt-5" style="width: 150px">
                                 <div class="p-1 w-full">
                                     {% if not creator.img or creator.img == "" %}
-                                        <img src="/static/img/creator/noperson.svg" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                                    <img src="/static/img/creator/noperson.svg" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
                                     {% else %}
-                                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ creator.img }}" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
-                                    {% endif %}
+                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ creator.img }}" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: auto; margin: 0 auto">
+                                {% endif %}
                                 </div>
                                 <div class="p-1 w-full text-center">
                                     <a class="movies" href="/tvurce/{{ creator.url }}">{{ creator.firstname }} {{ creator.lastname }}</a>
@@ -238,34 +232,30 @@
                             </div>
                             {% endfor %}
                         </div>
-                        <div class="pagination mt-8">
-                            <span class="step-links flex justify-center">
-        
-                                {% if fav_creators_page_obj.has_previous %}
-                                <div>
-                                    <a href="?fav_creators_page=1#oblibene">&laquo; první</a>
-                                    <a href="?fav_creators_page={{ fav_creators_page_obj.previous_page_number }}#oblibene">předchozí</a>
-                                </div>
-                                {% endif %}
-        
-                                <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                                {% if fav_creators_page_obj.paginator.num_pages > 1 %}
-                                <span class="current-page mx-4">
-                                    Stránka {{ fav_creators_page_obj.number }} / {{ fav_creators_page_obj.paginator.num_pages }}</span>
-                                {% endif %}
-        
-                                {% if fav_creators_page_obj.has_next %}
-                                <div>
-                                    <a href="?fav_creators_page={{ fav_creators_page_obj.next_page_number }}#oblibene">další</a>
-                                    <a href="?fav_creators_page={{ fav_creators_page_obj.paginator.num_pages }}#oblibene">poslední &raquo;</a>
-                                </div>
-                                {% endif %}
+
+                        <!-- PAGINÁTOR -->
+                        <div class="pagination">
+                            <span class="step-links">
+                            {% if fav_creators_page_obj.has_previous %}
+                                <a class="first-page" href="?fav_creators_page=1#oblibene">&laquo; První</a>
+                                <a href="?fav_creators_page={{ fav_creators_page_obj.previous_page_number }}#oblibene">Předchozí</a>
+                            {% endif %}
+    
+                            {% if fav_creators_page_obj.paginator.num_pages > 1 %}
+                                <span class="current-page">
+                                    {{ fav_creators_page_obj.number }} / {{ fav_creators_page_obj.paginator.num_pages }}
+                                </span>
+                            {% endif %}
+    
+                            {% if fav_creators_page_obj.has_next %}
+                                <a href="?fav_creators_page={{ fav_creators_page_obj.next_page_number }}#oblibene">Další</a>
+                                <a class="last-page" href="?fav_creators_page={{ fav_creators_page_obj.paginator.num_pages }}#oblibene">Poslední &raquo;</a>
+                            {% endif %}
                             </span>
                         </div>
-
                     {% else %}
-                    <p>Žádní oblíbení herci.</p>
-                    {% endif %}
+                    <p>žádní oblíbení herci</p>
+                {% endif %}
                 </div>
 
                 <hr>
@@ -290,34 +280,32 @@
                             </div>
                             {% endfor %}
                         </div>
-                    {% else %}
-                        <p  class="p-3">Žádné oblíbené postavy.</p>
                     {% endif %}
                 </div>
-                <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
-    
-                        {% if fav_characters_page_obj.has_previous %}
-                        <div>
-                            <a href="?fav_characters_page=1#oblibene">&laquo; první</a>
-                            <a href="?fav_characters_page={{ fav_characters_page_obj.previous_page_number }}#oblibene">předchozí</a>
-                        </div>
-                        {% endif %}
-    
-                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                        {% if fav_characters_page_obj.paginator.num_pages > 1 %}
-                        <span class="current-page mx-4">
-                            Stránka {{ fav_characters_page_obj.number }} / {{ fav_characters_page_obj.paginator.num_pages }}</span>
-                        {% endif %}
-    
-                        {% if fav_characters_page_obj.has_next %}
-                        <div>
-                            <a href="?fav_characters_page={{ fav_characters_page_obj.next_page_number }}#oblibene">další</a>
-                            <a href="?fav_characters_page={{ fav_characters_page_obj.paginator.num_pages }}#oblibene">poslední &raquo;</a>
-                        </div>
-                        {% endif %}
+
+                <!-- PAGINÁTOR -->
+                <div class="pagination">
+                    <span class="step-links">
+                    {% if fav_characters_page_obj.has_previous %}
+                        <a class="first-page" href="?fav_characters_page=1#oblibene">&laquo; První</a>
+                        <a href="?fav_characters_page={{ fav_characters_page_obj.previous_page_number }}#oblibene">Předchozí</a>
+                    {% endif %}
+
+                    {% if fav_characters_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page">
+                            {{ fav_characters_page_obj.number }} / {{ fav_characters_page_obj.paginator.num_pages }}
+                        </span>
+                    {% endif %}
+
+                    {% if fav_characters_page_obj.has_next %}
+                        <a href="?fav_characters_page={{ fav_characters_page_obj.next_page_number }}#oblibene">Další</a>
+                        <a class="last-page" href="?fav_characters_page={{ fav_characters_page_obj.paginator.num_pages }}#oblibene">Poslední &raquo;</a>
+                    {% endif %}
                     </span>
                 </div>
+                {% else %}
+                <p class="p-3">žádné oblíbené postavy</p>
+            {% endif %}
             </div>
 
             <!-- Tab Recenze -->
@@ -351,33 +339,29 @@
                     {% endfor %}
                 </div>
 
-                <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
+                <!-- PAGINÁTOR -->
+                <div class="pagination">
+                    <span class="step-links">
+                    {% if seriesreviews_page_obj.has_previous %}
+                        <a class="first-page" href="?seriesreviews_page=1#recenze">&laquo; První</a>
+                        <a href="?seriesreviews_page={{ seriesreviews_page_obj.previous_page_number }}#recenze">Předchozí</a>
+                    {% endif %}
 
-                        {% if seriesreviews_page_obj.has_previous %}
-                        <div>
-                            <a href="?seriesreviews_page=1#recenze">&laquo; první</a>
-                            <a href="?seriesreviews_page={{ seriesreviews_page_obj.previous_page_number }}#recenze">předchozí</a>
-                        </div>
-                        {% endif %}
+                    {% if seriesreviews_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page">
+                            {{ seriesreviews_page_obj.number }} / {{ seriesreviews_page_obj.paginator.num_pages }}
+                        </span>
+                    {% endif %}
 
-                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                        {% if seriesreviews_page_obj.paginator.num_pages > 1 %}
-                        <span class="current-page mx-4">
-                            Stránka {{ seriesreviews_page_obj.number }} / {{ seriesreviews_page_obj.paginator.num_pages }}</span>
-                        {% endif %}
-
-                        {% if seriesreviews_page_obj.has_next %}
-                        <div>
-                            <a href="?seriesreviews_page={{ seriesreviews_page_obj.next_page_number }}#recenze">další</a>
-                            <a href="?seriesreviews_page={{ seriesreviews_page_obj.paginator.num_pages }}#recenze">poslední &raquo;</a>
-                        </div>
-                        {% endif %}
+                    {% if seriesreviews_page_obj.has_next %}
+                        <a href="?seriesreviews_page={{ seriesreviews_page_obj.next_page_number }}#recenze">Další</a>
+                        <a class="last-page" href="?seriesreviews_page={{ seriesreviews_page_obj.paginator.num_pages }}#recenze">Poslední &raquo;</a>
+                    {% endif %}
                     </span>
                 </div>
                 {% else %}
-                    <p  class="p-3">Žádné recenze.</p>
-                {% endif %}
+                <p class="p-3">žádné recenze</p>
+            {% endif %}
             </div>
 
             <!-- Tab Chci vidět -->
@@ -407,32 +391,29 @@
                     </div>
                 </div>
 
-                <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
-                        {% if wantsee_page_obj.has_previous %}
-                        <div>
-                            <a href="?wantsee_page=1#chci-videt">&laquo; první</a>
-                            <a href="?wantsee_page={{ wantsee_page_obj.previous_page_number }}#chci-videt">předchozí</a>
-                        </div>
-                        {% endif %}
+                <!-- PAGINÁTOR -->
+                <div class="pagination">
+                    <span class="step-links">
+                    {% if wantsee_page_obj.has_previous %}
+                        <a class="first-page" href="?wantsee_page=1#chci-videt">&laquo; První</a>
+                        <a href="?wantsee_page={{ wantsee_page_obj.previous_page_number }}#chci-videt">Předchozí</a>
+                    {% endif %}
 
-                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                        {% if wantsee_page_obj.paginator.num_pages > 1 %}
-                        <span class="current-page mx-4">
-                            Stránka {{ wantsee_page_obj.number }} / {{ wantsee_page_obj.paginator.num_pages }}</span>
-                        {% endif %}
+                    {% if wantsee_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page">
+                            {{ wantsee_page_obj.number }} / {{ wantsee_page_obj.paginator.num_pages }}
+                        </span>
+                    {% endif %}
 
-                        {% if wantsee_page_obj.has_next %}
-                        <div>
-                            <a href="?wantsee_page={{ wantsee_page_obj.next_page_number }}#chci-videt">další</a>
-                            <a href="?wantsee_page={{ wantsee_page_obj.paginator.num_pages }}#chci-videt">poslední &raquo;</a>
-                        </div>
-                        {% endif %}
+                    {% if wantsee_page_obj.has_next %}
+                        <a href="?wantsee_page={{ wantsee_page_obj.next_page_number }}#chci-videt">Další</a>
+                        <a class="last-page" href="?wantsee_page={{ wantsee_page_obj.paginator.num_pages }}#chci-videt">Poslední &raquo;</a>
+                    {% endif %}
                     </span>
                 </div>
                 {% else %}
-                <p  class="p-3">Žádné seriály v seznamu „Chci vidět“.</p>
-                {% endif %}
+                <p class="p-3">žádné seriály v seznamu „Chci vidět“</p>
+            {% endif %}
             </div>
 
             <!-- Tab Shlédnuto -->
@@ -462,32 +443,29 @@
                     </div>
                 </div>
 
-                <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
-                        {% if watched_page_obj.has_previous %}
-                        <div>
-                            <a href="?watched_page=1#shlednuto">&laquo; první</a>
-                            <a href="?watched_page={{ watched_page_obj.previous_page_number }}#shlednuto">předchozí</a>
-                        </div>
-                        {% endif %}
+                <!-- PAGINÁTOR -->
+                <div class="pagination">
+                    <span class="step-links">
+                    {% if watched_page_obj.has_previous %}
+                        <a class="first-page" href="?watched_page=1#shlednuto">&laquo; První</a>
+                        <a href="?watched_page={{ watched_page_obj.previous_page_number }}#shlednuto">Předchozí</a>
+                    {% endif %}
 
-                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                        {% if watched_page_obj.paginator.num_pages > 1 %}
-                        <span class="current-page mx-4">
-                            Stránka {{ watched_page_obj.number }} / {{ watched_page_obj.paginator.num_pages }}</span>
-                        {% endif %}
+                    {% if watched_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page">
+                            {{ watched_page_obj.number }} / {{ watched_page_obj.paginator.num_pages }}
+                        </span>
+                    {% endif %}
 
-                        {% if watched_page_obj.has_next %}
-                        <div>
-                            <a href="?watched_page={{ watched_page_obj.next_page_number }}#shlednuto">další</a>
-                            <a href="?watched_page={{ watched_page_obj.paginator.num_pages }}#shlednuto">poslední &raquo;</a>
-                        </div>
-                        {% endif %}
+                    {% if watched_page_obj.has_next %}
+                        <a href="?watched_page={{ watched_page_obj.next_page_number }}#shlednuto">Další</a>
+                        <a class="last-page" href="?watched_page={{ watched_page_obj.paginator.num_pages }}#shlednuto">Poslední &raquo;</a>
+                    {% endif %}
                     </span>
                 </div>
                 {% else %}
-                <p  class="p-3">Žádné shlédnuté seriály.</p>
-                {% endif %}
+                <p class="p-3">žádné shlédnuté seriály</p>
+            {% endif %}
             </div>
 
             <!-- Tab Seriálotéka -->
@@ -517,32 +495,29 @@
                     </div>
                 </div>
                 
-                <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
-                        {% if serialoteka_page_obj.has_previous %}
-                        <div>
-                            <a href="?serialoteka_page=1#serialoteka">&laquo; první</a>
-                            <a href="?serialoteka_page={{ serialoteka_page_obj.previous_page_number }}#serialoteka">předchozí</a>
-                        </div>
-                        {% endif %}
+                <!-- PAGINÁTOR -->
+                <div class="pagination">
+                    <span class="step-links">
+                    {% if serialoteka_page_obj.has_previous %}
+                        <a class="first-page" href="?serialoteka_page=1#serialoteka">&laquo; První</a>
+                        <a href="?serialoteka_page={{ serialoteka_page_obj.previous_page_number }}#serialoteka">Předchozí</a>
+                    {% endif %}
 
-                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                        {% if serialoteka_page_obj.paginator.num_pages > 1 %}
-                        <span class="current-page mx-4">
-                            Stránka {{ serialoteka_page_obj.number }} / {{ serialoteka_page_obj.paginator.num_pages }}</span>
-                        {% endif %}
+                    {% if serialoteka_page_obj.paginator.num_pages > 1 %}
+                        <span class="current-page">
+                            {{ serialoteka_page_obj.number }} / {{ serialoteka_page_obj.paginator.num_pages }}
+                        </span>
+                    {% endif %}
 
-                        {% if serialoteka_page_obj.has_next %}
-                        <div>
-                            <a href="?serialoteka_page={{ serialoteka_page_obj.next_page_number }}#serialoteka">další</a>
-                            <a href="?serialoteka_page={{ serialoteka_page_obj.paginator.num_pages }}#serialoteka">poslední &raquo;</a>
-                        </div>
-                        {% endif %}
+                    {% if serialoteka_page_obj.has_next %}
+                        <a href="?serialoteka_page={{ serialoteka_page_obj.next_page_number }}#serialoteka">Další</a>
+                        <a class="last-page" href="?serialoteka_page={{ serialoteka_page_obj.paginator.num_pages }}#serialoteka">Poslední &raquo;</a>
+                    {% endif %}
                     </span>
                 </div>
                 {% else %}
-                <p  class="p-3">Žádné seriály v seriálotéce.</p>
-                {% endif %}
+                <p class="p-3">žádné seriály v seriálotéce</p>
+            {% endif %}
             </div>
 
         </div>

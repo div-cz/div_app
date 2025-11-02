@@ -169,324 +169,315 @@
         
         <div class="tab-content w-full mb-3 bg-[#F9F9F9] dark:bg-[#1A161F]">
 
-<!-- === === === === -->
-<!-- Tab E-knihy -->
-<!-- === === === === -->
+            <!-- Tab E-knihy -->
             <div id="eknihy" class="tab-show w-full active {% if category == 'e-knihy' %}active{% endif %}">
                 <h3 class="after-h3 padding">Zakoupené E-knihy</h3>
 
-
-{% if purchased_ebooks %}
-    <div class="flex flex-wrap">
-        {% for p in purchased_ebooks %}
-        <div class="flex border w-full md:w-1/2 p-3 mb-3">
-            <div>
-                <img src="{% if p.book.img and p.book.img != 'noimg.png' %}https://media.div.cz/knihy/{{ p.book.img }}{% else %}https://div.cz/static/img/book/book.png{% endif %}" alt="{{ p.book.titlecz|default:p.book.title }}" style="max-width: 150px;">
-            </div>
-            <div class="flex flex-wrap content-between">
-                <div class="flex flex-wrap w-full">
-                    <div class="p-1 w-full">
-                        <a class="books" href="/kniha/{{ p.book.url }}">{{ p.book.titlecz|default:p.book.title }}</a>
-                        ({{ p.book.year|default:"-" }})
-                    </div>
-                    <div class="p-1 w-full">
-                        {% if p.book.bookauthor_set.all %}
-                            {% for ba in p.book.bookauthor_set.all %}
-                                {{ ba.author.firstname }} {{ ba.author.lastname }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                    <div class="p-1 w-full">{{ p.paymentdate|date:"j. n. Y H:i" }}</div>
-                    <div class="p-1 w-full">{{ p.price|floatformat:0 }} Kč</div>
-                    <div class="p-1 w-full">formát: {{ p.format|upper }}</div>
-                    <div style="p-1 w-full">faktura: <a href="" class="w-full mt-2 text-center" title="Stáhnout fakturu">stáhnout (PDF)</a><br>v přípravě</div><!--% url 'download_invoice' p.purchaseid %-->
-                </div>
-                <div class="flex w-full justify-evenly mt-3">
-                    {% if p.isbn %}
-                        <a href="{% url 'download_ebook' p.isbn p.format %}" class="add-book ml-2">Stáhnout</a>
-                        <a href="/kniha/{{ p.book.url }}" class="add-book ml-2" title="Odeslat do čtečky">Odeslat</a>
-                    {% else %}
-                        <span style="color:red;">Chybí ISBN pro tento formát</span>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-<!-- PAGINATOR -->
-    <div class="pagination">
-      <span class="step-links flex justify-center">
-        {% if purchased_ebooks.has_previous %}
-            <a href="?page=1">&laquo; první</a>
-            <a href="?page={{ purchased_ebooks.previous_page_number }}">předchozí</a>
-        {% endif %}
-        <span class="current-page mx-4">
-            Stránka {{ purchased_ebooks.number }} / {{ purchased_ebooks.paginator.num_pages }}
-        </span>
-        {% if purchased_ebooks.has_next %}
-            <a href="?page={{ purchased_ebooks.next_page_number }}">další</a>
-            <a href="?page={{ purchased_ebooks.paginator.num_pages }}">poslední &raquo;</a>
-        {% endif %}
-      </span>
-    </div>
-
-{% else %}
-    <p class="p-3">Žádné zakoupené E-knihy.</p>
-{% endif %}
-
-                
-                
-                                        
-            </div>
-
-
-<!-- === === === === -->
-<!-- Tab Audioknihy -->
-<!-- === === === === -->
-<div id="audioknihy" class="tab-show w-full {% if category == 'audioknihy' %}active{% endif %}">
-    <div class="profile-card-tab">
-        <h3 class="after-h3 padding">Zakoupené Audioknihy</h3>
-        {% if purchased_audiobooks %}
-            <div class="flex flex-wrap">
-                {% for a in purchased_audiobooks %}
+                {% if purchased_ebooks %}
+                <div class="flex flex-wrap">
+                    {% for p in purchased_ebooks %}
                     <div class="flex border w-full md:w-1/2 p-3 mb-3">
                         <div>
-                            <img src="{% if a.book.img and a.book.img != 'noimg.png' %}/static/kniha/{{ a.book.img }}{% else %}https://div.cz/static/img/book/book.png{% endif %}" alt="{{ a.book.titlecz|default:a.book.title }}" style="max-width: 150px;">
+                            <img src="{% if p.book.img and p.book.img != 'noimg.png' %}https://media.div.cz/knihy/{{ p.book.img }}{% else %}https://div.cz/static/img/book/book.png{% endif %}" alt="{{ p.book.titlecz|default:p.book.title }}" style="max-width: 150px;">
                         </div>
                         <div class="flex flex-wrap content-between">
                             <div class="flex flex-wrap w-full">
                                 <div class="p-1 w-full">
-                                    <a class="books" href="/kniha/{{ a.book.url }}">{{ a.book.titlecz|default:a.book.title }}</a>
-                                    ({{ a.book.year|default:"-" }})
+                                    <a class="books" href="/kniha/{{ p.book.url }}">{{ p.book.titlecz|default:p.book.title }}</a>
+                                    ({{ p.book.year|default:"-" }})
                                 </div>
                                 <div class="p-1 w-full">
-                                    {% if a.book.bookauthor_set.all %}
-                                        {% for ba in a.book.bookauthor_set.all %}
+                                    {% if p.book.bookauthor_set.all %}
+                                        {% for ba in p.book.bookauthor_set.all %}
                                             {{ ba.author.firstname }} {{ ba.author.lastname }}{% if not forloop.last %}, {% endif %}
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                                <div class="p-1 w-full">{{ a.paymentdate|date:"j. n. Y H:i" }}</div>
-                                <div class="p-1 w-full">{{ a.price|floatformat:0 }} Kč</div>
-                                <div class="p-1 w-full">formát: AUDIO</div>
+                                <div class="p-1 w-full">{{ p.paymentdate|date:"j. n. Y H:i" }}</div>
+                                <div class="p-1 w-full">{{ p.price|floatformat:0 }} Kč</div>
+                                <div class="p-1 w-full">formát: {{ p.format|upper }}</div>
+                                <div style="p-1 w-full">faktura: <a href="" class="w-full mt-2 text-center" title="Stáhnout fakturu">stáhnout (PDF)</a><br>v přípravě</div><!--% url 'download_invoice' p.purchaseid %-->
                             </div>
                             <div class="flex w-full justify-evenly mt-3">
-                                {% if a.download_url %}
-                                    <a href="{{ a.download_url }}" class="add-book">Stáhnout</a>
+                                {% if p.isbn %}
+                                    <a href="{% url 'download_ebook' p.isbn p.format %}" class="add-book ml-2">Stáhnout</a>
+                                    <a href="/kniha/{{ p.book.url }}" class="add-book ml-2" title="Odeslat do čtečky">Odeslat</a>
+                                {% else %}
+                                    <span style="color:red;">Chybí ISBN pro tento formát</span>
                                 {% endif %}
-                                {# případně další akce #}
                             </div>
                         </div>
                     </div>
-                {% endfor %}
-            </div>
-            {% if purchased_audiobooks.paginator.num_pages > 1 %}
+                    {% endfor %}
+                </div>
+
+                <!-- PAGINÁTOR -->
                 <div class="pagination">
-                    <span class="step-links flex justify-center">
-                        {% if purchased_audiobooks.has_previous %}
-                            <a href="?audio_page=1#audioknihy">&laquo; první</a>
-                            <a href="?audio_page={{ purchased_audiobooks.previous_page_number }}#audioknihy">předchozí</a>
-                        {% endif %}
-                        <span class="current-page mx-4">
-                            Stránka {{ purchased_audiobooks.number }} / {{ purchased_audiobooks.paginator.num_pages }}
+                    <span class="step-links">
+                    {% if purchased_ebooks.has_previous %}
+                        <a class="first-page" href="?page=1">&laquo; První</a>
+                        <a href="?page={{ purchased_ebooks.previous_page_number }}">Předchozí</a>
+                    {% endif %}
+
+                        <span class="current-page">
+                            {{ purchased_ebooks.number }} / {{ purchased_ebooks.paginator.num_pages }}
                         </span>
-                        {% if purchased_audiobooks.has_next %}
-                            <a href="?audio_page={{ purchased_audiobooks.next_page_number }}#audioknihy">další</a>
-                            <a href="?audio_page={{ purchased_audiobooks.paginator.num_pages }}#audioknihy">poslední &raquo;</a>
-                        {% endif %}
+
+                    {% if purchased_ebooks.has_next %}
+                        <a href="?page={{ purchased_ebooks.next_page_number }}">Další</a>
+                        <a class="last-page" href="?page={{ purchased_ebooks.paginator.num_pages }}">Poslední &raquo;</a>
+                    {% endif %}
                     </span>
                 </div>
-            {% endif %}
-        {% else %}
-            <p class="p-3">Žádné zakoupené Audioknihy.</p>
-        {% endif %}
-    </div>
-</div>
 
-
-
-
-<!-- === === === === -->
-<!-- Tab Burza knih -->
-<!-- === === === === -->
-
-<div id="burza-knih" class="tab-show w-full {% if category == 'burza-knih' %}active{% endif %}">
-    <div class="profile-card-tab">
-        <h3 class="after-h3 padding">Zakoupené knihy (z burzy - divkvariát)</h3>
-        <div class="flex flex-wrap">
-            {% if burza_bought %}
-                {% for b in burza_bought %}
-                    <div class="flex border w-full md:w-1/2 p-3 mb-3">
-                        <div>
-                            <img src="{% if b.book.img and b.book.img != 'noimg.png' %}https://media.div.cz/knihy/{{ b.book.img }}{% else %}https://div.cz/static/img/book/book.png{% endif %}" alt="{{ b.book.titlecz|default:b.book.title }}" style="max-width: 150px;">
-                        </div>
-                        <div class="flex flex-wrap content-between w-full">
-                            <div class="p-1 w-full">
-                                <a class="books" href="/kniha/{{ b.book.url }}">{{ b.book.titlecz|default:b.book.title }}</a> ({{ b.book.year|default:"-" }})
-                            </div>
-                            <div class="p-1 w-full">
-                                {% for ba in b.book.bookauthor_set.all %}
-                                    {{ ba.author.firstname }} {{ ba.author.lastname }}{% if not forloop.last %}, {% endif %}
-                                {% endfor %}
-                            </div>
-                            <div class="p-1 w-full">{{ b.completedat|date:"j. n. Y H:i" }}</div>
-                            <div class="p-1 w-full">Cena: {{ b.price|floatformat:0 }} Kč</div>
-                            <div class="flex flex-wrap justify-between items-center w-full">
-                                <div class="p-1">Prodejce: <a href="/uzivatel/{{ b.user.id }}/">{{ b.user.username }}</a></div>
-                                <div>
-                                    <!--<button class="add-book m-0">recenze</button>-->
-                                    <!-- Popup pro recenzi viz původní blok – stejný jako ve tvém zadání -->
-                                    {% if user.is_authenticated %}
-                                        <div class="overlay hidden"></div>
-                                        <div class="popup hidden">
-                                            <div class="flex">
-                                                <h3 class="text-black">Ohodnoť uživatele a pošli recenzi</h3>
-                                                <button class="flex text-black" style="margin: 0 0 10px auto; font-size: 25px;" id="closePopup"><i class="fa-solid fa-xmark"></i></button>
-                                            </div>
-                                            <form id="reviewForm">
-                                                <div class="rating-type" style="margin-bottom: 10px;">
-                                                    <label class="text-black"><input type="radio" name="ratingType" value="positive">Pozitivní</label>
-                                                    <label class="text-black"><input type="radio" name="ratingType" value="neutral">Neutrální</label>
-                                                    <label class="text-black"><input type="radio" name="ratingType" value="negative">Negativní</label>
-                                                </div>
-                                                <div class="stars" style="font-size: 25px; margin-bottom: 15px;">
-                                                    <span class="star" data-value="1">&#9733;</span>
-                                                    <span class="star" data-value="2">&#9733;</span>
-                                                    <span class="star" data-value="3">&#9733;</span>
-                                                    <span class="star" data-value="4">&#9733;</span>
-                                                    <span class="star" data-value="5">&#9733;</span>
-                                                </div>
-                                                <textarea id="reviewText" placeholder="Napiš svou recenzi..." rows="5" style="width: 100%; padding: 10px;"></textarea>
-                                                <div class="flex justify-end mt-3">
-                                                    <button type="submit" class="add-book btn-submit">Odeslat recenzi</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p class="p-3">Žádné zakoupené knihy z burzy.</p>
-            {% endif %}
-        </div>
-        <!-- PAGINÁTOR -->
-        {% if burza_bought.paginator.num_pages > 1 %}
-            <div class="pagination mt-8">
-                <span class="step-links flex justify-center">
-                    {% if burza_bought.has_previous %}
-                        <a href="?burza_bought_page=1#burza-knih">&laquo; první</a>
-                        <a href="?burza_bought_page={{ burza_bought.previous_page_number }}#burza-knih">předchozí</a>
-                    {% endif %}
-                    <span class="current-page mx-4">
-                        Stránka {{ burza_bought.number }} / {{ burza_bought.paginator.num_pages }}
-                    </span>
-                    {% if burza_bought.has_next %}
-                        <a href="?burza_bought_page={{ burza_bought.next_page_number }}#burza-knih">další</a>
-                        <a href="?burza_bought_page={{ burza_bought.paginator.num_pages }}#burza-knih">poslední &raquo;</a>
-                    {% endif %}
-                </span>
+                {% else %}
+                <p class="p-3">Žádné zakoupené E-knihy</p>
+            {% endif %}                       
             </div>
-        {% endif %}
 
-        <hr>
-
-        <h3 class="after-h3 mt-8 padding">Prodané knihy (z burzy - divkvariát)</h3>
-        <div class="flex flex-wrap">
-            {% if burza_sold %}
-                {% for s in burza_sold %}
-                    <div class="flex border w-full md:w-1/2 p-3 mb-3">
-                        <div>
-                            <img src="{% if s.book.img and s.book.img != 'noimg.png' %}https://media.div.cz/knihy/{{ s.book.img }}{% else %}https://div.cz/static/img/book/book.png{% endif %}" alt="{{ s.book.titlecz|default:s.book.title }}" style="max-width: 150px;">
-                        </div>
-                        <div class="flex flex-wrap content-between w-full">
-                            <div class="p-1 w-full">
-                                <a class="books" href="/kniha/{{ s.book.url }}">{{ s.book.titlecz|default:s.book.title }}</a> ({{ s.book.year|default:"-" }})
-                            </div>
-                            <div class="p-1 w-full">
-                                {% for ba in s.book.bookauthor_set.all %}
-                                    {{ ba.author.firstname }} {{ ba.author.lastname }}{% if not forloop.last %}, {% endif %}
-                                {% endfor %}
-                            </div>
-                            <div class="p-1 w-full">{{ s.completedat|date:"j. n. Y H:i" }}</div>
-                            <div class="p-1 w-full">Cena: {{ s.price|floatformat:0 }} Kč</div>
-                            <div class="flex flex-wrap justify-between items-center w-full">
-                                <div class="p-1">
-                                    {% if s.buyer %}
-                                        Kupující: <a href="/uzivatel/{{ s.buyer.id }}/">{{ s.buyer.username }}</a>
-                                    {% else %}
-                                        <span class="text-gray-400">—</span>
-                                    {% endif %}
-                                </div>
-                                <div>
-                                    <!--<button class="add-book m-0">recenze</button>-->
-                                    <!-- Popup stejný jako výše -->
-                                    {% if user.is_authenticated %}
-                                        <div class="overlay hidden"></div>
-                                        <div class="popup hidden">
-                                            <div class="flex">
-                                                <h3 class="text-black">Ohodnoť uživatele a pošli recenzi</h3>
-                                                <button class="flex text-black" style="margin: 0 0 10px auto; font-size: 25px;" id="closePopup"><i class="fa-solid fa-xmark"></i></button>
+            <!-- Tab Audioknihy -->
+            <div id="audioknihy" class="tab-show w-full {% if category == 'audioknihy' %}active{% endif %}">
+                <div class="profile-card-tab">
+                    <h3 class="after-h3 padding">Zakoupené Audioknihy</h3>
+                    {% if purchased_audiobooks %}
+                        <div class="flex flex-wrap">
+                            {% for a in purchased_audiobooks %}
+                                <div class="flex border w-full md:w-1/2 p-3 mb-3">
+                                    <div>
+                                        <img src="{% if a.book.img and a.book.img != 'noimg.png' %}/static/kniha/{{ a.book.img }}{% else %}https://div.cz/static/img/book/book.png{% endif %}" alt="{{ a.book.titlecz|default:a.book.title }}" style="max-width: 150px;">
+                                    </div>
+                                    <div class="flex flex-wrap content-between">
+                                        <div class="flex flex-wrap w-full">
+                                            <div class="p-1 w-full">
+                                                <a class="books" href="/kniha/{{ a.book.url }}">{{ a.book.titlecz|default:a.book.title }}</a>
+                                                ({{ a.book.year|default:"-" }})
                                             </div>
-                                            <form id="reviewForm">
-                                                <div class="rating-type" style="margin-bottom: 10px;">
-                                                    <label class="text-black"><input type="radio" name="ratingType" value="positive">Pozitivní</label>
-                                                    <label class="text-black"><input type="radio" name="ratingType" value="neutral">Neutrální</label>
-                                                    <label class="text-black"><input type="radio" name="ratingType" value="negative">Negativní</label>
-                                                </div>
-                                                <div class="stars" style="font-size: 25px; margin-bottom: 15px;">
-                                                    <span class="star" data-value="1">&#9733;</span>
-                                                    <span class="star" data-value="2">&#9733;</span>
-                                                    <span class="star" data-value="3">&#9733;</span>
-                                                    <span class="star" data-value="4">&#9733;</span>
-                                                    <span class="star" data-value="5">&#9733;</span>
-                                                </div>
-                                                <textarea id="reviewText" placeholder="Napiš svou recenzi..." rows="5" style="width: 100%; padding: 10px;"></textarea>
-                                                <div class="flex justify-end mt-3">
-                                                    <button type="submit" class="add-book btn-submit">Odeslat recenzi</button>
-                                                </div>
-                                            </form>
+                                            <div class="p-1 w-full">
+                                                {% if a.book.bookauthor_set.all %}
+                                                    {% for ba in a.book.bookauthor_set.all %}
+                                                        {{ ba.author.firstname }} {{ ba.author.lastname }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </div>
+                                            <div class="p-1 w-full">{{ a.paymentdate|date:"j. n. Y H:i" }}</div>
+                                            <div class="p-1 w-full">{{ a.price|floatformat:0 }} Kč</div>
+                                            <div class="p-1 w-full">formát: AUDIO</div>
                                         </div>
-                                    {% endif %}
+                                        <div class="flex w-full justify-evenly mt-3">
+                                            {% if a.download_url %}
+                                                <a href="{{ a.download_url }}" class="add-book">Stáhnout</a>
+                                            {% endif %}
+                                            {# případně další akce #}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            {% endfor %}
                         </div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p class="p-3">Žádné prodané knihy z burzy.</p>
-            {% endif %}
-        </div>
-        <!-- PAGINÁTOR -->
-        {% if burza_sold.paginator.num_pages > 1 %}
-            <div class="pagination mt-8">
-                <span class="step-links flex justify-center">
-                    {% if burza_sold.has_previous %}
-                        <a href="?burza_sold_page=1#burza-knih">&laquo; první</a>
-                        <a href="?burza_sold_page={{ burza_sold.previous_page_number }}#burza-knih">předchozí</a>
-                    {% endif %}
-                    <span class="current-page mx-4">
-                        Stránka {{ burza_sold.number }} / {{ burza_sold.paginator.num_pages }}
-                    </span>
-                    {% if burza_sold.has_next %}
-                        <a href="?burza_sold_page={{ burza_sold.next_page_number }}#burza-knih">další</a>
-                        <a href="?burza_sold_page={{ burza_sold.paginator.num_pages }}#burza-knih">poslední &raquo;</a>
-                    {% endif %}
-                </span>
+
+                        <!-- PAGINÁTOR -->
+                        {% if purchased_audiobooks.paginator.num_pages > 1 %}
+                        <div class="pagination">
+                            <span class="step-links">
+                            {% if purchased_audiobooks.has_previous %}
+                                <a class="first-page" href="?audio_page=1#audioknihy">&laquo; První</a>
+                                <a href="?audio_page={{ purchased_audiobooks.previous_page_number }}#audioknihy">Předchozí</a>
+                            {% endif %}
+
+                                <span class="current-page">
+                                    {{ purchased_audiobooks.number }} / {{ purchased_audiobooks.paginator.num_pages }}
+                                </span>
+
+                            {% if purchased_audiobooks.has_next %}
+                                <a href="?audio_page={{ purchased_audiobooks.next_page_number }}#audioknihy">Další</a>
+                                <a class="last-page" href="?audio_page={{ purchased_audiobooks.paginator.num_pages }}#audioknihy">Poslední &raquo;</a>
+                            {% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                    <p class="p-3">Žádné zakoupené Audioknihy.</p>
+                {% endif %}
+                </div>
             </div>
-        {% endif %}
-    </div>
-</div>
 
+            <!-- Tab Burza knih -->
+            <div id="burza-knih" class="tab-show w-full {% if category == 'burza-knih' %}active{% endif %}">
+                <div class="profile-card-tab">
+                    <h3 class="after-h3 padding">Zakoupené knihy (z burzy - divkvariát)</h3>
+                    <div class="flex flex-wrap">
+                        {% if burza_bought %}
+                            {% for b in burza_bought %}
+                                <div class="flex border w-full md:w-1/2 p-3 mb-3">
+                                    <div>
+                                        <img src="{% if b.book.img and b.book.img != 'noimg.png' %}https://media.div.cz/knihy/{{ b.book.img }}{% else %}https://div.cz/static/img/book/book.png{% endif %}" alt="{{ b.book.titlecz|default:b.book.title }}" style="max-width: 150px;">
+                                    </div>
+                                    <div class="flex flex-wrap content-between w-full">
+                                        <div class="p-1 w-full">
+                                            <a class="books" href="/kniha/{{ b.book.url }}">{{ b.book.titlecz|default:b.book.title }}</a> ({{ b.book.year|default:"-" }})
+                                        </div>
+                                        <div class="p-1 w-full">
+                                            {% for ba in b.book.bookauthor_set.all %}
+                                                {{ ba.author.firstname }} {{ ba.author.lastname }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <div class="p-1 w-full">{{ b.completedat|date:"j. n. Y H:i" }}</div>
+                                        <div class="p-1 w-full">Cena: {{ b.price|floatformat:0 }} Kč</div>
+                                        <div class="flex flex-wrap justify-between items-center w-full">
+                                            <div class="p-1">Prodejce: <a href="/uzivatel/{{ b.user.id }}/">{{ b.user.username }}</a></div>
+                                            <div>
+                                                <!--<button class="add-book m-0">recenze</button>-->
+                                                <!-- Popup pro recenzi viz původní blok – stejný jako ve tvém zadání -->
+                                                {% if user.is_authenticated %}
+                                                    <div class="overlay hidden"></div>
+                                                    <div class="popup hidden">
+                                                        <div class="flex">
+                                                            <h3>Ohodnoť uživatele a pošli recenzi</h3>
+                                                            <button style="margin: 0 0 10px auto; font-size: 25px;" id="closePopup"><i class="fa-solid fa-xmark"></i></button>
+                                                        </div>
+                                                        <form id="reviewForm">
+                                                            <div class="rating-type" style="margin-bottom: 10px;">
+                                                                <label><input type="radio" name="ratingType" value="positive">Pozitivní</label>
+                                                                <label><input type="radio" name="ratingType" value="neutral">Neutrální</label>
+                                                                <label><input type="radio" name="ratingType" value="negative">Negativní</label>
+                                                            </div>
+                                                            <div class="stars" style="font-size: 25px; margin-bottom: 15px;">
+                                                                <span class="star" data-value="1">&#9733;</span>
+                                                                <span class="star" data-value="2">&#9733;</span>
+                                                                <span class="star" data-value="3">&#9733;</span>
+                                                                <span class="star" data-value="4">&#9733;</span>
+                                                                <span class="star" data-value="5">&#9733;</span>
+                                                            </div>
+                                                            <textarea id="reviewText" placeholder="Napiš svou recenzi..." rows="5" style="width: 100%; padding: 10px;"></textarea>
+                                                            <div class="flex justify-end mt-3">
+                                                                <button type="submit" class="add-book btn-submit">Odeslat recenzi</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="p-3">Žádné zakoupené knihy z burzy.</p>
+                        {% endif %}
+                    </div>
 
+                    <!-- PAGINÁTOR -->
+                    {% if burza_bought.paginator.num_pages > 1 %}
+                    <div class="pagination">
+                        <span class="step-links">
+                        {% if burza_bought.has_previous %}
+                            <a class="first-page" href="?burza_bought_page=1#burza-knih">&laquo; První</a>
+                            <a href="?burza_bought_page={{ burza_bought.previous_page_number }}#burza-knih">Předchozí</a>
+                        {% endif %}
 
+                            <span class="current-page">
+                                {{ burza_bought.number }} / {{ burza_bought.paginator.num_pages }}
+                            </span>
 
-<!-- === === === === -->
-<!-- Tab Burza her -->
-<!-- === === === === -->
+                        {% if burza_bought.has_next %}
+                            <a href="?burza_bought_page={{ burza_bought.next_page_number }}#burza-knih">Další</a>
+                            <a class="last-page" href="?burza_bought_page={{ burza_bought.paginator.num_pages }}#burza-knih">Poslední &raquo;</a>
+                        {% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    <hr>
+
+                    <h3 class="after-h3 mt-8 padding">Prodané knihy (z burzy - divkvariát)</h3>
+                    <div class="flex flex-wrap">
+                        {% if burza_sold %}
+                            {% for s in burza_sold %}
+                                <div class="flex border w-full md:w-1/2 p-3 mb-3">
+                                    <div>
+                                        <img src="{% if s.book.img and s.book.img != 'noimg.png' %}https://media.div.cz/knihy/{{ s.book.img }}{% else %}https://div.cz/static/img/book/book.png{% endif %}" alt="{{ s.book.titlecz|default:s.book.title }}" style="max-width: 150px;">
+                                    </div>
+                                    <div class="flex flex-wrap content-between w-full">
+                                        <div class="p-1 w-full">
+                                            <a class="books" href="/kniha/{{ s.book.url }}">{{ s.book.titlecz|default:s.book.title }}</a> ({{ s.book.year|default:"-" }})
+                                        </div>
+                                        <div class="p-1 w-full">
+                                            {% for ba in s.book.bookauthor_set.all %}
+                                                {{ ba.author.firstname }} {{ ba.author.lastname }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <div class="p-1 w-full">{{ s.completedat|date:"j. n. Y H:i" }}</div>
+                                        <div class="p-1 w-full">Cena: {{ s.price|floatformat:0 }} Kč</div>
+                                        <div class="flex flex-wrap justify-between items-center w-full">
+                                            <div class="p-1">
+                                                {% if s.buyer %}
+                                                    Kupující: <a href="/uzivatel/{{ s.buyer.id }}/">{{ s.buyer.username }}</a>
+                                                {% else %}
+                                                    <span class="text-gray-400">—</span>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <!--<button class="add-book m-0">recenze</button>-->
+                                                <!-- Popup stejný jako výše -->
+                                                {% if user.is_authenticated %}
+                                                    <div class="overlay hidden"></div>
+                                                    <div class="popup hidden">
+                                                        <div class="flex">
+                                                            <h3>Ohodnoť uživatele a pošli recenzi</h3>
+                                                            <button class="flex text-black" style="margin: 0 0 10px auto; font-size: 25px;" id="closePopup"><i class="fa-solid fa-xmark"></i></button>
+                                                        </div>
+                                                        <form id="reviewForm">
+                                                            <div class="rating-type" style="margin-bottom: 10px;">
+                                                                <label><input type="radio" name="ratingType" value="positive">Pozitivní</label>
+                                                                <label><input type="radio" name="ratingType" value="neutral">Neutrální</label>
+                                                                <label><input type="radio" name="ratingType" value="negative">Negativní</label>
+                                                            </div>
+                                                            <div class="stars" style="font-size: 25px; margin-bottom: 15px;">
+                                                                <span class="star" data-value="1">&#9733;</span>
+                                                                <span class="star" data-value="2">&#9733;</span>
+                                                                <span class="star" data-value="3">&#9733;</span>
+                                                                <span class="star" data-value="4">&#9733;</span>
+                                                                <span class="star" data-value="5">&#9733;</span>
+                                                            </div>
+                                                            <textarea id="reviewText" placeholder="Napiš svou recenzi..." rows="5" style="width: 100%; padding: 10px;"></textarea>
+                                                            <div class="flex justify-end mt-3">
+                                                                <button type="submit" class="add-book btn-submit">Odeslat recenzi</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="p-3">Žádné prodané knihy z burzy.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- PAGINÁTOR -->
+                    {% if burza_sold.paginator.num_pages > 1 %}
+                    <div class="pagination">
+                        <span class="step-links">
+                        {% if burza_sold.has_previous %}
+                            <a class="first-page" href="?burza_sold_page=1#burza-knih">&laquo; První</a>
+                            <a href="?burza_sold_page={{ burza_sold.previous_page_number }}#burza-knih">Předchozí</a>
+                        {% endif %}
+
+                            <span class="current-page">
+                                {{ burza_sold.number }} / {{ burza_sold.paginator.num_pages }}
+                            </span>
+
+                        {% if burza_sold.has_next %}
+                            <a href="?burza_sold_page={{ burza_sold.next_page_number }}#burza-knih">Další</a>
+                            <a class="last-page" href="?burza_sold_page={{ burza_sold.paginator.num_pages }}#burza-knih">Poslední &raquo;</a>
+                        {% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Tab Burza her -->
             <div id="burza-her" class="tab-show w-full {% if category == 'burza-her' %}active{% endif %}">
                 <h3 class="after-h3 padding">Zakoupené hry (V přípravě)</h3>
                 
@@ -524,7 +515,7 @@
                                         <div class="overlay hidden"></div>
                                         <div class="popup hidden">
                                             <div class="flex">
-                                                <h3 class="text-black">Ohodnoť uživatele a pošli recenzi</h3>
+                                                <h3>Ohodnoť uživatele a pošli recenzi</h3>
                                                 <button class="flex text-black" style="margin: 0 0 10px auto; font-size: 25px;" id="closePopup"><i class="fa-solid fa-xmark"></i></button>
                                             </div>
 
@@ -532,13 +523,13 @@
                                             <form id="reviewForm">
                                                 <!-- Radio buttons pro typ hodnocení -->
                                                 <div class="rating-type" style="margin-bottom: 10px;">
-                                                    <label class="text-black">
+                                                    <label>
                                                         <input style="margin: 0 5px 0 0;" type="radio" name="ratingType" value="positive">Pozitivní
                                                     </label>
-                                                    <label class="text-black">
+                                                    <label>
                                                         <input style="margin: 0 5px 0 15px;" type="radio" name="ratingType" value="neutral">Neutrální
                                                     </label>
-                                                    <label class="text-black">
+                                                    <label>
                                                         <input style="margin: 0 5px 0 15px;" type="radio" name="ratingType" value="negative">Negativní
                                                     </label>
                                                 </div>
@@ -601,7 +592,7 @@
                                         <div class="overlay hidden"></div>
                                         <div class="popup hidden">
                                             <div class="flex">
-                                                <h3 class="text-black">Ohodnoť uživatele a pošli recenzi</h3>
+                                                <h3>Ohodnoť uživatele a pošli recenzi</h3>
                                                 <button class="flex text-black" style="margin: 0 0 10px auto; font-size: 25px;" id="closePopup"><i class="fa-solid fa-xmark"></i></button>
                                             </div>
 
@@ -609,13 +600,13 @@
                                             <form id="reviewForm">
                                                 <!-- Radio buttons pro typ hodnocení -->
                                                 <div class="rating-type" style="margin-bottom: 10px;">
-                                                    <label class="text-black">
+                                                    <label>
                                                         <input style="margin: 0 5px 0 0;" type="radio" name="ratingType" value="positive">Pozitivní
                                                     </label>
-                                                    <label class="text-black">
+                                                    <label>
                                                         <input style="margin: 0 5px 0 15px;" type="radio" name="ratingType" value="neutral">Neutrální
                                                     </label>
-                                                    <label class="text-black">
+                                                    <label>
                                                         <input style="margin: 0 5px 0 15px;" type="radio" name="ratingType" value="negative">Negativní
                                                     </label>
                                                 </div>
@@ -647,28 +638,20 @@
 
                 </div>      
 
-                <!-- paginátor -->
-                <div class="pagination mt-8">
-                    <span class="step-links flex justify-center">
+                <!-- PAGINÁTOR -->
+                <div class="pagination">
+                    <span class="step-links">
                         
-                        <div>
-                            <a href="">&laquo; první</a>
-                            <a href="">předchozí</a>
-                        </div>
+                            <a class="first-page" href="">&laquo; První</a>
+                            <a href="">Předchozí</a>
                         
-
-                        <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
                         
-                        <span class="current-page mx-4">
+                        <span class="current-page">
                         Stránka  / 
                         </span>
                         
-
-                        
-                        <div>
-                            <a href="">další</a>
-                            <a href="">poslední &raquo;</a>
-                        </div>
+                            <a class="last-page" href="">Další</a>
+                            <a href="">Poslední &raquo;</a>
                         
                     </span>
                 </div> 
@@ -714,7 +697,7 @@
                                             <div class="overlay hidden"></div>
                                             <div class="popup hidden">
                                                 <div class="flex">
-                                                    <h3 class="text-black">Ohodnoť uživatele a pošli recenzi</h3>
+                                                    <h3>Ohodnoť uživatele a pošli recenzi</h3>
                                                     <button class="flex text-black" style="margin: 0 0 10px auto; font-size: 25px;" id="closePopup"><i class="fa-solid fa-xmark"></i></button>
                                                 </div>
 
@@ -722,13 +705,13 @@
                                                 <form id="reviewForm">
                                                     <!-- Radio buttons pro typ hodnocení -->
                                                     <div class="rating-type" style="margin-bottom: 10px;">
-                                                        <label class="text-black">
+                                                        <label>
                                                             <input style="margin: 0 5px 0 0;" type="radio" name="ratingType" value="positive">Pozitivní
                                                         </label>
-                                                        <label class="text-black">
+                                                        <label>
                                                             <input style="margin: 0 5px 0 15px;" type="radio" name="ratingType" value="neutral">Neutrální
                                                         </label>
-                                                        <label class="text-black">
+                                                        <label>
                                                             <input style="margin: 0 5px 0 15px;" type="radio" name="ratingType" value="negative">Negativní
                                                         </label>
                                                     </div>
@@ -791,7 +774,7 @@
                                             <div class="overlay hidden"></div>
                                             <div class="popup hidden">
                                                 <div class="flex">
-                                                    <h3 class="text-black">Ohodnoť uživatele a pošli recenzi</h3>
+                                                    <h3>Ohodnoť uživatele a pošli recenzi</h3>
                                                     <button class="flex text-black" style="margin: 0 0 10px auto; font-size: 25px;" id="closePopup"><i class="fa-solid fa-xmark"></i></button>
                                                 </div>
 
@@ -799,13 +782,13 @@
                                                 <form id="reviewForm">
                                                     <!-- Radio buttons pro typ hodnocení -->
                                                     <div class="rating-type" style="margin-bottom: 10px;">
-                                                        <label class="text-black">
+                                                        <label>
                                                             <input style="margin: 0 5px 0 0;" type="radio" name="ratingType" value="positive">Pozitivní
                                                         </label>
-                                                        <label class="text-black">
+                                                        <label>
                                                             <input style="margin: 0 5px 0 15px;" type="radio" name="ratingType" value="neutral">Neutrální
                                                         </label>
-                                                        <label class="text-black">
+                                                        <label>
                                                             <input style="margin: 0 5px 0 15px;" type="radio" name="ratingType" value="negative">Negativní
                                                         </label>
                                                     </div>
@@ -837,32 +820,22 @@
                         
                     </div>
 
-                    <!-- paginátor -->
-                    <div class="pagination mt-8">
-                        <span class="step-links flex justify-center">
+                    <!-- PAGINÁTOR -->
+                    <div class="pagination">
+                        <span class="step-links">
     
+                                <a class="first-page" href="">&laquo; První</a>
+                                <a href="">Předchozí</a>
                             
-                            <div>
-                                <a href="">&laquo; první</a>
-                                <a href="">předchozí</a>
-                            </div>
+                            <span class="current-page">
+                                  / 
+                            </span>
                             
-    
-                            <!-- Zobrazí paginátor jen pokud počet stran > 1 -->
-                            
-                            <span class="current-page mx-4">
-                                Stránka  / </span>
-                            
-    
-                            
-                            <div>
-                                <a href="">další</a>
-                                <a href="">poslední &raquo;</a>
-                            </div>
+                                <a class="last-page" href="">Další</a>
+                                <a href="">Poslední &raquo;</a>
                             
                         </span>
                     </div>
-
                     
                     <p class="p-3">Žádné prodané hry</p>
                     
@@ -870,100 +843,100 @@
 
             </div>
 
-<!-- === === === === -->
-<!-- Tab Hodnocení -->
-<!-- === === === === -->
-          <div id="hodnoceni" class="tab-show w-full {% if category == 'hodnoceni' %}active{% endif %}">
-    
-    {% if avg_seller_rating %}
-        <h3 class="after-h3 padding"> Celkové hodnocení prodávajícího </h3>
-        <div class="flex flex-wrap">
-            <div class="table ">
-                <div class="grid obchod-grid bg-[#c0c0c0] dark:text-black">
-                    <div class="text-center font-bold p-1" style="border-right: 1px solid #fffefe;">{{ avg_seller_rating|floatformat:1 }}/5</div>
-                    <div class="">
-                        {% for i in "12345"|make_list %}
-                            {% if forloop.counter <= avg_seller_rating %}★{% else %}☆{% endif %}
-                        {% endfor %}
-                    </div>
-                    <span class="ml-2">({{ seller_ratings_count }} hodnocení)</span>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-
-    {% if avg_buyer_rating %}
-        <h3 class="after-h3 padding"> Celkové hodnocení kupujícího </h3>
-        <div class="flex flex-wrap">
-            <div class="table ">
-                <div class="grid obchod-grid bg-[#c0c0c0] dark:text-black">
-                    <div class="text-center font-bold p-1" style="border-right: 1px solid #fffefe;">{{ avg_buyer_rating|floatformat:1 }}/5</div>
-                    <div class="">
-                        {% for i in "12345"|make_list %}
-                            {% if forloop.counter <= avg_buyer_rating %}★{% else %}☆{% endif %}
-                        {% endfor %}
-                    </div>
-                    <span class="ml-2">({{ buyer_ratings_count }} hodnocení)</span>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-
-<div class="filter-options" style="float: right; margin-bottom: 10px;" >
-    <label for="sort_by">Seřadit podle:</label>
-    <select name="sort_by" id="sort_by" style="color: black;" onchange="window.location.href = this.value;">
-        <option value="{% url 'profile_eshop_section' user_id=profile_user.id %}?sort=newest#hodnoceni" {% if current_sort == 'newest' %}selected{% endif %}>Nejnovější</option>
-        <option value="{% url 'profile_eshop_section' user_id=profile_user.id %}?sort=highest#hodnoceni" {% if current_sort == 'highest' %}selected{% endif %}>Nejvyšší hodnocení</option>
-        <option value="{% url 'profile_eshop_section' user_id=profile_user.id %}?sort=lowest#hodnoceni" {% if current_sort == 'lowest' %}selected{% endif %}>Nejnižší hodnocení</option>
-        <option value="{% url 'profile_eshop_section' user_id=profile_user.id %}?sort=oldest#hodnoceni" {% if current_sort == 'oldest' %}selected{% endif %}>Nejstarší</option>
-    </select>
-</div>
-<div style="clear: both;"></div>
-<div class="table w-full">
-     <div class="table w-full">
-    <div class="grid obchod-grid bg-[#c0c0c0] dark:text-black grid-cols-5 md:grid-cols-6">
-        <div class="text-center font-bold p-1 border-r border-white">Datum</div>
-        <div class="text-center font-bold p-1 border-r border-white">Hodnocení</div>
-        <div class="text-center font-bold p-1 border-r border-white hide-on-mobile">Hodnocen</div>
-        <div class="text-center font-bold p-1 border-r border-white">Komentář</div>
-        <div class="text-center font-bold p-1 border-r border-white">Hodnotil</div>
-    </div>
-
-    {% if ratings_page_obj %}
-        {% for rating_data in ratings_page_obj %}
-            <div class="grid obchod-grid border-b border-gray-200 grid-cols-5 md:grid-cols-6">
-                <div class="text-center p-1 border-r border-gray-200">{{ rating_data.created_at|default:"-" }}</div>
-                <div class="text-center p-1 border-r border-gray-200">
-                    {% for i in "12345"|make_list %}
-                        {% if forloop.counter <= rating_data.value %}★{% else %}☆{% endif %}
-                    {% endfor %}
-                </div>
-                <div class="text-center p-1 border-r border-gray-200 hide-on-mobile">{{ rating_data.type }}</div>
-                <div class="text-left p-1 border-r border-gray-200">
-                    {% if rating_data.comment %}
-                        {% if rating_data.comment|length > 30 %}
-                            <div class="rating-comment-container">
-                                {{ rating_data.comment|truncatechars:30 }}
-                                <div class="comment-popup">
-                                    <p>{{ rating_data.comment }}</p>
-                                </div>
+            <!-- Tab Hodnocení -->
+            <div id="hodnoceni" class="tab-show w-full {% if category == 'hodnoceni' %}active{% endif %}">
+            {% if avg_seller_rating %}
+                <h3 class="after-h3 padding"> Celkové hodnocení prodávajícího </h3>
+                <div class="flex flex-wrap">
+                    <div class="table ">
+                        <div class="grid obchod-grid bg-[#c0c0c0] dark:text-black">
+                            <div class="text-center font-bold p-1" style="border-right: 1px solid #fffefe;">{{ avg_seller_rating|floatformat:1 }}/5</div>
+                            <div class="">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= avg_seller_rating %}★{% else %}☆{% endif %}
+                                {% endfor %}
                             </div>
-                        {% else %}
-                            {{ rating_data.comment }}
-                        {% endif %}
-                    {% else %}
-                        Bez komentáře.
-                    {% endif %}
+                            <span class="ml-2">({{ seller_ratings_count }} hodnocení)</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="text-center p-1 border-r border-gray-200"> <a href="{% url 'myuser_detail' user_id=rating_data.rater.id %}">{% if rating_data.rater %}{{ rating_data.rater }}</a>{% else %}Anonymní{% endif %}</div>
+            {% endif %}
+
+            {% if avg_buyer_rating %}
+            <h3 class="after-h3 padding"> Celkové hodnocení kupujícího </h3>
+            <div class="flex flex-wrap">
+                <div class="table ">
+                    <div class="grid obchod-grid bg-[#c0c0c0] dark:text-black">
+                        <div class="text-center font-bold p-1" style="border-right: 1px solid #fffefe;">{{ avg_buyer_rating|floatformat:1 }}/5</div>
+                        <div class="">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= avg_buyer_rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </div>
+                        <span class="ml-2">({{ buyer_ratings_count }} hodnocení)</span>
+                    </div>
+                </div>
             </div>
-        {% endfor %}
-    {% else %}
-        <div class="grid obchod-grid grid-cols-5 md:grid-cols-6">
-            <div class="p-4 col-span-6 text-center">Tento uživatel zatím neobdržel žádná jednotlivá hodnocení.</div>
-        </div>
-    {% endif %}
-</div>
+            {% endif %}
+
+            <div class="filter-options" style="float: right; margin-bottom: 10px;" >
+                <label for="sort_by">Seřadit podle:</label>
+                <select name="sort_by" id="sort_by" style="color: black;" onchange="window.location.href = this.value;">
+                    <option value="{% url 'profile_eshop_section' user_id=profile_user.id %}?sort=newest#hodnoceni" {% if current_sort == 'newest' %}selected{% endif %}>Nejnovější</option>
+                    <option value="{% url 'profile_eshop_section' user_id=profile_user.id %}?sort=highest#hodnoceni" {% if current_sort == 'highest' %}selected{% endif %}>Nejvyšší hodnocení</option>
+                    <option value="{% url 'profile_eshop_section' user_id=profile_user.id %}?sort=lowest#hodnoceni" {% if current_sort == 'lowest' %}selected{% endif %}>Nejnižší hodnocení</option>
+                    <option value="{% url 'profile_eshop_section' user_id=profile_user.id %}?sort=oldest#hodnoceni" {% if current_sort == 'oldest' %}selected{% endif %}>Nejstarší</option>
+                </select>
+            </div>
+
+            <div style="clear: both;"></div>
+            <div class="table w-full">
+                <div class="table w-full">
+                    <div class="grid obchod-grid bg-[#c0c0c0] dark:text-black grid-cols-5 md:grid-cols-6">
+                        <div class="text-center font-bold p-1 border-r border-white">Datum</div>
+                        <div class="text-center font-bold p-1 border-r border-white">Hodnocení</div>
+                        <div class="text-center font-bold p-1 border-r border-white hide-on-mobile">Hodnocen</div>
+                        <div class="text-center font-bold p-1 border-r border-white">Komentář</div>
+                        <div class="text-center font-bold p-1 border-r border-white">Hodnotil</div>
+                    </div>
+
+                    {% if ratings_page_obj %}
+                        {% for rating_data in ratings_page_obj %}
+                        <div class="grid obchod-grid border-b border-gray-200 grid-cols-5 md:grid-cols-6">
+                            <div class="text-center p-1 border-r border-gray-200">{{ rating_data.created_at|default:"-" }}</div>
+                            <div class="text-center p-1 border-r border-gray-200">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= rating_data.value %}★{% else %}☆{% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="text-center p-1 border-r border-gray-200 hide-on-mobile">{{ rating_data.type }}</div>
+                            <div class="text-left p-1 border-r border-gray-200">
+                                {% if rating_data.comment %}
+                                    {% if rating_data.comment|length > 30 %}
+                                        <div class="rating-comment-container">
+                                            {{ rating_data.comment|truncatechars:30 }}
+                                            <div class="comment-popup">
+                                                <p>{{ rating_data.comment }}</p>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        {{ rating_data.comment }}
+                                    {% endif %}
+                                {% else %}
+                                    Bez komentáře.
+                                {% endif %}
+                            </div>
+                            <div class="text-center p-1 border-r border-gray-200"> <a href="{% url 'myuser_detail' user_id=rating_data.rater.id %}">{% if rating_data.rater %}{{ rating_data.rater }}</a>{% else %}Anonymní{% endif %}</div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+
+                    <div class="grid obchod-grid grid-cols-5 md:grid-cols-6">
+                        <div class="p-4 col-span-6 text-center">Tento uživatel zatím neobdržel žádná jednotlivá hodnocení.</div>
+                    </div>
+                {% endif %}
+            </div>
+
                     <!--<div class="w-full">
                         <div class="grid border obchod-grid sudy">
                             <div class="text-center p-1" style="border-right: 1px solid #c0c0c0;">datum</div>
@@ -979,38 +952,29 @@
                             <div class="p-1">další zanechaný komentář od kupujícího</div>
                         </div>
                     </div>-->
-
                 </div>
 
-                <!-- paginátor -->
-         {% if ratings_page_obj.paginator.num_pages > 1 %}
-    <div class="pagination mt-8">
-        <span class="step-links flex justify-center">
+                <!-- PAGINÁTOR -->
+                {% if ratings_page_obj.paginator.num_pages > 1 %}
+                <div class="pagination">
+                    <span class="step-links">
+                    {% if ratings_page_obj.has_previous %}
+                        <a class="first-page" href="{% url 'profile_eshop_section' user_id=profile_user.id %}?page=1&sort={{ current_sort }}#hodnoceni">&laquo; První</a>
+                        <a href="{% url 'profile_eshop_section' user_id=profile_user.id %}?page={{ ratings_page_obj.previous_page_number }}&sort={{ current_sort }}#hodnoceni">Předchozí</a>
+                    {% endif %}
 
-            {% if ratings_page_obj.has_previous %}
-                <div>
-                    <a href="{% url 'profile_eshop_section' user_id=profile_user.id %}?page=1&sort={{ current_sort }}#hodnoceni">&laquo; první</a>
-                    <a href="{% url 'profile_eshop_section' user_id=profile_user.id %}?page={{ ratings_page_obj.previous_page_number }}&sort={{ current_sort }}#hodnoceni">předchozí</a>
+                        <span class="current-page">
+                            Stránka {{ ratings_page_obj.number }} / {{ ratings_page_obj.paginator.num_pages }}
+                        </span>
+
+                    {% if ratings_page_obj.has_next %}
+                        <a href="{% url 'profile_eshop_section' user_id=profile_user.id %}?page={{ ratings_page_obj.next_page_number }}&sort={{ current_sort }}#hodnoceni">Další</a>
+                        <a class="last-page" href="{% url 'profile_eshop_section' user_id=profile_user.id %}?page={{ ratings_page_obj.paginator.num_pages }}&sort={{ current_sort }}#hodnoceni">Poslední &raquo;</a>
+                    {% endif %}
+                    </span>
                 </div>
-            {% endif %}
-
-            <span class="current-page mx-4">
-                Stránka {{ ratings_page_obj.number }} / {{ ratings_page_obj.paginator.num_pages }}
-            </span>
-
-            {% if ratings_page_obj.has_next %}
-                <div>
-                    <a href="{% url 'profile_eshop_section' user_id=profile_user.id %}?page={{ ratings_page_obj.next_page_number }}&sort={{ current_sort }}#hodnoceni">další</a>
-                    <a href="{% url 'profile_eshop_section' user_id=profile_user.id %}?page={{ ratings_page_obj.paginator.num_pages }}&sort={{ current_sort }}#hodnoceni">poslední &raquo;</a>
-                </div>
-            {% endif %}
-
-        </span>
-    </div>
-{% endif %}
-                                        
+            {% endif %}                    
             </div>
-
         </div>
     </div>
 </div>
@@ -1050,25 +1014,26 @@
         });
     });
 </script>
+
 <script>
-function showCommentModal(comment) {
+    function showCommentModal(comment) {
+        var modal = document.getElementById('commentModal');
+        var commentText = document.getElementById('commentText');
+        commentText.textContent = comment;
+        modal.style.display = 'block';
+    }
+
     var modal = document.getElementById('commentModal');
-    var commentText = document.getElementById('commentText');
-    commentText.textContent = comment;
-    modal.style.display = 'block';
-}
+    var closeButton = document.getElementsByClassName("close-button")[0];
 
-var modal = document.getElementById('commentModal');
-var closeButton = document.getElementsByClassName("close-button")[0];
-
-closeButton.onclick = function() {
-    modal.style.display = "none";
-}
-
-window.onclick = function(event) {
-    if (event.target == modal) {
+    closeButton.onclick = function() {
         modal.style.display = "none";
     }
-}
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
 </script>
 {% endblock %}
