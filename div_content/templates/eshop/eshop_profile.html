@@ -1,0 +1,132 @@
+{% extends "inc/base.html" %}
+
+{% load i18n %}
+
+{% block title %}Profil  {{ profile_user.username }} {% endblock title %}
+
+{% block h1 %}{{ profile_user.username }}{% endblock h1 %}
+{% block text_muted %} na DIV.cz {% endblock text_muted %}
+
+{% block content %}
+
+<div class="mt-5">
+    <!-- Sekce záložek pro filmy, knihy, hry, statistiky -->
+    <div class="tab-profil md:pr-0 flex overflow-scroll lg:fit-content rounded-1xl dark:bg-[#1A161F] bg-[#FFFFFF]">
+        <div class="tab">
+            <h3>
+                <i class="fa-solid fa-film mr-2"></i>
+                <a class="movies" href="{% url 'profile_movies_section' profile_user.id %}">Filmy</a>
+            </h3>
+        </div>
+        <div class="tab">
+            <h3>
+                <i class="fa-solid fa-video mr-2"></i>
+                <a class="movies" href="{% url 'profile_series_section' profile_user.id %}">Seriály</a>
+            </h3>
+        </div>
+        <div class="tab">
+            <h3>
+                <i class="fa-solid fa-book mr-2"></i>
+                <a class="books" href="{% url 'profile_books_section' profile_user.id %}">Knihy</a>
+            </h3>
+        </div>
+        <div class="tab">
+            <h3>
+                <i class="fa-solid fa-gamepad mr-2"></i>
+                <a class="games" href="{% url 'profile_games_section' profile_user.id %}">Hry</a>
+            </h3>
+        </div>
+        <!--<div class="tab">
+            <h3>
+                <i class="fas fa-star mr-2"></i>
+                <a class="stats" href="{% url 'profile_stats_section' profile_user.id %}">Statistiky</a>
+            </h3>
+        </div>-->
+        <div class="tab">
+            <h3>
+                <i class="fa-solid fa-trophy mr-2"></i> 
+                <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
+            </h3>
+        </div>
+        <div class="tab">
+            <h3>
+                <i class="fa-solid fa-cart-shopping mr-2"></i>
+                <a class="stats" href="{% url 'profile_eshop_section' profile_user.id %}">Obchod</a>
+            </h3>
+        </div>
+        <!--<div class="tab">
+            <h3>
+                <i class="fas fa-user mr-2"></i>
+                <a class="stats" href="{% url 'profile_community_section' profile_user.id %}">Má komunita</a>
+            </h3>
+        </div>-->
+
+        <!-- Indikátor pozadí -->
+        <div class="background rounded-1xl"></div>
+
+    </div>
+    
+    <!-- Podkategorie záložek (hodnocení, oblíbené atd.) -->
+    <div class="row mt-5">
+        <div class="tab-content w-full mb-3 p-4 bg-[#F9F9F9] dark:bg-[#1A161F]">
+            <!-- Tab Uživatelé -->
+            <div id="uzivatele" style="display: flex;" class="tab-show flex flex-wrap active {% if category == 'uzivatele' %}active{% endif %}">
+                <div class="w-50 sm:w-full">
+                    <h3>Oblíbení uživatelé</h3>
+                    {% if favorite_users %}
+                    {% for profile in favorite_users %}
+                    <ul>
+                        <li><a href="{% url 'myuser_detail' profile.user.id %}">{{ profile.user }}</a></li>
+                    </ul>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="w-50 sm:w-full sm:mt-5">
+                    <h3>Mají mě v oblíbených</h3>
+                    {% if im_favorite_user %}
+                    {% for profile in im_favorite_user %}
+                    <ul>
+                        <li><a href="{% url 'myuser_detail' profile.user.id %}">{{ profile.user }}</a></li>                    
+                    </ul>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateGroupSelector(active) {
+        const parent = document.querySelector('.tab-profil');
+        const background = parent.querySelector('.background');
+
+        // Najdeme pozici aktivní karty
+        const activeRect = active.getBoundingClientRect();
+        const parentRect = parent.getBoundingClientRect();
+
+        // Vypočítáme relativní pozici a šířku
+        const left = activeRect.left - parentRect.left;
+        const width = activeRect.width;
+
+        // Nastavíme nové vlastnosti pozadí
+        background.style.transform = `translateX(${left}px)`;
+        background.style.width = `${width}px`;
+
+        // Aktualizujeme aktivní kartu
+        parent.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        active.classList.add('active');
+    }
+
+    // Inicializace při načtení stránky
+    window.addEventListener('DOMContentLoaded', () => {
+        const initialTab = document.querySelector('.tab.active');
+        if (initialTab) {
+            updateGroupSelector(initialTab);
+        }
+    });
+</script>
+
+{% endblock content %}

@@ -7,12 +7,12 @@
                         <img src="/static/img/site/microsoft/div_310x150-movies.png">
                     </a>
                 </div>
-                <ul id="menu" class="hidden">
+                <!-- <ul id="menu" class="hidden">
                     <li><a class="nav-link hover:text-[#EB3F5E]" href="/filmy/">Filmy</a></li>
                     <li><a class="nav-link hover:text-[#EB3F5E]" href="/serialy/">Seriály</a></li>
                     <li><a class="nav-link hover:text-[#25DC37]" href="/knihy/">Knihy</a></li>
                     <li><a class="nav-link hover:text-[#476acc]" href="/hry/">Hry</a></li>
-                </ul>
+                </ul> -->
             </div>
 
             <!-- HAMBURGER -->
@@ -41,55 +41,25 @@
 
             <div class="account">
                 <div class="login">
-                    <!-- FORUM -->
-                    <div class="flex relative">
-                        <div class="notBtn relative group">
-                            <!-- Počet zpráv -->
-                            <div class="number absolute text-[#ffffff]">
-                                <span>3</span>
-                            </div>
-
-                            <button id="bellBtn" type="button" aria-haspopup="true" aria-expanded="false">
-                                <i class="fa-regular fa-bell" title="forum"></i>
-                            </button>
-
-                            <!-- Dropdown menu zpráv -->
-                            <div class="absolute dropbox card-body" role="menu" aria-hidden="true">
-                            <p class="font-bold mb-2 after">Nové zprávy</p>
-                                <ul class="text-sm ml-0">
-                                    <li class="after">
-                                        &#128172; <a href="" class="block py-1 rounded">Zpráva 1</a>
-                                        <p>tady by mohl být nějaký text</p>
-                                    </li>
-                                    <li class="after">
-                                        &#128172; <a href="" class="block py-1 rounded">Zpráva 2</a>
-                                        <p>tady by mohl být nějaký text</p>
-                                    </li>
-                                    <li class="">
-                                        &#128172; <a href="" class="block py-1 rounded">Zpráva 3</a>
-                                        <p>tady by mohl být nějaký text</p>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- POŠTA -->
-                    {% if user.is_authenticated %}
+                    <!-- KOŠÍK -->
                     <div class="flex">
                         <div class="flex relative">
                             <div class="notBtn">
-                                {% if has_unread_messages %}
-                                <div class="number absolute"><i class="fas fa-bell"></i></div>
-                                {% endif %}
-                                <a href="/ucet/zpravy/">
-                                    <i class="far fa-regular fa-envelope" title="zprávy"></i>
+                                <div class="number absolute">
+                                    3
+                                </div>
+                                <a href="">
+                                    <svg style="margin-right: 20px;" viewBox="0 0 16 16" height="24" width="24" fill="#ffffff">
+                                        <path d="M11.354 6.354a.5.5 0 0 0-.708-.708L8 8.293 6.854 7.146a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0l3-3z"></path>
+                                        <path d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1H.5zm3.915 10L3.102 4h10.796l-1.313 7h-8.17zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"></path>
+                                    </svg>
                                 </a>
                             </div>
                         </div>
                     </div>
                     
                     <!-- PROFIL -->
+                    {% if user.is_authenticated %}
                     <div class="user">
                         <img src="{{ avatar_imgpath }}" alt="avatar">
                         <a class="nav-link" href="/uzivatel/">{{ user.username }}</a> 
