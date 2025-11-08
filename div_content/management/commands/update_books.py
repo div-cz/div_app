@@ -1,15 +1,8 @@
 # div_content/management/commands/update_books.py
 
-"""
-Django Management Command pro aktualizaci knih z Knihy Dobrovský
+"""Django Management Command pre aktualizáciu kníh z Dobrovský"""
 
-Použití:
-    python manage.py update_books                    # Standardní běh (200 knih)
-    python manage.py update_books --limit=100        # Pouze 100 knih
-    python manage.py update_books --force-update     # Aktualizuj i existující
-    python manage.py update_books --dry-run          # Test bez ukládání
-    python manage.py update_books --test-single      # Test s 1 knihou
-"""
+# python manage.py update_books --limit=100
 
 import logging
 from datetime import datetime
@@ -17,10 +10,13 @@ from datetime import datetime
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from div_content.utils.dobrovsky_scraper import scrape_dobrovsky_books
-from div_content.utils.book_service import BookSourceService
+# Import z našej div_management štruktúry
+from div_management.books.book_update_service import BookUpdateService
+from div_management.shared.universal_logger import setup_logging, get_logger
+from div_management.configs.paths_config import ensure_directories
 
-logger = logging.getLogger(__name__)
+# Import pre BookSource
+from div_content.models import Book, Booksource
 
 
 class Command(BaseCommand):
@@ -31,25 +27,25 @@ class Command(BaseCommand):
             '--limit',
             type=int,
             default=200,
-            help='Počet knih na zpracování (default: 200)'
+            help='Počet kníh na spracovanie (default: 200)'
         )
 
         parser.add_argument(
             '--dry-run',
             action='store_true',
-            help='Testovací režim bez ukládání do databázy'
+            help='Testovací režim bez ukladania do databázy'
         )
 
         parser.add_argument(
             '--verbose',
             action='store_true',
-            help='Detailní výstup pro debugging'
+            help='Detailný výstup pre debugging'
         )
 
         parser.add_argument(
             '--force-update',
             action='store_true',
-            help='Vynúti aktualizaci i existujících knih'
+            help='Vynúti aktualizáciu aj existujúcich kníh'
         )
 
         parser.add_argument(
@@ -59,17 +55,18 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        """Hlavní metóda management commandu"""
+        """Hlavná metóda management commandu"""
 
         start_time = datetime.now()
 
-        # Nastavení loggingu
-        if options['verbose']:
-            logging.basicConfig(level=logging.DEBUG)
-        else:
-            logging.basicConfig(level=logging.INFO)
+        # Zabezpeč existenciu adresárov
+        ensure_directories()
 
-        # Nastavení
+        # Setup logovania
+        setup_logging(verbose=options['verbose'])
+        logger = get_logger('books', 'books_update')
+
+        # Nastavenia
         dry_run = options['dry_run']
         verbose = options['verbose']
         force_update = options['force_update']
@@ -81,157 +78,185 @@ class Command(BaseCommand):
             verbose = True
 
         # Úvodná správa
-        mode = "DRY RUN 🧪" if dry_run else "PRODUCTION 🚀"
-        self.stdout.write(self.style.SUCCESS(
-            f"\n{'='*60}\n"
-            f"  AKTUALIZACE KNIH Z DOBROVSKÉHO ({mode})\n"
-            f"{'='*60}"
-        ))
-        self.stdout.write(f"📋 Parametry:")
-        self.stdout.write(f"   • Limit: {limit} knih")
-        self.stdout.write(f"   • Force update: {'Ano' if force_update else 'Ne'}")
-        self.stdout.write(f"   • Dry run: {'Ano' if dry_run else 'Ne'}\n")
+        mode = "DRY RUN" if dry_run else "PRODUCTION"
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"🚀 Spúšťam aktualizáciu kníh z Dobrovský ({mode})"
+            )
+        )
+        self.stdout.write(f"📋 Parametre: limit={limit}, force_update={force_update}")
 
         try:
-            # KROK 1: Scraping z Dobrovského
-            self.stdout.write(self.style.HTTP_INFO("📡 KROK 1: Scraping Dobrovského..."))
+            # Vytvor service
+            update_service = BookUpdateService(dry_run=dry_run)
 
-            books = scrape_dobrovsky_books(limit=limit)
-
-            if not books:
-                self.stdout.write(self.style.WARNING("⚠️ Žádné knihy nenalezeny!"))
-                return
-
-            self.stdout.write(self.style.SUCCESS(f"✅ Načteno {len(books)} knih\n"))
-
-            # KROK 2: Zpracování a ukládání do DB
-            self.stdout.write(self.style.HTTP_INFO("💾 KROK 2: Ukládání do databáze..."))
-
-            service = BookSourceService()
-
+            # Spusti aktualizáciu
             with transaction.atomic():
                 if dry_run:
-                    # V dry-run režimu rollback transakce
+                    # V dry-run režime nevykonávaj skutočné transakcie
                     transaction.set_rollback(True)
-                    self.stdout.write(self.style.WARNING("⚠️ DRY RUN - změny nebudou uloženy\n"))
 
-                # Zpracuj každou knihu
-                for idx, book in enumerate(books, 1):
-                    if verbose:
-                        self.stdout.write(f"[{idx}/{len(books)}] Zpracovávám: {book.title}")
+                result = update_service.update_books_from_dobrovsky(
+                    limit=limit,
+                    force_update=force_update
+                )
 
-                    success, msg = service.process_dobrovsky_book(book, force_update=force_update)
+                # 🆕 NOVÉ: Synchronizuj BookSource záznamy
+                if not dry_run and result['processed'] > 0:
+                    self._sync_book_sources(logger)
 
-                    if verbose and not success:
-                        self.stdout.write(self.style.ERROR(f"   ❌ Chyba: {msg}"))
+            # Výsledný report
+            self._print_summary(result, start_time)
 
-                # Získej statistiky
-                stats = service.get_stats()
-
-            # KROK 3: Výsledný report
-            self._print_summary(stats, start_time, dry_run)
-
-            # Log finálního stavu
-            logger.info(f"✅ Command dokončený: {stats}")
+            # Log finálneho stavu
+            logger.info(f"✅ Command dokončený úspešne: {result}")
 
         except KeyboardInterrupt:
-            self.stdout.write(self.style.WARNING("\n⚠️ Aktualizace přerušena uživatelem"))
-            logger.warning("Command přerušený uživatelem")
+            self.stdout.write(
+                self.style.WARNING("⚠️ Aktualizácia prerušená používateľom")
+            )
+            logger.warning("Command prerušený používateľom")
 
         except Exception as e:
             error_msg = f"❌ Kritická chyba: {e}"
             self.stdout.write(self.style.ERROR(error_msg))
             logger.error(error_msg, exc_info=True)
-            raise CommandError(f"Command selhal: {e}")
+            raise CommandError(f"Command zlyhal: {e}")
 
-    def _print_summary(self, stats: dict, start_time: datetime, dry_run: bool):
-        """Vypíše souhrn výsledků"""
+    def _sync_book_sources(self, logger):
+        """
+        Synchronizuje BookSource záznamy pre knihy z Dobrovského
+
+        Pre všetky knihy kde sourcetype='DOB' a sourceid existuje,
+        vytvor/aktualizuj záznam v BookSource
+        """
+        logger.info("📊 Synchronizujem BookSource záznamy...")
+
+        # Najdi všetky knihy z Dobrovského ktoré majú sourceid
+        dob_books = Book.objects.filter(
+            sourcetype='DOB',
+            sourceid__isnull=False
+        ).exclude(sourceid='')
+
+        synced = 0
+        created = 0
+        updated = 0
+
+        for book in dob_books:
+            try:
+                # Vytvor/aktualizuj BookSource záznam
+                book_source, was_created = Booksource.objects.update_or_create(
+                    sourcetype='DOBROVSKY',
+                    externalid=str(book.sourceid),
+                    defaults={
+                        'bookid': book,
+                        'externaltitle': book.titlecz or book.title,
+                        'externalauthors': book.author,
+                        'externalurl': f'https://www.knihydobrovsky.cz/kniha/{book.url}-{book.sourceid}',
+                    }
+                )
+
+                if was_created:
+                    created += 1
+                    logger.debug(f"✨ BookSource vytvorený: {book.title} (ID: {book.sourceid})")
+                else:
+                    updated += 1
+                    logger.debug(f"🔄 BookSource aktualizovaný: {book.title} (ID: {book.sourceid})")
+
+                synced += 1
+
+            except Exception as e:
+                logger.warning(f"⚠️ Chyba pri sync BookSource pre {book.title}: {e}")
+                continue
+
+        logger.info(f"✅ BookSource sync: {synced} celkom ({created} nových, {updated} aktualizovaných)")
+        self.stdout.write(f"📊 BookSource: {created} nových, {updated} aktualizovaných")
+
+    def _print_summary(self, result: dict, start_time: datetime):
+        """Vypíše súhrn výsledkov"""
 
         duration = datetime.now() - start_time
 
-        # Hlavní souhrn
-        self.stdout.write(f"\n{'='*60}")
-        self.stdout.write(self.style.SUCCESS("📊 SOUHRN AKTUALIZACE"))
-        self.stdout.write("="*60)
+        # Hlavný súhrn
+        self.stdout.write("\n" + "="*50)
+        self.stdout.write(self.style.SUCCESS("📊 SÚHRN AKTUALIZÁCIE"))
+        self.stdout.write("="*50)
 
-        # Statistiky
-        self.stdout.write(f"\n⏱️  Čas běhu: {duration.total_seconds():.1f}s")
-        self.stdout.write(f"\n📚 BOOK SOURCE:")
-        self.stdout.write(f"   • Zpracováno: {stats['processed']}")
-        self.stdout.write(f"   • Vytvořeno: {stats['created']}")
-        self.stdout.write(f"   • Aktualizováno: {stats['updated']}")
-        self.stdout.write(f"   • Přeskočeno: {stats['skipped']}")
-        self.stdout.write(f"   • Chyby: {stats['errors']}")
+        # Štatistiky
+        stats_lines = [
+            f"⏱️  Čas behu: {duration.total_seconds():.1f}s",
+            f"📖 Spracované: {result['processed']}",
+            f"✅ Vytvorené: {result['created']}",
+            f"🔄 Aktualizované: {result['updated']}",
+            f"⏭️  Preskočené: {result['skipped']}",
+            f"❌ Chyby: {result['errors']}"
+        ]
 
-        self.stdout.write(f"\n📖 KNIHY:")
-        self.stdout.write(f"   • Nově vytvořeno: {stats['books_created']}")
-        self.stdout.write(f"   • Spárováno existujících: {stats['books_matched']}")
+        for line in stats_lines:
+            self.stdout.write(line)
 
-        # Farebný souhrn
-        total_success = stats['created'] + stats['updated']
-        if stats['errors'] == 0:
+        # Farebný súhrn
+        total_success = result['created'] + result['updated']
+        if result['errors'] == 0:
             status_style = self.style.SUCCESS
-            status_msg = "✅ ÚSPĚŠNĚ DOKONČENO"
-        elif stats['errors'] < stats['processed'] / 2:
+            status_msg = "✅ ÚSPEŠNE DOKONČENÉ"
+        elif result['errors'] < result['processed'] / 2:
             status_style = self.style.WARNING
-            status_msg = "⚠️ DOKONČENO S CHYBAMI"
+            status_msg = "⚠️ DOKONČENÉ S CHYBAMI"
         else:
             status_style = self.style.ERROR
-            status_msg = "❌ SELHALO"
+            status_msg = "❌ ZLYHALO"
 
         self.stdout.write("\n" + status_style(status_msg))
 
-        # Dodatočné informace
-        if dry_run:
-            self.stdout.write(self.style.WARNING(
-                "\n🧪 DRY RUN - Žádné změny nebyly uloženy do databáze!"
-            ))
+        # Dodatočné informácie
+        if total_success > 0:
+            self.stdout.write(
+                self.style.SUCCESS(f"🎉 Úspešne spracovaných {total_success} kníh!")
+            )
 
-        if total_success > 0 and not dry_run:
-            self.stdout.write(self.style.SUCCESS(
-                f"\n🎉 Úspěšně zpracováno {total_success} záznamů v BookSource!"
-            ))
+        if result['errors'] > 0:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"⚠️ Skontrolujte logy pre {result['errors']} chýb"
+                )
+            )
 
-        if stats['errors'] > 0:
-            self.stdout.write(self.style.WARNING(
-                f"\n⚠️ Zkontrolujte logy pro {stats['errors']} chyb"
-            ))
+        # Odporúčania
+        self._print_recommendations(result)
 
-        # Odporučení
-        self._print_recommendations(stats)
+        self.stdout.write("="*50 + "\n")
 
-        self.stdout.write(f"\n{'='*60}\n")
-
-    def _print_recommendations(self, stats: dict):
-        """Vypíše odporučení na základě výsledků"""
+    def _print_recommendations(self, result: dict):
+        """Vypíše odporúčania na základe výsledkov"""
 
         recommendations = []
 
-        # Pokud bylo hodně chyb
-        if stats['errors'] > stats['processed'] * 0.1:  # Více než 10% chyb
+        # Ak bolo veľa chýb
+        if result['errors'] > result['processed'] * 0.1:  # Viac ako 10% chýb
             recommendations.append(
-                "🔧 Hodně chyb - zkontrolujte dostupnost serveru Dobrovského"
+                "🔧 Veľa chýb - skontrolujte dostupnosť Dobrovský servera"
             )
 
-        # Pokud bylo hodně přeskočených
-        if stats['skipped'] > stats['processed'] * 0.5:  # Více než 50% přeskočených
+        # Ak bolo veľa preskočených
+        if result['skipped'] > result['processed'] * 0.5:  # Viac ako 50% preskočených
             recommendations.append(
-                "📈 Hodně duplicit - zvažte --force-update pro aktualizaci"
+                "📈 Veľa duplikátov - zvážte --force-update pre aktualizáciu"
             )
 
-        # Pokud nebyly vytvořeny žádné záznamy
-        if stats['created'] == 0 and stats['updated'] == 0:
+        # Ak bolo málo vytvorených
+        if result['created'] == 0 and not result['updated']:
             recommendations.append(
-                "📚 Žádné nové záznamy - možná zvyšte --limit nebo zkontrolujte zdroj"
+                "📚 Žiadne nové knihy - možno zvýšte --limit alebo skontrolujte zdroj"
             )
 
-        # Pokud bylo všechno v pořádku
-        if not recommendations and stats['processed'] > 0:
+        # Ak bolo všetko v poriadku
+        if not recommendations and result['processed'] > 0:
             recommendations.append(
-                "✨ Všechno proběhlo hladce! Můžete zvýšit --limit pro více knih"
+                "✨ Všetko prebehlo hladko! Môžete zvýšiť --limit pre viac kníh"
             )
 
         if recommendations:
-            self.stdout.write("\n💡 DOPORUČENÍ:")
+            self.stdout.write("\n💡 ODPORÚČANIA:")
             for rec in recommendations:
                 self.stdout.write(f"   {rec}")

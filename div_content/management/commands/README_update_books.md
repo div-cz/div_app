@@ -2,7 +2,7 @@
 
 ## Přehled
 
-Management command `update_books` automaticky stahuje a aktualizuje knihy z Knihy Dobrovský a ukládá je do databáze s evidencí v tabulce `BookSource`.
+Management command `update_books` automaticky stahuje a aktualizuje knihy z Knihy Dobrovský pomocí **div_management** balíčku a eviduje je v tabulce `BookSource`.
 
 ## Použití
 
@@ -26,131 +26,146 @@ python manage.py update_books --test-single
 python manage.py update_books --verbose
 ```
 
+## Architektura
+
+Command používá **div_management** balíček (gitignored složka s komplexní logikou):
+
+```
+div_management/
+├── scraping/
+│   └── dobrovsky_scraper.py    # Scraper parsující JSON z HTML atributů
+├── books/
+│   ├── book_update_service.py  # Hlavní service pro zpracování knih
+│   ├── book_duplicate_service.py  # Detekce duplicit
+│   ├── book_image_service.py   # Stahování obrázků
+│   └── book_utils.py           # URL generování
+├── shared/
+│   ├── universal_db_helper.py  # DB helpers (autori, žánry)
+│   └── universal_logger.py     # Logging
+└── configs/
+    └── paths_config.py         # Konfigurace cest
+```
+
 ## Jak to funguje
 
-### 1. Scraping z Dobrovského
+### 1. Scraping z Dobrovského (div_management)
 
-Command používá `DobrovskyScr` (`div_content/utils/dobrovsky_scraper.py`) pro stahování knih z https://www.knihydobrovsky.cz/knihy
+**DobroskyScraper** používá chytrý přístup - parsuje JSON data z HTML atributů místo HTML struktury:
+
+```html
+<li data-productinfo='{"id": 123, "name": "Kniha", "brand": "Autor"}'>
+```
 
 Extrahuje:
-- **External ID** - číslo z URL (např. `647575993` z `kniha/pod-letni-oblohou-647575993`)
-- **Název knihy** - čistí suffix "Název" (např. "Pod letní oblohou Název" → "Pod letní oblohou")
-- **Autor**
-- **URL**
-- Cenu (volitelně)
-- Obrázek (volitelně)
+- **external_id** - ID produktu z Dobrovského
+- **title** - název knihy
+- **author_name** - autor
+- **price** - cena
+- **category** - kategorie/žánr
+- **rating** - hodnocení
 
-### 2. Ukládání do databáze
+**Výhoda:** Mnohem spolehlivější než parsování HTML CSS tříd!
 
-Command používá `BookSourceService` (`div_content/utils/book_service.py`) pro:
+### 2. Zpracování knihy (BookUpdateService)
 
-#### BookSource tabulka
-Každá kniha z Dobrovského se ukládá do `BookSource`:
+Pro každou knihu:
+
+1. **Detekce duplicit** (`BookDuplicateService`):
+   - Hledá podle `TitleCZ + Author`
+   - Také kontroluje `external_id` v `sourceid`
+
+2. **Vytvoření/aktualizace** v `Book` tabulce:
+   - Vytvoří novou knihu pokud neexistuje
+   - Aktualizuje existující pokud `--force-update`
+   - Nastaví `sourcetype='DOB'` a `sourceid=external_id`
+
+3. **Doplňující operace**:
+   - Stažení obrázku (`BookImageService`)
+   - Vytvoření autora (`get_or_create_author`)
+   - Přiřazení žánru (`Bookgenre`)
+   - Propojení autora (`Bookwriters`)
+
+### 3. Synchronizace BookSource (NOVÉ)
+
+Po zpracování všech knih command automaticky **synchronizuje BookSource**:
+
+```python
+def _sync_book_sources(self, logger):
+    # Najde všechny knihy s sourcetype='DOB'
+    dob_books = Book.objects.filter(sourcetype='DOB', sourceid__isnull=False)
+
+    for book in dob_books:
+        # Vytvoří/aktualizuje BookSource záznam
+        Booksource.objects.update_or_create(
+            sourcetype='DOBROVSKY',
+            externalid=str(book.sourceid),
+            defaults={
+                'bookid': book,
+                'externaltitle': book.titlecz or book.title,
+                'externalauthors': book.author,
+                'externalurl': f'https://www.knihydobrovsky.cz/kniha/{book.url}-{book.sourceid}',
+            }
+        )
+```
+
+**BookSource tabulka:**
 ```sql
-BookSourceID    -- AutoField PK
-BookID          -- FK na Book (může být NULL pokud se nepodaří spárovat)
-SourceType      -- 'DOBROVSKY'
-ExternalID      -- ID z Dobrovského (např. '647575993')
-ExternalTitle   -- Původní název z Dobrovského
-ExternalAuthors -- Autoři z Dobrovského
-ExternalURL     -- URL na Dobrovském
-CreatedAt       -- Timestamp vytvoření
+BookSourceID     -- AutoField PK
+BookID           -- FK na Book
+SourceType       -- 'DOBROVSKY', 'CBDB', 'DB'
+ExternalID       -- ID z externího zdroje
+ExternalTitle    -- Původní název
+ExternalAuthors  -- Autoři
+ExternalURL      -- URL na externí zdroj
+CreatedAt        -- Timestamp
 ```
 
 **Unique constraint**: `(SourceType, ExternalID)` - zabraňuje duplicitám
 
-#### Párování s Book tabulkou
+### 4. Generování URL pro knihy
 
-Service se pokouší spárovat knihu s existující v `Book` tabulce podle:
-- **Název + Autor** (unikátní kombinace)
-- Hledá v `TitleCZ` nebo `Title` (case insensitive)
-- Porovnává s `Author` (case insensitive)
-
-**Pokud kniha existuje:**
-- Spáruje `BookSource.BookID` s existujícím `Book.BookID`
-- Nepřidává duplicitu do `Book`
-
-**Pokud kniha neexistuje:**
-- Vytvoří nový záznam v `Book`:
-  - `title` a `titlecz` - vyčištěný název
-  - `author` - jméno autora
-  - `url` - jedinečné URL (podle pravidla níže)
-  - `sourcetype` = 'DOBROVSKY'
-  - `sourceid` = Externí ID
-  - `divrating` = 50 (novinky mají rating 50)
-  - `language` = 'cs'
-  - `img` = 'noimg.png'
-
-### 3. Generování URL pro knihy
-
-Pravidlo pro `Book.url`:
-1. **První pokus**: `nazev-knihy` (slugifikovaný název)
-2. **Pokud existuje**: `nazev-knihy-autor` (název + autor)
-3. **Pokud i to existuje**: `nazev-knihy-autor-2` (s číslem)
-
-Příklad:
-- "Pod letní oblohou" → `pod-letni-oblohou`
-- Další s názvem "Pod letní oblohou", autor "Jana Nováková" → `pod-letni-oblohou-jana-novakova`
-
-### 4. Prevence duplicit
-
-- **BookSource**: Unique constraint na `(SourceType, ExternalID)` - nemůže existovat více záznamů se stejným External ID
-- **Při běhu**: Command kontroluje existenci před vytvořením:
-  - Pokud `BookSource` záznam existuje → `skipped` (nebo `updated` s `--force-update`)
-  - Pokud Book existuje → spáruje místo vytvoření duplicity
+`BookURLGenerator` vytváří unikátní URL podle pravidel:
+1. **První pokus**: `nazev-knihy`
+2. **Pokud existuje**: `nazev-knihy-autor`
+3. **Pokud i to existuje**: `nazev-knihy-autor-2`
 
 ## Výstup
 
 ```
-============================================================
-  AKTUALIZACE KNIH Z DOBROVSKÉHO (PRODUCTION 🚀)
-============================================================
-📋 Parametry:
-   • Limit: 200 knih
-   • Force update: Ne
-   • Dry run: Ne
+🚀 Spúšťam aktualizáciu kníh z Dobrovský (PRODUCTION)
+📋 Parametre: limit=200, force_update=False
 
-📡 KROK 1: Scraping Dobrovského...
-✅ Načteno 24 knih
+==================================================
+📊 SÚHRN AKTUALIZÁCIE
+==================================================
+⏱️  Čas behu: 15.2s
+📖 Spracované: 24
+✅ Vytvorené: 12
+🔄 Aktualizované: 0
+⏭️  Preskočené: 12
+❌ Chyby: 0
 
-💾 KROK 2: Ukládání do databáze...
+📊 BookSource: 24 nových, 0 aktualizovaných
 
-============================================================
-📊 SOUHRN AKTUALIZACE
-============================================================
+✅ ÚSPEŠNE DOKONČENÉ
+🎉 Úspešne spracovaných 12 kníh!
 
-⏱️  Čas běhu: 15.2s
-
-📚 BOOK SOURCE:
-   • Zpracováno: 24
-   • Vytvořeno: 12
-   • Aktualizováno: 0
-   • Přeskočeno: 12
-   • Chyby: 0
-
-📖 KNIHY:
-   • Nově vytvořeno: 8
-   • Spárováno existujících: 4
-
-✅ ÚSPĚŠNĚ DOKONČENO
-🎉 Úspěšně zpracováno 12 záznamů v BookSource!
-
-💡 DOPORUČENÍ:
-   ✨ Všechno proběhlo hladce! Můžete zvýšit --limit pro více knih
-============================================================
+💡 ODPORÚČANIA:
+   ✨ Všetko prebehlo hladko! Môžete zvýšiť --limit pre viac kníh
+==================================================
 ```
 
 ## Statistiky
 
 | Pole | Popis |
 |------|-------|
-| **Zpracováno** | Celkový počet knih ze scrapingu |
-| **Vytvořeno** | Nové záznamy v BookSource |
-| **Aktualizováno** | Existující záznamy v BookSource (jen s --force-update) |
-| **Přeskočeno** | Záznamy které už existují v BookSource |
+| **Zpracované** | Celkový počet knih ze scrapingu |
+| **Vytvořené** | Nové knihy v Book tabulce |
+| **Aktualizované** | Existující knihy aktualizované v Book |
+| **Přeskočené** | Knihy které už existují (bez změn) |
 | **Chyby** | Počet chyb při zpracování |
-| **Nově vytvořeno** | Nové knihy v Book tabulce |
-| **Spárováno existujících** | Knihy které už existovaly v Book |
+| **BookSource nových** | Nové záznamy v BookSource |
+| **BookSource aktualizovaných** | Existující záznamy aktualizované |
 
 ## Týdenní spouštění
 
@@ -163,52 +178,97 @@ Pro automatické týdenní spouštění nastavte cron job:
 
 Nebo použijte Django Celery Beat pro periodické tasky.
 
+## Databázové tabulky
+
+### Book (hlavní)
+- `sourcetype='DOB'` - typ zdroje
+- `sourceid` - ExternalID z Dobrovského
+- `title`, `titlecz`, `author` - základní data
+- `url` - unikátní URL
+- `divrating` - rating (nově 0, lze nastavit ručně)
+
+### BookSource (evidence externích zdrojů)
+- `sourcetype='DOBROVSKY'` - typ zdroje
+- `externalid` - ID z Dobrovského
+- `bookid` - FK na Book
+- `externaltitle`, `externalauthors` - původní data
+- `externalurl` - odkaz na Dobrovského
+
+### Bookwriters (propojení autora)
+- `book_id` - FK na Book
+- `author_id` - FK na Bookauthor
+
+### Bookgenre (propojení žánru)
+- `bookid` - FK na Book
+- `genreid` - FK na Metagenre
+
 ## Troubleshooting
 
 ### Žádná data se neukládají do DB
-- **Původní problém**: Command importoval z neexistujícího balíčku `div_management`
-- **Řešení**: Nová implementace s `dobrovsky_scraper.py` a `book_service.py`
+- Zkontroluj že `div_management/` složka existuje
+- Zkontroluj že není v dry-run módu
+- Podívej se do logů: `/div_app/data/div_management/logs/`
 
 ### Hodně duplicit
-- Použijte `--force-update` pro aktualizaci existujících záznamů
-- Zkontrolujte unikátní constraint v BookSource
+- Použij `--force-update` pro aktualizaci existujících záznamů
+- Zkontroluj unique constraint v BookSource
 
-### Scraping selhává s 403 Forbidden
-- **Běžný problém**: Dobrovský blokuje některé IP adresy/datacentra
-- **Řešení**: Command musí běžet z prostředí které Dobrovský neblokuje
-- **Alternativa**: Použít Selenium/Playwright pro simulaci reálného prohlížeče
-- Zkontrolujte dostupnost https://www.knihydobrovsky.cz
-- Možná se změnila struktura HTML (aktualizujte selektory ve scraperu)
+### Scraping selhává
+- **Běžný problém**: Dobrovský může změnit HTML strukturu
+- Zkontroluj že `div_management/scraping/dobrovsky_scraper.py` parsuje správné atributy
+- Podívej se na HTML: `https://www.knihydobrovsky.cz/knihy?sort=1`
+- Hledej `<li data-productinfo=` elementy
 
 ### Knihy se nespárují správně
-- Zkontrolujte log - `logger.info()` ukazuje zda byla kniha nalezena
+- Zkontroluj log - `BookDuplicateService` ukazuje zda byla kniha nalezena
 - Možná rozdíl v názvech (extra mezery, diakritika, etc.)
-- Zvažte vylepšení fuzzy matchingu
+- Zvažte vylepšení fuzzy matchingu v `book_duplicate_service.py`
+
+### Import error: No module named 'div_management'
+- **Problém**: `div_management/` složka chybí nebo není v PYTHONPATH
+- **Řešení**: Ujisti se že běžíš command z `/div_app` root
+- Zkontroluj že složka existuje: `ls -la /div_app/div_management`
 
 ## Struktura souborů
 
 ```
-div_content/
-├── management/
-│   └── commands/
-│       ├── update_books.py          # Management command
-│       └── README_update_books.md   # Tato dokumentace
-├── utils/
-│   ├── dobrovsky_scraper.py         # Scraper pro Dobrovského
-│   └── book_service.py              # Service pro správu BookSource
-└── models.py                        # Modely Book, Booksource
+div_app/
+├── div_management/              # Gitignored složka s logikou
+│   ├── scraping/
+│   │   └── dobrovsky_scraper.py
+│   ├── books/
+│   │   ├── book_update_service.py
+│   │   ├── book_duplicate_service.py
+│   │   ├── book_image_service.py
+│   │   └── book_utils.py
+│   ├── shared/
+│   │   ├── universal_db_helper.py
+│   │   └── universal_logger.py
+│   └── configs/
+│       └── paths_config.py
+│
+├── div_content/
+│   ├── management/
+│   │   └── commands/
+│   │       ├── update_books.py           # Management command
+│   │       └── README_update_books.md    # Tato dokumentace
+│   └── models.py                         # Book, Booksource
+│
+└── data/                                 # Data a logy
+    └── div_management/
+        └── logs/
+            └── books_update.log
 ```
 
 ## TODO / Budoucí vylepšení
 
-- [ ] Implementovat plnění `BookWriters` (BookID + AuthorID)
-- [ ] Implementovat plnění `BookGenre` (BookID + GenreID)
-- [ ] Implementovat plnění `BookKeywords` (BookID + MetaKeywords)
-- [ ] Stahování obrázků z Dobrovského
+- [ ] Automatické nastavení `DIVRating=50` pro novinky
+- [ ] Support pro více stránek (paginace)
 - [ ] Lepší fuzzy matching pro párování knih
-- [ ] Support pro více autorů
+- [ ] Support pro více autorů na jedné knize
 - [ ] Parsing ISBN z detailu knihy
 - [ ] Integrace s dalšími zdroji (CBDB, Databáze knih)
+- [ ] Webhook notifikace při nových knihách
 
 ## Kontakt
 
