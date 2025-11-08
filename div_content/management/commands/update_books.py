@@ -87,15 +87,19 @@ class Command(BaseCommand):
         self.stdout.write(f"📋 Parametre: limit={limit}, force_update={force_update}")
 
         try:
-            # 🆕 Načítaj již zpracované external_ids z BookSource
+            # 🆕 Načítaj již zpracované external_ids z BOOK (ne BookSource!)
+            # Důvod: Book může mít víc knih než BookSource
             existing_ids = set()
             if not force_update:
                 existing_ids = set(
-                    Booksource.objects.filter(
-                        sourcetype='DOBROVSKY'
-                    ).values_list('externalid', flat=True)
+                    Book.objects.filter(
+                        sourcetype='DOB',
+                        sourceid__isnull=False
+                    ).exclude(
+                        sourceid=''
+                    ).values_list('sourceid', flat=True)
                 )
-                logger.info(f"📋 V BookSource je už {len(existing_ids)} kníh z Dobrovského")
+                logger.info(f"📋 V Book je už {len(existing_ids)} kníh z Dobrovského (sourcetype='DOB')")
 
             # Vytvor service
             update_service = BookUpdateService(dry_run=dry_run)
@@ -176,7 +180,7 @@ class Command(BaseCommand):
 
             if external_id in existing_ids and not force_update:
                 stats['filtered'] += 1
-                logger.debug(f"⏭️  Přeskakuji {book.get('title')} (ID: {external_id}) - již v BookSource")
+                logger.debug(f"⏭️  Přeskakuji {book.get('title')} (ID: {external_id}) - již v Book")
                 continue
 
             books_to_process.append(book)
