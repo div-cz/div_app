@@ -87,18 +87,32 @@ class Command(BaseCommand):
         self.stdout.write(f"📋 Parametre: limit={limit}, force_update={force_update}")
 
         try:
+            # 🆕 Načítaj již zpracované external_ids z BookSource
+            existing_ids = set()
+            if not force_update:
+                existing_ids = set(
+                    Booksource.objects.filter(
+                        sourcetype='DOBROVSKY'
+                    ).values_list('externalid', flat=True)
+                )
+                logger.info(f"📋 V BookSource je už {len(existing_ids)} kníh z Dobrovského")
+
             # Vytvor service
             update_service = BookUpdateService(dry_run=dry_run)
 
-            # Spusti aktualizáciu
+            # Spusti aktualizáciu s filtrovaním
             with transaction.atomic():
                 if dry_run:
                     # V dry-run režime nevykonávaj skutočné transakcie
                     transaction.set_rollback(True)
 
-                result = update_service.update_books_from_dobrovsky(
-                    limit=limit,
-                    force_update=force_update
+                # 🆕 Vlastná logika s filtrovaním
+                result = self._run_filtered_update(
+                    update_service,
+                    limit,
+                    force_update,
+                    existing_ids,
+                    logger
                 )
 
                 # 🆕 NOVÉ: Synchronizuj BookSource záznamy
@@ -122,6 +136,84 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(error_msg))
             logger.error(error_msg, exc_info=True)
             raise CommandError(f"Command zlyhal: {e}")
+
+    def _run_filtered_update(self, update_service, limit, force_update, existing_ids, logger):
+        """
+        Spustí aktualizaci s filtrováním již zpracovaných knih
+
+        Stahuje více stránek dokud nenajde dost NOVÝCH knih (které nejsou v existing_ids)
+        """
+        from div_management.scraping.dobrovsky_scraper import DobroskyScraper
+
+        scraper = DobroskyScraper()
+
+        # Statistiky
+        stats = {
+            'processed': 0,
+            'created': 0,
+            'updated': 0,
+            'skipped': 0,
+            'errors': 0,
+            'filtered': 0  # Nové - kolik bylo odfiltrováno
+        }
+
+        # Stahuj knihy postupně až do limitu NOVÝCH knih
+        books_to_process = []
+        total_fetched = 0
+        max_fetch = limit * 5  # Maximálně načti 5x víc než limit (aby se nenačítalo donekonečna)
+
+        logger.info(f"🔍 Hledám {limit} NOVÝCH knih (přeskakuji {len(existing_ids)} existujících)")
+
+        # Načti knihy (DobroskyScraper.fetch_books vrací seznam)
+        all_books = scraper.fetch_books(limit=max_fetch)
+
+        # Filtruj - vezmi jen ty které NEJSOU v existing_ids
+        for book in all_books:
+            external_id = str(book.get('external_id', ''))
+
+            if not external_id:
+                continue
+
+            if external_id in existing_ids and not force_update:
+                stats['filtered'] += 1
+                logger.debug(f"⏭️  Přeskakuji {book.get('title')} (ID: {external_id}) - již v BookSource")
+                continue
+
+            books_to_process.append(book)
+
+            if len(books_to_process) >= limit:
+                break
+
+        logger.info(f"✅ Nalezeno {len(books_to_process)} nových knih (odfiltrováno {stats['filtered']})")
+
+        if not books_to_process:
+            logger.warning("⚠️ Žádné nové knihy k zpracování")
+            return stats
+
+        # Zpracuj knihy přes BookUpdateService
+        # HACK: Musíme obejít update_service.update_books_from_dobrovsky()
+        # protože ta volá scraper znovu. Místo toho zavoláme _process_single_book přímo
+
+        for i, book_data in enumerate(books_to_process, 1):
+            try:
+                logger.debug(f"📖 [{i}/{len(books_to_process)}] {book_data.get('title', 'N/A')}")
+                update_service._process_single_book(book_data, force_update)
+
+                # Aktualizuj statistiky z update_service
+                stats['processed'] += 1
+
+                # Poznámka: update_service má vlastní stats, ale ty nám nejsou dostupné
+                # Musíme je odhadnout podle toho co se stalo
+
+            except Exception as e:
+                logger.error(f"❌ Chyba pri spracovaní knihy {book_data.get('title', 'N/A')}: {e}")
+                stats['errors'] += 1
+
+        # Zkopíruj statistiky z update_service pokud jsou dostupné
+        if hasattr(update_service, 'stats'):
+            stats.update(update_service.stats)
+
+        return stats
 
     def _sync_book_sources(self, logger):
         """
@@ -189,6 +281,7 @@ class Command(BaseCommand):
             f"✅ Vytvorené: {result['created']}",
             f"🔄 Aktualizované: {result['updated']}",
             f"⏭️  Preskočené: {result['skipped']}",
+            f"🔍 Odfiltrované (již v BookSource): {result.get('filtered', 0)}",
             f"❌ Chyby: {result['errors']}"
         ]
 
