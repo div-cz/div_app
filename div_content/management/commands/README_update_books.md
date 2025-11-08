@@ -173,7 +173,10 @@ Nebo použijte Django Celery Beat pro periodické tasky.
 - Použijte `--force-update` pro aktualizaci existujících záznamů
 - Zkontrolujte unikátní constraint v BookSource
 
-### Scraping selhává
+### Scraping selhává s 403 Forbidden
+- **Běžný problém**: Dobrovský blokuje některé IP adresy/datacentra
+- **Řešení**: Command musí běžet z prostředí které Dobrovský neblokuje
+- **Alternativa**: Použít Selenium/Playwright pro simulaci reálného prohlížeče
 - Zkontrolujte dostupnost https://www.knihydobrovsky.cz
 - Možná se změnila struktura HTML (aktualizujte selektory ve scraperu)
 
