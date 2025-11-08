@@ -17,7 +17,7 @@
             
             <!-- HAMBURGER -->
             <div class="toggle">
-                <div id="menu-icon" class="cursor-pointer mr-10">
+                <div id="menu-icon">
                     <svg id="menu-open" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
@@ -28,7 +28,7 @@
             </div>
         </div>
 
-        <div id="menu-section" class="nav-menu hidden sm:mt-4">
+        <div id="menu-section" class="nav-menu hidden">
             <!-- VYHLEDÁVAČ -->
             <form class="sm:searching" action="/hledani-knih/" method="get">
                 <input type="search" placeholder="Vyhledávání her" aria-label="Vyhledávání" name="q">
@@ -42,10 +42,10 @@
             <div class="account">
                 <div class="login">
                     <!-- FORUM -->
-                    <div class="flex relative">
-                        <div class="notBtn relative group">
+                    <div class="icon">
+                        <div class="notBtn">
                             <!-- Počet zpráv -->
-                            <div class="number absolute text-[#ffffff]">
+                            <div class="number">
                                 <span>3</span>
                             </div>
 
@@ -54,19 +54,19 @@
                             </button>
 
                             <!-- Dropdown menu zpráv -->
-                            <div class="absolute dropbox card-body" role="menu" aria-hidden="true">
-                            <p class="font-bold mb-2 after">Nové zprávy</p>
-                                <ul class="text-sm ml-0">
+                            <div class="dropbox card-body" role="menu" aria-hidden="true">
+                            <p class="after">Nové zprávy</p>
+                                <ul>
                                     <li class="after">
-                                        &#128172; <a href="" class="block py-1 rounded">Zpráva 1</a>
+                                        &#128172; <a href="">Zpráva 1</a>
                                         <p>tady by mohl být nějaký text</p>
                                     </li>
                                     <li class="after">
-                                        &#128172; <a href="" class="block py-1 rounded">Zpráva 2</a>
+                                        &#128172; <a href="">Zpráva 2</a>
                                         <p>tady by mohl být nějaký text</p>
                                     </li>
                                     <li class="">
-                                        &#128172; <a href="" class="block py-1 rounded">Zpráva 3</a>
+                                        &#128172; <a href="">Zpráva 3</a>
                                         <p>tady by mohl být nějaký text</p>
                                     </li>
                                 </ul>
@@ -76,16 +76,14 @@
 
                     <!-- POŠTA -->
                     {% if user.is_authenticated %}
-                    <div class="flex">
-                        <div class="flex relative">
-                            <div class="notBtn">
-                                {% if has_unread_messages %}
-                                <div class="number absolute"><i class="fas fa-bell"></i></div>
-                                {% endif %}
-                                <a href="/ucet/zpravy/">
-                                    <i class="far fa-regular fa-envelope" title="zprávy"></i>
-                                </a>
-                            </div>
+                    <div class="icon">
+                        <div class="notBtn">
+                            {% if has_unread_messages %}
+                            <div class="number"><i class="fas fa-bell"></i></div>
+                            {% endif %}
+                            <a href="/ucet/zpravy/">
+                                <i class="far fa-regular fa-envelope" title="zprávy"></i>
+                            </a>
                         </div>
                     </div>
 
