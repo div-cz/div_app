@@ -228,7 +228,7 @@
             <!-- Kontrola, zda je k dispozici rok -->
             <div>
                 {% if book.year %}
-                <span>{{ book.year }}</span>
+                <span><a href="">{{ book.year }}</a></span>
                 &nbsp;|&nbsp;
                 {% endif %}
 
@@ -265,18 +265,17 @@
 
         </div>
 
-        <div class="d-flex mb-3 mt-4 wrap">
-            <div class="mr-4 flex" style="width:40%; max-width:200px">
-
+        <div class="box-info">
+            <div class="box-img">
             {% if book.img == "noimg.png" %}
                 <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
-                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz|default:book.title }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
+                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz|default:book.title }}" class="img-fluid">
                 {% elif book.img == "GoogleID" %}
                 <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
-                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px;">
+                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}" class="img-fluid">
                 {% else %}
                 <!-- Jinak zobraz vlastní nahraný obrázek -->
-                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
+                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="img-fluid">
             {% endif %}
 
                 <div class="d-lg-none mb-2 sm:ml-5">
@@ -366,39 +365,36 @@
                             style="height:60px;margin-left:8px;">
                     {% endif %}
 
-
-
                     <!-- POSTAVY -->
                     {% if characters_with_roles %}
                     <li><strong>Postavy:</strong>
-                        {% for character_with_role in characters_with_roles %}
-                            {% with character=character_with_role.characterid %}
-                                {% if character.characterbio %}
-                                    <a href="/postava/{{ character.characterurl }}">
-                                        {% if character.characternamecz %}
-                                            {{ character.characternamecz }},
-                                        {% else %}
-                                            {{ character.charactername }},
-                                        {% endif %}
-                                    </a>
-                                {% else %}
+                    {% for character_with_role in characters_with_roles %}
+                        {% with character=character_with_role.characterid %}
+                            {% if character.characterbio %}
+                                <a href="/postava/{{ character.characterurl }}">
                                     {% if character.characternamecz %}
                                         {{ character.characternamecz }},
                                     {% else %}
                                         {{ character.charactername }},
                                     {% endif %}
+                                </a>
+                            {% else %}
+                                {% if character.characternamecz %}
+                                    {{ character.characternamecz }},
+                                {% else %}
+                                    {{ character.charactername }},
                                 {% endif %}
-                                {% if character_with_role.characterrole %}
-                                    - {{ character_with_role.characterrole }}
-                                {% endif %}
-                            {% endwith %}
-                            {% if not forloop.last %}
-
                             {% endif %}
-                        {% endfor %}
+                            {% if character_with_role.characterrole %}
+                                - {{ character_with_role.characterrole }}
+                            {% endif %}
+                        {% endwith %}
+                        {% if not forloop.last %}
+
+                        {% endif %}
+                    {% endfor %}
                     </li>
-                    {% endif %}
-                    
+                {% endif %}
                 </ul>
 
                 <div class="w-full mt-4">
@@ -421,9 +417,9 @@
                             <a href="{% url 'remove_from_favourites_books' bookid=book.bookid %}" class="favorite-link">
                             {% endif %}
                                 <span class="favorite-link-icon">
-                                    <i class="fas fa-heart" style="color: {% if is_in_favourites %} #e91e63 {% else %} #000000 {% endif %}"></i>
+                                    <i class="fas fa-heart" style="color: {% if is_in_favourites %} #4FB021 {% else %} #000000 {% endif %}"></i>
                                 </span>
-                                <span class="favorite-link-title"style="color: {% if is_in_favourites %} #e91e63 {% else %} #000000 {% endif %}">Oblíbené</span>
+                                <span class="favorite-link-title"style="color: {% if is_in_favourites %} #4FB021 {% else %} #000000 {% endif %}">Oblíbené</span>
                                 <span class="xl:hidden">Oblíbené</span>
                             </a>
                         </a>
@@ -435,9 +431,9 @@
                             <a href="{% url 'remove_from_read_books' bookid=book.bookid %}" class="favorite-link">
                             {% endif %}
                                 <span class="favorite-link-icon">
-                                    <i class="fas fa-book" style="color: {% if is_in_read_books %} #e91e63 {% else %} #000000 {% endif %}"></i>
+                                    <i class="fas fa-book" style="color: {% if is_in_read_books %} #4FB021 {% else %} #000000 {% endif %}"></i>
                                 </span>
-                                <span class="favorite-link-title" style="color: {% if is_in_read_books %} #e91e63 {% else %} #000000 {% endif %}">Přečteno</span>
+                                <span class="favorite-link-title" style="color: {% if is_in_read_books %} #4FB021 {% else %} #000000 {% endif %}">Přečteno</span>
                                 <span class="xl:hidden">Přečteno</span>
                             </a>
                         </a>
@@ -449,9 +445,9 @@
                             <a href="{% url 'remove_from_book_library' bookid=book.bookid %}" class="favorite-link">
                             {% endif %}
                                 <span class="favorite-link-icon">
-                                    <i class="fas fa-home" style="color: {% if is_in_book_library %} #e91e63 {% else %} #000000 {% endif %}"></i>
+                                    <i class="fas fa-home" style="color: {% if is_in_book_library %} #4FB021 {% else %} #000000 {% endif %}"></i>
                                 </span>
-                                <span class="favorite-link-title" style="color: {% if is_in_book_library %} #e91e63 {% else %} #000000 {% endif %}">Knihovna</span>
+                                <span class="favorite-link-title" style="color: {% if is_in_book_library %} #4FB021 {% else %} #000000 {% endif %}">Knihovna</span>
                                 <span class="xl:hidden">Knihovna</span>
                             </a>
                         </a>
@@ -463,9 +459,9 @@
                             <a href="{% url 'remove_from_readlist' bookid=book.bookid %}" class="favorite-link">
                             {% endif %}
                                 <span class="favorite-link-icon">
-                                    <i class="fas fa-book-reader" style="color: {% if is_in_readlist %} #e91e63 {% else %} #000000 {% endif %}"></i>
+                                    <i class="fas fa-book-reader" style="color: {% if is_in_readlist %} #4FB021 {% else %} #000000 {% endif %}"></i>
                                 </span>
-                                <span class="favorite-link-title" style="color: {% if is_in_readlist %} #e91e63 {% else %} #000000 {% endif %}">Chci číst</span>
+                                <span class="favorite-link-title" style="color: {% if is_in_readlist %} #4FB021 {% else %} #000000 {% endif %}">Chci číst</span>
                                 <span class="xl:hidden">Chci číst</span>
                             </a>
                         </a>
@@ -676,15 +672,15 @@
         <!-- Karty -->
         <div class="tab-container" style="font-size:12px">
             <ul class="tab-links">
-                <li><a href="#tab1" class="active">Recenze</a></li>
-                <li><a href="#tab2">Postavy</a></li>
-                <li><a href="#tab3">Citáty</a></li>
-                <!--<li><a href="#tab4">Zajímavosti</a></li>-->
-                <li><a href="#tab5">DIVkvariát</a></li>
+                <li class="karta"><a href="#tab1" class="active">Recenze</a></li>
+                <li class="karta"><a href="#tab2">Postavy</a></li>
+                <li class="karta"><a href="#tab3">Citáty</a></li>
+                <!--<li class="karta"><a href="#tab4">Zajímavosti</a></li>-->
+                <li class="karta"><a href="#tab5">DIVkvariát</a></li>
             </ul>
     
             <!-- RECENZE -->
-            <div id="tab1" class="tab-content active w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
+            <div id="tab1" class="tab-content active">
                 <div class="">    
                     <h3 class="after-h3" id="recenze">Recenze</h3>  
                     <!-- přidat recenzi -->       
@@ -702,10 +698,10 @@
 
                     <!-- výpis recenzí -->
                     {% if comments %}
-                    <ul class="list-unstyled card mt-3 komentar">
+                    <ul class="list-unstyled komentar">
                         {% for comment in comments %}
                         <li class="card-body">
-                            <p class="koment after">{{ comment.comment }}</p>
+                            <p class="after">{{ comment.comment }}</p>
                             <div class="user">
                                 <p>{{ comment.dateadded }}</p>
                                 <p>Přidal: <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a></p>
@@ -718,41 +714,13 @@
             </div>
 
             <!-- POSTAVY -->
-            <div id="tab2" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F] ">
+            <div id="tab2" class="tab-content ">
                 <div class=""> 
                     <div>
                         <h3 class="after-h3">Seznam postav v knize</h3>
-
-                    {% for character_with_role in characters_with_roles %}
-                    <div style="font-size:16px">
-                        {% with character=character_with_role.characterid %}
-                            {% if character.characterbio %}
-                            <a href="/postava/{{ character.characterurl }}">
-                                {% if character.characternamecz %}
-                                    {{ character.characternamecz }}
-                                {% else %}
-                                    {{ character.charactername }}
-                            {% endif %}
-                            </a>
-                            {% else %}
-                                {% if character.characternamecz %}
-                                    {{ character.characternamecz }}
-                                {% else %}
-                                    {{ character.charactername }}
-                                {% endif %}
-                            {% endif %}
-                            {% if character_with_role.characterrole %}
-                                - {{ character_with_role.characterrole }}
-                            {% endif %}
-                        {% endwith %}
-                        {% if not forloop.last %}
-
-                        {% endif %}
-                    </div>
-                    {% endfor %}
             
                         {% if user.is_authenticated %}
-                        <hr><h4>Přidat postavu ke knize</h4>
+                        <h4>Přidat postavu ke knize</h4>
                         <p>Z důvodu milionů postav trvá načítání řádově vteřiny</p>
                         <form method="post" name="character_form">
                             {% csrf_token %}
@@ -770,14 +738,43 @@
                                 <option value="3">Hlavní v části knihy</option>
                             </select>
 
-                        {% if user.is_staff %}<!-- CREW -->
-                        <button type="submit" name="add_character" class="add-book">Přidat postavu</button>
-                        {% else %}
+                            {% if user.is_staff %}
+                            <button type="submit" name="add_character" class="add-book">Přidat postavu</button>
+                            {% else %}
                             <p class="text-muted text-sm">
                                 Chcete přidávat postavy? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
                             </p>
-                        {% endif %}<!-- // CREW -->
+                        {% endif %}
                         </form>
+
+                        <!-- výpis postav -->
+                        {% for character_with_role in characters_with_roles %}
+                        <div style="font-size:16px">
+                            {% with character=character_with_role.characterid %}
+                                {% if character.characterbio %}
+                                <a href="/postava/{{ character.characterurl }}">
+                                    {% if character.characternamecz %}
+                                        {{ character.characternamecz }}
+                                    {% else %}
+                                        {{ character.charactername }}
+                                {% endif %}
+                                </a>
+                                {% else %}
+                                    {% if character.characternamecz %}
+                                        {{ character.characternamecz }}
+                                    {% else %}
+                                        {{ character.charactername }}
+                                    {% endif %}
+                                {% endif %}
+                                {% if character_with_role.characterrole %}
+                                    - {{ character_with_role.characterrole }}
+                                {% endif %}
+                            {% endwith %}
+                            {% if not forloop.last %}
+
+                            {% endif %}
+                        </div>
+                        {% endfor %}
 
                         <script>
                             document.getElementById('character_query').addEventListener('input', function () {
@@ -806,20 +803,37 @@
                                 }
                             });
                         </script>
-                        {% endif %}
+                    {% endif %}
                     </div>
 
                 </div>
             </div>
 
             <!-- CICÁTY -->
-            <div id="tab3" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F] ">
+            <div id="tab3" class="tab-content ">
                 <h3 class="after-h3">Citáty z knihy {{ book.titlecz|default:book.title }}</h3>
 
+                <!-- přidat citát -->
+                {% if user.is_authenticated %}
+                <h4>Přidat nový citát</h4>
+                <form method="post" class="">
+                    {% csrf_token %}
+                    {{ quote_form.as_p }}
+
+                    {% if user.is_staff %}
+                    <button type="submit" class="add-book">Přidat citát</button>
+                    {% else %}
+                    <p class="text-muted text-sm">
+                        Chcete přidávat citáty? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
+                    </p>
+                    {% endif %}   
+                </form>
+                {% endif %}
+
                 <!-- výpis citátů -->
-                <div class="card">
-                    {% for quote in quotes %}
-                    <div class="card-body" id="quote-{{ quote.quoteid }}">
+                <ul class="list-unstyled komentar">
+                {% for quote in quotes %}
+                    <li class="card-body" id="quote-{{ quote.quoteid }}">
                         <p class="after">{{ quote.quote }}</p>
                         {% comment %}{% if quote.chapter %}
                             <br><small>Kapitola: {{ quote.chapter }}</small>
@@ -827,43 +841,32 @@
                         {% if quote.characterid %}
                             <br><small>Postava: {{ quote.characterid.charactername }}</small>
                         {% endif %}{% endcomment %}
-                        <div class="flex justify-between m-2">
+                        <div class="user">
                             <p>Vložil: 
                                 <a href="/uzivatel/{{ quote.user.id }}/">{{ quote.user.username }}</a>
                             </p>
 
                             <!-- Hodnocení -->
                             <div id="quote-{{ quote.quoteid }}">
-                               <span class="thumbsup" data-quote-id="{{ quote.quoteid }}">&#x1F44D; <span class="count">{{ quote.thumbsup }}</span></span>
-                               <span class="thumbsdown" data-quote-id="{{ quote.quoteid }}">&#x1F44E; <span class="count">{{ quote.thumbsdown }}</span></span>
-                               <span class="divrating">&#x2B50; <span class="count">{{ quote.divrating }}</span></span>
+                                <span class="thumbsup" data-quote-id="{{ quote.quoteid }}">
+                                    &#x1F44D; <span class="count">{{ quote.thumbsup }}</span>
+                                </span>
+                                <span class="thumbsdown" data-quote-id="{{ quote.quoteid }}">
+                                    &#x1F44E; <span class="count">{{ quote.thumbsdown }}</span>
+                                </span>
+                                <span class="divrating">
+                                    &#x2B50; <span class="count">{{ quote.divrating }}</span>
+                                </span>
                            </div>
                         </div>
-                    </div>
-                    {% endfor %}
-                </div>
+                    </li>
+                {% endfor %}
+                </ul>
 
-                <!-- přidat citát -->
-                {% if user.is_authenticated %}
-                <hr><h4>Přidat nový citát</h4>
-                <form method="post" class="">
-                    {% csrf_token %}
-                    {{ quote_form.as_p }}
-
-                 {% if user.is_staff %}<!-- CREW -->
-                    <button type="submit" class="add-book">Přidat citát</button>
-                    {% else %}
-                    <p class="text-muted text-sm">
-                        Chcete přidávat citáty? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
-                    </p>
-                {% endif %}<!-- // CREW -->
-                        
-                </form>
-                {% endif %}
             </div>
 
             <!-- ZAJÍMAVOSTI
-            <div id="tab4" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F] ">
+            <div id="tab4" class="tab-content ">
                 <h3 class="after-h3">Informace o zajímavostech filmu</h3>
                 <h4>Přidat novou zajímavost</h4>
                 <form method="post" action="">
@@ -910,7 +913,7 @@
 
             <!-- DIVKVARIÁT -->
             <div id="market">
-                <div id="tab5" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
+                <div id="tab5" class="tab-content">
                     <h3 class="after-h3">Tuto knihu prodává / poptává</h3>
 
                     <!-- PRODAM / KOUPIM -->
@@ -1148,15 +1151,15 @@
         <!-- Hodnocení -->
         <div class="card">
             <div class="card-body">
-                <h3 style="text-align:center" class="after font-bold">Hodnocení</h3>
-                <div class="grid columns">
+                <h3 style="text-align:center" class="after">Hodnocení</h3>
+                <div class="hodnoceni">
                     <div class="rating" data-rating="{{ average_rating }}">
                         <div class="rating-inner">
                             {{ average_rating }}%
                         </div>
                     </div>
 
-                    <div class="hodnoceni after">
+                    <div class="hvezdicky after">
                         {% ratings book %}
                         {% if user.is_authenticated %}
                         {% else %}
@@ -1172,7 +1175,7 @@
                     <ul class="list-unstyled rating-users">
                     {% for rating in ratings %}
                         <li class="after">
-                            <small><p class="text-center p-1">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
+                            <small><p style="text-align: center; padding: .25rem;">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
                             <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a>
                             <span class="right">
                                 {% for _ in "12345" %}
@@ -1201,7 +1204,7 @@
         {% if series %}
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title font-bold after-h3">
+                <h3 class="card-title after-h3">
                     Série:  <a href="/svet/{{ series.universumurl }}">
                         {% if series.universumnamecz %}
                         {{ series.universumnamecz }}
@@ -1220,7 +1223,7 @@
         {% else %}
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title font-bold after-h3">Další díla</h3>
+                <h3 class="card-title after-h3">Další díla</h3>
                 <div class="flex flex-wrap">
                     Ke knize neevidujeme pokračování
                 </div>
@@ -1257,8 +1260,8 @@
 
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title font-bold after-h3">{{ book.titlecz|default:book.title }}</h3>
-                <p class="card-text">Sdílet na:</p>
+                <h3 class="card-title after-h3">{{ book.titlecz|default:book.title }}</h3>
+                <p style="width: 100%;">Sdílet na:</p>
 
                 <!-- Facebook Share Button -->
                 <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/kniha/{{ book.url }}" class="btn btn-primary mb-2 mr-1" style="color: white;" target="_blank" title="Facebook">
@@ -1286,7 +1289,7 @@
         <!-- Tags -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title font-bold after-h3">Tagy</h3>
+                <h3 class="card-title after-h3">Tagy</h3>
                 <div class="flex flex-wrap gap-1">
                     {% for book_genre in genres %}
                     <span class="rounded bg-[#c0c0c0] dark:bg-[#0d0c0f] p-1 label"> 

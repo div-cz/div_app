@@ -113,12 +113,12 @@
             {% endif %}
         </div>
 
-        <div class="d-flex mb-3 mt-4 wrap">
-            <div class="mr-4 flex" style="width:40%; max-width:200px">
+        <div class="box-info">
+            <div class="box-img">
                 {% if episode.episodeimg == "noimg.png" %}
-                    <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ episode.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px; height: fit-content;">
+                    <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ episode.titlecz }}" class="img-fluid">
                     {% else %}
-                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ episode.episodeimg }}" alt="{{ episode.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px; height: fit-content;">
+                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ episode.episodeimg }}" alt="{{ episode.titlecz }}" class="img-fluid" style="object-fit: cover;max-width: 200px; height: fit-content;">
                 {% endif %}
         
                 <div class="d-lg-none mb-2 sm:ml-5">
@@ -183,7 +183,7 @@
                         <a href="{% url 'remove_from_favourite_tvepisodes' tv_url=tvshow.url seasonurl=season.seasonurl tvepisodeid=episode.episodeid %}" class="favorite-link">
                         {% endif %}
                             <span class="favorite-link-icon">
-                                <i class="fas fa-heart" style="color: {% if is_in_favourites %} #e91e63 {% else %} #000000 {% endif %}"></i>
+                                <i class="fas fa-heart" style="color: {% if is_in_favourites %} #ED3F2F {% else %} #000000 {% endif %}"></i>
                             </span>
                             <span class="favorite-link-title">Oblíbené</span>
                             <span class="xl:hidden">Oblíbené</span>
@@ -195,7 +195,7 @@
                         <a href="{% url 'remove_from_watched_tvepisodes' tv_url=tvshow.url seasonurl=season.seasonurl tvepisodeid=episode.episodeid %}" class="favorite-link">
                         {% endif %}
                             <span class="favorite-link-icon">
-                                <i class="fas fa-film" style="color: {% if is_in_watched %} #e91e63 {% else %} #000000 {% endif %}"></i>
+                                <i class="fas fa-film" style="color: {% if is_in_watched %} #ED3F2F {% else %} #000000 {% endif %}"></i>
                             </span>
                             <span class="favorite-link-title">Seriálnuto</span>
                             <span class="xl:hidden">Seriálnuto</span>
@@ -207,7 +207,7 @@
                         <a href="{% url 'remove_from_tvepisode_watchlist' tv_url=tvshow.url seasonurl=season.seasonurl tvepisodeid=episode.episodeid %}" class="favorite-link">
                         {% endif %}
                             <span class="favorite-link-icon">
-                                <i class="fas fa-eye" style="color: {% if is_in_watchlist %} #e91e63 {% else %} #000000 {% endif %}"></i>
+                                <i class="fas fa-eye" style="color: {% if is_in_watchlist %} #ED3F2F {% else %} #000000 {% endif %}"></i>
                             </span>  
                             <span class="favorite-link-title">Chci vidět</span>
                             <span class="xl:hidden">Chci vidět</span>
@@ -233,7 +233,7 @@
             </ul>
     
             <!-- RECENZE -->
-            <div id="tab1" class="tab-content active w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
+            <div id="tab1" class="tab-content active">
                 <div class="">    
                     <h3 class="after-h3">Recenze</h3> 
                     {% if user.is_authenticated %}
@@ -248,20 +248,20 @@
                     Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
                     {% endif %}
 
-                    <ul class="list-unstyled card komentar">
-                        {% for comment in comments %}
+                    <!-- Výpis recenzí -->
+                    <ul class="list-unstyled komentar">
+                    {% for comment in comments %}
                         <li class="card-body">
-                            <p class="koment after">{{ comment.comment }}</p>
-
-                            <div class="user flex justify-between items-center">
-                                <a href="{% url 'user_profile_with_profil' comment.user.pk %}" class="font-bold text-red-600">
+                            <p class="after">{{ comment.comment }}</p>
+                            <div class="user">
+                                <p>{{ comment.dateadded }}</p>
+                                <a href="{% url 'user_profile_with_profil' comment.user.pk %}" class="font-bold">
                                     {{ comment.user }}
                                 </a>
-                                <p class="text-sm text-gray-400">{{ comment.dateadded|date:"j. F Y H:i" }}</p>
                             </div>
 
                             <!-- drobečky pod user/date -->
-                            <div class="text-xs text-gray-500 mt-1" style="font-size:80%">
+                            <div style="margin-top: .25rem; padding: 0 10px;">
                                 {% if comment.tvepisode %}
                                     <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">
                                     {{ comment.tvshowkid.titlecz|default:comment.tvshowkid.title }}
@@ -285,13 +285,13 @@
                             </div>
                         </li>
 
-                        {% endfor %}
+                    {% endfor %}
                     </ul>
                 </div>
             </div>
 
             <!-- HRAJÍ -->
-            <div id="tab2" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
+            <div id="tab2" class="tab-content">
                 <h3 class="after-h3">Informace o postavách seriálu</h3>
                 <div class="grid lg:grid-colums-2 ml-4 mt-4">
                 {% if actors_and_characters %}
@@ -301,12 +301,12 @@
                         {% if actor.peopleid.img and actor.peopleid.img != "noimg.png" %}
                             <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ actor.peopleid.img }}" 
                                 alt="{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}" 
-                                class="img-fluid w-full rounded" 
+                                class="img-fluid" 
                                 style="object-fit: cover; max-width: 70px;">
                             {% else %}
                             <img src="/static/img/creator/noperson.svg" 
                                 alt="{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}" 
-                                class="img-fluid w-full rounded" 
+                                class="img-fluid" 
                                 style="object-fit: cover; max-width: 70px; height: 105px;">
                             {% endif %}
                             <div class="flex flex-wrap ml-2 w-full">
@@ -331,33 +331,36 @@
             </div>
 
             <!-- ZAJÍMAVOSTI -->
-            <div id="tab3" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
+            <div id="tab3" class="tab-content">
                 <h3 class="after-h3">Zajímavosti k epizodě</h3>
 
+                <!-- přidat zajímavost -->
                 {% if user.is_authenticated %}
                 <h4>Přidat novou zajímavost</h4>
                 <form method="post" action="">
                     {% csrf_token %}
-                    <textarea name="trivia_text" class="w-full p-2 mb-2" rows="3" required></textarea>
+                    <textarea name="trivia_text" rows="3" placeholder="Zadejte zajímavost" required></textarea>
                     <button type="submit" class="add-movie">Vložit zajímavost</button>
                 </form>
                 {% endif %}
 
-                <div class="card">
-                    {% for item in trivia %}
-                    <div class="card-body">
+                <!-- Výpis zajímavostí -->
+                <ul class="card">
+                {% for item in trivia %}
+                    <li class="card-body">
                         <p class="after">{{ item.trivia }}</p>
-                        <div class="mt-2 text-end">
-                            <span>Přidal: </span>
+                        <div class="user" style="justify-content: end;">
+                            <p>Přidal: 
                             {% if item.userid %}
                                 <a href="{% url 'user_profile_with_profil' item.userid.id %}">{{ item.userid.username }}</a>
-                            {% else %}
+                                {% else %}
                                 Anonym
                             {% endif %}
+                            </p>
                         </div>
 
                         <!-- drobečky -->
-                        <div class="text-xs text-gray-500 mt-1" style="font-size:80%">
+                        <div style="margin-top: .25rem; padding: 0 10px;">
                         {% if item.episodeid %}
                             <a href="{% url 'serie_detail' tv_url=item.tvshowid.url %}">
                                 {{ item.tvshowid.titlecz|default:item.tvshowid.title }}
@@ -382,39 +385,45 @@
                         {% endif %}
                         </div>
 
-                    </div>
-                    {% endfor %}
-                </div>
+                    </li>
+                {% endfor %}
+                </ul>
             </div>
 
             <!-- HLÁŠKY -->
-            <div id="tab4" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
+            <div id="tab4" class="tab-content">
                 <h3 class="after-h3">Známé hlášky z filmu</h3>
+
                 <!-- přidat hlášku -->
                 {% if user.is_authenticated %}
                 <h4>Přidat novou hlášku</h4>
                 <form method="post">
                     {% csrf_token %}
-                    <textarea name="quote_text" class="w-full p-2 mb-2" rows="3" required></textarea>
+                    <textarea name="quote_text" rows="3" required></textarea>
                     <button type="submit" class="add-movie">Vložit hlášku</button>
                 </form>
                 {% endif %}
 
                 <!-- výpis hlášek -->
-                <div class="card">
-                    {% for quote in quotes %}
-                    <div class="card-body">
+                <ul class="list-unstyled komentar">
+                {% for quote in quotes %}
+                    <li class="card-body">
                         <p class="after">{{ quote.quote }}</p>
-                        <div class="mt-2 text-end">
-                            <span>Přidal: </span>
-                            <span><a href="">{{ quote.user.username|default:"Anonym" }}</a></span>
+                        <div class="user">
+                            <p>Přidal:
+                            {% if quote.user %}
+                                <a href="{% url 'user_profile_with_profil' user_id=quote.user.id %}">{{ quote.user.username|default:"Anonym" }}</a>
+                                {% else %}
+                                <span class="text-muted">Anonym</span>
+                            {% endif %}
+                            </p>
                         </div>
-                    </div>
-                    {% endfor %}
-                </div>
+                    </li>
+                {% endfor %}
+                </ul>
             </div>
 
-            <!--<div id="tab5" class="tab-content w-full bg-[#F9F9F9] dark:bg-[#1A161F]">
+            <!--<div id="tab5" class="tab-content">
                 <h3>Lokality</h3>
                 <p>Informace o natáčecích lokalitách.</p>
             </div>-->
@@ -428,15 +437,15 @@
         <!-- Hodnocení -->
         <div class="card">
             <div class="card-body">
-                <h3 style="text-align:center" class="after font-bold">Hodnocení</h3>
-                <div class="grid columns">
+                <h3 style="text-align:center" class="after">Hodnocení</h3>
+                <div class="hodnoceni">
                     <div class="rating" data-rating="{{ average_rating }}">
                         <div class="rating-inner">
                             {{ average_rating }}%
                         </div>
                     </div>
 
-                    <div class="hodnoceni after">
+                    <div class="hvezdicky after">
                         {% ratings episode %}  <!-- Zobrazení hvězdného hodnocení -->
                         {% if user.is_authenticated %}
                         {% else %}
@@ -453,7 +462,7 @@
                     <ul class="list-unstyled rating-users">
                         {% for rating in ratings %}
                         <li class="after">
-                            <small><p class="text-center p-1">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
+                            <small><p style="text-align: center; padding: .25rem;">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
                             <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a>
                             <span class="right">
                                 {% for _ in "12345" %}
@@ -474,7 +483,7 @@
 
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title font-bold after-h3">Sezóny</h3>
+                <h3 class="card-title after-h3">Sezóny</h3>
                 <div class="flex flex-wrap">
                 {% for season in seasons %}
 
@@ -491,8 +500,8 @@
 
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title font-bold after-h3">{{ tvshow.titlecz }}</h3>
-                <p class="card-text">Sdílet na:</p>
+                <h3 class="card-title after-h3">{{ tvshow.titlecz }}</h3>
+                <p style="width: 100%;">Sdílet na:</p>
 
                 <!-- Facebook Share Button -->
                 <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/film/{{ tvshow.url }}" class="btn btn-primary mb-2 mr-1" style="color: white;" target="_blank" title="Facebook">
@@ -519,7 +528,7 @@
         <!-- Tags -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title font-bold after-h3">Tagy</h3>
+                <h3 class="card-title after-h3">Tagy</h3>
                 <div class="flex flex-wrap gap-1">
 
                 </div>
