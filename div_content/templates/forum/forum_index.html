@@ -3,23 +3,27 @@
 {% load ratings %}
 {% load static %}
 
-{% block title %}Div.cz | Diskuzní fórum{% endblock title %}
+{% block title %}
+    Div.cz | Diskuzní fórum
+{% endblock title %}
 
 {% block content %}
 
 <link href="https://media.div.cz/css/navbar_together.css" rel="stylesheet">
 
-<h2 class="w-full">Diskuzní fórum</h2>
-<form class="d-flex mt-4" style="max-width: 400px;" role="search" action="{% url 'forum_search' %}" method="get">
-    <input class="password-field" type="type" placeholder="Hledat na fóru" aria-label="Search" name="q" id="search-input">
-    <button class="mb-4 btn-action add" style="margin: 0 5px;" type="submit">Hledat</button>
-</form>
+<div class="big-search">
+    <h2>Diskuzní fórum</h2>
+    <form style="display: flex; max-width: 400px;" role="search" action="{% url 'forum_search' %}" method="get">
+        <input class="search-field" type="type" placeholder="Hledat na fóru" aria-label="Search" name="q" id="search-input">
+        <button class="add-search" type="submit">Hledat</button>
+    </form>
+</div>
 
-<div class="grid gap-5 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 mt-5">
+<div class="article-item">
 {% for section in all_forum_sections %}
     <div class="talk-img" style="background-image: url(/static/img/forum/bubble.webp); background-size: 100% 100%;">
         <a href="{% url 'forum_section_detail' slug=section.slug %}">
-            <img src="/static/img/forum/{{section.imageurl}}">
+            <img src="/static/img/forum/{{section.imageurl}}" alt="{{ section.title }}">
             <h3 class="{{ section.description }}">{{ section.title }}</h3>
         </a>
     </div>
@@ -27,55 +31,47 @@
 </div>
 
 <!-- Poslední příspěvky -->
-<h3 class="mt-10 mb-3">📌 Poslední příspěvky</h3>
+<div>
+    <h3 style="margin-top:2.5rem; margin-bottom:.75rem; width:100%;">📌 Poslední příspěvky</h3>
 
-<div class="">
+    <div class="">
     {% if latest_comments %}
         {% for comment in latest_comments %}
-        <ol class="card-body" style="margin-bottom: .5rem;">
+        <ul class="card-body" style="margin-bottom:.5rem; border: 1px solid #dee2e6;">
             <!-- Titulek vlákna -->
-            <li class="flex justify-between">
-                <a class="hover:underline font-semibold" 
-                   href="{% url 'forum_topic_detail' slug=comment.topic.section.slug topicurl=comment.topic.topicurl %}">
+            <li class="last-post">
+                <a class="hover:underline" style="font-weight:600;" href="{% url 'forum_topic_detail' slug=comment.topic.section.slug topicurl=comment.topic.topicurl %}">
                     {{ comment.topic.title }}
                 </a>
-                <span class="flex items-center gap-1">
+
                 {% if comment.topic.section.slug == "filmy" %}
-                    <span class="movies">&#127916; Filmy</span>
+                    <p class="movies">&#127916; Filmy</p>
                     {% elif comment.topic.section.slug == "knihy" %}
-                    <span class="books">&#128214; Knihy</span>
+                    <p class="books">&#128214; Knihy</p>
                     {% elif comment.topic.section.slug == "hry" %}
-                    <span class="games">&#127918; Hry</span>
+                    <p class="games">&#127918; Hry</p>
                     {% elif comment.topic.section.slug == "obecne" %}
-                    <span class="">&#128172; Ostatní</span>
+                    <p class="">&#128172; Ostatní</p>
                 {% endif %}
-                </span>
             </li>
 
             <hr>
 
             <!-- Info o komentáři -->
-            <li>
-                <small>
-                    <strong>{{ comment.user.username|default:"Smazaný uživatel" }}</strong> · 
+            <li class="last-comment">
+                <p>
+                    {{ comment.body|striptags|truncatechars:120 }}
+                </p>
+                <small style="white-space: nowrap;">
+                    <a style="margin-right: .5rem;" href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">{{ comment.user.username|default:"Smazaný uživatel" }}</a> 
                     {{ comment.createdat|date:"d.m.Y H:i" }}
                 </small>
-<<<<<<< HEAD
-                <p class="mt-1 text-sm">
-                    {{ comment.body|striptags|truncatechars:120 }}
-=======
-                <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                    {{ comment.body|striptags|truncatechars:120|safe }}
->>>>>>> origin/wendy_css
-                </p>
             </li>
-        </ol>
+        </ul>
         {% endfor %}
-    {% else %}
-    <p>Zatím žádné příspěvky.</p>
-{% endif %}
+    {% endif %}
+    </div>
 </div>
-
 {% endblock content %}
 
 {% block script %}

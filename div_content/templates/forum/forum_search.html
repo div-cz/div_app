@@ -8,50 +8,58 @@ Výsledky hledání {{ query }}
 {% endblock title %}
 
 {% block content %}
-<h2 class="w-full">Výsledky hledání pro "<span style="background-color:#CABAC8;">{{ query }}</span>"</h2>
-<h3 style="margin: 25px 0;">Názvy diskuzních vláken</h3>
+<h2 class="w-full"><a href="{% url 'forum' %}">Diskuzní fórum</a> / Výsledky hledání pro "<span style="background-color:#CABAC8;">{{ query }}</span>"</h2>
+
+<h3 style="margin: 25px 0; width: 100%;">Názvy diskuzních vláken</h3>
 {% if topics %}
     {% for topic in topics %}
-
-        <ol class="card card-body">
-
+    <ul class="card card-body">
         <li><a href="{% url 'forum_topic_detail' slug=topic.section.slug topicurl=topic.topicurl %}">Diskuzní fórum/{{ topic.section.title }}/{{ topic.title|safe|highlight_search:query }}</a></li>
-        </ol>
+    </ul>
     {% endfor %}
-       
-{% else %}
+
+    {% else %}
     <p>Žádný název vlákna</p>
 {% endif %}
 
-<h3 style="margin: 25px 0;">Komentáře uživatelů</h3>
+<h3 style="margin-top: 2.5rem; margin-bottom: .75rem; width: 100%;">Komentáře uživatelů</h3>
+
 {% if comments %}
-        {% for comment in comments %}
+    {% for comment in comments %}
+    <ul class="card-body" style="margin-bottom:.5rem;">
+        <!-- Titulek vlákna -->
+        <li class="last-post">
+            <a href="{% url 'forum_topic_detail' slug=comment.topic.section.slug topicurl=comment.topic.topicurl %}">
+                {{ comment.topic.title }}
+            </a>
 
-        <ol class="card card-body">
+            {% if comment.topic.section.slug == "filmy" %}
+                <p class="movies">&#127916; Filmy</p>
+                {% elif comment.topic.section.slug == "knihy" %}
+                <p class="books">&#128214; Knihy</p>
+                {% elif comment.topic.section.slug == "hry" %}
+                <p class="games">&#127918; Hry</p>
+                {% elif comment.topic.section.slug == "obecne" %}
+                <p class="">&#128172; Ostatní</p>
+            {% endif %}
+        </li>
 
-            <div class="after">
-                <li>
-                    <a href="{% url 'forum_topic_detail' slug=comment.topic.section.slug topicurl=comment.topic.topicurl %}">
-                        Diskuzní fórum/{{ comment.topic.section.title }}/{{ comment.topic.title }}
-                    </a>
-                </li>
-                <li class="w-full">
-                    {{ comment.body|safe|highlight_search:query }}
-                </li>
-            </div>
-            <div class="flex justify-between">
-                <p class="mb-0">
-                    <span class="flex flex-wrap">
-                        <a class="mr-2" href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">{{ comment.user }}</a> - {{ comment.createdat }} {% if comment.lasteditedat %}<i class="ml-2"><small>(Upraveno {{ comment.lasteditedat }})</small></i>
-                    </span>
-                    {% endif %}
-                </p>
-            </div>
-        </ol>
-        {% endfor %}
-{% else %}
-    <p>Žádné komentáře</p>
+        <hr>
+
+        <!-- Info o komentáři -->
+        <li class="last-comment">
+            <p>
+                {{ comment.body|safe|highlight_search:query }}
+            </p>
+            <small style="white-space: nowrap;">
+                <a style="margin-right: .5rem;" href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">{{ comment.user }}</a>
+                {{ comment.createdat|date:"d.m.Y H:i" }} 
+            </small>
+        </li>
+    </ul>
+    {% endfor %}
+    {% else %}
+    <p>Žádný komentáře uživatelů</p>
 {% endif %}
-
 
 {% endblock content %}

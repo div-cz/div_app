@@ -16,36 +16,32 @@
 
 {% block content %}
 <div class="container">
-  <div class="row m-3">
+    <div class="row">
 
+        <p class="">{{ user.username }}, opravdu se chceš odhlásit?</p>
 
-<p class="">{{ user.username }}, opravdu se chceš odhlásit?</p>
+        <form method="post" style="margin-top: 1.25rem;" action="{% url 'account_logout' %}">
+        {% csrf_token %}
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+            {% endif %} 
+            <div class="d-block">
+                <button type="submit" class="btn">{% trans 'Sign Out' %}</button>
+            </div>
+        </form>
 
-<form method="post" class="mt-5" action="{% url 'account_logout' %}">
-  {% csrf_token %}
-  {% if redirect_field_value %}
-  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
-  {% endif %} 
-  <div class="d-block">
-    <button type="submit" class="btn btn-danger">{% trans 'Sign Out' %}</button>
-  </div>
-</form>
+        {% if request.user.is_superuser %}
+        <p>I am superuser!</p>
+        {% else %}
+        {% endif %}
 
-{% if request.user.is_superuser %}
-<p>I am superuser!</p>
-{% else %}
-{% endif %}
+        {% if user.is_authenticated %}
 
+        {% else %}
+        <p><a href="{% url 'account_login' %}">{% trans "Sign In" %}</a>. Nemate ucet? <a href="{% url 'registration' %}">Registrace</a>.</p>
+        {% endif %}
 
-    {% if user.is_authenticated %}
-
-    {% else %}
-    <p><a href="{% url 'account_login' %}">{% trans "Sign In" %}</a>. Nemate ucet? <a href="{% url 'registration' %}">Registrace</a>.</p>
-    {% endif %}
-
-
-
-
-  </div>
+    </div>
 </div>
+
 {% endblock content %}

@@ -18,65 +18,7 @@
 {% block content %}
 
 <style>
-    .rating {
-        position: relative;
-        width: 90px;
-        height: 90px;
-        border-radius: 50%;
-        margin: 0 auto;
-        padding: 0;
-        margin-bottom: 10px;
-    }
-
-    .rating::before {
-        content: '';
-        position: absolute;
-        top: 5px;
-        left: 5px;
-        width: 75px;
-        height: 75px;
-        background: #444444;
-        border-radius: 50%;
-        z-index: 2;
-        margin: 4px;
-    }
-
-    .rating::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 85px;
-        height: 85px;
-        background: conic-gradient(
-            var(--gradient-color, #0a0) 0%,
-            var(--gradient-color, #0a0) var(--gradient-value, 50%),
-            #777777 var(--gradient-value, 50%)
-        );
-        border-radius: 50%;
-        z-index: 1;
-        margin: 4px;
-    }
-
-    .rating-inner {
-        position: relative;
-        z-index: 3;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #fff;
-        font-size: 30px;
-        font-weight: bold;
-    }
-
-    .rating-inner span {
-        font-size: 10px;
-        margin-left: 2px;
-        color: #ffd700;
-        margin-top: -10px;
-    }
+    
 </style>
 
 <div class="container">
@@ -134,9 +76,15 @@
                 {% endif %}-->
 
                 <div class="d-lg-none mb-2 sm:ml-5">
-                    <div class="rating-stars" style="white-space: nowrap;"><!--&nbsp;|&nbsp;-->
+                    <div class="rating" data-rating="{{ average_rating }}">
+                        <div class="rating-inner">
+                            {{ average_rating }}%
+                        </div>
+                    </div>
+
+                    <div class="rating-stars" style="white-space: nowrap;">
                         <div class="smaller-stars">{% ratings game %}</div>
-                        <div id="rating-thankyou2" class="alert alert-success" style="display: none;">Děkujeme za hodnocení!</div>
+                        <div id="rating-thankyou2" class="alert" style="display: none;">Děkujeme za hodnocení!</div>
                     </div>
                 </div>
             </div>
@@ -182,7 +130,7 @@
                 <!-- Tlačítka -->
                 {% if user.is_authenticated %}
                 <!-- Autorizován -->
-                <div class="favorite-menu grid sm:grid-colums-2 justify-items-center w-full dark:bg-[#727271] border rounded-1xl mt-4">
+                <div class="favorite-menu">
                     {% if not is_in_favourites %}
                     <!-- Pokud film není v oblíbených -->
                     <a href="{% url 'add_to_favourite_games' gameid=game.gameid %}" class="favorite-link" style="color: black;">
@@ -249,7 +197,7 @@
                 </div>
                 {% endif %}
 
-                <div id="add-thankyou" class="alert alert-success" style="display: none;">Hra přidána do seznamu!</div>
+                <div id="add-thankyou" class="alert" style="display: none;">Hra přidána do seznamu!</div>
             </div>
         </div>
 
@@ -278,7 +226,8 @@
             <!-- RECENZE -->
             <div id="tab1" class="tab-content active"> 
                 <div class=""> 
-                    <h3 class="after-h3">Recenze hry</h3>   
+                    <h3 class="after-h3">Recenze hry</h3>  
+                     
                     <!-- přidat recenzi -->      
                     {% if user.is_authenticated %}
                     <h4>Přidat novou recenzi</h4>
@@ -293,22 +242,19 @@
                     {% endif %}
 
                     <!-- výpis recenzí -->
-                    {% if comments %}
                     <ul class="list-unstyled komentar">
-                        {% for comment in comments %}
+                    {% for comment in comments %}
                         <li class="card-body">
                             <p class="after">{{ comment.comment }}</p>
                             <div class="user">
                                 <p>{{ comment.dateadded }}</p>
-                                <p>Přidal: <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a></p>
+                                <p>Přidal: 
+                                    <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a>
+                                </p>
                             </div>
                         </li>
-                        {% endfor %}
+                    {% endfor %}
                     </ul>
-
-                    {% else %}
-                    <!-- <p>Zatím nejsou žádné recenze k této hře.</p> -->
-                    {% endif %}
                 </div>
             </div>
 
@@ -404,7 +350,7 @@
                         {% endif %}
                     </div>
 
-                    <div id="rating-thankyou" class="alert alert-success" style="display: none;">
+                    <div id="rating-thankyou" class="alert" style="display: none;">
                         Děkujeme za hodnocení!
                     </div>
 
@@ -414,7 +360,7 @@
                         <li class="after">
                             <small><p style="text-align: center; padding: .25rem;">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
                             <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a>
-                            <span class="right">
+                            <span>
                                 {% for _ in "12345" %}
                                 {% if forloop.counter <= rating.score %}
                                 <span class="text-warning">★</span>
@@ -423,6 +369,14 @@
                                 {% endif %}
                                 {% endfor %}
                             </span>
+
+                            {# Zobrazí tlačítko jen u vlastního hodnocení #}
+                            {% if rating.user == request.user %}
+                            <form method="post" action="">
+                                {% csrf_token %}
+                                <button type="submit" class="btn add-game"><i class="fa-solid fa-trash-can"></i>Smazat hodnocení</button>
+                            </form>
+                            {% endif %}
                         </li>
                     {% endfor %}
                     </ul>
@@ -490,9 +444,9 @@
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title after-h3">Tagy</h3>
-                <div class="flex flex-wrap gap-1">
+                <div class="tags">
                     {% for game_genre in genres %}
-                    <span class="rounded bg-[#c0c0c0] dark:bg-[#0d0c0f] p-1 label">
+                    <span class="tag-detail label">
                         <a href="https://div.cz/hry/{{ game_genre.genreid.genrenamecz }}"></a>
                     </span> 
                     {% if not forloop.last %} 

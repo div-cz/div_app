@@ -11,22 +11,22 @@
 
 <p><!--{% blocktrans %}Already have an account? Please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}--> Už máš účet? <a href="{{ login_url }}">Přihlásit</a></p>
 
-<form class="signup w-50 mt-4 mx-auto" id="signup_form" method="post" action="{% url 'account_signup' %}">
+<form style="margin-top: 1rem;" id="signup_form" method="post" action="{% url 'account_signup' %}">
     {% csrf_token %}
     <div class="form-group">
-        <label for="{{ form.username.id_for_label }}" class="form-label text-right">{% trans "Username" %}</label>
+        <label for="{{ form.username.id_for_label }}" style="text-align: right;">{% trans "Username" %}</label>
         <span style="color:red">{{ form.username.errors }}</span>
-        <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" class="form-control rounded w-75 w-md-50" value="{{ form.username.value|default:'' }}" placeholder="Uživatelské nebo skutečné jméno" required>
+        <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" class="form-control" style="border-radius: .25rem;" value="{{ form.username.value|default:'' }}" placeholder="Uživatelské nebo skutečné jméno" required>
     </div>
 
     <div class="form-group">
-        <label for="{{ form.email.id_for_label }}" class="form-label text-right">{% trans "Email" %}</label>
+        <label for="{{ form.email.id_for_label }}" style="text-align: right;">{% trans "Email" %}</label>
         <span style="color:red">{{ form.email.errors }}</span>
-        <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="form-control rounded w-75 w-md-50" value="{{ form.email.value|default:'' }}" placeholder="Tvůj e-mail" required>
+        <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="form-control" style="border-radius: .25rem;" value="{{ form.email.value|default:'' }}" placeholder="Tvůj e-mail" required>
     </div>
 
     <div class="form-group">
-        <label for="{{ form.password1.id_for_label }}" class="form-label text-right">{% trans "Password" %}</label>
+        <label for="{{ form.password1.id_for_label }}" style="text-align: right;">{% trans "Password" %}</label>
         <span style="color:red">{{ form.password1.errors }}</span>
         <div class="password-field">
             <input type="password" name="{{ form.password1.name }}" id="{{ form.password1.id_for_label }}" placeholder="{{ form.password1.label }}">
@@ -49,7 +49,7 @@
     </div>
 
     <div class="form-group">
-        <label for="{{ form.password2.id_for_label }}" class="form-label text-right">Potvrdit {% trans "Password" %}</label>
+        <label for="{{ form.password2.id_for_label }}" style="text-align: right;">Potvrdit {% trans "Password" %}</label>
         <span style="color:red">{{ form.password2.errors }}</span>
         <div class="password-field">
             <input type="password" class="password-input" name="{{ form.password2.name }}" id="{{ form.password2.id_for_label }}" placeholder="{{ form.password2.label }}">
@@ -72,7 +72,7 @@
     </div>
 
     {% if redirect_field_value %}
-    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
     {% endif %}
     <p>Registrací souhlasíte s <a href="/podminky-pouziti">podmínkami použití</a>.</p>
     <button type="submit" class="btn add">{% trans "Sign Up" %}</button>
@@ -131,7 +131,6 @@
 
         input.forEach(single => single.addEventListener('input', e => input.forEach(i => i.value = e.target.value)));
     });
-
 </script>
 
 

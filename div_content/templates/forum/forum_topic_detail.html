@@ -8,23 +8,23 @@
 {% if slug == "filmy" %}
     <link href="https://media.div.cz/css/movies.css" rel="stylesheet">
     </style>
-{% elif slug == "knihy" %}
+    {% elif slug == "knihy" %}
     <link href="https://media.div.cz/css/books.css" rel="stylesheet">
-{% elif slug == "hry" %}
+    {% elif slug == "hry" %}
     <link href="https://media.div.cz/css/games.css" rel="stylesheet">
-{% else %}
+    {% else %}
     <link href="https://media.div.cz/css/navbar_other.css" rel="stylesheet">
 {% endif %}
 
 <h2><a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a> / <a class="hover:underline" href="{% url 'forum_section_detail' slug=topic.section.slug %}">{{ topic.section.title }}</a> / {{ topic.title }}</h2>
 
 {% if user.is_authenticated %}
-<section class="w-3/4">
-    <h2>Přidat komentář</h2>
-    <form method="post">
+<section class="new-comment">
+    <h2 style="width: 100%;">Přidat komentář</h2>
+    <form method="post" style="margin-bottom: 20px;">
         {% csrf_token %}
         {{ form.as_p }}
-        <button class="btn mb-4 mr-1 btn-action add" type="submit">Přidat</button>
+        <button class="btn add" type="submit">Přidat</button>
     </form>
 </section>
 {% else %}

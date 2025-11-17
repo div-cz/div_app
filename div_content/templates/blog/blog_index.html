@@ -1,93 +1,97 @@
 {% extends "blog/base.html" %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
 
 {% block title %}
-Blog Div.cz | Diskuzní fórum
+    Blog Div.cz | Diskuzní fórum
 {% endblock title %}
 
 {% block content %}
 
 <link href="https://media.div.cz/css/navbar_together.css" rel="stylesheet">
 
-<h2 class="w-full">Blogy{% if user.is_authenticated %}<small style="font-size:60%;"> / <a href="https://test.div.cz/blog/">Můj blog</a></small>{% endif %}</h2>
+<div class="big-search">
+    <h2>Blogy{% if user.is_authenticated %}<small style="font-size:60%;"> / <a href="https://test.div.cz/blog/">Můj blog</a></small>{% endif %}</h2>
+    <form style="display: flex; max-width: 400px;" role="search" action="" method="get">
+        <input class="search-field" type="type" placeholder="Hledat v blogách" aria-label="Search" name="q" id="search-input">
+        <button class="add-search" type="submit">Hledat</button>
+    </form>
+</div>
 
-
-<div class="grid gap-5 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 mt-5">
-    <div class="talk-img" style="background-image: url(https://div.cz/static/img/site/blogy.webp);
-    background-size: 100% 100%;">
+<div class="article-item">
+    <div class="talk-img" style="background-image: url(/static/img/blogs/blogy.webp); background-size: 100% 100%;">
         <a href="{% url 'blog_section_detail' section='filmove' %}">
-            <img src="/static/img/forum/movie.webp">
+            <img src="{% static 'img/forum/movie.webp' %}">
             <h3 class="movies">Filmové blogy</h3>
         </a>
     </div>
 
-    <div class="talk-img" style="background-image: url(https://div.cz/static/img/site/blogy.webp);
-    background-size: 100% 100%;">
+    <div class="talk-img" style="background-image: url(/static/img/blogs/blogy.webp); background-size: 100% 100%;">
         <a href="{% url 'blog_section_detail' section='knizni' %}">
-            <img src="/static/img/forum/book.webp">
+            <img src="{% static 'img/forum/book.webp' %}">
             <h3 class="books">Knižní blogy</h3>
         </a>
     </div>
 
-    <div class="talk-img" style="background-image: url(https://div.cz/static/img/site/blogy.webp);
-    background-size: 100% 100%;">
+    <div class="talk-img" style="background-image: url(/static/img/blogs/blogy.webp); background-size: 100% 100%;">
         <a href="{% url 'blog_section_detail' section='herni' %}">
-            <img src="/static/img/forum/game.webp">
+            <img src="{% static 'img/forum/game.webp' %}">
             <h3 class="games">Herní blogy</h3>
         </a>
     </div>
 
-    <div class="talk-img" style="background-image: url(https://div.cz/static/img/site/blogy.webp);
-    background-size: 100% 100%;">
+    <div class="talk-img" style="background-image: url(/static/img/blogs/blogy.webp); background-size: 100% 100%;">
         <a href="{% url 'blog_section_detail' section='obecne' %}">
-            <img src="/static/img/forum/other.webp">
+            <img src="{% static 'img/forum/other.webp' %}">
             <h3>Obecné blogy</h3>
         </a>
     </div>
 </div>
 
 <!-- Poslední příspěvky -->
-<h3 class="mt-10 mb-3">📌 Poslední příspěvky</h3>
+<div>
+    <h3 style="margin-top:2.5rem; margin-bottom:.75rem; width:100%;">📌 Poslední příspěvky</h3>
 
-<div class="">
+    <div class="">
     {% if latest_posts %}
         {% for post in latest_posts %}
-        <ol class="card-body" style="margin-bottom: .5rem;">
+        <ol class="card-body" style="margin-bottom: .5rem; border: 1px solid #dee2e6;">
             <!-- Titulek příspěvku -->
-            <li class="flex justify-between">
-                <a class="hover:underline font-semibold" 
-                   href="{% url 'blog_post_detail' blog_slug=post.articleblog.slug post_slug=post.slug %}">
+            <li class="last-post">
+                <a class="hover:underline" style="font-weight:600;" href="{% url 'blog_post_detail' blog_slug=post.articleblog.slug post_slug=post.slug %}">
                     {{ post.title }}
                 </a>
-                <span class="flex items-center gap-1">
+
                 {% if post.articleblog.blog_type == "movie" %}
-                    <span class="movies">&#127916; Filmy</span>
+                    <p class="movies">&#127916; Filmy</p>
                     {% elif post.articleblog.blog_type == "book" %}
-                    <span class="books">&#128214; Knihy</span>
+                    <p class="books">&#128214; Knihy</p>
                     {% elif post.articleblog.blog_type == "game" %}
-                    <span class="games">&#127918; Hry</span>
+                    <p class="games">&#127918; Hry</p>
                     {% else %}
-                    <span class="">&#128172; Obecné</span>
+                    <p class="">&#128172; Obecné</p>
                 {% endif %}
-                </span>
             </li>
 
             <hr>
 
             <!-- Info o komentáři -->
-            <li>
-                <small>
-                    <strong>{{ post.user.username|default:"Smazaný uživatel" }}</strong> · 
-                    {{ post.published_at|date:"d.m.Y H:i" }}
-                </small>
-                <p class="mt-1 text-sm">
+            <li class="last-comment">
+                <p>
                     {{ post.content|striptags|truncatechars:120 }}
                 </p>
+                <small style="white-space: nowrap;">
+                    <a style="margin-right: .5rem;" href="">{{ post.user.username|default:"Smazaný uživatel" }}</a>
+                    {{ post.published_at|date:"d.m.Y H:i" }}
+                </small>
             </li>
         </ol>
         {% endfor %}
-    {% else %}
-    <p>Zatím žádné příspěvky.</p>
-{% endif %}
+        {% else %}
+        <p>Zatím žádné příspěvky.</p>
+    {% endif %}
+    </div>
 </div>
 
 

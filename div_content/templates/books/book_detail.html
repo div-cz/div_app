@@ -6,10 +6,10 @@
 {% block title %} {{ book.titlecz|default:book.title }} | DIV.cz{% endblock %}
 
 {% block meta %}
-<meta name="description" content="{{ book.description|default:""|striptags|truncatewords:30 }}"> 
+<meta name="description" content="{{ book.description|striptags|truncatechars:30 }}"> 
 <meta name="keywords" content="{{ book.titlecz|default:book.title }}, knihy, literatura, DIV.cz"> 
 <meta property="og:title" content="{{ book.titlecz|default:book.title }}"> 
-<meta property="og:description" content="{{ book.description|default:""|striptags|truncatewords:30 }}"> 
+<meta property="og:description" content="{{ book.description|striptags|truncatewords:30 }}"> 
 <meta property="og:image" content="{% if book.img and book.img != 'noimg.png' %}https://media.div.cz/knihy/{{ book.img }}{% else %}/static/img/book/book.png{% endif %}"> 
 <meta property="og:url" content="https://div.cz/kniha/{{ book.url }}"> 
 <meta name="author" content="eKultura">
@@ -18,66 +18,6 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
 <style>
-    .rating {
-        position: relative;
-        width: 90px;
-        height: 90px;
-        border-radius: 50%;
-        margin: 0 auto;
-        padding: 0;
-        margin-bottom: 10px;
-    }
-
-    .rating::before {
-        content: '';
-        position: absolute;
-        top: 5px;
-        left: 5px;
-        width: 75px;
-        height: 75px;
-        background: #444444;
-        border-radius: 50%;
-        z-index: 2;
-        margin: 4px;
-    }
-
-    .rating::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 85px;
-        height: 85px;
-        background: conic-gradient(
-            var(--gradient-color, #0a0) 0%,
-            var(--gradient-color, #0a0) var(--gradient-value, 50%),
-            #777777 var(--gradient-value, 50%)
-        );
-        border-radius: 50%;
-        z-index: 1;
-        margin: 4px;
-    }
-
-    .rating-inner {
-        position: relative;
-        z-index: 3;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #fff;
-        font-size: 30px;
-        font-weight: bold;
-    }
-
-    .rating-inner span {
-        font-size: 10px;
-        margin-left: 2px;
-        color: #ffd700;
-        margin-top: -10px;
-    }
-
     .arrow {
         display: flex;
         align-items: center;
@@ -279,9 +219,15 @@
             {% endif %}
 
                 <div class="d-lg-none mb-2 sm:ml-5">
-                    <div class="rating-stars" style="white-space: nowrap;"><!--&nbsp;|&nbsp;-->
+                    <div class="rating" data-rating="{{ average_rating }}">
+                        <div class="rating-inner">
+                            {{ average_rating }}%
+                        </div>
+                    </div>
+
+                    <div class="rating-stars" style="white-space: nowrap;">
                         <div class="smaller-stars">{% ratings book %}</div>
-                        <div id="rating-thankyou" class="alert alert-success" style="display: none;">Děkujeme za hodnocení!</div>
+                        <div id="rating-thankyou" class="alert" style="display: none;">Děkujeme za hodnocení!</div>
                     </div>
                 </div>
             </div>
@@ -408,7 +354,7 @@
 
                     <!-- Tlačítka -->
                     {% if user.is_authenticated %}
-                    <div class="favorite-menu grid sm:grid-colums-2 justify-items-center w-full dark:bg-[#727271] border rounded-1xl mt-4">
+                    <div class="favorite-menu">
                         
                         <!-- OBLÍBENÉ -->
                         {% if not is_in_favourites %}
@@ -682,7 +628,8 @@
             <!-- RECENZE -->
             <div id="tab1" class="tab-content active">
                 <div class="">    
-                    <h3 class="after-h3" id="recenze">Recenze</h3>  
+                    <h3 class="after-h3" id="recenze">Recenze</h3> 
+                     
                     <!-- přidat recenzi -->       
                     {% if user.is_authenticated %}
                     <h4>Přidat novou recenzi</h4>
@@ -697,19 +644,19 @@
                     {% endif %}
 
                     <!-- výpis recenzí -->
-                    {% if comments %}
                     <ul class="list-unstyled komentar">
-                        {% for comment in comments %}
+                    {% for comment in comments %}
                         <li class="card-body">
                             <p class="after">{{ comment.comment }}</p>
                             <div class="user">
                                 <p>{{ comment.dateadded }}</p>
-                                <p>Přidal: <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a></p>
+                                <p>Přidal: 
+                                    <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a>
+                                </p>
                             </div>
                         </li>
-                        {% endfor %}
+                    {% endfor %}
                     </ul>
-                    {% endif %}
                 </div>
             </div>
 
@@ -741,7 +688,7 @@
                             {% if user.is_staff %}
                             <button type="submit" name="add_character" class="add-book">Přidat postavu</button>
                             {% else %}
-                            <p class="text-muted text-sm">
+                            <p style="color: #6c757d; font-size: 0.875rem; line-height: 1.25rem;">
                                 Chcete přidávat postavy? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
                             </p>
                         {% endif %}
@@ -823,7 +770,7 @@
                     {% if user.is_staff %}
                     <button type="submit" class="add-book">Přidat citát</button>
                     {% else %}
-                    <p class="text-muted text-sm">
+                    <p style="color: #6c757d; font-size: 0.875rem; line-height: 1.25rem;">
                         Chcete přidávat citáty? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
                     </p>
                     {% endif %}   
@@ -842,7 +789,7 @@
                             <br><small>Postava: {{ quote.characterid.charactername }}</small>
                         {% endif %}{% endcomment %}
                         <div class="user">
-                            <p>Vložil: 
+                            <p>Přidal: 
                                 <a href="/uzivatel/{{ quote.user.id }}/">{{ quote.user.username }}</a>
                             </p>
 
@@ -1167,7 +1114,7 @@
                         {% endif %}
                     </div>
                 
-                    <div id="rating-thankyou2" class="alert alert-success" style="display: none;">
+                    <div id="rating-thankyou2" class="alert" style="display: none;">
                         Děkujeme za hodnocení!
                     </div>
 
@@ -1177,7 +1124,7 @@
                         <li class="after">
                             <small><p style="text-align: center; padding: .25rem;">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
                             <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a>
-                            <span class="right">
+                            <span>
                                 {% for _ in "12345" %}
                                 {% if forloop.counter <= rating.score %}
                                 <span class="text-warning">★</span>  {# Třída `text-warning` v Bootstrapu nastaví žlutou barvu #}
@@ -1186,17 +1133,19 @@
                                 {% endif %}
                                 {% endfor %}
                             </span>
+
+                            {# Zobrazí tlačítko jen u vlastního hodnocení #}
+                            {% if rating.user == request.user %}
+                            <form method="post" action="{% url 'remove_book_rating' book_url=book.url %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn add-book"><i class="fa-solid fa-trash-can"></i>Smazat hodnocení</button>
+                            </form>
+                            {% endif %}
                         </li>
-                    {% endfor %}
+                        {% endfor %}
                     </ul>
                     {% endif %}
                 </div>
-                {% if user_rating %}
-                <form method="post" action="{% url 'remove_book_rating' book_url=book.url %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-sm mt-2">Smazat hodnocení</button>
-                </form>
-            {% endif %}
             </div>
         </div>
 
@@ -1290,9 +1239,9 @@
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title after-h3">Tagy</h3>
-                <div class="flex flex-wrap gap-1">
+                <div class="tags">
                     {% for book_genre in genres %}
-                    <span class="rounded bg-[#c0c0c0] dark:bg-[#0d0c0f] p-1 label"> 
+                    <span class="tag-detail label"> 
                         <a href="https://div.cz/filmy/{{ book_genre.genreid.genrenamecz }}"></a>
                     </span> 
                     {% if not forloop.last %} 

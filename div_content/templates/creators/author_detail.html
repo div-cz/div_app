@@ -132,13 +132,44 @@
         </div>
         {% endif %}
 
+        <!-- JAZYK KNIH -->
+        <div class="card" style="margin-top: 1rem;">
+            <div class="card-body lang-toggle">
+                <p style="margin:0 1.25rem; font-weight:bold;">Jazyk</p>
+                <button class="lang-item active">CZ</button>
+                <button class="lang-item">EN</button>
+                <button class="lang-item">SK</button>
+                <button class="lang-item">PL</button>
+                <button class="lang-item">UA</button>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const buttons = document.querySelectorAll(".lang-item");
+                buttons.forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        // odeber class 'active' všem
+                        buttons.forEach(b => b.classList.remove("active"));
+                        // přidej class 'active' kliknutému
+                        btn.classList.add("active");
+
+                        // pokud chceš i funkci změny jazyka:
+                        const lang = btn.dataset.lang;
+                        console.log("Zvolený jazyk:", lang);
+                        // sem pak můžeš doplnit např. AJAX nebo Django přesměrování
+                    });
+                });
+            });
+        </script>
+
         <!-- SEZNAM KNIH + SÉRIE -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">Seznam knih</h3>
+                <h3 class="card-title after-h3">Seznam knih</h3> <!-- v češtině - češtinu defaultně -->
                 
                 {% if series_books %}
-                    <p class="mb-4">Série: 
+                    <p style="width:100%; margin-bottom:1rem;">Série: 
                         {% for series_id, data in series_books.items %}
                             <a href="#" class="series-link" data-series-id="{{ series_id }}">{{ data.name }}</a>
                             {% if not forloop.last %}&nbsp;|&nbsp;{% endif %}
@@ -148,12 +179,12 @@
                         <a href="#" class="series-link active" data-series-id="all">všechny knihy</a> ({{ books|length }})
                     </p>
                 {% else %}
-                    <p class="mb-4">Autor nemá žádné série</p>
+                    <p style="margin-bottom:1rem;">Autor nemá žádné série</p>
                 {% endif %}
         
                 <div class="flex flex-wrap">
                     <!-- Sekce pro všechny knihy -->
-                    <div id="all-books" class="w-full">
+                    <div id="all-books" style="width:100%;">
                         {% for book in books %}
                         <hr>
                         <div class="flex items-start w-full">
@@ -301,10 +332,9 @@
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title after-h3">Tagy</h3>
-                <div class="flex flex-wrap gap-1">
+                <div class="tags">
 
-
-                <span class="rounded bg-secondary p-1">
+                <span class="tag-detail label">
                     <a href=""></a>
                 </span>
 
