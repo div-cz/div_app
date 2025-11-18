@@ -1,0 +1,106 @@
+{% extends "divkvariat/base.html" %}
+{% load humanize %}
+
+{% block title %}{{ profile_user.username }} – Nabídky & Poptávky | DIVkvariát{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto py-10">
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">{{ profile_user.username }}</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+
+        <!-- PRODEJ -->
+        <div>
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Nabídky k prodeji</h2>
+
+            {% if seller_rating %}
+            <p class="mb-4 text-gray-700">
+                <span class="font-bold">{{ seller_rating|floatformat:1 }}/5</span>
+                <span class="ml-1">
+                    {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= seller_rating %}★{% else %}☆{% endif %}
+                    {% endfor %}
+                </span>
+                <span class="ml-2 text-sm text-gray-600">({{ seller_ratings_count }} hodnocení)</span>
+            </p>
+            {% endif %}
+
+            {% for listing in sell_listings %}
+            <div class="book-card border bg-white rounded-lg p-4 shadow mb-4">
+
+                <a href="{% url 'book_detail_cz' listing.book.url %}"
+                   class="font-semibold text-gray-800 hover:underline">
+                    {{ listing.book.titlecz|default:listing.book.title }}
+                </a>
+
+                <p class="text-gray-600 text-sm">{{ listing.book.author }}</p>
+
+                <p class="text-green-700 font-semibold mt-1">
+                    {% if listing.listingtype == "GIVE" %}
+                        Daruji
+                    {% else %}
+                        {{ listing.price|intcomma }} Kč
+                    {% endif %}
+                </p>
+
+                <p class="text-xs text-gray-500 mt-1">{{ listing.createdat|naturaltime }}</p>
+
+                <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}"
+                   class="text-sm text-green-700 hover:underline mt-2 inline-block">
+                    Detail nabídky →
+                </a>
+
+            </div>
+            {% empty %}
+            <p class="text-gray-600">Žádné aktivní nabídky.</p>
+            {% endfor %}
+        </div>
+
+        <!-- POPTÁVKY -->
+        <div>
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Poptávky</h2>
+
+            {% if buyer_rating %}
+            <p class="mb-4 text-gray-700">
+                <span class="font-bold">{{ buyer_rating|floatformat:1 }}/5</span>
+                <span class="ml-1">
+                    {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= buyer_rating %}★{% else %}☆{% endif %}
+                    {% endfor %}
+                </span>
+                <span class="ml-2 text-sm text-gray-600">({{ buyer_ratings_count }} hodnocení)</span>
+            </p>
+            {% endif %}
+
+            {% for listing in buy_listings %}
+            <div class="book-card border bg-white rounded-lg p-4 shadow mb-4">
+
+                <a href="{% url 'book_detail_cz' listing.book.url %}"
+                   class="font-semibold text-gray-800 hover:underline">
+                    {{ listing.book.titlecz|default:listing.book.title }}
+                </a>
+
+                <p class="text-gray-600 text-sm">{{ listing.book.author }}</p>
+
+                <p class="text-green-700 font-semibold mt-1">
+                    {{ listing.price|intcomma }} Kč
+                </p>
+
+                <p class="text-xs text-gray-500 mt-1">{{ listing.createdat|naturaltime }}</p>
+
+                <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}"
+                   class="text-sm text-green-700 hover:underline mt-2 inline-block">
+                    Detail poptávky →
+                </a>
+
+            </div>
+            {% empty %}
+            <p class="text-gray-600">Žádné aktivní poptávky.</p>
+            {% endfor %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

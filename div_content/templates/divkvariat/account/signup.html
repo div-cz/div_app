@@ -1,0 +1,57 @@
+{% extends "divkvariat/base.html" %}
+{% load static %}
+
+{% block title %}Registrace | DIVkvariát{% endblock %}
+
+{% block content %}
+<style>
+    .auth-input {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 8px;
+        background: #F2F2F2;
+        color: #111;
+        border: 1px solid #ccc;
+        margin-top: 4px;
+    }
+</style>
+
+<div class="max-w-md mx-auto mt-16 bg-[#1A161F] text-white p-8 rounded-2xl shadow-lg">
+
+    <h1 class="text-3xl font-bold mb-6 text-center">Registrace</h1>
+
+    <p class="text-sm text-gray-400 mb-6 text-center">
+        Po vytvoření účtu můžete používat DIVkvariát i celý <strong>DIV.cz</strong>.<br>
+        Účet je univerzální a propojený.
+    </p>
+
+    <form method="post" action="{% url 'signup' %}">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+        <div class="mb-4">
+            <label class="block text-sm mb-2">{{ field.label }}</label>
+            <input type="{{ field.field.widget.input_type }}"
+                   name="{{ field.name }}"
+                   value="{{ field.value|default_if_none:'' }}"
+                   class="auth-input">
+            <div class="text-red-400 text-sm">{{ field.errors }}</div>
+        </div>
+        {% endfor %}
+
+        <button type="submit"
+                class="w-full py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold">
+            Zaregistrovat se
+        </button>
+    </form>
+
+    <p class="text-center text-sm mt-4">
+        Už máte účet?
+        <a href="{% url 'login' %}" class="text-green-400 hover:underline">
+            Přihlásit se
+        </a>
+    </p>
+
+</div>
+{% endblock %}

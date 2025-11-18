@@ -1,0 +1,50 @@
+{% extends "divkvariat/base.html" %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block title %}
+    Potvrzení prodeje | DIVkvariát
+{% endblock %}
+
+{% block content %}
+
+<div class="max-w-2xl mx-auto py-10">
+
+    <!-- HLAVIČKA -->
+    <h1 class="text-3xl font-bold mb-6">Potvrzení prodeje</h1>
+
+    <!-- KARTA -->
+    <div class="bg-white shadow rounded-lg p-6">
+
+        <p class="text-lg mb-4">
+            Opravdu chcete potvrdit, že tato kniha byla úspěšně prodána?
+        </p>
+
+        <div class="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <p class="font-semibold text-gray-800">
+                {{ purchase.book.titlecz|default:purchase.book.title }}
+            </p>
+        </div>
+
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+
+            <div class="flex items-center gap-4 pt-4">
+
+                <button type="submit" class="add-book">
+                    Potvrdit prodej
+                </button>
+
+                <a href="{% url 'index' %}"
+                   class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700">
+                    Zrušit
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

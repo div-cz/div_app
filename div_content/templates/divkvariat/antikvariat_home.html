@@ -1,0 +1,247 @@
+{% extends "divkvariat/base.html" %}
+
+{% block title %}
+    DIVkvariát – Burza knih mezi čtenáři | DIVkvariat.cz
+{% endblock %}
+
+{% block meta %}
+<!-- Primary Meta -->
+<meta name="description" content="DIVkvariát – burza knih mezi čtenáři. Nabídky a poptávky knih z druhé ruky. Prodávejte, kupujte a darujte knihy jednoduše a bezpečně.">
+<meta name="keywords" content="antikvariát, knihy, burza knih, výměna knih, prodej knih, koupit knihu, poptávka knih, bazar knih, divkvariat, divkvariát">
+<link rel="canonical" href="https://divkvariat.cz/">
+
+<!-- Open Graph -->
+<meta property="og:title" content="DIVkvariát – Burza knih mezi čtenáři">
+<meta property="og:description" content="Nabídky a poptávky knih z druhé ruky. Pohodlné prodávání i nakupování knih mezi čtenáři.">
+<meta property="og:url" content="https://divkvariat.cz/">
+<meta property="og:site_name" content="DIVkvariát.cz">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://media.div.cz/hero/divkvariat.webp">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="DIVkvariát – Burza knih mezi čtenáři">
+<meta name="twitter:description" content="Prodej, koupě a darování knih mezi čtenáři. Moderní antikvariát postavený komunitou.">
+<meta name="twitter:image" content="https://media.div.cz/hero/divkvariat.webp">
+
+<!-- Schema.org / JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "DIVkvariát.cz",
+  "url": "https://divkvariat.cz/",
+  "description": "Burza knih mezi čtenáři – nabídky a poptávky knih z druhé ruky.",
+  "publisher": {
+    "@type": "Organization",
+    "name": "InveLIB s.r.o.",
+    "url": "https://invelib.cz/",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://media.div.cz/logo/divkvariat-logo.png"
+    }
+  },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://divkvariat.cz/hledat/?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  },
+  "image": "https://media.div.cz/hero/divkvariat.webp"
+}
+</script>
+
+<!-- Organization Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "DIVkvariát.cz",
+  "url": "https://divkvariat.cz/",
+  "logo": "https://media.div.cz/logo/divkvariat-logo.png",
+  "sameAs": [
+    "https://facebook.com/divcz",
+    "https://instagram.com/divcz",
+    "https://x.com/divcz"
+  ],
+  "founder": {
+    "@type": "Person",
+    "name": "Martin Kučera"
+  }
+}
+</script>
+
+<!-- Breadcrumbs Schema (for homepage) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "DIVkvariát",
+      "item": "https://divkvariat.cz/"
+    }
+  ]
+}
+</script>
+{% endblock %}
+
+
+
+{% block content %}
+
+<h1 class="text-3xl font-bold mt-8 text-gray-800">DIVkvariát</h1>
+<p class="mb-8 text-lg text-gray-600">
+    Burza knih mezi čtenáři – přehledné nabídky a poptávky z druhé ruky.<br>
+    Nabídku můžete zadat z detailu knihy nebo 
+    <a href="/pridat-knihu/" class="text-green-600 hover:underline">
+        přes formulář přidat knihu
+    </a>.
+</p>
+
+<!-- Zprávy -->
+{% if messages %}
+<div class="mt-3">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" role="alert">
+            {{ message|safe }}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Statistiky a akce -->
+<div class="flex flex-col sm:flex-row gap-4 mb-12">
+    <div class="flex-1 border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+        <p class="text-xl font-bold mb-2">
+            <i class="fas fa-book text-green-600 mr-2"></i> Nabídky
+        </p>
+        <a href="/nabidky/">
+            <p class="text-green-700 font-medium">{{ count_sell }} aktivních knih k prodeji či darování</p>
+        </a>
+    </div>
+
+    <div class="flex-1 border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+        <p class="text-xl font-bold mb-2">
+            <i class="fas fa-hand-holding-heart text-green-600 mr-2"></i> Poptávky
+        </p>
+        <a href="/poptavky/">
+            <div class="text-green-700 font-medium">{{ count_buy }} čtenářských přání</div>
+        </a>
+    </div>
+
+    {% if request.user.is_authenticated %}
+    <div class="flex-1 border border-gray-200 rounded-lg p-4 bg-gray-50 shadow-sm">
+        <div class="text-xl font-bold mb-2">
+            <i class="fas fa-money-bill-wave text-green-600 mr-2"></i> Výplata
+        </div>
+        <ul class="text-sm space-y-1 text-gray-700">
+            <li><strong>K vyplacení:</strong> {{ total_user_payment|default:"0" }} Kč</li>
+            <li><strong>Vyplaceno:</strong> {{ total_user_paid_amount|default:"0" }} Kč</li>
+        </ul>
+
+        {% if total_user_payment > 0 and button_appear %}
+            {% if user.userprofile.bankaccount %}
+            <form method="post" class="mt-2">
+                {% csrf_token %}
+                <button type="submit" name="request_payout" class="add-book w-full">
+                    Vyžádat výplatu
+                </button>
+            </form>
+            {% else %}
+            <p class="text-xs mt-2 text-gray-600">
+                Pro výplatu je nutné vyplnit číslo účtu na 
+                <a href="/ucet/upravit/" class="underline text-green-600">profilu</a>.
+            </p>
+            {% endif %}
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Nejnovější nabídky -->
+{% if listings_sell %}
+<h2 class="text-2xl font-semibold mb-4 mt-10 text-gray-800">
+    <i class="fas fa-book-open mr-2 text-green-600"></i> Nejnovější nabídky
+</h2>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for listing in listings_sell %}
+    <div class="book-card border border-gray-200 rounded-lg bg-white p-4 shadow-sm">
+        <div class="flex gap-4">
+            <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+                {% if listing.book.img == "noimg.png" %}
+                <img src="/static/img/book/book.png"
+                     alt="{{ listing.book.titlecz }}"
+                     class="w-16 h-24 object-cover rounded shadow"
+                     style="max-width:150px">
+                {% elif listing.book.img == "GoogleID" %}
+                <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1"
+                     class="w-16 h-24 object-cover rounded shadow"
+                     alt="{{ listing.book.titlecz }}">
+                {% else %}
+                <img src="https://media.div.cz/knihy/{{ listing.book.img }}"
+                     class="w-16 h-24 object-cover rounded shadow"
+                     alt="{{ listing.book.titlecz }}"
+                     style="max-width:150px">
+                {% endif %}
+            </a>
+
+            <div class="flex flex-col justify-between flex-1">
+                <div>
+                    <strong class="text-gray-800">
+                        {{ listing.book.titlecz|default:listing.book.title }}
+                    </strong><br>
+                    <span class="text-sm text-gray-600">Autor: {{ listing.book.author }}</span>
+                </div>
+
+                <div class="mt-2">
+                    <span class="text-green-800 font-medium">
+                        {% if listing.price %}
+                            {{ listing.price|floatformat:0 }} Kč
+                        {% else %}
+                            Daruji
+                        {% endif %}
+                    </span><br>
+
+                    <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}"
+                       class="text-green-700 hover:underline text-sm">
+                        Detail nabídky
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Paginátor -->
+<div class="pagination mt-8">
+    <span class="step-links flex justify-center">
+        <div>
+        {% if listings_sell.has_previous %}
+            <a href="?page_sell={{ listings_sell.previous_page_number }}">&laquo; Předchozí</a>
+        {% else %}
+            <span></span>
+        {% endif %}
+        </div>
+
+        <span class="current-page mx-4">
+            Strana {{ listings_sell.number }} z {{ listings_sell.paginator.num_pages }}
+        </span>
+
+        <div>
+        {% if listings_sell.has_next %}
+            <a href="?page_sell={{ listings_sell.next_page_number }}">Další &raquo;</a>
+        {% else %}
+            <span></span>
+        {% endif %}
+        </div>
+    </span>
+</div>
+{% endif %}
+
+{% endblock %}

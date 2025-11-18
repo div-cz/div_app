@@ -1,87 +1,150 @@
-{# books_market_offers.html #}
-{% extends "books/base.html" %}
+{% extends "divkvariat/base.html" %}
 {% load humanize %}
 
-{% block title %}Nabídky knih | DIV.cz{% endblock %}
+{% block title %}
+    Poptávky knih | DIVkvariát
+{% endblock %}
 
 {% block meta %}
-<meta name="description" content="Prodej knih z druhé ruky na DIV.cz. Najděte výhodné nabídky a objevte poklady v antikvariátu.">
-<link rel="canonical" href="https://div.cz/antikvariat/nabidky/">
+<meta name="description" content="Poptávky knih od čtenářů na DIVkvariátu. Zjistěte, které knihy lidé shánějí.">
+<link rel="canonical" href="https://divkvariat.cz/poptavky/">
 
-<meta name="keywords" content="antikvariát, prodej knih, nabídky knih, bazar knih, burza knih, knihy z druhé ruky">
-<meta name="author" content="DIV.cz">
-
-<meta property="og:title" content="Antikvariát | Nabídky knih">
-<meta property="og:description" content="Prodej knih z druhé ruky na DIV.cz. Výhodné nabídky a sběratelské tituly.">
+<meta property="og:title" content="Poptávky knih | DIVkvariát">
+<meta property="og:description" content="Aktuální poptávky knih od uživatelů DIVkvariátu.">
 <meta property="og:image" content="https://media.div.cz/hero/divkvariat.webp">
-<meta property="og:url" content="https://div.cz/antikvariat/nabidky/">
+<meta property="og:url" content="https://divkvariat.cz/poptavky/">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Antikvariát | Nabídky knih">
-<meta name="twitter:description" content="Výhodné nabídky knih z druhé ruky na DIV.cz.">
+<meta name="twitter:title" content="Poptávky knih | DIVkvariát">
+<meta name="twitter:description" content="Knihy, které čtenáři aktuálně poptávají.">
 <meta name="twitter:image" content="https://media.div.cz/hero/divkvariat.webp">
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-6">
-    <h1 class="mt-8">DIVkvariát</h1>
-    <div class="mt-8">
-        <h2 class="text-2xl font-semibold mb-4">Nabídka knih</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 gap-y-0">
-            {% for listing in listings %}
-            <div class="card box-shadow mb-4">
-                <div class="card-body flex items-center w-full border bg-[#F9F9F9] dark:bg-[#1A161F] rounded">
-                    <a href="{% url 'book_detail' listing.book.url %}" style="height: 100%;">
-                    {% if listing.book.img == "noimg.png" %}
-                        <!-- Pokud je listing.book.img "noimg.png", zobraz výchozí obrázek -->
-                        <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz }}" class="rounded-l" style="width: 80px; height: 100%;" alt="odkaz na knihu">
-                        {% elif listing.book.img == "GoogleID" %}
-                        <!-- Pokud je listing.book.img "GoogleID", zobraz náhled z Google Books -->
-                        <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px; height: 100%;" alt="odkaz na knihu">
-                        {% else %}
-                        <!-- Jinak zobraz vlastní nahraný obrázek -->
-                        <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px; height: 100%;" alt="odkaz na knihu">
-                    {% endif %}
-                    </a>
 
-                    <div class="flex flex-wrap content-between h-full px-2 py-0" style="flex: 2;">
-                        <div class="flex justify-between w-full">
-                            <div style="flex: 1;">
-                                <p>{{ listing.book.titlecz|default:listing.book.title }}</p>
-                                <p>{{ listing.book.author }}</p>
-                            </div>
-                            <p class="flex items-center border-black mb-3 price">{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
-                        </div>
+<div class="max-w-7xl mx-auto py-10">
 
-                        <p class="w-full"><a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">Detail nabídky</a></p>
-                        <p class="text-sm text-end w-full"><small>Přidal: <a href="https://magic.div.cz/antikvariat/uzivatel/{ listing.user.id }}/koupim-knihy/">{{ listing.user.username }}</a> | {{ listing.createdat|date:"j.n.Y" }}</small></p>
-                    </div>
-                </div>
-            </div>
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">📘 Poptávky knih</h1>
+    <p class="text-gray-600 mb-10">
+        Čtenáři zde poptávají knihy, které shánějí.  
+        Pokud knihu máte, můžete založit nabídku.
+    </p>
+
+    <!-- Kategorie -->
+    {% if categories %}
+    <div class="mb-10">
+        <h2 class="text-xl font-semibold mb-3">Kategorie</h2>
+        <div class="flex flex-wrap gap-3">
+            {% for cat in categories %}
+                <a href="?kategorie={{ cat.slug }}"
+                   class="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 text-gray-700">
+                    {{ cat.name }}
+                </a>
             {% endfor %}
         </div>
+    </div>
+    {% endif %}
 
-        <div class="pagination mt-8">
-            <span class="step-links flex justify-center">
-                <div>
-                    {% if listings.has_previous %}
-                        <a href="?page=1">&laquo; první</a>
-                        <a href="?page={{ listings.previous_page_number }}">předchozí</a>
-                    {% endif %}
-                </div>
+    <!-- Top kupci -->
+    {% if top_buyers %}
+    <div class="mb-10">
+        <h2 class="text-xl font-semibold mb-3">Top kupující</h2>
 
-                <span class="current-page mx-4">
-                    Stránka {{ listings.number }} / {{ listings.paginator.num_pages }}
-                </span>
-
-                <div>
-                    {% if listings.has_next %}
-                        <a href="?page={{ listings.next_page_number }}">další</a>
-                        <a href="?page={{ listings.paginator.num_pages }}">poslední &raquo;</a>
-                    {% endif %}
-                </div>
-            </span>
+        <div class="flex flex-wrap gap-4">
+            {% for buyer in top_buyers %}
+            <a href="/uzivatel/{{ buyer.id }}/koupim-knihy/"
+               class="bg-white border rounded-lg shadow-sm px-4 py-3 hover:shadow-md transition text-gray-800">
+                🛒 {{ buyer.username }}
+                <span class="text-sm text-gray-500 ml-2">({{ buyer.total_buys }} poptávek)</span>
+            </a>
+            {% endfor %}
         </div>
     </div>
+    {% endif %}
+
+    <!-- POPTÁVKY -->
+    {% if listings %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        {% for listing in listings %}
+        <div class="bg-white rounded-xl border shadow-sm hover:shadow-lg transition p-4">
+
+            <!-- Obrázek knihy -->
+            <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">
+                {% if listing.book.img == "noimg.png" %}
+                    <img src="/static/img/book/book.png"
+                         class="w-full h-64 object-cover rounded-md mb-4">
+                {% elif listing.book.img == "GoogleID" %}
+                    <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1"
+                         class="w-full h-64 object-cover rounded-md mb-4">
+                {% else %}
+                    <img src="https://media.div.cz/knihy/{{ listing.book.img }}"
+                         class="w-full h-64 object-cover rounded-md mb-4">
+                {% endif %}
+            </a>
+
+            <!-- Název -->
+            <h3 class="text-lg font-semibold text-gray-800">
+                {{ listing.book.titlecz|default:listing.book.title }}
+            </h3>
+
+            <!-- Autor -->
+            <p class="text-gray-500 mb-3">{{ listing.book.author }}</p>
+
+            <!-- Nabídnutá cena -->
+            <p class="text-xl font-bold text-blue-600 mb-4">
+                Sháním za {{ listing.price|floatformat:0 }} Kč
+            </p>
+
+            <!-- Detail -->
+            <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}"
+               class="block w-full text-center py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold">
+                Zobrazit poptávku
+            </a>
+
+            <!-- Info -->
+            <p class="text-xs text-gray-500 mt-3">
+                Poptává:
+                <a href="/uzivatel/{{ listing.user.id }}/koupim-knihy/"
+                   class="text-green-700 hover:underline">
+                    {{ listing.user.username }}
+                </a><br>
+                {{ listing.createdat|date:"j. n. Y" }}
+            </p>
+
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- PAGINACE -->
+    <div class="flex justify-center mt-10">
+
+        <nav class="flex items-center space-x-2">
+
+            {% if listings.has_previous %}
+                <a href="?page=1" class="px-3 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50">« První</a>
+                <a href="?page={{ listings.previous_page_number }}" class="px-3 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50">‹</a>
+            {% endif %}
+
+            <span class="px-4 py-2 bg-gray-100 border rounded-lg">
+                Stránka {{ listings.number }} / {{ listings.paginator.num_pages }}
+            </span>
+
+            {% if listings.has_next %}
+                <a href="?page={{ listings.next_page_number }}" class="px-3 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50">›</a>
+                <a href="?page={{ listings.paginator.num_pages }}" class="px-3 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50">Poslední »</a>
+            {% endif %}
+
+        </nav>
+
+    </div>
+
+    {% else %}
+    <p class="text-center text-gray-500 mt-14">
+        Momentálně zde nejsou žádné poptávky.
+    </p>
+    {% endif %}
+
 </div>
+
 {% endblock %}

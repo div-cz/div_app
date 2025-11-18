@@ -1,0 +1,148 @@
+{% extends "divkvariat/base.html" %}
+{% load humanize %}
+
+{% block title %}
+    Nabídky knihy {{ book.titlecz|default:book.title }} | DIVkvariát
+{% endblock %}
+
+{% block content %}
+
+<div class="max-w-5xl mx-auto py-10">
+
+    <!-- HLAVIČKA KNIHY -->
+    <div class="mb-10">
+        <h1 class="text-3xl font-bold mb-1">
+            {{ book.titlecz|default:book.title }}
+        </h1>
+        <p class="text-gray-600 text-lg">{{ book.author }}</p>
+    </div>
+
+    <!-- NABÍDKY (SELL) -->
+    {% if sell_listings %}
+    <div class="mb-12">
+        <h2 class="text-2xl font-semibold mb-4">
+            <i class="fas fa-book text-green-600 mr-2"></i> Nabídky k prodeji
+        </h2>
+
+        <div class="space-y-4">
+            {% for listing in sell_listings %}
+
+            <div class="bg-white shadow rounded-lg p-5">
+                <div class="flex justify-between items-start mb-3">
+
+                    <!-- Cena -->
+                    <div class="text-xl font-semibold text-green-700">
+                        {% if listing.listingtype == 'GIVE' %}
+                            Daruji
+                        {% else %}
+                            {{ listing.price|intcomma }} Kč
+                        {% endif %}
+                        {% if listing.shipping %}
+                        <span class="text-sm text-gray-500 ml-1">
+                            (+ {{ listing.shipping|intcomma }} Kč poštovné)
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Datum -->
+                    <div class="text-sm text-gray-500">
+                        {{ listing.createdat|naturaltime }}
+                    </div>
+                </div>
+
+                <!-- Popis -->
+                <p class="text-gray-700">
+                    {{ listing.description|default:"Bez popisu"|truncatewords:30 }}
+                </p>
+
+                <!-- PARAMETRY -->
+                <div class="mt-3 text-sm text-gray-600 flex flex-wrap gap-6">
+                    {% if listing.condition %}
+                    <span>Stav: <strong>{{ listing.get_condition_display|default:listing.condition }}</strong></span>
+                    {% endif %}
+                    {% if listing.location %}
+                    <span>Lokalita: <strong>{{ listing.location }}</strong></span>
+                    {% endif %}
+                </div>
+
+                <!-- Spodek řádku -->
+                <div class="mt-4 flex justify-between items-center">
+                    <a href="{% url 'user_sell_listings' listing.user.id %}" 
+                       class="text-green-700 hover:underline">
+                       {{ listing.user.username }}
+                    </a>
+
+                    <a href="{% url 'listing_detail_sell' book.url listing.booklistingid %}"
+                       class="px-4 py-2 text-green-700 border border-green-600 rounded-lg hover:bg-green-50 text-sm">
+                        Detail nabídky
+                    </a>
+                </div>
+
+            </div>
+
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!-- POPTÁVKY (BUY) -->
+    {% if buy_listings %}
+    <div class="mb-12">
+        <h2 class="text-2xl font-semibold mb-4">
+            <i class="fas fa-hand-holding-heart text-green-600 mr-2"></i> Poptávky
+        </h2>
+
+        <div class="space-y-4">
+            {% for listing in buy_listings %}
+
+            <div class="bg-white shadow rounded-lg p-5">
+                <div class="flex justify-between items-start mb-3">
+
+                    <div class="text-lg font-medium text-gray-900">
+                        Koupím – nabízím {{ listing.price|intcomma }} Kč
+                    </div>
+
+                    <div class="text-sm text-gray-500">
+                        {{ listing.createdat|naturaltime }}
+                    </div>
+                </div>
+
+                <p class="text-gray-700">{{ listing.description|truncatewords:30 }}</p>
+
+                {% if listing.location %}
+                <p class="text-sm text-gray-600 mt-2">
+                    Lokalita: <strong>{{ listing.location }}</strong>
+                </p>
+                {% endif %}
+
+                <div class="mt-4 flex justify-between items-center">
+                    <a href="{% url 'user_buy_listings' listing.user.id %}"
+                       class="text-green-700 hover:underline">
+                       {{ listing.user.username }}
+                    </a>
+
+                    <a href="{% url 'listing_detail_buy' book.url listing.booklistingid %}"
+                       class="px-4 py-2 text-green-700 border border-green-600 rounded-lg hover:bg-green-50 text-sm">
+                        Detail poptávky
+                    </a>
+                </div>
+
+            </div>
+
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!-- Nic není -->
+    {% if not sell_listings and not buy_listings %}
+    <p class="text-center py-8 text-gray-600 text-lg">
+        Pro tuto knihu zatím nejsou žádné nabídky ani poptávky.
+    </p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

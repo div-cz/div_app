@@ -1,0 +1,172 @@
+{% extends "divkvariat/base.html" %}
+{% load humanize %}
+
+{% block title %}Nabídky knih | DIVkvariát{% endblock %}
+
+{% block meta %}
+<meta name="description" content="Aktuální nabídky knih od čtenářů na DIVkvariátu. Prodej, darování a výměny.">
+<link rel="canonical" href="https://divkvariat.cz/nabidky/">
+
+<meta property="og:title" content="Nabídky knih | DIVkvariát">
+<meta property="og:description" content="Prodej knih z druhé ruky. Podívejte se na aktuální nabídky čtenářů.">
+<meta property="og:image" content="https://media.div.cz/hero/divkvariat.webp">
+<meta property="og:url" content="https://divkvariat.cz/nabidky/">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Nabídky knih | DIVkvariát">
+<meta name="twitter:description" content="Aktuální nabídky knih v antikvariátu DIVkvariát.">
+<meta name="twitter:image" content="https://media.div.cz/hero/divkvariat.webp">
+{% endblock %}
+
+{% block content %}
+
+<div class="max-w-7xl mx-auto py-10">
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-3">📚 Nabídky knih</h1>
+    <p class="text-gray-600 mb-10">
+        Aktuální nabídky od čtenářů DIVkvariátu.  
+        Prodej, darování i sběratelské kousky.
+    </p>
+
+    <!-- 🔹 KATEGORIE -->
+    {% if categories %}
+    <div class="mb-10">
+        <h2 class="text-xl font-semibold mb-3">Kategorie</h2>
+
+        <div class="flex flex-wrap gap-3">
+            {% for g in categories %}
+                <a href="?zanr={{ g.url }}"
+                    class="px-4 py-2 rounded-lg border shadow-sm hover:bg-gray-50
+                    {% if selected_genre == g.url %}
+                        bg-green-100 border-green-300 text-green-800
+                    {% else %}
+                        bg-white text-gray-700
+                    {% endif %}">
+                    {{ g.genrenamecz }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!-- 🔹 TOP PRODEJCI -->
+    {% if top_sellers %}
+    <div class="mb-12">
+        <h2 class="text-xl font-semibold mb-3">Top prodejci</h2>
+        <div class="flex flex-wrap gap-4">
+
+            {% for seller in top_sellers %}
+            <a href="/uzivatel/{{ seller.id }}/prodam-knihy/"
+               class="px-4 py-3 rounded-lg border bg-white text-gray-800 shadow-sm hover:shadow-md">
+                📦 {{ seller.username }}
+                <span class="text-sm text-gray-500 ml-1">
+                    ({{ seller.total_sales }} nabídek)
+                </span>
+            </a>
+            {% endfor %}
+
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!-- 🔹 LIST NABÍDEK -->
+    {% if listings %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        {% for listing in listings %}
+        <div class="bg-white border rounded-xl shadow-sm hover:shadow-lg p-4 transition">
+
+            <!-- Obrázek -->
+            <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+                {% if listing.book.img == "noimg.png" %}
+                    <img src="/static/img/book/book.png"
+                         class="w-full h-64 object-cover rounded-md mb-4">
+                {% elif listing.book.img == "GoogleID" %}
+                    <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1"
+                         class="w-full h-64 object-cover rounded-md mb-4">
+                {% else %}
+                    <img src="https://media.div.cz/knihy/{{ listing.book.img }}"
+                         class="w-full h-64 object-cover rounded-md mb-4">
+                {% endif %}
+            </a>
+
+            <!-- Název -->
+            <h3 class="text-lg font-semibold text-gray-800">
+                {{ listing.book.titlecz|default:listing.book.title }}
+            </h3>
+
+            <!-- Autor -->
+            <p class="text-gray-500 mb-3">{{ listing.book.author }}</p>
+
+            <!-- Cena -->
+            <p class="text-xl font-bold mb-4
+                {% if listing.price %}
+                    text-green-600
+                {% else %}
+                    text-blue-600
+                {% endif %}">
+                {% if listing.price %}
+                    {{ listing.price|floatformat:0 }} Kč
+                {% else %}
+                    Daruji
+                {% endif %}
+            </p>
+
+            <!-- Detail -->
+            <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}"
+               class="block w-full text-center py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold">
+                Detail nabídky
+            </a>
+
+            <p class="text-xs text-gray-500 mt-3">
+                Přidal:
+                <a class="text-green-700 hover:underline"
+                   href="/uzivatel/{{ listing.user.id }}/prodam-knihy/">
+                    {{ listing.user.username }}
+                </a><br>
+                {{ listing.createdat|date:"j. n. Y" }}
+            </p>
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+    <!-- 🔹 PAGINACE -->
+    <div class="flex justify-center mt-10">
+
+        <nav class="flex items-center space-x-2">
+
+            {% if listings.has_previous %}
+                <a href="?page=1{% if selected_genre %}&zanr={{ selected_genre }}{% endif %}"
+                   class="px-3 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50">« První</a>
+
+                <a href="?page={{ listings.previous_page_number }}{% if selected_genre %}&zanr={{ selected_genre }}{% endif %}"
+                   class="px-3 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50">‹</a>
+            {% endif %}
+
+            <span class="px-4 py-2 bg-gray-100 border rounded-lg">
+                Stránka {{ listings.number }} / {{ listings.paginator.num_pages }}
+            </span>
+
+            {% if listings.has_next %}
+                <a href="?page={{ listings.next_page_number }}{% if selected_genre %}&zanr={{ selected_genre }}{% endif %}"
+                   class="px-3 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50">›</a>
+
+                <a href="?page={{ listings.paginator.num_pages }}{% if selected_genre %}&zanr={{ selected_genre }}{% endif %}"
+                   class="px-3 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50">Poslední »</a>
+            {% endif %}
+
+        </nav>
+
+    </div>
+
+    {% else %}
+    <p class="text-center text-gray-500 mt-14">Momentálně zde nejsou žádné nabídky.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}
