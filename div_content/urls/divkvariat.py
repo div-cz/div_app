@@ -8,9 +8,12 @@ from div_content.views.divkvariat_cz import (
     listing_detail, listing_detail_edit, listing_search_books,
     cancel_listing_reservation, confirm_sale, cancel_sell, 
 
+    account_edit, user_profile, 
     user_sell_listings, user_buy_listings, user_book_listings
 
 )
+
+
 
 from django.conf import settings
 
@@ -29,6 +32,7 @@ urlpatterns = [
     path("prihlaseni/", LoginView.as_view(template_name="divkvariat/account/login.html"), name="login"),
     path("registrace/", SignupView.as_view(template_name="divkvariat/account/signup.html"), name="signup"),
     path("odhlaseni/", LogoutView.as_view(template_name="divkvariat/account/logout.html"), name="logout"),
+    path("ucet/upravit/", account_edit, name="account_edit"),
 
     # Antikvariát — hlavní modul
     path("", antikvariat_home, name="antikvariat_home"),
@@ -46,9 +50,11 @@ urlpatterns = [
     path("uzivatel/<int:user_id>/prodej-knihy/", user_sell_listings, name="user_sell_listings"),
     path("uzivatel/<int:user_id>/koupim-knihy/", user_buy_listings, name="user_buy_listings"),
     path("uzivatel/<int:user_id>/nabidky/", user_book_listings, name="user_book_listings"),
-    path("uzivatel/<int:user_id>/", user_book_listings, name="user_book_listings"),
+    #path("uzivatel/<int:user_id>/", user_book_listings, name="user_book_listings"),
     path("uzivatel/<int:user_id>/prodam-knihy/", user_sell_listings, name="user_sell_listings"),
     path("uzivatel/<int:user_id>/koupim-knihy/", user_buy_listings, name="user_buy_listings"),
+    path("uzivatel/<int:user_id>/", user_profile, name="user_profile"),
+
 
     # Databaze
     path("kniha/<str:book_url>/", book_detail_cz, name="book_detail_cz"),

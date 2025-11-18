@@ -1618,6 +1618,71 @@ def qr_code_market(amount, listing, message=None, format_code="5"):
     return qr_code_base64, vs
 
 
+# -------------------------------------------------------------------
+# F:                 USER PROFILE
+# -------------------------------------------------------------------
+def user_profile(request, user_id):
+    profile_user = get_object_or_404(User, id=user_id)
+
+    # Aktivní nabídky (SELL a GIVE)
+    active_sell = Booklisting.objects.filter(
+        user=profile_user,
+        listingtype__in=["SELL", "GIVE"],
+        status="ACTIVE"
+    ).order_by("-createdat")
+
+    # Aktivní poptávky (BUY)
+    active_buy = Booklisting.objects.filter(
+        user=profile_user,
+        listingtype="BUY",
+        status="ACTIVE"
+    ).order_by("-createdat")
+
+    # Historie — prodeje, které už skončily
+    sold_history = Booklisting.objects.filter(
+        user=profile_user,
+        status="COMPLETED"
+    ).order_by("-completedat")
+
+    # Historie — nákupy
+    bought_history = Booklisting.objects.filter(
+        buyer=profile_user,
+        status="COMPLETED"
+    ).order_by("-completedat")
+
+    return render(request, "divkvariat/user_profile.html", {
+        "profile_user": profile_user,
+        "active_sell": active_sell,
+        "active_buy": active_buy,
+        "sold_history": sold_history,
+        "bought_history": bought_history,
+    })
+# -------------------------------------------------------------------
+# F:                 USER EDIT
+# -------------------------------------------------------------------
+@login_required
+def account_edit(request):
+    profile = Userprofile.objects.get_or_create(user=request.user)[0]
+
+    if request.method == "POST":
+        # User model
+        request.user.email = request.POST.get("email", "").strip()
+        request.user.first_name = request.POST.get("first_name", "").strip()
+        request.user.last_name = request.POST.get("last_name", "").strip()
+        request.user.save()
+
+        # Userprofile (telefon, adresa, účet)
+        profile.phone = request.POST.get("phone", "").strip()
+        profile.shippingaddress = request.POST.get("shippingaddress", "").strip()
+        profile.bankaccount = request.POST.get("bankaccount", "").strip()
+        profile.save()
+
+        messages.success(request, "Údaje byly úspěšně uloženy.")
+        return redirect("account_edit")
+
+    return render(request, "divkvariat/account/account_edit.html", {
+        "profile": profile,
+    })
 
 # -------------------------------------------------------------------
 # F:                 USER BOOK LISTINGS
