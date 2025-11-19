@@ -1,15 +1,18 @@
-
+# -------------------------------------------------------------------
+#                    URLS.DIVKVARIAT.PY
+# -------------------------------------------------------------------
 
 from django.urls import path, include
+
 from div_content.views.divkvariat_cz import (
-    antikvariat_home, author_detail_cz, book_detail_cz, book_listings, 
+    antikvariat_home, author_detail_cz, blog_list, blog_detail, book_detail_cz, book_listings, 
     books_market_offers, books_market_wants, 
     listing_add_book, 
     listing_detail, listing_detail_edit, listing_search_books,
     cancel_listing_reservation, confirm_sale, cancel_sell, 
 
     account_edit, user_profile, 
-    user_sell_listings, user_buy_listings, user_book_listings
+    user_sell_listings, user_buy_listings, user_book_listings, search_view
 
 )
 
@@ -54,11 +57,18 @@ urlpatterns = [
     path("uzivatel/<int:user_id>/prodam-knihy/", user_sell_listings, name="user_sell_listings"),
     path("uzivatel/<int:user_id>/koupim-knihy/", user_buy_listings, name="user_buy_listings"),
     path("uzivatel/<int:user_id>/", user_profile, name="user_profile"),
+    #path("chat/<int:user_id>/", chat_message, name="chat_message"),
 
+    # BLOG
+    path("blog/", blog_list, name="dk_blog_list"),
+    path("blog/<str:url>/", blog_detail, name="dk_blog_detail"),
 
     # Databaze
     path("kniha/<str:book_url>/", book_detail_cz, name="book_detail_cz"),
     path("autor/<str:author_url>/", author_detail_cz, name="author_detail_cz"),
+
+    # Hledání
+    path("hledat/", search_view, name="dk_search"),
 
     # Stranky
     path("kontakt/", TemplateView.as_view(template_name="divkvariat/stranky/kontakt.html"), name="dk_kontakt"),

@@ -65,7 +65,7 @@ import unicodedata
 from datetime import timedelta
 
 from div_content.forms.divkvariat import BookListingForm
-from div_content.models import Book, Bookauthor, Bookgenre, Bookwriters, Booklisting, Metagenre, Userprofile
+from div_content.models import Article, Book, Bookauthor, Bookgenre, Bookwriters, Booklisting, Metagenre, Userprofile
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -387,6 +387,39 @@ def antikvariat_home(request):
 #        template = "books/divkvariat/antikvariat_home.html"
 #    return render(request, template, final_context)
     return render(request, "divkvariat/antikvariat_home.html", final_context)
+
+
+# ----------------------------------------------------
+# BLOG — LIST
+# ----------------------------------------------------
+def blog_list(request):
+    articles = Article.objects.filter(
+        typ="Divkvariat"
+    ).order_by("-created")
+
+    paginator = Paginator(articles, 10)
+    page = request.GET.get("page")
+    page_obj = paginator.get_page(page)
+
+    return render(request, "divkvariat/blog_list.html", {
+        "articles": page_obj,
+    })
+
+
+
+# ----------------------------------------------------
+# BLOG — DETAIL
+# ----------------------------------------------------
+def blog_detail(request, url):
+    article = get_object_or_404(
+        Article,
+        url=url,
+        typ="Divkvariat"   # jen články DIVkvariát
+    )
+
+    return render(request, "divkvariat/blog_detail.html", {
+        "article": article,
+    })
 
 
 # -------------------------------------------------------------------
@@ -1790,6 +1823,41 @@ def user_buy_listings(request, user_id):
         'total_ratings': buyer_ratings.count()
     })
 
+
+# -------------------------------------------------------------------
+# F:                 SEARCH VIEW
+# -------------------------------------------------------------------
+def search_view(request):
+    query = request.GET.get("q", "").strip()
+    books = []
+    listings = []
+
+    if query:
+        # Vyhledávání knih
+        books = Book.objects.filter(
+            Q(title__icontains=query) |
+            Q(titlecz__icontains=query) |
+            Q(author__icontains=query)
+        ).order_by("title")[:30]
+
+        # Vyhledávání v nabídce i poptávce
+        listings = Booklisting.objects.filter(
+            Q(book__title__icontains=query) |
+            Q(book__titlecz__icontains=query) |
+            Q(book__author__icontains=query),
+            active=True
+        ).select_related("book", "user").order_by("-createdat")
+
+    # Stránkování
+    paginator = Paginator(listings, 18)
+    page = request.GET.get("page")
+    listings_page = paginator.get_page(page)
+
+    return render(request, "divkvariat/search.html", {
+        "query": query,
+        "books": books,
+        "listings": listings_page,
+    })
 
 # -------------------------------------------------------------------
 #                    KONEC

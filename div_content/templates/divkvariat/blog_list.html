@@ -1,0 +1,74 @@
+{% extends "divkvariat/base.html" %}
+{% load humanize %}
+
+{% block title %}Blog | DIVkvariát{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-10">
+
+    <h1 class="text-3xl font-bold text-gray-900 mb-6">
+        📝 Blog DIVkvariátu
+    </h1>
+
+    <p class="text-gray-600 mb-10">
+        Tipy, rady a návody pro bezpečný nákup i prodej knih. Novinky z knižního světa.
+    </p>
+
+    {% if articles %}
+    <div class="space-y-6">
+
+        {% for a in articles %}
+        <div class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md p-6 transition">
+
+            <!-- Nadpis -->
+            <a href="{% url 'dk_blog_detail' a.url %}"
+               class="text-2xl font-bold text-green-700 hover:underline">
+                {{ a.title }}
+            </a>
+
+            <!-- Meta -->
+            <div class="text-gray-500 text-sm mt-1 mb-4">
+                {{ a.autor }} • {{ a.created|date:"j. n. Y" }}
+            </div>
+
+            <!-- Perex -->
+            <p class="text-gray-700 leading-relaxed">
+                {{ a.perex }}
+            </p>
+
+            <!-- Číst více -->
+            <a href="{% url 'dk_blog_detail' a.url %}"
+               class="inline-block mt-4 text-green-600 hover:underline font-medium">
+                Číst celý článek →
+            </a>
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+    <!-- PAGINACE -->
+    <div class="flex justify-center mt-10 text-gray-700">
+        {% if articles.has_previous %}
+            <a href="?page=1" class="px-3 py-2 bg-gray-200 rounded-l-lg">« První</a>
+            <a href="?page={{ articles.previous_page_number }}" class="px-3 py-2 bg-gray-200">‹</a>
+        {% endif %}
+
+        <span class="px-6 py-2 bg-gray-100 border">
+            Stránka {{ articles.number }} / {{ articles.paginator.num_pages }}
+        </span>
+
+        {% if articles.has_next %}
+            <a href="?page={{ articles.next_page_number }}" class="px-3 py-2 bg-gray-200">›</a>
+            <a href="?page={{ articles.paginator.num_pages }}" class="px-3 py-2 bg-gray-200 rounded-r-lg">Poslední »</a>
+        {% endif %}
+    </div>
+
+    {% else %}
+    <p class="text-gray-500 text-center mt-16">
+        Zatím zde nejsou žádné články.
+    </p>
+    {% endif %}
+
+</div>
+{% endblock %}
