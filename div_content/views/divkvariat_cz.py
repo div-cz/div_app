@@ -710,7 +710,7 @@ def listing_add_book(request):
                     
                     title = book.title or book.titlecz
                     messages.success(request, f'Nabídka pro knihu "{title}" byla úspěšně vytvořena - <a href=\"https://magic.div.cz/antikvariat/pridat-knihu/\">Vytvořit novou</a>.')
-                    return redirect('book_detail', book_url=book.url)
+                    return redirect('book_detail_cz', book_url=book.url)
             except Book.DoesNotExist:
                 messages.error(request, 'Kniha nebyla nalezena.')
     else:
@@ -1816,7 +1816,7 @@ def user_buy_listings(request, user_id):
     )
     avg_rating = buyer_ratings.aggregate(Avg('buyerrating'))['buyerrating__avg']
    
-    return render(request, 'divkariat/user_book_buy.html', {
+    return render(request, 'divkvariat/user_book_buy.html', {
        'profile_user': profile_user,
         'listings': listings,
         'avg_rating': avg_rating, 

@@ -28,47 +28,74 @@
         Prodej, darování i sběratelské kousky.
     </p>
 
-    <!-- 🔹 KATEGORIE -->
-    {% if categories %}
-    <div class="mb-10">
-        <h2 class="text-xl font-semibold mb-3">Kategorie</h2>
+<!-- 🔹 KATEGORIE -->
+{% if categories %}
+<div class="mb-10">
+    <h2 class="text-xl font-semibold mb-3">Kategorie</h2>
 
-        <div class="flex flex-wrap gap-3">
-            {% for g in categories %}
-                <a href="?zanr={{ g.url }}"
-                    class="px-4 py-2 rounded-lg border shadow-sm hover:bg-gray-50
+    <div class="flex flex-wrap gap-3">
+
+        {% for g in categories %}
+            <a href="?zanr={{ g.url }}"
+               class="
+                    px-4 py-2 rounded-lg border shadow-sm hover:bg-gray-50
                     {% if selected_genre == g.url %}
                         bg-green-100 border-green-300 text-green-800
                     {% else %}
                         bg-white text-gray-700
-                    {% endif %}">
-                    {{ g.genrenamecz }}
-                </a>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
-
-    <!-- 🔹 TOP PRODEJCI -->
-    {% if top_sellers %}
-    <div class="mb-12">
-        <h2 class="text-xl font-semibold mb-3">Top prodejci</h2>
-        <div class="flex flex-wrap gap-4">
-
-            {% for seller in top_sellers %}
-            <a href="/uzivatel/{{ seller.id }}/prodam-knihy/"
-               class="px-4 py-3 rounded-lg border bg-white text-gray-800 shadow-sm hover:shadow-md">
-                📦 {{ seller.username }}
-                <span class="text-sm text-gray-500 ml-1">
-                    ({{ seller.total_sales }} nabídek)
-                </span>
+                    {% endif %}
+                    
+                    {% if forloop.counter > 2 %}
+                        hidden md:inline-flex
+                    {% endif %}
+               ">
+                {{ g.genrenamecz }}
             </a>
-            {% endfor %}
+        {% endfor %}
 
-        </div>
     </div>
-    {% endif %}
+
+    <!-- Tlačítko ukázat všechny na mobilu -->
+    <a href="#" 
+       onclick="this.previousElementSibling.querySelectorAll('.hidden').forEach(x => x.classList.remove('hidden')); this.remove();"
+       class="md:hidden mt-3 inline-block text-green-700 underline">
+        Zobrazit všechny
+    </a>
+</div>
+{% endif %}
+
+
+<!-- 🔹 TOP PRODEJCI -->
+{% if top_sellers %}
+<div class="mb-12">
+    <h2 class="text-xl font-semibold mb-3">Top prodejci</h2>
+
+    <div class="flex flex-wrap gap-4">
+
+        {% for seller in top_sellers %}
+        <a href="/uzivatel/{{ seller.id }}/prodam-knihy/"
+           class="px-4 py-3 rounded-lg border bg-white text-gray-800 shadow-sm hover:shadow-md
+                  {% if forloop.counter > 2 %} hidden md:inline-flex {% endif %}">
+            📦 {{ seller.username }}
+            <span class="text-sm text-gray-500 ml-1">
+                ({{ seller.total_sales }} nabídek)
+            </span>
+        </a>
+        {% endfor %}
+
+    </div>
+
+    <a href="#"
+       onclick="this.previousElementSibling.querySelectorAll('.hidden').forEach(x => x.classList.remove('hidden')); this.remove();"
+       class="md:hidden mt-3 inline-block text-green-700 underline">
+        Zobrazit všechny
+    </a>
+</div>
+{% endif %}
+
+
+
+
 
 
     <!-- 🔹 LIST NABÍDEK -->

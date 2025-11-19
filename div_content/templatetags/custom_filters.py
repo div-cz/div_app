@@ -49,3 +49,9 @@ def format_shipping_name(name):
         'posta': 'Česká pošta',
     }
     return mapping.get(name.lower(), name.capitalize())
+
+
+@register.filter(name='add_class')
+def add_class(field, css_class):
+    return field.as_widget(attrs={"class": css_class})
+
