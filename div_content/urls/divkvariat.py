@@ -2,35 +2,40 @@
 #                    URLS.DIVKVARIAT.PY
 # -------------------------------------------------------------------
 
-from django.urls import path, include
+from allauth.account.views import LoginView, LogoutView, SignupView
+
+
 
 from div_content.views.divkvariat_cz import (
-    antikvariat_home, author_detail_cz, blog_list, blog_detail, book_detail_cz, book_listings, 
+    account_edit, account_view, antikvariat_home, author_detail_cz, 
+    blog_list, blog_detail, book_detail_cz, book_listings, 
     books_market_offers, books_market_wants, 
-    listing_add_book, 
-    listing_detail, listing_detail_edit, listing_search_books,
-    cancel_listing_reservation, confirm_sale, cancel_sell, 
-
-    account_edit, user_profile, 
-    user_sell_listings, user_buy_listings, user_book_listings, search_view
+    cancel_listing_reservation, cancel_sell, confirm_sale, 
+    listing_add_book, listing_detail, listing_detail_edit, listing_search_books,
+    
+    search_view, 
+    user_book_listings, user_buy_listings, user_profile, user_sell_listings
 
 )
-
 
 
 from django.conf import settings
 
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import login_required
+
 from django.views.generic import TemplateView
 
-from allauth.account.views import LoginView, LogoutView, SignupView
+from django.urls import path, include
 
 import debug_toolbar
 
 
 urlpatterns = [
 
-    path("ucet/", include("allauth.urls")),
+    #path("ucet/", include("allauth.urls")),
+    path("ucet/", login_required(account_view), name="dk_account"),
+
     # Přihlášení / registrace
     path("prihlaseni/", LoginView.as_view(template_name="divkvariat/account/login.html"), name="login"),
     path("registrace/", SignupView.as_view(template_name="divkvariat/account/signup.html"), name="signup"),

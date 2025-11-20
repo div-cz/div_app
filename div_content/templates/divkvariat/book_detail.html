@@ -29,10 +29,13 @@
             </h1>
 
             <p class="text-green-700 font-medium text-lg mb-1">
-                <a href="{% url 'author_detail_cz' book.authorid.url %}"
-                   class="hover:underline">
-                    {{ book.author }}
-                </a>
+{% if book.authorid and book.authorid.url %}
+    <a href="{% url 'author_detail_cz' book.authorid.url %}" class="hover:underline">
+        {{ book.authorid.name }}
+    </a>
+{% else %}
+    <span>{{ book.authorid.name|default:"Neznámý autor" }}</span>
+{% endif %}
             </p>
 
             {% if book.year %}

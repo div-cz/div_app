@@ -175,6 +175,8 @@ from io import BytesIO
 
 
 
+
+
 def book_detail_cz(request, book_url):
 
     book = get_object_or_404(Book, url=book_url)
@@ -1716,6 +1718,18 @@ def account_edit(request):
     return render(request, "divkvariat/account/account_edit.html", {
         "profile": profile,
     })
+
+
+# -------------------------------------------------------------------
+# F:                 ACCOUNT VIEW
+# -------------------------------------------------------------------
+@login_required
+def account_view(request):
+    return render(request, "divkvariat/account/account_edit.html", {
+        "user": request.user,
+        "profile": request.user.userprofile,
+    })
+
 
 # -------------------------------------------------------------------
 # F:                 USER BOOK LISTINGS
