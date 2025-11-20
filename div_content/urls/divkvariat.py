@@ -11,6 +11,8 @@ from div_content.views.divkvariat_cz import (
     blog_list, blog_detail, book_detail_cz, book_listings, 
     books_market_offers, books_market_wants, 
     cancel_listing_reservation, cancel_sell, confirm_sale, 
+    CustomLoginView, CustomSignupView, CustomLogoutView, 
+    
     listing_add_book, listing_detail, listing_detail_edit, listing_search_books,
     
     search_view, 
@@ -37,9 +39,9 @@ urlpatterns = [
     path("ucet/", login_required(account_view), name="dk_account"),
 
     # Přihlášení / registrace
-    path("prihlaseni/", LoginView.as_view(template_name="divkvariat/account/login.html"), name="login"),
-    path("registrace/", SignupView.as_view(template_name="divkvariat/account/signup.html"), name="signup"),
-    path("odhlaseni/", LogoutView.as_view(template_name="divkvariat/account/logout.html"), name="logout"),
+    path("prihlaseni/", CustomLoginView.as_view(template_name="divkvariat/account/login.html"), name="account_login"),
+    path("registrace/", CustomSignupView.as_view(template_name="divkvariat/account/signup.html"), name="account_signup"),
+    path("odhlaseni/", CustomLogoutView.as_view(template_name="divkvariat/account/logout.html"), name="account_logout"),
     path("ucet/upravit/", account_edit, name="account_edit"),
 
     # Antikvariát — hlavní modul

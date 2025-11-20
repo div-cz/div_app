@@ -62,6 +62,8 @@ import qrcode
 import threading
 import unicodedata
 
+from allauth.account.views import LoginView, SignupView, LogoutView
+
 from datetime import timedelta
 
 from div_content.forms.divkvariat import BookListingForm
@@ -81,6 +83,8 @@ from django.http import JsonResponse
 
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+
+from django.urls import reverse
 
 from django.utils.timezone import now
 from django.utils import timezone
@@ -1652,6 +1656,28 @@ def qr_code_market(amount, listing, message=None, format_code="5"):
 
     return qr_code_base64, vs
 
+
+# -------------------------------------------------------------------
+# F:                 CustomLoginView
+# -------------------------------------------------------------------
+
+class CustomLoginView(LoginView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['signup_url'] = reverse('account_signup')  
+        return context
+
+class CustomSignupView(SignupView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['login_url'] = reverse('account_login')  
+        return context
+
+class CustomLogoutView(LogoutView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['login_url'] = reverse('account_login')  
+        return context
 
 # -------------------------------------------------------------------
 # F:                 USER PROFILE
