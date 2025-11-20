@@ -577,7 +577,7 @@ def cancel_listing_reservation(request, listing_id):
             return redirect('antikvariat_home') 
         else:
             messages.error(request, 'Rezervaci této knihy nelze zrušit, protože není ve stavu "REZERVACE".')
-            return redirect('index')
+            return redirect('antikvariat_home')
 
 
 # -------------------------------------------------------------------
@@ -590,7 +590,7 @@ def confirm_sale(request, purchase_id):
         purchase.status = "completed"
         purchase.completedat = timezone.now()
         purchase.save()
-        return redirect("index")
+        return redirect("antikvariat_home")
     return render(request, "divkvariat/market_confirm_sale.html", {"purchase": purchase})
 
 
@@ -607,10 +607,10 @@ def cancel_sell(request, listing_id):
             listing_to_cancel.status = 'CANCELLED'
             listing_to_cancel.save()
             messages.success(request, f'Vaše nabídka knihy "{listing_to_cancel.book.titlecz}" byla úspěšně smazána.')
-            return redirect('index')
+            return redirect('antikvariat_home')
         else:
             messages.error(request, 'Tuto nabídku nelze smazat v aktuálním stavu.')
-            return redirect('index')
+            return redirect('antikvariat_home')
 
     return render(request, "divkvariat/market_cancel_offer.html", {"listing_offer": listing_to_cancel})
 

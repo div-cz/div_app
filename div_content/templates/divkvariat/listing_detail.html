@@ -194,7 +194,15 @@
                     </p>
 
                     <p>
-                        <strong>Prodávající:</strong>
+                        <strong>
+                        
+        {% if listing.listingtype == 'BUY' %}
+            Poptávající:
+        {% else %}
+            Prodávající:
+        {% endif %}
+        
+                        </strong>
                         <a href="{% url 'user_sell_listings' listing.user.id %}" 
                            class="text-green-700 hover:underline ml-1">
                             {{ listing.user.username }}
