@@ -735,7 +735,7 @@ def listing_add_book(request):
     
     if not user.is_authenticated:
         messages.warning(request, 'Pro vytvoření nabídky se musíte přihlásit.')
-        return redirect('login')
+        return redirect('account_login')
     
     booklisting_form = None
     selected_book = None
