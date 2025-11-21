@@ -135,12 +135,12 @@
     background: #37b24d;
     color: white;
     border-radius: 50%;
-    width: 52px;
-    height: 52px;
+    width: 56px;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
+    font-size: 30px;
     cursor: pointer;
     z-index: 9999;
 }
@@ -149,54 +149,83 @@
     position: fixed;
     right: 20px;
     bottom: 85px;
-    width: 320px;
-    height: 420px;
-    background: white;
+    width: 340px;
+    height: 460px;
+    background: #fff;
     border-radius: 12px;
     box-shadow: 0 0 12px rgba(0,0,0,0.2);
     display: none;
     flex-direction: column;
+    overflow: hidden;
     z-index: 9999;
 }
 
+/* HEADER */
+#chatbox-header {
+    background: #37b24d;
+    color: white;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+/* MESSAGES */
 #chatbox-messages {
-    padding: 10px;
+    padding: 12px;
     height: 340px;
     overflow-y: auto;
     font-size: 14px;
+    line-height: 1.45;
+}
+
+.msg {
+    margin-bottom: 12px;
 }
 
 #chatbox-input {
     display: flex;
     border-top: 1px solid #ddd;
 }
-#chatbox-input input {
+
+#chatbox-text {
     flex: 1;
-    padding: 8px;
+    padding: 10px;
     border: none;
 }
-#chatbox-input button {
-    padding: 8px 12px;
+
+#chatbox-send-btn {
     background: #37b24d;
     color: white;
     border: none;
+    padding: 10px 16px;
+    font-size: 20px;
+    cursor: pointer;
+}
+#chatbox-send-btn:hover {
+    background: #2f9e44;
 }
 </style>
 
+<!-- FLOATING BUTTON -->
 <div id="chatbox-toggle">💬</div>
 
+<!-- CHAT WINDOW -->
 <div id="chatbox-window">
+    <div id="chatbox-header">
+        DIVka • asistentka
+    </div>
+
     <div id="chatbox-messages">
         {% if user.is_authenticated %}
-            <div><strong>Ahoj {{ user.username }}</strong> 👋 Co bys dnes rád?</div>
+            <div class="msg"><strong>Ahoj {{ user.username }} 👋</strong><br> Co bys dnes rád?</div>
         {% else %}
-            <div>📚 Ahoj! Pro plnou podporu se prosím přihlas.</div>
+            <div class="msg"><strong>Ahoj! 📚</strong><br> Přihlas se pro plnou podporu asistentky.</div>
         {% endif %}
     </div>
 
     <div id="chatbox-input">
         <input id="chatbox-text" type="text" placeholder="Napiš zprávu...">
-        <button onclick="chatSend()">➡️</button>
+        <button id="chatbox-send-btn" onclick="chatSend()">✈️</button>
     </div>
 </div>
 
@@ -210,7 +239,6 @@ async function chatSend() {
     const input = document.getElementById("chatbox-text");
     const msg = input.value.trim();
     if (!msg) return;
-
     addMessage("Ty", msg);
     input.value = "";
 
@@ -221,15 +249,16 @@ async function chatSend() {
     });
 
     const data = await res.json();
-    addMessage("Asistent", data.reply);
+    addMessage("DIVka", data.reply);
 }
 
 function addMessage(sender, text) {
     const box = document.getElementById("chatbox-messages");
-    box.innerHTML += `<div><strong>${sender}:</strong> ${text}</div>`;
+    box.innerHTML += `<div class="msg"><strong>${sender}:</strong><br>${text}</div>`;
     box.scrollTop = box.scrollHeight;
 }
 </script>
+
 
 
 
