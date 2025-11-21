@@ -160,6 +160,7 @@
     z-index: 9999;
 }
 
+
 /* HEADER */
 #chatbox-header {
     background: #37b24d;
@@ -168,7 +169,26 @@
     font-size: 15px;
     font-weight: bold;
 }
+/* quick button */
+#chat-quick-buttons {
+    margin: 10px 0 15px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
 
+#chat-quick-buttons button {
+    background: #e9ecef;
+    border: none;
+    padding: 6px 10px;
+    font-size: 13px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#chat-quick-buttons button:hover {
+    background: #dee2e6;
+}
 /* MESSAGES */
 #chatbox-messages {
     padding: 12px;
@@ -219,7 +239,29 @@
         {% if user.is_authenticated %}
             <div class="msg"><strong>Ahoj {{ user.username }} 👋</strong><br> Co bys dnes rád?</div>
         {% else %}
-            <div class="msg"><strong>Ahoj! 📚</strong><br> Přihlas se pro plnou podporu asistentky.</div>
+<!-- NEPRIHLASENÝ -->
+<div class="msg">
+<strong>Ahoj! 📚</strong><br>
+Vítej v DIVkvariátu — místě, kde se knihy neztrácejí, ale nacházejí nové čtenáře. ❤️
+<br><br>
+Jsem <strong>DIVka</strong>, tvoje virtuální asistentka. Ráda ti pomůžu najít knihu, kterou sháníš, doporučím něco na míru, nebo tě provedu nákupem i prodejem.
+<br><br>
+<strong>Ještě nejsi přihlášený.</strong> Jako host můžeš procházet knihy, ale přihlášení ti otevře celou knihovnu možností:
+<ul>
+  <li>🔔 Hlídání dostupnosti knih <em>(v přípravě)</em></li>
+  <li>📦 Vytváření poptávek a nákupů</li>
+  <li>📚 Doporučení podle preferencí</li>
+  <li>💬 Chytrý chat s plnou podporou</li>
+</ul>
+<br>
+Vyber si jednu z možností:
+</div>
+<div id="chat-quick-buttons">
+    <button onclick="chatSend('doporučit knihu')">📚 Doporučit knihu</button>
+    <button onclick="chatSend('jak nakoupit knihu')">🛒 Jak nakoupit</button>
+    <button onclick="chatSend('najít knihu')">🔍 Najít titul</button>
+</div>
+
         {% endif %}
     </div>
 
@@ -235,10 +277,11 @@ document.getElementById("chatbox-toggle").onclick = function () {
     box.style.display = (box.style.display === "flex") ? "none" : "flex";
 };
 
-async function chatSend() {
+async function chatSend(prefill = null) {
     const input = document.getElementById("chatbox-text");
-    const msg = input.value.trim();
+    const msg = prefill ? prefill : input.value.trim();
     if (!msg) return;
+
     addMessage("Ty", msg);
     input.value = "";
 
@@ -251,6 +294,7 @@ async function chatSend() {
     const data = await res.json();
     addMessage("DIVka", data.reply);
 }
+
 
 function addMessage(sender, text) {
     const box = document.getElementById("chatbox-messages");
