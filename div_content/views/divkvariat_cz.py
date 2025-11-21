@@ -69,7 +69,7 @@ from allauth.account.views import LoginView, SignupView, LogoutView
 from datetime import timedelta
 
 from div_content.forms.divkvariat import BookListingForm
-from div_content.models import Article, Book, Bookauthor, Bookgenre, Bookwriters, Booklisting, Metagenre, Userprofile
+from div_content.models import Article, Book, Bookauthor, Bookgenre, Bookwriters, Booklisting, Metagenre, Userdivcoins, Userprofile
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -757,14 +757,44 @@ def listing_add_book(request):
             try:
                 book = Book.objects.get(bookid=book_id)
                 booklisting_form = BookListingForm(request.POST, user=request.user)
-                
+              
                 if booklisting_form.is_valid():
                     listing = booklisting_form.save(commit=False)
                     listing.user = request.user
                     listing.book = book
                     listing.paidtoseller = False
                     listing.requestpayout = False
+                
+                    # --- Poštovné – vytvoření shippingoptions ---
+                    shipping_options = []
+                
+                    # Zásilkovna
+                    if request.POST.get("shipping_zasilkovna"):
+                        price = request.POST.get("shipping_zasilkovna_price", "").strip()
+                        if price:
+                            shipping_options.append(f"zasilkovna:{price}")
+                
+                    # Balíkovna
+                    if request.POST.get("shipping_balikovna"):
+                        price = request.POST.get("shipping_balikovna_price", "").strip()
+                        if price:
+                            shipping_options.append(f"balikovna:{price}")
+                
+                    # Česká pošta
+                    if request.POST.get("shipping_ceskaposta"):
+                        price = request.POST.get("shipping_posta_price", "").strip()
+                        if price:
+                            shipping_options.append(f"ceskaposta:{price}")
+                
+                    # Osobní převzetí – pokud máš checkbox v BookListingForm → boolean field personal_pickup
+                    if listing.personal_pickup:
+                        shipping_options.append("osobni:0")
+                
+                    if shipping_options:
+                        listing.shippingoptions = ",".join(shipping_options)
+                
                     listing.save()
+
                     
                     title = book.title or book.titlecz
                     messages.success(request, f'Nabídka pro knihu "{title}" byla úspěšně vytvořena - <a href=\"https://magic.div.cz/antikvariat/pridat-knihu/\">Vytvořit novou</a>.')
@@ -1803,10 +1833,53 @@ def account_edit(request):
 # -------------------------------------------------------------------
 @login_required
 def account_view(request):
-    return render(request, "divkvariat/account/account_edit.html", {
-        "user": request.user,
-        "profile": request.user.userprofile,
-    })
+    user = request.user
+    profile, _ = Userprofile.objects.get_or_create(user=user)
+
+    # DIVcoiny – get_or_create, ať to nikdy nespadne
+    coins, _ = Userdivcoins.objects.get_or_create(user=user)
+
+    # Statistiky knih
+    sold_books = Booklisting.objects.filter(
+        user=user,
+        listingtype__in=['SELL', 'GIVE'],
+        status='COMPLETED'
+    ).count()
+
+    bought_books = Booklisting.objects.filter(
+        buyer=user,
+        listingtype__in=['SELL', 'GIVE'],
+        status='COMPLETED'
+    ).count()
+
+    active_sell_qs = Booklisting.objects.filter(
+        user=user,
+        listingtype__in=['SELL', 'GIVE'],
+        status='ACTIVE',
+        active=True
+    ).select_related("book").order_by("-createdat")
+
+    active_buy_qs = Booklisting.objects.filter(
+        user=user,
+        listingtype='BUY',
+        status='ACTIVE',
+        active=True
+    ).select_related("book").order_by("-createdat")
+
+    context = {
+        "user": user,
+        "profile": profile,
+        "coins": coins,
+        "sold_books": sold_books,
+        "bought_books": bought_books,
+        "active_sell_count": active_sell_qs.count(),
+        "active_buy_count": active_buy_qs.count(),
+        "active_sell_list": active_sell_qs[:5],
+        "active_buy_list": active_buy_qs[:5],
+    }
+
+    return render(request, "divkvariat/account/account_profile.html", context)
+
 
 
 # -------------------------------------------------------------------
