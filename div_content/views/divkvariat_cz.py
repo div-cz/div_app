@@ -56,9 +56,11 @@
 # -------------------------------------------------------------------
 
 import base64
-import smtplib
+import json
 import os
 import qrcode
+import requests
+import smtplib
 import threading
 import unicodedata
 
@@ -86,10 +88,11 @@ from django.template.loader import render_to_string
 
 from django.urls import reverse
 
-from django.utils.timezone import now
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.utils.timezone import now
 
-
+from django.views.decorators.csrf import csrf_exempt
 
 from dotenv import load_dotenv
 from email.message import EmailMessage
@@ -98,6 +101,14 @@ from io import BytesIO
 # -------------------------------------------------------------------
 #                    KONSTANTY
 # -------------------------------------------------------------------
+
+ANTHROPIC_API_KEY = os.getenv("DIVKVARIAT_CHATBOT")
+
+SYSTEM_PROMPT = """
+Jsi AI asistent pro DIVkvariát.cz.
+Pomáháš s výběrem, nákupem a hledáním knih.
+Odpovídej stručně, česky, přátelsky, s emoji.
+"""
 
 
 
@@ -178,9 +189,48 @@ from io import BytesIO
 # =========================================================
 
 
+@csrf_exempt
+def chatbot_api(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST allowed"}, status=405)
+
+    data = json.loads(request.body.decode("utf-8"))
+    user_message = data.get("message", "")
+
+    # NEPŘIHLÁŠENÝ
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "reply": "📚 Ahoj! Pro plnou podporu se prosím přihlas. Můžu ti poradit s nákupem nebo hledáním knih."
+        })
+
+    # PŘIHLÁŠENÝ → voláme API Claude
+    payload = {
+        "model": "claude-sonnet-4-20250514",
+        "system": SYSTEM_PROMPT,
+        "max_tokens": 400,
+        "messages": [
+            {"role": "user", "content": user_message}
+        ]
+    }
+
+    headers = {
+        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01"
+    }
+
+    try:
+        r = requests.post("https://api.anthropic.com/v1/messages",
+                          headers=headers, json=payload)
+        reply = r.json()["content"][0]["text"]
+        return JsonResponse({"reply": reply})
+    except Exception:
+        return JsonResponse({"reply": "❗ Omlouvám se, ale došlo k chybě při spojení."})
 
 
-
+# -------------------------------------------------------------------
+#                    BOOK DETAIL
+# -------------------------------------------------------------------
 def book_detail_cz(request, book_url):
 
     book = get_object_or_404(Book, url=book_url)
@@ -218,7 +268,9 @@ def book_detail_cz(request, book_url):
     return render(request, "divkvariat/book_detail.html", context)
 
 
-
+# -------------------------------------------------------------------
+#                    AUTHOR DETAIL
+# -------------------------------------------------------------------
 def author_detail_cz(request, author_url):
 
     author = get_object_or_404(Bookauthor, url=author_url)

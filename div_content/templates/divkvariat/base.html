@@ -125,6 +125,115 @@
     {% block content %}{% endblock %}
 </main>
 
+
+
+<style>
+#chatbox-toggle {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: #37b24d;
+    color: white;
+    border-radius: 50%;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 9999;
+}
+
+#chatbox-window {
+    position: fixed;
+    right: 20px;
+    bottom: 85px;
+    width: 320px;
+    height: 420px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.2);
+    display: none;
+    flex-direction: column;
+    z-index: 9999;
+}
+
+#chatbox-messages {
+    padding: 10px;
+    height: 340px;
+    overflow-y: auto;
+    font-size: 14px;
+}
+
+#chatbox-input {
+    display: flex;
+    border-top: 1px solid #ddd;
+}
+#chatbox-input input {
+    flex: 1;
+    padding: 8px;
+    border: none;
+}
+#chatbox-input button {
+    padding: 8px 12px;
+    background: #37b24d;
+    color: white;
+    border: none;
+}
+</style>
+
+<div id="chatbox-toggle">💬</div>
+
+<div id="chatbox-window">
+    <div id="chatbox-messages">
+        {% if user.is_authenticated %}
+            <div><strong>Ahoj {{ user.username }}</strong> 👋 Co bys dnes rád?</div>
+        {% else %}
+            <div>📚 Ahoj! Pro plnou podporu se prosím přihlas.</div>
+        {% endif %}
+    </div>
+
+    <div id="chatbox-input">
+        <input id="chatbox-text" type="text" placeholder="Napiš zprávu...">
+        <button onclick="chatSend()">➡️</button>
+    </div>
+</div>
+
+<script>
+document.getElementById("chatbox-toggle").onclick = function () {
+    let box = document.getElementById("chatbox-window");
+    box.style.display = (box.style.display === "flex") ? "none" : "flex";
+};
+
+async function chatSend() {
+    const input = document.getElementById("chatbox-text");
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    addMessage("Ty", msg);
+    input.value = "";
+
+    const res = await fetch("/api/chatbot/", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ message: msg })
+    });
+
+    const data = await res.json();
+    addMessage("Asistent", data.reply);
+}
+
+function addMessage(sender, text) {
+    const box = document.getElementById("chatbox-messages");
+    box.innerHTML += `<div><strong>${sender}:</strong> ${text}</div>`;
+    box.scrollTop = box.scrollHeight;
+}
+</script>
+
+
+
+
 <footer class="bg-gray-800 text-white mt-12 py-8">
     <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">

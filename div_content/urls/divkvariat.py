@@ -12,6 +12,7 @@ from div_content.views.divkvariat_cz import (
     books_market_offers, books_market_wants, 
     cancel_listing_reservation, cancel_sell, confirm_sale, 
     CustomLoginView, CustomSignupView, CustomLogoutView, 
+    chatbot_api,
     
     listing_add_book, listing_detail, listing_detail_edit, listing_search_books,
     
@@ -26,9 +27,11 @@ from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 
+from django.urls import path, include
+
 from django.views.generic import TemplateView
 
-from django.urls import path, include
+
 
 import debug_toolbar
 
@@ -37,6 +40,8 @@ urlpatterns = [
 
     #path("ucet/", include("allauth.urls")),
     path("ucet/", login_required(account_view), name="dk_account"),
+    path("api/chatbot/", chatbot_api, name="chatbot_api"),
+
 
     # Přihlášení / registrace
     path("prihlaseni/", CustomLoginView.as_view(template_name="divkvariat/account/login.html"), name="account_login"),
