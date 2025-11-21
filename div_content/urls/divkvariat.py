@@ -86,6 +86,7 @@ urlpatterns = [
     path("kontakt/", TemplateView.as_view(template_name="divkvariat/stranky/kontakt.html"), name="dk_kontakt"),
     path("podminky/", TemplateView.as_view(template_name="divkvariat/stranky/podminky.html"), name="dk_podminky"),
     path("ochrana-osobnich-udaju/", TemplateView.as_view(template_name="divkvariat/stranky/ochrana-osobnich-udaju.html"), name="dk_gdpr"),
+    path("o-nas/", TemplateView.as_view(template_name="divkvariat/stranky/o-nas.html"), name="dk_o_nas"),
 
     # Obchodní operace
     path("zrusit/<int:listing_id>/", cancel_listing_reservation, name="cancel_listing_reservation"),
