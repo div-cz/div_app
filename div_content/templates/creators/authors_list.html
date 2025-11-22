@@ -8,62 +8,52 @@
 {% block content %}
 
 <style>
-.carousel-caption {
-    background-color: rgba(0, 0, 0, 0.5);
-    max-width: 800px;
-    margin: 0 auto;
-}
+    .carousel-caption {
+        background-color: rgba(0, 0, 0, 0.5);
+        max-width: 800px;
+        margin: 0 auto;
+    }
 
-.carousel .carousel-inner .carousel-item {
-    height: 300px;
-    overflow: hidden;
-}
+    .carousel .carousel-inner .carousel-item {
+        height: 300px;
+        overflow: hidden;
+    }
 
-.carousel .carousel-inner .carousel-item img {
-    min-height: 100%;
-    width: 100%;
-    object-fit: cover;
-}
+    .carousel .carousel-inner .carousel-item img {
+        min-height: 100%;
+        width: 100%;
+        object-fit: cover;
+    }
 </style>
 
-    {% include "../inc/google.html" %}
-
-</head>
-
-<body>
-
-    {% include "inc/navbar.html" %}
-
-<main class="mb-5">
-     <!-- Carousel -->
+{% include "../inc/google.html" %}
 
 
+{% include "inc/navbar.html" %}
 
-<!-- Sekce odkazů na filmy -->
 <div class="container">
-
-
-  <h2 class="mb-4">Spisovatelé</h2>
-
-  <div class="row">
-          {% for author in authors %}
-      <div class="col-lg-3 col-md-3 col-sm-6 mb-3">
-        <div class="card">
-          <img src="/img/noimg.png" class="card-img-top" alt="{{ author.lastname }}">
-
-          <div class="card-body">
-            <h5 class="card-title">{{ author.firstname }} {{ author.lastname }} <span class="text-muted">({{ author.birthyear  }})</span></h5>
-            <p class="card-text"><!--{{ creator.knownfordepartment }}-->
-
-          </p>
-            <a href="{% url 'author_detail' author.url %}" class="btn btn-primary">{{ author.lastname }}, {{ author.firstname }}</a> 
-          </div>
-        </div>
-      </div>
-          {% endfor %}
+    <div class="big-search">
+        <h2>Spisovatelé</h2>
+        <!-- VYHLEDÁVAČ -->
+        <form style="display: flex; max-width: 400px;" role="search" action="" method="get">
+            <input class="search-field" type="search" placeholder="Vyhledávání spisovatelů" aria-label="Vyhledávání" name="q">
+            <button class="add-search" type="submit">Hledat</button>
+        </form>
     </div>
 
+    <div class="container">
+        <!-- Seznam spisovatelů -->
+        <div class="celebrit-list">
+        {% for author in authors %}
+            <div class="card card-body" style="padding: 0;">
+                <a href="">
+                    <img src="/img/noimg.png" alt="{{ author.lastname }}">
+                </a>
+                <h4>{{ author.firstname }} {{ author.lastname }} <span style="color:#6c757d;">({{ author.birthyear }})</span></h4>
+            </div>
+        {% endfor %}
         </div>
     </div>
+</div>
 
 {% endblock %}

@@ -65,10 +65,6 @@
     .cta2:active {
         transform: scale(0.95);
     }
-
-    .fa-heart:is(.dark *) {
-        color: #ffffff;
-    }
 </style>
 
 {% block content %}
@@ -76,10 +72,11 @@
 <div class="container">
     <!-- LEVÁ STRANA -->
     <div class="left-side">
-        <div class="rounded-3 justify-between items-center p-2 mb-3 flex w-full bg-[#F9F9F9] dark:bg-[#1A161F] border-[#ccc] rounded-1xl">
-            <h2 class="w-full mb-0"> {{ creator.firstname }} {{ creator.lastname }} 
+        <div class="info-bar">
+            <h2 style="width:100%; margin-bottom:0;"> 
+                {{ creator.firstname }} {{ creator.lastname }} 
                 {% if creator.birthdate %}
-                <small class="text-muted">({{ creator.birthdate|date:"Y" }})</small>
+                <small style="color:#6c757d;">({{ creator.birthdate|date:"Y" }})</small>
                 {% endif %}
             </h2>
 
@@ -87,11 +84,11 @@
             {% if user.is_authenticated %}
             <div class="heart">
                 {% if not is_favorite %}
-                <a href="{% url 'add_creator_to_favourites' creatorid=creator.creatorid %}" class="flex relative">
-                    <i class="far fa-regular fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} unset {% endif %};" title="přidat do oblíbených"></i>
+                <a href="{% url 'add_creator_to_favourites' creatorid=creator.creatorid %}">
+                    <i class="far fa-regular fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} #ffffff {% endif %};" title="přidat do oblíbených"></i>
                 {% else %}
-                <a href="{% url 'remove_creator_from_favourites' creatorid=creator.creatorid %}" class="flex relative">
-                    <i class="fas fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} unset {% endif %}" title="odebrat z oblíbených"></i>
+                <a href="{% url 'remove_creator_from_favourites' creatorid=creator.creatorid %}">
+                    <i class="fas fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} #ffffff {% endif %}" title="odebrat z oblíbených"></i>
                 {% endif %}
                 </a>
             </div>
@@ -99,16 +96,16 @@
         </div>
 
         <!-- INFO -->
-        <div class="d-flex mb-3 mt-4">
-            <div class="me-3 mr-4 flex-shrink-0 sm-flex lg:w-max sm:w-130 lg:w-40%">
+        <div class="author-info">
+            <div class="author-poster">
             {% if not creator.img or creator.img == "" or creator.img == "noimg.png" %}
-                <img src="/static/img/creator/noperson.svg" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid img-size w-full rounded" style="object-fit: cover;">
+                <img src="/static/img/creator/noperson.svg" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid img-size">
                 {% else %}
-                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ creator.img }}" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid img-size w-full rounded" style="object-fit: cover;">
+                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ creator.img }}" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid img-size">
             {% endif %}
             </div>
 
-            <div class="flex flex-wrap content-between flex-grow-1 w-full lg:w-55">
+            <div class="author-info-detail">
                 <ul class="list-unstyled">
                     <li><strong>Role:</strong> 
                     {% if creator.knownfordepartment == "Acting" %}
@@ -148,119 +145,124 @@
 
         <!-- BIOGRAFIE -->
         {% if creatorbiography.verificationstatus == "Verified" %}
-        <div class="creator-biography w-full">
-
-            {% if creatorbiography.biographytextcz %}
-            <div class="biography-text">
-                <p id="biography-text">
-                    {{ creatorbiography.biographytextcz|safe }}
-                </p>
-                <p><a id="toggle-biography">Více...</a></p>
-            </div>
-            {% endif %}
-
-            {% if creatorbiography.externallink %}
-            <p class="external-link">
-                <a href="{{ creatorbiography.externallink }}" target="_blank">Více informací</a>
-            </p>
-            {% endif %}
-
-            {% if creatorbiography.author %}
-            <p class="author">Autor: {{ creatorbiography.author }}</p>
-            {% endif %}
-
-            {% if creatorbiography.source %}
-            <p class="source">Zdroj: {{ creatorbiography.source }}</p>
-            {% endif %}
-        </div>
+        <p></p>
 
         {% else %}
-        <div class="flex flex-wrap items-center">
-            <details class="w-full">
+        <div class="author-bio">
+            <details>
                 <summary>Přidej vlastní popis, zatím tu žádný není!</summary>
                 <form action="">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="add">Přidat</button>
-                    <!-- <textarea id="w3review" name="w3review" rows="3" cols="50"></textarea>
-                    <br>
-                    <input class="add" type="submit" value="Přidat"> -->
+                    <textarea id="w3review" name="w3review" rows="3" cols="50"></textarea>
+                    <input class="add-movie" type="submit" value="Přidat">
                 </form>
             </details>
         </div>
         {% endif %}
 
-        <!-- Filmy -->
-        <div class="mt-5 mb-5">
-            <h3>Filmy</h3>
-            <div class="table box-shadow">
-                <div class="grid creator-grid p-1 bg-[#c0c0c0]">
-                    <div></div>
-                    <div class="font-bold">Film</div>
-                    <div class="text-center font-bold">Rok</div>
-                    <div class="text-center font-bold">Role</div>
-                </div>
-                <div class="">
-                    {% for movie, roles in filmography %}
-                    <div class="grid items-center border p-1 creator-grid sudy">
+        <!-- Karty -->
+        <div class="tab-container" style="font-size:16px">
+            <ul class="tab-links">
+                <li class="karta"><a href="#tab1" class="active text-black">Filmy</a></li>
+                <li class="karta"><a href="#tab2">Seriály</a></li>
+            </ul>
+
+            <!-- FILMY -->
+            <div id="tab1" class="tab-content active" style="padding:0">
+                <div class="creator-movie-list">
+                {% for movie, roles in filmography %}
+                    <div class="creator-movie-info sudy">
                         <div>
                         {% if movie.img == "noimg.png" %}
-                            <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" style="width: 100%; height: auto;">
+                            <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}">
                             {% else %}
-                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.img }}" alt="{{ movie.titlecz }}" style="width: 100%; height: auto;">
+                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.imgposter }}" alt="{{ movie.titlecz }}">
                         {% endif %}
                         </div>
-                        <div class="flex items-center justify-between ml-2">
-                            <a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a>
+
+                        <div class="creator-movie-detail">
+                            <div class="creator-movie-name">
+                                <p>
+                                    <a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a> 
+                                    {{ movie.releaseyear }}
+                                </p>
+                                <p>{{ roles|join:", " }}</p>
+                            </div>
+                            <div class="creator-movie-rating">
                             {% if user.is_authenticated %}
-                                {% if movie.is_watched %}
-                                <i class="fas fa-eye" title="viděno"></i>
-                                {% endif %}
+                                <div class="movie-rating">
+                                    100 % <!-- celkové hodnocení filmu -->
+                                </div>
+                                
+                                <div class="creator-movie-stars">
+                                    {% if movie.is_watched %}
+                                    <i class="fas fa-eye" title="viděno"></i>
+                                    {% endif %}
+
+                                    <span> <!-- hodnocení uživatele -->
+                                    {% for _ in "12345" %}
+                                        {% if forloop.counter <= rating.score %}
+                                        <span>★</span>
+                                        {% else %}
+                                        ☆
+                                        {% endif %}
+                                    {% endfor %}
+                                    </span>
+                                </div>
                             {% endif %}
+                            </div>
                         </div>
-                        <div class="text-center p-1">{{ movie.releaseyear }}</div>
-                        <div class="text-center p-1">{{ roles|join:", " }}</div>
                     </div>
-                    {% endfor %}
+                {% endfor %}
                 </div>
             </div>
-        </div>
 
-        <!-- SERIÁLY -->
-        <div class="mt-5">
-            <h3>Seriály</h3>
-            <div class="table box-shadow">
-                <div class="grid creator-grid p-1 bg-[#c0c0c0]">
-                    <div></div>
-                    <div class="font-bold">Seriál</div>
-                    <div class="text-center font-bold">Rok</div>
-                    <div class="text-center font-bold">Role</div>
-                </div>
-                <div class="">
-                    {% for tvshow, roles in tvshows %}
-                    <div class="grid items-center border p-1 creator-grid sudy">
+            <!-- SERIÁLY -->
+            <div id="tab2" class="tab-content" style="padding:0">
+                <div class="creator-movie-list">
+                {% for tvshow, roles in tvshows %}
+                    <div class="creator-movie-info sudy">
                         <div>
-                            {% if tvshow.img == "noimg.png" %}
-                                <img src="/static/img/nomovie_400.jpg" alt="{{ tvshow.titlecz }}" style="width: 100%; height: auto;">
-                            {% else %}
-                                <img src="https://www.themoviedb.org/t/p/w400{{ tvshow.img }}" alt="{{ tvshow.titlecz }}" style="width: 100%; height: auto;">
-                            {% endif %}
+                        {% if tvshow.img == "noimg.png" %}
+                            <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ tvshow.titlecz }}">
+                        {% else %}
+                            <img src="https://www.themoviedb.org/t/p/w400{{ tvshow.imgposter }}" alt="{{ tvshow.titlecz }}">
+                        {% endif %}
                         </div>
-                        <div class="flex items-center justify-between ml-2">
-                            <a href="/serial/{{ tvshow.url }}">{{ tvshow.titlecz }}</a>
-                            {% if user.is_authenticated %}
-                                {% if tvshow.is_watched %}
-                                <i class="fas fa-eye" title="viděno"></i>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                        <div class="text-center p-1">{{ tvshow.premieredate|date:"Y" }}</div>
-                        <div class="text-center p-1">{{ roles|join:", " }}</div>
-                    </div>
-                    {% empty %}
-                        <p>❌ Žádné seriály nenalezeny.</p>
-                    {% endfor %}
 
+                        <div class="creator-movie-detail">
+                            <div class="creator-movie-name">
+                                <p>
+                                    <a href="/serial/{{ tvshow.url }}">{{ tvshow.titlecz }}</a> 
+                                    {{ tvshow.premieredate|date:"Y" }}
+                                </p>
+                                <p>{{ roles|join:", " }}</p>
+                            </div>
+                            <div class="creator-movie-rating">
+                            {% if user.is_authenticated %}
+                                <div class="movie-rating">
+                                    100 % <!-- celkové hodnocení filmu -->
+                                </div>
+
+                                <div class="creator-movie-stars">
+                                    {% if tvshow.is_watched %}
+                                    <i class="fas fa-eye" title="viděno"></i>
+                                    {% endif %}
+
+                                    <span> <!-- hodnocení uživatele -->
+                                    {% for _ in "12345" %}
+                                        {% if forloop.counter <= rating.score %}
+                                        <span>★</span>
+                                        {% else %}
+                                        ☆
+                                        {% endif %}
+                                    {% endfor %}
+                                    </span>
+                                </div>
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
                 </div>
             </div>
         </div>
@@ -273,13 +275,13 @@
             <div class="card-body">
                 <h3 class="card-title after-h3">Fanoušci</h3>
                 <div class="flex flex-wrap">
-                    {% if fans %}
-                        {% for fan in fans %}
-                            <a class="w-full" href="{% url 'myuser_detail' fan.userlist.user.id %}">{{ fan.userlist.user.username }}</a>
-                        {% endfor %}
+                {% if fans %}
+                    {% for fan in fans %}
+                        <a class="w-full" href="{% url 'myuser_detail' fan.userlist.user.id %}">{{ fan.userlist.user.username }}</a>
+                    {% endfor %}
                     {% else %}
-                        <p>Zatím žádní fanoušci.</p>
-                    {% endif %}
+                    <p>Zatím žádní fanoušci.</p>
+                {% endif %}
                 </div>
             </div>
         </div>
@@ -291,7 +293,7 @@
                 <form method="post">
                     {% csrf_token %}
                     {{ creator_div_rating_form.as_p }} 
-                    <button type="submit" name="update_divrating" class="btn btn-primary mt-2">Uložit</button>
+                    <button type="submit" name="update_divrating" class="add-movie">Uložit</button>
                 </form>
             </div>
         </div>
@@ -303,33 +305,27 @@
                 <h3 class="card-title after-h3">{{  }}</h3>
                 <p style="width: 100%;">Sdílet na:</p>
                 <!-- Facebook Share Button -->
-                <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/film/{{  }}" class="btn btn-primary mb-2 mr-1" target="_blank" title="Facebook">
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/film/{{  }}" class="btn btn-primary" target="_blank" title="Facebook">
                     <i class="fab fa-facebook-f"></i>
                 </a>
 
                 <!-- Twitter Share Button -->
-                <a href="https://twitter.com/intent/tweet?url=https://div.cz/film/{{  }}&text={{  }}" class="btn btn-info mb-2 mr-1" target="_blank" title="Twitter">
+                <a href="https://twitter.com/intent/tweet?url=https://div.cz/film/{{  }}&text={{  }}" class="btn btn-info" target="_blank" title="Twitter">
                     <i class="fab fa-twitter"></i>
                 </a>
 
                 <!-- E-mail Share Button -->
-                <a href="mailto:?subject={{  }}&body=Podívej se na https://div.cz/film/{{  }}" class="btn btn-dark mb-2 mr-1" title="E-mail">
+                <a href="mailto:?subject={{  }}&body=Podívej se na https://div.cz/film/{{  }}" class="btn btn-dark" title="E-mail">
                     <i class="fas fa-envelope"></i>
                 </a>
 
                 <!-- WhatsApp Share Button -->
-                <a href="https://wa.me/?text={{  }} - https://div.cz/film/{{  }}" class="btn btn-success mb-2" target="_blank" title="WhatsApp">
+                <a href="https://wa.me/?text={{  }} - https://div.cz/film/{{  }}" class="btn btn-success" target="_blank" title="WhatsApp">
                     <i class="fab fa-whatsapp"></i>
                 </a>
             </div>
         </div>
         {% endcomment %}
-
-        <!-- <div class="card">
-            <div class="card-body">
-
-            </div>
-        </div> -->
 
         <div class="card">
             <div class="card-body">
@@ -384,31 +380,7 @@
         </div>
 
     </div>
+
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const bioElement = document.getElementById("biography-text");
-        const toggleButton = document.getElementById("toggle-biography");
-
-        const fullText = bioElement.innerText; // Store the full biography text
-        const truncatedText = fullText.substring(0, 500); // First 500 characters
-
-        // Initialize with truncated text
-        bioElement.innerText = truncatedText + "...";
-
-        // Toggle functionality
-        toggleButton.addEventListener("click", function () {
-            if (bioElement.innerText === truncatedText + "...") {
-                bioElement.innerText = fullText; // Show full text
-                toggleButton.innerText = "...Méně"; // Update button text
-            } else {
-                bioElement.innerText = truncatedText + "..."; // Show truncated text
-                toggleButton.innerText = "Více..."; // Update button text
-            }
-        });
-    });
-
-</script>
 
 {% endblock %}

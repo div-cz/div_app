@@ -78,11 +78,11 @@
 <div class="container">
     <!-- LEVÁ STRANA -->
     <div class="left-side">
-        <div class="rounded-3 justify-between items-center p-2 mb-3 flex w-full bg-[#F9F9F9] dark:bg-[#1A161F] border-[#ccc] rounded-1xl">
-            <h2 class="w-full mb-0">
+        <div class="info-bar">
+            <h2 style="width:100%; margin-bottom:0;">
                 {{ character.charactername }} 
                 {% if character.characterborn %}
-                <small class="text-muted">({{ character.characterborn|date:"Y" }})</small>
+                <small style="color:#6c757d;">({{ character.characterborn|date:"Y" }})</small>
                 {% endif %}
             </h2>
 
@@ -91,10 +91,10 @@
             <div class="heart">
                 {% if not is_favorite %}
                 <a href="{% url 'add_character_to_favorites' character.characterid %}" class="flex relative">
-                    <i class="far fa-regular fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} unset {% endif %}" title="přidat do oblíbených"></i>
+                    <i class="far fa-regular fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} #ffffff {% endif %}" title="přidat do oblíbených"></i>
                 {% else %}
                 <a href="{% url 'remove_character_from_favorites' character.characterid %}" class="flex relative">
-                    <i class="fas fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} unset {% endif %}" title="odebrat z oblíbených"></i>
+                    <i class="fas fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} #ffffff {% endif %}" title="odebrat z oblíbených"></i>
                 {% endif %}
                 </a>
             </div>
@@ -102,16 +102,16 @@
         </div>
 
         <!-- INFO -->
-        <div class="d-flex mb-3 mt-4">
-            <div class="me-3 mr-4 flex-shrink-0 sm-flex lg:w-max sm:w-130 lg:w-40%">
+        <div class="author-info">
+            <div class="author-poster">
             {% if not character.characterimg or character.characterimg == "" %}
-                <img src="/static/img/creator/noperson.svg" alt="{{ character.charactername }}" class="img-fluid rounded" style="object-fit: cover;">
+                <img src="/static/img/creator/noperson.svg" alt="{{ character.charactername }}" class="img-fluid img-size">
                 {% else %}
-                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ character.characterimg }}" alt="{{ character.charactername }}" class="img-fluid rounded" style="object-fit: cover;">
+                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ character.characterimg }}" alt="{{ character.charactername }}" class="img-fluid img-size">
             {% endif %}
             </div>
 
-            <div class="flex flex-wrap content-between flex-grow-1 sm:mt-5 w-full lg:w-55">
+            <div class="author-info-detail">
                 <ul class="list-unstyled">
                     {% if characterbiography.characterborn %}
                     <li><strong>Datum narození:</strong> {{ characterbiography.characterborn }}</li>
@@ -133,7 +133,6 @@
             <p>{{ characterbiography.charactersource }}</p>
             {% endif %}
 
-
             {% if characterbiography.biographytextcz %}
             <p>{{ characterbiography.biographytextcz|safe }}</p>
             {% endif %}
@@ -144,88 +143,228 @@
         </div>
 
         {% else %}
-        <div class="flex flex-wrap items-center">
-            <details class="w-full">
+        <div class="author-bio">
+            <details>
                 <summary>Přidej vlastní popis, zatím tu žádný není!</summary>
                 <form method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="add">Přidat</button>
-                </form>
-                <!-- <form action="">
                     <textarea id="w3review" name="w3review" rows="3" cols="50"></textarea>
-                    <br>
-                    <input class="add" type="submit" value="Přidat">
-                </form> -->
+                    <input class="add-movie" type="submit" value="Přidat">
+                </form>
             </details>
         </div>
         {% endif %}
         
-        <!-- FILMOGRAFIE -->
-        <div class="mt-5">
-            <h3>Filmografie {{ character.charactername }}</h3>
-            <div class="table box-shadow">
-                <div class="grid creator-grid p-1 bg-[#c0c0c0]">
-                    <div></div>
-                    <div class="font-bold">Film</div>
-                    <div class="text-center font-bold">Rok</div>
-                    <div class="text-center font-bold">Herci</div>
-                </div>
-                <div class="">
-                    {% for movie, actors in filmography.items %}
-                    <div class="grid items-center border p-1 creator-grid sudy">
+        <!-- Karty -->
+        <div class="tab-container" style="font-size:16px">
+            <ul class="tab-links">
+                <li class="karta"><a href="#tab1" class="active text-black">Filmy</a></li>
+                <li class="karta"><a href="#tab2">Seriály</a></li>
+                <li class="karta"><a href="#tab3">Knihy</a></li>
+                <li class="karta"><a href="#tab4">Hry</a></li>
+            </ul>
+
+            <!-- FILMY -->
+            <div id="tab1" class="tab-content active" style="padding:0">
+                <div class="creator-movie-list">
+                {% for movie, actors in filmography.items %}
+                    <div class="creator-movie-info sudy">
                         <div>
                         {% if movie.img == "noimg.png" %}
-                            <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" style="max-width: 100%; object-fit: cover;">
+                            <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}">
                             {% else %}
-                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.img }}" alt="{{ movie.titlecz }}" style="max-width: 100%; object-fit: cover;">
+                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.img }}" alt="{{ movie.titlecz }}">
                         {% endif %}
                         </div>
-                        <div class="p-1 flex items-center justify-between">
-                            <a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a>
-                            {% if movie.is_watched %}
-                            <i class="fas fa-eye" title="viděno"></i>
+
+                        <div class="creator-movie-detail">
+                            <div class="creator-movie-name">
+                                <p>
+                                    <a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a>
+                                    {{ movie.releaseyear }}
+                                </p>
+                                <p>{{ actors|join:", " }}</p>
+                            </div>
+                            <div class="creator-movie-rating">
+                            {% if user.is_authenticated %}
+                                <div class="movie-rating">
+                                    100 % <!-- celkové hodnocení filmu -->
+                                </div>
+                                
+                                <div class="creator-movie-stars">
+                                    {% if movie.is_watched %}
+                                    <i class="fas fa-eye" title="viděno"></i>
+                                    {% endif %}
+
+                                    <span> <!-- hodnocení uživatele -->
+                                    {% for _ in "12345" %}
+                                        {% if forloop.counter <= rating.score %}
+                                        <span>★</span>
+                                        {% else %}
+                                        ☆
+                                        {% endif %}
+                                    {% endfor %}
+                                    </span>
+                                </div>
                             {% endif %}
+                            </div>
                         </div>
-                        <div class="text-center p-1">{{ movie.releaseyear }}</div>
-                        <div class="text-center p-1">{{ actors|join:", " }}</div>
                     </div>
-                    {% endfor %}
+                {% endfor %}
                 </div>
             </div>
-        </div>
 
-        <!-- BIBLIOGRAFIE -->
-        <div class="mt-5">
-            <h3>Bibliografie {{ character.charactername }}</h3>
-            <div class="table box-shadow">
-                <div class="grid creator-grid p-1 bg-[#c0c0c0]">
-                    <div></div>
-                    <div class="font-bold">Kniha</div>
-                    <div class="text-center font-bold">Rok</div>
-                    <div class="text-center font-bold">Autor</div>
-                </div>
-                <div>
-                    {% for item in bibliography %}
-                    {% with book=item.bookid %}
-                    <div class="grid items-center border p-1 creator-grid sudy">
+            <!-- SERIÁLY -->
+            <div id="tab2" class="tab-content" style="padding:0">
+                <div class="creator-movie-list">
+                {% for tvshow, roles in tvshows %}
+                    <div class="creator-movie-info sudy">
                         <div>
-                            {% if book.img == "noimg.png" %}
-                                <img src="/static/img/book/book.png" alt="{{ book.titlecz|default:book.title }}" style="max-width: 100%; object-fit: cover;">
-                            {% else %}
-                                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz }}" style="max-width: 100%; object-fit: cover;">
+                        {% if tvshow.img == "noimg.png" %}
+                            <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ tvshow.titlecz }}">
+                        {% else %}
+                            <img src="https://www.themoviedb.org/t/p/w400{{ tvshow.imgposter }}" alt="{{ tvshow.titlecz }}">
+                        {% endif %}
+                        </div>
+
+                        <div class="creator-movie-detail">
+                            <div class="creator-movie-name">
+                                <p>
+                                    <a href="/serial/{{ tvshow.url }}">{{ tvshow.titlecz }}</a> 
+                                    {{ tvshow.premieredate|date:"Y" }}
+                                </p>
+                                <p>{{ roles|join:", " }}</p>
+                            </div>
+                            <div class="creator-movie-rating">
+                            {% if user.is_authenticated %}
+                                <div class="movie-rating">
+                                    100 % <!-- celkové hodnocení filmu -->
+                                </div>
+
+                                <div class="creator-movie-stars">
+                                    {% if tvshow.is_watched %}
+                                    <i class="fas fa-eye" title="viděno"></i>
+                                    {% endif %}
+
+                                    <span> <!-- hodnocení uživatele -->
+                                    {% for _ in "12345" %}
+                                        {% if forloop.counter <= rating.score %}
+                                        <span>★</span>
+                                        {% else %}
+                                        ☆
+                                        {% endif %}
+                                    {% endfor %}
+                                    </span>
+                                </div>
                             {% endif %}
+                            </div>
                         </div>
-                        <div class="p-1 flex items-center justify-between">
-                            <a href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+
+            <!-- BIBLIOGRAFIE -->
+            <div id="tab3" class="tab-content" style="padding:0">
+                <div class="creator-movie-list">
+                {% for item in bibliography %}
+                    {% with book=item.bookid %}
+                    <div class="creator-movie-info sudy">
+                        <div>
+                        {% if book.img == "noimg.png" %}
+                            <img src="/static/img/book/book.png" alt="{{ book.titlecz|default:book.title }}">
+                            {% else %}
+                            <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz }}">
+                        {% endif %}
                         </div>
-                        <div class="text-center p-1">{{ book.year|default:"" }}</div>
-                        <div class="text-center p-1">{{ book.author|default:"" }}</div>
+
+                        <div class="creator-movie-detail">
+                            <div class="creator-movie-name">
+                                <p>
+                                    <a href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a>
+                                    {{ book.year|default:"" }}
+                                </p>
+                                <p>{{ book.author|default:"" }}</p>
+                            </div>
+                            <div class="creator-movie-rating">
+                            {% if user.is_authenticated %}
+                                <div class="movie-rating">
+                                    100 % <!-- celkové hodnocení filmu -->
+                                </div>
+                                
+                                <div class="creator-movie-stars">
+                                    {% if book.is_read %}
+                                    <i class="fas fa-book" title="přečteno"></i>
+                                    {% endif %}
+
+                                    <span> <!-- hodnocení uživatele -->
+                                    {% for _ in "12345" %}
+                                        {% if forloop.counter <= rating.score %}
+                                        <span>★</span>
+                                        {% else %}
+                                        ☆
+                                        {% endif %}
+                                    {% endfor %}
+                                    </span>
+                                </div>
+                            {% endif %}
+                            </div>
+                        </div>
                     </div>
                     {% endwith %}
-                    {% endfor %}
+                {% endfor %}
                 </div>
             </div>
+
+            <!-- HRY -->
+            <div id="tab4" class="tab-content" style="padding:0">
+                <div class="creator-movie-list">
+                
+                    <div class="creator-movie-info sudy">
+                        <div>
+                        
+                            <img src="" alt="">
+                        
+                            <img src="" alt="">
+                        
+                        </div>
+
+                        <div class="creator-movie-detail">
+                            <div class="creator-movie-name">
+                                <p>
+                                    <a href=""></a> 
+                                    
+                                </p>
+                                <p></p>
+                            </div>
+                            <div class="creator-movie-rating">
+                            {% if user.is_authenticated %}
+                                <div class="movie-rating">
+                                    100 % <!-- celkové hodnocení hry -->
+                                </div>
+
+                                <div class="creator-movie-stars">
+                                    
+                                    <i class="fas fa-eye" title="viděno"></i>
+                                    
+
+                                    <span> <!-- hodnocení uživatele -->
+                                    {% for _ in "12345" %}
+                                        {% if forloop.counter <= rating.score %}
+                                        <span>★</span>
+                                        {% else %}
+                                        ☆
+                                        {% endif %}
+                                    {% endfor %}
+                                    </span>
+                                </div>
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                
+                </div>
+            </div>
+
         </div>
     </div>
 
