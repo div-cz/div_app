@@ -7,68 +7,71 @@
 {% block h1 %}{{ profile_user.username }}{% endblock h1 %}
 {% block text_muted %} na DIV.cz{% endblock text_muted %}
 
+{% block meta %}
+
+<style>
+    .nav-tabs-item a.active,
+    .tab.active {
+        background-color: #A52B21;
+    }
+
+    .nav-tabs-link {
+        color: #A52B21;
+    }
+
+    .nav-tabs-link:is(.dark *) {
+        color: #ED3F2F;
+    }
+</style>
+
+{% endblock %}
+
 {% block content %}
 
-<div class="mt-5">
+<div style="margin-top: 1.25rem;">
     <!-- Sekce záložek pro filmy, knihy, hry, statistiky -->
-    <div class="tab-profil md:pr-0 flex overflow-scroll lg:fit-content rounded-1xl dark:bg-[#1A161F] bg-[#FFFFFF]">
-        <div class="tab {% if active_tab == 'filmy' %}active{% endif %}">
-            <h3>
-                <i class="fa-solid fa-film mr-2"></i>
-                <a class="movies" href="{% url 'profile_movies_section' profile_user.id %}">Filmy</a>
-            </h3>
-        </div>
-        <div class="tab {% if active_tab == 'serialy' %}active{% endif %}">
-            <h3>
-                <i class="fa-solid fa-video mr-2"></i>
-                <a class="movies" href="{% url 'profile_series_section' profile_user.id %}">Seriály</a>
-            </h3>
-        </div>
-        <div class="tab {% if active_tab == 'knihy' %}active{% endif %}">
-            <h3>
-                <i class="fa-solid fa-book mr-2"></i>
-                <a class="books" href="{% url 'profile_books_section' profile_user.id %}">Knihy</a>
-            </h3>
-        </div>
-        <div class="tab {% if active_tab == 'hry' %}active{% endif %}">
-            <h3>
-                <i class="fa-solid fa-gamepad mr-2"></i>
-                <a class="games" href="{% url 'profile_games_section' profile_user.id %}">Hry</a>
-            </h3>
-        </div>
-        <!--<div class="tab {% if active_tab == 'statistika' %}active{% endif %}">
-            <h3>
-                <i class="fas fa-star mr-2"></i>
-                <a class="stats" href="{% url 'profile_stats_section' profile_user.id %}">Statistiky</a>
-            </h3>
-        </div>-->
-        <!--<div class="tab {% if active_tab == 'vitrina' %}active{% endif %}">
-            <h3>
-                <i class="fa-solid fa-trophy mr-2"></i> 
-                <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
-            </h3>
-        </div>-->
-        <div class="tab {% if active_tab == 'obchod' %}active{% endif %}">
-            <h3>
-                <i class="fa-solid fa-cart-shopping mr-2"></i> 
-                <a class="stats" href="{% url 'profile_eshop_section' profile_user.id %}">Obchod</a>
-            </h3>
-        </div>
-        <!--<div class="tab {% if active_tab == 'komunita' %}active{% endif %}" >
-            <h3>
-                <i class="fas fa-user mr-2"></i>
-                <a class="stats" href="{% url 'profile_community_section' profile_user.id %}">Má komunita</a>
-            </h3>
-        </div>-->
+    <ul class="tab-profil">
+        <li class="tab {% if active_tab == 'filmy' %}active{% endif %}">
+            <i class="fa-solid fa-film"></i>
+            <a class="movies" href="{% url 'profile_movies_section' profile_user.id %}">Filmy</a>
+        </li>
+        <li class="tab {% if active_tab == 'serialy' %}active{% endif %}">
+            <i class="fa-solid fa-video"></i>
+            <a class="movies" href="{% url 'profile_series_section' profile_user.id %}">Seriály</a>
+        </li>
+        <li class="tab {% if active_tab == 'knihy' %}active{% endif %}">
+            <i class="fa-solid fa-book"></i>
+            <a class="books" href="{% url 'profile_books_section' profile_user.id %}">Knihy</a>
+        </li>
+        <li class="tab {% if active_tab == 'hry' %}active{% endif %}">
+            <i class="fa-solid fa-gamepad"></i>
+            <a class="games" href="{% url 'profile_games_section' profile_user.id %}">Hry</a>
+        </li>
+        <li class="tab {% if active_tab == 'statistika' %}active{% endif %}">
+            <i class="fas fa-star"></i>
+            <a class="stats" href="{% url 'profile_stats_section' profile_user.id %}">Statistiky</a>
+        </li>
+        <li class="tab {% if active_tab == 'vitrina' %}active{% endif %}">
+            <i class="fa-solid fa-trophy"></i> 
+            <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
+        </li>
+        <li class="tab {% if active_tab == 'obchod' %}active{% endif %}">
+            <i class="fa-solid fa-cart-shopping"></i> 
+            <a class="shop" href="{% url 'profile_eshop_section' profile_user.id %}">Obchod</a>
+        </li>
+        <li class="tab {% if active_tab == 'komunita' %}active{% endif %}" >
+            <i class="fas fa-user"></i>
+            <a class="community" href="{% url 'profile_community_section' profile_user.id %}">Má komunita</a>
+        </li>
 
         <!-- Indikátor pozadí -->
-        <div class="background rounded-1xl"></div>
+        <div class="background"></div>
 
-    </div>
+    </ul>
 
     <!-- Podkategorie záložek (hodnocení, oblíbené atd.) -->
     <div class="row mt-5">
-        <ul class="nav nav-tabs overflow-scroll nav-tabs rounded-t-lg border dark:bg-[#1A161F] bg-[#FFFFFF]">
+        <ul class="nav nav-tabs">
             <li class="nav-tabs-item">
                 <a class="nav-tabs-link active" href="#" id="tab-hodnoceni" onclick="updateNavTabSelector(this)">Hodnocení</a>
             </li>
@@ -209,7 +212,7 @@
                     {% if fav_creators_page_obj %}
                     <div class="flex flex-wrap w-full">
                         {% for creator in fav_creators_page_obj %}
-                        <div class="mt-5" style="width: 150px">
+                        <div style="margin-top: 1.25rem;" style="width: 150px">
                             <div class="p-1 w-full">
                                 {% if creator.img == "noimg.png" %}
                                     <img src="/static/img/creator/noperson.svg" alt="{{ creator.firstname }} {{ creator.lastname }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: 120px; margin: 0 auto">
@@ -258,7 +261,7 @@
                     {% if fav_characters_page_obj %}
                     <div class="flex flex-wrap w-full">
                         {% for character in fav_characters_page_obj %}
-                        <div class="mt-5" style="width: 150px">
+                        <div style="margin-top: 1.25rem;" style="width: 150px">
                             <div class="p-1 w-full">
                                 {% if not character.characterimg or character.characterimg == "" %}
                                     <img src="/static/img/creator/noperson.svg" alt="{{ character.charactername }}" class="img-fluid rounded" style="object-fit: cover; width: 80px; height: 120px; margin: 0 auto">

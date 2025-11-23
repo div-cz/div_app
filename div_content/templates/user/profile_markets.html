@@ -7,7 +7,7 @@
 {% block h1 %}{{ profile_user.username }}{% endblock h1 %}
 {% block text_muted %} na DIV.cz{% endblock text_muted %}
 
-{% block content %}
+{% block meta %}
 
 <style>
     .overlay {
@@ -31,122 +31,123 @@
         border-radius: 10px;
         width: 50%;
     }
-   .rating-comment-container {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-}
 
-.comment-popup {
-    visibility: hidden;
-    width: 250px;
-    background-color: #f9f9f9;
-    color: #333;
-    text-align: left;
-    border-radius: 6px;
-    padding: 10px;
-    position: absolute;
-    z-index: 1000;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -125px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    opacity: 0;
-    transition: opacity 0.3s;
-}
+    .rating-comment-container {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+    }
 
-.rating-comment-container:hover .comment-popup {
-    visibility: visible;
-    opacity: 1;
-}
+    .comment-popup {
+        visibility: hidden;
+        width: 250px;
+        background-color: #f9f9f9;
+        color: #333;
+        text-align: left;
+        border-radius: 6px;
+        padding: 10px;
+        position: absolute;
+        z-index: 1000;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -125px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
 
-.comment-popup::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #f9f9f9 transparent transparent transparent;
-}
+    .rating-comment-container:hover .comment-popup {
+        visibility: visible;
+        opacity: 1;
+    }
 
-.obchod-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 2fr 1fr 1.5fr;
-}
+    .comment-popup::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #f9f9f9 transparent transparent transparent;
+    }
 
-@media (max-width: 768px) {
     .obchod-grid {
-        grid-template-columns: 1fr 1fr 2fr 1fr 1.5fr;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 2fr 1fr 1.5fr;
     }
-    .hide-on-mobile {
-        display: none;
-    }
-}
 
+    @media (max-width: 768px) {
+        .obchod-grid {
+            grid-template-columns: 1fr 1fr 2fr 1fr 1.5fr;
+        }
+        .hide-on-mobile {
+            display: none;
+        }
+    }
+
+    .nav-tabs-item a.active,
+    .tab.active {
+        background-color: #ca7620;
+    }
+
+    .nav-tabs-link {
+        color: #ca7620;
+    }
+
+    .nav-tabs-link:is(.dark *) {
+        color: #ca7620;
+    }
 </style>
 
-<div class="mt-5">
+{% endblock %}
+
+{% block content %}
+
+<div style="margin-top: 1.25rem;">
     <!-- Sekce záložek pro filmy, knihy, hry, statistiky -->
-    <div class="tab-profil md:pr-0 flex overflow-scroll lg:fit-content rounded-1xl dark:bg-[#1A161F] bg-[#FFFFFF]">
+    <div class="tab-profil">
         <div class="tab {% if active_tab == 'filmy' %}active{% endif %}">
-            <h3>
-                <i class="fa-solid fa-film mr-2"></i>
-                <a class="movies" href="{% url 'profile_movies_section' profile_user.id %}">Filmy</a>
-            </h3>
+            <i class="fa-solid fa-film"></i>
+            <a class="movies" href="{% url 'profile_movies_section' profile_user.id %}">Filmy</a>
         </div>
         <div class="tab {% if active_tab == 'serialy' %}active{% endif %}">
-            <h3>
-                <i class="fa-solid fa-video mr-2"></i>
-                <a class="movies" href="{% url 'profile_series_section' profile_user.id %}">Seriály</a>
-            </h3>
+            <i class="fa-solid fa-video"></i>
+            <a class="movies" href="{% url 'profile_series_section' profile_user.id %}">Seriály</a>
         </div>
         <div class="tab {% if active_tab == 'knihy' %}active{% endif %}">
-            <h3>
-                <i class="fa-solid fa-book mr-2"></i>
-                <a class="books" href="{% url 'profile_books_section' profile_user.id %}">Knihy</a>
-            </h3>
+            <i class="fa-solid fa-book"></i>
+            <a class="books" href="{% url 'profile_books_section' profile_user.id %}">Knihy</a>
         </div>
         <div class="tab {% if active_tab == 'hry' %}active{% endif %}">
-            <h3>
-                <i class="fa-solid fa-gamepad mr-2"></i>
-                <a class="games" href="{% url 'profile_games_section' profile_user.id %}">Hry</a>
-            </h3>
+            <i class="fa-solid fa-gamepad"></i>
+            <a class="games" href="{% url 'profile_games_section' profile_user.id %}">Hry</a>
         </div>
-        <!--<div class="tab {% if active_tab == 'statistiky' %}active{% endif %}">
-            <h3>
-                <i class="fas fa-star mr-2"></i>
-                <a class="stats" href="{% url 'profile_stats_section' profile_user.id %}">Statistiky</a>
-            </h3>
-        </div>-->
-        <!--<div class="tab {% if active_tab == 'vitrina' %}active{% endif %}">
-            <h3>
-                <i class="fa-solid fa-trophy mr-2"></i> 
-                <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
-            </h3>
-        </div>-->
+        <div class="tab {% if active_tab == 'statistiky' %}active{% endif %}">
+            <i class="fas fa-star"></i>
+            <a class="stats" href="{% url 'profile_stats_section' profile_user.id %}">Statistiky</a>
+        </div>
+        <div class="tab {% if active_tab == 'vitrina' %}active{% endif %}">
+            <i class="fa-solid fa-trophy"></i> 
+            <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
+        </div>
         <div class="tab {% if active_tab == 'obchod' %}active{% endif %}">
-            <h3>
-                <i class="fa-solid fa-cart-shopping mr-2"></i> 
-                <a class="stats" href="{% url 'profile_eshop_section' profile_user.id %}">Obchod</a>
-            </h3>
+            <i class="fa-solid fa-cart-shopping"></i> 
+            <a class="shop" href="{% url 'profile_eshop_section' profile_user.id %}">Obchod</a>
         </div>
-        <!--<div class="tab {% if active_tab == 'komunita' %}active{% endif %}" >
-            <h3>
-                <i class="fas fa-user mr-2"></i>
-                <a class="stats" href="{% url 'profile_community_section' profile_user.id %}">Má komunita</a>
-            </h3>
-        </div>-->
+        <div class="tab {% if active_tab == 'komunita' %}active{% endif %}" >
+            <i class="fas fa-user"></i>
+            <a class="community" href="{% url 'profile_community_section' profile_user.id %}">Má komunita</a>
+        </div>
 
         <!-- Indikátor pozadí -->
-        <div class="background rounded-1xl"></div>
+        <div class="background"></div>
 
     </div>
 
     <!-- Podkategorie záložek (e-knihy, audio atd.) -->
     <div class="row mt-5">
-        <ul class="nav nav-tabs overflow-scroll nav-tabs rounded-t-lg border dark:bg-[#1A161F] bg-[#FFFFFF]">
+        <ul class="nav nav-tabs">
             <li class="nav-tabs-item">
                 <a class="nav-tabs-link active" href="#" id="tab-eknihy" onclick="updateNavTabSelector(this)">E-knihy</a>
             </li>

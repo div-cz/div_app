@@ -35,140 +35,174 @@
                 </div>
             </aside>
 
-            <div class="container">
-                <div class="mb-3 px-4 w-full">
-                    <h2>{% block h1 %}{% endblock %} <small style="color: #6c757d;">{% block text_muted %}{% endblock %} s ID: {{ user_profile.user_id }}</small></h2>
-                    <div class="border row my-4 box-shadow">
-                        <div class="lg:w-8/12 border-right border-bottom">
-                            <div class="flex" style="height: 150px;">
-                                <img src="/static/img/avatar/{{ user_profile.avatar.imagepath}}" class="rounded-start" style="width: 150px; height: 150px;" alt="avatar">
-                                <div class="card-body relative flex flex-wrap content-between pb-2">
-                                    <div>
-                                        <p class="card-text m-0">{{ user_profile.bio|default:"" }}</p>
-                                    </div>
-                                    <div class="flex flex-wrap content-end before w-full text-[#999999] dark:text-[#bcbcbc]" style="font-size: 11px; line-height: 1em;">
-                                        Členem od: {{ user_profile.user.date_joined.date }}
-                                        <br>
-                                        Napodsledy přihlášen: teď
-                                    </div>
-                                    {% if request.user == user_profile.user %}
-                                    <a href="/ucet/upravit/"><i class="fas fa-pen"></i></a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="p-5 lg:w-2/6 relative" style="height: 150px;">
-                            <div class="stats-container w-full">
-                                <div class="flex flex-wrap">
-                                    <div class="flex items-center w-full">
-                                        <img src="/static/img/site/DIVcoin.png" style="height: 30px;">
-                                        <p class="pl-2 font-bold">Celkem <span>{{ user_div_coins.totaldivcoins }} DIVcoinů</span></p>
-                                    </div>
-                                    <div class="pl-10">
-                                        <p>Tento týden: <span>+{{ user_div_coins.weeklydivcoins }} DC</span></p>
-                                        <p>Tento měsíc: <span>+{{ user_div_coins.monthlydivcoins }} DC</span></p>
-                                        <p>Tento rok: <span>+{{ user_div_coins.yearlydivcoins }} DC</span></p>
-                                    </div>
-                                </div>
-                            </div>
-                        
-                            {% if user.id == profile_user.id %}
-                                <!-- Ikona -->
-                                <i class="fa-regular fa-circle-question icon absolute" title="Klikni pro více informací"></i>
-                            {% endif %}
-                        
-                            <!-- Popup okno -->
-                            <div class="overlay hidden"></div>
-                            <div class="popup hidden">
-                                <button class="flex" style="margin: 0 0 30px auto; font-size: 25px;" id="closePopup"><i class="fa-solid fa-xmark"></i></button>
-                                <p><span style="font-size:120%">💡 Co jsou DIVcoiny?</span><br>
-                                DIVcoin je virtuální měna portálu DIV.cz, která odměňuje tvoji aktivitu.<br>
-                                <ul style="list-style-type:none;">
-                                <li>⭐ Hodnocení = odměna</li>
-                                <li>💬 Komentáře = odměna</li>
-                                <li>📚 Obchody a e-knihy = odměna</li>
-                                </ul>
-                                <span>DIVcoiny pak můžeš vyměnit za slevy, dárky nebo boost nabídky na burze knih.</span><br>
-                                <a href="https://div.cz/co-je-divcoin">👉 Více o DIVcoinech</a>
-                                </p>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    {% if user.is_authenticated %}
-                        {% if user.id != profile_user.id %}
-                        <div class="flex">
-                            <a style="text-decoration: none; font-weight: normal;" href="{% url 'chat_message' profile_user.id %}">
-                                <button class="add gap-2" style="margin: 0; margin-right: 10px; padding: 0.5em 1em; height: 32px; width: 130px;">
-                                    <svg class="svg-icon" fill="none" height="20" viewBox="0 0 20 20" width="20">
-                                        <g stroke="#fff" stroke-linecap="round" stroke-width="1.5">
-                                            <path d="m6.66669 6.66667h6.66671"></path>
-                                            <path clip-rule="evenodd" d="m3.33331 5.00001c0-.92047.74619-1.66667 1.66667-1.66667h10.00002c.9205 0 1.6666.7462 1.6666 1.66667v6.66669c0 .9205-.7461 1.6666-1.6666 1.6666h-4.8274c-.1105 0-.21654.044-.29462.122l-2.50004 2.5c-.26249.2625-.71129.0766-.71129-.2945v-1.9108c0-.2301-.18655-.4167-.41667-.4167h-1.25c-.92048 0-1.66667-.7461-1.66667-1.6666z" fill-rule="evenodd"></path>
-                                            <path d="m6.66669 10h2.5"></path>
-                                        </g>
-                                    </svg>
-                                    <span class="lable">Zpráva</span>
-                                </button>
-                            </a>
-                            
-                            {% if is_favorite %}
-                            <a style="text-decoration: none; font-weight: normal;" href="{% url 'remove_from_favorite_users' user_profile.userprofileid %}">
-                            {% else %}
-                            <a style="text-decoration: none; font-weight: normal;" href="{% url 'add_to_favorite_users' user_profile.userprofileid %}">
-                            {% endif %}
-                            <button class="add gap-2" style="margin: 0; margin-right: 10px; padding: 0.5em 1em; height: 32px; width: 130px;">
-                                    <svg class="svg-icon" fill="{% if is_favorite %}#e91e63{% else %}none{% endif %}"  height="20" viewBox="0 0 24 24" width="20">
-                                        <g stroke="#fff" stroke-linecap="round" stroke-width="1.5">
-                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                        </g>
-                                    </svg>                                
-                                    <span class="lable">Oblíbený</span>
-                                </button>
+            <div class="user-container">
+                <div class="user-profile-card">
+                    <div class="profile-header">
+                        <h1 class="profile-title">
+                            {% block h1 %}{% endblock %} 
+                            <small class="text-muted">{% block text_muted %}{% endblock %} s ID: {{ user_profile.user_id }}</small>
+                        </h1>
+                        {% if request.user == user_profile.user %}
+                        <div class="btn-edit">
+                            <i class="fas fa-pen" title="Upravit profil"></i>
+                            <a href="/ucet/upravit/" class="edit-link">
+                                <span>Upravit profil</span>
                             </a>
                         </div>
                         {% endif %}
+                    </div>
+
+                    <!-- PROFIL -->
+                    <div class="profile-details-wrapper">
+                        <div class="profile-info-section">
+                            <div class="card card-body">
+                                <div class="avatar-info-flex">
+                                    <img src="/static/img/avatar/{{ user_profile.avatar.imagepath}}" class="profile-avatar" alt="avatar">
+                                    
+                                    <div class="info-content">
+                                        <p class="card-text">{{ user_profile.bio|default:"" }}</p>
+
+                                        <div class="membership-details before">
+                                            <p>Členem od: {{ user_profile.user.date_joined.date }}</p>
+                                            <p>Naposledy přihlášen: teď</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STATISTIKA DIVCOINŮ -->
+                        <div class="profile-stats-section">
+                            <div class="card card-body">
+                                <h3 class="stats-title">
+                                    <img src="/static/img/site/DIVcoin.png" class="divcoin-icon" alt="DIVcoin">
+                                    Statistiky DIVcoinů
+                                </h3>
+                                
+                                <p class="total-coins">Celkem: <span>{{ user_div_coins.totaldivcoins }} DIVcoinů</span></p>
+
+                                <div class="stats-period-grid">
+                                    <p>Tento týden: <span class="stats-plus">+{{ user_div_coins.weeklydivcoins }} DC</span></p>
+                                    <p>Tento měsíc: <span class="stats-plus">+{{ user_div_coins.monthlydivcoins }} DC</span></p>
+                                    <p>Tento rok: <span class="stats-plus">+{{ user_div_coins.yearlydivcoins }} DC</span></p>
+                                </div>
+
+                                {% if user.id == profile_user.id %}
+                                    <i class="fa-regular fa-circle-question info-icon" title="Klikni pro více informací" id="openPopup"></i>
+                                {% endif %}
+
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if user.is_authenticated and user.id != profile_user.id %}
+                    <div class="action-buttons-group">
+                        
+                        <a style="text-decoration: none; font-weight: normal;" href="{% url 'chat_message' profile_user.id %}">
+                            <button class="add gap-2" style="margin: 0; margin-right: 10px; padding: 0.5em 1em; height: 32px; width: 130px;">
+                                <svg class="svg-icon" fill="none" height="20" viewBox="0 0 20 20" width="20">
+                                    <g stroke="#fff" stroke-linecap="round" stroke-width="1.5">
+                                        <path d="m6.66669 6.66667h6.66671"></path>
+                                        <path clip-rule="evenodd" d="m3.33331 5.00001c0-.92047.74619-1.66667 1.66667-1.66667h10.00002c.9205 0 1.6666.7462 1.6666 1.66667v6.66669c0 .9205-.7461 1.6666-1.6666 1.6666h-4.8274c-.1105 0-.21654.044-.29462.122l-2.50004 2.5c-.26249.2625-.71129.0766-.71129-.2945v-1.9108c0-.2301-.18655-.4167-.41667-.4167h-1.25c-.92048 0-1.66667-.7461-1.66667-1.6666z" fill-rule="evenodd"></path>
+                                        <path d="m6.66669 10h2.5"></path>
+                                    </g>
+                                </svg>
+                                <span class="lable">Zpráva</span>
+                            </button>
+                        </a>
+                        
+                        {% if is_favorite %}
+                        <a style="text-decoration: none; font-weight: normal;" href="{% url 'remove_from_favorite_users' user_profile.userprofileid %}">
+                        {% else %}
+                        <a style="text-decoration: none; font-weight: normal;" href="{% url 'add_to_favorite_users' user_profile.userprofileid %}">
+                        {% endif %}
+                            <button class="add gap-2" style="margin: 0; margin-right: 10px; padding: 0.5em 1em; height: 32px; width: 130px;">
+                                <svg class="svg-icon" fill="{% if is_favorite %}#e91e63{% else %}none{% endif %}"  height="20" viewBox="0 0 24 24" width="20">
+                                    <g stroke="#fff" stroke-linecap="round" stroke-width="1.5">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                    </g>
+                                </svg>                                
+                                <span class="lable">Oblíbený</span>
+                            </button>
+                        </a>
+                    </div>
                     {% endif %}
 
                     {% block content %}
-                    
+
                     {% endblock %}
                     
                 </div>
+            </div>
+
+            <!-- POPUP OKNO -->
+            <div class="modal-overlay hidden-popup" id="divcoinOverlay"></div>
+            <div class="modal-popup hidden-popup" id="divcoinPopup">
+                <button class="modal-close-btn" id="closePopup">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                
+                <h3 class="popup-title">
+                    <img src="/static/img/site/DIVcoin.png" class="divcoin-icon" alt="DIVcoin"> Co jsou DIVcoiny?
+                </h3>
+                
+                <p class="popup-text">
+                    DIVcoin je virtuální měna portálu DIV.cz, která odměňuje tvoji aktivitu:
+                </p>
+                
+                <ul class="popup-list">
+                    <li><span class="list-icon-star">⭐</span> Hodnocení = odměna</li>
+                    <li><span class="list-icon-comment">💬</span> Komentáře = odměna</li>
+                    <li><span class="list-icon-book">📚</span> Obchody a e-knihy = odměna</li>
+                </ul>
+                
+                <p class="popup-text">
+                    DIVcoiny pak můžeš vyměnit za slevy, dárky nebo boost nabídky na burze knih.
+                </p>
+                
+                <p>👉 
+                <a href="https://div.cz/co-je-divcoin" target="_blank" class="popup-link">
+                    Více o DIVcoinech
+                </a></p>
             </div>
         </main>
 
         {% include "inc/footer.html" %}
 
-        {% block script %}
-        {% endblock %}
-
         <script src="/static/js/script.js"></script>
         <script src="/static/js/profil.js"></script>
 
+        <!-- POPUP -->
         <script>
-            // Výběr prvků
-            const icon = document.querySelector('.icon');
-            const popup = document.querySelector('.popup');
-            const overlay = document.querySelector('.overlay');
-            const closePopupButton = document.getElementById('closePopup');
-        
-            // Zobrazení popupu po kliknutí na ikonu
-            icon.addEventListener('click', () => {
-                popup.classList.remove('hidden');
-                overlay.classList.remove('hidden');
-            });
-        
-            // Zavření popupu po kliknutí na tlačítko nebo na overlay
-            closePopupButton.addEventListener('click', () => {
-                popup.classList.add('hidden');
-                overlay.classList.add('hidden');
-            });
-        
-            overlay.addEventListener('click', () => {
-                popup.classList.add('hidden');
-                overlay.classList.add('hidden');
+            document.addEventListener('DOMContentLoaded', function() {
+                const openButton = document.getElementById('openPopup');
+                const closeButton = document.getElementById('closePopup');
+                const popup = document.getElementById('divcoinPopup');
+                const overlay = document.getElementById('divcoinOverlay');
+
+                if (openButton && closeButton && popup && overlay) {
+                    // Funkce pro otevření popupu
+                    openButton.addEventListener('click', function() {
+                        popup.classList.remove('hidden-popup');
+                        overlay.classList.remove('hidden-popup');
+                    });
+
+                    // Funkce pro zavření popupu
+                    const closePopup = function() {
+                        popup.classList.add('hidden-popup');
+                        overlay.classList.add('hidden-popup');
+                    };
+
+                    closeButton.addEventListener('click', closePopup);
+                    overlay.addEventListener('click', closePopup); // Zavřít kliknutím na overlay
+                    
+                    // Zavřít po stisknutí ESC
+                    document.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape' && !popup.classList.contains('hidden-popup')) {
+                            closePopup();
+                        }
+                    });
+                }
             });
         </script>
 

@@ -28,50 +28,23 @@
 "Lighting" → "Osvětlení"
 {% endcomment %}
 
+{% block meta %}
+
 <style>
-    .cta2 {
-        position: relative;
-        padding: 3px 0 3px 10px;
-        transition: all 0.2s ease;
-        border: none;
-        background: none;
-        cursor: pointer;
+    .movie a.active {
+        background-color: #A52B21;
     }
 
-    .cta2:hover {
-        text-decoration: none;
+    .book a.active {
+        background-color: #61872B;
     }
 
-    .cta2:before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        display: block;
-        border-radius: 50px;
-        background: #b1dae7;
-        width: 30px;
-        height: 30px;
-        transition: all 0.3s ease;
-    }
-
-    .cta2 span {
-        position: relative;
-        font-size: 14px;
-        font-weight: 700;
-        letter-spacing: 0.05em;
-        color: #234567;
-    }
-
-    .cta2:hover:before {
-        width: 100%;
-        background: #b1dae7;
-    }
-
-    .cta2:active {
-        transform: scale(0.95);
+    .game a.active {
+        background-color: #0A76A9;
     }
 </style>
+
+{% endblock %}
 
 {% block content %}
 
@@ -157,10 +130,18 @@
         <!-- Karty -->
         <div class="tab-container" style="font-size:16px">
             <ul class="tab-links">
-                <li class="karta"><a href="#tab1" class="active text-black">Filmy</a></li>
-                <li class="karta"><a href="#tab2">Seriály</a></li>
-                <li class="karta"><a href="#tab3">Knihy</a></li>
-                <li class="karta"><a href="#tab4">Hry</a></li>
+                <li class="karta movie">
+                    <a href="#tab1" class="movies active">Filmy</a>
+                </li>
+                <li class="karta movie">
+                    <a href="#tab2" class="movies">Seriály</a>
+                </li>
+                <li class="karta book">
+                    <a href="#tab3" class="books">Knihy</a>
+                </li>
+                <li class="karta game">
+                    <a href="#tab4" class="games">Hry</a>
+                </li>
             </ul>
 
             <!-- FILMY -->
@@ -170,9 +151,9 @@
                     <div class="creator-movie-info sudy">
                         <div>
                         {% if movie.img == "noimg.png" %}
-                            <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}">
+                            <img src="https://div.cz/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}">
                             {% else %}
-                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.img }}" alt="{{ movie.titlecz }}">
+                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.imgposter }}" alt="{{ movie.titlecz }}">
                         {% endif %}
                         </div>
 
@@ -263,7 +244,7 @@
                 </div>
             </div>
 
-            <!-- BIBLIOGRAFIE -->
+            <!-- KNIHY -->
             <div id="tab3" class="tab-content" style="padding:0">
                 <div class="creator-movie-list">
                 {% for item in bibliography %}
@@ -271,7 +252,7 @@
                     <div class="creator-movie-info sudy">
                         <div>
                         {% if book.img == "noimg.png" %}
-                            <img src="/static/img/book/book.png" alt="{{ book.titlecz|default:book.title }}">
+                            <img src="https://div.cz/static/img/book/book.png" alt="{{ book.titlecz }}">
                             {% else %}
                             <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz }}">
                         {% endif %}
@@ -322,7 +303,7 @@
                     <div class="creator-movie-info sudy">
                         <div>
                         
-                            <img src="" alt="">
+                            <img src="/static/img/movie/w200/nomovie.jpg" alt="">
                         
                             <img src="" alt="">
                         
@@ -393,37 +374,31 @@
                 <h3 class="card-title after-h3">{{  }}</h3>
                 <p class="card-text">Sdílet na:</p>
                 <!-- Facebook Share Button -->
-                <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/film/{{  }}" class="btn btn-primary mb-2 mr-1" style="color: white;" target="_blank" title="Facebook">
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/film/{{  }}" class="btn btn-primary" style="color: white;" target="_blank" title="Facebook">
                     <i class="fab fa-facebook-f"></i>
                 </a>
 
                 <!-- Twitter Share Button -->
-                <a href="https://twitter.com/intent/tweet?url=https://div.cz/film/{{  }}&text={{  }}" class="btn btn-info mb-2 mr-1" style="color: white;" target="_blank" title="Twitter">
+                <a href="https://twitter.com/intent/tweet?url=https://div.cz/film/{{  }}&text={{  }}" class="btn btn-info" style="color: white;" target="_blank" title="Twitter">
                     <i class="fab fa-twitter"></i>
                 </a>
 
                 <!-- E-mail Share Button -->
-                <a href="mailto:?subject={{  }}&body=Podívej se na https://div.cz/film/{{  }}" class="btn btn-dark mb-2 mr-1" style="color: white;" title="E-mail">
+                <a href="mailto:?subject={{  }}&body=Podívej se na https://div.cz/film/{{  }}" class="btn btn-dark" style="color: white;" title="E-mail">
                     <i class="fas fa-envelope"></i>
                 </a>
 
                 <!-- WhatsApp Share Button -->
-                <a href="https://wa.me/?text={{  }} - https://div.cz/film/{{  }}" class="btn btn-success mb-2" target="_blank" style="color: white;" title="WhatsApp">
+                <a href="https://wa.me/?text={{  }} - https://div.cz/film/{{  }}" class="btn btn-success" target="_blank" style="color: white;" title="WhatsApp">
                     <i class="fab fa-whatsapp"></i>
                 </a>
             </div>
         </div>
         {% endcomment %}
 
-        <!-- <div class="card">
-            <div class="card-body">
-
-            </div>
-        </div> -->
-
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">Postavy</h3>
+                <h3 class="card-title after-h3">Další postavy</h3>
                 <ul>
                     <li>
                         <a href="/postava/rusalka">Rusalka</a>
@@ -450,8 +425,9 @@
                 <h3 class="card-title after-h3">Tagy</h3>
                 <div class="flex flex-wrap gap-1">
 
-                <span class="rounded bg-secondary p-1"></span>
+                <span class="rounded bg-secondary p-1">
 
+                </span>
 
                 </div>
             </div>
@@ -459,5 +435,31 @@
 
     </div>
 </div>
+
+<!-- PŘEPÍNÁNÍ KARET -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabLinks = document.querySelectorAll('.tab-links a');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault(); 
+                
+                tabLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+
+                const targetId = this.getAttribute('href'); 
+                
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                const targetContent = document.querySelector(targetId);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+            });
+        });
+    });
+</script>
 
 {% endblock %}

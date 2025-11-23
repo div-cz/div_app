@@ -120,75 +120,76 @@
 
         {% include "inc/navbar.html" %}
 
-        <main>
+        <main style="margin: 0;">
             <aside class="hidden">
                 <div class="">
-                    <div class="flex gap-4 mb-3 py-4">
-                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 sun cursor-pointer ">
+                    <div class="mode">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="sun">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
                         </svg>
-                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 moon cursor-pointer ">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="moon">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
                         </svg>
                     </div>
                 </div>
             </aside>
     
-            <div class="row w-4/5 sm:my-4 sm:my-0 mx-auto">
-                <div class="col-lg-4 px-0">
+            <div class="row row-msg">
+                <!-- LEVÁ STRANA -->
+                <div class="left-msg-side">
                     <div class="users-container">
                         <div class="chat-search-box">
-                            <div class="input-group flex justify-center">
+                            <div class="input-group">
                                 <input id="chatSearchInput" placeholder="Search">
-                                <i class="fa fa-search flex items-center" style="padding: 5px 10px;"></i>
+                                <i class="fa fa-search"></i>
                             </div>
                         </div>
                         <div>
                             <ul id="chatSearchResults" class="list-group"></ul>
         
-                            <ul class="users flex lg:flex-wrap content-start">
+                            <ul class="users">
                                 {% for chat_session in all_chat_sessions %}
                                     {% if chat_session.messages.last %}
                                         {% if chat_session.user1 == request.user %}
                                         <a 
-                                        class="person h-fit w-full {% if chat_session.user2.id == receiver.id %}active-user{% endif %}" 
+                                        class="person {% if chat_session.user2.id == receiver.id %}active-user{% endif %}" 
                                         href="{% url 'chat_message' user_id=chat_session.user2.id %}">
-                                            <li class="flex items-center" data-chat="person1" data-username="{{ chat_session.user2.username|lower }}">
+                                            <li data-chat="person1" data-username="{{ chat_session.user2.username|lower }}">
                                                 <div class="msg-user">
                                                     <img src="/static/img/avatar/{{ chat_session.user2.userprofile.avatar.imagepath}}" alt="Avatar">
                                                 </div>
-                                                <div class="name-time flex flex-wrap w-full">
-                                                    <div class="flex justify-between w-full">
-                                                        <p class="name w-full">{{ chat_session.user2.username }}</p>
+                                                <div class="name-time">
+                                                    <div class="name">
+                                                        <p>{{ chat_session.user2.username }}</p>
                                                         {% if not chat_session.messages.last.isread and request.user != chat_session.messages.last.sender  %}
                                                         <i class="fa-regular fa-envelope" style="color: red; font-size: 20px; margin: 0;"></i>
                                                         {% endif %}
                                                     </div>
-                                                    <div class="flex flex-wrap lg:w-full justify-between">
-                                                        <p class="date w-full">{{ chat_session.messages.last.sentat|date:"j. F Y" }}</p>
-                                                        <p class="time w-full">{{ chat_session.messages.last.sentat | time:"H:i" }}</p>
+                                                    <div class="date">
+                                                        <p>{{ chat_session.messages.last.sentat|date:"j. F Y" }}</p>
+                                                        <p class="time">{{ chat_session.messages.last.sentat | time:"H:i" }}</p>
                                                     </div>
                                                 </div>
                                             </li>
                                         </a>
                                         {% else %}
                                         <a 
-                                        class="person h-fit w-full {% if chat_session.user1.id == receiver.id %}active-user{% endif %}" 
+                                        class="person {% if chat_session.user1.id == receiver.id %}active-user{% endif %}" 
                                         href="{% url 'chat_message' user_id=chat_session.user1.id %}">
-                                            <li class="flex items-center" data-chat="person1">
+                                            <li data-chat="person1">
                                                 <div class="msg-user">
                                                     <img src="/static/img/avatar/{{ chat_session.user1.userprofile.avatar.imagepath}}" alt="Avatar">
                                                 </div>
-                                                <div class="name-time flex flex-wrap w-full">
-                                                    <div class="flex justify-between w-full">
-                                                        <p class="name w-full">{{ chat_session.user1.username }}</p>
+                                                <div class="name-time">
+                                                    <div class="name">
+                                                        <p>{{ chat_session.user1.username }}</p>
                                                         {% if not chat_session.messages.last.isread and request.user != chat_session.messages.last.sender  %}
                                                         <i class="fa-regular fa-envelope" style="color: red; font-size: 20px; margin: 0;"></i>
                                                         {% endif %}
                                                     </div>
-                                                    <div class="flex flex-wrap lg:w-full justify-between">
-                                                        <p class="date w-full">{{ chat_session.messages.last.sentat|date:"j. F Y" }}</p>
-                                                        <p class="time w-full">{{ chat_session.messages.last.sentat | time:"H:i" }}</p>
+                                                    <div class="date">
+                                                        <p>{{ chat_session.messages.last.sentat|date:"j. F Y" }}</p>
+                                                        <p class="time">{{ chat_session.messages.last.sentat | time:"H:i" }}</p>
                                                     </div>
                                                 </div>
                                             </li>
@@ -202,17 +203,19 @@
                     </div>
                 </div>
     
-                <div class="col-lg-8 px-0">
-                    <div class="flex items-center selected-user">
-                        <div class="user-avatar mr-2">
+                <!-- PRAVÁ STRANA -->
+                <div class="right-msg-side">
+                    <div class="selected-user">
+                        <div class="user-avatar">
                             <img src="/static/img/avatar/{{receiver_userprofile.avatar.imagepath}}" alt="Avatar">
                         </div>
-                        <span class="name"><a href="{% url 'myuser_detail' receiver.id %}" style="color:black;">
+                        <span class="name">
+                            <a href="{% url 'myuser_detail' receiver.id %}" style="color:black;">
                             {{ receiver }}
                         </a></span>
                     </div>
 
-                    <div class="chat-container pr-0" id="chatContainer" data-last-message-id="{{ last_message_id }}">
+                    <div class="chat-container" id="chatContainer" data-last-message-id="{{ last_message_id }}">
                         <div class="chat-box" data-chat="person3">
                             {% if has_older_messages %}
                             <a class="old-msg" id="loadOlderButton">
@@ -227,9 +230,9 @@
                                 {% for message in chat_session.latest_messages reversed %}
                                     {% if message.sender == request.user %}
                                     <li class="chat-right" data-message-id="{{ message.usermessageid }}">
-                                        <div class="flex flex-wrap justify-end">
-                                            <div class="chat-hour flex w-full">{{ message.sentat }}</div>
-                                            <div class="chat-text relative border text-[#0d0c0f]">{{ message.message }}</div>
+                                        <div class="my-msg">
+                                            <div class="chat-hour">{{ message.sentat }}</div>
+                                            <div class="chat-text">{{ message.message }}</div>
                                         </div>
                                         <div class="chat-avatar">
                                             <img src="/static/img/avatar/{{message.sender.userprofile.avatar.imagepath}}" alt="Avatar">
@@ -240,9 +243,9 @@
                                         <div class="chat-avatar">
                                             <img src="/static/img/avatar/{{receiver.userprofile.avatar.imagepath}}" alt="Avatar">
                                         </div>
-                                        <div class="flex flex-wrap">
-                                            <div class="chat-hour flex w-full">{{ message.sentat }}</div>
-                                            <div class="chat-text relative border text-[#0d0c0f]">{{ message.message }}</div>
+                                        <div class="their-msg">
+                                            <div class="chat-hour">{{ message.sentat }}</div>
+                                            <div class="chat-text">{{ message.message }}</div>
                                         </div>
                                     </li>
                                     {% endif %}
@@ -251,7 +254,7 @@
 
                         </div>
                         
-                        <form method="post" class="flex flex-wrap tems-center mt-2 border-top">
+                        <form method="post" class="chat-form">
                             {% csrf_token %}
                             <div id="emoji-picker" class="emoji-picker">
                                 
@@ -264,17 +267,15 @@
                                 <button type="button" class="emoji-btn" data-emoji="❤️">❤️</button>
                                 <button type="button" class="emoji-btn" data-emoji="👍">👍</button>
                             </div>
-                            <div class="form-group flex w-full mb-0 w-full">
+                            <div class="form-group">
                                 {{ form.message.errors }}
                                 {{ form.message }}
-                                <button class="send m-0 add">
-                                    <div class="svg-wrapper-1">
-                                        <div class="svg-wrapper">
-                                            <svg viewBox="0 0 24 24" width="20" height="20">
-                                                <path fill="none" d="M0 0h24v24H0z"></path>
-                                                <path fill="currentColor" d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"></path>
-                                            </svg>
-                                        </div>
+                                <button class="send add">
+                                    <div class="svg-wrapper">
+                                        <svg viewBox="0 0 24 24" width="20" height="20">
+                                            <path fill="none" d="M0 0h24v24H0z"></path>
+                                            <path fill="currentColor" d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"></path>
+                                        </svg>
                                     </div>
                                     <span>Poslat</span>
                                 </button>
@@ -326,9 +327,9 @@
 
                                         messageElement.innerHTML = `
                                             ${message.sender === currentUser ? `
-                                            <div class="flex flex-wrap justify-end">
+                                            <div class="my-msg">
                                                 <div class="chat-hour flex w-full">${message.sentat}</div>
-                                                <div class="chat-text relative border text-[#0d0c0f]">${message.message}</div>
+                                                <div class="chat-text">${message.message}</div>
                                             </div>
                                             <div class="chat-avatar">
                                                 <img src="/static/img/avatar/${message.sender_avatar}" alt="Avatar">
@@ -339,7 +340,7 @@
                                             </div>
                                             <div class="flex flex-wrap">
                                                 <div class="chat-hour flex w-full">${message.sentat}</div>
-                                                <div class="chat-text relative border text-[#0d0c0f]">${message.message}</div>
+                                                <div class="chat-text">${message.message}</div>
                                             </div>
                                             `}
                                         `;

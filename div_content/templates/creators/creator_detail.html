@@ -22,50 +22,13 @@
 
 {% endcomment %}
 
+{% block meta %}
+
 <style>
-    .cta2 {
-        position: relative;
-        padding: 3px 0 3px 10px;
-        transition: all 0.2s ease;
-        border: none;
-        background: none;
-        cursor: pointer;
-    }
-
-    .cta2:hover {
-        text-decoration: none;
-    }
-
-    .cta2:before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        display: block;
-        border-radius: 50px;
-        background: #b1dae7;
-        width: 30px;
-        height: 30px;
-        transition: all 0.3s ease;
-    }
-
-    .cta2 span {
-        position: relative;
-        font-size: 14px;
-        font-weight: 700;
-        letter-spacing: 0.05em;
-        color: #234567;
-    }
-
-    .cta2:hover:before {
-        width: 100%;
-        background: #b1dae7;
-    }
-
-    .cta2:active {
-        transform: scale(0.95);
-    }
+    
 </style>
+
+{% endblock %}
 
 {% block content %}
 
@@ -162,8 +125,12 @@
         <!-- Karty -->
         <div class="tab-container" style="font-size:16px">
             <ul class="tab-links">
-                <li class="karta"><a href="#tab1" class="active text-black">Filmy</a></li>
-                <li class="karta"><a href="#tab2">Seriály</a></li>
+                <li class="karta">
+                    <a href="#tab1" class="active">Filmy</a>
+                </li>
+                <li class="karta">
+                    <a href="#tab2">Seriály</a>
+                </li>
             </ul>
 
             <!-- FILMY -->
@@ -173,7 +140,7 @@
                     <div class="creator-movie-info sudy">
                         <div>
                         {% if movie.img == "noimg.png" %}
-                            <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}">
+                            <img src="https://div.cz/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}">
                             {% else %}
                             <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.imgposter }}" alt="{{ movie.titlecz }}">
                         {% endif %}
@@ -223,7 +190,7 @@
                     <div class="creator-movie-info sudy">
                         <div>
                         {% if tvshow.img == "noimg.png" %}
-                            <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ tvshow.titlecz }}">
+                            <img src="https://div.cz/static/img/movie/w200/nomovie.jpg" alt="{{ tvshow.titlecz }}">
                         {% else %}
                             <img src="https://www.themoviedb.org/t/p/w400{{ tvshow.imgposter }}" alt="{{ tvshow.titlecz }}">
                         {% endif %}
