@@ -29,15 +29,19 @@
 # 2) interní (forms,models,views) (abecedně)
 # 3) third-part (třetí strana, django, auth) (abecedně)
 # -------------------------------------------------------------------
+
+from datetime import date
 from django.db.models import Exists, OuterRef
 from django.contrib.contenttypes.models import ContentType
 from div_content.models import (
-    Creator, Creatorbiography, Favorite, FavoriteSum, Metaindex, Movie, Moviecrew, Tvcrew, Tvshow, Userlisttype, Userlist, Userlistitem
+    Creator, Creatorbiography, Bookauthor, Favorite, FavoriteSum, Metaindex, Movie, Moviecrew, Tvcrew, Tvshow, Userlisttype, Userlist, Userlistitem
 )
 from div_content.forms.creators import FavoriteForm, CreatorBiographyForm, CreatorDivRatingForm
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
+from django.core.paginator import Paginator
+
 from django.http import JsonResponse
 
 from django.shortcuts import get_object_or_404, render, redirect
@@ -57,6 +61,56 @@ CONTENTTYPE_CREATOR_ID = creator_content_type.id
 movie_content_type = ContentType.objects.get_for_model(Movie)
 CONTENTTYPE_MOVIE_ID = movie_content_type.id
 
+MONTHS = {
+    "leden": 1, "unor": 2, "březen": 3, "brezen": 3,
+    "duben": 4, "kveten": 5, "květen": 5, "cerven": 6, "červen": 6,
+    "cervenec": 7, "červenec": 7, "srpen": 8, "zari": 9, "září": 9,
+    "rijen": 10, "říjen": 10, "listopad": 11, "prosinec": 12,
+}
+
+ZODIAC = [
+    ("kozoroh", (12, 22), (1, 19)),
+    ("vodnar", (1, 20), (2, 18)),
+    ("ryby", (2, 19), (3, 20)),
+    ("beran", (3, 21), (4, 19)),
+    ("byk", (4, 20), (5, 20)),
+    ("blizenci", (5, 21), (6, 20)),
+    ("rak", (6, 21), (7, 22)),
+    ("lev", (7, 23), (8, 22)),
+    ("panna", (8, 23), (9, 22)),
+    ("vahy", (9, 23), (10, 22)),
+    ("stir", (10, 23), (11, 21)),
+    ("strelec", (11, 22), (12, 21)),
+]
+
+def filter_creators(request, qs_creators, **kwargs):
+    """
+    Jednotná funkce: filtruje tvůrce i spisovatele,
+    seřadí podle divrating a stránkuje po 30 výsledcích.
+    """
+
+    # --- CREATORS ---
+    creators = qs_creators.filter(**kwargs).order_by("-divrating", "lastname")
+
+    creators_paginator = Paginator(creators, 30)
+    creators_page = request.GET.get("page_creators")
+    creators_page_obj = creators_paginator.get_page(creators_page)
+
+    # --- AUTHORS ---
+    authors = Bookauthor.objects.filter(**kwargs).order_by("lastname")
+
+    authors_paginator = Paginator(authors, 30)
+    authors_page = request.GET.get("page_authors")
+    authors_page_obj = authors_paginator.get_page(authors_page)
+
+    return {
+        "creators": creators_page_obj,
+        "authors": authors_page_obj,
+    }
+
+# ----------------------------------------------------
+# creators
+# ----------------------------------------------------
 
 def creators_list(request):
     creators = Creator.objects.all()[:48] #.order_by('-popularity')
@@ -273,3 +327,135 @@ def remove_creator_from_favourites(request, creatorid):
     favourite_sum.save()
     
     return redirect("creator_detail", creator_url=creator.url)
+
+
+
+# ----------------------------------------------------
+# DNEŠNÍ NAROZENINY
+# ----------------------------------------------------
+def creators_today(request):
+    today = date.today()
+    ctx = filter_creators(
+        request,
+        Creator.objects.all(),
+        birthdate__month=today.month,
+        birthdate__day=today.day
+    )
+    ctx["title"] = "Narozeniny dnes"
+    return render(request, "creators/birthdays_list.html", ctx)
+
+# ----------------------------------------------------
+# podle roku
+# ----------------------------------------------------
+def creators_by_year(request, year):
+    ctx = filter_creators(
+        request,
+        Creator.objects.all(),
+        birthdate__year=year
+    )
+    ctx["title"] = f"Narozeni {year}"
+    return render(request, "creators/birthdays_list.html", ctx)
+
+# ----------------------------------------------------
+# podle měsíce (číselně)
+# ----------------------------------------------------
+def creators_by_month(request, month):
+    ctx = filter_creators(
+        request,
+        Creator.objects.all(),
+        birthdate__month=month
+    )
+    ctx["title"] = f"Narozeni v měsíci {month}"
+    return render(request, "creators/birthdays_list.html", ctx)
+
+# ----------------------------------------------------
+# podle měsíce slovně
+# ----------------------------------------------------
+def creators_by_month_slug(request, month_slug):
+    ms = month_slug.lower()
+    if ms not in MONTHS:
+        return render(request, "creators/birthdays_list.html", {
+            "creators": [],
+            "authors": [],
+            "title": f"Měsíc {month_slug} nenalezen"
+        })
+    return creators_by_month(request, MONTHS[ms])
+
+# ----------------------------------------------------
+# podle dne & měsíce
+# ----------------------------------------------------
+def creators_by_month_day(request, month, day):
+    ctx = filter_creators(
+        request,
+        Creator.objects.all(),
+        birthdate__month=month,
+        birthdate__day=day
+    )
+    ctx["title"] = f"Narozeni {day}.{month}."
+    return render(request, "creators/birthdays_list.html", ctx)
+
+# ----------------------------------------------------
+# přesné datum
+# ----------------------------------------------------
+def creators_by_exact_date(request, year, month, day):
+    ctx = filter_creators(
+        request,
+        Creator.objects.all(),
+        birthdate__year=year,
+        birthdate__month=month,
+        birthdate__day=day
+    )
+    ctx["title"] = f"Narozeni {day}.{month}.{year}"
+    return render(request, "creators/birthdays_list.html", ctx)
+
+# ----------------------------------------------------
+# znamení zvěrokruhu
+# ----------------------------------------------------
+def creators_by_zodiac(request, sign):
+    sign = sign.lower()
+
+    chosen = None
+    for name, start, end in ZODIAC:
+        if name == sign:
+            chosen = (name, start, end)
+            break
+
+    if not chosen:
+        return render(request, "creators/birthdays_list.html", {
+            "creators": [], "authors": [], "title": "Znamení nenalezeno"
+        })
+
+    name, (m1, d1), (m2, d2) = chosen
+
+    if m1 <= m2:
+        creators = Creator.objects.filter(
+            request,
+            birthdate__month__gte=m1,
+            birthdate__month__lte=m2
+        )
+    else:
+        creators = Creator.objects.filter(
+            request,
+            birthdate__month__gte=m1
+        ) | Creator.objects.filter(
+            birthdate__month__lte=m2
+        )
+
+    # filtrujeme dny
+    result = [c for c in creators if c.birthdate and in_range(c.birthdate, (m1, d1), (m2, d2))]
+
+    ctx = {
+        "creators": result,
+        "authors": [],   # zatím autoři bez horoskopu
+        "title": f"Znamení – {name.capitalize()}",
+    }
+    return render(request, "creators/birthdays_list.html", ctx)
+
+def in_range(bd, start, end):
+    m, d = bd.month, bd.day
+    (m1, d1), (m2, d2) = start, end
+
+    if start <= end:
+        return (m, d) >= start and (m, d) <= end
+    else:
+        return (m, d) >= start or (m, d) <= end

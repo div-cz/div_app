@@ -30,47 +30,47 @@
 
 <div style="margin-top: 1.25rem;">
     <!-- Sekce záložek pro filmy, knihy, hry, statistiky -->
-    <div class="tab-profil">
-        <div class="tab {% if active_tab == 'filmy' %}active{% endif %}">
+    <ul class="tab-profil">
+        <li class="tab {% if active_tab == 'filmy' %}active{% endif %}">
             <i class="fa-solid fa-film"></i>
             <a class="movies" href="{% url 'profile_movies_section' profile_user.id %}">Filmy</a>
-        </div>
-        <div class="tab {% if active_tab == 'serialy' %}active{% endif %}">
+        </li>
+        <li class="tab {% if active_tab == 'serialy' %}active{% endif %}">
             <i class="fa-solid fa-video"></i>
             <a class="movies" href="{% url 'profile_series_section' profile_user.id %}">Seriály</a>
-        </div>
-        <div class="tab {% if active_tab == 'knihy' %}active{% endif %}">
+        </li>
+        <li class="tab {% if active_tab == 'knihy' %}active{% endif %}">
             <i class="fa-solid fa-book"></i>
             <a class="books" href="{% url 'profile_books_section' profile_user.id %}">Knihy</a>
-        </div>
-        <div class="tab {% if active_tab == 'hry' %}active{% endif %}">
+        </li>
+        <li class="tab {% if active_tab == 'hry' %}active{% endif %}">
             <i class="fa-solid fa-gamepad"></i>
             <a class="games" href="{% url 'profile_games_section' profile_user.id %}">Hry</a>
-        </div>
-        <div class="tab {% if active_tab == 'statistiky' %}active{% endif %}">
+        </li>
+        <li class="tab {% if active_tab == 'statistiky' %}active{% endif %}">
             <i class="fas fa-star"></i>
             <a class="stats" href="{% url 'profile_stats_section' profile_user.id %}">Statistiky</a>
-        </div>
-        <div class="tab {% if active_tab == 'vitrina' %}active{% endif %}">
+        </li>
+        <li class="tab {% if active_tab == 'vitrina' %}active{% endif %}">
             <i class="fa-solid fa-trophy"></i> 
             <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
-        </div>
-        <div class="tab {% if active_tab == 'obchod' %}active{% endif %}">
+        </li>
+        <li class="tab {% if active_tab == 'obchod' %}active{% endif %}">
             <i class="fa-solid fa-cart-shopping"></i> 
             <a class="shop" href="{% url 'profile_eshop_section' profile_user.id %}">Obchod</a>
-        </div>
-        <div class="tab {% if active_tab == 'komunita' %}active{% endif %}" >
+        </li>
+        <li class="tab {% if active_tab == 'komunita' %}active{% endif %}" >
             <i class="fas fa-user"></i>
             <a class="community" href="{% url 'profile_community_section' profile_user.id %}">Má komunita</a>
-        </div>
+        </li>
 
         <!-- Indikátor pozadí -->
         <div class="background"></div>
 
-    </div>
+    </ul>
 
     <!-- Podkategorie záložek (e-knihy, audio atd.) -->
-    <div class="row mt-5">
+    <div class="row" style="margin-top: 1.25rem;">
         <ul class="nav nav-tabs">
             <li class="nav-tabs-item">
                 <a class="nav-tabs-link active" href="#" id="tab-ma-komunita" onclick="updateNavTabSelector(this)">Má komunita</a>
@@ -83,135 +83,138 @@
             <div class="background"></div>
         </ul>
         
-        <div class="tab-content w-full mb-3 bg-[#F9F9F9] dark:bg-[#1A161F]">
+        <div class="tab-content">
             <!-- Tab Má komunita -->
-            <div id="ma-komunita" class="tab-show w-full active {% if category == 'ma-komunita' %}active{% endif %}">
-                <div class="flex sm:flex-wrap">
-                    <!-- Sleduji -->
-                    <div class="stats-container w-full lg:stats-container">
-                        <div>
-                            <h3 class="card-title after-h3">Oblíbení užvatelé</h3>
-                            {% if favorite_users %}
-                            {% for profile in favorite_users %}
-                            <div class="">
-                                <img src=""> <!-- profilový obrázek -->
-                                <a href="{% url 'myuser_detail' profile.user.id %}">{{ profile.user }}</a>
+            <div id="ma-komunita" class="tab-show active {% if category == 'ma-komunita' %}active{% endif %}">
+                <div class="tab-content-item">
+                    <div class="flex sm:flex-wrap">
+                        <!-- Sleduji -->
+                        <div class="stats-container w-full lg:stats-container">
+                            <div>
+                                <h3 class="card-title after-h3">Oblíbení užvatelé</h3>
+                                {% if favorite_users %}
+                                    {% for profile in favorite_users %}
+                                    <div class="">
+                                        <img src=""> <!-- profilový obrázek -->
+                                        <a href="{% url 'myuser_detail' profile.user.id %}">{{ profile.user }}</a>
+                                    </div>
+                                    {% endfor %}
+                                {% endif %}
                             </div>
-                            {% endfor %}
-                            {% endif %}
+
+                            <!-- PAGINÁTOR -->
+                            <div class="pagination">
+                                <span class="step-links">
+                            
+                                    <a class="first-page" href="">&laquo; První</a>
+                                    <a href="">Předchozí</a>
+                            
+                                    <span class="current-page">
+                                        /  
+                                    </span>
+                            
+                                    <a href="">Další</a>
+                                    <a class="last-page" href="">Poslední &raquo;</a>
+                            
+                                </span>
+                            </div> 
                         </div>
 
-                        <!-- PAGINÁTOR -->
-                        <div class="pagination">
-                            <span class="step-links">
-                        
-                                <a class="first-page" href="">&laquo; První</a>
-                                <a href="">Předchozí</a>
-                        
-                                <span class="current-page">
-                                     /  
-                                </span>
-                        
-                                <a href="">Další</a>
-                                <a class="last-page" href="">Poslední &raquo;</a>
-                        
-                            </span>
-                        </div> 
-                    </div>
-
-                    <!-- Sledují mě -->
-                    <div class="stats-container lg:pl-5 w-full">
-                        <div>
-                            <h3 class="card-title after-h3">Sledují mě</h3>
-                            {% if im_favorite_user %}
-                            {% for profile in im_favorite_user %}
-                            <div class="">
-                                <img src=""> <!-- profilový obrázek -->
-                                <a href="{% url 'myuser_detail' profile.user.id %}">{{ profile.user }}</a>                   
+                        <!-- Sledují mě -->
+                        <div class="stats-container lg:pl-5 w-full">
+                            <div>
+                                <h3 class="card-title after-h3">Sledují mě</h3>
+                                {% if im_favorite_user %}
+                                {% for profile in im_favorite_user %}
+                                <div class="">
+                                    <img src=""> <!-- profilový obrázek -->
+                                    <a href="{% url 'myuser_detail' profile.user.id %}">{{ profile.user }}</a>                   
+                                </div>
+                                {% endfor %}
+                                {% endif %}
                             </div>
-                            {% endfor %}
-                            {% endif %}
-                        </div>
 
-                        <!-- PAGINÁTOR -->
-                        <div class="pagination">
-                            <span class="step-links">
-                        
-                                <a class="first-page" href="">&laquo; První</a>
-                                <a href="">Předchozí</a>
-                        
-                                <span class="current-page">
-                                     /  
+                            <!-- PAGINÁTOR -->
+                            <div class="pagination">
+                                <span class="step-links">
+                            
+                                    <a class="first-page" href="">&laquo; První</a>
+                                    <a href="">Předchozí</a>
+                            
+                                    <span class="current-page">
+                                        /  
+                                    </span>
+                            
+                                    <a href="">Další</a>
+                                    <a class="last-page" href="">Poslední &raquo;</a>
+                            
                                 </span>
-                        
-                                <a href="">Další</a>
-                                <a class="last-page" href="">Poslední &raquo;</a>
-                        
-                            </span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                                        
+                </div>                        
             </div>
 
             <!-- Tab Aktivita oblíbených -->
-            <div id="aktivita-oblibenych" class="tab-show w-full {% if category == 'aktivita-oblibenych' %}active{% endif %}">
-                <h3 class="after-h3 padding">Aktivita oblíbených</h3>
-                
-                <div class="flex flex-wrap">
-                    <div class="grid community-grid border w-full p-3">
-                        <div class="">
-                            <img src="https://div.cz/static/img/book/book.png" alt="Bez obrazku" style="max-width: 100px;">
-                        </div>
-
-                        <div class="flex flex-wrap w-full">
-                            <div class="flex justify-between p-1 w-full">
-                                <a class="" href="">
-                                    Uživatel
-                                </a>
-
-                                <p class="p-1">datum</p>
+            <div id="aktivita-oblibenych" class="tab-show {% if category == 'aktivita-oblibenych' %}active{% endif %}">
+                <div class="tab-content-item">
+                    <h3 class="after-h3">Aktivita oblíbených</h3>
+                    
+                    <div class="flex flex-wrap">
+                        <div class="grid community-grid border w-full p-3">
+                            <div class="">
+                                <img src="https://div.cz/static/img/book/book.png" alt="Bez obrazku" style="max-width: 100px;">
                             </div>
-                            
 
-                            <div class="p-1 w-full">
-                                <a class="" href="">
-                                    co hodnotil <!-- film, hra, kniha -->
-                                </a>
-                            </div> 
+                            <div class="flex flex-wrap w-full">
+                                <div class="flex justify-between p-1 w-full">
+                                    <a class="" href="">
+                                        Uživatel
+                                    </a>
 
-                            <!-- pokud hodnotil tak vypsat hvězdičky a pokud recenzoval, tak vypsat recenzi -->
-                            <div class="p-1 w-full">
-                                <div>
-                                    <p><strong>Hodnocení:</strong> <!-- 5* --></p>
+                                    <p class="p-1">datum</p>
                                 </div>
-                                <div>
-                                    <p><strong>Recenze:</strong></p>
-                                    <p><!-- výpis recenze --></p>
-                                </div>    
+                                
+
+                                <div class="p-1 w-full">
+                                    <a class="" href="">
+                                        co hodnotil <!-- film, hra, kniha -->
+                                    </a>
+                                </div> 
+
+                                <!-- pokud hodnotil tak vypsat hvězdičky a pokud recenzoval, tak vypsat recenzi -->
+                                <div class="p-1 w-full">
+                                    <div>
+                                        <p><strong>Hodnocení:</strong> <!-- 5* --></p>
+                                    </div>
+                                    <div>
+                                        <p><strong>Recenze:</strong></p>
+                                        <p><!-- výpis recenze --></p>
+                                    </div>    
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                </div>   
+                    </div>   
 
-                <!-- PAGINÁTOR -->
-                <div class="pagination">
-                    <span class="step-links">
-                
-                        <a class="first-page" href="">&laquo; První</a>
-                        <a href="">Předchozí</a>
-                
-                        <span class="current-page">
-                                /  
+                    <!-- PAGINÁTOR -->
+                    <div class="pagination">
+                        <span class="step-links">
+                    
+                            <a class="first-page" href="">&laquo; První</a>
+                            <a href="">Předchozí</a>
+                    
+                            <span class="current-page">
+                                    /  
+                            </span>
+                    
+                            <a href="">Další</a>
+                            <a class="last-page" href="">Poslední &raquo;</a>
+                    
                         </span>
-                
-                        <a href="">Další</a>
-                        <a class="last-page" href="">Poslední &raquo;</a>
-                
-                    </span>
-                </div> 
-                                    
+                    </div> 
+                                        
+                </div>
             </div>
 
         </div>

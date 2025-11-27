@@ -21,11 +21,13 @@
     .arrow {
         display: flex;
         align-items: center;
-        font-size: 24px; 
         transition: transform 0.3s ease; 
         height: 25px;
         text-align: center;
         margin-left: 5px;
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+        cursor: pointer;
     }
 
     .arrow-up {
@@ -146,25 +148,25 @@
     <!-- Levá strana -->
     <div class="left-side">
         <h2>
-        {% if book.titlecz %}
-            {{ book.titlecz }}
-            {% else %}
-            {{ book.title }}
-        {% endif %}
+            {% if book.titlecz %}
+                {{ book.titlecz }}
+                {% else %}
+                {{ book.title }}
+            {% endif %}
         </h2>
 
-    {% if messages %}
-        <div class="mt-3">
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
-                {{ message|safe }}
+        {% if messages %}
+            <div style="margin-top: .75rem;">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" role="alert">
+                    {{ message|safe }}
+                </div>
+            {% endfor %}
             </div>
-        {% endfor %}
-        </div>
-    {% endif %}
+        {% endif %}
 
         <!-- Info Bar -->
-        <div class="info-bar justify-between">
+        <div class="info-bar">
             <!-- Kontrola, zda je k dispozici rok -->
             <div>
                 {% if book.year %}
@@ -218,7 +220,7 @@
                 <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="img-fluid">
             {% endif %}
 
-                <div class="d-lg-none mb-2 sm:ml-5">
+                <div class="box-info-rating">
                     <div class="rating" data-rating="{{ average_rating }}">
                         <div class="rating-inner">
                             {{ average_rating }}%
@@ -604,7 +606,7 @@
         <!-- // IF PALMINKY DATA -->
 
         <!-- POPIS KNIHY -->
-        <div class="w-full">
+        <div style="width: 100%;">
             <p id="biography-text">
             {% if book.description %}
                 {{ book.description|safe }} 
@@ -626,7 +628,7 @@
             </ul>
     
             <!-- RECENZE -->
-            <div id="tab1" class="tab-content active">
+            <div id="tab1" class="tab-list active">
                 <div class="">    
                     <h3 class="after-h3" id="recenze">Recenze</h3> 
                      
@@ -661,7 +663,7 @@
             </div>
 
             <!-- POSTAVY -->
-            <div id="tab2" class="tab-content ">
+            <div id="tab2" class="tab-list ">
                 <div class=""> 
                     <div>
                         <h3 class="after-h3">Seznam postav v knize</h3>
@@ -757,7 +759,7 @@
             </div>
 
             <!-- CICÁTY -->
-            <div id="tab3" class="tab-content ">
+            <div id="tab3" class="tab-list ">
                 <h3 class="after-h3">Citáty z knihy {{ book.titlecz|default:book.title }}</h3>
 
                 <!-- přidat citát -->
@@ -813,7 +815,7 @@
             </div>
 
             <!-- ZAJÍMAVOSTI
-            <div id="tab4" class="tab-content ">
+            <div id="tab4" class="tab-list ">
                 <h3 class="after-h3">Informace o zajímavostech filmu</h3>
                 <h4>Přidat novou zajímavost</h4>
                 <form method="post" action="">
@@ -860,11 +862,11 @@
 
             <!-- DIVKVARIÁT -->
             <div id="market">
-                <div id="tab5" class="tab-content">
+                <div id="tab5" class="tab-list">
                     <h3 class="after-h3">Tuto knihu prodává / poptává</h3>
 
                     <!-- PRODAM / KOUPIM -->
-                    <details class="my-4">
+                    <details>
                         <summary style="font-size: 1.17rem;">Vytvořit nabídku (PRODÁM / KOUPÍM)</summary>
                         <div class="card">
                             <div class="card-body">
@@ -876,7 +878,7 @@
                                         <button type="submit" class="add-book">Vytvořit nabídku</button>
                                     </form>
                                 {% else %}
-                                    <div class="alert alert-warning">
+                                    <div class="alert">
                                         Pro vytvoření nabídky se musíte <a href="/prihlaseni/">přihlásit</a>.
                                     </div>
                                 {% endif %}
@@ -891,123 +893,121 @@
                             <h4 class="after-h3 ml-4">Prodává <span><small>({{ sell_listings.count }} {% if sell_listings.count == 1 %}uživatel{% elif sell_listings.count < 5 %}uživatelé{% else %}uživatelů{% endif %})</small></span></h4>
 
                             {% for listing in sell_listings %}
-                            <div class="flex {% cycle 'sudy' '' %}">
-                                <div class="w-full">
-                                    <div class="flex w-full items-center">
-                                        <span class="arrow text-xl cursor-pointer" data-ask-id="{{ listing.booklistingid }}">&#129083;</span>
-                                        <div class="flex justify-between w-full p-2">
-                                            <a href="{% url 'user_sell_listings' listing.user.id %}">{{ listing.user.username }}</a>
+                            <div class="flex sudy w-full">
+                                <div class="flex w-full items-center">
+                                    <span class="arrow" data-ask-id="{{ listing.booklistingid }}">&#129083;</span>
+                                    <div class="sell-listing">
+                                        <a href="{% url 'user_sell_listings' listing.user.id %}">{{ listing.user.username }}</a>
 
-                                            <span class="text-sm text-gray-500 ml-2">
+                                        <span class="listing-status">
                                             {% if listing.status == 'RESERVED' %}
                                                 <strong class="" style="color: #ccc">Rezervováno</strong>
-                                            {% elif listing.status == 'ACTIVE' %}
+                                                {% elif listing.status == 'ACTIVE' %}
                                                 <span class="">Aktivní</span>
-                                            {% elif listing.status == 'SHIPPED' %}
+                                                {% elif listing.status == 'SHIPPED' %}
                                                 <span class="">Posláno</span>
-                                            {% elif listing.status == 'COMPLETED' %}
+                                                {% elif listing.status == 'COMPLETED' %}
                                                 <span class="">Prodáno</span>
-                                            {% elif listing.status == 'PAID' %}
+                                                {% elif listing.status == 'PAID' %}
                                                 <span class="">Zaplaceno</span>
-                                            {% else %}
-                                                <span class="text-red-500">{{ listing.status }}</span>  {# fallback pro debugging #}
-                                            {% endif %}
-                                            </span>
-
-                                            <p>
-                                                {% if listing.listingtype == 'GIVE' %}
-                                                    Daruji
                                                 {% else %}
-                                                    {{ listing.price|floatformat:0 }} Kč
-                                                {% endif %}<br><a href="{% url 'listing_detail_sell' book.url listing.booklistingid %}" >Detail</a>
+                                                <span >{{ listing.status }}</span>  {# fallback pro debugging #}
+                                            {% endif %}
+                                        </span>
+
+                                        <p>
+                                            {% if listing.listingtype == 'GIVE' %}
+                                                Daruji
+                                            {% else %}
+                                                {{ listing.price|floatformat:0 }} Kč
+                                            {% endif %}<br><a href="{% url 'listing_detail_sell' book.url listing.booklistingid %}" >Detail</a>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div id="ask-details-{{ listing.booklistingid }}" class="collapse flex-wrap p-2">
+                                    <div class="flex w-full sm:flex-wrap items-start">
+                                    {% with book=listing.book %}
+                                        {% if book.img == "noimg.png" %}
+                                        <img src="/static/img/book/book.png" alt="{{ book.titlecz|default:book.title }}" class="pr-2" style="width:90px;height:auto">
+                                        {% elif book.img == "GoogleID" %}
+                                        <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}" class="pr-2" style="width:90px;height:auto;">
+                                        {% else %}
+                                        <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="pr-2" style="width:90px;height:auto;">
+                                        {% endif %}
+                                    {% endwith %}
+
+                                        <div class="flex flex-wrap">
+                                            {% if listing.location %}
+                                            <p class="flex justify-between w-full">
+                                                <strong>Lokalita: </strong>
+                                                <span>{{ listing.location }}</span>
                                             </p>
+                                            {% endif %}
+
+                                            {% if listing.condition %}
+                                            <p class="flex justify-between w-full">
+                                                <strong>Stav knihy: </strong>
+                                                <span>{{ listing.condition }}</span>
+                                            </p>
+                                            {% endif %}
+
+                                            {% if listing.listingtype != 'GIVE' %}
+                                            <p class="flex justify-between w-full">
+                                                <strong>Cena knihy: </strong>
+                                                <span>{{ listing.price|floatformat:0 }} Kč</span>
+                                            </p>
+                                            {% endif %}
+
+                                            {% if listing.shipping %}
+                                            <p class="flex justify-between w-full">
+                                                <strong>Poštovné: </strong>
+                                                <span>{{ listing.shipping|floatformat:0 }} Kč</span>
+                                            </p>
+                                            {% endif %}
+
+                                            {% if listing.personal_pickup %}
+                                            <p class="flex justify-between w-full">
+                                                <strong>Osobní převzetí: </strong>
+                                                <span>0 Kč</span>
+                                            </p>
+                                            {% endif %}
+
+                                            {% if listing.listingtype != 'GIVE' and listing.shipping %}
+                                            <p class="flex justify-between w-full">
+                                                <strong>Cena celkem: </strong>
+                                                <span>{{ listing.price|add:listing.shipping|floatformat:0 }} Kč</span>
+                                            </p>
+                                            {% endif %}
+
+                                            {% if listing.description %}
+                                            <p class="flex flex-wrap justify-between w-full">
+                                                <strong>Poznámka: </strong>
+                                                <span>{{ listing.description }}</span>
+                                            </p>
+                                            {% endif %}
                                         </div>
                                     </div>
 
-                                    <div id="ask-details-{{ listing.booklistingid }}" class="collapse flex-wrap p-2">
-                                        <div class="flex w-full sm:flex-wrap items-start">
-                                        {% with book=listing.book %}
-                                            {% if book.img == "noimg.png" %}
-                                            <img src="/static/img/book/book.png" alt="{{ book.titlecz|default:book.title }}" class="pr-2" style="width:90px;height:auto">
-                                            {% elif book.img == "GoogleID" %}
-                                            <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}" class="pr-2" style="width:90px;height:auto;">
-                                            {% else %}
-                                            <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="pr-2" style="width:90px;height:auto;">
-                                            {% endif %}
-                                        {% endwith %}
-
-                                            <div class="flex flex-wrap">
-                                                {% if listing.location %}
-                                                <p class="flex justify-between w-full">
-                                                    <strong>Lokalita: </strong>
-                                                    <span>{{ listing.location }}</span>
-                                                </p>
-                                                {% endif %}
-
-                                                {% if listing.condition %}
-                                                <p class="flex justify-between w-full">
-                                                    <strong>Stav knihy: </strong>
-                                                    <span>{{ listing.condition }}</span>
-                                                </p>
-                                                {% endif %}
-
-                                                {% if listing.listingtype != 'GIVE' %}
-                                                <p class="flex justify-between w-full">
-                                                    <strong>Cena knihy: </strong>
-                                                    <span>{{ listing.price|floatformat:0 }} Kč</span>
-                                                </p>
-                                                {% endif %}
-
-                                                {% if listing.shipping %}
-                                                <p class="flex justify-between w-full">
-                                                    <strong>Poštovné: </strong>
-                                                    <span>{{ listing.shipping|floatformat:0 }} Kč</span>
-                                                </p>
-                                                {% endif %}
-
-                                                {% if listing.personal_pickup %}
-                                                <p class="flex justify-between w-full">
-                                                    <strong>Osobní převzetí: </strong>
-                                                    <span>0 Kč</span>
-                                                </p>
-                                                {% endif %}
-
-                                                {% if listing.listingtype != 'GIVE' and listing.shipping %}
-                                                <p class="flex justify-between w-full">
-                                                    <strong>Cena celkem: </strong>
-                                                    <span>{{ listing.price|add:listing.shipping|floatformat:0 }} Kč</span>
-                                                </p>
-                                                {% endif %}
-
-                                                {% if listing.description %}
-                                                <p class="flex flex-wrap justify-between w-full">
-                                                    <strong>Poznámka: </strong>
-                                                    <span>{{ listing.description }}</span>
-                                                </p>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-
-                                        <div class="w-full flex justify-end mr-10">
-                                            <div class="relative flex">
-                                                <a href="{% url 'listing_detail_sell' book.url listing.booklistingid %}" 
-                                                class="more">Detail nabídky</a>
-                                                <span class="more-arrow first">
-                                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                                                        <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
-                                                    </svg>
-                                                </span>
-                                                <span class="more-arrow second">
-                                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                                                        <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
-                                                    </svg>
-                                                </span>
-                                                <span class="more-arrow third">
-                                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                                                        <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
-                                                    </svg>
-                                                </span>
-                                            </div>
+                                    <div class="w-full flex justify-end mr-10">
+                                        <div class="relative flex">
+                                            <a href="{% url 'listing_detail_sell' book.url listing.booklistingid %}" 
+                                            class="more">Detail nabídky</a>
+                                            <span class="more-arrow first">
+                                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                                    <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
+                                                </svg>
+                                            </span>
+                                            <span class="more-arrow second">
+                                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                                    <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
+                                                </svg>
+                                            </span>
+                                            <span class="more-arrow third">
+                                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                                    <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
+                                                </svg>
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -1019,60 +1019,60 @@
                         <!-- VÝPIS POPTÁVEK -->
                         {% if buy_listings %}
                         <div class="w-full pr-4 mb-5">
-                            <h4 class="after-h3 ml-4">Poptává <span><small>({{ buy_listings.count }} {% if buy_listings.count == 1 %}uživatel{% elif buy_listings.count < 5 %}uživatelé{% else %}uživatelů{% endif %})</small></span></h4>
+                            <h4 class="after-h3 ml-4">Poptává 
+                                <span><small>({{ buy_listings.count }} {% if buy_listings.count == 1 %}uživatel{% elif buy_listings.count < 5 %}uživatelé{% else %}uživatelů{% endif %})</small></span>
+                            </h4>
 
                             {% for listing in buy_listings %}
-                            <div class="flex {% cycle 'sudy' '' %}">
-                                <div class="w-full">
-                                    <div class="flex w-full items-center">
-                                        <span class="arrow text-xl cursor-pointer" data-ask-id="{{ listing.booklistingid }}">&#129083;</span>
-                                        <div class="flex justify-between w-full p-2">
-                                            <a href="{% url 'user_buy_listings' listing.user.id %}">{{ listing.user.username }}</a>
-                                            <p>{{ listing.price|floatformat:0 }} Kč</p>
+                            <div class="flex sudy w-full">
+                                <div class="flex w-full items-center">
+                                    <span class="arrow" data-ask-id="{{ listing.booklistingid }}">&#129083;</span>
+                                    <div class="flex justify-between w-full p-2">
+                                        <a href="{% url 'user_buy_listings' listing.user.id %}">{{ listing.user.username }}</a>
+                                        <p>{{ listing.price|floatformat:0 }} Kč</p>
+                                    </div>
+                                </div>
+
+                                <div id="ask-details-{{ listing.booklistingid }}" class="collapse flex-wrap p-2">
+                                    <div class="flex w-full sm:flex-wrap items-start">
+                                        <div class="flex flex-wrap w-full">
+                                            {% if listing.location %}
+                                            <p class="flex justify-between w-full">
+                                                <strong>Lokalita: </strong>
+                                                <span>{{ listing.location }}</span>
+                                            </p>
+                                            {% endif %}
+
+                                            <p class="flex justify-between w-full">
+                                                <strong>Nabízená cena: </strong>
+                                                <span>{{ listing.price|floatformat:0 }} Kč</span>
+                                            </p>
+
+                                            {% if listing.description %}
+                                            <p class="w-full mt-2">{{ listing.description }}</p>
+                                            {% endif %}
                                         </div>
                                     </div>
 
-                                    <div id="ask-details-{{ listing.booklistingid }}" class="collapse flex-wrap p-2">
-                                        <div class="flex w-full sm:flex-wrap items-start">
-                                            <div class="flex flex-wrap w-full">
-                                                {% if listing.location %}
-                                                <p class="flex justify-between w-full">
-                                                    <strong>Lokalita: </strong>
-                                                    <span>{{ listing.location }}</span>
-                                                </p>
-                                                {% endif %}
-
-                                                <p class="flex justify-between w-full">
-                                                    <strong>Nabízená cena: </strong>
-                                                    <span>{{ listing.price|floatformat:0 }} Kč</span>
-                                                </p>
-
-                                                {% if listing.description %}
-                                                <p class="w-full mt-2">{{ listing.description }}</p>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-
-                                        <div class="w-full flex justify-end mr-10">
-                                            <div class="relative flex">
-                                                <a href="{% url 'listing_detail_buy' book.url listing.booklistingid %}" 
-                                                class="more">Detail poptávky</a>
-                                                <span class="more-arrow first">
-                                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                                                        <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
-                                                    </svg>
-                                                </span>
-                                                <span class="more-arrow second">
-                                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                                                        <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
-                                                    </svg>
-                                                </span>
-                                                <span class="more-arrow third">
-                                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                                                        <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
-                                                    </svg>
-                                                </span>
-                                            </div>
+                                    <div class="w-full flex justify-end mr-10">
+                                        <div class="relative flex">
+                                            <a href="{% url 'listing_detail_buy' book.url listing.booklistingid %}" 
+                                            class="more">Detail poptávky</a>
+                                            <span class="more-arrow first">
+                                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                                    <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
+                                                </svg>
+                                            </span>
+                                            <span class="more-arrow second">
+                                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                                    <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
+                                                </svg>
+                                            </span>
+                                            <span class="more-arrow third">
+                                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                                    <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
+                                                </svg>
+                                            </span>
                                         </div>
                                     </div>
                                 </div>

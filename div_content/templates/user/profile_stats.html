@@ -10,6 +10,19 @@
 {% block meta %}
 
 <style>
+    .nav-tabs-item a.active,
+    .tab.active {
+        background-color: #607d8b;
+    }
+
+    .nav-tabs-link {
+        color: #607d8b;
+    }
+
+    .nav-tabs-link:is(.dark *) {
+        color: #607d8b;
+    }
+
     .stats-container h2 {
         font-size: 1.2em;
         margin-bottom: 10px;
@@ -35,8 +48,14 @@
         margin-bottom: 8px;
     }
 
-    .label {
-        width: 100px;
+    .stat-item p {
+        color: #0d0c0f;
+        padding-right: .25rem; /* 4px */
+        font-size: small;
+    }
+
+    .label-stat {
+        width: 115px;
     }
 
     .bar-container {
@@ -65,17 +84,10 @@
         border-radius: 5px;
     }
 
-    .nav-tabs-item a.active,
-    .tab.active {
-        background-color: #607D8B;
-    }
-
-    .nav-tabs-link {
-        color: #607D8B;
-    }
-
-    .nav-tabs-link:is(.dark *) {
-        color: #607D8B;
+    .tab-content-item h3 {
+        text-align: center;
+        font-weight: 700;
+        margin-bottom: 1.25rem; /* 20px */
     }
 
 </style>
@@ -86,63 +98,63 @@
 
 <div style="margin-top: 1.25rem;">
     <!-- Sekce záložek pro filmy, knihy, hry, statistiky -->
-    <div class="tab-profil">
-        <div class="tab {% if active_tab == 'filmy' %}active{% endif %}">
+    <ul class="tab-profil">
+        <li class="tab {% if active_tab == 'filmy' %}active{% endif %}">
             <i class="fa-solid fa-film"></i>
             <a class="movies" href="{% url 'profile_movies_section' profile_user.id %}">Filmy</a>
-        </div>
-        <div class="tab {% if active_tab == 'serialy' %}active{% endif %}">
+        </li>
+        <li class="tab {% if active_tab == 'serialy' %}active{% endif %}">
             <i class="fa-solid fa-video"></i>
             <a class="movies" href="{% url 'profile_series_section' profile_user.id %}">Seriály</a>
-        </div>
-        <div class="tab {% if active_tab == 'knihy' %}active{% endif %}">
+        </li>
+        <li class="tab {% if active_tab == 'knihy' %}active{% endif %}">
             <i class="fa-solid fa-book"></i>
             <a class="books" href="{% url 'profile_books_section' profile_user.id %}">Knihy</a>
-        </div>
-        <div class="tab {% if active_tab == 'hry' %}active{% endif %}">
+        </li>
+        <li class="tab {% if active_tab == 'hry' %}active{% endif %}">
             <i class="fa-solid fa-gamepad"></i>
             <a class="games" href="{% url 'profile_games_section' profile_user.id %}">Hry</a>
-        </div>
-        <div class="tab {% if active_tab == 'statistiky' %}active{% endif %}">
+        </li>
+        <li class="tab {% if active_tab == 'statistiky' %}active{% endif %}">
             <i class="fas fa-star"></i>
             <a class="stats" href="{% url 'profile_stats_section' profile_user.id %}">Statistiky</a>
-        </div>
-        <div class="tab {% if active_tab == 'vitrina' %}active{% endif %}">
+        </li>
+        <li class="tab {% if active_tab == 'vitrina' %}active{% endif %}">
             <i class="fa-solid fa-trophy"></i> 
             <a class="badges" href="{% url 'profile_show_case' profile_user.id %}">Vitrína</a>
-        </div>
-        <div class="tab {% if active_tab == 'obchod' %}active{% endif %}">
+        </li>
+        <li class="tab {% if active_tab == 'obchod' %}active{% endif %}">
             <i class="fa-solid fa-cart-shopping"></i>
             <a class="shop" href="{% url 'profile_eshop_section' profile_user.id %}">Obchod</a>
-        </div>
-        <div class="tab {% if active_tab == 'komunita' %}active{% endif %}" >
+        </li>
+        <li class="tab {% if active_tab == 'komunita' %}active{% endif %}" >
             <i class="fas fa-user"></i>
             <a class="community" href="{% url 'profile_community_section' profile_user.id %}">Má komunita</a>
-        </div>
+        </li>
 
         <!-- Indikátor pozadí -->
         <div class="background"></div>
 
-    </div>
+    </ul>
     
     <!-- Podkategorie záložek (hodnocení, oblíbené atd.) -->
-    <div class="row mt-5">
+    <div class="row" style="margin-top: 1.25rem;">
 
-        <div class="tab-content sm:p-5 w-full mb-3 bg-[#F9F9F9] dark:bg-[#1A161F]">
+        <div class="tab-content">
             <!-- Úvodní obsah -->
             <div id="intro-content" class="tab-show active">
-                <div class="after">
-                    <h3 class="text-center font-bold mb-5">MOJE FILMOVÉ STATISTIKY</h3>
+                <div class="tab-content-item">
+                    <h3>MOJE FILMOVÉ STATISTIKY</h3>
                     <div class="flex sm:flex-wrap">
                         <!-- NEJ ŽÁNRY-->
-                        <div class="stats-container w-full lg:stats-container">
+                        <div class="stats-container">
                             <h3 class="card-title after-h3">Nej žánry</h3>
                             {% if genre_percentages %}
                                 {% for genre_stat in genre_percentages %}
-                                    <div class="stat-item lg:mr-5">
-                                        <span class="label">{{ genre_stat.genre }}</span>
+                                    <div class="stat-item">
+                                        <span class="label-stat">{{ genre_stat.genre }}</span>
                                         <div class="bar-container flex justify-between flex-row-reverse">
-                                            <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">{{ genre_stat.percentage|floatformat:0 }}%</p>
+                                            <p>{{ genre_stat.percentage|floatformat:0 }}%</p>
                                             <div class="bar-movie" style="width: {{ genre_stat.percentage|floatformat:0 }}%;"></div>
                                         </div>
                                     </div>
@@ -151,7 +163,7 @@
                                 <div class="stat-item">
                                     <span>Žádná hodnocení</span>
                                     <!-- <div class="bar-container flex justify-between flex-row-reverse">
-                                        <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">0%</p>
+                                        <p>0%</p>
                                         <div class="bar-movie" style="width: 0%;"></div>
                                     </div> -->
                                 </div>
@@ -164,9 +176,9 @@
                             {% if country_percentages %}
                                 {% for country_stat in country_percentages %}
                                     <div class="stat-item">
-                                        <span class="label">{{ country_stat.country }}</span>
+                                        <span class="label-stat">{{ country_stat.country }}</span>
                                         <div class="bar-container flex justify-between flex-row-reverse">
-                                            <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">{{ country_stat.percentage|floatformat:0 }}%</p>
+                                            <p>{{ country_stat.percentage|floatformat:0 }}%</p>
                                             <div class="bar-movie" style="width: {{ country_stat.percentage|floatformat:0 }}%;"></div>
                                         </div>
                                     </div>
@@ -175,7 +187,7 @@
                                 <div class="stat-item">
                                     <span>Žádné hodnocené filmy podle zemí</span>
                                     <!-- <div class="bar-container flex justify-between flex-row-reverse">
-                                        <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">0%</p>
+                                        <p>0%</p>
                                         <div class="bar-movie" style="width: 0%;"></div>
                                     </div> -->
                                 </div>
@@ -185,8 +197,8 @@
                     </div>
                 </div>
 
-                <div class="after">
-                    <h3 class="text-center font-bold mb-5 mt-5">MOJE KNIŽNÍ STATISTIKY</h3>
+                <div class="tab-content-item">
+                    <h3>MOJE KNIŽNÍ STATISTIKY</h3>
                     <div class="flex sm:flex-wrap">
                         <!-- NEJ ŽÁNRY -->
                         <div class="stats-container w-full lg:stats-container">
@@ -194,9 +206,9 @@
                             {% if book_genre_percentages %}
                                 {% for genre_stat in book_genre_percentages %}
                                 <div class="stat-item lg:mr-5">
-                                    <span class="label">{{ genre_stat.genre }}</span>
+                                    <span class="label-stat">{{ genre_stat.genre }}</span>
                                     <div class="bar-container flex justify-between flex-row-reverse">
-                                        <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">{{ genre_stat.percentage|floatformat:0 }}%</p>
+                                        <p>{{ genre_stat.percentage|floatformat:0 }}%</p>
                                         <div class="bar-book" style="width: {{ genre_stat.percentage|floatformat:0 }}%;"></div>
                                     </div>
                                 </div>
@@ -205,7 +217,7 @@
                             <div class="stat-item">
                                 <span>Žádné hodnocené žánry</span>
                                 <!-- <div class="bar-container flex justify-between flex-row-reverse">
-                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">0%</p>
+                                    <p>0%</p>
                                     <div class="bar-book" style="width: 0%;"></div>
                                 </div> -->
                             </div>
@@ -218,9 +230,9 @@
                             {% if book_country_percentages %}
                                 {% for country_stat in book_country_percentages %}
                                     <div class="stat-item">
-                                        <span class="label">{{ country_stat.country }}</span>
+                                        <span class="label-stat">{{ country_stat.country }}</span>
                                         <div class="bar-container flex justify-between flex-row-reverse">
-                                            <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">{{ country_stat.percentage|floatformat:0 }}%</p>
+                                            <p>{{ country_stat.percentage|floatformat:0 }}%</p>
                                             <div class="bar-book" style="width: {{ country_stat.percentage|floatformat:0 }}%;"></div>
                                         </div>
                                     </div>
@@ -229,7 +241,7 @@
                                 <div class="stat-item">
                                     <span>Žádné hodnocené knihy podle zemí</span>
                                     <!-- <div class="bar-container flex justify-between flex-row-reverse">
-                                        <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">0%</p>
+                                        <p>0%</p>
                                         <div class="bar-book" style="width: 0%;"></div>
                                     </div> -->
                                 </div>
@@ -239,45 +251,45 @@
                     </div>
                 </div>
 
-                <div class="">
-                    <h3 class="text-center font-bold mb-5 mt-5">MOJE HERNÍ STATISTIKY</h3>
+                <div class="tab-content-item">
+                    <h3>MOJE HERNÍ STATISTIKY</h3>
                     <div class="flex sm:flex-wrap">
                         <!-- NEJ ŽÁNRY -->
                         <div class="stats-container w-full lg:stats-container">
                             <h3 class="card-title after-h3">Nej žánry</h3>
 
                             <div class="stat-item lg:mr-5">
-                                <span class="label">RPG</span>
+                                <span class="label-stat">RPG</span>
                                 <div class="bar-container flex justify-between flex-row-reverse">
-                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">75%</p>
+                                    <p>75%</p>
                                     <div class="bar-game" style="width: 75%;"></div>
                                 </div>
                             </div>
                             <div class="stat-item lg:mr-5">
-                                <span class="label">Logické</span>
+                                <span class="label-stat">Logické</span>
                                 <div class="bar-container flex justify-between flex-row-reverse">
-                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">60%</p>
+                                    <p>60%</p>
                                     <div class="bar-game" style="width: 60%;"></div>
                                 </div>
                             </div>
                             <div class="stat-item lg:mr-5">
-                                <span class="label">Strategie</span>
+                                <span class="label-stat">Strategie</span>
                                 <div class="bar-container flex justify-between flex-row-reverse">
-                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">50%</p>
+                                    <p>50%</p>
                                     <div class="bar-game" style="width: 50%;"></div>
                                 </div>
                             </div>
                             <div class="stat-item lg:mr-5">
-                                <span class="label">Bojové</span>
+                                <span class="label-stat">Bojové</span>
                                 <div class="bar-container flex justify-between flex-row-reverse">
-                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">40%</p>
+                                    <p>40%</p>
                                     <div class="bar-game" style="width: 40%;"></div>
                                 </div>
                             </div>
                             <div class="stat-item lg:mr-5">
-                                <span class="label">Sportovní</span>
+                                <span class="label-stat">Sportovní</span>
                                 <div class="bar-container flex justify-between flex-row-reverse">
-                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">32%</p>
+                                    <p>32%</p>
                                     <div class="bar-game" style="width: 32%;"></div>
                                 </div>
                             </div>
@@ -287,37 +299,37 @@
                         <div class="stats-container lg:pl-5 w-full">
                             <h3 class="card-title after-h3">Nej vydavatelé</h3>
                             <div class="stat-item ">
-                                <span class="label">Sony</span>
+                                <span class="label-stat">Sony</span>
                                 <div class="bar-container flex justify-between flex-row-reverse">
-                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">75%</p>
+                                    <p>75%</p>
                                     <div class="bar-game" style="width: 75%;"></div>
                                 </div>
                             </div>
                             <div class="stat-item ">
-                                <span class="label">Rockstar</span>
+                                <span class="label-stat">Rockstar</span>
                                 <div class="bar-container flex justify-between flex-row-reverse">
-                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">60%</p>
+                                    <p>60%</p>
                                     <div class="bar-game" style="width: 60%;"></div>
                                 </div>
                             </div>
                             <div class="stat-item ">
-                                <span class="label">Mindok</span>
+                                <span class="label-stat">Mindok</span>
                                 <div class="bar-container flex justify-between flex-row-reverse">
-                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">50%</p>
+                                    <p>50%</p>
                                     <div class="bar-game" style="width: 50%;"></div>
                                 </div>
                             </div>
                             <div class="stat-item ">
-                                <span class="label">Electronic</span>
+                                <span class="label-stat">Electronic</span>
                                 <div class="bar-container flex justify-between flex-row-reverse">
-                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">40%</p>
+                                    <p>40%</p>
                                     <div class="bar-game" style="width: 40%;"></div>
                                 </div>
                             </div>
                             <div class="stat-item ">
-                                <span class="label">Albi</span>
+                                <span class="label-stat">Albi</span>
                                 <div class="bar-container flex justify-between flex-row-reverse">
-                                    <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">32%</p>
+                                    <p>32%</p>
                                     <div class="bar-game" style="width: 32%;"></div>
                                 </div>
                             </div>
