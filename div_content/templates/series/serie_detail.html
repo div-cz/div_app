@@ -17,13 +17,13 @@
         <h2>{{ tvshow.titlecz }} </h2>
 
         {% if messages %}
-        <div class="mt-3">
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
-                {{ message|safe }}
+            <div style="margin-top: .75rem;">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" role="alert">
+                        {{ message|safe }}
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
         {% endif %}
 
         <!-- Info Bar -->
@@ -42,137 +42,159 @@
         </div>
 
         <div class="box-info">
-            <div class="box-img">
-                {% if tvshow.imgposter == "noimg.png" %}
-                <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ tvshow.titlecz }}" class="img-fluid">
-                {% else %}
-                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ tvshow.imgposter }}" alt="{{ twshow.titlecz }}" class="img-fluid">
-                {% endif %}
-        
-                <div class="box-info-rating">
-                    <div class="rating" data-rating="{{ average_rating }}">
-                        <div class="rating-inner">
-                            {{ average_rating }}%
+            <div class="box-body">
+                <div class="box-img">
+                    {% if tvshow.imgposter == "noimg.png" %}
+                        <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ tvshow.titlecz }}" class="img-fluid">
+                        {% else %}
+                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ tvshow.imgposter }}" alt="{{ twshow.titlecz }}" class="img-fluid">
+                    {% endif %}
+            
+                    <div class="box-info-rating">
+                        <div class="rating" data-rating="{{ average_rating }}">
+                            <div class="rating-inner">
+                                {{ average_rating }}%
+                            </div>
+                        </div>
+
+                        <div class="rating-stars" style="white-space: nowrap;">
+                            <div class="smaller-stars">{% ratings tvshow %}</div>
+                            <div id="rating-thankyou" class="alert" style="display: none;">Děkujeme za hodnocení!</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box-detail">
+                    <div class="box-info-rating">
+                        <div class="rating" data-rating="{{ average_rating }}">
+                            <div class="rating-inner">
+                                {{ average_rating }}%
+                            </div>
+                        </div>
+
+                        <div class="rating-stars" style="white-space: nowrap;">
+                            <div class="smaller-stars">{% ratings tvshow %}</div>
+                            <div id="rating-thankyou" class="alert" style="display: none;">Děkujeme za hodnocení!</div>
                         </div>
                     </div>
 
-                    <div class="rating-stars" style="white-space: nowrap;">
-                        <div class="smaller-stars">{% ratings tvshow %}</div>
-                        <div id="rating-thankyou" class="alert" style="display: none;">Děkujeme za hodnocení!</div>
-                    </div>
+                    <ul class="list-unstyled">
+                        <li><strong>Originální název:</strong> {{ tvshow.title }}</li>
+                        {% if genres %}
+                        <li><strong>Žánr:</strong>
+                            {% for genre in genres %}
+                                {{ genre.genreid.genrenamecz }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </li>
+                        {% endif %}
+
+                        {% if productions %}
+                        <li><strong>Produkce:</strong>
+                                {% for production in productions %}
+                                    {{ production.metaproductionid.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                        </li>
+                            {% else %}
+                        {% endif %}
+
+                        <li><strong>Premiéra:</strong> {{ tvshow.premieredate|date:"d.m.Y"|default:"Datum premiéry není dostupné" }}</li>
+                        <li><strong>Konec vysílání:</strong> 
+                                {% if tvshow.status == "Returning Series" %} Stále se natáčí 
+                                {% else %} 
+                                {{ tvshow.enddate|date:"d.m.Y"|default:"Datum konce vysílání není dostupné" }}
+                                {% endif %}
+                        </li>
+                        
+                        {% if directors %}
+                        <li><strong>Režie:</strong>
+                            {% for director in directors %}
+                                <a href="/tvurce/{{ director.peopleid.url }}">{{ director.peopleid.firstname }} {{ director.peopleid.lastname }}</a>{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </li>
+                        {% endif %}
+
+                        {% if actors_and_characters2 %}
+                        <li><strong>Hrají:</strong>
+                            {% for actor in actors_and_characters2 %}
+                                {% if not forloop.last %}
+                                <a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a>, 
+                                {% else %}
+                                <a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a>
+                                {% endif %}
+                            {% endfor %}
+                            , <a href="#tab2" id="go-to-characters">další...</a>
+                        </li>
+                        {% endif %}
+                    </ul>
                 </div>
             </div>
 
-            <div class="flex flex-wrap content-between flex-grow-1 sm:mt-5 w-full lg:w-55">
-                <ul class="list-unstyled">
-                    <li><strong>Originální název:</strong> {{ tvshow.title }}</li>
-                    {% if genres %}
-                    <li><strong>Žánr:</strong>
-                        {% for genre in genres %}
-                            {{ genre.genreid.genrenamecz }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </li>
-                    {% endif %}
-
-                    {% if productions %}
-                    <li><strong>Produkce:</strong>
-                            {% for production in productions %}
-                                {{ production.metaproductionid.name }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                    </li>
-                        {% else %}
-                    {% endif %}
-
-                    <li><strong>Premiéra:</strong> {{ tvshow.premieredate|date:"d.m.Y"|default:"Datum premiéry není dostupné" }}</li>
-                    <li><strong>Konec vysílání:</strong> 
-                            {% if tvshow.status == "Returning Series" %} Stále se natáčí 
-                            {% else %} 
-                            {{ tvshow.enddate|date:"d.m.Y"|default:"Datum konce vysílání není dostupné" }}
-                            {% endif %}
-                    </li>
-                    
-                    {% if directors %}
-                    <li><strong>Režie:</strong>
-                        {% for director in directors %}
-                            <a href="/tvurce/{{ director.peopleid.url }}">{{ director.peopleid.firstname }} {{ director.peopleid.lastname }}</a>{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </li>
-                    {% endif %}
-
-                    {% if actors_and_characters2 %}
-                    <li><strong>Hrají:</strong>
-                        {% for actor in actors_and_characters2 %}
-                            {% if not forloop.last %}
-                            <a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a>, 
-                            {% else %}
-                            <a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a>
-                            {% endif %}
-                        {% endfor %}
-                        , <a href="#tab2" id="go-to-characters">další...</a>
-                    </li>
-                    {% endif %}
-                </ul>
-
-                <!-- Tlačítka -->
-                {% if user.is_authenticated %}
-                <!-- Autorizován -->
+            <!-- Tlačítka -->
+            {% if user.is_authenticated %}
                 <div class="favorite-menu">
+
+                    <!-- Pokud není v Oblíbené -->
                     {% if not is_in_favourites %}
-                    <a href="{% url 'add_to_favourite_tvshow' tvshowid=tvshow.tvshowid %}" class="favorite-link" style="color: black;">
+                    <a href="{% url 'add_to_favourite_tvshow' tvshowid=tvshow.tvshowid %}" class="favorite-link" style="color: white;">
                     {% else %}
                     <a href="{% url 'remove_from_favourite_tvshow' tvshowid=tvshow.tvshowid %}" class="favorite-link">
                     {% endif %}
                         <span class="favorite-link-icon">
-                            <i class="fas fa-heart" style="color: {% if is_in_favourites %} #ED3F2F {% else %} #000000 {% endif %}"></i>
+                            <i class="fas fa-heart" style="color: {% if is_in_favourites %} #ED3F2F {% endif %}"></i>
                         </span>
-                        <span class="favorite-link-title" style="color: {% if is_in_favourites %} #ED3F2F {% else %} #000000 {% endif %}">Oblíbené</span>
-                        <span class="xl:hidden">Oblíbené</span>
+                        <span class="favorite-link-title" style="color: {% if is_in_favourites %} #ED3F2F {% endif %}">Oblíbené</span>
                     </a>
-                                       
+                    
+                    <!-- Pokud není v Seriálnuto -->
                     {% if not is_in_watched %}
-                    <a href="{% url 'add_to_watched_tvshows' tvshowid=tvshow.tvshowid %}" class="favorite-link" style="color: black;">
+                    <a href="{% url 'add_to_watched_tvshows' tvshowid=tvshow.tvshowid %}" class="favorite-link" style="color: white;">
                         {% else %}
                         <a href="{% url 'remove_from_watched_tvshows' tvshowid=tvshow.tvshowid %}" class="favorite-link">
                         {% endif %}
                             <span class="favorite-link-icon">
-                                <i class="fas fa-film" style="color: {% if is_in_watched %} #ED3F2F {% else %} #000000 {% endif %}"></i>
+                                <i class="fas fa-film" style="color: {% if is_in_watched %} #ED3F2F {% endif %}"></i>
                             </span>
-                            <span class="favorite-link-title" style="color: {% if is_in_watched %} #ED3F2F {% else %} #000000 {% endif %}">Seriálnuto</span>
-                            <span class="xl:hidden">Seriálnuto</span>
+                            <span class="favorite-link-title" style="color: {% if is_in_watched %} #ED3F2F {% endif %}">Seriálnuto</span>
                         </a>
 
+                    <!-- Pokud není v Seriálotéce -->
                     {% if not is_in_library %}
-                    <a href="{% url 'add_to_tvshow_library' tvshowid=tvshow.tvshowid %}" class="favorite-link" style="color: black;">
+                    <a href="{% url 'add_to_tvshow_library' tvshowid=tvshow.tvshowid %}" class="favorite-link" style="color: white;">
                         {% else %}
                         <a href="{% url 'remove_from_tvshow_library' tvshowid=tvshow.tvshowid %}" class="favorite-link">
                         {% endif %}
                             <span class="favorite-link-icon">
-                                <i class="fas fa-home" style="color: {% if is_in_library %} #ED3F2F {% else %} #000000 {% endif %}"></i>
+                                <i class="fas fa-home" style="color: {% if is_in_library %} #ED3F2F {% endif %}"></i>
                             </span>                            
-                        <span class="favorite-link-title" style="color: {% if is_in_library %} #ED3F2F {% else %} #000000 {% endif %}">Seriálotéka</span>
-                        <span class="xl:hidden">Seriálotéka</span>
+                        <span class="favorite-link-title" style="color: {% if is_in_library %} #ED3F2F {% endif %}">Seriálotéka</span>
                     </a>
 
+                    <!-- Pokud není v Chci vidět -->
                     {% if not is_in_watchlist %}
-                    <a href="{% url 'add_to_tvshow_watchlist' tvshowid=tvshow.tvshowid %}" class="favorite-link" style="color: black;">
+                    <a href="{% url 'add_to_tvshow_watchlist' tvshowid=tvshow.tvshowid %}" class="favorite-link" style="color: white;">
                         {% else %}
                         <a href="{% url 'remove_from_tvshow_watchlist' tvshowid=tvshow.tvshowid %}" class="favorite-link">
                         {% endif %}
                             <span class="favorite-link-icon">
-                                <i class="fas fa-eye" style="color: {% if is_in_watchlist %} #ED3F2F {% else %} #000000 {% endif %}"></i>
+                                <i class="fas fa-eye" style="color: {% if is_in_watchlist %} #ED3F2F {% endif %}"></i>
                             </span>  
-                        <span class="favorite-link-title" style="color: {% if is_in_watchlist %} #ED3F2F {% else %} #000000 {% endif %}">Chci vidět</span>
-                        <span class="xl:hidden">Chci vidět</span>
+                        <span class="favorite-link-title" style="color: {% if is_in_watchlist %} #ED3F2F {% endif %}">Chci vidět</span>
                     </a>
                 </div>
-                {% endif %}
-                <!-- Neautorizován -->
-
-                <div id="add-thankyou" class="alert" style="display: none;">Seriál přidán do seznamu!</div>
-            </div>
+            {% endif %}
         </div>
 
-        <p>{{ tvshow.description|default:"Žádný popis není k dispozici. Máš informace o tomto seriálu? Pomoz nám doplnit popis."|safe }}</p>
+        <!-- POPIS SERIÁLU -->
+        <div style="width: 100%; margin-bottom: 1rem;">
+            <p id="biography-text">
+                {% if tvshow.description %}
+                    {{ tvshow.description|safe }} 
+                    <p><a id="toggle-biography">Více...</a></p>   
+                {% else %}
+                    Zatím žádný popis    
+                {% endif %}
+            </p>
+        </div>
         
         <div class="card">
             <div class="card-body">
@@ -180,44 +202,45 @@
                 <div class="seasons-list">
                     {% if content_season_page %}
                         {% for season in content_season_page.object_list %}
-                        <div style="margin-bottom:10px">
-                            {% if season.img == "noimg.png" %}
-                                <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ season.titlecz }}" class="img-fluid" style="object-fit: cover; max-width: 50px;float:left;margin:0 15px 5px 0">
-                                {% else %}
-                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ season.img }}" alt="{{ season.titlecz }}" class="img-fluid" style="object-fit: cover;max-width: 50px;float:left;margin:0 15px 5px 0">
+                            <div style="margin-bottom:10px">
+                                {% if season.img == "noimg.png" %}
+                                        <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ season.titlecz }}" class="img-fluid" style="object-fit:cover; max-width:50px; float:left; margin:0 15px 5px 0">
+                                    {% else %}
+                                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ season.img }}" alt="{{ season.titlecz }}" class="img-fluid" style="object-fit:cover; max-width:50px;float:left; margin:0 15px 5px 0">
                                 {% endif %}
-                           
+                        
                                 <a href="{% url 'serie_season' tv_url=tvshow.url seasonurl=season.seasonurl %}">{{ season.seasonnumber }}. {{ season.titlecz }}</a>
         
                                 <p>Počet epizod: {{ season.seasonepisode }}</p>
                                 <p>Premiéra: {{ season.premieredate|date:"j. n. Y" }}</p>
                             </div>
                         {% endfor %}
-                    {% else %}
+                        {% else %}
                         <p>Žádné sezóny nejsou dostupné.</p>
                     {% endif %}
-                <!-- {% for season in seasons %}
+
+                {% for season in seasons %}
                     <div style="margin-bottom:10px">
-                    {% if season.img == "noimg.png" %}
-                        <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ season.titlecz }}" class="img-fluid" style="object-fit: cover; max-width: 50px;float:left;margin:0 15px 5px 0">
-                        {% else %}
-                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ season.img }}" alt="{{ season.titlecz }}" class="img-fluid" style="object-fit: cover;max-width: 50px;float:left;margin:0 15px 5px 0">
+                        {% if season.img == "noimg.png" %}
+                            <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ season.titlecz }}" class="img-fluid" style="object-fit:cover; max-width:50px;float:left; margin:0 15px 5px 0">
+                            {% else %}
+                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ season.img }}" alt="{{ season.titlecz }}" class="img-fluid" style="object-fit: cover;max-width: 50px;float:left;margin:0 15px 5px 0">
                         {% endif %}
-                   
+                        
                         <a href="{% url 'serie_season' tv_url=tvshow.url seasonurl=season.seasonurl %}">{{ season.seasonnumber }}. {{ season.titlecz }}</a>
 
                         <p>Počet epizod: {{ season.seasonepisode }}</p>
                         <p>Premiéra: {{ season.premieredate|date:"j. n. Y" }}</p>
                     </div>
-                {% empty %}
+                    {% empty %}
                     <p>Žádné sezóny nejsou dostupné.</p>
-                {% endfor %} -->
+                {% endfor %}
                 </div>
 
                 <hr> 
 
                 <!-- PAGINÁTOR -->
-                <!--<div class="pagination">
+                <div class="pagination">
                     <span class="step-links">
                     {% if content_season_page.has_previous %}
                         <a class="first-page" href="?content_page=1">&laquo; První</a>
@@ -233,7 +256,7 @@
                         <a class="last-page" href="?content_page={{ content_season_page.paginator.num_pages }}">Poslední &raquo;</a>
                     {% endif %}
                     </span>
-                </div>-->
+                </div>
             </div>
         </div>
 
@@ -325,7 +348,7 @@
 
                             <div class="postava-detail">
                             {% if actor.characterid %}
-                                <h4 class="w-full"><a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a></h4>
+                                <h4 style="width: 100%"><a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a></h4>
                                 {% if actor.characterid.characterbio %}
                                 <a href="/postava/{{ actor.characterid.characterurl }}" class="character-link">
                                     {{ actor.characterid.characternamecz|default:actor.characterid.charactername }}
@@ -407,25 +430,25 @@
             <div id="tab4" class="tab-list">
                 <h3 class="after-h3">Trailer</h3>
                 {% if tvshow_trailer %}
-                <iframe style="width:100%; height:300px" src="https://www.youtube.com/embed/{{ tvshow_trailer.youtubeurl }}" frameborder="0" allowfullscreen></iframe>
-                {% else %}
-                
-                {% if user.is_authenticated %}
-                <h4>Přidat trailer</h4>
-                <form method="post">
-                {% csrf_token %}
-                    {{ trailer_form.as_p }}
-
-                    {% if user.is_staff %}
-                    <button type="submit" class="add-movie">Přidat trailer (Jen YoutubeID: dGzY9zp46KI)</button>
+                    <iframe style="width:100%; height:300px" src="https://www.youtube.com/embed/{{ tvshow_trailer.youtubeurl }}" frameborder="0" allowfullscreen></iframe>
                     {% else %}
-                    <p style="color: #6c757d; font-size: 0.875rem; line-height: 1.25rem;">
-                        Chcete přidávat videa? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
-                    </p>
+                    
+                    {% if user.is_authenticated %}
+                        <h4>Přidat trailer</h4>
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ trailer_form.as_p }}
+
+                            {% if user.is_staff %}
+                                <button type="submit" class="add-movie">Přidat trailer (Jen YoutubeID: dGzY9zp46KI)</button>
+                                {% else %}
+                                <p style="color: #6c757d; font-size: 0.875rem; line-height: 1.25rem;">
+                                    Chcete přidávat videa? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
+                                </p>
+                            {% endif %}
+                        </form>
+                    {% endif %}
                 {% endif %}
-                </form>
-                {% endif %}
-            {% endif %}
             </div>
 
             <!-- HLÁŠKY -->
@@ -433,12 +456,12 @@
                 <h3 class="after-h3">Známé hlášky ze seriálu</h3>
                 <!-- přidat hlášku -->
                 {% if user.is_authenticated %}
-                <h4>Přidat novou hlášku</h4>
-                <form method="post">
-                    {% csrf_token %}
-                    <textarea name="quote_text" rows="3" required></textarea>
-                    <button type="submit" class="add-movie">Vložit hlášku</button>
-                </form>
+                    <h4>Přidat novou hlášku</h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        <textarea name="quote_text" rows="3" required></textarea>
+                        <button type="submit" class="add-movie">Vložit hlášku</button>
+                    </form>
                 {% endif %}
 
                 <!-- výpis hlášek -->
@@ -455,8 +478,18 @@
                             </p>
 
                             <!-- Hodnocení -->
-
-
+                            <div class="rating-buttons">
+                                <button class="thumb-btn" data-action="thumbsup" style="background:none;border:none;cursor:pointer;">
+                                    &#x1F44D; <span>{{ quote.thumbsup|default:0 }}</span>
+                                </button>
+                                <button class="thumb-btn" data-action="thumbsdown" style="background:none;border:none;cursor:pointer;">
+                                    &#x1F44E; <span>{{ quote.thumbsdown|default:0 }}</span>
+                                </button>
+                                <div class="star-display" style="display:inline-block;">
+                                    &#x2B50; <span>{{ quote.divrating|default:0 }}</span>
+                                </div>
+                            </div>
+                            
                         </div>
                     </li>
                 {% endfor %}
@@ -509,14 +542,14 @@
                             <span>
                             {% for _ in "12345" %}
                                 {% if forloop.counter <= rating.score %}
-                                <span class="text-warning">★</span>
+                                <span>★</span>
                                 {% else %}
                                 ☆
                                 {% endif %}
                             {% endfor %}
                             </span>
 
-                            {# Zobrazí tlačítko jen u vlastního hodnocení #}
+                            <!-- Zobrazí tlačítko jen u vlastního hodnocení -->
                             {% if rating.user == request.user %}
                             <form method="post" action="">
                                 {% csrf_token %}
@@ -564,7 +597,7 @@
                 <div class="flex flex-wrap">
                     {% if serie_page %}
                         {% for season in serie_page.object_list %}
-                        <a href="{% url 'serie_season' tv_url=tvshow.url seasonurl=season.seasonurl %}" class="w-full">
+                        <a href="{% url 'serie_season' tv_url=tvshow.url seasonurl=season.seasonurl %}" style="width: 100%">
                             {{ season.seasonnumber }}. {{ season.titlecz }}
                         </a>
                         {% endfor %}
@@ -572,7 +605,7 @@
                         <p>Žádné sezóny nejsou dostupné.</p>
                     {% endif %}
                 <!-- {% for season in seasons %}
-                    <a href="{% url 'serie_season' tv_url=tvshow.url seasonurl=season.seasonurl %}" class="w-full">{{ season.seasonnumber }}. {{ season.titlecz }}</a>
+                    <a href="{% url 'serie_season' tv_url=tvshow.url seasonurl=season.seasonurl %}" style="width: 100%">{{ season.seasonnumber }}. {{ season.titlecz }}</a>
                 {% empty %}
                     <p>Žádné sezóny nejsou dostupné.</p>
                 {% endfor %} -->
@@ -641,6 +674,36 @@
         </div>
     </div>
 </div>
+
+
+<!-- více, méně - zobrazit celý bio -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const bioElement = document.getElementById("biography-text");
+        const toggleButton = document.getElementById("toggle-biography");
+
+        const fullText = bioElement.innerText; // Store the full biography text
+        const truncatedText = fullText.substring(0, 500); // First 500 characters
+
+        // Check if text needs truncation
+        if (fullText.length > 500) {
+            bioElement.innerText = truncatedText + "...";
+        } else {
+            toggleButton.style.display = "none"; // Hide button if no truncation needed
+        }
+
+        // Toggle functionality
+        toggleButton.addEventListener("click", function () {
+            if (bioElement.innerText === truncatedText + "...") {
+                bioElement.innerText = fullText; // Show full text
+                toggleButton.innerText = "...Méně"; // Update button text
+            } else {
+                bioElement.innerText = truncatedText + "..."; // Show truncated text
+                toggleButton.innerText = "Více..."; // Update button text
+            }
+        });
+    });
+</script>
 
 {% endblock %}
 

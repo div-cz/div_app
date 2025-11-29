@@ -99,26 +99,25 @@
     <div class="left-side">
         <!-- carousel -->
         <div class="expandable">
-        {% for game in carousel_games %}
-            <div class="panel {% if forloop.first %}active{% endif %} border box-shadow" style="background-image: url('{% if game.img == "rawg.io" %}https://rawg.io/img/{{ game.img }}{% elif game.img %}https://media.div.cz/hry{{ game.img }}{% else %}/static/img/game/game.png{% endif %}')">
-                <!--<a href="/hra/{{ game.url }}"><h3>{{ game.title }}</h3></a>-->
-            </div>
-        {% endfor %}
+            {% for game in carousel_games %}
+                <div class="panel {% if forloop.first %}active{% endif %} border box-shadow" style="background-image: url('{% if game.img == "rawg.io" %}https://rawg.io/img/{{ game.img }}{% elif game.img %}https://media.div.cz/hry{{ game.img }}{% else %}/static/img/game/game.png{% endif %}')">
+                    <!--<a href="/hra/{{ game.url }}"><h3>{{ game.title }}</h3></a>-->
+                </div>
+            {% endfor %}
         </div>
 
         {% if messages %}
-        <div class="mt-3">
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}" role="alert" style="background-color:#d4edda; color:#155724; border-color:#c3e6cb; margin:30px 10px; padding:10px">
-                {{ message|safe }}
+            <div style="margin-top: .75rem;">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" role="alert">
+                        {{ message|safe }}
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
-        </div>
         {% endif %}
 
 
         <!-- generování her -->
-
         <div class="row my-4">
             <div class="tab-profil flex overflow-scroll lg:fit-content rounded-1xl dark:bg-[#1A161F] bg-[#FFFFFF] mb-2">
                 <div class="tab active">
@@ -266,7 +265,7 @@
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title after-h3">Brzy vyjde</h3>
-                <ul class="w-full" style="list-style-type:none">
+                <ul style="width: 100%;" style="list-style-type:none">
                     <li><a href="/hra/grand-theft-auto-vi">GTA VI.</a></li>
                     <li><a href="/hra/doom-the-dark-ages">DOOM</a></li>
                     <li><a href="/hra/ceske-legendy" title="Nejlepší česká deskovka">České legendy</a></li>
@@ -302,8 +301,8 @@
                             <img src="" alt="" class="rounded-l" style="width: 80px;">
                         </a>
                         <div class="flex flex-wrap content-between h-full p-2" style="flex: 2;">
-                            <p class="w-full"><a href="#">Název hry</a></p>
-                            <p class="w-full">150 Kč</p>
+                            <p style="width: 100%;"><a href="#">Název hry</a></p>
+                            <p style="width: 100%;">150 Kč</p>
                             <p class="text-sm text-end w-full">
                                 <small>Přidal: <a href="#">Uživatel123</a> | 31.8.2025</small>
                             </p>
@@ -346,11 +345,11 @@
                     <h3 class="font-bold">Články</h3><!--<a href="{% url 'articles_list' category='hry' %}"><small>Zobrazit vše</small></a>-->
                 </div>
                 <div class="flex flex-wrap after">
-                    <a href="https://div.cz/the-game-awards" class="w-full">The Game Awards</a> <!-- stačí název ne?-->
-                    <!--<a href="" class="w-full">článek 2</a>
-                    <a href="" class="w-full">článek 3</a>
-                    <a href="" class="w-full">článek 4</a>
-                    <a href="" class="w-full">článek 5</a>-->
+                    <a href="https://div.cz/the-game-awards" style="width: 100%;">The Game Awards</a> <!-- stačí název ne?-->
+                    <!--<a href="" style="width: 100%;">článek 2</a>
+                    <a href="" style="width: 100%;">článek 3</a>
+                    <a href="" style="width: 100%;">článek 4</a>
+                    <a href="" style="width: 100%;">článek 5</a>-->
                 </div>
                 <div class="text-right">
                     {% if user.is_superuser %}

@@ -208,220 +208,234 @@
         </div>
 
         <div class="box-info">
-            <div class="box-img">
-            {% if book.img == "noimg.png" %}
-                <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
-                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz|default:book.title }}" class="img-fluid">
-                {% elif book.img == "GoogleID" %}
-                <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
-                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}" class="img-fluid">
-                {% else %}
-                <!-- Jinak zobraz vlastní nahraný obrázek -->
-                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="img-fluid">
-            {% endif %}
+            <div class="box-body">
+                <div class="box-img">
+                    {% if book.img == "noimg.png" %}
+                        <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
+                        <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz|default:book.title }}" class="img-fluid">
+                        {% elif book.img == "GoogleID" %}
+                        <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
+                        <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}" class="img-fluid">
+                        {% else %}
+                        <!-- Jinak zobraz vlastní nahraný obrázek -->
+                        <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="img-fluid">
+                    {% endif %}
+                
+                    <div class="box-info-rating">
+                        <div class="rating" data-rating="{{ average_rating }}">
+                            <div class="rating-inner">
+                                {{ average_rating }}%
+                            </div>
+                        </div>
 
-                <div class="box-info-rating">
-                    <div class="rating" data-rating="{{ average_rating }}">
-                        <div class="rating-inner">
-                            {{ average_rating }}%
+                        <div class="rating-stars" style="white-space: nowrap;">
+                            <div class="smaller-stars">{% ratings book %}</div>
+                            <div id="rating-thankyou" class="alert" style="display: none;">Děkujeme za hodnocení!</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box-detail">
+                    <div class="box-info-rating">
+                        <div class="rating" data-rating="{{ average_rating }}">
+                            <div class="rating-inner">
+                                {{ average_rating }}%
+                            </div>
+                        </div>
+
+                        <div class="rating-stars" style="white-space: nowrap;">
+                            <div class="smaller-stars">{% ratings book %}</div>
+                            <div id="rating-thankyou" class="alert" style="display: none;">Děkujeme za hodnocení!</div>
                         </div>
                     </div>
 
-                    <div class="rating-stars" style="white-space: nowrap;">
-                        <div class="smaller-stars">{% ratings book %}</div>
-                        <div id="rating-thankyou" class="alert" style="display: none;">Děkujeme za hodnocení!</div>
-                    </div>
-                </div>
-            </div>
+                    <ul class="list-unstyled">
+                        <li><strong>Originální název: </strong>{{ book.title|default:"" }}</li>
 
-            <div class="flex flex-wrap content-between flex-grow-1 sm:mt-5 w-full lg:w-55">
-                <ul class="list-unstyled">
-                    <li><strong>Originální název: </strong>{{ book.title|default:"" }}</li>
-
-                    <!-- AUTOR -->
-                    {% if authors %}
-                    <li><strong>Autor:</strong>
-                    {% for author in authors %}
-                        <a href="/autor/{{ author.url }}">{{ author.firstname }} {{ author.lastname }}</a>
-                        {% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                    </li>
-                    {% elif book.author %}
-                    <li><strong>Autor:</strong> {{ book.author }}</li>
-                    {% endif %}
-
-                    <!-- ŽÁNR -->
-                    {% if genres %}
-                    <li><strong>Žánr:</strong>
-                        {% for book_genre in genres %}
-                        <!--<a href="/knihy/{{ book_genre.genreid.url }}">-->{{ book_genre.genreid.genrenamecz }}<!--</a>-->
-                        {% if not forloop.last %},{% endif %}
+                        <!-- AUTOR -->
+                        {% if authors %}
+                        <li><strong>Autor:</strong>
+                        {% for author in authors %}
+                            <a href="/autor/{{ author.url }}">{{ author.firstname }} {{ author.lastname }}</a>
+                            {% if not forloop.last %}, {% endif %}
                         {% endfor %}
-                    </li>
-                    {% endif %}
-            
-                    <!-- SÉRIE -->
-                    {% if series %}
-                    <li><strong>Série:</strong>  
-                        <a href="/svet/{{ series.universumurl }}">
-                        {% if series.universumnamecz %}
-                        {{ series.universumnamecz }}
-                        {% else %}
-                        {{ series.universumname }}
+                        </li>
+                        {% elif book.author %}
+                        <li><strong>Autor:</strong> {{ book.author }}</li>
                         {% endif %}
-                        </a>
-                    </li>
-                    {% else %}
-                    <li><strong>Série:</strong> -</li>
-                    {% endif %}
 
-                    <!-- JAZYK -->
-                    {% if book.language %}
-                    <li><strong>Jazyk:</strong> 
-                    {% if book.language == 'cs' %}
-                        čeština
-                    {% elif book.language == 'aj' %}  
-                        angličtina
-                    {% else %}
-                        {{ book.language }}
-                    {% endif %}
-                    </li>
-                    {% endif %}
+                        <!-- ŽÁNR -->
+                        {% if genres %}
+                        <li><strong>Žánr:</strong>
+                            {% for book_genre in genres %}
+                            <!--<a href="/knihy/{{ book_genre.genreid.url }}">-->{{ book_genre.genreid.genrenamecz }}<!--</a>-->
+                            {% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        </li>
+                        {% endif %}
+                
+                        <!-- SÉRIE -->
+                        {% if series %}
+                        <li><strong>Série:</strong>  
+                            <a href="/svet/{{ series.universumurl }}">
+                            {% if series.universumnamecz %}
+                            {{ series.universumnamecz }}
+                            {% else %}
+                            {{ series.universumname }}
+                            {% endif %}
+                            </a>
+                        </li>
+                        {% else %}
+                        <li><strong>Série:</strong> -</li>
+                        {% endif %}
 
-                    <li><strong>Nakladatelství:</strong>
-                        <!--Nejsou zatím data <a href="">Nějaké nakladatelství</a>-->
-                    </li>
+                        <!-- JAZYK -->
+                        {% if book.language %}
+                        <li><strong>Jazyk:</strong> 
+                        {% if book.language == 'cs' %}
+                            čeština
+                        {% elif book.language == 'aj' %}  
+                            angličtina
+                        {% else %}
+                            {{ book.language }}
+                        {% endif %}
+                        </li>
+                        {% endif %}
 
+                        <li><strong>Nakladatelství:</strong>
+                            <!--Nejsou zatím data <a href="">Nějaké nakladatelství</a>-->
+                        </li>
 
-                <!-- E-Book zdarma -->
-                    {% if primary_source == "MLP" %}
-                        <br>Zdroj e-knihy: <br>
-                        <a href="https://www.mlp.cz/cz/" target="_blank">
-                            <img src="https://media.div.cz/logo/eknihy/mlp.png" 
-                                alt="MLP" title="Městská knihovna v Praze" 
+                        <!-- E-Book zdarma -->
+                        {% if primary_source == "MLP" %}
+                            <br>Zdroj e-knihy: <br>
+                            <a href="https://www.mlp.cz/cz/" target="_blank">
+                                <img src="https://media.div.cz/logo/eknihy/mlp.png" 
+                                    alt="MLP" title="Městská knihovna v Praze" 
+                                    style="height:60px;margin-left:8px;">
+                            </a>
+                        {% elif primary_source == "PALM" %}
+                            <br>Zdroj e-knihy: <br>
+                                <img src="https://media.div.cz/logo/eknihy/palmknihy.png" 
+                                    alt="Palmknihy" title="Palmknihy" 
+                                    style="height:60px;margin-left:8px;">
+                        {% elif primary_source == "DIV" %}
+                            <br>Zdroj e-knihy: <br>
+                            <img src="https://media.div.cz/logo/eknihy/div.png" 
+                                alt="DIV" title="DIV e-knihy" 
                                 style="height:60px;margin-left:8px;">
-                        </a>
-                    {% elif primary_source == "PALM" %}
-                        <br>Zdroj e-knihy: <br>
-                            <img src="https://media.div.cz/logo/eknihy/palmknihy.png" 
-                                alt="Palmknihy" title="Palmknihy" 
-                                style="height:60px;margin-left:8px;">
-                    {% elif primary_source == "DIV" %}
-                        <br>Zdroj e-knihy: <br>
-                        <img src="https://media.div.cz/logo/eknihy/div.png" 
-                            alt="DIV" title="DIV e-knihy" 
-                            style="height:60px;margin-left:8px;">
-                    {% endif %}
+                        {% endif %}
 
-                    <!-- POSTAVY -->
-                    {% if characters_with_roles %}
-                    <li><strong>Postavy:</strong>
-                    {% for character_with_role in characters_with_roles %}
-                        {% with character=character_with_role.characterid %}
-                            {% if character.characterbio %}
-                                <a href="/postava/{{ character.characterurl }}">
+                        <!-- POSTAVY -->
+                        {% if characters_with_roles %}
+                        <li><strong>Postavy:</strong>
+                        {% for character_with_role in characters_with_roles %}
+                            {% with character=character_with_role.characterid %}
+                                {% if character.characterbio %}
+                                    <a href="/postava/{{ character.characterurl }}">
+                                        {% if character.characternamecz %}
+                                            {{ character.characternamecz }},
+                                        {% else %}
+                                            {{ character.charactername }},
+                                        {% endif %}
+                                    </a>
+                                {% else %}
                                     {% if character.characternamecz %}
                                         {{ character.characternamecz }},
                                     {% else %}
                                         {{ character.charactername }},
                                     {% endif %}
-                                </a>
-                            {% else %}
-                                {% if character.characternamecz %}
-                                    {{ character.characternamecz }},
-                                {% else %}
-                                    {{ character.charactername }},
                                 {% endif %}
-                            {% endif %}
-                            {% if character_with_role.characterrole %}
-                                - {{ character_with_role.characterrole }}
-                            {% endif %}
-                        {% endwith %}
-                        {% if not forloop.last %}
+                                {% if character_with_role.characterrole %}
+                                    - {{ character_with_role.characterrole }}
+                                {% endif %}
+                            {% endwith %}
+                            {% if not forloop.last %}
 
-                        {% endif %}
-                    {% endfor %}
-                    </li>
-                {% endif %}
-                </ul>
-
-                <div class="w-full mt-4">
-                    <!-- ICONY --><!--
-                    <div class="flex items-center">
-                        <p><strong>Vyšlo jako:</strong></p>
-                        <img src="/static/img/book/book_icon.png" alt="kniha" title="kniha" class="ml-2" style="width: 20px; height: 20px;">
-                        <img src="/static/img/book/e-book_icon.png" alt="e-kniha" title="e-kniha" class="ml-2" style="width: 20px; height: 20px;">
-                        <img src="/static/img/book/cd_icon.png" alt="audiokniha" title="audiokniha" class="ml-2" style="width: 20px; height: 20px;">
-                    </div>-->
-
-                    <!-- Tlačítka -->
-                    {% if user.is_authenticated %}
-                    <div class="favorite-menu">
-                        
-                        <!-- OBLÍBENÉ -->
-                        {% if not is_in_favourites %}
-                        <a href="{% url 'add_to_favourite_books' bookid=book.bookid %}" class="favorite-link" style="color: black;">
-                            {% else %}
-                            <a href="{% url 'remove_from_favourites_books' bookid=book.bookid %}" class="favorite-link">
                             {% endif %}
-                                <span class="favorite-link-icon">
-                                    <i class="fas fa-heart" style="color: {% if is_in_favourites %} #4FB021 {% else %} #000000 {% endif %}"></i>
-                                </span>
-                                <span class="favorite-link-title"style="color: {% if is_in_favourites %} #4FB021 {% else %} #000000 {% endif %}">Oblíbené</span>
-                                <span class="xl:hidden">Oblíbené</span>
-                            </a>
-                        </a>
-
-                        <!-- PŘEČTENO -->
-                        {% if not is_in_read_books %}
-                        <a href="{% url 'add_to_read_books' bookid=book.bookid %}" class="favorite-link" style="color: black;">
-                            {% else %}
-                            <a href="{% url 'remove_from_read_books' bookid=book.bookid %}" class="favorite-link">
-                            {% endif %}
-                                <span class="favorite-link-icon">
-                                    <i class="fas fa-book" style="color: {% if is_in_read_books %} #4FB021 {% else %} #000000 {% endif %}"></i>
-                                </span>
-                                <span class="favorite-link-title" style="color: {% if is_in_read_books %} #4FB021 {% else %} #000000 {% endif %}">Přečteno</span>
-                                <span class="xl:hidden">Přečteno</span>
-                            </a>
-                        </a>
-
-                        <!-- KNIHOVNA -->
-                        {% if not is_in_book_library %}
-                        <a href="{% url 'add_to_book_library' bookid=book.bookid %}" class="favorite-link" style="color: black;">
-                            {% else %}
-                            <a href="{% url 'remove_from_book_library' bookid=book.bookid %}" class="favorite-link">
-                            {% endif %}
-                                <span class="favorite-link-icon">
-                                    <i class="fas fa-home" style="color: {% if is_in_book_library %} #4FB021 {% else %} #000000 {% endif %}"></i>
-                                </span>
-                                <span class="favorite-link-title" style="color: {% if is_in_book_library %} #4FB021 {% else %} #000000 {% endif %}">Knihovna</span>
-                                <span class="xl:hidden">Knihovna</span>
-                            </a>
-                        </a>
-
-                        <!-- CHCI ČÍST -->
-                        {% if not is_in_readlist %}
-                        <a href="{% url 'add_to_readlist' bookid=book.bookid %}" class="favorite-link" style="color: black;">
-                            {% else %}
-                            <a href="{% url 'remove_from_readlist' bookid=book.bookid %}" class="favorite-link">
-                            {% endif %}
-                                <span class="favorite-link-icon">
-                                    <i class="fas fa-book-reader" style="color: {% if is_in_readlist %} #4FB021 {% else %} #000000 {% endif %}"></i>
-                                </span>
-                                <span class="favorite-link-title" style="color: {% if is_in_readlist %} #4FB021 {% else %} #000000 {% endif %}">Chci číst</span>
-                                <span class="xl:hidden">Chci číst</span>
-                            </a>
-                        </a>
-                    </div>
+                        {% endfor %}
+                        </li>
                     {% endif %}
+                    </ul>
                 </div>
             </div>
+            
+            <!-- Tlačítka -->
+            {% if user.is_authenticated %}
+                <div class="favorite-menu">
+                    
+                    <!-- OBLÍBENÉ -->
+                    {% if not is_in_favourites %}
+                    <a href="{% url 'add_to_favourite_books' bookid=book.bookid %}" class="favorite-link" style="color: white;">
+                        {% else %}
+                        <a href="{% url 'remove_from_favourites_books' bookid=book.bookid %}" class="favorite-link">
+                        {% endif %}
+                            <span class="favorite-link-icon">
+                                <i class="fas fa-heart" style="color: {% if is_in_favourites %} #4FB021 {% endif %}"></i>
+                            </span>
+                            <span class="favorite-link-title"style="color: {% if is_in_favourites %} #4FB021 {% endif %}">Oblíbené</span>
+                            <span class="xl:hidden">Oblíbené</span>
+                        </a>
+                    </a>
+
+                    <!-- PŘEČTENO -->
+                    {% if not is_in_read_books %}
+                    <a href="{% url 'add_to_read_books' bookid=book.bookid %}" class="favorite-link" style="color: white;">
+                        {% else %}
+                        <a href="{% url 'remove_from_read_books' bookid=book.bookid %}" class="favorite-link">
+                        {% endif %}
+                            <span class="favorite-link-icon">
+                                <i class="fas fa-book" style="color: {% if is_in_read_books %} #4FB021 {% endif %}"></i>
+                            </span>
+                            <span class="favorite-link-title" style="color: {% if is_in_read_books %} #4FB021 {% endif %}">Přečteno</span>
+                            <span class="xl:hidden">Přečteno</span>
+                        </a>
+                    </a>
+
+                    <!-- KNIHOVNA -->
+                    {% if not is_in_book_library %}
+                    <a href="{% url 'add_to_book_library' bookid=book.bookid %}" class="favorite-link" style="color: white;">
+                        {% else %}
+                        <a href="{% url 'remove_from_book_library' bookid=book.bookid %}" class="favorite-link">
+                        {% endif %}
+                            <span class="favorite-link-icon">
+                                <i class="fas fa-home" style="color: {% if is_in_book_library %} #4FB021 {% endif %}"></i>
+                            </span>
+                            <span class="favorite-link-title" style="color: {% if is_in_book_library %} #4FB021 {% endif %}">Knihovna</span>
+                            <span class="xl:hidden">Knihovna</span>
+                        </a>
+                    </a>
+
+                    <!-- CHCI ČÍST -->
+                    {% if not is_in_readlist %}
+                    <a href="{% url 'add_to_readlist' bookid=book.bookid %}" class="favorite-link" style="color: white;">
+                        {% else %}
+                        <a href="{% url 'remove_from_readlist' bookid=book.bookid %}" class="favorite-link">
+                        {% endif %}
+                            <span class="favorite-link-icon">
+                                <i class="fas fa-book-reader" style="color: {% if is_in_readlist %} #4FB021 {% endif %}"></i>
+                            </span>
+                            <span class="favorite-link-title" style="color: {% if is_in_readlist %} #4FB021 {% endif %}">Chci číst</span>
+                            <span class="xl:hidden">Chci číst</span>
+                        </a>
+                    </a>
+                </div>
+            {% endif %}
         </div>
 
         <!-- KOUPIT -->
         <div class="flex flex-wrap items-center" style="margin: 20px 0;">
             <h3 class="mb-3 sm:w-full">KOUPIT</h3>
+            <!-- ICONY -->
+            <!-- <div style="width:100%; margin-top:1rem;">
+                <div class="flex items-center">
+                    
+                    <img src="/static/img/book/book_icon.png" alt="kniha" title="kniha" class="ml-2" style="width: 20px; height: 20px;">
+                    <img src="/static/img/book/e-book_icon.png" alt="e-kniha" title="e-kniha" class="ml-2" style="width: 20px; height: 20px;">
+                    <img src="/static/img/book/cd_icon.png" alt="audiokniha" title="audiokniha" class="ml-2" style="width: 20px; height: 20px;">
+                </div>
+            </div> -->
+
             <div class="flex flex-wrap">
                 <!-- Tlačítko E-kniha -->
                 <button type="button"
@@ -490,24 +504,23 @@
                                         Tento e-mail je napevno spojen s objednávkou.<br>
                                         V případě dotazů kontaktujte podporu info@div.cz.
                                     </div>
-
                                 </div>
                             </div>
                             {% endif %}
 
                             {% if user.is_authenticated %}
-                            <input type="hidden" id="js-bookid" value="{{ book.bookid }}">
-                            <!-- Blok akcí pro vybraný formát -->
-                            <div id="ebook-action-block"></div>
-                            {% else %}
-                            <div class="my-2">
-                                <a href="/prihlaseni/" class="add-book">Přihlaš se</a>
-                                nebo
-                                <a href="/registrace/" class="add-book">Registruj se</a>
-                                <br>
-                                <span style="color:#6c757d;">Pro nákup a stažení e-knihy je nutné mít účet.</span>
-                            </div>
-                        {% endif %}
+                                <input type="hidden" id="js-bookid" value="{{ book.bookid }}">
+                                <!-- Blok akcí pro vybraný formát -->
+                                <div id="ebook-action-block"></div>
+                                {% else %}
+                                <div class="my-2">
+                                    <a href="/prihlaseni/" class="add-book">Přihlaš se</a>
+                                    nebo
+                                    <a href="/registrace/" class="add-book">Registruj se</a>
+                                    <br>
+                                    <span style="color:#6c757d;">Pro nákup a stažení e-knihy je nutné mít účet.</span>
+                                </div>
+                            {% endif %}
                         </form>
                     </div>
                 </div>
@@ -538,59 +551,59 @@
                 </button>
                 
                 {% if user.is_authenticated %}
-                <!-- náhled poslechu -->
-                <div class="overlay hidden" id="audio-overlay"></div>
-                <div class="popup hidden" id="audio-popup">
-                    <p>{{ audio.description }}</p>
-                    <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closeAudioPopup">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                    <div>
-                        <img src="" style="width: 100px;"> <!-- QR kód -->
+                    <!-- náhled poslechu -->
+                    <div class="overlay hidden" id="audio-overlay"></div>
+                    <div class="popup hidden" id="audio-popup">
+                        <p>{{ audio.description }}</p>
+                        <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closeAudioPopup">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                        <div>
+                            <img src="" style="width: 100px;"> <!-- QR kód -->
+                        </div>
+                        <!--<audio controls>
+                            <source src="audiokniha.mp3" type="audio/mpeg">
+                            Prohlížeč nezná značku audio. 
+                            <a href="audiokniha.mp3">Nahrávku</a> si stáhněte.
+                        </audio>-->
                     </div>
-                    <!--<audio controls>
-                        <source src="audiokniha.mp3" type="audio/mpeg">
-                        Prohlížeč nezná značku audio. 
-                        <a href="audiokniha.mp3">Nahrávku</a> si stáhněte.
-                    </audio>-->
-                </div>
                 {% else %}
-                <div class="overlay hidden" id="audio-overlay"></div>
-                <div class="popup hidden" id="audio-popup">
-                    <p>Audio kniha pouze pro <a href="/prihlaseni/">přihlášené</a> a <a href="https://div.cz/registrace/">registrované</a>.</p>
-                    <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closeAudioPopup">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                    <div>
-                        <img src="" style="width: 100px;"> <!-- QR kód -->
+                    <div class="overlay hidden" id="audio-overlay"></div>
+                    <div class="popup hidden" id="audio-popup">
+                        <p>Audio kniha pouze pro <a href="/prihlaseni/">přihlášené</a> a <a href="https://div.cz/registrace/">registrované</a>.</p>
+                        <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closeAudioPopup">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                        <div>
+                            <img src="" style="width: 100px;"> <!-- QR kód -->
+                        </div>
+                        <!--<audio controls>
+                            <source src="audiokniha.mp3" type="audio/mpeg">
+                            Prohlížeč nezná značku audio. 
+                            <a href="audiokniha.mp3">Nahrávku</a> si stáhněte.
+                        </audio>-->
                     </div>
-                    <!--<audio controls>
-                        <source src="audiokniha.mp3" type="audio/mpeg">
-                        Prohlížeč nezná značku audio. 
-                        <a href="audiokniha.mp3">Nahrávku</a> si stáhněte.
-                    </audio>-->
-                </div>
                 {% endif %}
 
                 {% with total_listings=sell_listings.count|add:buy_listings.count %}
-                <button type="submit" href="#tab5" id="go-to-market" class="add-book ml-3 mt-0 mb-2" style="width: 122px; padding: 0.5em 0;">
-                    <img src="/static/img/book/book_icon.png" alt="kniha" title="kniha" class="mr-2" style="width: 35px;">
-                    <div class="flex flex-col">
-                        <p>Bazar</p>
-                        <p style="font-size: 80%;">
-                        {% with c=sell_listings.count %}
-                                {{ c }}
-                                {% if c == 1 %}
-                                    inzerát
-                                {% elif c >= 2 and c <= 4 %}
-                                    inzeráty
-                                {% else %}
-                                    inzerátů
-                                {% endif %}
-                        {% endwith %}
-                        </p>
-                    </div>
-                </button>
+                    <button type="submit" href="#tab5" id="go-to-market" class="add-book ml-3 mt-0 mb-2" style="width: 122px; padding: 0.5em 0;">
+                        <img src="/static/img/book/book_icon.png" alt="kniha" title="kniha" class="mr-2" style="width: 35px;">
+                        <div class="flex flex-col">
+                            <p>Bazar</p>
+                            <p style="font-size: 80%;">
+                            {% with c=sell_listings.count %}
+                                    {{ c }}
+                                    {% if c == 1 %}
+                                        inzerát
+                                    {% elif c >= 2 and c <= 4 %}
+                                        inzeráty
+                                    {% else %}
+                                        inzerátů
+                                    {% endif %}
+                            {% endwith %}
+                            </p>
+                        </div>
+                    </button>
                 {% endwith %}
 
             </div>
@@ -606,14 +619,14 @@
         <!-- // IF PALMINKY DATA -->
 
         <!-- POPIS KNIHY -->
-        <div style="width: 100%;">
+        <div style="width: 100%; margin-bottom: 1rem;">
             <p id="biography-text">
-            {% if book.description %}
-                {{ book.description|safe }} 
-                <p><a id="toggle-biography">Více...</a></p>   
-            {% else %}
-                Zatím žádný popis    
-            {% endif %}
+                {% if book.description %}
+                    {{ book.description|safe }} 
+                    <p><a id="toggle-biography">Více...</a></p>   
+                {% else %}
+                    Zatím žádný popis    
+                {% endif %}
             </p>
         </div>
 
@@ -628,12 +641,11 @@
             </ul>
     
             <!-- RECENZE -->
-            <div id="tab1" class="tab-list active">
-                <div class="">    
-                    <h3 class="after-h3" id="recenze">Recenze</h3> 
-                     
-                    <!-- přidat recenzi -->       
-                    {% if user.is_authenticated %}
+            <div id="tab1" class="tab-list active">   
+                <h3 class="after-h3" id="recenze">Recenze</h3> 
+                    
+                <!-- přidat recenzi -->       
+                {% if user.is_authenticated %}
                     <h4>Přidat novou recenzi</h4>
                     <form method="post" action="{% url 'book_detail' book_url=book.url %}">
                         {% csrf_token %}
@@ -641,63 +653,63 @@
                         <button type="submit" class="add-book">Vložit recenzi</button>
                     </form>
                     {% else %}
-                    <p>Pro komentování je nutné být <a href="/prihlaseni/">přihlášený</a>.<br>
-                    Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
-                    {% endif %}
+                    <p>Pro komentování je nutné být 
+                        <a href="/prihlaseni/">přihlášený</a>.
+                        <br>Nemáš účet? Nevadí, 
+                        <a href="/registrace/">rychlá registrace!</a>
+                    </p>
+                {% endif %}
 
-                    <!-- výpis recenzí -->
-                    <ul class="list-unstyled komentar">
-                    {% for comment in comments %}
-                        <li class="card-body">
-                            <p class="after">{{ comment.comment }}</p>
-                            <div class="user">
-                                <p>{{ comment.dateadded }}</p>
-                                <p>Přidal: 
-                                    <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a>
-                                </p>
-                            </div>
-                        </li>
-                    {% endfor %}
-                    </ul>
-                </div>
+                <!-- výpis recenzí -->
+                <ul class="list-unstyled komentar">
+                {% for comment in comments %}
+                    <li class="card-body">
+                        <p class="after">{{ comment.comment }}</p>
+                        <div class="user">
+                            <p>{{ comment.dateadded }}</p>
+                            <p>Přidal: 
+                                <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a>
+                            </p>
+                        </div>
+                    </li>
+                {% endfor %}
+                </ul>
             </div>
 
             <!-- POSTAVY -->
             <div id="tab2" class="tab-list ">
-                <div class=""> 
-                    <div>
-                        <h3 class="after-h3">Seznam postav v knize</h3>
-            
-                        {% if user.is_authenticated %}
-                        <h4>Přidat postavu ke knize</h4>
-                        <p>Z důvodu milionů postav trvá načítání řádově vteřiny</p>
-                        <form method="post" name="character_form">
-                            {% csrf_token %}
-                            <div>
-                                <label for="character_query">Hledat postavu:</label>
-                                <input type="text" id="character_query" class="form-control" placeholder="Začněte psát jméno postavy...">
-                                <ul id="character_results"></ul>
-                            </div>
-                            <input type="hidden" name="characterid" id="selected_character_id">
+                <h3 class="after-h3">Seznam postav v knize</h3>
+    
+                {% if user.is_authenticated %}
+                    <h4>Přidat postavu ke knize</h4>
+                    <p>Z důvodu milionů postav trvá načítání řádově vteřiny</p>
+                    <form method="post" name="character_form">
+                        {% csrf_token %}
+                        <div>
+                            <label for="character_query">Hledat postavu:</label>
+                            <input type="text" id="character_query" class="form-control" placeholder="Začněte psát jméno postavy...">
+                            <ul id="character_results"></ul>
+                        </div>
+                        <input type="hidden" name="characterid" id="selected_character_id">
 
-                            <label for="charactermain">Typ postavy:</label>
-                            <select name="charactermain" class="form-control">
-                                <option value="1">Hlavní postava</option>
-                                <option value="0">Vedlejší postava</option>
-                                <option value="3">Hlavní v části knihy</option>
-                            </select>
+                        <label for="charactermain">Typ postavy:</label>
+                        <select name="charactermain" class="form-control">
+                            <option value="1">Hlavní postava</option>
+                            <option value="0">Vedlejší postava</option>
+                            <option value="3">Hlavní v části knihy</option>
+                        </select>
 
-                            {% if user.is_staff %}
+                        {% if user.is_staff %}
                             <button type="submit" name="add_character" class="add-book">Přidat postavu</button>
                             {% else %}
                             <p style="color: #6c757d; font-size: 0.875rem; line-height: 1.25rem;">
                                 Chcete přidávat postavy? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
                             </p>
                         {% endif %}
-                        </form>
+                    </form>
 
-                        <!-- výpis postav -->
-                        {% for character_with_role in characters_with_roles %}
+                    <!-- výpis postav -->
+                    {% for character_with_role in characters_with_roles %}
                         <div style="font-size:16px">
                             {% with character=character_with_role.characterid %}
                                 {% if character.characterbio %}
@@ -723,39 +735,36 @@
 
                             {% endif %}
                         </div>
-                        {% endfor %}
+                    {% endfor %}
 
-                        <script>
-                            document.getElementById('character_query').addEventListener('input', function () {
-                                const query = this.value;
-                                const resultsList = document.getElementById('character_results');
+                    <script>
+                        document.getElementById('character_query').addEventListener('input', function () {
+                            const query = this.value;
+                            const resultsList = document.getElementById('character_results');
 
-                                if (query.length > 2) {
-                                    fetch(`/kniha/ajax/postava/?q=${query}`)
-                                        .then(response => response.json())
-                                        .then(data => {
-                                            resultsList.innerHTML = '';
-                                            data.results.forEach(character => {
-                                                const li = document.createElement('li');
-                                                li.textContent = character.charactername;
-                                                li.dataset.id = character.characterid;
-                                                li.addEventListener('click', function () {
-                                                    document.getElementById('selected_character_id').value = this.dataset.id;
-                                                    document.getElementById('character_query').value = this.textContent;
-                                                    resultsList.innerHTML = '';
-                                                });
-                                                resultsList.appendChild(li);
+                            if (query.length > 2) {
+                                fetch(`/kniha/ajax/postava/?q=${query}`)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        resultsList.innerHTML = '';
+                                        data.results.forEach(character => {
+                                            const li = document.createElement('li');
+                                            li.textContent = character.charactername;
+                                            li.dataset.id = character.characterid;
+                                            li.addEventListener('click', function () {
+                                                document.getElementById('selected_character_id').value = this.dataset.id;
+                                                document.getElementById('character_query').value = this.textContent;
+                                                resultsList.innerHTML = '';
                                             });
+                                            resultsList.appendChild(li);
                                         });
-                                } else {
-                                    resultsList.innerHTML = '';
-                                }
-                            });
-                        </script>
-                    {% endif %}
-                    </div>
-
-                </div>
+                                    });
+                            } else {
+                                resultsList.innerHTML = '';
+                            }
+                        });
+                    </script>
+                {% endif %}
             </div>
 
             <!-- CICÁTY -->
@@ -1119,31 +1128,32 @@
                     </div>
 
                     {% if ratings %}
-                    <ul class="list-unstyled rating-users">
-                    {% for rating in ratings %}
-                        <li class="after">
-                            <small><p style="text-align: center; padding: .25rem;">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
-                            <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a>
-                            <span>
-                                {% for _ in "12345" %}
-                                {% if forloop.counter <= rating.score %}
-                                <span class="text-warning">★</span>  {# Třída `text-warning` v Bootstrapu nastaví žlutou barvu #}
-                                {% else %}
-                                ☆
-                                {% endif %}
-                                {% endfor %}
-                            </span>
+                        <ul class="list-unstyled rating-users">
+                            {% for rating in ratings %}
+                                <li class="after">
+                                    <small><p style="text-align: center; padding: .25rem;">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
+                                    <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a>
+                                    <span>
+                                        {% for _ in "12345" %}
+                                            {% if forloop.counter <= rating.score %}
+                                                <span class="text-warning">★</span>
+                                                {# Třída `text-warning` v Bootstrapu nastaví žlutou barvu #}
+                                                {% else %}
+                                                ☆
+                                            {% endif %}
+                                        {% endfor %}
+                                    </span>
 
-                            {# Zobrazí tlačítko jen u vlastního hodnocení #}
-                            {% if rating.user == request.user %}
-                            <form method="post" action="{% url 'remove_book_rating' book_url=book.url %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn add-book"><i class="fa-solid fa-trash-can"></i>Smazat hodnocení</button>
-                            </form>
-                            {% endif %}
-                        </li>
-                        {% endfor %}
-                    </ul>
+                                    <!-- Zobrazí tlačítko jen u vlastního hodnocení -->
+                                    {% if rating.user == request.user %}
+                                        <form method="post" action="{% url 'remove_book_rating' book_url=book.url %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn add-book"><i class="fa-solid fa-trash-can"></i>Smazat hodnocení</button>
+                                        </form>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
                     {% endif %}
                 </div>
             </div>
@@ -1151,60 +1161,60 @@
 
         <!-- Série -->
         {% if series %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title after-h3">
-                    Série:  <a href="/svet/{{ series.universumurl }}">
-                        {% if series.universumnamecz %}
-                        {{ series.universumnamecz }}
-                        {% else %}
-                        {{ series.universumname }}
-                        {% endif %}                    
-                    </a>
-                </h3>
-                <div class="flex flex-wrap">
-                    {% for book in series_books %}
-                    <a href="/kniha/{{ book.url }}" class="w-full">{{ book.titlecz|default:book.title }}</a>
-                    {% endfor %}
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title after-h3">
+                        Série:  <a href="/svet/{{ series.universumurl }}">
+                            {% if series.universumnamecz %}
+                                {{ series.universumnamecz }}
+                                {% else %}
+                                {{ series.universumname }}
+                            {% endif %}                    
+                        </a>
+                    </h3>
+                    <div class="flex flex-wrap">
+                        {% for book in series_books %}
+                            <a href="/kniha/{{ book.url }}" class="w-full">{{ book.titlecz|default:book.title }}</a>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        </div>
-        {% else %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title after-h3">Další díla</h3>
-                <div class="flex flex-wrap">
-                    Ke knize neevidujeme pokračování
+            {% else %}
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title after-h3">Další díla</h3>
+                    <div class="flex flex-wrap">
+                        Ke knize neevidujeme pokračování
+                    </div>
                 </div>
             </div>
-        </div>
         {% endif %}
 
         {% if request.user.is_superuser %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title">Přidat na hlavní stranu</h3>
-                <form method="post">
-                {% csrf_token %}
-                    <button type="submit" name="add_to_metaindex" class="add-book mt-2">
-                        Přidat na hlavní stránku
-                    </button>
-                </form>
-            </div>
-        </div>
-        {% endif %}
-
-        {% if request.user.is_superuser %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title">Upravit DIV Rating</h3>
-                <form method="post">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Přidat na hlavní stranu</h3>
+                    <form method="post">
                     {% csrf_token %}
-                    {{ book_div_rating_form.as_p }} <!-- Vyměňte za odpovídající proměnnou -->
-                    <button type="submit" name="update_divrating" class="add-book mt-2">Uložit</button>
-                </form>
+                        <button type="submit" name="add_to_metaindex" class="add-book mt-2">
+                            Přidat na hlavní stránku
+                        </button>
+                    </form>
+                </div>
             </div>
-        </div>
+        {% endif %}
+
+        {% if request.user.is_superuser %}
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Upravit DIV Rating</h3>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ book_div_rating_form.as_p }} <!-- Vyměňte za odpovídající proměnnou -->
+                        <button type="submit" name="update_divrating" class="add-book mt-2">Uložit</button>
+                    </form>
+                </div>
+            </div>
         {% endif %}
 
         <div class="card">
@@ -1213,22 +1223,22 @@
                 <p style="width: 100%;">Sdílet na:</p>
 
                 <!-- Facebook Share Button -->
-                <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/kniha/{{ book.url }}" class="btn btn-primary mb-2 mr-1" style="color: white;" target="_blank" title="Facebook">
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/kniha/{{ book.url }}" class="btn btn-primary" style="color: white;" target="_blank" title="Facebook">
                     <i class="fab fa-facebook-f"></i>
                 </a>
 
                 <!-- Twitter Share Button -->
-                <a href="https://twitter.com/intent/tweet?url=https://div.cz/kniha/{{ book.url }}&text={{ book.titlecz|default:book.title }}" class="btn btn-info mb-2 mr-1" style="color: white;" target="_blank" title="Twitter">
+                <a href="https://twitter.com/intent/tweet?url=https://div.cz/kniha/{{ book.url }}&text={{ book.titlecz|default:book.title }}" class="btn btn-info" style="color: white;" target="_blank" title="Twitter">
                     <i class="fab fa-twitter"></i>
                 </a>
 
                 <!-- E-mail Share Button -->
-                <a href="mailto:?subject={{ book.titlecz|default:book.title }}&body=Podívej se na https://div.cz/kniha/{{ book.url }}" class="btn btn-dark mb-2 mr-1" style="color: white;" target="_blank" title="E-mail">
+                <a href="mailto:?subject={{ book.titlecz|default:book.title }}&body=Podívej se na https://div.cz/kniha/{{ book.url }}" class="btn btn-dark" style="color: white;" target="_blank" title="E-mail">
                     <i class="fas fa-envelope"></i>
                 </a>
 
                 <!-- WhatsApp Share Button -->
-                <a href="https://wa.me/?text={{ book.titlecz|default:book.title }} - https://div.cz/kniha/{{ book.url }}" class="btn btn-success mb-2" style="color: white;" target="_blank" title="WhatsApp">
+                <a href="https://wa.me/?text={{ book.titlecz|default:book.title }} - https://div.cz/kniha/{{ book.url }}" class="btn btn-success" style="color: white;" target="_blank" title="WhatsApp">
                     <i class="fab fa-whatsapp"></i>
                 </a>
 

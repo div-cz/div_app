@@ -5,201 +5,153 @@
 
 {% block title %}Žebříčky knih | DIV.cz{% endblock %}
 
-{% block content %}
+{% block meta %}
 
 <style>
     .navbar, footer {
         background: linear-gradient(90deg, #003300 10%, #61872B 90%);
     }
 
-    .tab-show.hidden {
-        display: none;
-    }
-
-    .tab-show.active {
-        display: block;
-    }
-
-    .stats-container {
-        padding: 20px;
-    }
-
-    .stat-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-
-    .label {
-        width: 100px;
-        font-weight: bold;
-    }
-
-    .bar-container {
-        flex-grow: 1;
-        background-color: #d3d3d3; 
-        border-radius: 5px;
-        margin-left: 10px;
-    }
-
-    .bar-movie {
-        height: 20px;
+    .nav-tabs-item a.active,
+    .tab.active,
+    .rating-score {
         background-color: #61872B;
-        border-radius: 5px;
     }
 
-    #action-header {
-        cursor: pointer;
-        border-radius: .25rem;
-        padding: 5px 10px;
-        border: 1px solid black;
+    .nav-tabs-link,
+    .tab-content a {
+        color: #61872B;
     }
 
-    .custom-select {
-        position: relative;
-        display: flex;
-        justify-content: flex-end;
-        margin: 10px;
-        text-align: center;
-        min-width: 175px;
+    .nav-tabs-link:is(.dark *),
+    .tab-content a:is(.dark *) {
+        color: #4FB021;
     }
-
-    .select-options {
-        flex-wrap: wrap;
-        position: absolute;
-        background-color: #f9f9f9;
-        box-shadow: 0px 0px 10px 0px #9E9E9E;
-        border-radius: 10px;
-        z-index: 1;
-        right: 0;
-        margin-top: 35px;
-        text-align: left;
-        font-size: small;
-        width: 130px;
-        overflow: scroll;
-        max-height: 400px;
-    }
-
-    .select-options a {
-        color: black;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-        cursor: pointer;
-        width: 100%;
-        transition: 0s;
-    }
-
+    
     .select-options a:hover {
         background-color: #61872B;
         color: white;
     }
+
+    .rating-score:is(.dark *) {
+        background: #4FB021;
+    }
+
 </style>
 
-<h2 class="w-full"><a href="{% url 'charts_index' %}">Žebříčky</a> / Knihy</h2>
+{% endblock %}
+
+{% block content %}
+
+<h2><a href="{% url 'charts_index' %}" class="books">Žebříčky</a> / Knihy</h2>
 
 <!-- Podkategorie záložek (hodnocení, herci atd.) -->
-<div class="row mt-5">
-    <ul class="nav nav-tabs overflow-scroll">
+<div class="row" style="margin-top: 1.25rem; width: 100%;">
+    <ul class="nav nav-tabs">
         <li class="nav-tabs-item">
-            <a class="nav-tabs-link border active" 
-            href="#hodnoceni" id="tab-hodnoceni">Nejlepší</a>
+            <a class="nav-tabs-link active" href="#hodnoceni" id="tab-hodnoceni">Nejlepší</a>
         </li>
         <li class="nav-tabs-item">
-            <a class="nav-tabs-link border" 
-            href="#spisovatele" id="tab-spisovatele">Spisovatelé</a>
+            <a class="nav-tabs-link" href="#spisovatele" id="tab-spisovatele">Spisovatelé</a>
         </li>
         <li class="nav-tabs-item">
-            <a class="nav-tabs-link border" 
-            href="#zeme" id="tab-zeme">Země</a>
+            <a class="nav-tabs-link" href="#zeme" id="tab-zeme">Země</a>
         </li>
         <li class="nav-tabs-item">
-            <a class="nav-tabs-link border" 
-            href="#nakladatelstvi" id="tab-nakladatelstvi">Nakladatelství</a>
+            <a class="nav-tabs-link" href="#nakladatelstvi" id="tab-nakladatelstvi">Nakladatelství</a>
         </li>
-        <!-- <li class="nav-tabs-item">
-            <a class="nav-tabs-link border" 
-            href="#" id="tab-"></a>
-        </li>
-        <li class="nav-tabs-item">
-            <a class="nav-tabs-link border" 
-            href="#" id="tab-"></a>
-        </li> -->
     </ul>
 
-    <div class="tab-content w-full mb-3 bg-[#F9F9F9] dark:bg-[#1A161F]">
-
+    <div class="tab-content">
         <!-- Tab Hodnocení -->
-        <div id="hodnoceni" class="tab-show w-full sx:p-0 {% if not hash or hash == 'hodnoceni' %}active{% else %}hidden{% endif %}">
-            <h3 class="after-h3 sx:padding">Nejlépe hodnocené knihy</h3>
-            <div class="table lg:pr-5">
-                {% for book in best_books %}
-                <div class="grid items-center p-1 border charts-grid sudy">
-                    <div>
-                        <img src="https://books.google.com/books/content?id={{ book.img }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.title }}" style="width: 60px;">
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="p-1">{{ forloop.counter }}. <a href="{% url 'book_detail' book.url %}">{{ book.title }}</a> ({{ book.year }})</h3>
-                        <p class="p-1">Spisovatel: 
-
-                            {% if book.authorid and book.authorid.url %}
-                                <a href="{% url 'author_detail' author_url=book.authorid.url %}">{{ book.author }}</a>
-                            {% else %}
-                                {{ book.author }}
-                            {% endif %}
-
-                        </p>
-                        <p class="p-1">{{ book.countryid.countrynamecz }}</p>
-                    </div>
-                    <div class="text-center">
-                        <p>99%</p> <!-- % FILMU-->
-                        <p>10.000</p> <!-- POČET HODNOCENÍ -->
-                    </div>
+        <div id="hodnoceni" class="tab-show active {% if not hash or hash == 'hodnoceni' %}active{% else %}hidden{% endif %}">
+            <div class="tab-content-item">
+                <h3 class="after-h3">Nejlépe hodnocené knihy</h3>
+                <div class="table">
+                    {% for book in best_books %}
+                        <div class="table-row">
+                            <img src="https://books.google.com/books/content?id={{ book.img }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.title }}" style="width: 70px;">
+                            <div style="margin-left: .75rem;">
+                                <h3>{{ forloop.counter }}. 
+                                    <a href="{% url 'book_detail' book.url %}">
+                                        {{ book.title }}
+                                    </a> 
+                                    ({{ book.year }})
+                                </h3>
+                                <p>Spisovatel: 
+                                    {% if book.authorid and book.authorid.url %}
+                                        <a href="{% url 'author_detail' author_url=book.authorid.url %}">{{ book.author }}</a>
+                                    {% else %}
+                                        {{ book.author }}
+                                    {% endif %}
+                                </p>
+                                <p>{{ book.countryid.countrynamecz }}</p>
+                            </div>
+                            <div class="rating-box">
+                                <div class="rating-score">
+                                    <span class="rating-value">99%</span>
+                                </div>
+                                <div class="rating-count">
+                                    <i class="fa-solid fa-users"></i>
+                                    <span>10 000</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
         </div>
 
         <!-- Tab Spisovitelé -->
-        <div id="spisovatele" class="tab-show w-full sx:p-0 {% if hash == 'spisovatele' %}active{% else %}hidden{% endif %}">
-            <div class="w-full flex flex-wrap justify-between sx:p-0">
+        <div id="spisovatele" class="tab-show {% if hash == 'spisovatele' %}active{% else %}hidden{% endif %}">
+            <div class="tab-content-two-items">
                 <!-- Levý sloupec: Nejoblíbenější spisovatelky -->
-                <div class="w-1/2 sm:w-full pr-4 lg:stats-container">
-                    <h3 class="after-h3 sx:padding">Nejoblíbenější spisovatelé</h3>
-                    <div class="table lg:pr-5">
+                <div class="tab-content-item">
+                    <h3 class="after-h3">Nejoblíbenější spisovatelé</h3>
+                    <div class="table">
                         {% for author in popular_authors %}
-                        <div class="flex items-center p-1 border sudy">
-                            <div>
-                                <img src="https://div.cz/static/img/creator/noperson.svg" alt="{{ author.firstname }} {{ author.lastname }}" style="width: 70px;">
+                            <div class="table-row">
+                                <img src="https://div.cz/static/img/creator/noperson.svg" alt="{{ author.firstname }} {{ author.lastname }}" style="width: 70px; height: 90px;">
+                                <div style="margin-left: .75rem;">
+                                    <h3>{{ forloop.counter }}. 
+                                        <a href="{% url 'creator_detail' author.url %}">
+                                            {{ author.firstname }} 
+                                            {{ author.lastname }}
+                                        </a>
+                                    </h3>
+                                    <p>Země: {{ author.countryid.countrynamecz }}</p>
+                                </div>
+                                <div class="fan-count-container" title="počet fanoušků">
+                                    <i class="fa-regular fa-heart fan-icon"></i>
+                                    <span class="fan-number">100</span>
+                                </div>
                             </div>
-                            <div class="ml-3">
-                                <h3 class="p-1">{{ forloop.counter }}. <a href="{% url 'creator_detail' author.url %}">{{ author.firstname }} {{ author.lastname }}</a></h3>
-                                <p class="p-1">Země: {{ author.countryid.countrynamecz }}</p>
-                                <p class="p-1">Počet fanoušků</p>
-                            </div>
-                        </div>
                         {% endfor %}
                     </div>
                 </div>
         
                 <!-- Pravý sloupec: Nejoblíbenější spisovatelé -->
-                <div class="w-1/2 sm:w-full pl-4 sm:mt-10 lg:pl-5">
-                    <h3 class="after-h3 sx:padding">Nejoblíbenější spisovatelky</h3>
-                    <div class="table lg:pr-5">
+                <div class="tab-content-item">
+                    <h3 class="after-h3">Nejoblíbenější spisovatelky</h3>
+                    <div class="table">
                         {% for authoress in popular_authoresses %}
-                        <div class="flex items-center p-1 border sudy">
-                            <div>
-                                <img src="https://div.cz/static/img/creator/noperson.svg" alt="{{ authoress.firstname }} {{ authoress.lastname }}" style="width: 70px;">
+                            <div class="table-row">
+                                <img src="https://div.cz/static/img/creator/noperson.svg" alt="{{ authoress.firstname }} {{ authoress.lastname }}" style="width: 70px; height: 90px;">
+                                <div style="margin-left: .75rem;">
+                                    <h3>{{ forloop.counter }}. 
+                                        <a href="{% url 'author_detail' authoress.url %}">
+                                            {{ authoress.firstname }} 
+                                            {{ authoress.lastname }}
+                                        </a>
+                                    </h3>
+                                    <p>Země: {{ authoress.countryid.countrynamecz }}</p>
+                                </div>
+                                <div class="fan-count-container" title="počet fanoušků">
+                                    <i class="fa-regular fa-heart fan-icon"></i>
+                                    <span class="fan-number">100</span>
+                                </div>
                             </div>
-                            <div class="ml-3">
-                                <h3 class="p-1">{{ forloop.counter }}. <a href="{% url 'author_detail' authoress.url %}">{{ authoress.firstname }} {{ authoress.lastname }}</a></h3>
-                                <p class="p-1">Země: {{ authoress.countryid.countrynamecz }}</p>
-                                <p class="p-1">Počet fanoušků</p>
-                            </div>
-                        </div>
                         {% endfor %}
-
-                        
                     </div>
                 </div>
 
@@ -207,94 +159,94 @@
         </div>
 
         <!-- Tab Země -->
-        <div id="zeme" class="tab-show w-full sx:p-0 {% if hash == 'zeme' %}active{% else %}hidden{% endif %}">
-            <div class="w-full flex flex-wrap justify-between sx:p-0">
+        <div id="zeme" class="tab-show {% if hash == 'zeme' %}active{% else %}hidden{% endif %}">
+            <div class="tab-content-two-items">
                 <!-- Levý sloupec: Nejoblíbenější země -->
-                <div class="w-1/2 sm:w-full pr-4 lg:stats-container">
-                    <h3 class="after-h3 sx:padding">Nejčtenější knihy ze zemí..</h3>
-                    <div class="table lg:pr-5">
+                <div class="tab-content-item">
+                    <h3 class="after-h3">Nejčtenější knihy ze zemí..</h3>
+                    <div class="table">
                         {% for country in top_countries %}
-                        <div class="grid items-center p-1 border sudy">
-                            <div class="ml-3">
-                                <h3 class="p-1">{{ forloop.counter }}. {{ country.name }} <!--({{ country.count }} knih)--></h3>
+                            <div class="table-row-line">
+                                <div style="margin-left: .75rem;">
+                                    <h3>{{ forloop.counter }}. {{ country.name }} <!--({{ country.count }} knih)--></h3>
+                                </div>
                             </div>
-                        </div>
                         {% endfor %}
                     </div>
                 </div>
 
                 <!-- Pravý sloupec: Země podle počtu knih -->
-                <div class="w-1/2 sm:w-full pl-4 sm:mt-10 flex flex-wrap content-start">
-                    <h3 class="after-h3 lg:pl-5 w-full">Země podle počtu knih</h3>
-                    <div class="table lg:pr-5 w-full lg:pl-5">
+                <div class="tab-content-item">
+                    <h3 class="after-h3">Země podle počtu knih</h3>
+                    <div class="table">
                         <div class="stat-item">
                             <span class="label">USA</span>
-                            <div class="bar-container flex justify-between flex-row-reverse">
-                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">529953</p>
-                                <div class="bar-movie" style="width: 100%;"></div>
+                            <div class="bar-container">
+                                <p>529953</p>
+                                <div class="bar-book" style="width: 100%;"></div>
                             </div>
                         </div>
                         <div class="stat-item">
                             <span class="label">Francie</span>
-                            <div class="bar-container flex justify-between flex-row-reverse">
-                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">65869</p>
-                                <div class="bar-movie" style="width: 12%;"></div>
+                            <div class="bar-container">
+                                <p>65869</p>
+                                <div class="bar-book" style="width: 12%;"></div>
                             </div>
                         </div>
                         <div class="stat-item">
                             <span class="label">Německo</span>
-                            <div class="bar-container flex justify-between flex-row-reverse">
-                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">54872</p>
-                                <div class="bar-movie" style="width: 10%;"></div>
+                            <div class="bar-container">
+                                <p>54872</p>
+                                <div class="bar-book" style="width: 10%;"></div>
                             </div>
                         </div>
                         <div class="stat-item">
                             <span class="label">Japonsko</span>
-                            <div class="bar-container flex justify-between flex-row-reverse">
-                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">51021</p>
-                                <div class="bar-movie" style="width: 9%;"></div>
+                            <div class="bar-container">
+                                <p>51021</p>
+                                <div class="bar-book" style="width: 9%;"></div>
                             </div>
                         </div>
                         <div class="stat-item">
                             <span class="label">Velká Británie</span>
-                            <div class="bar-container flex justify-between flex-row-reverse">
-                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">48853</p>
-                                <div class="bar-movie" style="width: 9%;"></div>
+                            <div class="bar-container">
+                                <p>48853</p>
+                                <div class="bar-book" style="width: 9%;"></div>
                             </div>
                         </div>
                         <div class="stat-item">
                             <span class="label">Španělsko</span>
-                            <div class="bar-container flex justify-between flex-row-reverse">
-                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">36197</p>
-                                <div class="bar-movie" style="width: 7%;"></div>
+                            <div class="bar-container">
+                                <p>36197</p>
+                                <div class="bar-book" style="width: 7%;"></div>
                             </div>
                         </div>
                         <div class="stat-item">
                             <span class="label">Indie</span>
-                            <div class="bar-container flex justify-between flex-row-reverse">
-                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">27067</p>
-                                <div class="bar-movie" style="width: 5%;"></div>
+                            <div class="bar-container">
+                                <p>27067</p>
+                                <div class="bar-book" style="width: 5%;"></div>
                             </div>
                         </div>
                         <div class="stat-item">
                             <span class="label">Kanada</span>
-                            <div class="bar-container flex justify-between flex-row-reverse">
-                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">26000</p>
-                                <div class="bar-movie" style="width: 5%;"></div>
+                            <div class="bar-container">
+                                <p>26000</p>
+                                <div class="bar-book" style="width: 5%;"></div>
                             </div>
                         </div>
                         <div class="stat-item">
                             <span class="label">Itálie</span>
-                            <div class="bar-container flex justify-between flex-row-reverse">
-                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">25676</p>
-                                <div class="bar-movie" style="width: 5%;"></div>
+                            <div class="bar-container">
+                                <p>25676</p>
+                                <div class="bar-book" style="width: 5%;"></div>
                             </div>
                         </div>
                         <div class="stat-item">
                             <span class="label">Brazílie</span>
-                            <div class="bar-container flex justify-between flex-row-reverse">
-                                <p class="pr-1 text-[#0d0c0f]" style="font-size: small;">24186</p>
-                                <div class="bar-movie" style="width: 4%;"></div>
+                            <div class="bar-container">
+                                <p>24186</p>
+                                <div class="bar-book" style="width: 4%;"></div>
                             </div>
                         </div>
                     </div>
@@ -303,36 +255,36 @@
         </div>
 
         <!-- Tab Nakladatelství -->
-        <div id="nakladatelstvi" class="tab-show w-full sx:p-0 {% if hash == 'nakladatelstvi' %}active{% else %}hidden{% endif %}">
-            <div class="w-full flex flex-wrap justify-between sx:p-0">
+        <div id="nakladatelstvi" class="tab-show {% if hash == 'nakladatelstvi' %}active{% else %}hidden{% endif %}">
+            <div class="tab-content-two-items">
             <!-- Levý sloupec: Oblíbené nakladatelství -->
-            <div class="w-1/2 sm:w-full pr-4 lg:stats-container">
-                <h3 class="after-h3 w-full sx:padding">Oblíbené nakladatelství</h3>
-                <div class="table lg:pr-5">
+            <div class="tab-content-item">
+                <h3 class="after-h3">Oblíbené nakladatelství</h3>
+                <div class="table">
                     {% for publisher in favorite_publishers %}
-                    <div class="grid items-center p-1 border sudy">
-                        <div class="ml-3">
-                            <h3 class="p-1">{{ forloop.counter }}. {{ publisher.publishername }}</h3>
+                        <div class="table-row">
+                            <div style="margin-left: .75rem;">
+                                <h3>{{ forloop.counter }}. {{ publisher.publishername }}</h3>
+                            </div>
                         </div>
-                    </div>
-                    {% empty %}
-                    <p class="p-1">Žádná oblíbená nakladatelství nejsou dostupná.</p>
+                        {% empty %}
+                        <p>Žádná oblíbená nakladatelství nejsou dostupná.</p>
                     {% endfor %}
                 </div>
             </div>
             
             <!-- Pravý sloupec: Nakladatelství s nejlepšími knihami -->
-            <div class="w-1/2 sm:w-full pl-4 flex flex-wrap content-start sm:mt-10 ">
-                <h3 class="after-h3 lg:pl-5 w-full sx:padding">Nakladatelství s nejlepšími knihami</h3>
-                <div class="table lg:pr-5 w-full lg:pl-5 mb-4">
+            <div class="tab-content-item">
+                <h3 class="after-h3">Nakladatelství s nejlepšími knihami</h3>
+                <div class="table">
                     {% for publisher in best_publishers %}
-                    <div class="grid items-center p-1 border sudy">
-                        <div class="ml-3">
-                            <h3 class="p-1">{{ forloop.counter }}. {{ publisher.publishername }}</h3>
+                        <div class="table-row">
+                            <div style="margin-left: .75rem;">
+                                <h3>{{ forloop.counter }}. {{ publisher.publishername }}</h3>
+                            </div>
                         </div>
-                    </div>
-                    {% empty %}
-                    <p class="p-1">Žádná data o nakladatelstvích nejsou dostupná.</p>
+                        {% empty %}
+                        <p>Žádná data o nakladatelstvích nejsou dostupná.</p>
                     {% endfor %}
                 </div>
             </div>
@@ -343,51 +295,51 @@
     </div>
 </div>
 
+<!-- KARTY -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Funkce na aktivaci konkrétního tabu
-    function activateTab(tabId) {
-        // Schovejte všechny taby
-        document.querySelectorAll('.tab-show').forEach(tabContent => {
-            tabContent.classList.add('hidden');
-            tabContent.classList.remove('active');
-        });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Funkce na aktivaci konkrétního tabu
+        function activateTab(tabId) {
+            // Schovejte všechny taby
+            document.querySelectorAll('.tab-show').forEach(tabContent => {
+                tabContent.classList.add('hidden');
+                tabContent.classList.remove('active');
+            });
 
-        // Deaktivujte všechny odkazy
-        document.querySelectorAll('.nav-tabs-link').forEach(tab => {
-            tab.classList.remove('active');
-        });
+            // Deaktivujte všechny odkazy
+            document.querySelectorAll('.nav-tabs-link').forEach(tab => {
+                tab.classList.remove('active');
+            });
 
-        // Aktivujte cílový tab
-        const targetTab = tabId.replace('tab-', '');
-        const targetContent = document.getElementById(targetTab);
-        if (targetContent) {
-            targetContent.classList.add('active');
-            targetContent.classList.remove('hidden');
+            // Aktivujte cílový tab
+            const targetTab = tabId.replace('tab-', '');
+            const targetContent = document.getElementById(targetTab);
+            if (targetContent) {
+                targetContent.classList.add('active');
+                targetContent.classList.remove('hidden');
+            }
+
+            // Aktivujte odkaz
+            document.getElementById(tabId).classList.add('active');
         }
 
-        // Aktivujte odkaz
-        document.getElementById(tabId).classList.add('active');
-    }
+        // Kontrola, jestli je v URL fragment (část po #)
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+            activateTab('tab-' + hash);
+        }
 
-    // Kontrola, jestli je v URL fragment (část po #)
-    const hash = window.location.hash.substring(1);  // Získá fragment bez #
-    if (hash) {
-        activateTab('tab-' + hash);  // Aktivuje příslušný tab
-    }
-
-    // Přepínání tabů po kliknutí
-    document.querySelectorAll('.nav-tabs-link').forEach(tab => {
-        tab.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetTab = this.getAttribute('id');
-            activateTab(targetTab);
-            // Aktualizace URL bez reloadu stránky
-            history.pushState(null, null, '#' + targetTab.replace('tab-', ''));
+        // Přepínání tabů po kliknutí
+        document.querySelectorAll('.nav-tabs-link').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetTab = this.getAttribute('id');
+                activateTab(targetTab);
+                // Aktualizace URL bez reloadu stránky
+                history.pushState(null, null, '#' + targetTab.replace('tab-', ''));
+            });
         });
     });
-});
-
 </script>
 
 {% endblock %}
