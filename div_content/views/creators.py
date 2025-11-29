@@ -126,8 +126,15 @@ def creator_detail(request, creator_url):
 
     creatorbiography = Creatorbiography.objects.filter(
         creator=creator,
-        is_primary=True  # hlavní popis
+        is_primary=True  
     ).first()
+
+    #latest_biographies = Creatorbiography.objects.filter(
+    #    is_primary=True
+    #).select_related("creator").order_by("-lastupdated")[:10]
+    
+    latest_biographies = Creatorbiography.objects.all().order_by('-lastupdated')[:10]
+
     
     top_10_creators = Creator.objects.all().order_by('-popularity')[:10]
 
@@ -257,6 +264,7 @@ def creator_detail(request, creator_url):
         {
             'creator': creator,
             'creatorbiography': creatorbiography,
+            'latest_biographies': latest_biographies,
             'top_10_creators': top_10_creators,
             'filmography': filmography.items(),
             'tvshows': tvshows.items(),
