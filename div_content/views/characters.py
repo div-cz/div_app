@@ -33,7 +33,7 @@ from django.db.models import Exists, OuterRef
 from div_content.forms.characters import FavoriteFormCharacter, CharacterBiographyForm
 from django.contrib.contenttypes.models import ContentType
 from div_content.models import (
-    Book, Bookcharacter, Characterbiography, Charactermeta, Favorite, Movie, Moviecrew, Userlisttype, Userlist, Userlistitem, 
+    Book, Bookcharacter, Characterbiography, Charactergame, Charactermeta, Favorite, Movie, Moviecrew, Tvcrew, Userlisttype, Userlist, Userlistitem, 
     FavoriteSum
     )
 from django.contrib.auth.decorators import login_required
@@ -73,72 +73,119 @@ def character_list(request):
 
 def character_detail(request, character_url):
     character = get_object_or_404(Charactermeta, characterurl=character_url)
-    characterbiography = Characterbiography.objects.filter(characterid=character, verificationstatus="Verified").first()
+    characterbiography = Characterbiography.objects.filter(
+        characterid=character, 
+        verificationstatus="Verified"
+    ).first()
+
     user = request.user
 
     movie_content_type = ContentType.objects.get(id=CONTENTTYPE_MOVIE_ID)
     userlisttype = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_WATCHED_MOVIES)
 
-    filmography_query = Moviecrew.objects.filter(
+    # -----------------------------------------------------------
+    # FILMY — OŠETŘENÍ ANONYMA
+    # -----------------------------------------------------------
+    filmography_base_qs = Moviecrew.objects.filter(
         characterid=character.characterid
-    ).select_related('movieid', 'peopleid').order_by('-movieid__releaseyear').annotate(
-    is_watched=Exists(
-        Userlistitem.objects.filter(
-            userlist__user=user,
-            userlist__listtype=userlisttype,
-            object_id=OuterRef('movieid'),
-            content_type=movie_content_type
-        )
-    ))[:40]
+    ).select_related('movieid', 'peopleid').order_by('-movieid__releaseyear')
 
+    if user.is_authenticated:
+        filmography_query = filmography_base_qs.annotate(
+            is_watched=Exists(
+                Userlistitem.objects.filter(
+                    userlist__user=user,
+                    userlist__listtype=userlisttype,
+                    object_id=OuterRef('movieid'),
+                    content_type=movie_content_type
+                )
+            )
+        )[:40]
+    else:
+        # ANONYMA → přidáme is_watched = False bez DB dotazu
+        filmography_query = filmography_base_qs[:40]
+        for item in filmography_query:
+            item.is_watched = False
+
+    # Vytvoření filmografie
     filmography = defaultdict(list)
     for entry in filmography_query:
-        # Zde předpokládám, že model osob má atributy firstname a lastname
-        actor_name = f"{entry.peopleid.firstname} {entry.peopleid.lastname}" if entry.peopleid else "Neznámý herec"
+        actor_name = (
+            f"{entry.peopleid.firstname} {entry.peopleid.lastname}"
+            if entry.peopleid else "Neznámý herec"
+        )
         entry.movieid.is_watched = entry.is_watched
         filmography[entry.movieid].append(actor_name)
 
-    bibliography = (Bookcharacter.objects
+    # -----------------------------------------------------------
+    # KNIHY
+    # -----------------------------------------------------------
+    bibliography = (
+        Bookcharacter.objects
         .filter(characterid=character)
         .select_related('bookid')
-        .order_by('-bookid__year')[:40])
-    
-    # Ověření, zda je postava v oblíbených
-    # is_favorite = False
-    # if request.user.is_authenticated:
-    #     content_type = ContentType.objects.get_for_model(Charactermeta)
-    #     is_favorite = Favorite.objects.filter(
-    #         user=request.user,
-    #         content_type=content_type,
-    #         object_id=character.characterid
-    #     ).exists()
-    
-    user = request.user
+        .order_by('-bookid__year')[:40]
+    )
+
+    # -----------------------------------------------------------
+    # SERIÁLY
+    # -----------------------------------------------------------
+    tvshows_query = (
+        Tvcrew.objects
+        .filter(characterid=character.characterid)
+        .select_related("tvshowid", "peopleid")
+        .order_by("-tvshowid__premieredate")
+    )
+
+    tvshows = [{
+        "show": entry.tvshowid,
+        "actor": f"{entry.peopleid.firstname} {entry.peopleid.lastname}"
+    } for entry in tvshows_query]
+
+    # -----------------------------------------------------------
+    # HRY
+    # -----------------------------------------------------------
+    games = (
+        Charactergame.objects
+        .filter(characterid=character.characterid)
+        .select_related("gameid")
+    )
+
+    # -----------------------------------------------------------
+    # OBLÍBENÉ — ANONYM = False
+    # -----------------------------------------------------------
     if user.is_authenticated:
         try:
-            favourites_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_FAVORITE_CHARACTER_ID)
-            favourites_list = Userlist.objects.get(user=user, listtype=favourites_type)
-            is_favorite = Userlistitem.objects.filter(object_id=character.characterid, userlist=favourites_list).exists()
-        except Exception as e:
+            favourites_type = Userlisttype.objects.get(
+                userlisttypeid=USERLISTTYPE_FAVORITE_CHARACTER_ID
+            )
+            favourites_list = Userlist.objects.get(
+                user=user, 
+                listtype=favourites_type
+            )
+            is_favorite = Userlistitem.objects.filter(
+                object_id=character.characterid,
+                userlist=favourites_list
+            ).exists()
+        except Exception:
             is_favorite = False
     else:
         is_favorite = False
 
-    # Získání seznamu fanoušků (uživatelů, kteří mají tvůrce v oblíbených)
-    # fans = Favorite.objects.filter(
-    #     content_type_id=13,  # ContentType napevno pro Character
-    #     object_id=character.characterid
-    # ).select_related('user')  # Získáme informace o uživateli
-
-    # Získá fanoušky postavy na základě filtrování z Userlistitem
+    # -----------------------------------------------------------
+    # FANOUŠCI
+    # -----------------------------------------------------------
     content_type = ContentType.objects.get(id=CONTENT_TYPE_CHARACTERMETA_ID)
-    fans = Userlistitem.objects.filter(
-        object_id=character.characterid,
-        content_type=content_type
-    ).select_related("userlist")
+    fans = (
+        Userlistitem.objects
+        .filter(object_id=character.characterid, content_type=content_type)
+        .select_related("userlist")
+    )
 
-    # Formulář pro přidání popisu postavy
-    if request.method == 'POST':
+    # -----------------------------------------------------------
+    # Formulář biografie
+    # -----------------------------------------------------------
+    if request.method == 'POST' and user.is_authenticated:
         form = CharacterBiographyForm(request.POST)
         if form.is_valid():
             biography = form.save(commit=False)
@@ -146,19 +193,21 @@ def character_detail(request, character_url):
             biography.characterid = character
             biography.save()
             return redirect('character_detail', character_url=character.characterurl)
-
     else:
         form = CharacterBiographyForm(initial={'characterid': character})
 
     return render(request, 'characters/characters_detail.html', {
-        'character': character, 
-        'characterbiography': characterbiography, 
+        'character': character,
+        'characterbiography': characterbiography,
         'filmography': dict(filmography),
         'bibliography': bibliography,
+        'tvshows': tvshows,
+        'games': games,
         'is_favorite': is_favorite,
         'fans': fans,
         'form': form,
     })
+
 
 
 # Přidat do seznamu: Oblíbená postava

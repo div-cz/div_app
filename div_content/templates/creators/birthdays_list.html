@@ -1,0 +1,85 @@
+{% extends "movies/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | DIV.cz{% endblock %}
+
+{% block content %}
+<div class="container my-4 px-4">
+    <h2 class="mb-4">{{ title }}</h2>
+
+    <div class="my-5">
+        <h3 class="mb-3">Tvůrci</h3>
+
+        {% if creators %}
+        <div class="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 gap-4 w-full mb-4">
+            {% for c in creators %}
+                <div class="card bg-[#F9F9F9] dark:bg-[#1A161F]">
+                    <a href="/tvurce/{{ c.url }}">
+                        {% if not c.img or c.img == 'noimg.png' %}
+                            <img src="/static/img/creator/noperson.svg" class="rounded-t-lg">
+                        {% else %}
+                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ c.img }}" class="rounded-t-lg">
+                        {% endif %}
+                    </a>
+                    <h4 class="card-title text-center mt-3">{{ c.firstname }} {{ c.lastname }}</h4>
+                    <p class="text-center text-sm text-muted">
+                        ⭐ {{ c.divrating }}
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if creators.paginator.num_pages > 1 %}
+        <div class="pagination text-center my-4">
+            {% if creators.has_previous %}
+                <a href="?page_creators={{ creators.previous_page_number }}" class="mr-3">← předchozí</a>
+            {% endif %}
+
+            Stránka {{ creators.number }} / {{ creators.paginator.num_pages }}
+
+            {% if creators.has_next %}
+                <a href="?page_creators={{ creators.next_page_number }}" class="ml-3">další →</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+
+
+    <div class="my-5">
+        <h3 class="mb-3">Spisovatelé</h3>
+
+        {% if authors %}
+        <div class="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 gap-4 w-full mb-4">
+            {% for a in authors %}
+            <div class="card bg-[#F9F9F9] dark:bg-[#1A161F]">
+                <a href="/autor/{{ a.url }}">
+                    {% if not a.img %}
+                        <img src="/static/img/creator/noperson.svg" class="rounded-t-lg">
+                    {% else %}
+                        <img src="{{ a.img }}" class="rounded-t-lg">
+                    {% endif %}
+                </a>
+                <h4 class="card-title text-center mt-3">{{ a.firstname }} {{ a.lastname }}</h4>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if authors.paginator.num_pages > 1 %}
+        <div class="pagination text-center my-4">
+            {% if authors.has_previous %}
+                <a href="?page_authors={{ authors.previous_page_number }}" class="mr-3">← předchozí</a>
+            {% endif %}
+
+            Stránka {{ authors.number }} / {{ authors.paginator.num_pages }}
+
+            {% if authors.has_next %}
+                <a href="?page_authors={{ authors.next_page_number }}" class="ml-3">další →</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

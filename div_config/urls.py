@@ -42,7 +42,8 @@ from div_content.views.books import (
 #                    CREATORS
 # -------------------------------------------------------------------
 from div_content.views.creators import (
-    creator_detail, creators_list, toggle_favorite, add_creator_to_favourites, remove_creator_from_favourites
+    creator_detail, creators_list, toggle_favorite, add_creator_to_favourites, remove_creator_from_favourites, 
+    creators_today, creators_by_year, creators_by_month, creators_by_month_slug, creators_by_month_day, creators_by_exact_date, creators_by_zodiac
     )
 # -------------------------------------------------------------------
 #                    DIVKVARIAT
@@ -426,7 +427,25 @@ urlpatterns = [
     path('tvurce/odebrat-z-oblibenych-<int:creatorid>', remove_creator_from_favourites, name='remove_creator_from_favourites'),
     path('tvurce/<str:creator_url>', creator_detail, name='creator_detail'),
     
+
+    path('tvurci/', creators_list, name='creators_list'),
+    path('tvurce/pridat-do-oblibenych-<int:creatorid>', add_creator_to_favourites, name='add_creator_to_favourites'),
+    path('tvurce/odebrat-z-oblibenych-<int:creatorid>', remove_creator_from_favourites, name='remove_creator_from_favourites'),
+    path('tvurce/<str:creator_url>', creator_detail, name='creator_detail'),
     
+    # Birthdays
+    path('tvurci/dnes/', creators_today, name='creators_today'),
+
+    path('tvurci/rok/<int:year>/', creators_by_year, name='creators_year'),
+
+    path('tvurci/mesic/<int:month>/', creators_by_month, name='creators_month_num'),
+    path('tvurci/mesic/<str:month_slug>/', creators_by_month_slug, name='creators_month_slug'),
+
+    path('tvurci/mesic/<int:month>/den/<int:day>/', creators_by_month_day, name='creators_month_day'),
+    path('tvurci/narozeni/<int:year>/<int:month>/<int:day>/', creators_by_exact_date, name='creators_exact'),
+
+    path('tvurci/znameni/<str:sign>/', creators_by_zodiac, name='creators_zodiac'),
+
     path('uzivatel/<int:user_id>/', myuser_detail, name='user_profile_with_profil'),
 
 
