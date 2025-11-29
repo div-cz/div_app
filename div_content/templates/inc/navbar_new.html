@@ -1,0 +1,100 @@
+<nav>
+    <div class="navbar">
+        <div class="part1">
+            <div class="part2">
+                <div class="logo">
+                    <a href="/">
+                        <img src="/static/img/site/microsoft/div_310x150-movies.png">
+                    </a>
+                </div>
+                <ul id="menu" class="hidden">
+                    <li><a class="nav-link" href="/filmy/">Filmy</a></li>
+                    <li><a class="nav-link" href="/serialy/">Seriály</a></li>
+                    <li><a class="nav-link" href="/knihy/">Knihy</a></li>
+                    <li><a class="nav-link" href="/hry/">Hry</a></li>
+                </ul>
+            </div>
+
+            <!-- HAMBURGER -->
+            <div class="toggle">
+                <div id="menu-icon">
+                    <svg id="menu-open" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5">
+                    </svg>
+                    <svg id="menu-close" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="hidden">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12">
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div id="menu-section" class="nav-menu hidden"> 
+            <div class="account">
+                <div class="login">
+                    <!-- FORUM -->
+                    <div class="icon">
+                        <div class="notBtn">
+                            <!-- Počet zpráv -->
+                            <div class="number">
+                                <span>3</span>
+                            </div>
+                            <button id="bellBtn" type="button" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa-regular fa-bell" title="forum"></i>
+                            </button>
+
+                            <!-- Dropdown menu zpráv -->
+                            <div class="dropbox card-body" role="menu" aria-hidden="true">
+                            <p class="after">Nové zprávy</p>
+                                <ul>
+                                    <li class="after">
+                                        &#128172; <a href="">Zpráva 1</a>
+                                        <p>tady by mohl být nějaký text</p>
+                                    </li>
+                                    <li class="after">
+                                        &#128172; <a href="">Zpráva 2</a>
+                                        <p>tady by mohl být nějaký text</p>
+                                    </li>
+                                    <li class="">
+                                        &#128172; <a href="">Zpráva 3</a>
+                                        <p>tady by mohl být nějaký text</p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- POŠTA -->
+                    {% if user.is_authenticated %}
+                    <div class="icon">
+                        <div class="notBtn">
+                            {% if has_unread_messages %}
+                            <div class="number"><i class="fas fa-bell"></i></div>
+                            {% endif %}
+                            <a href="/ucet/zpravy/">
+                                <i class="far fa-regular fa-envelope" title="zprávy"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- PROFIL -->
+                    <div class="user">
+                        <img src="{{ avatar_imgpath }}" alt="avatar">
+                        <a class="nav-link" href="/uzivatel/">{{ user.username }}</a> 
+                    </div>
+                    <div class="flex">
+                        <form id="logout-form" method="post" action="{% url 'account_logout' %}">
+                            {% csrf_token %}
+                            <a id="logout-btn" class="nav-link" style="font-size:80%; background: none; border: none; color: #007bff; cursor: pointer;">Odhlásit</a>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div>
+                        <a class="nav-link" href="/prihlaseni/">Přihlásit</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+

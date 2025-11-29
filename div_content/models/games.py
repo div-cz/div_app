@@ -35,7 +35,7 @@ class Game(models.Model):
 class Gamecomments(models.Model):
     commentid = models.AutoField(db_column='CommentID', primary_key=True)
     comment = models.TextField(db_column='Comment')
-    gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')
+    gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID')
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 #    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)   
     dateadded = models.DateTimeField(db_column='DateAdded', auto_now_add=True)
@@ -129,7 +129,7 @@ class Gameseason(models.Model):
 
 class Gamesession(models.Model):
     sessionid = models.AutoField(db_column='SessionID', primary_key=True)
-    gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID', related_name='sessions')
+    gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID', related_name='sessions')
     seasonid = models.ForeignKey('Gameseason', models.DO_NOTHING, db_column='SeasonID', related_name='sessions', null=True, blank=True)  # Propojení s Gameseason
     chapter = models.CharField(db_column='Chapter', max_length=255, null=True, blank=True)  # Např. "Chapter 2"
     sessionname = models.CharField(db_column='SessionName', max_length=255, null=True, blank=True)  # Např. "Session 6"
@@ -147,8 +147,8 @@ class Gamelocation(models.Model):
     shortdescription = models.CharField(db_column='ShortDescription', max_length=255, null=True, blank=True)
     locationrole = models.CharField(db_column='LocationRole', max_length=255)
     locationid = models.ForeignKey('Metalocation', models.DO_NOTHING, db_column='LocationID', blank=True, null=True)
-    gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')
-    relatedseason = models.ForeignKey(Gameseason, on_delete=models.CASCADE, db_column='RelatedSeason', related_name="locations", null=True, blank=True)
+    gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID')
+    relatedseason = models.ForeignKey('Gameseason', on_delete=models.CASCADE, db_column='RelatedSeason', related_name="locations", null=True, blank=True)
 
     class Meta:
         db_table = 'GameLocation'
@@ -181,7 +181,7 @@ class Gamerating(models.Model):
     ratingid = models.AutoField(db_column='RatingID', primary_key=True)
     rating = models.IntegerField(db_column='Rating')
     comment = models.TextField(db_column='Comment')
-    gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')
+    gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID')
 #    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
 
     class Meta:

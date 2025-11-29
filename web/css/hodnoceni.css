@@ -1,0 +1,93 @@
+/*shows the stars side by side, centered, and in reverse order than the HMTL*/
+#rating {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+}
+
+/*hides the radio buttons*/
+#rating > input{ display:none;}
+.inputhide > input{display:none;}
+/*style the empty stars, sets position:relative as base for pseudo-elements*/
+#rating > label {
+  position: relative;
+  width: 1.1em;
+  font-size: 4em; /*4em / 15vw */
+  color: #FFD700;
+  cursor: pointer;
+}
+
+/* sets filled star pseudo-elements */
+#rating > label::before{ 
+  content: "\2605";
+  position: absolute;
+  opacity: 0;
+}
+
+/*overlays a filled start character to the hovered element and all previous siblings*/
+#rating > label:hover:before,
+#rating > label:hover ~ label:before {
+  opacity: 1 !important;
+}
+
+/*overlays a filled start character on the selected element and all previous siblings*/
+#rating > input:checked ~ label:before{
+  opacity:1;
+}
+
+/*when an element is selected and pointer re-enters the rating container, selected rate and siblings get semi transparent, as reminder of current selection*/
+#rating:hover > input:checked ~ label:before{ opacity: 0.4; }
+
+
+.item {display:inline;}
+/*just aesthetics*/
+
+/* old 2000 */
+.starRating{
+  display        : inline-block;
+  position       : relative;
+  height         : 24px;
+  background     : url('/static/img/site/stars.png') repeat-x 0 0;
+  vertical-align : bottom;
+}
+
+.starRating div{
+  float    : left;
+  position : relative;
+  height   : 24px;
+}
+
+.starRating input{
+  position : relative;
+  z-index  : 1;
+  width    : 24px;
+  height   : 24px;
+  margin   : 0;
+  padding  : 0;
+  opacity  : 0;
+}
+
+.starRating label{
+  position : absolute;
+  top      : 0;
+  left     : 0;
+  width    : 100%;
+  height   : 24px;
+}
+
+.starRating span{
+  display : none;
+}
+
+.starRating       input:checked       + label,
+.starRating:hover input:checked:hover + label{
+  background : url('/static/img/site/stars.png') repeat-x 0 -24px;
+}
+
+.starRating:hover input:checked + label{
+  background : transparent;
+}
+
+.starRating:hover input:hover + label{
+  background : url('/static/img/site/stars.png') repeat-x 0 -48px;
+}

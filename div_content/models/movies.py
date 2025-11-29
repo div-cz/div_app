@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from star_ratings.models import AbstractBaseRating, Rating
 
 
+
 # Special
 # 0 - adult
 # 1 - žádný popisek
@@ -34,8 +35,8 @@ class Movie(models.Model):
     idcsfd = models.CharField(db_column='ID_Csfd', max_length=16, null=True)
     idimdb = models.CharField(db_column='ID_Imdb', max_length=16, null=True)
     iddiv = models.CharField(db_column='ID_DIV', max_length=16, null=True)
-    universumid = models.ForeignKey(Metauniversum, models.DO_NOTHING, db_column='UniversumID', null=True, blank=True)
-#    ratings = models.ForeignKey(Rating, on_delete=models.CASCADE, related_name='movies', null=True, blank=True)
+    universumid = models.ForeignKey('Metauniversum', models.DO_NOTHING, db_column='UniversumID', null=True, blank=True)
+#    ratings = models.ForeignKey('Rating', on_delete=models.CASCADE, related_name='movies', null=True, blank=True)
     averagerating = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, db_column='AverageRating')
     lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
 
@@ -56,7 +57,7 @@ class Moviecinema(models.Model):
 class Moviecomments(models.Model):
     commentid = models.AutoField(db_column='CommentID', primary_key=True, unique=True) 
     comment = models.TextField(db_column='Comment')
-    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')
+    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True) 
 #    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
     dateadded = models.DateTimeField(db_column='DateAdded', auto_now_add=True)
@@ -66,8 +67,8 @@ class Moviecomments(models.Model):
 
 class Moviecountries(models.Model):
     moviecountriesid = models.AutoField(db_column='MovieCountriesID', primary_key=True, unique=True) 
-    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')
-    countryid = models.ForeignKey(Metacountry, models.DO_NOTHING, db_column='CountryID')
+    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')
+    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')
 
     class Meta:
         db_table = 'MovieCountries'
@@ -76,10 +77,10 @@ class Moviecountries(models.Model):
 
 class Moviecrew(models.Model):
     moviecrewid = models.AutoField(db_column='MovieCrewID', primary_key=True, unique=True) 
-    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')
-    roleid = models.ForeignKey(Creatorrole, models.DO_NOTHING, db_column='RoleID')
-    characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID')
-    peopleid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='PeopleID')
+    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')
+    roleid = models.ForeignKey('Creatorrole', models.DO_NOTHING, db_column='RoleID')
+    characterid = models.ForeignKey('Charactermeta', models.DO_NOTHING, db_column='CharacterID')
+    peopleid = models.ForeignKey('Creator', models.DO_NOTHING, db_column='PeopleID')
     creworder = models.IntegerField(db_column='CrewOrder', null=True, blank=True)
 
     class Meta:
@@ -122,8 +123,8 @@ class Movieerror(models.Model):
 
 class Moviegenre(models.Model):
     moviegenreid = models.AutoField(db_column='MovieGenreID', primary_key=True)
-    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')
-    genreid = models.ForeignKey(Metagenre, models.DO_NOTHING, db_column='GenreID')
+    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')
+    genreid = models.ForeignKey('Metagenre', models.DO_NOTHING, db_column='GenreID')
 
     class Meta:
         db_table = 'MovieGenre'
@@ -136,7 +137,7 @@ class Movielinks(models.Model):
     linkdescription = models.CharField(max_length=5125, db_column='LinkDescription', null=True, blank=True)
     linkautor = models.CharField(max_length=255, db_column='LinkAuthor', null=True, blank=True)
     linkType = models.CharField(max_length=255, db_column='LinkType')
-    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')
+    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')
     userid = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID', null=True, blank=True)
     date_added = models.DateField(db_column='DateAdded', auto_now_add=True)
 #    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
@@ -182,7 +183,7 @@ class Moviequotes(models.Model):
 class Movierating(AbstractBaseRating, models.Model):
     ratingid = models.AutoField(db_column='RatingID', primary_key=True)
     rating = models.IntegerField(db_column='Rating')
-    movieid = models.ForeignKey(Movie, on_delete=models.CASCADE, db_column='MovieID')
+    movieid = models.ForeignKey('Movie', on_delete=models.CASCADE, db_column='MovieID')
 #    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True) 
     class Meta:
@@ -209,7 +210,7 @@ class Movietrailer(models.Model):
 
 class Movietranslation(models.Model):
     movietranslationid = models.AutoField(db_column='MovieTranslationID', primary_key=True)
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, db_column='MovieID', related_name="translations")
+    movie = models.ForeignKey('Movie', on_delete=models.CASCADE, db_column='MovieID', related_name="translations")
     language = models.CharField(db_column='Language', max_length=5, blank=True, null=True)  # Např. "en", "cz"
     title = models.CharField(db_column='Title', max_length=255, blank=True, null=True)
     url = models.CharField(db_column='URL', max_length=255, blank=True, null=True, unique=True)
@@ -235,7 +236,7 @@ class Movieversions(models.Model):
     versionname = models.CharField(db_column='VersionName', max_length=255)
     duration = models.IntegerField(db_column='Duration')
     releasedate = models.DateField(db_column='ReleaseDate')
-    movieid = models.ForeignKey(Movie, models.DO_NOTHING, db_column='MovieID')
+    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')
 
     class Meta:
         db_table = 'MovieVersions'
@@ -245,9 +246,9 @@ class Movieversions(models.Model):
 class Tvcrew(models.Model):
     tvcrewid = models.AutoField(db_column='TVCrewID', primary_key=True)
     tvshowid = models.ForeignKey('Tvshow', on_delete=models.DO_NOTHING, db_column='TVShowID')
-    roleid = models.ForeignKey(Creatorrole, models.DO_NOTHING, db_column='RoleID')
-    characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID', null=True, blank=True)
-    peopleid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='PeopleID')
+    roleid = models.ForeignKey('Creatorrole', models.DO_NOTHING, db_column='RoleID')
+    characterid = models.ForeignKey('Charactermeta', models.DO_NOTHING, db_column='CharacterID', null=True, blank=True)
+    peopleid = models.ForeignKey('Creator', models.DO_NOTHING, db_column='PeopleID')
     episodecount = models.IntegerField(db_column='EpisodeCount')
     creworder = models.IntegerField(db_column='CrewOrder', null=True, blank=True)
 
@@ -279,17 +280,17 @@ class Tvepisode(models.Model):
 class Tvgenre(models.Model):
     tvgenreid = models.AutoField(db_column='TVGenreID', primary_key=True, unique=True) 
     tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')
-    genreid = models.ForeignKey(Metagenre, models.DO_NOTHING, db_column='GenreID')
+    genreid = models.ForeignKey('Metagenre', models.DO_NOTHING, db_column='GenreID')
 
     class Meta:
         db_table = 'TVGenre'
 
 class Tvepisodecrew(models.Model):
     tvepisodecrewid = models.AutoField(db_column='TVEpisodeCrewID', primary_key=True, unique=True) 
-    episodeid = models.ForeignKey(Tvepisode, models.DO_NOTHING, db_column='EpisodeID')
-    roleid = models.ForeignKey(Creatorrole, models.DO_NOTHING, db_column='RoleID')
-    characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID', null=True, blank=True)
-    peopleid = models.ForeignKey(Creator, models.DO_NOTHING, db_column='PeopleID')
+    episodeid = models.ForeignKey('Tvepisode', models.DO_NOTHING, db_column='EpisodeID')
+    roleid = models.ForeignKey('Creatorrole', models.DO_NOTHING, db_column='RoleID')
+    characterid = models.ForeignKey('Charactermeta', models.DO_NOTHING, db_column='CharacterID', null=True, blank=True)
+    peopleid = models.ForeignKey('Creator', models.DO_NOTHING, db_column='PeopleID')
     creworder = models.IntegerField(db_column='CrewOrder', null=True, blank=True)
 
     class Meta:
@@ -332,9 +333,9 @@ class Tvshow(models.Model):
     popularity = models.IntegerField(db_column='Popularity', null=True, db_index=True)
     averagerating = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, db_column='AverageRating')
     language = models.CharField(db_column='Language', max_length=4, null=True, blank=True)
-    countryid = models.ForeignKey(Metacountry, models.DO_NOTHING, db_column='CountryID')
-    universumid = models.ForeignKey(Metauniversum, models.DO_NOTHING, db_column='UniversumID', null=True, blank=True)
-    createdby = models.ForeignKey(Creator, models.DO_NOTHING, db_column='CreatorID', null=True, blank=True)
+    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')
+    universumid = models.ForeignKey('Metauniversum', models.DO_NOTHING, db_column='UniversumID', null=True, blank=True)
+    createdby = models.ForeignKey('Creator', models.DO_NOTHING, db_column='CreatorID', null=True, blank=True)
 
     class Meta:
         db_table = 'TVShow'
@@ -343,9 +344,9 @@ class Tvshowcomments(models.Model):
     commentid = models.AutoField(db_column='CommentID', primary_key=True)
     comment = models.TextField(db_column='Comment')
 ##    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
-    tvshowkid = models.ForeignKey(Tvshow, models.DO_NOTHING, db_column='TVShowID')
-    tvseason = models.ForeignKey(Tvseason, on_delete=models.CASCADE, null=True, blank=True, db_column='TVSeasonID')
-    tvepisode = models.ForeignKey(Tvepisode, on_delete=models.CASCADE, null=True, blank=True, db_column='TVEpisodeID')
+    tvshowkid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')
+    tvseason = models.ForeignKey('Tvseason', on_delete=models.CASCADE, null=True, blank=True, db_column='TVSeasonID')
+    tvepisode = models.ForeignKey('Tvepisode', on_delete=models.CASCADE, null=True, blank=True, db_column='TVEpisodeID')
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     dateadded = models.DateTimeField(db_column='DateAdded', auto_now_add=True)
 
@@ -390,11 +391,11 @@ class Tvshowtrivia(models.Model):
 class Tvshowquotes(models.Model):
     quote_id = models.AutoField(primary_key=True, db_column='QuoteID')
     quote = models.TextField(db_column='Quote')
-    actor = models.ForeignKey(Creator, on_delete=models.RESTRICT, null=True, db_column='ActorID')
-    character = models.ForeignKey(Charactermeta, on_delete=models.RESTRICT, null=True, db_column='CharacterID')
-    episode = models.ForeignKey(Tvepisode, on_delete=models.CASCADE, null=True, db_column='EpisodeID')
-    season = models.ForeignKey(Tvseason, on_delete=models.SET_NULL, null=True, db_column='SeasonID')
-    tv_show = models.ForeignKey(Tvshow, on_delete=models.SET_NULL, null=True, db_column='TVShowID')
+    actor = models.ForeignKey('Creator', on_delete=models.RESTRICT, null=True, db_column='ActorID')
+    character = models.ForeignKey('Charactermeta', on_delete=models.RESTRICT, null=True, db_column='CharacterID')
+    episode = models.ForeignKey('Tvepisode', on_delete=models.CASCADE, null=True, db_column='EpisodeID')
+    season = models.ForeignKey('Tvseason', on_delete=models.SET_NULL, null=True, db_column='SeasonID')
+    tv_show = models.ForeignKey('Tvshow', on_delete=models.SET_NULL, null=True, db_column='TVShowID')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, db_column='UserID')
     parent_quote = models.IntegerField(null=True, blank=True, db_column='ParentQuoteID')
     div_rating = models.IntegerField(default=0, db_column='DIVRating')

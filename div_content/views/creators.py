@@ -122,40 +122,26 @@ def creators_list(request):
 def creator_detail(request, creator_url):
     creator = get_object_or_404(Creator, url=creator_url)
 
-    # current_creator = Creator.objects.get(url=creator_url)
     current_creator = Creator.objects.select_related("countryid").get(url=creator_url)
 
-    creatorbiography = Creatorbiography.objects.filter(creator=creator, verificationstatus="Verified").first()
+    creatorbiography = Creatorbiography.objects.filter(
+        creator=creator,
+        is_primary=True  # hlavní popis
+    ).first()
     
     top_10_creators = Creator.objects.all().order_by('-popularity')[:10]
 
-
-    #filmography = Moviecrew.objects.filter(peopleid=creator.creatorid).select_related('movieid', 'roleid')
-    # Zjištění, zda je položka oblíbená
-    # is_favorite = False
-    # if request.user.is_authenticated:
-    #     is_favorite = Favorite.objects.filter(
-    #         user=request.user,
-    #         content_type_id=15,  # ContentType napevno pro Creator
-    #         object_id=creator.creatorid  
-    #     ).exists()
     user = request.user
     if user.is_authenticated:
         try:
             favourites_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_FAV_CREATOR_ID)
             favourites_list = Userlist.objects.get(user=user, listtype=favourites_type)
             is_favorite = Userlistitem.objects.filter(object_id=creator.creatorid, userlist=favourites_list).exists()
-        except Exception as e:
+        except Exception:
             is_favorite = False
     else:
         is_favorite = False
 
-    # Získání seznamu fanoušků (uživatelů, kteří mají tvůrce v oblíbených)
-    # fans = Favorite.objects.filter(
-    #     content_type_id=15,  # ContentType napevno pro Creator
-    #     object_id=creator.creatorid
-    # ).select_related('user')  # Získáme informace o uživateli
-        # Získá fanoušky spisovatele na základě filtrování z Userlistitem
     content_type = ContentType.objects.get(id=CONTENTTYPE_CREATOR_ID)
     fans = Userlistitem.objects.filter(
         object_id=creator.creatorid,
@@ -165,8 +151,7 @@ def creator_detail(request, creator_url):
     movie_content_type = ContentType.objects.get(id=CONTENTTYPE_MOVIE_ID)
     userlisttype = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_WATCHED_MOVIES)
 
-
-    # OPRAVA ANONYMNÍHO PRISTUPU
+    # FILMY
     filmography_query = Moviecrew.objects.filter(
         peopleid=creator.creatorid
     ).select_related('movieid', 'roleid').order_by('-movieid__releaseyear')
@@ -183,19 +168,16 @@ def creator_detail(request, creator_url):
             )
         )
 
-
-    # Seskupování podle filmu a agregace rolí
     filmography = defaultdict(list)
     for entry in filmography_query:
         movie = entry.movieid
-        if not request.user.is_anonymous:
+        if request.user.is_authenticated:
             movie.is_watched = entry.is_watched
         filmography[movie].append(entry.roleid.rolenamecz)
 
-
-    # výpis seriálů 
+    # SERIÁLY
     tvshow_query = Tvcrew.objects.filter(
-    peopleid=creator
+        peopleid=creator
     ).select_related('tvshowid', 'roleid').order_by('-tvshowid__premieredate')
     
     if request.user.is_authenticated:
@@ -210,16 +192,14 @@ def creator_detail(request, creator_url):
             )
         )
     
-    # Seskupení seriálů podle show + role
     tvshows = defaultdict(list)
     for entry in tvshow_query:
         tvshow = entry.tvshowid
-        if not request.user.is_anonymous:
+        if request.user.is_authenticated:
             tvshow.is_watched = entry.is_watched
         tvshows[tvshow].append(entry.roleid.rolenamecz)
 
-
-    # Formulář pro úpravu DIV Ratingu u Creator
+    # --- DIV RATING FORM ---
     creator_div_rating_form = None
     if request.user.is_superuser:
         if request.method == 'POST' and 'update_divrating' in request.POST:
@@ -229,32 +209,64 @@ def creator_detail(request, creator_url):
                 return redirect('creator_detail', creator_url=creator_url)
         else:
             creator_div_rating_form = CreatorDivRatingForm(instance=creator)
+
+    # --- BIO SECTION ---
+    # --- BIO SECTION ---
+    form = None
     
-    # Formulář pro přidání popisu herce
-    if request.method == "POST":
-        form = CreatorBiographyForm(request.POST)
-        if form.is_valid():
-            biography = form.save(commit=False)
-            biography.userid = request.user
-            biography.creator = creator
-            biography.save()
-            return redirect("creator_detail", creator_url=creator.url)
+    # --- Pokud existuje biografie ---
+    if creatorbiography:
+        # UPRAVA EXISTUJÍCÍ BIO – jen staff
+        if request.method == "POST" and "edit_bio" in request.POST and request.user.is_staff:
+            form = CreatorBiographyForm(request.POST, instance=creatorbiography)
+            if form.is_valid():
+                bio = form.save(commit=False)
+                bio.lastupdated = date.today()
+                bio.author = request.user.username
+                bio.save()
+                return redirect("creator_detail", creator_url=creator.url)
+    
+        else:
+            # staff vidí formulář, ostatní pouze text
+            form = CreatorBiographyForm(instance=creatorbiography) if request.user.is_staff else None
+    
+    
+    # --- Pokud biografie NEEXISTUJE ---
     else:
-        form = CreatorBiographyForm(initial={"creator": creator})
+        # Vytvoření nové biografie – jen přihlášený uživatel
+        if request.method == "POST" and "add_bio" in request.POST and request.user.is_authenticated:
+            form = CreatorBiographyForm(request.POST)
+            if form.is_valid():
+                bio = form.save(commit=False)
+                bio.creator = creator
+                bio.userid = request.user
+                bio.author = request.user.username
+                bio.is_primary = True
+                bio.lastupdated = date.today()
+                bio.save()
+                return redirect("creator_detail", creator_url=creator.url)
+    
+        else:
+            # prázdný formulář pro přidání
+            form = CreatorBiographyForm() if request.user.is_authenticated else None
 
 
+    return render(
+        request,
+        'creators/creator_detail.html',
+        {
+            'creator': creator,
+            'creatorbiography': creatorbiography,
+            'top_10_creators': top_10_creators,
+            'filmography': filmography.items(),
+            'tvshows': tvshows.items(),
+            'is_favorite': is_favorite,
+            'fans': fans,
+            'creator_div_rating_form': creator_div_rating_form,
+            'form': form,
+        }
+    )
 
-    return render(request, 'creators/creator_detail.html', 
-                {'creator': creator, 
-                'creatorbiography': creatorbiography, 
-                'top_10_creators': top_10_creators, 
-                'filmography': filmography.items(),
-                'tvshows': tvshows.items(),
-                'is_favorite': is_favorite,
-                'fans': fans,
-                'creator_div_rating_form': creator_div_rating_form,
-                'form': form,
-})
                 
 def creators_search(request):
     creators = None

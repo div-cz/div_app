@@ -142,7 +142,7 @@ class Articleblog(models.Model):
 # ArticleBlogPost - Tabulka pro příspěvky v blogu
 class Articleblogpost(models.Model):
     articleblogpostid = models.AutoField(db_column='ArticleBlogPostID', primary_key=True)
-    articleblog = models.ForeignKey(Articleblog, on_delete=models.CASCADE, db_column='ArticleBlogID', related_name='posts')
+    articleblog = models.ForeignKey('Articleblog', on_delete=models.CASCADE, db_column='ArticleBlogID', related_name='posts')
     title = models.CharField(db_column='Title', max_length=255)
     slug = models.SlugField(db_column='Slug', max_length=255, null=True, blank=True, unique=True)
     content = models.TextField(db_column='Content')
@@ -178,7 +178,7 @@ class Articleblogpost(models.Model):
 # ArticleBlogComment - Tabulka pro komentáře k blogovým příspěvkům
 class Articleblogcomment(models.Model):
     articleblogcommentid = models.AutoField(db_column='ArticleBlogCommentID', primary_key=True)
-    articleblogpost = models.ForeignKey(Articleblogpost, on_delete=models.CASCADE, db_column='ArticleBlogPostID', related_name='comments')
+    articleblogpost = models.ForeignKey('Articleblogpost', on_delete=models.CASCADE, db_column='ArticleBlogPostID', related_name='comments')
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID', null=True, blank=True)
     content = models.TextField(db_column='Content')
     created_at = models.DateTimeField(db_column='CreatedAt', auto_now_add=True)
@@ -193,7 +193,7 @@ class Articleblogcomment(models.Model):
 # ArticleInteraction - Tabulka pro interakce s příspěvky (např. lajky, sdílení)
 class Articleinteraction(models.Model):
     articleinteractionid = models.AutoField(db_column='ArticleInteractionID', primary_key=True)
-    articleblogpost = models.ForeignKey(Articleblogpost, on_delete=models.CASCADE, db_column='ArticleBlogPostID', related_name='interactions')
+    articleblogpost = models.ForeignKey('Articleblogpost', on_delete=models.CASCADE, db_column='ArticleBlogPostID', related_name='interactions')
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID')
     interaction_type = models.CharField(db_column='InteractionType', max_length=50)  # Typ interakce (like 1, dislike 2, etc.)
     created_at = models.DateTimeField(db_column='CreatedAt', auto_now_add=True)
@@ -226,7 +226,7 @@ class Articlenews(models.Model):
 
 class Articlenewsassociation(models.Model):
     articlenewsassociationd = models.AutoField(db_column='ArticleNewsAssociationID', primary_key=True)
-    news = models.ForeignKey(Articlenews, on_delete=models.CASCADE, db_column='NewsID')
+    news = models.ForeignKey('Articlenews', on_delete=models.CASCADE, db_column='NewsID')
     contenttype = models.CharField(max_length=50, db_column='ContentType')
     objectid = models.IntegerField(db_column='ObjectID')
     
@@ -305,7 +305,7 @@ class Charactermeta(models.Model):
 class Charactermovie(models.Model):
     moviecharacterid = models.AutoField(db_column='MovieCharacterID', primary_key=True)
     characterrole = models.CharField(db_column='CharacterRole', max_length=255)
-    characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID')
+    characterid = models.ForeignKey('Charactermeta', models.DO_NOTHING, db_column='CharacterID')
     movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')
 
     class Meta:
@@ -315,7 +315,7 @@ class Charactermovie(models.Model):
 class Charactertvshow(models.Model):
     tvshowcharacterid = models.AutoField(db_column='TVShowCharacterID', primary_key=True)
     characterrole = models.CharField(db_column='CharacterRole', max_length=255)
-    characterid = models.ForeignKey(Charactermeta, models.DO_NOTHING, db_column='CharacterID')
+    characterid = models.ForeignKey('Charactermeta', models.DO_NOTHING, db_column='CharacterID')
     tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')
 
     class Meta:
@@ -360,7 +360,7 @@ class Creator(models.Model):
 
 class Creatorbiography(models.Model):
     biographyid = models.AutoField(primary_key=True)
-    creator = models.ForeignKey(Creator, on_delete=models.CASCADE, db_column='CreatorID', related_name='biographies')
+    creator = models.ForeignKey('Creator', on_delete=models.CASCADE, db_column='CreatorID', related_name='biographies')
     biographytext = models.TextField(db_column='BiographyText', null=True, blank=True)
     biographytextcz = models.TextField(db_column='BiographyTextCZ', null=True, blank=True)
     source = models.CharField(db_column='Source', max_length=255, blank=True)
@@ -427,7 +427,7 @@ class Creator(models.Model):
 
 class Creatorbiography(models.Model):
     biographyid = models.AutoField(primary_key=True)
-    creator = models.ForeignKey(Creator, on_delete=models.CASCADE, db_column='CreatorID', related_name='biographies')
+    creator = models.ForeignKey('Creator', on_delete=models.CASCADE, db_column='CreatorID', related_name='biographies')
     biographytext = models.TextField(db_column='BiographyText', null=True, blank=True)
     biographytextcz = models.TextField(db_column='BiographyTextCZ', null=True, blank=True)
     source = models.CharField(db_column='Source', max_length=255, blank=True)
@@ -481,7 +481,7 @@ class Drink(models.Model):
 class Drinkmedia(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)
     mediatype = models.IntegerField(db_column='MediaType')
-    drinkid = models.ForeignKey(Drink, models.DO_NOTHING, db_column='DrinkID')
+    drinkid = models.ForeignKey('Drink', models.DO_NOTHING, db_column='DrinkID')
 
     class Meta:
         db_table = 'DrinkMedia'
@@ -532,7 +532,7 @@ class Food(models.Model):
 class Foodmedia(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)
     mediatype = models.IntegerField(db_column='MediaType')
-    foodid = models.ForeignKey(Food, models.DO_NOTHING, db_column='FoodID')
+    foodid = models.ForeignKey('Food', models.DO_NOTHING, db_column='FoodID')
 
     class Meta:
         db_table = 'FoodMedia'
@@ -556,7 +556,7 @@ class Forumsection(models.Model):
 
 class Forumtopic(models.Model):
     forumtopicid = models.AutoField(db_column='ForumTopicID', primary_key=True)
-    section = models.ForeignKey(Forumsection, on_delete=models.CASCADE)
+    section = models.ForeignKey('Forumsection', on_delete=models.CASCADE)
     title = models.CharField(db_column='Title', max_length=255, unique=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     createdat = models.DateTimeField(db_column='Created_at', auto_now_add=True)
@@ -571,7 +571,7 @@ class Forumtopic(models.Model):
 
 class Forumcomment(models.Model):
     forumcommentid = models.AutoField(db_column='ForumCommentID', primary_key=True)
-    topic = models.ForeignKey(Forumtopic, on_delete=models.CASCADE)
+    topic = models.ForeignKey('Forumtopic', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     body = models.TextField()
     createdat = models.DateTimeField(db_column='Created_at', auto_now_add=True)
@@ -618,8 +618,8 @@ class Item(models.Model):
 class Itembook(models.Model):
     bookitemid = models.AutoField(db_column='BookItemID', primary_key=True)
     itemrole = models.CharField(db_column='ItemRole', max_length=255)
-    itemid = models.ForeignKey(Item, models.DO_NOTHING, db_column='ItemID')
-    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
+    itemid = models.ForeignKey('Item', models.DO_NOTHING, db_column='ItemID')
+    bookid = models.ForeignKey('Book', models.DO_NOTHING, db_column='BookID')
 
     class Meta:
         db_table = 'ItemBook'
@@ -628,8 +628,8 @@ class Itembook(models.Model):
 class Itemgame(models.Model):
     gameitemid = models.AutoField(db_column='GameItemID', primary_key=True)
     itemrole = models.CharField(db_column='ItemRole', max_length=255)
-    itemid = models.ForeignKey(Item, models.DO_NOTHING, db_column='ItemID')
-    gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')
+    itemid = models.ForeignKey('Item', models.DO_NOTHING, db_column='ItemID')
+    gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID')
 
     class Meta:
         db_table = 'ItemGame'
@@ -639,7 +639,7 @@ class Itemmovie(models.Model):
     movieitemid = models.AutoField(db_column='MovieItemID', primary_key=True)
     itemrole = models.IntegerField(db_column='ItemRole')
     movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')
-    itemid = models.ForeignKey(Item, models.DO_NOTHING, db_column='ItemID')
+    itemid = models.ForeignKey('Item', models.DO_NOTHING, db_column='ItemID')
 
     class Meta:
         db_table = 'ItemMovie'
@@ -657,7 +657,7 @@ class Itemmediarole(models.TextChoices):
 
 class Itemmedia(models.Model):
     mediaitemid = models.AutoField(db_column='MediaItemID', primary_key=True)
-    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, db_column='Item')
+    item = models.ForeignKey('Item', on_delete=models.DO_NOTHING, db_column='Item')
     mediatype = models.IntegerField(choices=Itemmediatype.choices, db_column='MediaType')
     role = models.IntegerField(choices=Itemmediarole.choices, db_column='Role')
     mediaid = models.IntegerField(db_column='MediaID')  # FK to the specific media, you might need to handle this differently for each type
@@ -673,8 +673,8 @@ class Itemmedia(models.Model):
 # Movie Award Model
 class Movieaward(models.Model):
     movieawardid = models.AutoField(db_column='MovieAwardID', primary_key=True)
-    metaAwardid = models.ForeignKey(Metaaward, on_delete=models.CASCADE, db_column='MetaAwardID')
-    movieid = models.ForeignKey(Movie, on_delete=models.CASCADE, db_column='MovieID')
+    metaAwardid = models.ForeignKey('Metaaward', on_delete=models.CASCADE, db_column='MetaAwardID')
+    movieid = models.ForeignKey('Movie', on_delete=models.CASCADE, db_column='MovieID')
     winner = models.BooleanField(db_column='Winner', default=False)
 
     class Meta:
@@ -683,8 +683,8 @@ class Movieaward(models.Model):
 # Book Award Model
 class Bookaward(models.Model):
     bookAwardid = models.AutoField(db_column='BookAwardID', primary_key=True)
-    metaAwardid = models.ForeignKey(Metaaward, on_delete=models.CASCADE, db_column='MetaAwardID')
-    bookid = models.ForeignKey(Book, on_delete=models.CASCADE, db_column='BookID')
+    metaAwardid = models.ForeignKey('Metaaward', on_delete=models.CASCADE, db_column='MetaAwardID')
+    bookid = models.ForeignKey('Book', on_delete=models.CASCADE, db_column='BookID')
     winner = models.BooleanField(db_column='Winner', default=False)
 
     class Meta:
@@ -693,8 +693,8 @@ class Bookaward(models.Model):
 # Game Award Model
 class Gameaward(models.Model):
     gameawardid = models.AutoField(db_column='GameAwardID', primary_key=True)
-    metaawardid = models.ForeignKey(Metaaward, on_delete=models.CASCADE, db_column='MetaAwardID')
-    gameid = models.ForeignKey(Game, on_delete=models.CASCADE, db_column='GameID')
+    metaawardid = models.ForeignKey('Metaaward', on_delete=models.CASCADE, db_column='MetaAwardID')
+    gameid = models.ForeignKey('Game', on_delete=models.CASCADE, db_column='GameID')
     winner = models.BooleanField(db_column='Winner', default=False)
 
     class Meta:
@@ -764,7 +764,7 @@ class Userchatsession(models.Model):
 
 class Usermessage(models.Model):
     usermessageid = models.AutoField(db_column='UserMessageID', primary_key=True)
-    chatsession = models.ForeignKey(Userchatsession, on_delete=models.CASCADE, db_column='UserChatSession', related_name='messages')
+    chatsession = models.ForeignKey('Userchatsession', on_delete=models.CASCADE, db_column='UserChatSession', related_name='messages')
     sender = models.ForeignKey(User, on_delete=models.CASCADE, db_column='Sender')
     message = models.TextField(db_column='Message', default="", null=True, blank=True)
     sentat = models.DateTimeField(db_column='SentAt', auto_now_add=True) 
@@ -785,7 +785,7 @@ class Userprofile(models.Model):
     profilepicture = models.ImageField(db_column='ProfilePicture', upload_to='profiles/2023/', blank=True, null=True)
     location = models.CharField(db_column='Location', max_length=255, null=True, blank=True)
     birthdate = models.DateField(db_column='BirthDate', null=True, blank=True)
-    avatar = models.ForeignKey(Avatar, db_column='Avatar', null=True, blank=True, on_delete=models.SET_NULL)
+    avatar = models.ForeignKey('Avatar', db_column='Avatar', null=True, blank=True, on_delete=models.SET_NULL)
     bankaccount = models.CharField(db_column='BankAccount', max_length=32, blank=True, null=True, verbose_name="Číslo účtu")
     shippingaddress = models.CharField(db_column='ShippingAddress', max_length=1024, blank=True, null=True)
     phone = models.CharField(db_column='Phone', max_length=32, blank=True, null=True, verbose_name="Telefon")
@@ -812,7 +812,7 @@ class Userlist(models.Model):
     namelist = models.CharField(db_column='NameList', max_length=255)
     description = models.TextField(db_column='Description', blank=True, null=True)
     createdat = models.DateTimeField(db_column='CreatedAt', auto_now_add=True)
-    listtype = models.ForeignKey(Userlisttype, on_delete=models.CASCADE, db_column='ListTypeID', blank=True, null=True)
+    listtype = models.ForeignKey('Userlisttype', on_delete=models.CASCADE, db_column='ListTypeID', blank=True, null=True)
     
     class Meta:
         db_table = 'UserList'
@@ -823,7 +823,7 @@ class Userlist(models.Model):
 
 class Userlistitem(models.Model):
     userlistitemid = models.AutoField(db_column='UserListItemID', primary_key=True)
-    userlist = models.ForeignKey(Userlist, on_delete=models.CASCADE, db_column='UserListID')
+    userlist = models.ForeignKey('Userlist', on_delete=models.CASCADE, db_column='UserListID')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, db_column='ContentTypeID')
     object_id = models.PositiveIntegerField(db_column='ObjectID')
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -838,8 +838,8 @@ class Userlistitem(models.Model):
     
 class Userlistmovie(models.Model):
     userlistmovieid = models.AutoField(db_column='UserListMovieID', primary_key=True)
-    userlist = models.ForeignKey(Userlist, on_delete=models.CASCADE)
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    userlist = models.ForeignKey('Userlist', on_delete=models.CASCADE)
+    movie = models.ForeignKey('Movie', on_delete=models.CASCADE)
     addedat = models.DateTimeField(db_column='AddedAt', auto_now_add=True)
 
     class Meta:
@@ -853,8 +853,8 @@ class Userlistmovie(models.Model):
 
 class Userlistbook(models.Model):
     userlistbookid = models.AutoField(db_column='UserListBookID', primary_key=True)
-    userlist = models.ForeignKey(Userlist, on_delete=models.CASCADE)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    userlist = models.ForeignKey('Userlist', on_delete=models.CASCADE)
+    book = models.ForeignKey('Book', on_delete=models.CASCADE)
     addedat = models.DateTimeField(db_column='AddedAt', auto_now_add=True)
 
     class Meta:
@@ -866,8 +866,8 @@ class Userlistbook(models.Model):
 
 class Userlistgame(models.Model):
     userlistgameid = models.AutoField(db_column='UserListGameID', primary_key=True)
-    userlist = models.ForeignKey(Userlist, on_delete=models.CASCADE)
-    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    userlist = models.ForeignKey('Userlist', on_delete=models.CASCADE)
+    game = models.ForeignKey('Game', on_delete=models.CASCADE)
     addedat = models.DateTimeField(db_column='AddedAt', auto_now_add=True)
 
     class Meta:
@@ -879,8 +879,8 @@ class Userlistgame(models.Model):
 
 class Userlisttvshow(models.Model):
     userlisttvshowid = models.AutoField(db_column='UserListTVShowID', primary_key=True)
-    userlist = models.ForeignKey(Userlist, on_delete=models.CASCADE)
-    tvshow = models.ForeignKey(Tvshow, on_delete=models.CASCADE)
+    userlist = models.ForeignKey('Userlist', on_delete=models.CASCADE)
+    tvshow = models.ForeignKey('Tvshow', on_delete=models.CASCADE)
     addedat = models.DateTimeField(db_column='AddedAt', auto_now_add=True)
 
     class Meta:
@@ -892,8 +892,8 @@ class Userlisttvshow(models.Model):
 
 class Userlisttvseason(models.Model):
     userlisttvseasonid = models.AutoField(db_column='UserListTVSeasonID', primary_key=True)
-    userlist = models.ForeignKey(Userlist, on_delete=models.CASCADE)
-    tvseason = models.ForeignKey(Tvseason, on_delete=models.CASCADE)
+    userlist = models.ForeignKey('Userlist', on_delete=models.CASCADE)
+    tvseason = models.ForeignKey('Tvseason', on_delete=models.CASCADE)
     addedat = models.DateTimeField(db_column='AddedAt', auto_now_add=True)
 
     class Meta:
@@ -905,8 +905,8 @@ class Userlisttvseason(models.Model):
 
 class Userlisttvepisode(models.Model):
     userlisttvepisodeid = models.AutoField(db_column='UserListTVEpisodeID', primary_key=True)
-    userlist = models.ForeignKey(Userlist, on_delete=models.CASCADE)
-    tvepisode = models.ForeignKey(Tvepisode, on_delete=models.CASCADE)
+    userlist = models.ForeignKey('Userlist', on_delete=models.CASCADE)
+    tvepisode = models.ForeignKey('Tvepisode', on_delete=models.CASCADE)
     addedat = models.DateTimeField(db_column='AddedAt', auto_now_add=True)
 
     class Meta:
@@ -942,15 +942,5 @@ class Usermessage(models.Model):
         ordering = ['sentat'] 
         db_table = 'UserMessage'
 """
-
-
-
-
-
-
-
-
-
-
 
 

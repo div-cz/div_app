@@ -64,7 +64,7 @@ class Booklisting(models.Model):
     booklistingid = models.AutoField(db_column='BookListingID', primary_key=True)
     user = models.ForeignKey(User, db_column='user_id', on_delete=models.CASCADE)
     buyer = models.ForeignKey(User, db_column='BuyerID', null=True, blank=True, on_delete=models.SET_NULL, related_name='listings_bought')
-    book = models.ForeignKey(Book, db_column='book_id', on_delete=models.CASCADE)
+    book = models.ForeignKey('Book', db_column='book_id', on_delete=models.CASCADE)
     listingtype = models.CharField(db_column='ListingType', max_length=4, choices=LISTING_TYPES)
     price = models.DecimalField(db_column='Price', max_digits=10, decimal_places=2, null=True, blank=True)
     shipping = models.DecimalField(db_column='Shipping', max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Poštovné')
@@ -126,7 +126,7 @@ class Bookcharacter(models.Model):
     bookcharacterid = models.AutoField(db_column='BookCharacterID', primary_key=True)
     charactermain = models.CharField(db_column='CharacterMain', max_length=2, null=True, blank=True)
     characterid = models.ForeignKey('Charactermeta', models.DO_NOTHING, db_column='CharacterID')
-    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
+    bookid = models.ForeignKey('Book', models.DO_NOTHING, db_column='BookID')
 
     class Meta:
         db_table = 'BookCharacter'
@@ -138,7 +138,7 @@ class Bookcomments(models.Model):
     commentid = models.AutoField(db_column='CommentID', primary_key=True, unique=True) 
     comment = models.TextField(db_column='Comment')
 ##    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
-    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
+    bookid = models.ForeignKey('Book', models.DO_NOTHING, db_column='BookID')
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True) 
     dateadded = models.DateTimeField(db_column='DateAdded', auto_now_add=True)
     class Meta:
@@ -158,7 +158,7 @@ class Bookcover(models.Model):
 
 class Bookisbn(models.Model):
     bookisbnid = models.AutoField(db_column='BookISBNID', primary_key=True)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE, db_column='BookID')
+    book = models.ForeignKey('Book', on_delete=models.CASCADE, db_column='BookID')
     isbn = models.CharField(max_length=26, unique=True, db_column='ISBN')
     ISBNtype = models.CharField(max_length=255, null=True, blank=True, db_column='ISBNtype')
     publisherid = models.ForeignKey('Metapublisher', models.DO_NOTHING, db_column='PublisherID', null=True)
@@ -182,7 +182,7 @@ class Booklocation(models.Model):
     booklocationid = models.AutoField(db_column='BookLocationID', primary_key=True)
     locationrole = models.CharField(db_column='LocationRole', max_length=255)
     locationid = models.ForeignKey('Metalocation', models.DO_NOTHING, db_column='LocationID', blank=True, null=True)
-    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
+    bookid = models.ForeignKey('Book', models.DO_NOTHING, db_column='BookID')
 
     class Meta:
         db_table = 'BookLocation'
@@ -210,7 +210,7 @@ class Bookpurchase(models.Model):
     purchaseid = models.AutoField(db_column='PurchaseID', primary_key=True)
     purchasedate = models.DateField(db_column='PurchaseDate', null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID')
-    book = models.ForeignKey(Book, on_delete=models.CASCADE, db_column='BookID')
+    book = models.ForeignKey('Book', on_delete=models.CASCADE, db_column='BookID')
     format = models.CharField(db_column='Format', max_length=10, choices=[('mobi', 'MOBI'), ('pdf', 'PDF'), ('epub', 'EPUB')])
     price = models.DecimalField(db_column='Price', max_digits=10, decimal_places=2)
     sourcetype = models.CharField(max_length=20, null=True, blank=True)  # např. "PALM", "DIV"
@@ -265,7 +265,7 @@ class Bookrating(models.Model):
     rating = models.IntegerField(db_column='Rating')
     comment = models.TextField(db_column='Comment')
 #    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
-    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
+    bookid = models.ForeignKey('Book', models.DO_NOTHING, db_column='BookID')
 
     class Meta:
         db_table = 'BookRating'
@@ -273,8 +273,8 @@ class Bookrating(models.Model):
 
 class Bookwriters(models.Model):
     bookwriterid = models.AutoField(db_column='BookWriterID', primary_key=True)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE, db_column='BookID')
-    author = models.ForeignKey(Bookauthor, on_delete=models.CASCADE, db_column='AuthorID')
+    book = models.ForeignKey('Book', on_delete=models.CASCADE, db_column='BookID')
+    author = models.ForeignKey('Bookauthor', on_delete=models.CASCADE, db_column='AuthorID')
 
     class Meta:
         db_table = 'BookWriters'

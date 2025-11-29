@@ -1,4 +1,6 @@
-# forms.creators.py
+# -------------------------------------------------------------------
+#                    FORMS.CREATORS.PY
+# -------------------------------------------------------------------
 
 from django import forms
 from django.contrib.auth.models import User
@@ -12,19 +14,19 @@ class CreatorBiographyForm(forms.ModelForm):
         model = Creatorbiography
         fields = [
             'biographyid', 'biographytextcz', 'source', 
-            'externallink', 'imageurl'
+            'externallink'#, 'imageurl'
         ]
         labels = {
             'biographytextcz': "Životopis",
             'source': "Zdroj",
             'externallink': "URL adresa zdroje",
-            'imageurl': "URL adresa obrázku"
+            #'imageurl': "URL adresa obrázku"
         }
         widgets = {
             'biographyid': forms.HiddenInput(),
             'biographytextcz': forms.Textarea(attrs={'class': 'form-control', 'rows': 20, 'style': 'height: 250px;','placeholder': 'Životopis postavy...'}),
             'externallink': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'URL adresa zdroje'}),
-            'imageurl': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'URL obrázku'}),
+            #'imageurl': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'URL obrázku'}),
             'source': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Zdroj'}),
         }
 

@@ -109,8 +109,8 @@ class Metagenre(models.Model):
 
 class Bookgenre(models.Model):
     bookgenreid = models.AutoField(db_column='BookGenreID', primary_key=True)
-    bookid = models.ForeignKey(Book, models.DO_NOTHING, db_column='BookID')
-    genreid = models.ForeignKey(Metagenre, models.DO_NOTHING, db_column='GenreID')
+    bookid = models.ForeignKey('Book', models.DO_NOTHING, db_column='BookID')
+    genreid = models.ForeignKey('Metagenre', models.DO_NOTHING, db_column='GenreID')
 
     class Meta:
         db_table = 'BookGenre'
@@ -118,8 +118,8 @@ class Bookgenre(models.Model):
 
 class Gamegenre(models.Model):
     gamegenreid = models.AutoField(db_column='GameGenreID', primary_key=True)
-    gameid = models.ForeignKey(Game, models.DO_NOTHING, db_column='GameID')
-    genreid = models.ForeignKey(Metagenre, models.DO_NOTHING, db_column='GenreID')
+    gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID')
+    genreid = models.ForeignKey('Metagenre', models.DO_NOTHING, db_column='GenreID')
 
     class Meta:
         db_table = 'GameGenre'
@@ -283,7 +283,7 @@ class Metastreet(models.Model):
     StreetName = models.CharField(db_column='StreetName', max_length=255)
     StreetNameCZ = models.CharField(db_column='StreetNameCZ', max_length=255, blank=True, null=True)
     StreetNameURL = models.CharField(db_column='StreetNameURL', max_length=255, blank=True, null=True)
-    City = models.ForeignKey(Metacity, on_delete=models.CASCADE, blank=True, null=True)
+    City = models.ForeignKey('Metacity', on_delete=models.CASCADE, blank=True, null=True)
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID')
     class Meta:
         db_table = 'MetaStreet'
