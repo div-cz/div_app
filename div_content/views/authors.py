@@ -77,6 +77,16 @@ def author_detail(request, author_url):
         books = Book.objects.filter(bookid__in=book_ids).order_by("-year")
 
 
+    # --- SHORT BIO (Description) ---
+    bio_form = None
+    
+    if request.method == "POST" and "save_bio" in request.POST:
+        if request.user.is_authenticated:
+            new_bio = request.POST.get("description", "").strip()[:2048]
+            author.description = new_bio
+            author.userid = request.user  # kdo upravil
+            author.save()
+            return redirect("author_detail", author_url=author.url)
 
 
     #Výpis knih podle sérií
@@ -127,6 +137,7 @@ def author_detail(request, author_url):
         'author': author, 
         'books': books, 
         'series_books': series_books,
+        'description': author.description,
         'non_series_books': non_series_books,
         'has_series': bool(series_books),
         'author_list_10': author_list_10, 

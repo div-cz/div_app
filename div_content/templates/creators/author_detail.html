@@ -117,20 +117,56 @@
 
         <!-- BIOGRAFIE -->
         {% if author.description %}
-        <p>{{ author.description|safe }}</p>
+        <div class="author-bio mt-3">
+            <p>{{ author.description|linebreaksbr }}</p>
+            {% if author.userid %}
+                <p class="text-muted mt-2" style="font-size: 90%;">
+                    <small>
+                        Upravil: 
+                        <a href="/uzivatel/{{ author.userid.id }}/">{{ author.userid.username }}</a>
+                    </small>
+                </p>
+            {% endif %}
+
+            {% if user.is_staff %}
+            <details class="mt-3">
+                <summary>Upravit popis</summary>
+                <form method="post">
+                    {% csrf_token %}
+                    <textarea name="description" rows="5" maxlength="2048" oninput="countChars(this)">{{ author.description }}</textarea>
+                    <div id="counter" class="text-muted mb-2"></div>
+                    <button type="submit" name="save_bio" class="btn btn-primary">Uložit změny</button>
+                </form>
+            </details>
+            {% endif %}
+        </div>
 
         {% else %}
-        <div class="flex flex-wrap items-center">
-            <details class="w-full">
-                <summary>Přidej vlastní popis, zatím tu žádný není!</summary>
-                <form action="">
-                    <textarea id="w3review" name="w3review" rows="3" cols="50"></textarea>
-                    <br>
-                    <input class="add" type="submit" value="Přidat">
-                </form>
+        <div class="author-bio mt-3">
+            <details>
+                <summary>Přidej popis autora</summary>
+        
+                {% if user.is_authenticated %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <textarea name="description" rows="5" maxlength="2048" oninput="countChars(this)" placeholder="Napiš krátký popis (max 2048 znaků)"></textarea>
+                        <div id="counter" class="text-muted mb-2"></div>
+                        <button type="submit" name="save_bio" class="btn btn-primary">Přidat</button>
+                    </form>
+                {% else %}
+                    <p class="mt-3"><a href="/prihlaseni/">Přihlas se</a> a přidej popis autora.</p>
+                {% endif %}
             </details>
         </div>
         {% endif %}
+        <script>
+        function countChars(el) {
+            let max = 2048;
+            let len = el.value.length;
+            document.getElementById("counter").innerText = len + "/" + max + " znaků";
+        }
+        </script>
+
 
         <!-- SEZNAM KNIH + SÉRIE -->
         <div class="card mb-4 mt-4">
