@@ -13,92 +13,92 @@
 
     <!-- NABÍDKY -->
     {% if sell_listings %}
-    <div class="mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Nabídky k prodeji</h2>
-        <div class="grid gap-4">
-            {% for listing in sell_listings %}
-            <div class="border rounded-lg p-4  ">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <span class=" ">
-                            {% if listing.listingtype == 'GIVE' %}
-                                Daruji
-                            {% else %}
-                                {{ listing.price|intcomma }} Kč
-                            {% endif %}
-                        </span>
-                        {% if listing.shipping %}
-                        <span class="text-sm  ml-2">(+ {{ listing.shipping|intcomma }} Kč poštovné)</span>
-                        {% endif %}
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Nabídky k prodeji</h2>
+            <div class="grid gap-4">
+                {% for listing in sell_listings %}
+                    <div class="border rounded-lg p-4  ">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class=" ">
+                                    {% if listing.listingtype == 'GIVE' %}
+                                        Daruji
+                                    {% else %}
+                                        {{ listing.price|intcomma }} Kč
+                                    {% endif %}
+                                </span>
+                                {% if listing.shipping %}
+                                    <span class="text-sm ml-2">(+ {{ listing.shipping|intcomma }} Kč poštovné)</span>
+                                {% endif %}
+                            </div>
+                            <span class="text-sm">{{ listing.createdat|naturaltime }}</span>
+                        </div>
+                        
+                        <div class="mt-2">
+                            <p class="">{{ listing.description|truncatewords:30 }}</p>
+                            <div class="mt-2 text-sm">
+                                {% if listing.condition %}
+                                    <span class="mr-4">Stav: {{ listing.condition }}</span>
+                                {% endif %}
+                                {% if listing.location %}
+                                    <span>Lokalita: {{ listing.location }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3 flex justify-between items-center">
+                            <a href="{% url 'user_sell_listings' listing.user.id %}" class=" hover:underline">
+                                {{ listing.user.username }}
+                            </a>
+                            <a href="{% url 'listing_detail_sell' book.url listing.booklistingid %}" 
+                            class="hover:underline px-4 py-2 rounded ">
+                                Detail nabídky
+                            </a>
+                        </div>
                     </div>
-                    <span class="text-sm ">{{ listing.createdat|naturaltime }}</span>
-                </div>
-                
-                <div class="mt-2">
-                    <p class="">{{ listing.description|truncatewords:30 }}</p>
-                    <div class="mt-2 text-sm ">
-                        {% if listing.condition %}
-                            <span class="mr-4">Stav: {{ listing.condition }}</span>
-                        {% endif %}
-                        {% if listing.location %}
-                            <span>Lokalita: {{ listing.location }}</span>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <div class="mt-3 flex justify-between items-center">
-                    <a href="{% url 'user_sell_listings' listing.user.id %}" class=" hover:underline">
-                        {{ listing.user.username }}
-                    </a>
-                    <a href="{% url 'listing_detail_sell' book.url listing.booklistingid %}" 
-                       class="  hover:underline px-4 py-2 rounded ">
-                        Detail nabídky
-                    </a>
-                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
-    </div>
     {% endif %}
 
     <!-- POPTÁVKY -->
     {% if buy_listings %}
-    <div>
-        <h2 class="text-2xl font-semibold mb-4">Poptávky</h2>
-        <div class="grid gap-4">
-            {% for listing in buy_listings %}
-            <div class="border rounded-lg p-4">
-                <div class="flex justify-between items-start">
-                    <span class=" ">
-                        Koupím - nabízím {{ listing.price|intcomma }} Kč
-                    </span>
-                    <span class="text-sm ">{{ listing.createdat|naturaltime }}</span>
-                </div>
-                
-                <div class="mt-2">
-                    <p class="">{{ listing.description|truncatewords:30 }}</p>
-                    {% if listing.location %}
-                    <p class="mt-2 text-sm ">Lokalita: {{ listing.location }}</p>
-                    {% endif %}
-                </div>
-                
-                <div class="mt-3 flex justify-between items-center">
-                    <a href="{% url 'user_buy_listings' listing.user.id %}" class=" hover:underline">
-                        {{ listing.user.username }}
-                    </a>
-                    <a href="{% url 'listing_detail_buy' book.url listing.booklistingid %}" 
-                       class="  hover:underline px-4 py-2 rounded ">
-                        Detail poptávky
-                    </a>
-                </div>
+        <div>
+            <h2 class="text-2xl font-semibold mb-4">Poptávky</h2>
+            <div class="grid gap-4">
+                {% for listing in buy_listings %}
+                    <div class="border rounded-lg p-4">
+                        <div class="flex justify-between items-start">
+                            <span class=" ">
+                                Koupím - nabízím {{ listing.price|intcomma }} Kč
+                            </span>
+                            <span class="text-sm">{{ listing.createdat|naturaltime }}</span>
+                        </div>
+                        
+                        <div class="mt-2">
+                            <p>{{ listing.description|truncatewords:30 }}</p>
+                            {% if listing.location %}
+                                <p class="mt-2 text-sm">Lokalita: {{ listing.location }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mt-3 flex justify-between items-center">
+                            <a href="{% url 'user_buy_listings' listing.user.id %}" class=" hover:underline">
+                                {{ listing.user.username }}
+                            </a>
+                            <a href="{% url 'listing_detail_buy' book.url listing.booklistingid %}" 
+                            class="hover:underline px-4 py-2 rounded ">
+                                Detail poptávky
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
-    </div>
     {% endif %}
 
     {% if not sell_listings and not buy_listings %}
-    <p class="text-center  py-8">Pro tuto knihu zatím nejsou žádné nabídky ani poptávky.</p>
+        <p class="text-center py-8">Pro tuto knihu zatím nejsou žádné nabídky ani poptávky.</p>
     {% endif %}
 </div>
 {% endblock %}

@@ -1,0 +1,120 @@
+{% extends "books/base.html" %}
+{% block title %}Antikvariát | DIV.cz{% endblock %}
+
+{% block meta %}
+<meta name="description" content="DIVkvariát – burza knih a poptávka čtenářů. Přidej svoji nabídku nebo poptávku.">
+<link rel="canonical" href="https://div.cz/antikvariat/">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 style="width: 100%;">DIVkvariát</h1>
+    <p class="market-intro">Burza knih mezi čtenáři – přehledné nabídky a poptávky z druhé ruky.<br>
+    Nabídku můžete zadat z detailu knihy nebo <a href="/antikvariat/pridat-knihu/">přes formulář přidat knihu</a></p>
+    <p class="market-intro">Burza knih mezi čtenáři – přehledné nabídky a poptávky z druhé ruky.</p>
+
+    {% if messages %}
+        <div style="margin-bottom: 2rem;">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert">
+                {{ message|safe }}
+            </div>
+        {% endfor %}
+        </div>
+    {% endif %}
+ 
+    <div class="market-section">
+        <div class="market-card">
+            <h3>&#128228; Nabídky</h3>
+            <a href="{% url 'books_market_offers' %}">
+                <p>{{ count_sell }} aktivních knih k prodeji či darování</p>
+            </a>
+        </div>
+        <div class="market-card">
+            <h3>&#128373; Poptávky</h3>
+            <a href="{% url 'books_market_wants' %}">
+                <div>{{ count_buy }} čtenářských přání</div>
+            </a>
+        </div>
+
+        {% if request.user.is_authenticated %}
+            <div class="market-card">
+                <h3>&#128179; Výplata</h3>
+                <ul>
+                    <li><strong>K vyplacení:</strong> {{ total_user_payment|default:"0" }} Kč</li>
+                    <li><strong>Vyplaceno:</strong> {{ total_user_paid_amount|default:"0" }} Kč</li>
+                </ul>
+
+                {% if total_user_payment > 0 and button_appear %}
+                    {% if user.userprofile.bankaccount %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" name="request_payout" class="add-book">
+                            Vyžádat výplatu
+                        </button>
+                    </form>
+                        {% else %}
+                    <p>Pro výplatu je nutné vyplnit číslo účtu na 
+                        <a href="/ucet/upravit/" class="underline">profilu</a>.
+                    </p>
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Nejnovější nabídky -->
+    {% if listings_sell %}
+        <h2 class="market-title">&#128218; Nejnovější nabídky</h2>
+        <div class="market-list-grid">
+            {% for listing in listings_sell %}
+                <div class="market-list-item">
+                    <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+                    {% if listing.book.img == "noimg.png" %}
+                        <img src="/static/img/book/book.png" alt="{{ listing.book.titlecz }}" class="market-img ">
+                    {% elif listing.book.img == "GoogleID" %}
+                        <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1" class="market-img ">
+                    {% else %}
+                        <img src="https://media.div.cz/knihy/{{ listing.book.img }}" class="market-img " alt="{{ listing.book.titlecz }}">
+                    {% endif %}
+                    </a>
+
+                    <div class="market-item-info">
+                        <div>
+                            <strong>{{ listing.book.titlecz|default:listing.book.title }}</strong><br>
+                            <span class="author">{{ listing.book.author }}</span>
+                        </div>
+                        <div style="margin-top:10px;">
+                            <span class="market-price">
+                                {% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}
+                            </span><br>
+                            <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}" class="market-link">Detail nabídky</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- paginátor -->
+        <div class="pagination">
+            <span class="step-links">
+                {% if listings_sell.has_previous %}
+                    <a class="first-page" href="?page_sell={{ listings_sell.previous_page_number }}">&laquo; Předchozí</a>
+                    {% else %}
+                {% endif %}
+
+                <span class="current-page">
+                    {{ listings_sell.number }} / {{ listings_sell.paginator.num_pages }}
+                </span>
+
+                {% if listings_sell.has_next %}
+                    <a class="last-page" href="?page_sell={{ listings_sell.next_page_number }}">Další &raquo;</a>
+                    {% else %}
+                {% endif %}
+            </span>
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

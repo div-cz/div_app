@@ -26,7 +26,7 @@
     {% if user.is_authenticated %}
 
     <div class="tab-content">
-        <div class="mt-4">
+        <div class="card card-body">
             <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
 
@@ -36,20 +36,20 @@
                         <label class="font-bold" for="id_bio">O mně:</label>
                         <textarea name="bio" id="id_bio" class="form-control">{{ form.bio.value|default_if_none:"" }}</textarea>
                         {% if form.bio.errors %}
-                        <small class="text-danger">
-                        {% for error in form.bio.errors %}
-                        {{ error }}
-                        {% endfor %}
-                        </small>
+                            <small>
+                            {% for error in form.bio.errors %}
+                            {{ error }}
+                            {% endfor %}
+                            </small>
                         {% endif %}
 
-                        <div class="form-group w-full">
-                            <label class="font-bold" for="id_bankaccount">Číslo účtu (pro výběr v Divkvariát):</label>
+                        <div class="form-group">
+                            <label class="font-bold" for="id_bankaccount">Číslo účtu (pro výběr z Divkvariátu):</label>
                             <input type="text" name="bankaccount" maxlength="32" id="id_bankaccount"
                                 value="{{ form.bankaccount.value|default_if_none:'' }}" class="form-control" placeholder="Nepovinné">
 
                             {% if form.bankaccount.errors %}
-                            <small class="text-danger">
+                            <small>
                                 {% for error in form.bankaccount.errors %}
                                 {{ error }}
                                 {% endfor %}
@@ -60,12 +60,12 @@
                     
                     <div class="flex flex-wrap lg:ml-4">
                         <!-- Pole Birthdate -->
-                        <div class="form-group w-full">
+                        <div class="form-group">
                             <label class="font-bold" for="id_birthdate">Datum narození ve formátu YYYY-MM-DD (např.: 2000-12-24):</label>
                             <input type="text" name="birthdate" id="id_birthdate" value="{{ form.birthdate.value|date:"Y-m-d"|default:'' }}" class="form-control" placeholder="2010-01-01">
 
                             {% if form.birthdate.errors %}
-                            <small class="text-danger">
+                            <small>
                                 {% for error in form.birthdate.errors %}
                                 {{ error }}
                                 {% endfor %}
@@ -78,24 +78,23 @@
                             </div>
                             <div>
                                 <label class="font-bold">Telefon:</label>
-                                <input type="phone" class="form-control" value="" placeholder="+420 123 456 789">
+                                <input type="number" class="form-control" value="" placeholder="+420 123 456 789">
                                 <small style="color:#6c757d;">Tento telefon slouží ke komunikaci mezi prodejce a kupujícím.</small>
                             </div>
                         </div>
 
                         <!-- Pole Location -->
-                        <div class="form-group w-full">
+                        <div class="form-group">
                             <label class="font-bold" for="id_location">Bydliště (město):</label>
                             <input type="text" name="location" maxlength="255" id="id_location" value="{{ form.location.value|default_if_none:"" }}" class="form-control" placeholder="Nepovinné">
                             {% if form.location.errors %}
-                            <small class="text-danger">
-                                {% for error in form.location.errors %}
-                                {{ error }}
-                                {% endfor %}
-                            </small>
+                                <small>
+                                    {% for error in form.location.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </small>
                             {% endif %}
                         </div>
-                        
 
                     </div>
                 </div>  
@@ -104,18 +103,18 @@
                 <div class="form-group avatar-selection">
                     <label class="font-bold" for="id_profilepicture">Profilový obrázek:</label><br>
                     {% for avatar in avatars %}
-                    <div class="avatar-container {% if user_profile.avatar.avatarid == avatar.avatarid %}selected{% endif %}" id="avatarContainer_{{ avatar.avatarid }}">
-                        <input type="radio" name="avatar" id="avatar_{{ avatar.avatarid }}" value="{{ avatar.avatarid }}"
-                            {% if user_profile.avatar.avatarid == avatar.avatarid %} checked {% endif %}
-                            style="position: absolute; opacity: 0;">
-                        <label for="avatar_{{ avatar.avatarid }}" onclick="selectAvatar('{{ avatar.avatarid }}')">
-                            <img src="/static/img/avatar/{{ avatar.imagepath }}" alt="{{ avatar.name }}" width="100" height="100">
-                        </label>
-                    </div>
+                        <div class="avatar-container {% if user_profile.avatar.avatarid == avatar.avatarid %}selected{% endif %}" id="avatarContainer_{{ avatar.avatarid }}">
+                            <input type="radio" name="avatar" id="avatar_{{ avatar.avatarid }}" value="{{ avatar.avatarid }}"
+                                {% if user_profile.avatar.avatarid == avatar.avatarid %} checked {% endif %}
+                                style="position: absolute; opacity: 0;">
+                            <label for="avatar_{{ avatar.avatarid }}" onclick="selectAvatar('{{ avatar.avatarid }}')">
+                                <img src="/static/img/avatar/{{ avatar.imagepath }}" alt="{{ avatar.name }}" width="100" height="100">
+                            </label>
+                        </div>
                     {% endfor %}
                 </div>
 
-                <button type="submit" class="btn btn-primary add"><i class="fa fa-save"></i> Uložit</button>
+                <button type="submit" class="btn add"><i class="fa fa-save" style="margin-right: .5rem;"></i> Uložit</button>
             </form>
         </div>
     </div>

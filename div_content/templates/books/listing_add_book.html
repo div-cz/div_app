@@ -14,13 +14,7 @@
             <h3 class="text-xl mb-4">1. Vyberte knihu</h3>
             
             <div class="relative">
-                <input 
-                    type="text" 
-                    id="book-search" 
-                    class="form-control w-full"
-                    placeholder="Začněte psát název knihy nebo jméno autora..."
-                    autocomplete="off"
-                >
+                <input type="text" id="book-search" class="form-control w-full" placeholder="Začněte psát název knihy nebo jméno autora..." autocomplete="off">
                 <div id="search-results" class="relative z-50 w-full bg-white dark:bg-[#1A161F] border border-gray-300 dark:border-gray-700 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-lg hidden"></div>
             </div>
             <div id="search-spacer" class="h-96 hidden"></div>
@@ -45,11 +39,11 @@
                 
                 <div>
                     <h4 class="font-bold text-lg">{{ selected_book.titlecz|default:selected_book.title }}</h4>
-                    <p class="text-gray-600">{{ selected_book.author }}</p>
+                    <p>{{ selected_book.author }}</p>
                     {% if selected_book.year %}
-                    <p class="text-sm text-gray-500">{{ selected_book.year }}</p>
+                        <p class="text-sm">{{ selected_book.year }}</p>
                     {% endif %}
-                    <a href="?book_id=" class="text-sm text-blue-500 hover:underline">Změnit knihu</a>
+                    <a href="?book_id=" class="text-sm hover:underline">Změnit knihu</a>
                 </div>
             </div>
             
@@ -68,86 +62,86 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('book-search');
-    const searchResults = document.getElementById('search-results');
-    
-    if (!searchInput) return;
-    
-    let searchTimeout;
-    
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        const query = this.value.trim();
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('book-search');
+        const searchResults = document.getElementById('search-results');
         
-        if (query.length < 2) {
-            searchResults.classList.add('hidden');
-            return;
-        }
+        if (!searchInput) return;
         
-        searchTimeout = setTimeout(() => {
-            fetch(`{% url 'listing_search_books' %}?q=${encodeURIComponent(query)}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                displayResults(data.results);
-            })
-            .catch(error => console.error('Error:', error));
-        }, 300);
-    });
-    
-    function displayResults(results) {
-    const spacer = document.getElementById('search-spacer');
-
-        if (results.length === 0) {
-            searchResults.innerHTML = '<div class="p-4 text-gray-500">Žádné výsledky</div>';
-            searchResults.classList.remove('hidden');
-            if (spacer) spacer.classList.remove('hidden');
-            return;
-        }
+        let searchTimeout;
         
-        let html = '';
-        results.forEach(book => {
-            let imgSrc;
-            if (book.img === 'noimg.png') {
-                imgSrc = '{% static "img/book/book.png" %}';
-            } else if (book.img === 'GoogleID') {
-                imgSrc = `https://books.google.com/books/content?id=${book.googleid}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api`;
-            } else {
-                imgSrc = `https://media.div.cz/knihy/${book.img}`;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                searchResults.classList.add('hidden');
+                return;
             }
             
-            html += `
-                <div class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-[#2A2630] cursor-pointer border-b last:border-b-0" onclick="selectBook(${book.bookid})">
-                    <img src="${imgSrc}" alt="${book.title}" class="w-12 h-auto mr-3" style="max-width:200px;margin-right:20px">
-                    <div>
-                        <div class="font-semibold">${book.title}</div>
-                        <div class="text-sm text-gray-600">${book.author}${book.year ? ' (' + book.year + ')' : ''}</div>
-                    </div>
-                </div>
-            `;
+            searchTimeout = setTimeout(() => {
+                fetch(`{% url 'listing_search_books' %}?q=${encodeURIComponent(query)}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    displayResults(data.results);
+                })
+                .catch(error => console.error('Error:', error));
+            }, 300);
         });
         
-        searchResults.innerHTML = html;
-        searchResults.classList.remove('hidden');
-        if (spacer) spacer.classList.remove('hidden');
-    }
-    
-    // Zavření výsledků při kliknutí mimo
-    document.addEventListener('click', function(e) {
-        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-            searchResults.classList.add('hidden');
-            if (spacer) spacer.classList.add('hidden');
-        }
-    });
-});
+        function displayResults(results) {
+        const spacer = document.getElementById('search-spacer');
 
-function selectBook(bookId) {
-    window.location.href = `?book_id=${bookId}`;
-}
+            if (results.length === 0) {
+                searchResults.innerHTML = '<div class="p-4">Žádné výsledky</div>';
+                searchResults.classList.remove('hidden');
+                if (spacer) spacer.classList.remove('hidden');
+                return;
+            }
+            
+            let html = '';
+            results.forEach(book => {
+                let imgSrc;
+                if (book.img === 'noimg.png') {
+                    imgSrc = '{% static "img/book/book.png" %}';
+                } else if (book.img === 'GoogleID') {
+                    imgSrc = `https://books.google.com/books/content?id=${book.googleid}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api`;
+                } else {
+                    imgSrc = `https://media.div.cz/knihy/${book.img}`;
+                }
+                
+                html += `
+                    <div class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-[#2A2630] cursor-pointer border-b last:border-b-0" onclick="selectBook(${book.bookid})">
+                        <img src="${imgSrc}" alt="${book.title}" class="w-12 h-auto mr-3" style="max-width:200px;margin-right:20px">
+                        <div>
+                            <div class="font-semibold">${book.title}</div>
+                            <div class="text-sm text-gray-600">${book.author}${book.year ? ' (' + book.year + ')' : ''}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            searchResults.innerHTML = html;
+            searchResults.classList.remove('hidden');
+            if (spacer) spacer.classList.remove('hidden');
+        }
+        
+        // Zavření výsledků při kliknutí mimo
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.add('hidden');
+                if (spacer) spacer.classList.add('hidden');
+            }
+        });
+    });
+
+    function selectBook(bookId) {
+        window.location.href = `?book_id=${bookId}`;
+    }
 </script>
 
 
