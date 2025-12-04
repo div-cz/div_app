@@ -221,6 +221,7 @@
                         <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="img-fluid">
                     {% endif %}
                 
+                    <!-- HODNOCENÍ NA MOBIL -->
                     <div class="box-info-rating">
                         <div class="rating" data-rating="{{ average_rating }}">
                             <div class="rating-inner">
@@ -230,7 +231,57 @@
 
                         <div class="rating-stars" style="white-space: nowrap;">
                             <div class="smaller-stars">{% ratings book %}</div>
-                            <div id="rating-thankyou" class="alert" style="display: none;">Děkujeme za hodnocení!</div>
+                            <div id="rating-thankyou" class="alert" style="display: none;">
+                                Děkujeme za hodnocení!
+                            </div>
+                        </div>
+
+                        <button class="rating-popup-btn add-book" style="margin: 0 auto;">Hodnocení knihy</button>
+                    </div>
+
+                    <!-- POPUP – VÝPIS HODNOCENÍ PRO KNIHU -->
+                    <div id="ratingPopup" class="popup-overlay">
+                        <div class="popup-window">
+                            <span class="popup-close">&times;</span>
+                            <h3>Hodnocení knihy</h3>
+                            {% if ratings %}
+                                <ul class="sm-rating-users">
+                                    {% for rating in ratings %}
+                                        <li>
+                                            <small>
+                                                <p style="text-align:center; padding:.25rem;">
+                                                    Hodnoceno: {{ rating.modified|date:"j. n. Y" }}
+                                                </p>
+                                            </small>
+
+                                            <div>
+                                                <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">
+                                                    {{ rating.user.username }}
+                                                </a>
+
+                                                <span>
+                                                    {% for _ in "12345" %}
+                                                        {% if forloop.counter <= rating.score %}
+                                                            <span>★</span>
+                                                        {% else %}
+                                                            ☆
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </span>
+
+                                                {% if rating.user == request.user %}
+                                                <form method="post" action="">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn">
+                                                        <i class="fa-solid fa-trash-can" title="smazat hodnocení" style="color:#61872B; margin-right:0;"></i>
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -374,7 +425,6 @@
                                 <i class="fas fa-heart" style="color: {% if is_in_favourites %} #4FB021 {% endif %}"></i>
                             </span>
                             <span class="favorite-link-title"style="color: {% if is_in_favourites %} #4FB021 {% endif %}">Oblíbené</span>
-                            <span class="xl:hidden">Oblíbené</span>
                         </a>
                     </a>
 
@@ -388,7 +438,6 @@
                                 <i class="fas fa-book" style="color: {% if is_in_read_books %} #4FB021 {% endif %}"></i>
                             </span>
                             <span class="favorite-link-title" style="color: {% if is_in_read_books %} #4FB021 {% endif %}">Přečteno</span>
-                            <span class="xl:hidden">Přečteno</span>
                         </a>
                     </a>
 
@@ -402,7 +451,6 @@
                                 <i class="fas fa-home" style="color: {% if is_in_book_library %} #4FB021 {% endif %}"></i>
                             </span>
                             <span class="favorite-link-title" style="color: {% if is_in_book_library %} #4FB021 {% endif %}">Knihovna</span>
-                            <span class="xl:hidden">Knihovna</span>
                         </a>
                     </a>
 
@@ -416,7 +464,6 @@
                                 <i class="fas fa-book-reader" style="color: {% if is_in_readlist %} #4FB021 {% endif %}"></i>
                             </span>
                             <span class="favorite-link-title" style="color: {% if is_in_readlist %} #4FB021 {% endif %}">Chci číst</span>
-                            <span class="xl:hidden">Chci číst</span>
                         </a>
                     </a>
                 </div>
@@ -1104,8 +1151,8 @@
     <!-- Pravá strana -->
     <div class="right-side">
 
-        <!-- Hodnocení -->
-        <div class="card">
+        <!-- Hodnocení na desktop -->
+        <div class="card sm-hidden">
             <div class="card-body">
                 <h3 style="text-align:center" class="after">Hodnocení</h3>
                 <div class="hodnoceni">
@@ -1148,7 +1195,10 @@
                                     {% if rating.user == request.user %}
                                         <form method="post" action="{% url 'remove_book_rating' book_url=book.url %}">
                                             {% csrf_token %}
-                                            <button type="submit" class="btn add-book"><i class="fa-solid fa-trash-can"></i>Smazat hodnocení</button>
+                                            <button type="submit" class="btn add-book">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                                Smazat hodnocení
+                                            </button>
                                         </form>
                                     {% endif %}
                                 </li>

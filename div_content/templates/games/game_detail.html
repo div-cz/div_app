@@ -81,6 +81,7 @@
                         <img src="/static/img/game/game.png" alt="{{ game.title }}" class="img-fluid">
                     {% endif %}-->
 
+                    <!-- HODNOCENÍ NA MOBIL -->
                     <div class="box-info-rating">
                         <div class="rating" data-rating="{{ average_rating }}">
                             <div class="rating-inner">
@@ -90,7 +91,57 @@
 
                         <div class="rating-stars" style="white-space: nowrap;">
                             <div class="smaller-stars">{% ratings game %}</div>
-                            <div id="rating-thankyou2" class="alert" style="display: none;">Děkujeme za hodnocení!</div>
+                            <div id="rating-thankyou2" class="alert" style="display: none;">
+                                Děkujeme za hodnocení!
+                            </div>
+                        </div>
+
+                        <button class="rating-popup-btn add-game" style="margin: 0 auto;">Hodnocení hry</button>
+                    </div>
+
+                    <!-- POPUP – VÝPIS HODNOCENÍ PRO HRU -->
+                    <div id="ratingPopup" class="popup-overlay">
+                        <div class="popup-window">
+                            <span class="popup-close">&times;</span>
+                            <h3>Hodnocení hry</h3>
+                            {% if ratings %}
+                                <ul class="sm-rating-users">
+                                    {% for rating in ratings %}
+                                        <li>
+                                            <small>
+                                                <p style="text-align:center; padding:.25rem;">
+                                                    Hodnoceno: {{ rating.modified|date:"j. n. Y" }}
+                                                </p>
+                                            </small>
+
+                                            <div>
+                                                <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">
+                                                    {{ rating.user.username }}
+                                                </a>
+
+                                                <span>
+                                                    {% for _ in "12345" %}
+                                                        {% if forloop.counter <= rating.score %}
+                                                            <span>★</span>
+                                                        {% else %}
+                                                            ☆
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </span>
+
+                                                {% if rating.user == request.user %}
+                                                <form method="post" action="">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn">
+                                                        <i class="fa-solid fa-trash-can" title="smazat hodnocení" style="color:#14ACF5; margin-right:0;"></i>
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -343,8 +394,8 @@
     <!-- Pravá strana -->
     <div class="right-side">
 
-        <!-- Hodnocení -->
-        <div class="card">
+        <!-- Hodnocení na desktop -->
+        <div class="card sm-hidden">
             <div class="card-body">
                 <h3 style="text-align:center" class="after">Hodnocení</h3>
                 <div class="hodnoceni">
@@ -386,7 +437,10 @@
                                     {% if rating.user == request.user %}
                                         <form method="post" action="">
                                             {% csrf_token %}
-                                            <button type="submit" class="btn add-game"><i class="fa-solid fa-trash-can"></i>Smazat hodnocení</button>
+                                            <button type="submit" class="btn add-game">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                                Smazat hodnocení
+                                            </button>
                                         </form>
                                     {% endif %}
                                 </li>

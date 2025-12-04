@@ -57,11 +57,12 @@
             <div class="box-body">
                 <div class="box-img">
                     {% if season.img == "noimg.png" %}
-                    <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ season.titlecz }}" class="img-fluid">
-                    {% else %}
-                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ season.img }}" alt="{{ season.titlecz }}" class="img-fluid" style="object-fit: cover;max-width: 200px; height: fit-content;">
+                        <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ season.titlecz }}" class="img-fluid">
+                        {% else %}
+                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ season.img }}" alt="{{ season.titlecz }}" class="img-fluid" style="object-fit: cover;max-width: 200px; height: fit-content;">
                     {% endif %}
             
+                    <!-- HODNOCENÍ NA MOBIL -->
                     <div class="box-info-rating">
                         <div class="rating" data-rating="{{ average_rating }}">
                             <div class="rating-inner">
@@ -69,9 +70,59 @@
                             </div>
                         </div>
 
-                        <div class="rating-stars" style="white-space: nowrap;"><!--&nbsp;|&nbsp;-->
+                        <div class="rating-stars" style="white-space: nowrap;">
                             <div class="smaller-stars">{% ratings season %}</div>
-                            <div id="rating-thankyou" class="alert" style="display: none;">Děkujeme za hodnocení!</div>
+                            <div id="rating-thankyou" class="alert" style="display: none;">
+                                Děkujeme za hodnocení!
+                            </div>
+                        </div>
+
+                        <button class="rating-popup-btn add-movie" style="margin: 0 auto;">Hodnocení sezóny</button>
+                    </div>
+
+                    <!-- POPUP – VÝPIS HODNOCENÍ PRO SEZÓNU -->
+                    <div id="ratingPopup" class="popup-overlay">
+                        <div class="popup-window">
+                            <span class="popup-close">&times;</span>
+                            <h3>Hodnocení sezóny</h3>
+                            {% if ratings %}
+                                <ul class="sm-rating-users">
+                                    {% for rating in ratings %}
+                                        <li>
+                                            <small>
+                                                <p style="text-align:center; padding:.25rem;">
+                                                    Hodnoceno: {{ rating.modified|date:"j. n. Y" }}
+                                                </p>
+                                            </small>
+
+                                            <div>
+                                                <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">
+                                                    {{ rating.user.username }}
+                                                </a>
+
+                                                <span>
+                                                    {% for _ in "12345" %}
+                                                        {% if forloop.counter <= rating.score %}
+                                                            <span>★</span>
+                                                        {% else %}
+                                                            ☆
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </span>
+
+                                                {% if rating.user == request.user %}
+                                                <form method="post" action="">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn">
+                                                        <i class="fa-solid fa-trash-can" title="smazat hodnocení" style="color:#A52B21; margin-right:0;"></i>
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -454,8 +505,8 @@
     <!-- Pravá strana -->
     <div class="right-side">
 
-        <!-- Hodnocení -->
-        <div class="card">
+        <!-- Hodnocení na desktop -->
+        <div class="card sm-hidden">
             <div class="card-body">
                 <h3 style="text-align:center" class="after">Hodnocení</h3>
                 <div class="hodnoceni">
@@ -500,7 +551,10 @@
                             {% if rating.user == request.user %}
                                 <form method="post" action="">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn add-movie"><i class="fa-solid fa-trash-can"></i>Smazat hodnocení</button>
+                                    <button type="submit" class="btn add-movie">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                        Smazat hodnocení
+                                    </button>
                                 </form>
                             {% endif %}
                         </li>
