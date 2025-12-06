@@ -64,13 +64,13 @@
     <div class="container"> 
         <!-- Levá strana -->
         <div class="left-side">
-        {% if article.img %}
-            <img src="https://image.tmdb.org/t/p/w1066_and_h600_bestv2{{ article.img }}" class="img-fluid" style="border-radius: .25rem;" alt="{{ article.alt }}">
-            {% elif article.img1600 %}
-            <img src="{{ article.img1600 }}" class="img-fluid" style="border-radius: .25rem;" alt="{{ article.alt }}">
-            {% else %}
-            <!-- -->
-        {% endif %}
+            {% if article.img %}
+                <img src="https://image.tmdb.org/t/p/w1066_and_h600_bestv2{{ article.img }}" class="img-fluid" style="border-radius: .25rem;" alt="{{ article.alt }}">
+                {% elif article.img1600 %}
+                <img src="{{ article.img1600 }}" class="img-fluid" style="border-radius: .25rem;" alt="{{ article.alt }}">
+                {% else %}
+                <!-- -->
+            {% endif %}
 
             <h1>{{ article.h1 }}</h1>
             {{ article.content|safe }}
@@ -81,181 +81,180 @@
         <div class="right-side">
             <div class="card">
                 <div class="card-body">
-                {% if article.menu %}
-                    <h3 class="card-title after-h3">Obsah</h3>
-                    {{ article.menu|safe }}
+                    {% if article.menu %}
+                        <h3 class="card-title after-h3">Obsah</h3>
+                        {{ article.menu|safe }}
 
-                    {% else %}
+                        {% else %}
 
-                {% endif %}
+                    {% endif %}
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-body">
-                {% if article.typ == "Článek" %}
-                    <h3 class="card-title after-h3">Další články</h3>
-                    <ul>
-                        <!--<li><a href=""></a></li>-->
-                        <li><a href="https://div.cz/100-nejvlivnejsich-osobnosti-pro-rok-2024">100 nejvlivnějších osobností 2024</a></li>
-                        <li><a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury">Magnésia Litera 2024</a></li>
-                    </ul>
-
-
-                    {% elif article.typ == "Movie" %}
+                    {% if article.typ == "Článek" %}
                         <h3 class="card-title after-h3">Další články</h3>
-                    <ul>
-                        <li><a href="https://div.cz/od-platna-k-internetu-nejvyznamnejsi-filmove-weby-a-oceneni">Filmové weby a ocenění</a></li>
-                        <li><a href="https://div.cz/soutez-o-listky-do-kina">Soutěž o lístky do kina</a></li>
+                        <ul>
+                            <!--<li><a href=""></a></li>-->
+                            <li><a href="https://div.cz/100-nejvlivnejsich-osobnosti-pro-rok-2024">100 nejvlivnějších osobností 2024</a></li>
+                            <li><a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury">Magnésia Litera 2024</a></li>
+                        </ul>
 
-                    </ul>
-                    {% elif article.typ == "Filmy" %}
-                        <h3 class="card-title after-h3">Další články</h3>
-                    <ul>
-                        <li><a href="https://div.cz/seznam-filmu">Seznam filmů</a></li>
-                        <li><a href="https://div.cz/akcni">Akční filmy</a></li>
-                        <li><a href="https://div.cz/komedie">Komedie</a></li>
+                        <!-- FILMY / SERIÁLY -->
+                        {% elif article.typ == "Movie" %}
+                            <h3 class="card-title after-h3">Další články</h3>
+                            <ul>
+                                <li><a href="https://div.cz/od-platna-k-internetu-nejvyznamnejsi-filmove-weby-a-oceneni">Filmové weby a ocenění</a></li>
+                                <li><a href="https://div.cz/soutez-o-listky-do-kina">Soutěž o lístky do kina</a></li>
 
-                    </ul>
-                    {% elif article.typ == "Film" %}
-                        <h3 class="card-title after-h3">Další články</h3>
-                    <ul>
-                        <li><a href="https://div.cz/akcni">Akční filmy</a></li>
-                        <li><a href="https://div.cz/komedie">Komedie</a></li>
-                        <li><a href="https://div.cz/seznam-filmu">Seznam filmů</a></li>
-                    </ul>
+                            </ul>
 
+                        {% elif article.typ == "Filmy" %}
+                            <h3 class="card-title after-h3">Další články</h3>
+                            <ul>
+                                <li><a href="https://div.cz/seznam-filmu">Seznam filmů</a></li>
+                                <li><a href="https://div.cz/akcni">Akční filmy</a></li>
+                                <li><a href="https://div.cz/komedie">Komedie</a></li>
 
-                    {% elif article.typ == "Herec" %}
-                        <h3 class="card-title after-h3">Další články</h3>
-                    <ul>
-                        <li><a href="https://div.cz/akcni">Akční filmy</a></li>
-                        <li><a href="https://div.cz/komedie">Komedie</a></li>
-                        <li><a href="https://div.cz/seznam-filmu">Seznam filmů</a></li>
-                    </ul>
+                            </ul>
 
-                    {% elif article.typ == "Herečka" %}
-                        <h3 class="card-title after-h3">Další články</h3>
-                    <ul>
-                        <li><a href="https://div.cz/libuse-safrankova">Libuše Šafránková</a></li>
-                        <li><a href="https://div.cz/akcni">Akční filmy</a></li>
-                        <li><a href="https://div.cz/komedie">Komedie</a></li>
-                        <li><a href="https://div.cz/seznam-filmu">Seznam filmů</a></li>
-                    </ul>
+                        {% elif article.typ == "Film" %}
+                            <h3 class="card-title after-h3">Další články</h3>
+                            <ul>
+                                <li><a href="https://div.cz/akcni">Akční filmy</a></li>
+                                <li><a href="https://div.cz/komedie">Komedie</a></li>
+                                <li><a href="https://div.cz/seznam-filmu">Seznam filmů</a></li>
+                            </ul>
 
-                    <!-- KNIHY -->
-                    {% elif article.typ == "Book" %}
-                        <h3 class="card-title after-h3">Další články</h3>
-                    <ul>
-                        <li><a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury">Magnésia Litera 2024</a></li>
-                        <li><a href="https://div.cz/odhaleni-kouzla-slova-nobelova-cena-za-literaturu">Nobelova cena za literaturu</a></li>
-                        <li><a href="https://div.cz/literarni-cena-skleneny-klic-glasnyckeln">Literární cena Skleněný klíč</a></li>
-                        <li><a href="https://div.cz/knihy/">Seznam knih na DIV</a></li>
+                        {% elif article.typ == "Herec" %}
+                            <h3 class="card-title after-h3">Další články</h3>
+                            <ul>
+                                <li><a href="https://div.cz/akcni">Akční filmy</a></li>
+                                <li><a href="https://div.cz/komedie">Komedie</a></li>
+                                <li><a href="https://div.cz/seznam-filmu">Seznam filmů</a></li>
+                            </ul>
 
-                    </ul>
+                        {% elif article.typ == "Herečka" %}
+                            <h3 class="card-title after-h3">Další články</h3>
+                            <ul>
+                                <li><a href="https://div.cz/libuse-safrankova">Libuše Šafránková</a></li>
+                                <li><a href="https://div.cz/akcni">Akční filmy</a></li>
+                                <li><a href="https://div.cz/komedie">Komedie</a></li>
+                                <li><a href="https://div.cz/seznam-filmu">Seznam filmů</a></li>
+                            </ul>
 
-                    {% elif article.typ == "Knihy" %}
-                        <h3 class="card-title after-h3">Další články</h3>
-                    <ul>
-                        <li><a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury">Magnésia Litera 2024</a></li>
-                        <li><a href="https://div.cz/odhaleni-kouzla-slova-nobelova-cena-za-literaturu">Nobelova cena za literaturu</a></li>
-                        <li><a href="https://div.cz/literarni-cena-skleneny-klic-glasnyckeln">Literární cena Skleněný klíč</a></li>
-                        <li><a href="https://div.cz/knihy/">Seznam knih na DIV.cz</a></li>
-                    </ul>
+                        <!-- KNIHY -->
+                        {% elif article.typ == "Book" %}
+                            <h3 class="card-title after-h3">Další články</h3>
+                            <ul>
+                                <li><a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury">Magnésia Litera 2024</a></li>
+                                <li><a href="https://div.cz/odhaleni-kouzla-slova-nobelova-cena-za-literaturu">Nobelova cena za literaturu</a></li>
+                                <li><a href="https://div.cz/literarni-cena-skleneny-klic-glasnyckeln">Literární cena Skleněný klíč</a></li>
+                                <li><a href="https://div.cz/knihy/">Seznam knih na DIV</a></li>
 
+                            </ul>
 
-                    {% elif article.typ == "Game" %}
-                        <h3 class="card-title after-h3">Další články</h3>
-                    <ul>
-                        <li><a href="https://div.cz/the-game-awards">The Game Awards</a></li>
-                        <li><a href="https://div.cz/hry/">Seznam her</a></li>
+                        {% elif article.typ == "Knihy" %}
+                            <h3 class="card-title after-h3">Další články</h3>
+                            <ul>
+                                <li><a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury">Magnésia Litera 2024</a></li>
+                                <li><a href="https://div.cz/odhaleni-kouzla-slova-nobelova-cena-za-literaturu">Nobelova cena za literaturu</a></li>
+                                <li><a href="https://div.cz/literarni-cena-skleneny-klic-glasnyckeln">Literární cena Skleněný klíč</a></li>
+                                <li><a href="https://div.cz/knihy/">Seznam knih na DIV.cz</a></li>
+                            </ul>
 
-                    </ul>
+                        <!-- HRY -->
+                        {% elif article.typ == "Game" %}
+                            <h3 class="card-title after-h3">Další články</h3>
+                            <ul>
+                                <li><a href="https://div.cz/the-game-awards">The Game Awards</a></li>
+                                <li><a href="https://div.cz/hry/">Seznam her</a></li>
+                            </ul>
 
+                        <!-- OSTATNÍ -->
+                        {% elif article.typ == "site" %}
+                            <h3 class="card-title after-h3">Další články</h3>
+                            <ul>
+                                <li><a href="https://div.cz/co-je-divcoin">DIVcoin: Interní měna</a></li>
+                                <li><a href="https://div.cz/podminky-pouziti">Podmínky použití</a></li>
+                                <li><a href="https://div.cz/ochrana-osobnich-udaju">Ochrana osobních údajů</a></li>
+                                <li><a href="https://div.cz/pridej-svou-knihu">Přidej svou e-knhu</a></li>
 
-                    {% elif article.typ == "site" %}
-                        <h3 class="card-title after-h3">Další články</h3>
-                    <ul>
-                        <li><a href="https://div.cz/co-je-divcoin">DIVcoin: Interní měna</a></li>
-                        <li><a href="https://div.cz/podminky-pouziti">Podmínky použití</a></li>
-                        <li><a href="https://div.cz/ochrana-osobnich-udaju">Ochrana osobních údajů</a></li>
-                        <li><a href="https://div.cz/pridej-svou-knihu">Přidej svou e-knhu</a></li>
+                            </ul>
 
-                    </ul>
+                        {% elif article.typ == "Site" %}
+                            <h3 class="card-title after-h3">Další články</h3>
+                            <ul>
+                                <li><a href="https://div.cz/co-je-divcoin">DIVcoin: Interní měna</a></li>
+                                <li><a href="https://div.cz/podminky-pouziti">Podmínky použití</a></li>
+                                <li><a href="https://div.cz/ochrana-osobnich-udaju">Ochrana osobních údajů</a></li>
+                                <!--<li><a href="https://div.cz/soutez-o-listky-do-kina">Soutěž o lístky do kina</a> (2024)</li>-->
 
+                            </ul>
 
-                    {% elif article.typ == "Site" %}
-                        <h3 class="card-title after-h3">Další články</h3>
-                    <ul>
-                        <li><a href="https://div.cz/co-je-divcoin">DIVcoin: Interní měna</a></li>
-                        <li><a href="https://div.cz/podminky-pouziti">Podmínky použití</a></li>
-                        <li><a href="https://div.cz/ochrana-osobnich-udaju">Ochrana osobních údajů</a></li>
-                        <!--<li><a href="https://div.cz/soutez-o-listky-do-kina">Soutěž o lístky do kina</a> (2024)</li>-->
-
-                    </ul>
-
-                {% else %}
-                    <h3 class="card-title after-h3">-</h3>
-                {% endif %}
+                        {% else %}
+                        <h3 class="card-title after-h3">-</h3>
+                        
+                    {% endif %}
                 </div>
             </div>
 
-            <div>
-                <div class="card">
-                    <div class="card-body">
-                        <h3 class="card-title after-h3">Naše sociální sítě</h3>
-                        <!-- Facebook Share Button -->
-                        <a href="https://www.facebook.com/div.cz/" class="btn btn-primary " target="_blank">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
+            <!-- SOCIÁLNÍ SÍTĚ -->
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title after-h3">Naše sociální sítě</h3>
+                    <!-- Facebook Share Button -->
+                    <a href="https://www.facebook.com/div.cz/" class="btn btn-primary " target="_blank">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
 
-                        <!-- Twitter Share Button -->
-                        <a href="https://twitter.com/DIV_cz" class="btn btn-info" target="_blank">
-                            <i class="fab fa-twitter"></i>
-                        </a>
+                    <!-- Twitter Share Button -->
+                    <a href="https://twitter.com/DIV_cz" class="btn btn-info" target="_blank">
+                        <i class="fab fa-twitter"></i>
+                    </a>
 
-                        <!-- Email Share Button -->
-                        <a href="mailto:?subject=DIV.CZ&body=Podívej se na https://div.cz/" class="btn btn-dark">
-                            <i class="fas fa-envelope"></i>
-                        </a>
+                    <!-- Email Share Button -->
+                    <a href="mailto:?subject=DIV.CZ&body=Podívej se na https://div.cz/" class="btn btn-dark">
+                        <i class="fas fa-envelope"></i>
+                    </a>
 
-                        <!-- WhatsApp Share Button -->
-                        <a href="https://whatsapp.com/channel/0029VaajsWZHLHQZcSu1r83U" class="btn btn-success" target="_blank">
-                            <i class="fab fa-whatsapp"></i>
-                        </a>
-                    </div>
+                    <!-- WhatsApp Share Button -->
+                    <a href="https://whatsapp.com/channel/0029VaajsWZHLHQZcSu1r83U" class="btn btn-success" target="_blank">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
                 </div>
+            </div>
                 
-                <div class="card">
-                    <div class="card-body">
-                        <h3 class="card-title after-h3">{{ article.h1 }}</h3>
-                        <p style="width: 100%;">Sdílet na:</p>
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title after-h3">{{ article.h1 }}</h3>
+                    <p style="width: 100%;">Sdílet na:</p>
 
-                        <!-- Facebook Share Button -->
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/{{ article.url }}" class="btn btn-primary" target="_blank">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
+                    <!-- Facebook Share Button -->
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/{{ article.url }}" class="btn btn-primary" target="_blank">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
 
-                        <!-- Twitter Share Button -->
-                        <a href="https://twitter.com/intent/tweet?url=https://div.cz/{{ article.url }}&text={{ article.h1 }}" class="btn btn-info" target="_blank">
-                            <i class="fab fa-twitter"></i>
-                        </a>
+                    <!-- Twitter Share Button -->
+                    <a href="https://twitter.com/intent/tweet?url=https://div.cz/{{ article.url }}&text={{ article.h1 }}" class="btn btn-info" target="_blank">
+                        <i class="fab fa-twitter"></i>
+                    </a>
 
-                        <!-- LinkedIn Share Button -->
-                        <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://div.cz/{{ article.url }}&title={{ article.h1 }}" class="btn btn-secondary" target="_blank">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
+                    <!-- LinkedIn Share Button -->
+                    <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://div.cz/{{ article.url }}&title={{ article.h1 }}" class="btn btn-secondary" target="_blank">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
 
-                        <!-- Email Share Button -->
-                        <a href="mailto:?subject={{ movie.titlecz }}&body=Podívej se na https://div.cz/{{ article.url }}" class="btn btn-dark">
-                            <i class="fas fa-envelope"></i>
-                        </a>
+                    <!-- Email Share Button -->
+                    <a href="mailto:?subject={{ movie.titlecz }}&body=Podívej se na https://div.cz/{{ article.url }}" class="btn btn-dark">
+                        <i class="fas fa-envelope"></i>
+                    </a>
 
-                        <!-- WhatsApp Share Button -->
-                        <a href="https://wa.me/?text={{ article.h1 }} - https://div.cz/{{ article }}" class="btn btn-success" target="_blank">
-                            <i class="fab fa-whatsapp"></i>
-                        </a>
-                    </div>
+                    <!-- WhatsApp Share Button -->
+                    <a href="https://wa.me/?text={{ article.h1 }} - https://div.cz/{{ article }}" class="btn btn-success" target="_blank">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
                 </div>
             </div>
 

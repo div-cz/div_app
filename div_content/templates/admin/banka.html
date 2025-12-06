@@ -5,61 +5,61 @@
 
 {% block content %}
 <h3>Výpis všech transakcí z FIO účtu</h3>
+
 <p>
-  <small>Status: {{ fio_status }}</small>
+    <small>Status: {{ fio_status }}</small>
 </p>
 
 <table class="table table-sm">
-  <thead>
-    <tr>
-      <th>Datum</th>
-      <th>VS</th>
-      <th>Popis</th>
-      <th>Protiúčet</th>
-      <th>Název účtu</th>
-      <th>Částka</th>
-      <th>Měna</th>
-      <th>Typ</th>
-      <th>Provedl</th>
-    </tr>
-  </thead>
-  <tbody>
-  {% for tx in transactions %}
-    <tr>
-      <!-- Datum bez +0100 -->
-      <td>{{ tx.column0.value|default:""|slice:":10" }}</td>
-      <td>{{ tx.column5.value }}</td>
-      <td>
-        {% if tx.column16.value %}
-            {{ tx.column16.value }}
-        {% elif tx.column25.value %}
-            {{ tx.column25.value }}
-        {% elif tx.column7.value %}
-            {{ tx.column7.value }}
-        {% else %}
-            &nbsp;
-        {% endif %}
-      </td>
-      <td>{{ tx.column2.value }}</td>
-      <td>{{ tx.column10.value }}</td>
-      <td>
-        {# Částka s dvěma desetinnými místy, i záporná #}
-        {% if tx.column1.value is not None %}
-            {{ tx.column1.value|floatformat:2 }}
-        {% endif %}
-      </td>
-      <td>{{ tx.column14.value }}</td>
-      <td>{{ tx.column8.value }}</td>
-      <td>{{ tx.column9.value }}</td>
-    </tr>
-  {% empty %}
-    <tr>
-      <td colspan="9">Žádné transakce nenalezeny.</td>
-    </tr>
-  {% endfor %}
-  </tbody>
+    <thead>
+        <tr>
+            <th>Datum</th>
+            <th>VS</th>
+            <th>Popis</th>
+            <th>Protiúčet</th>
+            <th>Název účtu</th>
+            <th>Částka</th>
+            <th>Měna</th>
+            <th>Typ</th>
+            <th>Provedl</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for tx in transactions %}
+            <tr>
+                <!-- Datum bez +0100 -->
+                <td>{{ tx.column0.value|default:""|slice:":10" }}</td>
+                <td>{{ tx.column5.value }}</td>
+                <td>
+                    {% if tx.column16.value %}
+                        {{ tx.column16.value }}
+                    {% elif tx.column25.value %}
+                        {{ tx.column25.value }}
+                    {% elif tx.column7.value %}
+                        {{ tx.column7.value }}
+                    {% else %}
+                        &nbsp;
+                    {% endif %}
+                </td>
+                <td>{{ tx.column2.value }}</td>
+                <td>{{ tx.column10.value }}</td>
+                <td>
+                    {# Částka s dvěma desetinnými místy, i záporná #}
+                    {% if tx.column1.value is not None %}
+                        {{ tx.column1.value|floatformat:2 }}
+                    {% endif %}
+                </td>
+                <td>{{ tx.column14.value }}</td>
+                <td>{{ tx.column8.value }}</td>
+                <td>{{ tx.column9.value }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9">Žádné transakce nenalezeny.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
 </table>
-
-
 
 {% endblock %}

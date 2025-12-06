@@ -4,12 +4,15 @@
 
 {% block content %}
 
-<h2><a class="hover:underline" href="{% url 'clanky' %}">Články</a> / <a class="hover:underline" href="">filmy, knihy, hry</a> / název článku</h2>
+<h2 style="width: 100%; margin-bottom: 1.5rem;">
+    <a class="hover:underline" href="{% url 'clanky' %}">Články</a> / 
+    <a class="hover:underline" href="">filmy, knihy, hry</a> / název článku
+</h2>
 
 {% if user.is_authenticated %}
     <section style="width: 75%;">
-        <h2>Upravit článek</h2>
-        <form method="post">
+        <h2 style="width: 100%; margin-bottom: 1.5rem;">Upravit článek</h2>
+        <form method="post" style="width: 100%;">
             {% csrf_token %}
             {{ form.as_p }}
             <button class="btn add" type="submit">Upravit</button>
@@ -20,5 +23,7 @@
 {% endblock content %}
 
 {% block script %}
+
 <script src="/static/js/forum-comment-summernote.js"></script>
+
 {% endblock script %}

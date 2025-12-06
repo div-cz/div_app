@@ -6,46 +6,48 @@
 {% block text_muted %} na DIV.cz{% endblock text_muted %}
 
 {% block meta %}
-        <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
-        <link href="/static/tam-emoji/css/emoji.css" rel="stylesheet">
 
-        <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
-        <script src="/static/tam-emoji/js/config.js"></script>
-        <script src="/static/tam-emoji/js/tam-emoji.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <link href="/static/tam-emoji/css/emoji.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <script src="/static/tam-emoji/js/config.js"></script>
+    <script src="/static/tam-emoji/js/tam-emoji.min.js"></script>
         
 {% endblock meta %}
 
 {% block content %}
 
-<div class="container">
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        <div class="px-6 py-4">
-            <h1 class="text-2xl font-bold mb-6">
+<div class="task-edit-container">
+    <div class="task-edit-box">
+        <div class="task-edit-inner">
+            <h1 class="task-edit-title">
                 {% if task %}Upravit úkol{% else %}Nový úkol{% endif %}
             </h1>
 
             <form method="post">
                 {% csrf_token %}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="task-edit-grid">
                     {% for field in form %}
-                    <div class="{% if field.name == 'description' %}col-span-2{% endif %}">
-                        <label class="block text-sm font-medium text-gray-700">
+                    <div class="{% if field.name == 'description' %}task-edit-field-full{% else %}task-edit-field{% endif %}">
+                        <label class="task-edit-label">
                             {{ field.label }}
                         </label>
                         {{ field }}
                         {% if field.errors %}
-                        <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                        <p class="task-edit-error">{{ field.errors.0 }}</p>
                         {% endif %}
                     </div>
                     {% endfor %}
                 </div>
 
-                <div class="mt-6 flex justify-end space-x-3">
+                <div class="task-edit-actions">
                     <a href="{% if task %}{% url 'admin_task_detail' task.id %}{% else %}{% url 'admin_tasks' %}{% endif %}" 
-                       class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                       class="task-edit-cancel">
                         Zrušit
                     </a>
-                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 btn btn-info font-bold py-2 px-4 rounded">
+
+                    <button type="submit" class="task-edit-save btn btn-info">
                         Uložit
                     </button>
                 </div>
@@ -53,6 +55,8 @@
         </div>
     </div>
 </div>
+
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         $('#summernote').summernote({
@@ -67,4 +71,5 @@
         });
     });
 </script>
+
 {% endblock %}

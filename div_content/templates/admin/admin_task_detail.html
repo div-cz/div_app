@@ -7,91 +7,96 @@
 
 {% block content %}
 
-<div class="container">
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        <div class="px-6 py-4">
-            <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-bold">{{ task.title }}</h1>
-                <a href="{% url 'admin_task_edit' task.id %}" class="bg-blue-500 hover:bg-blue-700 btn btn-info font-bold py-2 px-4 rounded">
+<div class="container-admin-task">
+    <div class="task-box">
+        <div class="task-content-wrapper">
+            <div class="task-header">
+                <h1 class="task-title">{{ task.title }}</h1>
+                <a href="{% url 'admin_task_edit' task.id %}" class="task-edit-button btn btn-info">
                     Upravit
                 </a>
             </div>
             
-            <div class="mt-4 grid grid-cols-2 gap-4">
-                <div>
-                    <h3 class="font-semibold">Popis</h3>
-                    <p class="mt-1">{{ task.description }}</p>
+            <div class="task-main-grid">
+                <div class="task-description-wrapper">
+                    <h3 class="task-subtitle">Popis</h3>
+                    <p class="task-description">{{ task.description }}</p>
                 </div>
                 
-                <div class="space-y-2">
-                    <div>
-                        <span class="font-semibold">Přiřazeno:</span> {{ task.assigned }}
+                <div class="task-info-list">
+                    <div class="task-info-item">
+                        <span class="task-info-label">Přiřazeno:</span> {{ task.assigned }}
                     </div>
-                    <div>
-                        <span class="font-semibold">Status:</span> {{ task.status }}
+                    <div class="task-info-item">
+                        <span class="task-info-label">Status:</span> {{ task.status }}
                     </div>
-                    <div>
-                        <span class="font-semibold">Priorita:</span>
-                        <span class="px-2 py-1 rounded text-white text-sm
-                            {% if task.priority == 'Vysoká' %}bg-red-500
-                            {% elif task.priority == 'Střední' %}bg-orange-500
-                            {% else %}bg-green-500{% endif %}">
+                    <div class="task-info-item">
+                        <span class="task-info-label">Priorita:</span>
+                        <span class="task-priority
+                            {% if task.priority == 'Vysoká' %} priority-high
+                            {% elif task.priority == 'Střední' %} priority-medium
+                            {% else %} priority-low {% endif %}
+                        ">
                             {{ task.priority }}
                         </span>
                     </div>
-                    <div>
-                        <span class="font-semibold">Termín:</span> {{ task.duedate|date:"d.m.Y" }}
+                    <div class="task-info-item">
+                        <span class="task-info-label">Termín:</span> {{ task.duedate|date:"d.m.Y" }}
                     </div>
-                    <div>
-                        <span class="font-semibold">Vytvořil:</span> {{ task.Creator }} ({{ task.created|date:"d.m.Y" }})
+                    <div class="task-info-item">
+                        <span class="task-info-label">Vytvořil:</span> {{ task.Creator }} ({{ task.created|date:"d.m.Y" }})
                     </div>
                 </div>
             </div>
 
             {% if task.Subtasks.exists %}
-            <div class="mt-6">
-                <h3 class="font-semibold">Podúkoly</h3>
-                <div class="mt-2 space-y-2">
+            <div class="subtasks-wrapper">
+                <h3 class="task-subtitle">Podúkoly</h3>
+                <div class="subtasks-list">
                     {% for subtask in task.Subtasks.all %}
-                    <div class="border-l-2 border-gray-200 pl-4">
-                        <a href="{% url 'admin_task_detail' subtask.id %}" class="text-blue-600 hover:text-blue-800">
+                    <div class="subtask-item">
+                        <a href="{% url 'admin_task_detail' subtask.id %}" class="subtask-link">
                             {{ subtask.title }}
                         </a>
-                        <div class="text-sm text-gray-500">{{ subtask.description|truncatechars:100 }}</div>
+                        <div class="subtask-desc">{{ subtask.description|truncatechars:100 }}</div>
                     </div>
                     {% endfor %}
                 </div>
             </div>
             {% endif %}
 
-            <div class="mt-6">
-                <h3 class="font-semibold">Komentáře</h3>
-                <div class="mt-4 bg-gray-50 p-4 rounded">
+            <div class="comments-wrapper">
+                <h3 class="task-subtitle">Komentáře</h3>
+                <div class="comments-box">
                     {% if task.comments %}
-                    <pre class="whitespace-pre-wrap">{{ task.comments }}</pre>
+                    <pre class="comments-pre">{{ task.comments }}</pre>
                     {% else %}
-                    <p class="text-gray-500">Zatím bez komentářů</p>
+                    <p class="comments-empty">Zatím bez komentářů</p>
                     {% endif %}
                 </div>
 
-                <form method="post" class="mt-4">
+                <form method="post" class="comment-form">
                     {% csrf_token %}
                     {{ comment_form.as_p }}
-                    <button type="submit" class="mt-2 bg-blue-500 hover:bg-blue-700 btn btn-info font-bold py-2 px-4 rounded">
+
+                    <button type="submit" class="comment-submit btn btn-info">
                         Přidat komentář
                     </button>
-                <a href="{% url 'admin_task_edit' task.id %}" class="mt-2 bg-blue-500 hover:bg-blue-700 btn btn-info font-bold py-2 px-4 rounded">
-                    Upravit
-                </a>
 
-                <a href="/spravce/ukoly/" class="mt-2 bg-blue-500 hover:bg-blue-700 btn btn-info font-bold py-2 px-4 rounded">
-                    Všechny úkoly
-                </a>
+                    <a href="{% url 'admin_task_edit' task.id %}" class="comment-edit btn btn-info">
+                        Upravit
+                    </a>
+
+                    <a href="/spravce/ukoly/" class="comment-back btn btn-info">
+                        Všechny úkoly
+                    </a>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         $('#summernote').summernote({

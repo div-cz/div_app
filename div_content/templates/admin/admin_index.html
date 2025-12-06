@@ -16,7 +16,7 @@
 
         <form method="post">
             {% csrf_token %}
-            <table class="table table-striped mt-3">
+            <table class="table table-striped" style="margin-top: .75rem;">
                 <thead>
                     <tr>
                         <th><input type="checkbox" id="select_all"></th>
@@ -30,39 +30,40 @@
                 </thead>
                 <tbody>
                     {% for comment in comments %}
-                    <tr>
-                        <td><input type="checkbox" name="selected_comments" value="{{ comment.commentid }}"></td>
-                        <td>{{ comment.commentid }}</td>
-                        <td>{{ comment.comment|truncatewords:10 }}</td>
-                        <td>{{ comment.movieid.title }} ({{ comment.movieid.movieid }})</td>
-                        <td>{{ comment.user.username }} ({{ comment.user.id }})</td>
-                        <td>{{ comment.dateadded }}</td>
-                        <td><a href="{% url 'admin_edit_comment' comment.commentid %}">Upravit</a></td>
-                    </tr>
+                        <tr>
+                            <td><input type="checkbox" name="selected_comments" value="{{ comment.commentid }}"></td>
+                            <td>{{ comment.commentid }}</td>
+                            <td>{{ comment.comment|truncatewords:10 }}</td>
+                            <td>{{ comment.movieid.title }} ({{ comment.movieid.movieid }})</td>
+                            <td>{{ comment.user.username }} ({{ comment.user.id }})</td>
+                            <td>{{ comment.dateadded }}</td>
+                            <td><a href="{% url 'admin_edit_comment' comment.commentid %}">Upravit</a></td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
 
-            <button type="submit" name="delete" class="btn btn-danger">Smazat vybrané</button>
+            <button type="submit" name="delete" class="btn">Smazat vybrané</button>
         </form>
 
         <script>
-        // Select all checkboxes
-        document.getElementById('select_all').onclick = function() {
-            var checkboxes = document.getElementsByName('selected_comments');
-            for (var checkbox of checkboxes) {
-                checkbox.checked = this.checked;
+            // Select all checkboxes
+            document.getElementById('select_all').onclick = function() {
+                var checkboxes = document.getElementsByName('selected_comments');
+                for (var checkbox of checkboxes) {
+                    checkbox.checked = this.checked;
+                }
             }
-        }
         </script>
 
-    {% else %}
+        {% else %}
 
     {% endif %}
     
-        {% else %}
-            <!-- Nepřihlášen -->
-        <p>Co tady děláš? Kššššc</p>
+    {% else %}
+        <!-- Nepřihlášen -->
+    <p>Co tady děláš? Kššššc</p>
+    
 {% endif %}
 
 {% endblock content %}

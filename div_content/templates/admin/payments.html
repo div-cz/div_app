@@ -6,49 +6,58 @@
 
 {% block content %}
 
-
-        <p><hr>Menu: <a href="/spravce/">Správce</a> - <a href="/spravce/sprava-komentaru">Správa komentářů</a> - <a href="/spravce/platby/">Platby</a> - <a href="/spravce/eknihy-prehled/">Eknihy přehled</a><hr></p>
+<p>
+    <hr>Menu: 
+    <a href="/spravce/">Správce</a>
+     - 
+    <a href="/spravce/sprava-komentaru">Správa komentářů</a>
+     - 
+    <a href="/spravce/platby/">Platby</a>
+     - 
+    <a href="/spravce/eknihy-prehled/">Eknihy přehled</a>
+    <hr>
+</p>
 
 
 {% if not user.is_authenticated %}
-  <p>Pro zobrazení plateb se prosím <a href="/prihlaseni/">přihlaste</a>.</p>
+    <p>Pro zobrazení plateb se prosím <a href="/prihlaseni/">přihlaste</a>.</p>
 
-{% elif not user.is_superuser %}
-  <p>Nemáte oprávnění ke zobrazení této sekce.</p>
+    {% elif not user.is_superuser %}
+    <p>Nemáte oprávnění ke zobrazení této sekce.</p>
 
-{% else %}
-<table class="table table-sm">
-    <thead>
-        <tr>
-            <th>Kniha</th>
-            <th>Uživatel</th>
-            <th>Částka</th>
-            <th>Datum</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for p in payments %}
-        <tr>
-            <td>{{ p.book.titlecz|default:p.book.title }} <small>({{ p.format|default:"?"|upper }})</small></td>
-            <td>{{ p.user.username }}</td>
-            <td>{{ p.price|floatformat:2 }} Kč</td>
-            <td>{{ p.paymentdate|date:"d.m.Y H:i" }}</td>
-        </tr>
-    {% empty %}
-        <tr><td colspan="4">Žádné platby nenalezeny.</td></tr>
-    {% endfor %}
-    </tbody>
-</table>
+    {% else %}
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>Kniha</th>
+                <th>Uživatel</th>
+                <th>Částka</th>
+                <th>Datum</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in payments %}
+                <tr>
+                    <td>{{ p.book.titlecz|default:p.book.title }} <small>({{ p.format|default:"?"|upper }})</small></td>
+                    <td>{{ p.user.username }}</td>
+                    <td>{{ p.price|floatformat:2 }} Kč</td>
+                    <td>{{ p.paymentdate|date:"d.m.Y H:i" }}</td>
+                </tr>
+                
+                {% empty %}
+                <tr>
+                    <td colspan="4">Žádné platby nenalezeny.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-
-<!--  <p>
-    <a href="{% url 'bank_transactions' %}" class="btn btn-sm btn-secondary">
-      Zkontrolovat platby z banky
-    </a>
-  </p>-->
+    <!--  <p>
+        <a href="{% url 'bank_transactions' %}" class="btn btn-sm btn-secondary">
+        Zkontrolovat platby z banky
+        </a>
+    </p>-->
 {% endif %}
-
-
 
 <hr>
 
@@ -65,27 +74,37 @@
             <th>Částka</th>
         </tr>
     </thead>
-    <tbody>
-    {% for tx in transactions %}
-        <tr>
-            <td>{{ tx.column0.value|slice:":10" }}</td>
-            <td>{{ tx.column5.value }}</td>
-            <td>
-                {% if tx.column16.value %}{{ tx.column16.value }}
-                {% else %}{{ tx.column25.value }}{% endif %}
-            </td>
-            
-            <td>{{ tx.column2.value }}</td>
-            <td>{{ tx.column10.value }}</td>
 
-            <td>{{ tx.column1.value }}</td>
-        </tr>
-    {% empty %}
-        <tr><td colspan="4">Žádné příjmy nenalezeny. <span style="color:red;font-weight:bold">Je možné zobrazit jednou za 90 vteřin. <a href="/spravce/platby/">Refresh</a></td></tr>
-    {% endfor %}
+    <tbody>
+        {% for tx in transactions %}
+            <tr>
+                <td>{{ tx.column0.value|slice:":10" }}</td>
+                <td>{{ tx.column5.value }}</td>
+                <td>
+                    {% if tx.column16.value %}{{ tx.column16.value }}
+                    {% else %}{{ tx.column25.value }}{% endif %}
+                </td>
+                
+                <td>{{ tx.column2.value }}</td>
+                <td>{{ tx.column10.value }}</td>
+
+                <td>{{ tx.column1.value }}</td>
+            </tr>
+
+            {% empty %}
+            <tr>
+                <td colspan="4">Žádné příjmy nenalezeny. 
+                    <span style="color:red;font-weight:bold">Je možné zobrazit jednou za 90 vteřin. 
+                    <a href="/spravce/platby/">Refresh</a>
+                </td>
+            </tr>
+        {% endfor %}
     </tbody>
 
-</table><hr>
+</table>
+
+<hr>
+
 <p>VS: 010 - DIV; 38 = knihy; 1 = audio, 2 = epub, 3 = mobi, 4 = pdf; xxxx obj.č</p>
 
 {% endblock content %}
