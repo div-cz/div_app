@@ -351,5 +351,45 @@ function addMessage(sender, text) {
     </div>
 </footer>
 
+
+<!-- IMAGE MODAL -->
+<div id="imageModal" class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center z-50">
+    
+    <div class="relative max-w-4xl max-h-[90vh]">
+        <img id="modalImage" src="" class="rounded-lg max-h-[90vh] mx-auto">
+
+        <!-- Zavřít tlačítko -->
+        <button 
+            class="absolute top-3 right-3 bg-white text-black px-3 py-1 rounded-full shadow"
+            onclick="closeImageModal()">
+            ✕
+        </button>
+    </div>
+
+</div>
+
+<script>
+function openImageModal(url) {
+    const modal = document.getElementById("imageModal");
+    const img = document.getElementById("modalImage");
+    img.src = url;
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+}
+
+function closeImageModal() {
+    const modal = document.getElementById("imageModal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+}
+
+// Zavření kliknutím mimo obrázek
+document.getElementById("imageModal").addEventListener("click", function(e){
+    if (e.target === this) {
+        closeImageModal();
+    }
+});
+</script>
+
 </body>
 </html>
