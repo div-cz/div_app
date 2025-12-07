@@ -126,6 +126,74 @@
     {% endif %}
 {% endif %}
 
+
+
+{% if listing.images.all %}
+<div class="mb-4 flex flex-wrap gap-2">
+    {% for img in listing.images.all %}
+        <div class="relative">
+            <img src="{{ img.image.url }}" class="rounded" style="max-width:130px;">
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if listing.user == user and listing.status == 'ACTIVE' %}
+<div class="mb-4">
+    <label class="font-bold">Přidat obrázek knihy:</label>
+
+    <input type="file" id="uploadImageInput" accept="image/*" class="form-control mt-2">
+
+    <button onclick="uploadImage()" class="btn btn-primary mt-2">Nahrát</button>
+
+    <script>
+    function uploadImage() {
+        const file = document.getElementById("uploadImageInput").files[0];
+        if (!file) return alert("Vyberte soubor");
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        fetch("{% url 'listing_upload_image' listing_id=listing.booklistingid %}", {
+            method: "POST",
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.url) location.reload();
+            else alert(data.error || "Chyba");
+        });
+    }
+    </script>
+</div>
+{% endif %}
+
+
+{% for img in listing.images.all %}
+<div class="relative inline-block">
+    <img src="{{ img.image.url }}" style="max-width:130px;" class="rounded">
+    <button 
+        onclick="deleteImg({{ img.id }})"
+        class="absolute top-0 right-0 bg-red-600 text-white px-1 rounded">
+        ×
+    </button>
+</div>
+{% endfor %}
+
+<script>
+function deleteImg(id) {
+    fetch("/antikvariat/image/" + id + "/delete/", {
+        method: "POST",
+        headers: { "X-CSRFToken": "{{ csrf_token }}" }
+    })
+    .then(r => r.json())
+    .then(data => { if (data.success) location.reload(); });
+}
+</script>
+
+
+
         <!-- HODNOCENÍ ALERT -->
         {% if listing.status == 'COMPLETED' %}
             {% if listing.user == user and not listing.buyerrating %}

@@ -61,6 +61,7 @@ import os
 import qrcode
 import requests
 import smtplib
+import time
 import threading
 import unicodedata
 
@@ -69,7 +70,9 @@ from allauth.account.views import LoginView, SignupView, LogoutView
 from datetime import timedelta
 
 from div_content.forms.divkvariat import BookListingForm
-from div_content.models import Article, Book, Bookauthor, Bookgenre, Bookwriters, Booklisting, Metagenre, Userdivcoins, Userprofile
+from div_content.utils.divkvariat import compress_image
+
+from div_content.models import Article, Book, Bookauthor, Bookgenre, Bookwriters, Booklisting, Booklistingimage, Metagenre, Userdivcoins, Userprofile
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -92,6 +95,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 
+from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 
 from dotenv import load_dotenv
@@ -1166,6 +1170,38 @@ def listing_detail_edit(request, book_url, listing_id):
         'display_price': display_price,  # Přidáno
     })
 
+
+# -------------------------------------------------------------------
+# LISTING IMAGE UPLOAD
+# -------------------------------------------------------------------
+
+@login_required
+def listing_upload_image(request, listing_id):
+    listing = get_object_or_404(Booklisting, booklistingid=listing_id, user=request.user)
+
+    files = request.FILES.getlist("images") or request.FILES.getlist("image")
+
+    if request.method == "POST" and files:
+        for img in request.FILES.getlist("images"):
+            compressed = compress_image(img)
+            BookListingImage.objects.create(listing=listing, image=compressed)
+
+        messages.success(request, "Fotografie byly nahrány.")
+        return redirect("listing_detail_sell", book_url=listing.book.url, listing_id=listing.booklistingid)
+
+    return JsonResponse({"error": "No image uploaded"}, status=400)
+
+
+@login_required
+def listing_delete_image(request, image_id):
+    image = get_object_or_404(BookListingImage, id=image_id, listing__user=request.user)
+
+    listing = image.listing
+    image.image.delete(save=False)
+    image.delete()
+
+    messages.success(request, "Fotografie byla smazána.")
+    return redirect("listing_detail_sell", book_url=listing.book.url, listing_id=listing.booklistingid)
 
 # -------------------------------------------------------------------
 # LISTING SEARCH BOOKS

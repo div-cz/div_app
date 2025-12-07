@@ -455,6 +455,8 @@ def book_detail(request, book_url):
 
     genres = book.bookgenre_set.all()[:3]
     
+    duplicate_editions = Book.objects.filter(parentid=book)
+    
     # Fetch authors associated with the book
     authors = Bookauthor.objects.filter(
         authorid__in=Bookwriters.objects.filter(book_id=book.bookid).values_list('author_id', flat=True)
@@ -787,6 +789,7 @@ def book_detail(request, book_url):
         'book': book,
         'authors': authors, 
         'genres': genres, 
+        'duplicate_editions': duplicate_editions,
         "comment_form": comment_form,
         "comments": comments,
         'characters_with_roles': characters_with_roles,
@@ -1289,6 +1292,156 @@ def remove_from_book_library(request, bookid):
     
     return redirect("book_detail", book_url=book.url)
 
+
+# -------------------------------------------------------------------
+# F:                 REPORT DUPLICATE
+# -------------------------------------------------------------------
+@login_required
+@user_passes_test(lambda u: u.is_staff)  # Pouze editoři/správci
+def report_book_duplicate(request):
+    if request.method == 'POST':
+        current_book_id = request.POST.get('current_book_id')
+        parent_book_id = request.POST.get('parent_book_id')
+        
+        try:
+            current_book = Book.objects.get(bookid=current_book_id)
+            parent_book = Book.objects.get(bookid=parent_book_id)
+            
+            # 🛡️ OCHRANA: Kniha už nemůže být rodičem, pokud sama má rodiče
+            if current_book.parentid:
+                return JsonResponse({'error': 'Tato kniha už je označena jako duplicita'})
+            
+            # 🛡️ OCHRANA: Zabránit, aby rodič byl duplicitou
+            if parent_book.parentid:
+                return JsonResponse({'error': 'Vybraná kniha nemůže být hlavní, protože je sama duplicitou'})
+            
+            # 🛡️ OCHRANA: Zabránit zacyklení
+            if current_book.bookid == parent_book.bookid:
+                return JsonResponse({'error': 'Kniha nemůže odkazovat sama na sebe'})
+            
+            current_book.parentid = parent_book
+            current_book.save()
+            
+            return JsonResponse({'success': True})
+            
+        except Book.DoesNotExist:
+            return JsonResponse({'error': 'Kniha nebyla nalezena'})
+    
+    return JsonResponse({'error': 'Neplatný požadavek'})
+
+
+# ✅ NOVÁ VIEW PRO VYHLEDÁVÁNÍ KNIH PRO DUPLICITY
+def ajax_search_books_for_duplicates(request):
+    """AJAX hledání knih pro nahlášení duplicity s podrobnějšími výsledky."""
+    query = request.GET.get('q', '').strip()
+    current_book_id = request.GET.get('current_book_id')
+    
+    if len(query) < 2:
+        return JsonResponse({'results': []})
+    
+    try:
+        current_book = Book.objects.get(bookid=current_book_id)
+        
+        # Hledáme pouze knihy bez parent_id (hlavní záznamy)
+        # a které NEJSOU duplicitní edice aktuální knihy
+        qs = Book.objects.filter(
+            parentid__isnull=True
+        ).filter(
+            models.Q(title__icontains=query) | 
+            models.Q(titlecz__icontains=query) |
+            models.Q(author__icontains=query)
+        ).exclude(
+            bookid=current_book_id
+        ).exclude(
+            bookid__in=Book.objects.filter(parentid=current_book).values_list('bookid', flat=True)
+        )
+        
+        # Limit výsledků
+        books = qs[:15].values('bookid', 'title', 'titlecz', 'author', 'year', 
+                               'language', 'pages', 'img', 'url')
+        
+        results = []
+        for book in books:
+            display_title = book['titlecz'] or book['title']
+            
+            # Vypočítat podobnost pro lepší řazení
+            similarity_score = 0
+            
+            # Porovnání s aktuální knihou
+            if current_book.title and book['title']:
+                if current_book.title.lower() in book['title'].lower() or \
+                   book['title'].lower() in current_book.title.lower():
+                    similarity_score += 30
+            
+            if current_book.author and book['author']:
+                if current_book.author.lower() in book['author'].lower() or \
+                   book['author'].lower() in current_book.author.lower():
+                    similarity_score += 20
+            
+            if current_book.year and book['year']:
+                if abs(current_book.year - (book['year'] or 0)) <= 2:
+                    similarity_score += 10
+            
+            results.append({
+                'id': book['bookid'],
+                'title': display_title,
+                'author': book['author'],
+                'year': book['year'],
+                'language': book['language'] or 'cs',
+                'pages': book['pages'],
+                'url': book['url'],
+                'img': book['img'],
+                'similarity': similarity_score,  # Pro řazení
+            })
+        
+        # Seřadit podle podobnosti
+        results.sort(key=lambda x: x['similarity'], reverse=True)
+        
+        return JsonResponse({'results': results[:10]})
+        
+    except Book.DoesNotExist:
+        return JsonResponse({'results': []})
+    except Exception as e:
+        print(f"Chyba při hledání duplicit: {e}")
+        return JsonResponse({'results': []})
+
+
+
+# -------------------------------------------------------------------
+# F:                 REMOVE BOOK DUPLICATE
+# -------------------------------------------------------------------
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def remove_book_duplicate(request):
+    """AJAX odebrání duplicity."""
+    if request.method == 'POST':
+        book_id = request.POST.get('book_id')
+        parent_id = request.POST.get('parent_id')
+        
+        try:
+            book = Book.objects.get(bookid=book_id)
+            
+            # ✅ ODEBRAT PARENTA (nastavit na null)
+            book.parentid = None
+            book.save()
+            
+            return JsonResponse({
+                'success': True, 
+                'message': 'Duplicita odebrána'
+            })
+            
+        except Book.DoesNotExist:
+            return JsonResponse({
+                'success': False, 
+                'error': 'Kniha nebyla nalezena'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False, 
+                'error': f'Chyba: {str(e)}'
+            })
+    
+    return JsonResponse({'success': False, 'error': 'Neplatný požadavek'})
 
 # -------------------------------------------------------------------
 #                    KONEC

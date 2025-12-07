@@ -13,25 +13,38 @@ class CharacterBiographyForm(forms.ModelForm):
     class Meta:
         model = Characterbiography
         fields = [
-            'characterid', 'characterborn', 'characterdeath', 'biographytextcz', 'source', 
-            'externallink', 'img'
+            'biographyid',
+            'characterborn',
+            'characterdeath',
+            'biographytextcz',
+            'biographytext',
+            'source',
+            'externallink',
+            'img',
+            'notes',
         ]
         labels = {
             'characterborn': 'Datum narození',
             'characterdeath': 'Datum úmrtí',
-            'biographytextcz': "Životopis",
+            'biographytextcz': "Životopis (CZ)",
+            'biographytext': "Životopis (EN)",
             'source': "Zdroj",
-            'externallink': "URL adresa zdroje"
+            'externallink': "URL adresa zdroje",
+            'img': "URL obrázku",
+            'notes': "Poznámky (interní)",
         }
         widgets = {
-            'characterid': forms.HiddenInput(),
-            'biographytextcz': forms.Textarea(attrs={'class': 'form-control', 'rows': 20, 'style': 'height: 250px;','placeholder': 'Životopis postavy...'}),
-            'externallink': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'URL adresa zdroje'}),
-            'img': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'URL obrázku'}),
-            'source': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Zdroj'}),
-            'characterborn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Datum narození, např. 1. ledna 1900 (nepovinné)'}),
-            'characterdeath': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Datum úmrtí (nepovinné)'}),
+            'biographyid': forms.HiddenInput(),
+            'biographytextcz': forms.Textarea(attrs={'class': 'form-control', 'rows': 10}),
+            'biographytext': forms.Textarea(attrs={'class': 'form-control', 'rows': 10}),
+            'externallink': forms.URLInput(attrs={'class': 'form-control'}),
+            'img': forms.URLInput(attrs={'class': 'form-control'}),
+            'source': forms.TextInput(attrs={'class': 'form-control'}),
+            'characterborn': forms.TextInput(attrs={'class': 'form-control'}),
+            'characterdeath': forms.TextInput(attrs={'class': 'form-control'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
         }
+
 
 
 class SearchFormCharacter(forms.Form):

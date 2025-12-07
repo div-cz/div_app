@@ -196,6 +196,36 @@
         color: #f2f2f2;
     }
 
+
+/* ajax hledání duplicit */
+.search-result {
+    transition: background-color 0.2s;
+    border-radius: 4px;
+    margin-bottom: 2px;
+}
+.search-result:hover {
+    background-color: #f0f0f0;
+}
+.dark .search-result:hover {
+    background-color: #2d2d2d;
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+
+
+.btn-remove-duplicate {
+    transition: all 0.2s;
+}
+.btn-remove-duplicate:hover {
+    transform: scale(1.1);
+}
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+.dark .bg-light {
+    background-color: #2d3748 !important;
+}
 </style>
 
 {% endblock %}
@@ -1226,6 +1256,274 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
         {% endif %}
+
+
+<!-- V pravé straně v card -->
+<!-- DUPLICITY CARD - v book_detail.html -->
+<div class="card box-shadow mb-3">
+    <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <h5 class="card-title font-bold after-h3">Duplicity knihy</h5>
+        
+        <div id="duplicity-section">
+            {% if book.parentid %}
+                <!-- Kniha má parenta - přesměrování by mělo fungovat -->
+                <p class="text-muted" style="font-color:red">Tato kniha je duplicitou.
+    <a href="/kniha/{{ book.parentid.url }}" class="text-primary">
+        Hlavní kniha: {{ book.parentid.titlecz|default:book.parentid.title }}
+    </a>
+                </p>
+            {% elif duplicate_editions %}
+                <!-- Hlavní kniha s duplicitami -->
+                <p class="text-success">✅ Toto je hlavní záznam</p>
+                <p>Duplicitní edice:</p>
+                <ul class="list-unstyled">
+                {% for edition in duplicate_editions %}
+                    <li class="mb-1 d-flex align-items-center">
+                        <a href="/kniha/{{ edition.url }}" class="text-sm flex-grow-1">
+                            {{ edition.titlecz|default:edition.title }}
+                            {% if edition.year %}({{ edition.year }}){% endif %}
+                            {% if edition.language and edition.language != 'cs' %}
+                            <span class="text-muted">[{{ edition.language }}]</span>
+                            {% endif %}
+                        </a>
+                        {% if user.is_staff %}
+                        <button class="btn btn-sm btn-outline-danger btn-remove-duplicate ml-2" 
+                                data-book-id="{{ edition.bookid }}" 
+                                data-parent-id="{{ book.bookid }}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <!-- Kniha bez duplicit - formulář -->
+                <div id="report-duplicate-section">
+                    <p class="text-muted text-sm mb-2">Je toto duplicitní kniha?</p>
+                    
+                    {% if user.is_authenticated and user.is_staff %}
+                    <form id="report-duplicate-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="current_book_id" value="{{ book.bookid }}">
+                        <div class="form-group mb-2">
+                            <label class="text-sm">Hledat hlavní knihu:</label>
+                            <input type="text" id="duplicate-search" class="form-control form-control-sm" 
+                                   placeholder="název knihy...">
+                            <div id="duplicate-results" class="mt-1"></div>
+                        </div>
+                        <input type="hidden" name="parent_book_id" id="parent-book-id">
+                        <button type="submit" class="btn btn-warning btn-sm add-book mt-2">
+                            Nahlásit jako duplicitu
+                        </button>
+                    </form>
+                    {% else %}
+                    <p class="text-muted text-xs">
+                        Pro nahlášení duplicity se přihlaste jako editor.
+                        Nebo <a href="https://div.cz/forum/knihy/duplicitni-kniha">nahlašte do fóra</a>.
+                    </p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script>
+$(document).ready(function() {
+    // ===== NAHLÁŠENÍ DUPLICITY =====
+    const duplicateSearch = $('#duplicate-search');
+    const duplicateForm = $('#report-duplicate-form');
+    
+    if (duplicateSearch.length && duplicateForm.length) {
+        // Hledání knih
+        duplicateSearch.on('input', function() {
+            const query = $(this).val();
+            const currentBookId = {{ book.bookid }};
+            
+            if (query.length > 2) {
+                $.get(`/kniha/ajax/hledat-duplicity/?q=${encodeURIComponent(query)}&current_book_id=${currentBookId}`, function(data) {
+                    let results = $('#duplicate-results');
+                    results.empty();
+                    
+                    if (data.results && data.results.length > 0) {
+                        data.results.forEach(book => {
+                            results.append(`
+                                <div class="search-result p-2 border-bottom cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800" 
+                                     data-id="${book.id}">
+                                    <strong>${book.title}</strong>
+                                    ${book.author ? `<br><small>${book.author}</small>` : ''}
+                                    ${book.year ? ` (${book.year})` : ''}
+                                </div>
+                            `);
+                        });
+                    } else {
+                        results.append('<div class="text-muted p-2">Žádné výsledky</div>');
+                    }
+                });
+            } else {
+                $('#duplicate-results').empty();
+            }
+        });
+
+        // Výběr knihy
+        $(document).on('click', '.search-result', function() {
+            const bookId = $(this).data('id');
+            const bookTitle = $(this).find('strong').text().trim();
+            
+            $('#parent-book-id').val(bookId);
+            duplicateSearch.val(bookTitle);
+            $('#duplicate-results').empty();
+        });
+
+        // Odeslání formuláře
+        duplicateForm.on('submit', function(e) {
+            e.preventDefault();
+            
+            if (!$('#parent-book-id').val()) {
+                alert('Prosím vyberte knihu ze seznamu');
+                return;
+            }
+            
+            const formData = $(this).serialize();
+            
+            $.post('/kniha/nahlasit-duplicitu/', formData, function(response) {
+                if (response.success) {
+                    // ✅ AKTUALIZUJ SEKCI S NOVÝM HTML
+                    $('#duplicity-section').html(response.html);
+                    
+                    // ✅ PŘIDÁME EVENT LISTENER PRO NOVÉ TLAČÍTKA
+                    $(document).on('click', '.btn-remove-duplicate', removeDuplicateHandler);
+                    
+                    alert(response.message || 'Duplicita úspěšně nahlášena!');
+                    location.reload(); 
+                } else {
+                    alert('Chyba: ' + response.error);
+                }
+            }).fail(function() {
+                alert('Chyba při odesílání');
+            });
+        });
+    }
+    
+    // ===== ODEBRÁNÍ DUPLICITY =====
+    function removeDuplicateHandler(e) {
+        e.preventDefault();
+        
+        const button = $(this);
+        const bookId = button.data('book-id');
+        const parentId = button.data('parent-id');
+        
+        if (!confirm('Opravdu odebrat tuto duplicitu?')) {
+            return;
+        }
+        
+        $.post('/kniha/odebrat-duplicitu/', {
+            book_id: bookId,
+            parent_id: parentId,
+            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+        }, function(response) {
+            if (response.success) {
+                // ✅ ODSTRANIT ŘÁDEK Z SEZNAMU
+                button.closest('li').remove();
+                
+                // ✅ KONTROLA: Pokud nezbývají žádné duplicity, zobrazit formulář
+                if ($('#duplicity-section li').length === 0) {
+                    const currentBookId = {{ book.bookid }};
+                    const html = `
+                        <div id="report-duplicate-section">
+                            <p class="text-muted text-sm mb-2">Našli jste duplicitní knihu?</p>
+                            <form id="report-duplicate-form">
+                                <input type="hidden" name="csrfmiddlewaretoken" value="${$('input[name="csrfmiddlewaretoken"]').val()}">
+                                <input type="hidden" name="current_book_id" value="${currentBookId}">
+                                <div class="form-group mb-2">
+                                    <label class="text-sm">Hledat hlavní knihu:</label>
+                                    <input type="text" id="duplicate-search" class="form-control form-control-sm" 
+                                           placeholder="název knihy...">
+                                    <div id="duplicate-results" class="mt-1"></div>
+                                </div>
+                                <input type="hidden" name="parent_book_id" id="parent-book-id">
+                                <button type="submit" class="btn btn-warning btn-sm">
+                                    Nahlásit jako duplicitu
+                                </button>
+                            </form>
+                        </div>
+                    `;
+                    $('#duplicity-section').html(html);
+                    
+                    // ✅ ZNOVU NAVÁZAT EVENTY NA FORMULÁŘ
+                    setupDuplicateForm();
+                }
+                
+                alert(response.message || 'Duplicita odebrána');
+            } else {
+                alert('Chyba: ' + response.error);
+            }
+        });
+    }
+    
+    // ✅ NAVÁZAT EVENTY PRO EXISTUJÍCÍ TLAČÍTKA
+    $(document).on('click', '.btn-remove-duplicate', removeDuplicateHandler);
+    
+    // ✅ FUNKCE PRO ZNOVU NAVÁZÁNÍ EVENTŮ NA FORMULÁŘ
+    function setupDuplicateForm() {
+        const newForm = $('#report-duplicate-form');
+        const newSearch = $('#duplicate-search');
+        
+        if (newForm.length && newSearch.length) {
+            newSearch.on('input', function() {
+                const query = $(this).val();
+                const currentBookId = {{ book.bookid }};
+                
+                if (query.length > 2) {
+                    $.get(`/kniha/ajax/hledat-duplicity/?q=${encodeURIComponent(query)}&current_book_id=${currentBookId}`, function(data) {
+                        let results = $('#duplicate-results');
+                        results.empty();
+                        
+                        if (data.results && data.results.length > 0) {
+                            data.results.forEach(book => {
+                                results.append(`
+                                    <div class="search-result p-2 border-bottom cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800" 
+                                         data-id="${book.id}">
+                                        <strong>${book.title}</strong>
+                                        ${book.author ? `<br><small>${book.author}</small>` : ''}
+                                        ${book.year ? ` (${book.year})` : ''}
+                                    </div>
+                                `);
+                            });
+                        }
+                    });
+                }
+            });
+            
+            newForm.on('submit', function(e) {
+                e.preventDefault();
+                if (!$('#parent-book-id').val()) {
+                    alert('Prosím vyberte knihu ze seznamu');
+                    return;
+                }
+                const formData = $(this).serialize();
+                $.post('/kniha/nahlasit-duplicitu/', formData, function(response) {
+                    if (response.success) {
+                        $('#duplicity-section').html(response.html);
+                        $(document).on('click', '.btn-remove-duplicate', removeDuplicateHandler);
+                        alert(response.message);
+                    }
+                });
+            });
+            
+            $(document).on('click', '.search-result', function() {
+                const bookId = $(this).data('id');
+                const bookTitle = $(this).find('strong').text().trim();
+                $('#parent-book-id').val(bookId);
+                newSearch.val(bookTitle);
+                $('#duplicate-results').empty();
+            });
+        }
+    }
+});
+</script>
+
+
+
 
         {% if request.user.is_superuser %}
         <div class="card box-shadow mb-3">

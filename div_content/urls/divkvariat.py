@@ -15,11 +15,13 @@ from div_content.views.divkvariat_cz import (
     chatbot_api,
     
     listing_add_book, listing_detail, listing_detail_edit, listing_search_books,
+    listing_upload_image, listing_delete_image, 
     
     search_view, 
     user_book_listings, user_buy_listings, user_profile, user_sell_listings
 
 )
+
 
 
 from django.conf import settings
@@ -56,6 +58,11 @@ urlpatterns = [
     path("<str:book_url>/prodej/<int:listing_id>/", listing_detail, name="listing_detail_sell"),
     path("<str:book_url>/prodej/<int:listing_id>/upravit/", listing_detail_edit, name="listing_detail_edit"),
     path("pridat-knihu/", listing_add_book, name="listing_add_book"),
+
+
+    path("listing/<int:listing_id>/upload/", listing_upload_image, name="listing_upload_image"),
+    path("image/<int:image_id>/delete/", listing_delete_image, name="listing_delete_image"),
+
 
     path("nabidky/", books_market_offers, name="books_market_offers"),
     path("poptavky/", books_market_wants, name="books_market_wants"),

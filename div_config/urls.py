@@ -36,7 +36,12 @@ from div_content.views.blog import blog_add_post, blog_detail, blog_index, blog_
 #                    BOOKS
 # -------------------------------------------------------------------
 from div_content.views.books import (
- add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, book_add, book_detail, books, books_search, books_market_offers, books_market_wants, rate_book, ratequote, remove_book_rating, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, remove_from_book_library, character_list_ajax, set_reading_goal, books_alphabetical, elastic_books
+ add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, book_add, 
+ book_detail, books, books_search, books_market_offers, books_market_wants, rate_book, 
+ ratequote, remove_book_rating, remove_from_favourites_books, remove_from_readlist, 
+ remove_from_read_books, remove_from_book_library, character_list_ajax, set_reading_goal, 
+ books_alphabetical, elastic_books, ajax_search_books_for_duplicates, report_book_duplicate, 
+ remove_book_duplicate,
     )
 # -------------------------------------------------------------------
 #                    CREATORS
@@ -48,7 +53,7 @@ from div_content.views.creators import (
 # -------------------------------------------------------------------
 #                    DIVKVARIAT
 # -------------------------------------------------------------------
-from div_content.views.divkvariat import antikvariat_home, book_listings, cancel_listing_reservation, confirm_sale, cancel_sell, listing_add_book, listing_detail, listing_detail_edit, listing_search_books
+from div_content.views.divkvariat import antikvariat_home, book_listings, cancel_listing_reservation, confirm_sale, cancel_sell, listing_add_book, listing_detail, listing_detail_edit, listing_search_books, listing_upload_image, listing_delete_image
 # -------------------------------------------------------------------
 #                    EBOOKS
 # -------------------------------------------------------------------
@@ -334,6 +339,10 @@ urlpatterns = [
     path('set-reading-goal/', set_reading_goal, name='set_reading_goal'),
     
 
+    path('kniha/ajax/hledat-duplicity/', ajax_search_books_for_duplicates, name='ajax_search_duplicates'),
+    path('kniha/nahlasit-duplicitu/', report_book_duplicate, name='report_book_duplicate'),
+    path('kniha/odebrat-duplicitu/', remove_book_duplicate, name='remove_book_duplicate'),
+
 
     # ANTIKVARIÁT
     path('antikvariat/', antikvariat_home, name='antikvariat_home'),
@@ -359,6 +368,11 @@ urlpatterns = [
 
     path('antikvariat/pridat-knihu/', listing_add_book, name='listing_add_book'),
     path('antikvariat/search-books/', listing_search_books, name='listing_search_books'),  
+
+
+    path("antikvariat/listing/<int:listing_id>/upload/", listing_upload_image, name="listing_upload_image"),
+    path("antikvariat/image/<int:image_id>/delete/", listing_delete_image, name="listing_delete_image"),
+
 #    path('kniha/<str:book_url>/nabidky/', book_listings, name='book_listings'),
 #    path('kniha/<str:book_url>/prodej/<int:listing_id>/', listing_detail, name='listing_detail_sell'),
 #    path('kniha/<str:book_url>/poptavka/<int:listing_id>/', listing_detail, name='listing_detail_buy'),

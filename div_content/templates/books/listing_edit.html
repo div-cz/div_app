@@ -52,6 +52,18 @@
                     <p style="margin:0 0 10px; color:#666;">{{ book.author }}</p>
                 </div>
 
+
+{% if listing.images.all %}
+<div class="mb-4 flex flex-wrap gap-2">
+    {% for img in listing.images.all %}
+        <div class="relative">
+            <img src="{{ img.image.url }}" class="rounded" style="max-width:130px;">
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+
                 <!-- Editační formulář -->
                 <form method="post" class="mt-4">
                     {% csrf_token %}

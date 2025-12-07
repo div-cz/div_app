@@ -29,6 +29,10 @@
 # 2) interní (forms,models,views) (abecedně)
 # 3) third-part (třetí strana, django, auth) (abecedně)
 # -------------------------------------------------------------------
+
+from collections import defaultdict
+from datetime import date
+
 from django.db.models import Exists, OuterRef
 from div_content.forms.characters import FavoriteFormCharacter, CharacterBiographyForm
 from django.contrib.contenttypes.models import ContentType
@@ -42,7 +46,7 @@ from django.http import JsonResponse
 
 from django.shortcuts import render, get_object_or_404, redirect
 
-from collections import defaultdict
+
 
 
 # Konstant
@@ -185,16 +189,43 @@ def character_detail(request, character_url):
     # -----------------------------------------------------------
     # Formulář biografie
     # -----------------------------------------------------------
-    if request.method == 'POST' and user.is_authenticated:
-        form = CharacterBiographyForm(request.POST)
-        if form.is_valid():
-            biography = form.save(commit=False)
-            biography.userid = request.user
-            biography.characterid = character
-            biography.save()
-            return redirect('character_detail', character_url=character.characterurl)
+    form = None
+    
+    # Primární BIO (Verified nebo první existující)
+    characterbiography = Characterbiography.objects.filter(
+        characterid=character,
+        is_primary=True
+    ).first() or Characterbiography.objects.filter(characterid=character).first()
+    
+    # --- UPRAVA EXISTUJÍCÍ BIO ---
+    if characterbiography:
+        if request.method == "POST" and "edit_bio" in request.POST and request.user.is_staff:
+            form = CharacterBiographyForm(request.POST, instance=characterbiography)
+            if form.is_valid():
+                bio = form.save(commit=False)
+                bio.author = request.user.username
+                bio.lastupdated = date.today()
+                bio.save()
+                return redirect("character_detail", character_url=character.characterurl)
+        else:
+            form = CharacterBiographyForm(instance=characterbiography) if request.user.is_staff else None
+    
+    # --- VYTVOŘENÍ NOVÉ BIO ---
     else:
-        form = CharacterBiographyForm(initial={'characterid': character})
+        if request.method == "POST" and "add_bio" in request.POST and request.user.is_authenticated:
+            form = CharacterBiographyForm(request.POST)
+            if form.is_valid():
+                bio = form.save(commit=False)
+                bio.characterid = character
+                bio.userid = request.user
+                bio.author = request.user.username
+                bio.is_primary = True
+                bio.lastupdated = date.today()
+                bio.save()
+                return redirect("character_detail", character_url=character.characterurl)
+        else:
+            form = CharacterBiographyForm() if request.user.is_authenticated else None
+
 
     return render(request, 'characters/characters_detail.html', {
         'character': character,

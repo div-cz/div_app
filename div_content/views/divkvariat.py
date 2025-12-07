@@ -65,7 +65,8 @@ import unicodedata
 from datetime import timedelta
 
 from div_content.forms.divkvariat import BookListingForm
-from div_content.models import Book, Booklisting, Userprofile
+from div_content.utils.divkvariat import compress_image
+from div_content.models import Book, Booklisting, Booklistingimage, Userprofile
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -78,9 +79,11 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 
-from django.utils.timezone import now
-from django.utils import timezone
+from django.views.decorators.http import require_POST
 
+
+from django.utils import timezone
+from django.utils.timezone import now
 
 
 from dotenv import load_dotenv
@@ -1172,6 +1175,34 @@ def send_listing_payment_confirmation_email(listing):
             print(f"[✖] Chyba při odesílání potvrzení platby: {e}")
 
     threading.Thread(target=_send, args=(listing,)).start()
+
+
+@login_required
+def listing_upload_image(request, listing_id):
+    listing = get_object_or_404(Booklisting, booklistingid=listing_id, user=request.user)
+
+    files = request.FILES.getlist("images") or request.FILES.getlist("image")
+    if request.method == "POST" and files:
+        for img in request.FILES.getlist("images"):
+            compressed = compress_image(img)
+            BookListingImage.objects.create(listing=listing, image=compressed)
+
+        messages.success(request, "Fotografie byly nahrány.")
+        return redirect("listing_detail_sell", book_url=listing.book.url, listing_id=listing.booklistingid)
+
+    return JsonResponse({"error": "No image uploaded"}, status=400)
+
+
+@login_required
+def listing_delete_image(request, image_id):
+    image = get_object_or_404(BookListingImage, id=image_id, listing__user=request.user)
+
+    listing = image.listing
+    image.image.delete(save=False)
+    image.delete()
+
+    messages.success(request, "Fotografie byla smazána.")
+    return redirect("listing_detail_sell", book_url=listing.book.url, listing_id=listing.booklistingid)
 
 
 # -------------------------------------------------------------------

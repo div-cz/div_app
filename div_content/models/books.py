@@ -5,6 +5,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from div_content.utils.divkvariat import listing_image_path
 
 
 class Book(models.Model):
@@ -94,6 +95,21 @@ class Booklisting(models.Model):
 
     class Meta:
         db_table = 'BookListing'
+
+
+
+class Booklistingimage(models.Model):
+	listing = models.ForeignKey(
+		Booklisting,
+		on_delete=models.CASCADE,
+		related_name="images"
+	)
+	image = models.ImageField(upload_to=listing_image_path)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		db_table = "BookListingImage"
+
 
 
 class Bookauthor(models.Model):

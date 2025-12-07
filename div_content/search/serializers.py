@@ -5,4 +5,6 @@ def book_to_es_doc(book):
         "titlecz": book.titlecz or "",
         "author": book.author or "",
         "authorid": book.authorid_id if book.authorid_id is not None else None,
+        "parentid": book.parentid_id if book.parentid_id else None, 
+
     }
