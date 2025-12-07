@@ -7,7 +7,7 @@
 # ------------------------------------------------------
 
 import time
-from PIL import Image
+from PIL import Image, ExifTags
 from django.core.files.base import ContentFile
 from io import BytesIO
 import time
@@ -17,11 +17,6 @@ import time
 # ------------------------------------------------------
 # DIVKVARIAT – IMAGE UPLOAD + COMPRESSION
 # ------------------------------------------------------
-
-import time
-from io import BytesIO
-from PIL import Image
-from django.core.files.base import ContentFile
 
 
 def listing_image_path(instance, filename):
@@ -39,30 +34,47 @@ def listing_image_path(instance, filename):
 
 def compress_image(image_file, max_kb=400, max_width=1600):
     img = Image.open(image_file)
+
+    # --- AUTO ROTATE PODLE EXIF ---
+    try:
+        for orientation in ExifTags.TAGS.keys():
+            if ExifTags.TAGS[orientation] == 'Orientation':
+                break
+
+        exif = img._getexif()
+        if exif is not None:
+            orientation_value = exif.get(orientation)
+
+            if orientation_value == 3:
+                img = img.rotate(180, expand=True)
+            elif orientation_value == 6:
+                img = img.rotate(270, expand=True)
+            elif orientation_value == 8:
+                img = img.rotate(90, expand=True)
+    except Exception:
+        pass
+    # -----------------------------
+
     img = img.convert("RGB")
 
+    # Resize
     if img.width > max_width:
         ratio = max_width / img.width
-        img = img.resize((max_width, int(img.height * ratio)), Image.LANCZOS)
+        height = int(img.height * ratio)
+        img = img.resize((max_width, height), Image.LANCZOS)
 
+    # Save to buffer
     buffer = BytesIO()
     quality = 85
-    img.save(buffer, format="JPEG", quality=quality, optimize=True)
+    img.save(buffer, format="JPEG", optimize=True, quality=quality)
 
+    # Reduce quality until small enough
     while buffer.tell() > max_kb * 1024 and quality > 40:
         buffer = BytesIO()
         quality -= 5
-        img.save(buffer, format="JPEG", quality=quality, optimize=True)
+        img.save(buffer, format="JPEG", optimize=True, quality=quality)
 
-    # VYTVOŘ CONTENTFILE S NAZVEM
-    ext = "jpg"
-    new_name = (
-        getattr(image_file, "name", "image")  # fallback
-        .rsplit(".", 1)[0]
-        + f".{ext}"
-    )
-
-    return ContentFile(buffer.getvalue(), name=new_name)
+    return ContentFile(buffer.getvalue(), name=image_file.name)
 
 
 
