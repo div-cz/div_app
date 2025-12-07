@@ -167,6 +167,49 @@
                 </div>
                 {% endif %}
 
+
+
+<!-- FOTOGALERIE -->
+<div class="mb-8">
+    <h3 class="text-xl font-semibold mb-3">Fotografie</h3>
+
+    {% if listing.images.all %}
+    <div class="flex flex-wrap gap-3 mb-4">
+        {% for img in listing.images.all %}
+        <div class="relative group">
+            <img src="{{ img.image.url }}" class="w-32 h-auto rounded shadow">
+
+            {% if listing.user == user %}
+            <a href="{% url 'listing_delete_image' img.id %}"
+               class="absolute top-1 right-1 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+               onclick="return confirm('Smazat fotografii?');">
+               ×
+            </a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if listing.user == user and listing.status == 'ACTIVE' %}
+    <form method="post" enctype="multipart/form-data"
+          action="{% url 'listing_upload_image' listing.booklistingid %}"
+          class="mt-4">
+
+        {% csrf_token %}
+
+        <input type="file" name="images" multiple
+               class="border rounded px-3 py-2 w-full">
+
+        <button type="submit"
+                class="add-book mt-3">
+            Nahrát fotografie
+        </button>
+    </form>
+    {% endif %}
+</div>
+
+
                 <!-- PARAMETRY -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
                     {% if listing.condition %}

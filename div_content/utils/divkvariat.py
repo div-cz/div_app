@@ -38,11 +38,9 @@ def listing_image_path(instance, filename):
 
 
 def compress_image(image_file, max_kb=400, max_width=1600):
-    """Komprese do JPEG, max 400 KB / max_width 1600px."""
     img = Image.open(image_file)
     img = img.convert("RGB")
 
-    # Resize
     if img.width > max_width:
         ratio = max_width / img.width
         img = img.resize((max_width, int(img.height * ratio)), Image.LANCZOS)
@@ -51,13 +49,20 @@ def compress_image(image_file, max_kb=400, max_width=1600):
     quality = 85
     img.save(buffer, format="JPEG", quality=quality, optimize=True)
 
-    # Komprese dokud nepodlezeme max_kb
     while buffer.tell() > max_kb * 1024 and quality > 40:
         buffer = BytesIO()
         quality -= 5
         img.save(buffer, format="JPEG", quality=quality, optimize=True)
 
-    return ContentFile(buffer.getvalue())
+    # VYTVOŘ CONTENTFILE S NAZVEM
+    ext = "jpg"
+    new_name = (
+        getattr(image_file, "name", "image")  # fallback
+        .rsplit(".", 1)[0]
+        + f".{ext}"
+    )
+
+    return ContentFile(buffer.getvalue(), name=new_name)
 
 
 
