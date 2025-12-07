@@ -177,7 +177,12 @@
     <div class="flex flex-wrap gap-3 mb-4">
         {% for img in listing.images.all %}
         <div class="relative group">
-            <img src="https://media.div.cz/{{ img.image.url }}" class="w-32 h-auto rounded shadow">
+
+            <img 
+                src="https://media.div.cz{{ img.image.url }}" 
+                class="w-32 h-auto rounded shadow cursor-pointer"
+                onclick="openImageModal('{{ img.image.url }}')"
+            >
 
             {% if listing.user == user %}
             <a href="{% url 'listing_delete_image' img.id %}"
