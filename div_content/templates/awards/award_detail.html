@@ -3,137 +3,154 @@
 
 {% block title %}{{ award.awardname }} {{ award.year }} - DIV.cz{% endblock %}
 
+{% block meta %}
+
+{% endblock %}
+
 {% block content %}
-<div class="container">
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'awards_index' %}">&#x1F3C6; Ocenění</a></li>
-      <li class="breadcrumb-item">
-        {% if award.awardtype == 'film' %}
-          <a href="{% url 'awards_movies' %}">&#x1F3A5; Film</a>
-        {% elif award.awardtype == 'book' %}
-          <a href="{% url 'awards_books' %}">&#x1F4DA; Kniha</a>
-        {% elif award.awardtype == 'game' %}
-          <a href="{% url 'awards_games' %}">&#x1F3AE; Hra</a>
+
+<div class="detail">
+
+    <h2 style="width: 100%;">
+        <a href="{% url 'awards_index' %}"
+            class="{% if award.awardtype == 'film' %}movies
+            {% elif award.awardtype == 'book' %}books
+            {% elif award.awardtype == 'game' %}games{% endif %}">
+            Ocenění
+        </a>
+        
+       <span> / </span>
+
+        {% if award.awardtype == "film" %}
+            <a href="{% url 'awards_movies' %}" class="movies">Filmy</a>
+        {% elif award.awardtype == "book" %}
+            <a href="{% url 'awards_books' %}" class="books">Knihy</a>
+        {% elif award.awardtype == "game" %}
+            <a href="{% url 'awards_games' %}" class="games">Hry</a>
         {% endif %}
-      </li>
-      <li class="breadcrumb-item active">{{ award.awardname }} {{ award.year }}</li>
-    </ol>
-  </nav>
 
-  <div class="d-flex justify-content-between align-items-start mb-3">
-    <div>
-      <h1 class="h3">&#x1F3C6; {{ award.awardname }}</h1>
-      <p class="text-muted mb-0">
-        Ročník {{ award.year }}
-        {% if award.awardtype == 'film' %}
-          • <span class="badge bg-primary">&#x1F3A5; Film</span>
-        {% elif award.awardtype == 'book' %}
-          • <span class="badge bg-success">&#x1F4DA; Kniha</span>
-        {% elif award.awardtype == 'game' %}
-          • <span class="badge bg-warning">&#x1F3AE; Hra</span>
+        <span> / </span>
+        <span class="breadcrumb-item active">{{ award.awardname }} {{ award.year }}</span>
+    </h2>
+
+    <header class="detail-header">
+        {% if user.is_staff %}
+            <div class="adm-detail">
+                <a href="{% url 'admin_award_edit' award.metaawardid %}" class="btn-secondary">&#9999; Upravit ocenění</a>
+                <a href="{% url 'admin_award_nominees' award.metaawardid %}" class="btn-secondary">&#128221; Správa nominací</a>
+            </div>
         {% endif %}
-      </p>
-    </div>
-    {% if user.is_staff %}
-    <div class="btn-group">
-      <a href="{% url 'admin_award_edit' award.metaawardid %}" class="btn btn-outline-secondary btn-sm">Upravit</a>
-      <a href="{% url 'admin_award_nominees' award.metaawardid %}" class="btn btn-outline-info btn-sm">Nominace</a>
-    </div>
-    {% endif %}
-  </div>
+    </header>
 
-  {% if award.description %}
-  <div class="alert alert-light border">{{ award.description }}</div>
-  {% endif %}
-
-  {% if not movie_winners and not book_winners and not game_winners and not movie_nominees and not book_nominees and not game_nominees %}
-    <div class="alert alert-info">Pro tento ročník zatím nejsou přidány žádné nominace ani vítězové.</div>
-  {% endif %}
-
-  {% if movie_winners or book_winners or game_winners %}
-  <h4 class="mt-4">&#x2728; Vítězové</h4>
-
-  {% if movie_winners %}
-    <h6 class="text-primary mt-3">Filmy</h6>
-    <ul class="list-group list-group-flush mb-3">
-      {% for item in movie_winners %}
-      <li class="list-group-item">
-        <a href="{% url 'movie_detail' item.movieid.url %}" class="text-decoration-none">{{ item.movieid.titlecz|default:item.movieid.title }}</a>
-      </li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-
-  {% if book_winners %}
-    <h6 class="text-success mt-3">Knihy</h6>
-    <ul class="list-group list-group-flush mb-3">
-      {% for item in book_winners %}
-      <li class="list-group-item">
-        <a href="{% url 'book_detail' item.bookid.url %}" class="text-decoration-none">{{ item.bookid.titlecz|default:item.bookid.title }}</a>
-      </li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-
-  {% if game_winners %}
-    <h6 class="text-warning mt-3">Hry</h6>
-    <ul class="list-group list-group-flush mb-3">
-      {% for item in game_winners %}
-      <li class="list-group-item">
-        <a href="{% url 'game_detail' item.gameid.url %}" class="text-decoration-none">{{ item.gameid.titlecz|default:item.gameid.title }}</a>
-      </li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-  {% endif %}
-
-  {% if movie_nominees or book_nominees or game_nominees %}
-  <h4 class="mt-4">Nominace</h4>
-  <div class="row">
-    {% if movie_nominees %}
-    <div class="col-md-4">
-      <h6 class="text-primary">Filmy</h6>
-      <ul class="list-group list-group-sm mb-4">
-        {% for item in movie_nominees %}
-        <li class="list-group-item py-1">
-          <a href="{% url 'movie_detail' item.movieid.url %}" class="text-decoration-none">{{ item.movieid.titlecz|default:item.movieid.title }}</a>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
+    {% if award.description %}
+        <div class="detail-description">
+            {{ award.description }}
+        </div>
     {% endif %}
 
-    {% if book_nominees %}
-    <div class="col-md-4">
-      <h6 class="text-success">Knihy</h6>
-      <ul class="list-group list-group-sm mb-4">
-        {% for item in book_nominees %}
-        <li class="list-group-item py-1">
-          <a href="{% url 'book_detail' item.bookid.url %}" class="text-decoration-none">{{ item.bookid.titlecz|default:item.bookid.title }}</a>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
+    <!-- VÍTĚZOVÉ -->
+    {% if movie_winners or book_winners or game_winners %}
+        <section class="admin-panel">
+            <h2 class="detail-section-title after">&#127942; Vítězové</h2>
+            <!-- FILMY -->
+            {% if movie_winners %}
+                <div class="detail-group">
+                    <ul class="detail-list">
+                        {% for item in movie_winners %}
+                            <li class="detail-item">
+                                <a href="{% url 'movie_detail' item.movieid.url %}" class="detail-link movies">
+                                    {{ item.movieid.titlecz|default:item.movieid.title }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <!-- KNIHY -->
+            {% if book_winners %}
+                <div class="detail-group">
+                    <ul class="detail-list">
+                        {% for item in book_winners %}
+                            <li class="detail-item">
+                                <a href="{% url 'book_detail' item.bookid.url %}" class="detail-link books">
+                                    {{ item.bookid.titlecz|default:item.bookid.title }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <!-- HRY -->
+            {% if game_winners %}
+                <div class="detail-group">
+                    <ul class="detail-list">
+                        {% for item in game_winners %}
+                            <li class="detail-item">
+                                <a href="{% url 'game_detail' item.gameid.url %}" class="detail-link games">
+                                    {{ item.gameid.titlecz|default:item.gameid.title }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+        </section>
     {% endif %}
 
-    {% if game_nominees %}
-    <div class="col-md-4">
-      <h6 class="text-warning">Hry</h6>
-      <ul class="list-group list-group-sm mb-4">
-        {% for item in game_nominees %}
-        <li class="list-group-item py-1">
-          <a href="{% url 'game_detail' item.gameid.url %}" class="text-decoration-none">{{ item.gameid.titlecz|default:item.gameid.title }}</a>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-    {% endif %}
-  </div>
-  {% endif %}
+    <!-- NOMINACE -->
+    {% if movie_nominees or book_nominees or game_nominees %}
+        <section class="admin-panel">
+            <h2 class="detail-section-title after">&#128220; Nominace</h2>
+            <div class="detail-columns">
+                <!-- FILMY -->
+                {% if movie_nominees %}
+                    <div class="detail-col">
+                        <ul class="detail-list">
+                            {% for item in movie_nominees %}
+                                <li class="detail-item">
+                                    <a href="{% url 'movie_detail' item.movieid.url %}" class="detail-link movies">
+                                        {{ item.movieid.titlecz|default:item.movieid.title }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
 
-  <div class="text-center mt-4">
-    <a href="{% url 'awards_index' %}" class="btn btn-outline-primary">&#x2B05; Zpět na přehled ocenění</a>
-  </div>
+                <!-- KNIHY -->
+                {% if book_nominees %}
+                    <div class="detail-col">
+                        <ul class="detail-list">
+                            {% for item in book_nominees %}
+                                <li class="detail-item">
+                                    <a href="{% url 'book_detail' item.bookid.url %}" class="detail-link books">
+                                        {{ item.bookid.titlecz|default:item.bookid.title }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <!-- HRY -->
+                {% if game_nominees %}
+                        <ul class="detail-list">
+                            {% for item in game_nominees %}
+                                <li class="detail-item">
+                                    <a href="{% url 'game_detail' item.gameid.url %}" class="detail-link games">
+                                        {{ item.gameid.titlecz|default:item.gameid.title }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    {% endif %}
+
 </div>
 {% endblock %}

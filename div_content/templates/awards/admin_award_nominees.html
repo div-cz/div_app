@@ -1,104 +1,166 @@
+<!-- správa nominací -->
 {% extends "awards/base.html" %}
 {% load static %}
 
 {% block title %}Správa nominací - {{ award.awardname }} {{ award.year }} - Admin - DIV.cz{% endblock %}
 
+{% block meta %}
+
+{% endblock %}
+
 {% block content %}
-<div class="container">
-  <h1 class="mb-3">&#128221; Správa nominací</h1>
-  <p class="text-muted mb-4">
-    <strong>{{ award.awardname }} {{ award.year }}</strong>
-    {% if award.awardtype == 'film' %} &#127916;
-    {% elif award.awardtype == 'book' %} &#128218;
-    {% elif award.awardtype == 'game' %} &#127918;
+
+<h2 style="width: 100%;">
+    <a href="{% url 'awards_index' %}" 
+        class="{% if award.awardtype == 'film' %}movies
+        {% elif award.awardtype == 'book' %}books
+        {% elif award.awardtype == 'game' %}games{% endif %}">
+        Ocenění
+    </a>
+            
+    <span> / </span>
+
+    {% if award.awardtype == "film" %}
+        <a href="{% url 'awards_movies' %}" class="movies">Filmy</a>
+    {% elif award.awardtype == "book" %}
+        <a href="{% url 'awards_books' %}" class="books">Knihy</a>
+    {% elif award.awardtype == "game" %}
+        <a href="{% url 'awards_games' %}" class="games">Hry</a>
     {% endif %}
-  </p>
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-      {% if award.awardtype == 'film' %}
-        <a href="{% url 'admin_add_movie_nominee' award.metaawardid %}" class="btn btn-success">&#10133; Film</a>
-      {% elif award.awardtype == 'book' %}
-        <a href="{% url 'admin_add_book_nominee' award.metaawardid %}" class="btn btn-success">&#10133; Kniha</a>
-      {% elif award.awardtype == 'game' %}
-        <a href="{% url 'admin_add_game_nominee' award.metaawardid %}" class="btn btn-success">&#10133; Hra</a>
-      {% endif %}
+    <span> / </span>
+    <span class="admin-awd-title">Správa nominací</span>
+</h2>
+
+<p class="admin-awd-sub">
+    <strong>{{ award.awardname }} {{ award.year }}</strong>
+    {% if award.awardtype == 'film' %}
+        {% elif award.awardtype == 'book' %}
+        {% elif award.awardtype == 'game' %}
+    {% endif %}
+</p>
+
+<div class="admin-awd-topbar">
+    {% if award.awardtype == 'film' %}
+        <a href="{% url 'admin_add_movie_nominee' award.metaawardid %}" class="btn add-movie" title="Přidat film k nominaci">&#10133; Přidat film</a>
+    {% elif award.awardtype == 'book' %}
+        <a href="{% url 'admin_add_book_nominee' award.metaawardid %}" class="btn add-book" title="Přidat knihu k nominaci">&#10133; Přidat knihu</a>
+    {% elif award.awardtype == 'game' %}
+        <a href="{% url 'admin_add_game_nominee' award.metaawardid %}" class="btn add-game" title="Přidat hru k nominaci">&#10133; Přidat hru</a>
+    {% endif %}
+
+    <div class="admin-awd-actions">
+        <a href="{% url 'admin_award_edit' award.metaawardid %}" class="btn btn-secondary">&#9999; Upravit ocenění</a>
+        <a href="{% url 'award_detail' award.slug award.year %}" class="btn btn-secondary">&#128220; Nominace</a>
     </div>
-    <div>
-      <a href="{% url 'admin_award_edit' award.metaawardid %}" class="btn btn-secondary">&#9998; Upravit ocenění</a>
-      <a href="{% url 'award_detail' award.slug award.year %}" class="btn btn-outline-primary">&#128065; Veřejný detail</a>
-    </div>
-  </div>
-
-  {% if movie_nominees or book_nominees or game_nominees %}
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Název</th>
-          <th>Detaily</th>
-          <th>Stav</th>
-          <th class="text-end">Akce</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for nominee in movie_nominees %}
-          <tr>
-            <td>{{ nominee.movieid.titlecz|default:nominee.movieid.title }}</td>
-            <td>{{ nominee.movieid.releaseyear }}</td>
-            <td>{% if nominee.winner %}&#127942; Vítěz{% else %}Nominace{% endif %}</td>
-            <td class="text-end">
-              <form method="post" action="#" class="d-inline">
-                {% csrf_token %}
-                <button name="toggle" value="{{ nominee.movieawardid }}" class="btn btn-sm btn-outline-warning">&#9881;</button>
-              </form>
-              <form method="post" action="#" class="d-inline">
-                {% csrf_token %}
-                <button name="delete" value="{{ nominee.movieawardid }}" class="btn btn-sm btn-outline-danger">&#10060;</button>
-              </form>
-            </td>
-          </tr>
-        {% endfor %}
-
-        {% for nominee in book_nominees %}
-          <tr>
-            <td>{{ nominee.bookid.titlecz|default:nominee.bookid.title }}</td>
-            <td>{{ nominee.bookid.author }}</td>
-            <td>{% if nominee.winner %}&#127942; Vítěz{% else %}Nominace{% endif %}</td>
-            <td class="text-end">
-              <form method="post" action="#" class="d-inline">
-                {% csrf_token %}
-                <button name="toggle" value="{{ nominee.bookAwardid }}" class="btn btn-sm btn-outline-warning">&#9881;</button>
-              </form>
-              <form method="post" action="#" class="d-inline">
-                {% csrf_token %}
-                <button name="delete" value="{{ nominee.bookAwardid }}" class="btn btn-sm btn-outline-danger">&#10060;</button>
-              </form>
-            </td>
-          </tr>
-        {% endfor %}
-
-        {% for nominee in game_nominees %}
-          <tr>
-            <td>{{ nominee.gameid.titlecz|default:nominee.gameid.title }}</td>
-            <td>{{ nominee.gameid.year }}</td>
-            <td>{% if nominee.winner %}&#127942; Vítěz{% else %}Nominace{% endif %}</td>
-            <td class="text-end">
-              <form method="post" action="#" class="d-inline">
-                {% csrf_token %}
-                <button name="toggle" value="{{ nominee.gameawardid }}" class="btn btn-sm btn-outline-warning">&#9881;</button>
-              </form>
-              <form method="post" action="#" class="d-inline">
-                {% csrf_token %}
-                <button name="delete" value="{{ nominee.gameawardid }}" class="btn btn-sm btn-outline-danger">&#10060;</button>
-              </form>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <div class="alert alert-info">Zatím nejsou žádné nominace.</div>
-  {% endif %}
-
 </div>
+
+{% if movie_nominees or book_nominees or game_nominees %}
+    <div class="nominee-list">
+
+        <!-- FILMY -->
+        {% for nominee in movie_nominees %}
+            <div class="nominee-card">
+                <div class="nominee-main">
+                    <div class="nominee-title">
+                        {{ nominee.movieid.titlecz|default:nominee.movieid.title }}
+                    </div>
+                    <div class="nominee-sub">
+                        {{ nominee.movieid.releaseyear }}
+                    </div>
+                </div>
+
+                <div class="nominee-status">
+                    {% if nominee.winner %}
+                        <span class="status-winner">&#127942; Vítěz</span>
+                    {% else %}
+                        <span class="status-nomination">&#10024; Nominace</span>
+                    {% endif %}
+                </div>
+
+                <div class="nominee-actions">
+                    <form method="post" class="nominee-form">
+                        {% csrf_token %}
+                        <button name="toggle" value="{{ nominee.movieawardid }}" class="btn add-movie" title="upravit">&#9881;</button>
+                    </form>
+                    <form method="post" class="nominee-form">
+                        {% csrf_token %}
+                        <button name="delete" value="{{ nominee.movieawardid }}" class="btn add-movie" title="smazat">&#128465;</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+
+        <!-- KNIHY -->
+        {% for nominee in book_nominees %}
+            <div class="nominee-card">
+                <div class="nominee-main">
+                    <div class="nominee-title">
+                        {{ nominee.bookid.titlecz|default:nominee.bookid.title }}
+                    </div>
+                    <div class="nominee-sub">
+                        {{ nominee.bookid.author }}
+                    </div>
+                </div>
+
+                <div class="nominee-status">
+                    {% if nominee.winner %}
+                        <span class="status-winner">&#127942; Vítěz</span>
+                    {% else %}
+                        <span class="status-nomination">&#10024; Nominace</span>
+                    {% endif %}
+                </div>
+
+                <div class="nominee-actions">
+                    <form method="post" class="nominee-form">
+                        {% csrf_token %}
+                        <button name="toggle" value="{{ nominee.bookAwardid }}" class="btn add-book" title="upravit">&#9881;</button>
+                    </form>
+                    <form method="post" class="nominee-form">
+                        {% csrf_token %}
+                        <button name="delete" value="{{ nominee.bookAwardid }}" class="btn add-book" title="smazat">&#128465;</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+
+        <!-- HRY -->
+        {% for nominee in game_nominees %}
+            <div class="nominee-card">
+                <div class="nominee-main">
+                    <div class="nominee-title">
+                        {{ nominee.gameid.titlecz|default:nominee.gameid.title }}
+                    </div>
+                    <div class="nominee-sub">
+                        {{ nominee.gameid.year }}
+                    </div>
+                </div>
+
+                <div class="nominee-status">
+                    {% if nominee.winner %}
+                        <span class="status-winner">&#127942; Vítěz</span>
+                    {% else %}
+                        <span class="status-nomination">&#10024; Nominace</span>
+                    {% endif %}
+                </div>
+
+                <div class="nominee-actions">
+                    <form method="post" class="nominee-form">
+                        {% csrf_token %}
+                        <button name="toggle" value="{{ nominee.gameawardid }}" class="btn add-game" title="upravit">&#9881;</button>
+                    </form>
+                    <form method="post" class="nominee-form">
+                        {% csrf_token %}
+                        <button name="delete" value="{{ nominee.gameawardid }}" class="btn add-game" title="smazat">&#128465;</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+    <div class="alert alert-info">Zatím nejsou žádné nominace.</div>
+{% endif %}
+
 {% endblock %}

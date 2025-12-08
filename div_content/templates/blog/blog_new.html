@@ -1,38 +1,29 @@
 {% extends "blog/base.html" %}
 
 {% block content %}
-<div class="container">
-    <h2>Vytvořit nový blog</h2>
+
+
+
+
+<h2 style="width: 100%;">
+    <a href="/blogy/">Všechny blogy</a>
+    <span> / </span>
+
+    Vytvořit nový blog
+</h2>
+
+<div class="admin-panel">
     <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}  <!-- Zobrazí formulář jako HTML -->
-        <button type="submit" class="add">Vytvořit blog</button>
+        {{ form.as_p }}
+        <button type="submit"
+            class="btn btn-secondary"> <!-- sem barvičky tlačítek -->
+            Vytvořit blog
+        </button>
+
     </form>
 </div>
 
-
-<hr>
-<a href="/blogy/">Všechny blogy</a> | <a href="/forum/">Diskuzní fórum</a>
-<hr>
-
-<!--
-<section>
-<a href="/blog/">Blog</a> ↑ 
-<a href="/blogy/">Blog</a> ↑ 
-<a href="/blog/novy-blog">Nový blog</a> ↑ 
-<a href="/blog/novy-prispevek">Nový příspěvek</a> ↑ 
-<a href="/blog/muj-ad">Prispevek</a>
-</section>
--->
+<a href="/forum/" class="btn btn-secondary">Diskuzní fórum</a>
 
 {% endblock %}
-
-
-
-
-
-
-
-
-
-

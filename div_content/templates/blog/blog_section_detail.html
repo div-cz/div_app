@@ -3,72 +3,152 @@
 {% block content %}
 
 {% if section == "filmove" %}
+    <link href="https://media.div.cz/css/movies.css" rel="stylesheet">
+    <style>
+        .cta:before {
+            background: #A52B21;
+        }
 
+        .cta:hover:before {
+            background: #b12a20;
+        }
+    </style>
 {% elif section == "herni" %}
+    <link href="https://media.div.cz/css/games.css" rel="stylesheet">
+    <style>
+        .cta:before {
+            background: #0A76A9;
+        }
 
+        .cta:hover:before {
+            background: #2a8dbb;
+        }
+    </style>
 {% elif section == "knizni" %}
+    <link href="https://media.div.cz/css/books.css" rel="stylesheet">
+    <style>
+        .cta:before {
+            background: #61872B;
+        }
 
+        .cta:hover:before {
+            background: #619618;
+        }
+    </style>
 {% elif section == "obecne" %}
-
+    <link href="https://media.div.cz/css/navbar_together.css" rel="stylesheet">
 {% endif %}
+
 
 {% if user.is_authenticated %}
     <!-- Autorizován -->
+    <h2 style="width: 100%;">
+        <a class="hover:underline" href="{% url 'blog_index' %}">Blogy</a>
+        <span> / </span>
+        Uživatelské blogy
+    </h2>
 
-<h2><a class="hover:underline" href="{% url 'blog_index' %}">Blogy</a> / Uživatelské blogy</h2>
-
-<a href="{% url 'blog_new' %}" class="cta mt-4">
-    <span class="text-[#0d0c0f] dark:text-[#F9F9F9]">Založit nový blog</span>
-    <svg width="15px" height="10px" viewBox="0 0 13 10">
-        <path d="M1,5 L11,5"></path>
-        <polyline points="8 1 12 5 8 9"></polyline>
-    </svg>
-</a>
-
-
+    <a href="{% url 'blog_new' %}" class="cta">
+        <span>Založit nový blog</span>
+        <svg width="15px" height="10px" viewBox="0 0 13 10">
+            <path d="M1,5 L11,5"></path>
+            <polyline points="8 1 12 5 8 9"></polyline>
+        </svg>
+    </a>
 {% endif %}
-    <!-- Neautorizován -->
 
 {% if book_blogs %}
-    <h2 class="mt-4">Knižní blogy</h2>
-    <ul>
-        {% for blog in book_blogs %}
-                <li><a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a></li>
-
-        {% endfor %}
-    </ul>
+    <div class="admin-panel">
+        <h2 style="width: 100%;" class="after">&#128214; Knižní blogy</h2>
+        <div class="blog-panel">
+            {% for blog in book_blogs %}
+                <div class="blog-row">
+                    <a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a>
+                    <p>Založil: <a href="">uživatel</a></p>
+                    <div style="text-align: center;">
+                        <p>Odpovědí</p>
+                        <p>200</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <p>Poslední odpověď</p>
+                        <p>datuuuum</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endif %}
 
 {% if movie_blogs %}
-    <h2 class="mt-4">Filmové blogy</h2>
-    <ul>
-        {% for blog in movie_blogs %}
-            {% if blog.blog_type == 'movie' %}
-                <li><a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a></li>
-            {% endif %}
-        {% endfor %}
-    </ul>
+    <div class="admin-panel">
+        <h2 style="width: 100%;" class="after">&#127909; Filmové blogy</h2>
+        <div class="blog-panel">
+            {% for blog in movie_blogs %}
+                {% if blog.blog_type == 'movie' %}
+                    <div class="blog-row">
+                        <a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a>
+                        <p>Založil: <a href="">uživatel</a></p>
+                        <div style="text-align: center;">
+                            <p>Odpovědí</p>
+                            <p>200</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <p>Poslední odpověď</p>
+                            <p>datuuuum</p>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
 {% endif %}
 
 {% if game_blogs %}
-    <h2 class="mt-4">Herní blogy</h2>
-        <ul>
+    <div class="admin-panel">
+        <h2 style="width: 100%;" class="after">&#127918; Herní blogy</h2>
+        <div class="blog-panel">
             {% for blog in game_blogs %}
                 {% if blog.blog_type == 'game' %}
-                    <li><a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a></li>
+                    <div class="blog-row">
+                        <a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a>
+                        <p>Založil: <a href="">uživatel</a></p>
+                        <div style="text-align: center;">
+                            <p>Odpovědí</p>
+                            <p>200</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <p>Poslední odpověď</p>
+                            <p>datuuuum</p>
+                        </div>
+                    </div>
                 {% endif %}
             {% endfor %}
-        </ul>
+        </div>
+    </div>
 {% endif %}
 
 {% if general_blogs %}
-    <h2 class="mt-4">Obecné blogy</h2>
-        <ul>
+    <div class="admin-panel">
+        <h2 style="width: 100%;" class="after">Obecné blogy</h2>
+        <div class="blog-panel">
             {% for blog in general_blogs %}
                 {% if blog.blog_type == 'general' %}
-                    <li><a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a></li>
+                    <div class="blog-row">
+                        <a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a>
+                        <p>Založil: <a href="">uživatel</a></p>
+                        <div style="text-align: center;">
+                            <p>Odpovědí</p>
+                            <p>200</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <p>Poslední odpověď</p>
+                            <p>datuuuum</p>
+                        </div>
+                    </div>
                 {% endif %}
             {% endfor %}
-        </ul>
+        </div>
+    </div>
 {% endif %}
+
 {% endblock content %}

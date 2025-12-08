@@ -236,7 +236,7 @@
                             </div>
                         </div>
 
-                        <button class="rating-popup-btn add-book" style="margin: 0 auto;">Hodnocení knihy</button>
+                        <button class="rating-popup-btn btn add-book" style="margin: 0 auto;">Hodnocení knihy</button>
                     </div>
 
                     <!-- POPUP – VÝPIS HODNOCENÍ PRO KNIHU -->
@@ -486,7 +486,7 @@
             <div class="flex flex-wrap">
                 <!-- Tlačítko E-kniha -->
                 <button type="button"
-                    class="add-book ml-3 mt-0 mb-2"
+                    class="btn add-book ml-3 mt-0 mb-2"
                     id="e-book-btn"
                     {% if not has_ebook %}
                         disabled
@@ -561,9 +561,9 @@
                                 <div id="ebook-action-block"></div>
                                 {% else %}
                                 <div class="my-2">
-                                    <a href="/prihlaseni/" class="add-book">Přihlaš se</a>
+                                    <a href="/prihlaseni/" class="btn add-book">Přihlaš se</a>
                                     nebo
-                                    <a href="/registrace/" class="add-book">Registruj se</a>
+                                    <a href="/registrace/" class="btn add-book">Registruj se</a>
                                     <br>
                                     <span style="color:#6c757d;">Pro nákup a stažení e-knihy je nutné mít účet.</span>
                                 </div>
@@ -576,7 +576,7 @@
                 <!-- AUDIO - PRIPRAVENO -->
                 <!-- Tlačítko AUDIO -->
                 <button type="button"
-                    class="add-book ml-3 mt-0 mb-2"
+                    class="btn add-book ml-3 mt-0 mb-2"
                     id="audio-btn"
                     {% if not has_audio %}
                         disabled
@@ -633,7 +633,7 @@
                 {% endif %}
 
                 {% with total_listings=sell_listings.count|add:buy_listings.count %}
-                    <button type="submit" href="#tab5" id="go-to-market" class="add-book ml-3 mt-0 mb-2" style="width: 122px; padding: 0.5em 0;">
+                    <button type="submit" href="#tab5" id="go-to-market" class="btn add-book ml-3 mt-0 mb-2" style="width: 122px; padding: 0.5em 0;">
                         <img src="/static/img/book/book_icon.png" alt="kniha" title="kniha" class="mr-2" style="width: 35px;">
                         <div class="flex flex-col">
                             <p>Bazar</p>
@@ -697,7 +697,7 @@
                     <form method="post" action="{% url 'book_detail' book_url=book.url %}">
                         {% csrf_token %}
                         {{ comment_form.comment|safe }}
-                        <button type="submit" class="add-book">Vložit recenzi</button>
+                        <button type="submit" class="btn add-book">Vložit recenzi</button>
                     </form>
                     {% else %}
                     <p>Pro komentování je nutné být 
@@ -747,7 +747,7 @@
                         </select>
 
                         {% if user.is_staff %}
-                            <button type="submit" name="add_character" class="add-book">Přidat postavu</button>
+                            <button type="submit" name="add_character" class="btn add-book">Přidat postavu</button>
                             {% else %}
                             <p style="color: #6c757d; font-size: 0.875rem; line-height: 1.25rem;">
                                 Chcete přidávat postavy? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
@@ -826,7 +826,7 @@
                     {{ quote_form.as_p }}
 
                     {% if user.is_staff %}
-                    <button type="submit" class="add-book">Přidat citát</button>
+                    <button type="submit" class="btn add-book">Přidat citát</button>
                     {% else %}
                     <p style="color: #6c757d; font-size: 0.875rem; line-height: 1.25rem;">
                         Chcete přidávat citáty? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
@@ -878,7 +878,7 @@
                     <textarea>
 
                     </textarea>
-                    <button type="submit" class="add-book">Vložit zajímavost</button>
+                    <button type="submit" class="btn add-book">Vložit zajímavost</button>
                 </form>               
             </div> -->
 
@@ -931,7 +931,7 @@
                                         {% csrf_token %}
                                         <input type="hidden" name="form_type" value="booklisting">
                                         {{ booklisting_form.as_p }}
-                                        <button type="submit" class="add-book">Vytvořit nabídku</button>
+                                        <button type="submit" class="btn add-book">Vytvořit nabídku</button>
                                     </form>
                                 {% else %}
                                     <div class="alert">
@@ -1246,7 +1246,7 @@
                     <h3 class="card-title">Přidat na hlavní stranu</h3>
                     <form method="post">
                     {% csrf_token %}
-                        <button type="submit" name="add_to_metaindex" class="add-book mt-2">
+                        <button type="submit" name="add_to_metaindex" class="btn add-book mt-2">
                             Přidat na hlavní stránku
                         </button>
                     </form>
@@ -1261,7 +1261,7 @@
                     <form method="post">
                         {% csrf_token %}
                         {{ book_div_rating_form.as_p }} <!-- Vyměňte za odpovídající proměnnou -->
-                        <button type="submit" name="update_divrating" class="add-book mt-2">Uložit</button>
+                        <button type="submit" name="update_divrating" class="btn add-book mt-2">Uložit</button>
                     </form>
                 </div>
             </div>
@@ -1273,22 +1273,22 @@
                 <p style="width: 100%;">Sdílet na:</p>
 
                 <!-- Facebook Share Button -->
-                <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/kniha/{{ book.url }}" class="btn btn-primary" style="color: white;" target="_blank" title="Facebook">
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/kniha/{{ book.url }}" class="btn btn-facebook" style="color: white;" target="_blank" title="Facebook">
                     <i class="fab fa-facebook-f"></i>
                 </a>
 
                 <!-- Twitter Share Button -->
-                <a href="https://twitter.com/intent/tweet?url=https://div.cz/kniha/{{ book.url }}&text={{ book.titlecz|default:book.title }}" class="btn btn-info" style="color: white;" target="_blank" title="Twitter">
+                <a href="https://twitter.com/intent/tweet?url=https://div.cz/kniha/{{ book.url }}&text={{ book.titlecz|default:book.title }}" class="btn btn-twitter" style="color: white;" target="_blank" title="Twitter">
                     <i class="fab fa-twitter"></i>
                 </a>
 
                 <!-- E-mail Share Button -->
-                <a href="mailto:?subject={{ book.titlecz|default:book.title }}&body=Podívej se na https://div.cz/kniha/{{ book.url }}" class="btn btn-dark" style="color: white;" target="_blank" title="E-mail">
+                <a href="mailto:?subject={{ book.titlecz|default:book.title }}&body=Podívej se na https://div.cz/kniha/{{ book.url }}" class="btn btn-email" style="color: white;" target="_blank" title="E-mail">
                     <i class="fas fa-envelope"></i>
                 </a>
 
                 <!-- WhatsApp Share Button -->
-                <a href="https://wa.me/?text={{ book.titlecz|default:book.title }} - https://div.cz/kniha/{{ book.url }}" class="btn btn-success" style="color: white;" target="_blank" title="WhatsApp">
+                <a href="https://wa.me/?text={{ book.titlecz|default:book.title }} - https://div.cz/kniha/{{ book.url }}" class="btn btn-whatsapp" style="color: white;" target="_blank" title="WhatsApp">
                     <i class="fab fa-whatsapp"></i>
                 </a>
 
@@ -1613,7 +1613,7 @@ function renderEbookActions() {
         html += `
             <div style="margin-top:15px;">
             	{% if primary_source != "MLP" %}
-                <button type="submit" class="add-book" id="send-to-reader-btn">Poslat do čtečky</button>
+                <button type="submit" class="btn add-book" id="send-to-reader-btn">Poslat do čtečky</button>
                 {% endif %}
                 <a id="download-link" href="/stahnout-eknihu/${data.isbn}/${fmt}/" class="btn btn-success">Stáhnout</a>
             </div>

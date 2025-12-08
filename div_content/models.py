@@ -16,7 +16,7 @@ from star_ratings.models import AbstractBaseRating, Rating
 from django.utils.text import slugify
 from django.utils import timezone
 
-
+from div_content.utils.divkvariat import listing_image_path
 
 class AAChange(models.Model):
     id = models.IntegerField(db_column='ID', primary_key=True)
@@ -339,6 +339,20 @@ class Booklisting(models.Model):
 
     class Meta:
         db_table = 'BookListing'
+
+
+class Booklistingimage(models.Model):
+	listing = models.ForeignKey(
+		Booklisting,
+		on_delete=models.CASCADE,
+		related_name="images"
+	)
+	image = models.ImageField(upload_to=listing_image_path)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		db_table = "BookListingImage"
+
 
 
 class Bookauthor(models.Model):

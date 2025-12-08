@@ -5,7 +5,13 @@ Upravit {{ topic.title }}
 
 {% block content %}
 
-<h2><a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a> / <a class="hover:underline" href="{% url 'forum_section_detail' slug=topic.section.slug %}">{{ topic.section.title }}</a> / {{ topic.title }}</h2>
+<h2>
+    <a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a>
+    <span> / </span>
+    <a class="hover:underline" href="{% url 'forum_section_detail' slug=topic.section.slug %}">{{ topic.section.title }}</a>
+    <span> / </span>
+    {{ topic.title }}
+</h2>
 
 {% if user.is_authenticated %}
     <section class="w-3/4">

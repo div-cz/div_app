@@ -3,83 +3,96 @@
 
 {% block title %}Filmová ocenění - DIV.cz{% endblock %}
 
+{% block meta %}
+
+    <link href="{% static 'css/movies.css' %}" rel="stylesheet">
+
+{% endblock %}
+
 {% block content %}
-<div class="container">
-  <h1 class="mb-4">&#127916; Filmová ocenění</h1>
-  <p style="color:#6c757d;">Přehled všech nominovaných filmů a vítězů podle jednotlivých ocenění.</p>
 
-  <div class="row">
-    <div class="col-md-3">
-      <div class="list-group mb-4">
-        {% for award_name, years in sidebar_awards.items %}
-        <div class="mb-3">
-          <div class="fw-bold small text-uppercase text-secondary mb-1">{{ award_name }}</div>
-          {% for y in years %}
-          <a href="{% url 'award_detail' y.slug y.year %}" class="list-group-item list-group-item-action small">
-            {{ y.year }}{% if y.count %} ({{ y.count }}){% endif %}
-          </a>
-          {% endfor %}
+    <h2 style="width: 100%;">
+        <a class="hover:underline" href="{% url 'awards_index' %}">Ocenění</a>
+        <span> / </span>
+        Filmová ocenění
+    </h2>
+
+    <p style="color:#6c757d;">Přehled všech nominovaných filmů a vítězů podle jednotlivých ocenění.</p>
+
+    <div class="row" style="margin-top: 1rem;">
+        <div class="right-side">
+            <div class="card card-body">
+                {% for award_name, years in sidebar_awards.items %}
+                    <div class="award-block">
+                        <h3 class="after-h3">{{ award_name }}</h3>
+
+                        {% for y in years %}
+                            <div style="width: 100%;">
+                                <a href="{% url 'award_detail' y.slug y.year %}" class="list-group-item list-group-item-action small">
+                                    {{ y.year }}
+                                </a>
+                                {% if y.count %} 
+                                    ({{ y.count }})
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            
+                <div class="award-controls">
+                    <a href="?winners_only=1" class="btn btn-secondary {% if winners_only %}active{% endif %}">&#127942; Pouze vítězové</a>
+
+                    {% if winners_only %}
+                        <a href="{% url 'awards_movies' %}" class="btn btn-secondary">Zobrazit vše</a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-        {% endfor %}
-      </div>
 
-      <div class="text-center">
-        <a href="?winners_only=1" class="btn btn-sm btn-warning w-100 mb-2 {% if winners_only %}active{% endif %}">&#127942; Pouze vítězové</a>
-        {% if winners_only %}
-        <a href="{% url 'awards_movies' %}" class="btn btn-sm btn-outline-secondary w-100">Zobrazit vše</a>
-        {% endif %}
-      </div>
+        <div class="left-side">
+            {% if grouped_awards %}
+                {% for awardname, items in grouped_awards.items %}
+                    <div class="card card-body">
+                        <h3 style="text-align:center" class="after">&#127942; {{ awardname }}</h3>
+                        {% if items %}
+                            <div class="award-list">
+                                {% for item in items %}
+                                    <div class="award-entry">
+                                        <div class="award-title-row">
+                                            <a href="{% url 'movie_detail' item.movieid.url %}" class="award-title">
+                                                {{ item.movieid.titlecz|default:item.movieid.title }}
+                                            </a>
+                                        </div>
+
+                                        <div class="award-meta-row">
+                                            <span class="award-year">{{ item.movieid.releaseyear }}</span>
+
+                                            {% if item.winner %}
+                                                <span class="award-status winner">&#127942; Vítěz</span>
+                                            {% else %}
+                                                <span class="award-status nomination">&#10024; Nominace</span>
+                                            {% endif %}
+
+                                            <a href="" class="award-detail">Detail</a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            {% else %}
+                            <div class="alert">Toto ocenění zatím nemá žádné nominace. 
+                                {% if user.is_staff %}
+                                    <a href="{% url 'admin_award_nominees' items.0.metaAwardid.metaawardid %}">Přidat</a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                {% else %}
+                <div class="alert">Žádná filmová ocenění nenalezena.</div>
+            {% endif %}
+        </div>
     </div>
 
-    <div class="col-md-9">
-      {% if grouped_awards %}
-      {% for awardname, items in grouped_awards.items %}
-      <h4 class="mt-4">&#127942; {{ awardname }}</h4>
-      {% if items %}
-      <table class="table table-sm table-hover">
-        <thead class="table-light">
-          <tr>
-            <th>Film</th>
-            <th>Rok</th>
-            <th>Status</th>
-            <th class="text-end">Akce</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for item in items %}
-          <tr>
-            <td>
-              <a href="{% url 'movie_detail' item.movieid.url %}" class="text-decoration-none">
-                {{ item.movieid.titlecz|default:item.movieid.title }}
-              </a>
-            </td>
-            <td>{{ item.movieid.releaseyear }}</td>
-            <td>
-              {% if item.winner %}<span class="badge bg-warning text-dark">&#127942; Vítěz</span>
-              {% else %}<span class="badge bg-secondary">Nominace</span>
-              {% endif %}
-            </td>
-            <td class="text-end">
-              <a href="{% url 'movie_detail' item.movieid.url %}" class="btn btn-sm btn-outline-primary">Detail</a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% else %}
-      <div class="alert alert-light border">Toto ocenění zatím nemá žádné nominace. {% if user.is_staff %}<a href="{% url 'admin_award_nominees' items.0.metaAwardid.metaawardid %}">Přidat</a>{% endif %}</div>
-      {% endif %}
-      {% endfor %}
-      {% else %}
-      <div class="alert alert-info">Žádná filmová ocenění nenalezena.</div>
-      {% endif %}
-    </div>
-  </div>
-
-  <div class="mt-4 text-center">
-    <a href="{% url 'awards_books' %}" class="btn btn-outline-success me-2">&#128218; Kniha</a>
-    <a href="{% url 'awards_games' %}" class="btn btn-outline-warning me-2">&#127918; Hra</a>
-    <a href="{% url 'awards_index' %}" class="btn btn-outline-secondary">&#127942; Všechna ocenění</a>
-  </div>
-</div>
 {% endblock %}

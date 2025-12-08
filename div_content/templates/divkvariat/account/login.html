@@ -1,0 +1,67 @@
+{% extends "divkvariat/base.html" %}
+{% load static %}
+
+{% block title %}Přihlášení | DIVkvariát{% endblock %}
+
+{% block content %}
+<style>
+    .auth-input {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 8px;
+        background: #F2F2F2;
+        color: #111;
+        border: 1px solid #ccc;
+        margin-top: 4px;
+    }
+    .auth-input::placeholder {
+        color: #888;
+    }
+</style>
+
+<div class="max-w-md mx-auto mt-16 bg-[#1A161F] text-white p-8 rounded-2xl shadow-lg">
+
+    <h1 class="text-3xl font-bold mb-6 text-center">Přihlášení</h1>
+
+    <p class="text-sm text-gray-400 mb-6 text-center">
+        Můžete se přihlásit svým účtem z <strong>DIV.cz</strong>.<br>
+        Účty jsou propojené.
+    </p>
+
+    <form method="post" action="{% url 'account_login' %}">
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        <div class="mb-4">
+            <label class="block text-sm mb-2">E-mail</label>
+            <input type="text"
+                   name="{{ form.login.name }}"
+                   value="{{ form.login.value|default_if_none:'' }}"
+                   class="auth-input"
+                   placeholder="např. jan@div.cz">
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm mb-2">Heslo</label>
+            <input type="password"
+                   name="{{ form.password.name }}"
+                   class="auth-input"
+                   placeholder="••••••••••">
+        </div>
+
+        <button type="submit"
+                class="w-full py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold">
+            Přihlásit se
+        </button>
+
+    </form>
+
+    <p class="text-center text-sm mt-4">
+        Nemáte účet?  
+        <a href="{% url 'account_signup' %}" class="text-green-400 hover:underline">
+            Zaregistrovat se
+        </a>
+    </p>
+</div>
+{% endblock %}

@@ -1,202 +1,142 @@
+<!-- upravit ocenění -->
 {% extends "awards/base.html" %}
 {% load static %}
 
 {% block title %}{{ action }} ocenění - Admin - DIV.cz{% endblock %}
 
+{% block meta %}
+
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
 
-            <div class="page-header mb-4">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'awards_index' %}">Ocenění</a></li>
-                        <li class="breadcrumb-item"><a href="{% url 'admin_awards' %}">Správa ocenění</a></li>
-                        <li class="breadcrumb-item active">{{ action }} ocenění</li>
-                    </ol>
-                </nav>
-                <h1 class="display-5">{{ action }} ocenění</h1>
-                {% if award %}
-                    <p class="lead">Upravujete ocenění: <strong>{{ award.awardname }} ({{ award.year }})</strong></p>
-                {% else %}
-                    <p class="lead">Přidejte nové ocenění do databáze</p>
+    <h2 style="width: 100%;"><a href="{% url 'awards_index' %}"
+        class="{% if award.awardtype == 'film' %}movies
+               {% elif award.awardtype == 'book' %}books
+               {% elif award.awardtype == 'game' %}games{% endif %}">Ocenění</a>
+        <span>/</span>
+        <a href="{% url 'admin_awards' %}"
+        class="{% if award.awardtype == 'film' %}movies
+               {% elif award.awardtype == 'book' %}books
+               {% elif award.awardtype == 'game' %}games{% endif %}">Správa ocenění</a>
+        <span>/</span>
+        <span class="active">{{ action }} ocenění</span>
+    </h2>
+
+    {% if award %}
+        <p class="admin-subtitle">
+            Upravujete ocenění: <strong>{{ award.awardname }} ({{ award.year }})</strong>
+        </p>
+    {% else %}
+        <p class="admin-subtitle">Přidejte nové ocenění do databáze</p>
+    {% endif %}
+
+    <div class="admin-panel">
+        <h2 class="after">
+            {% if award %}&#9999; Upravit ocenění{% else %}Nové ocenění{% endif %}
+        </h2>
+
+        <div class="admin-panel-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="admin-alert">
+                        {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
                 {% endif %}
-            </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">&#127942; {% if award %}Upravit ocenění{% else %}Nové ocenění{% endif %}</h5>
-                </div>
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label>{{ form.awardname.label }} <span class="req">*</span></label>
+                        {{ form.awardname }}
+                        {% for error in form.awardname.errors %}
+                            <div class="field-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
 
-                <div class="card-body">
-                    <form method="post" novalidate>
-                        {% csrf_token %}
-
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {% for error in form.non_field_errors %}
-                                    <div>{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-
-                        <div class="row">
-                            <div class="col-md-8 mb-3">
-                                <label for="{{ form.awardname.id_for_label }}" class="form-label">
-                                    {{ form.awardname.label }} <span class="text-danger">*</span>
-                                </label>
-                                {{ form.awardname }}
-                                {% if form.awardname.help_text %}
-                                    <div class="form-text">{{ form.awardname.help_text }}</div>
-                                {% endif %}
-                                {% for error in form.awardname.errors %}
-                                    <div class="text-danger mt-1"><small>{{ error }}</small></div>
-                                {% endfor %}
-                            </div>
-
-                            <div class="col-md-4 mb-3">
-                                <label for="{{ form.year.id_for_label }}" class="form-label">
-                                    {{ form.year.label }} <span class="text-danger">*</span>
-                                </label>
-                                {{ form.year }}
-                                {% if form.year.help_text %}
-                                    <div class="form-text">{{ form.year.help_text }}</div>
-                                {% endif %}
-                                {% for error in form.year.errors %}
-                                    <div class="text-danger mt-1"><small>{{ error }}</small></div>
-                                {% endfor %}
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.awardtype.id_for_label }}" class="form-label">
-                                {{ form.awardtype.label }} <span class="text-danger">*</span>
-                            </label>
-                            {{ form.awardtype }}
-                            {% if form.awardtype.help_text %}
-                                <div class="form-text">{{ form.awardtype.help_text }}</div>
-                            {% endif %}
-                            {% for error in form.awardtype.errors %}
-                                <div class="text-danger mt-1"><small>{{ error }}</small></div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="{{ form.description.id_for_label }}" class="form-label">
-                                {{ form.description.label }}
-                            </label>
-                            {{ form.description }}
-                            {% if form.description.help_text %}
-                                <div class="form-text">{{ form.description.help_text }}</div>
-                            {% endif %}
-                            {% for error in form.description.errors %}
-                                <div class="text-danger mt-1"><small>{{ error }}</small></div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <button type="submit" class="btn btn-success">
-                                    &#128190; {% if award %}Uložit změny{% else %}Vytvořit ocenění{% endif %}
-                                </button>
-                                <a href="{% url 'admin_awards' %}" class="btn btn-secondary ms-2">&#10060; Zrušit</a>
-                            </div>
-
-                            {% if award %}
-                            <div>
-                                <a href="{% url 'admin_award_nominees' award.metaawardid %}" class="btn btn-info">&#128101; Nominace</a>
-                                <a href="{% url 'award_detail' award.slug award.year %}" class="btn btn-outline-primary">&#128065; Detail</a>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h6 class="mb-0">&#8505; Nápověda</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6>Příklady názvů ocenění:</h6>
-                            <ul class="small">
-                                <li><strong>Oscar</strong> (film)</li>
-                                <li><strong>Zlatý glóbus</strong> (TV + film)</li>
-                                <li><strong>Pulitzerova cena</strong> (literatura)</li>
-                                <li><strong>Game Awards</strong> (hry)</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h6>Tipy:</h6>
-                            <ul class="small">
-                                <li>Rok = udělení, ne vydání díla</li>
-                                <li>Slug se generuje automaticky</li>
-                                <li>Popis je volitelný</li>
-                                <li>Nominace se přidávají po uložení</li>
-                            </ul>
-                        </div>
+                    <div class="form-field small">
+                        <label>{{ form.year.label }} <span class="req">*</span></label>
+                        {{ form.year }}
+                        {% for error in form.year.errors %}
+                            <div class="field-error">{{ error }}</div>
+                        {% endfor %}
                     </div>
                 </div>
-            </div>
 
-            {% if award %}
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h6 class="mb-0">&#128202; Přehled nominací</h6>
+                <div class="form-field">
+                    <label>{{ form.awardtype.label }} <span class="req">*</span></label>
+                    {{ form.awardtype }}
+                    {% for error in form.awardtype.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
                 </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        {% if award.awardtype == 'film' %}
-                        <div class="col-md-4">
-                            <h4 class="text-primary">{{ award.movieaward_set.count }}</h4>
-                            <small>Filmových nominací</small>
-                        </div>
-                        <div class="col-md-4">
-                            <h4 class="text-warning">{{ award.movieaward_set.filter_winners.count }}</h4>
-                            <small>Vítězů</small>
-                        </div>
-                        {% elif award.awardtype == 'book' %}
-                        <div class="col-md-4">
-                            <h4 class="text-success">{{ award.bookaward_set.count }}</h4>
-                            <small>Knižních nominací</small>
-                        </div>
-                        <div class="col-md-4">
-                            <h4 class="text-warning">{{ award.bookaward_set.filter_winners.count }}</h4>
-                            <small>Vítězů</small>
-                        </div>
-                        {% elif award.awardtype == 'game' %}
-                        <div class="col-md-4">
-                            <h4 class="text-info">{{ award.gameaward_set.count }}</h4>
-                            <small>Herních nominací</small>
-                        </div>
-                        <div class="col-md-4">
-                            <h4 class="text-warning">{{ award.gameaward_set.filter_winners.count }}</h4>
-                            <small>Vítězů</small>
-                        </div>
-                        {% endif %}
-                        <div class="col-md-4">
-                            <a href="{% url 'admin_award_nominees' award.metaawardid %}" class="btn btn-info btn-sm">&#128101; Spravovat</a>
-                        </div>
+
+                <div class="form-field">
+                    <label>{{ form.description.label }}</label>
+                    {{ form.description }}
+                </div>
+
+                <div class="form-buttons">
+                    <div>
+                        <button type="submit" class="btn 
+                            {% if award.awardtype == 'book' %}
+                                add-book
+                            {% elif award.awardtype == 'film' %}
+                                add-movie
+                            {% elif award.awardtype == 'game' %}
+                                add-game
+                            {% else %}
+                                btn-secondary
+                            {% endif %}">
+                            &#128190; {% if award %}Uložit změny{% else %}Uložit ocenění{% endif %}
+                        </button>
+                        <a href="{% url 'admin_awards' %}" class="btn btn-secondary">&#10060; Zrušit</a>
                     </div>
-                </div>
-            </div>
-            {% endif %}
 
+                    {% if award %}
+                    <div>
+                        <a href="{% url 'admin_award_nominees' award.metaawardid %}" class="btn-secondary">
+                            &#128221; Správa nominací
+                        </a>
+                        <a href="{% url 'award_detail' award.slug award.year %}" class="btn-secondary">
+                            &#128220; Nominace
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+            </form>
         </div>
     </div>
-</div>
 
-<style>
-.form-label { font-weight: 600; }
-.text-danger { font-size: 0.875em; }
-.card-header h5, .card-header h6 { color: #495057; }
-@media (max-width: 768px) {
-    .display-5 { font-size: 1.5rem; }
-    .d-flex.justify-content-between { flex-direction: column; gap: 1rem; }
-    .d-flex.justify-content-between > div { text-align: center; }
-}
-</style>
+    <div class="admin-panel">
+        <h2 class="after">&#8505; Nápověda</h2>
+
+        <div class="admin-panel-body admin-help-grid">
+            <div>
+                <h4>Příklady názvů ocenění:</h4>
+                <ul>
+                    <li><strong>Oscar</strong> (film)</li>
+                    <li><strong>Zlatý glóbus</strong> (TV + film)</li>
+                    <li><strong>Pulitzerova cena</strong> (literatura)</li>
+                    <li><strong>Game Awards</strong> (hry)</li>
+                </ul>
+            </div>
+
+            <div>
+                <h4>Tipy:</h4>
+                <ul>
+                    <li>Rok = rok udělení</li>
+                    <li>Slug se generuje automaticky</li>
+                    <li>Popis je volitelný</li>
+                    <li>Nominace se přidávají po uložení ocenění</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
+

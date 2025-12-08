@@ -3,43 +3,77 @@
 
 {% block title %}Seriálová ocenění - DIV.cz{% endblock %}
 
+{% block meta %}
+
+    <link href="{% static 'css/movies.css' %}" rel="stylesheet">
+
+{% endblock %}
+
 {% block content %}
-<div class="container">
-  <h1 class="mb-4">&#128250; Seriálová ocenění</h1>
-  <p style="color:#6c757d;">Přehled všech nominací a vítězů v oblasti televizní a streamovací tvorby.</p>
 
-  <div class="alert alert-warning d-flex align-items-center">
-    <div class="me-3 display-6">&#9888;&#65039;</div>
-    <div>
-      <strong>Tato sekce je zatím ve vývoji.</strong><br>
-      Pracujeme na zobrazení ocenění jako Emmy, BAFTA TV nebo Critics Choice TV Awards.
-    </div>
-  </div>
+    <h2 style="width: 100%;">
+        <a class="hover:underline" href="{% url 'awards_index' %}">Ocenění</a>
+        <span> / </span>
+        Seriálová ocenění
+    </h2>
 
-  <div class="row">
-    <div class="col-md-4">
-      <div class="list-group">
-        <div class="fw-bold small text-uppercase text-secondary mb-1">Připravovaná ocenění</div>
-        <div class="list-group-item small disabled">Emmy Awards</div>
-        <div class="list-group-item small disabled">BAFTA TV Awards</div>
-        <div class="list-group-item small disabled">Critics Choice TV</div>
-        <div class="list-group-item small disabled">Zlatý glóbus - TV</div>
-      </div>
-    </div>
-    <div class="col-md-8">
-      <div class="card">
-        <div class="card-body">
-          <p class="mb-0 text-muted">Zde brzy uvidíte nominace a vítěze za jednotlivé roky. Sledujte novinky v sekci <a href="/blogy/" class="text-decoration-underline">blog</a>.</p>
+    <p style="color:#6c757d;">Přehled všech nominací a vítězů v oblasti televizní a streamovací tvorby.</p>
+
+    <div class="row" style="margin-top: 1rem;">
+        <div class="right-side">
+            <div class="card card-body">
+                <p>Připravovaná ocenění</p>
+                <p>Emmy Awards</p>
+                <p>BAFTA TV Awards</p>
+                <p>Critics Choice TV</p>
+                <p>Zlatý glóbus - TV</p>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="mt-4 text-center">
-    <a href="{% url 'awards_books' %}" class="btn btn-outline-success me-2">&#128218; Kniha</a>
-    <a href="{% url 'awards_movies' %}" class="btn btn-outline-primary me-2">&#127916; Film</a>
-    <a href="{% url 'awards_games' %}" class="btn btn-outline-warning me-2">&#127918; Hra</a>
-    <a href="{% url 'awards_index' %}" class="btn btn-outline-secondary">&#127942; Všechna ocenění</a>
-  </div>
-</div>
+        <div class="left-side">
+            {% if grouped_awards %}
+                {% for awardname, items in grouped_awards.items %}
+                    <div class="card card-body">
+                        <h3 style="text-align:center" class="after">&#127942; {{ awardname }}</h3>
+                        {% if items %}
+                            <div class="award-list">
+                                {% for item in items %}
+                                    <div class="award-entry">
+                                        <div class="award-title-row">
+                                            <a href="{% url 'movie_detail' item.movieid.url %}" class="award-title">
+                                                {{ item.movieid.titlecz|default:item.movieid.title }}
+                                            </a>
+                                        </div>
+
+                                        <div class="award-meta-row">
+                                            <span class="award-year">{{ item.movieid.releaseyear }}</span>
+
+                                            {% if item.winner %}
+                                                <span class="award-status winner">&#127942; Vítěz</span>
+                                                {% else %}
+                                                <span class="award-status nomination">&#10024; Nominace</span>
+                                            {% endif %}
+
+                                            <a href="" class="award-detail">Detail</a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            {% else %}
+                            <div class="alert">Toto ocenění zatím nemá žádné nominace. 
+                                {% if user.is_staff %}
+                                    <a href="{% url 'admin_award_nominees' items.0.metaAwardid.metaawardid %}">Přidat</a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                {% else %}
+                <div class="alert">Žádná seriálová ocenění nenalezena.</div>
+            {% endif %}
+        </div>
+    </div>
+
 {% endblock %}

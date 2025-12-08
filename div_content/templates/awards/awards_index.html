@@ -4,34 +4,39 @@
 
 {% block title %}Ocenění Div.cz{% endblock title %}
 
+{% block meta %}
+
+    <link href="{% static 'css/navbar_together.css' %}" rel="stylesheet">
+
+{% endblock %}
+
 {% block content %}
-<link href="{% static 'css/navbar_together.css' %}" rel="stylesheet">
 
 <h2 style="width: 100%;">Ocenění</h2>
 
-<div class="article-item">
+<div class="awards">
     <div class="talk-img" style="background-image: url(/static/img/awards/award.webp); background-size: 100% 100%;">
-        <a href="{% url 'awards_movies' %}">
+        <a href="{% url 'awards_movies' %}" class="movies">
             <img src="{% static 'img/awards/movies.webp' %}" alt="Filmová ocenění">
             <h3 class="movies">Filmová ocenění</h3>
         </a>
     </div>
     <div class="talk-img" style="background-image: url(/static/img/awards/award.webp); background-size: 100% 100%;">
-        <a href="{% url 'awards_series' %}">
+        <a href="{% url 'awards_series' %}" class="movies">
             <img src="{% static 'img/awards/serials.webp' %}" alt="Seriálová ocenění">
             <h3 class="movies">Seriálová ocenění</h3>
         </a>
     </div>
     <div class="talk-img" style="background-image: url(/static/img/awards/award.webp);
     background-size: 100% 100%;">
-        <a href="{% url 'awards_books' %}">
+        <a href="{% url 'awards_books' %}" class="books">
             <img src="{% static 'img/awards/books.webp' %}" alt="Knižní ocenění">
             <h3 class="books">Knižní ocenění</h3>
         </a>
     </div>
     <div class="talk-img" style="background-image: url(/static/img/awards/award.webp);
     background-size: 100% 100%;">
-        <a href="{% url 'awards_games' %}">
+        <a href="{% url 'awards_games' %}" class="games">
             <img src="{% static 'img/awards/games.webp' %}" alt="Herní ocenění">
             <h3 class="games">Herní ocenění</h3>
         </a>
@@ -40,34 +45,34 @@
 
 <!-- Admin sekce pro superuživatele -->
 {% if user.is_superuser %}
-<div style="margin-top: 2rem;">
-    <h3>&#128295; Administrace ocenění</h3>
-    <div class="article-item">
-        <div class="card-body award-admin">
-            &#128196;
-            <a href="{% url 'admin_awards' %}" style="margin-left: 10px; text-align: center;">Správa ocenění
-            </a>
+    <div style="margin-top: 2rem;">
+        <h3>&#128295; Administrace ocenění</h3>
+        <div class="awards">
+            <div class="card-body award-admin">
+                &#128196;
+                <a href="{% url 'admin_awards' %}" style="margin-left: 10px; text-align: center;">Správa ocenění
+                </a>
+            </div>
+            <div class="card-body award-admin">
+                &#10133;
+                <a href="{% url 'admin_award_add' %}" style="margin-left: 10px; text-align: center;">Přidat ocenění
+                </a>
+            </div>
+            <div class="card-body award-admin">
+                &#127916;
+                <a href="{% url 'awards_movies' %}?admin=1" style="margin-left: 10px; text-align: center;">Filmová ocenění
+                </a>
+            </div>
+            <div class="card-body award-admin">
+                &#128200;
+                <a href="{% url 'charts_index' %}" style="margin-left: 10px; text-align: center;">Statistiky
+                </a>
+            </div>
         </div>
-        <div class="card-body award-admin">
-            &#10133;
-            <a href="{% url 'admin_award_add' %}" style="margin-left: 10px; text-align: center;">Přidat ocenění
-            </a>
-        </div>
-        <div class="card-body award-admin">
-            &#127916;
-            <a href="{% url 'awards_movies' %}?admin=1" style="margin-left: 10px; text-align: center;">Filmová ocenění
-            </a>
-        </div>
-        <div class="card-body award-admin">
-            &#128200;
-            <a href="{% url 'charts_index' %}" style="margin-left: 10px; text-align: center;">Statistiky
-            </a>
+        <div style="width:100%; text-align:center; margin-top:.75rem;">
+            Administrační nástroje pro správu ocenění • Pouze pro superuživatele
         </div>
     </div>
-    <div style="width:100%; text-align:center; margin-top:.75rem;">
-        Administrační nástroje pro správu ocenění • Pouze pro superuživatele
-    </div>
-</div>
 {% endif %}
 
 {% endblock %}

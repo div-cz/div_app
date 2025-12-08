@@ -1,39 +1,61 @@
-{% extends "books/base.html" %}
+{% extends "divkvariat/base.html" %}
 {% load humanize %}
 {% load custom_filters %}
 
-{% block title %} Zrušení nabídky | DIV.cz{% endblock %}
-
-{% block meta %}
-
-<style>
-    .flex.flex-wrap > form {
-        width: 100%;
-        clear: both;
-        order: 999; 
-    }
-</style>
-
+{% block title %}
+    Zrušení nákupu | DIVkvariát
 {% endblock %}
-
 
 {% block content %}
 
-<div class="container">
+<div class="max-w-2xl mx-auto py-10">
 
-    <h1 class="mt-8">
-        DIVkvariát - zrušení nabídky
-    </h1>
+    <!-- HLAVIČKA -->
+    <h1 class="text-3xl font-bold mb-6">Zrušení nákupu</h1>
 
+    <!-- KARTA -->
+    <div class="bg-white shadow rounded-lg p-6">
 
-<form method="POST">
-    {% csrf_token %}
-    <h3>Opravdu chcete stornovat tento nákup?</h3>
-    <p>{{ purchase.book.titlecz }}</p>
-    <input type="text" name="cancel_reason" placeholder="Důvod storna" required>
-    <button type="submit">Potvrdit storno</button>
-    <a href="{% url 'index' %}">Zrušit</a>
-</form>
+        <p class="text-lg mb-4">
+            Opravdu chcete stornovat tento nákup?
+        </p>
+
+        <div class="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <p class="font-semibold text-gray-800">
+                {{ purchase.book.titlecz|default:purchase.book.title }}
+            </p>
+        </div>
+
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label for="cancel_reason" class="font-medium text-gray-700">Důvod storna</label>
+                <input 
+                    type="text"
+                    id="cancel_reason"
+                    name="cancel_reason"
+                    required
+                    placeholder="Např. kniha již není dostupná"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1"
+                >
+            </div>
+
+            <div class="flex items-center gap-4 pt-4">
+
+                <button type="submit" class="add-book">
+                    Potvrdit storno
+                </button>
+
+                <a href="{% url 'index' %}"
+                   class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700">
+                    Zrušit
+                </a>
+            </div>
+
+        </form>
+
+    </div>
 
 </div>
 

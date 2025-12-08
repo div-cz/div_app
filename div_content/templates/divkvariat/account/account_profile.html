@@ -1,0 +1,127 @@
+{% extends "divkvariat/base.html" %}
+{% load static %}
+
+{% block title %}Můj účet | DIVkvariát{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto py-10 space-y-8">
+
+  <!-- HLAVIČKA -->
+  <div class="bg-white shadow rounded-lg p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold mb-1">Můj účet</h1>
+      <p class="text-gray-600">
+        Přihlášen jako <strong>{{ user.username }}</strong>
+        {% if user.first_name or user.last_name %}
+          ({{ user.first_name }} {{ user.last_name }})
+        {% endif %}
+      </p>
+    </div>
+    <div>
+      <a href="{% url 'account_edit' %}" class="inline-block px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">
+        Upravit údaje
+      </a>
+    </div>
+  </div>
+
+  <!-- DIVCOINY BLOK -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-2xl font-semibold mb-4">💰 DIVcoiny</h2>
+    <p class="text-gray-600 mb-4">
+      DIVcoiny získáváš hlavně za <strong>prodej a nákup knih</strong> na DIVkvariátu.
+      Ale můžeš je získavat i za <strong>hodnocení knih na DIV.cz</strong> a další aktivity.
+    </p>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="border rounded-lg p-3 text-center">
+        <div class="text-xs uppercase text-gray-500 mb-1">Tento týden</div>
+        <div class="text-xl font-bold">{{ coins.weeklydivcoins|default:0 }}</div>
+        <div class="text-xs text-gray-500">DIVcoiny</div>
+      </div>
+      <div class="border rounded-lg p-3 text-center">
+        <div class="text-xs uppercase text-gray-500 mb-1">Tento měsíc</div>
+        <div class="text-xl font-bold">{{ coins.monthlydivcoins|default:0 }}</div>
+        <div class="text-xs text-gray-500">DIVcoiny</div>
+      </div>
+      <div class="border rounded-lg p-3 text-center">
+        <div class="text-xs uppercase text-gray-500 mb-1">Tento rok</div>
+        <div class="text-xl font-bold">{{ coins.yearlydivcoins|default:0 }}</div>
+        <div class="text-xs text-gray-500">DIVcoiny</div>
+      </div>
+      <div class="border rounded-lg p-3 text-center bg-green-50">
+        <div class="text-xs uppercase text-gray-500 mb-1">Celkem</div>
+        <div class="text-2xl font-extrabold text-green-700">{{ coins.totaldivcoins|default:0 }}</div>
+        <div class="text-xs text-gray-500">DIVcoiny</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATISTIKY KNIH -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-2xl font-semibold mb-4">📚 Přehled aktivit</h2>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="border rounded-lg p-3 text-center">
+        <div class="text-xs uppercase text-gray-500 mb-1">Prodané knihy</div>
+        <div class="text-xl font-bold">{{ sold_books }}</div>
+      </div>
+      <div class="border rounded-lg p-3 text-center">
+        <div class="text-xs uppercase text-gray-500 mb-1">Zakoupené knihy</div>
+        <div class="text-xl font-bold">{{ bought_books }}</div>
+      </div>
+      <div class="border rounded-lg p-3 text-center">
+        <div class="text-xs uppercase text-gray-500 mb-1">Aktivní nabídky</div>
+        <div class="text-xl font-bold">{{ active_sell_count }}</div>
+      </div>
+      <div class="border rounded-lg p-3 text-center">
+        <div class="text-xs uppercase text-gray-500 mb-1">Aktivní poptávky</div>
+        <div class="text-xl font-bold">{{ active_buy_count }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POSLEDNÍ NABÍDKY / POPTÁVKY -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-xl font-semibold mb-3">📦 Moje aktivní nabídky</h3>
+      {% if active_sell_list %}
+        <ul class="space-y-2">
+          {% for listing in active_sell_list %}
+            <li class="flex justify-between text-sm border-b pb-1">
+              <span>
+                {{ listing.book.titlecz|default:listing.book.title }}
+                <span class="text-gray-500">({{ listing.book.author }})</span>
+              </span>
+              <span class="font-semibold">{{ listing.price }} Kč</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-sm text-gray-500">Nemáš žádné aktivní nabídky.</p>
+      {% endif %}
+    </div>
+
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-xl font-semibold mb-3">🔍 Moje aktivní poptávky</h3>
+      {% if active_buy_list %}
+        <ul class="space-y-2">
+          {% for listing in active_buy_list %}
+            <li class="flex justify-between text-sm border-b pb-1">
+              <span>
+                {{ listing.book.titlecz|default:listing.book.title }}
+                <span class="text-gray-500">({{ listing.book.author }})</span>
+              </span>
+              <span class="font-semibold">{{ listing.price }} Kč</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-sm text-gray-500">Nemáš žádné aktivní poptávky.</p>
+      {% endif %}
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

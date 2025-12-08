@@ -1,49 +1,69 @@
-{% extends "inc/base.html" %}
+{% extends "blog/base.html" %}
 
 {% block title %}{{ post.title }}{% endblock title %}
-{% block h1 %}{{ post.title }}{% endblock h1 %}
-{% block text_muted %} v blogu na DIV.cz{% endblock text_muted %}
 
 {% block content %}
-<div class="post-content">
-    <!--<h2>{{ post.title }}</h2>-->
-    <hr><small> <a href="/uzivatel/{{ post.articleblog.user.id }}">{{ post.articleblog.user.username }}</a> píše <a href="/blog/{{ post.articleblog.slug }}">{{ post.articleblog.name }}</a></small><hr class="mb-5">
 
-    <p>{{ post.content|safe }}</p>
-</div>
+<h2 style="width: 100%;">
+    <a class="hover:underline" href="{% url 'blog_index' %}">Blogy</a>
+    <span> / </span>
+    <a href="">zpět na moje blogy či co</a>
+    <span> / </span>
+    <a href="/blog/{{ post.articleblog.slug }}">{{ post.articleblog.name }}</a>
+</h2>
 
-<hr>
-
-<!-- Zobrazení komentářů -->
-<h3>Komentáře</h3>
-<div class="comments">
-    {% for comment in comments %}
-    <div class="comment">
-        <strong>{{ comment.user.username }}</strong> říká:
-        <p>{{ comment.content }}</p>
-        <small>{{ comment.created_at }}</small>
+<div class="admin-panel">
+    <div class="post-content">
+        <h3 class="after">
+            <div class="blog-header">
+                <span>{{ post.title }}</span>
+                <a href="/uzivatel/{{ post.articleblog.user.id }}">{{ post.articleblog.user.username }}</a> 
+            </div>
+        </h3>
+        <p>{{ post.content|safe }}</p>
     </div>
-    {% empty %}
-    <p>Zatím žádné komentáře.</p>
-    {% endfor %}
 </div>
 
-<hr>
+<div class="comments">
+    <!-- Zobrazení komentářů -->
+    <div class="comment-panel">
+        <h3 class="after">Komentáře</h3>
+        <div>
+            {% for comment in comments %}
+            <div class="comment">
+                <div class="comment-head">
+                    <h4>
+                        <a href="">{{ comment.user.username }}</a>
+                    </h4> 
+                    <span>&nbsp;říká:</span>
+                </div>
+                
+                <p>{{ comment.content }}</p>
+                <small>{{ comment.created_at }}</small>
+            </div>
+            {% empty %}
+            <p>Zatím žádné komentáře.</p>
+            {% endfor %}
+        </div>
+    </div>
 
-<!-- Formulář pro přidání nového komentáře -->
-{% if user.is_authenticated %}
-<form method="post">
-    {% csrf_token %}
-    {{ comment_form.as_p }}
-    <button type="submit" class="btn btn-primary">Přidat komentář</button>
-</form>
-{% else %}
-<p><a href="{% url 'login' %}">Přihlaste se</a>, pokud chcete přidat komentář.</p>
-{% endif %}
+    <!-- Formulář pro přidání nového komentáře -->
+    {% if user.is_authenticated %}
+        <form method="post" style="margin-top: 1rem;">
+            {% csrf_token %}
+            {{ comment_form.as_p }}
+            <button type="submit" class="btn btn-secondary">Přidat komentář</button>
+        </form>
 
+        {% else %}
+        <p>
+            <a href="{% url 'login' %}">Přihlaste se</a>
+            , pokud chcete přidat komentář.
+        </p>
+    {% endif %}
 
-<hr>
-<a href="/blogy/">Všechny blogy</a> | <a href="/forum/">Diskuzní fórum</a>
-<hr>
+</div>
+
+<a href="/forum/" class="btn btn-secondary">Diskuzní fórum</a>
 
 {% endblock content %}

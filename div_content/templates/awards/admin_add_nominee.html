@@ -3,153 +3,196 @@
 
 {% block title %}Přidat nominaci - {{ award.awardname }} {{ award.year }} - DIV.cz{% endblock %}
 
+{% block meta %}
+
+{% endblock %}
+
 {% block content %}
-<link href="{% static 'css/navbar_together.css' %}" rel="stylesheet">
 
-<div class="container">
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'awards_index' %}">Ocenění</a></li>
-      <li class="breadcrumb-item"><a href="{% url 'admin_awards' %}">Správa ocenění</a></li>
-      <li class="breadcrumb-item"><a href="{% url 'admin_award_nominees' award.metaawardid %}">{{ award.awardname }} {{ award.year }}</a></li>
-      <li class="breadcrumb-item active">Přidat nominaci</li>
-    </ol>
-  </nav>
+<h2 style="width: 100%; margin-bottom: 1.6rem;">
+    <a href="{% url 'awards_index' %}" 
+        class="{% if award.awardtype == 'film' %}movies
+        {% elif award.awardtype == 'book' %}books
+        {% elif award.awardtype == 'game' %}games{% endif %}">
+        Ocenění
+    </a>
 
-  <h1 class="mb-3">&#128221; Přidat nominaci <small style="color:#6c757d;">({{ award.awardname }} {{ award.year }})</small></h1>
+    <span> / </span>
 
-  <p class="mb-3">
-    Typ ocenění:
-    {% if type == 'film' %}<span class="fw-bold">&#127916; Film</span>
-    {% elif type == 'kniha' %}<span class="fw-bold">&#128218; Kniha</span>
-    {% elif type == 'hra' %}<span class="fw-bold">&#127918; Hra</span>
+    {% if award.awardtype == "film" %}
+        <a href="{% url 'awards_movies' %}" class="movies">Filmy</a>
+    {% elif award.awardtype == "book" %}
+        <a href="{% url 'awards_books' %}" class="books">Knihy</a>
+    {% elif award.awardtype == "game" %}
+        <a href="{% url 'awards_games' %}" class="games">Hry</a>
     {% endif %}
-  </p>
 
-  {% if form.non_field_errors %}
-  <div class="alert alert-danger">
-    {% for error in form.non_field_errors %}
-      <div>{{ error }}</div>
-    {% endfor %}
-  </div>
-  {% endif %}
+    <span> / </span>
+    <a href="{% url 'admin_awards' %}" 
+        class="{% if award.awardtype == 'film' %}movies
+        {% elif award.awardtype == 'book' %}books
+        {% elif award.awardtype == 'game' %}games{% endif %}">Správa ocenění</a>
+    <span> / </span>
+    <a href="{% url 'admin_award_nominees' award.metaawardid %}" 
+        class="{% if award.awardtype == 'film' %}movies
+        {% elif award.awardtype == 'book' %}books
+        {% elif award.awardtype == 'game' %}games{% endif %}">{{ award.awardname }} {{ award.year }}</a>
+    <span> / </span>
+    <span class="admin-awd-title">Přidat nominaci</span>
+</h2>
 
-  <form method="post" novalidate>
-    {% csrf_token %}
+<div class="admin-panel">
+    <h2 class="after">
+        📝 Přidat nominaci 
+        <small class="addnom-heading-sub">({{ award.awardname }} {{ award.year }})</small>
+    </h2>
 
-    <div class="mb-3">
-      <label for="search-input" class="form-label">
-        {% if type == 'hra' %}Vyhledat hru
-        {% elif type == 'kniha' %}Vyhledat knihu
-        {% elif type == 'film' %}Vyhledat film
+    <p class="addnom-type" style="width: 100%;">
+        Typ ocenění:
+        {% if type == 'film' %}
+            <span class="addnom-strong">Film</span>
+        {% elif type == 'kniha' %}
+            <span class="addnom-strong">Kniha</span>
+        {% elif type == 'hra' %}
+            <span class="addnom-strong">Hra</span>
         {% endif %}
-      </label>
-      <input id="search-input" type="text" class="form-control" placeholder="Začněte psát název pro vyhledání..." autocomplete="off">
-      <div class="form-text">Začněte psát název pro vyhledání (minimum 2 znaky)</div>
-    </div>
+    </p>
 
-    {% if type == 'film' %}
-      <div class="mb-3">
-        <label for="id_movieid" class="form-label">Vyberte film</label>
-        {{ form.movieid }}
-        {{ form.movieid.errors }}
-      </div>
-    {% elif type == 'kniha' %}
-      <div class="mb-3">
-        <label for="id_bookid" class="form-label">Vyberte knihu</label>
-        {{ form.bookid }}
-        {{ form.bookid.errors }}
-      </div>
-    {% elif type == 'hra' %}
-      <div class="mb-3">
-        <label for="id_gameid" class="form-label">Vyberte hru</label>
-        {{ form.gameid }}
-        {{ form.gameid.errors }}
-      </div>
-    {% endif %}
+    <div class="admin-panel-body">
+        {% if form.non_field_errors %}
+            <div class="addnom-alert addnom-alert-error">
+                {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-    <div class="mb-3">
-      <div class="form-check">
-        {{ form.winner }}
-        <label class="form-check-label" for="id_winner">{{ form.winner.label }}</label>
-      </div>
-      {% if form.winner.help_text %}
-      <div class="form-text">{{ form.winner.help_text }}</div>
-      {% endif %}
-      {{ form.winner.errors }}
-    </div>
+        <form method="post" novalidate>
+            {% csrf_token %}
 
-    <div class="d-flex justify-content-between">
-      <a href="{% url 'admin_award_nominees' award.metaawardid %}" class="btn btn-secondary">&#8592; Zpět</a>
-      <button type="submit" class="btn btn-success">&#10133; Přidat nominaci</button>
+            <div class="addnom-field">
+                <label class="addnom-label" for="search-input">
+                    {% if type == 'hra' %}Vyhledat hru
+                        {% elif type == 'kniha' %}Vyhledat knihu
+                        {% elif type == 'film' %}Vyhledat film
+                    {% endif %}
+                </label>
+
+                <input id="search-input" type="text" class="addnom-input" placeholder="Začněte psát..." autocomplete="off">
+
+                <div class="addnom-help">Začněte psát název (min. 2 znaky).</div>
+            </div>
+
+            {% if type == 'film' %}
+                <div class="addnom-field">
+                    <label class="addnom-label" for="id_movieid">Vyberte film</label>
+                    {{ form.movieid }}
+                </div>
+
+                {% elif type == 'kniha' %}
+                    <div class="addnom-field">
+                        <label class="addnom-label" for="id_bookid">Vyberte knihu</label>
+                        {{ form.bookid }}
+                    </div>
+
+                {% elif type == 'hra' %}
+                    <div class="addnom-field">
+                        <label class="addnom-label" for="id_gameid">Vyberte hru</label>
+                        {{ form.gameid }}
+                    </div>
+            {% endif %}
+
+            <div class="addnom-checkbox">
+                <label class="addnom-check">
+                    {{ form.winner }} <span>{{ form.winner.label }}</span>
+                </label>
+
+                {% if form.winner.help_text %}
+                    <div class="addnom-help">{{ form.winner.help_text }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn 
+                {% if award.awardtype == 'book' %}
+                    add-book
+                {% elif award.awardtype == 'film' %}
+                    add-movie
+                {% elif award.awardtype == 'game' %}
+                    add-game
+                {% else %}
+                    btn-secondary
+                {% endif %}">
+                &#10133; Přidat nominaci
+            </button>
+
+        </form>
     </div>
-  </form>
 </div>
 
+
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const type = "{{ type }}";
-  const searchInput = document.getElementById("search-input");
-  let selectField = null;
-  let url = "";
+    document.addEventListener("DOMContentLoaded", function () {
+        const type = "{{ type }}";
+        const searchInput = document.getElementById("search-input");
+        let selectField = null;
+        let url = "";
 
-  if (type === "hra") {
-    selectField = document.getElementById("id_gameid");
-    url = "{% url 'ajax_search_games' %}";
-  } else if (type === "kniha") {
-    selectField = document.getElementById("id_bookid");
-    url = "{% url 'ajax_search_books' %}";
-  } else if (type === "film") {
-    selectField = document.getElementById("id_movieid");
-    url = "{% url 'ajax_search_movies' %}";
-  }
+        if (type === "hra") {
+            selectField = document.getElementById("id_gameid");
+            url = "{% url 'ajax_search_games' %}";
+        } else if (type === "kniha") {
+            selectField = document.getElementById("id_bookid");
+            url = "{% url 'ajax_search_books' %}";
+        } else if (type === "film") {
+            selectField = document.getElementById("id_movieid");
+            url = "{% url 'ajax_search_movies' %}";
+        }
 
-  if (searchInput && selectField && url) {
-    let searchTimeout;
+        if (searchInput && selectField && url) {
+            let searchTimeout;
 
-    searchInput.addEventListener("input", function () {
-      const query = searchInput.value.trim();
-      if (searchTimeout) clearTimeout(searchTimeout);
+            searchInput.addEventListener("input", function () {
+                const query = searchInput.value.trim();
+                if (searchTimeout) clearTimeout(searchTimeout);
 
-      if (query.length < 2) {
-        selectField.innerHTML = '<option value="">Začněte psát pro vyhledání...</option>';
-        return;
-      }
+                if (query.length < 2) {
+                    selectField.innerHTML = '<option value="">Začněte psát pro vyhledání...</option>';
+                    return;
+                }
 
-      searchTimeout = setTimeout(() => {
-        fetch(url + "?q=" + encodeURIComponent(query))
-          .then(response => response.json())
-          .then(data => {
-            selectField.innerHTML = "";
-            if (!data.results || data.results.length === 0) {
-              const option = document.createElement("option");
-              option.value = "";
-              option.text = "Žádné výsledky";
-              option.disabled = true;
-              selectField.appendChild(option);
-              return;
-            }
+                searchTimeout = setTimeout(() => {
+                    fetch(url + "?q=" + encodeURIComponent(query))
+                    .then(response => response.json())
+                    .then(data => {
+                        selectField.innerHTML = "";
+                        if (!data.results || data.results.length === 0) {
+                            const option = document.createElement("option");
+                            option.value = "";
+                            option.text = "Žádné výsledky";
+                            option.disabled = true;
+                            selectField.appendChild(option);
+                            return;
+                        }
 
-            const emptyOption = document.createElement("option");
-            emptyOption.value = "";
-            emptyOption.text = "-- Vyberte --";
-            selectField.appendChild(emptyOption);
+                        const emptyOption = document.createElement("option");
+                        emptyOption.value = "";
+                        emptyOption.text = "-- Vyberte --";
+                        selectField.appendChild(emptyOption);
 
-            data.results.forEach(item => {
-              const option = document.createElement("option");
-              option.value = item.id;
-              option.text = item.text;
-              selectField.appendChild(option);
+                        data.results.forEach(item => {
+                            const option = document.createElement("option");
+                            option.value = item.id;
+                            option.text = item.text;
+                            selectField.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        selectField.innerHTML = '<option value="">Chyba při vyhledávání</option>';
+                    });
+                }, 300);
             });
-
-            selectField.selectedIndex = 1;
-          })
-          .catch(error => {
-            selectField.innerHTML = '<option value="">Chyba při vyhledávání</option>';
-          });
-      }, 300);
+        }
     });
-  }
-});
 </script>
+
 {% endblock %}

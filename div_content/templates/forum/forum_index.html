@@ -7,28 +7,38 @@
     Div.cz | Diskuzní fórum
 {% endblock title %}
 
-{% block content %}
+{% block meta %}
 
-<link href="https://media.div.cz/css/navbar_together.css" rel="stylesheet">
+    <link href="/static/css/navbar_together.css" rel="stylesheet">
+
+{% endblock %}
+
+{% block content %}
 
 <div class="big-search">
     <h2>Diskuzní fórum</h2>
-    <form style="display: flex; max-width: 400px;" role="search" action="{% url 'forum_search' %}" method="get">
+    <form role="search" action="{% url 'forum_search' %}" method="get">
         <input class="search-field" type="type" placeholder="Hledat na fóru" aria-label="Search" name="q" id="search-input">
-        <button class="add-search" type="submit">Hledat</button>
+        <button class="btn-search" type="submit">Hledat</button>
     </form>
 </div>
 
-<div class="article-item">
-{% for section in all_forum_sections %}
-    <div class="talk-img" style="background-image: url(/static/img/forum/bubble.webp); background-size: 100% 100%;">
-        <a href="{% url 'forum_section_detail' slug=section.slug %}">
-            <img src="/static/img/forum/{{section.imageurl}}" alt="{{ section.title }}">
-            <h3 class="{{ section.description }}">{{ section.title }}</h3>
-        </a>
-    </div>
-{% endfor %}
+<div class="forums">
+    {% for section in all_forum_sections %}
+        <div class="talk-img" style="background-image: url(/static/img/forum/bubble.webp); background-size: 100% 100%;">
+            <a href="{% url 'forum_section_detail' slug=section.slug %}"
+                class="
+                    {% if section.slug == 'filmy' %}movies
+                    {% elif section.slug == 'knihy' %}books
+                    {% elif section.slug == 'hry' %}games
+                    {% endif %}">
+                <img src="/static/img/forum/{{section.imageurl}}" alt="{{ section.title }}">
+                <h3>{{ section.title }}</h3>
+            </a>
+        </div>
+    {% endfor %}
 </div>
+
 
 <!-- Poslední příspěvky -->
 <div>
@@ -40,7 +50,12 @@
         <ul class="card-body" style="margin-bottom:.5rem; border: 1px solid #dee2e6;">
             <!-- Titulek vlákna -->
             <li class="last-post">
-                <a class="hover:underline" style="font-weight:600;" href="{% url 'forum_topic_detail' slug=comment.topic.section.slug topicurl=comment.topic.topicurl %}">
+                <a class="{% if comment.topic.section.slug == 'filmy' %}movies
+                    {% elif comment.topic.section.slug == 'knihy' %}books
+                    {% elif comment.topic.section.slug == 'hry' %}games
+                    {% endif %}"
+                    style="font-weight:600;"
+                    href="{% url 'forum_topic_detail' slug=comment.topic.section.slug topicurl=comment.topic.topicurl %}">
                     {{ comment.topic.title }}
                 </a>
 

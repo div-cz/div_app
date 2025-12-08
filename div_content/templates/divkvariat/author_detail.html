@@ -1,0 +1,136 @@
+{% extends "divkvariat/base.html" %}
+
+{% block title %}{{ author.firstname }} {{ author.lastname }} – DIVkvariát{% endblock %}
+
+{% block meta %}
+<meta name="description" content="Autor {{ author.firstname }} {{ author.lastname }} – přehled knih, aktivních nabídek a poptávek na DIVkvariátu.">
+<link rel="canonical" href="https://divkvariat.cz/autor/{{ author.url }}/">
+
+<!-- Open Graph -->
+<meta property="og:title" content="{{ author.firstname }} {{ author.lastname }} – DIVkvariát">
+<meta property="og:description" content="Knihy od autora {{ author.firstname }} {{ author.lastname }}. Aktivní nabídky, poptávky a statistiky.">
+<meta property="og:type" content="profile">
+<meta property="og:url" content="https://divkvariat.cz/autor/{{ author.url }}/">
+<meta property="og:image" content="https://divkvariat.cz/static/img/divkvariat-author.webp">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ author.firstname }} {{ author.lastname }}">
+<meta name="twitter:description" content="Knihy a nabídky od autora {{ author.firstname }} {{ author.lastname }}.">
+
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "{{ author.firstname }} {{ author.lastname }}",
+  {% if author.birthyear %}
+  "birthDate": "{{ author.birthyear }}",
+  {% endif %}
+  "url": "https://divkvariat.cz/autor/{{ author.url }}/",
+  "mainEntityOfPage": "https://divkvariat.cz/autor/{{ author.url }}/",
+  "worksFor": {
+    "@type": "Organization",
+    "name": "DIVkvariát"
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+
+<div class="container mx-auto max-w-4xl py-10">
+
+    <!-- HLAVNÍ INFO O AUTOROVI -->
+    <div class="bg-white rounded-xl shadow p-6 mb-10">
+
+        <h1 class="text-4xl font-bold mb-1 text-gray-900">
+            {{ author.firstname }} {{ author.lastname }}
+        </h1>
+
+        {% if author.birthyear %}
+            <p class="text-gray-600 text-lg mb-3">(*{{ author.birthyear }})</p>
+        {% endif %}
+
+        {% if author.bio %}
+            <p class="text-gray-700 leading-relaxed">{{ author.bio }}</p>
+        {% endif %}
+
+    </div>
+
+    <!-- VÝPIS KNIH -->
+    {% for item in book_data %}
+    <div class="mb-8 bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+
+        <div class="flex flex-col sm:flex-row gap-5">
+
+            <!-- OBÁLKA KNIHY -->
+            <a href="{% url 'book_detail_cz' item.book.url %}">
+                {% if item.book.img == "noimg.png" %}
+                    <img src="/static/img/book/book.png" class="w-28 rounded shadow">
+                {% elif item.book.img == "GoogleID" %}
+                    <img src="https://books.google.com/books/content?id={{ item.book.googleid }}&printsec=frontcover&img=1&zoom=1"
+                         class="w-28 rounded shadow">
+                {% else %}
+                    <img src="https://media.div.cz/knihy/{{ item.book.img }}"
+                         class="w-28 rounded shadow">
+                {% endif %}
+            </a>
+
+            <!-- INFORMACE O KNIZE -->
+            <div class="flex-1">
+
+                <h2 class="text-2xl font-bold mb-2">
+                    <a href="{% url 'book_detail_cz' item.book.url %}" class="hover:underline text-green-700">
+                        {{ item.book.titlecz|default:item.book.title }}
+                    </a>
+                </h2>
+
+                {% if item.book.year %}
+                    <p class="text-gray-500 mb-2 text-sm">Rok vydání: {{ item.book.year }}</p>
+                {% endif %}
+
+                <p class="text-gray-700 mb-4 text-sm">
+                    <strong>Prodáno:</strong> {{ item.sold_count }}× &nbsp;|&nbsp;
+                    <strong>Nabídky:</strong> {{ item.active_sells.count }} &nbsp;|&nbsp;
+                    <strong>Poptávky:</strong> {{ item.active_buys.count }}
+                </p>
+
+                <!-- Nabídky -->
+                {% if item.active_sells %}
+                    <h3 class="font-semibold text-gray-800 mb-1">Aktivní nabídky:</h3>
+                    {% for listing in item.active_sells %}
+                        <div class="ml-3 mb-1 text-sm">
+                            • <span class="font-medium">{{ listing.price }} Kč</span>
+                            <a class="text-green-700 underline ml-1"
+                               href="{% url 'listing_detail_sell' item.book.url listing.booklistingid %}">
+                               detail
+                            </a>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Poptávky -->
+                {% if item.active_buys %}
+                    <h3 class="font-semibold text-gray-800 mt-3 mb-1">Aktivní poptávky:</h3>
+                    {% for listing in item.active_buys %}
+                        <div class="ml-3 mb-1 text-sm">
+                            • <span class="font-medium">{{ listing.price }} Kč</span>
+                            <a class="text-green-700 underline ml-1"
+                               href="{% url 'listing_detail_buy' item.book.url listing.booklistingid %}">
+                               detail
+                            </a>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+    {% endfor %}
+
+</div>
+
+{% endblock %}

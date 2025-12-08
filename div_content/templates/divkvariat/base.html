@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+    {% block title %}
+        DIVkvariát
+    {% endblock %}
+    </title>
+
+    {% block meta %}
+    <meta name="description" content="Burza knih mezi čtenáři.">
+    {% endblock %}
+
+    {% block head_extra %}{% endblock %}
+
+
+
+<!-- 1) Primární Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com" onerror="tailwindFallback()"></script>
+
+<!-- 2) Fallback přes unpkg -->
+    <link rel="stylesheet"
+          href="https://unpkg.com/tailwindcss@1.9.6/dist/tailwind.min.css">
+
+
+
+
+
+
+
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        
+        .book-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+                        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .add-book {
+            background-color: #10b981;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .add-book:hover { background-color: #059669; }
+
+        .pagination a {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            color: #374151;
+        }
+
+        .pagination a:hover { background-color: #f3f4f6; border-color: #9ca3af; }
+
+        .current-page { color: #6b7280; padding: 8px 16px; }
+
+        .alert {
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 30px 10px;
+        }
+
+        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error   { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+
+<header class="bg-white shadow-sm">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="text-2xl font-bold text-green-700">
+            <a href="/">DIVkvariat.cz</a>
+        </div>
+
+        <nav class="hidden md:flex space-x-6">
+            <a href="/" class="text-gray-700 hover:text-green-600">Domů</a>
+            <a href="/nabidky/" class="text-gray-700 hover:text-green-600">Knihy</a>
+            <a href="/poptavky/" class="text-gray-700 hover:text-green-600">Poptávky</a>
+            <a href="/blog/" class="text-gray-700 hover:text-green-600">Blog</a>
+            <a href="/kontakt/" class="text-gray-700 hover:text-green-600">Kontakt</a>
+        </nav>
+
+        <div class="flex items-center space-x-4">
+            <a href="/hledat/" class="text-gray-700 hover:text-green-600">
+                <i class="fas fa-search"></i>
+            </a>
+
+            {% if request.user.is_authenticated %}
+                <a href="/ucet/" class="flex items-center text-gray-700 hover:text-green-600 space-x-1">
+                    <i class="fas fa-user-circle"></i>
+                    <span class="hidden sm:inline">{{ request.user.username }}</span>
+                </a>
+                <a href="/odhlaseni/" class="text-red-600 hover:text-red-700 text-sm font-medium">
+                    Odhlásit se
+                </a>
+            {% else %}
+                <a href="/prihlaseni/" class="text-gray-700 hover:text-green-600 text-sm font-medium">
+                    Přihlásit
+                </a>
+                <a href="/registrace/" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm">
+                    Registrace
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<main class="container mx-auto px-4 py-6">
+    {% block content %}{% endblock %}
+</main>
+
+
+
+<style>
+#chatbox-toggle {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: #37b24d;
+    color: white;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    cursor: pointer;
+    z-index: 9999;
+}
+
+#chatbox-window {
+    position: fixed;
+    right: 20px;
+    bottom: 85px;
+    width: 340px;
+    height: 460px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.2);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 9999;
+}
+
+
+/* HEADER */
+#chatbox-header {
+    background: #37b24d;
+    color: white;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-weight: bold;
+}
+/* quick button */
+#chat-quick-buttons {
+    margin: 10px 0 15px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+#chat-quick-buttons button {
+    background: #e9ecef;
+    border: none;
+    padding: 6px 10px;
+    font-size: 13px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#chat-quick-buttons button:hover {
+    background: #dee2e6;
+}
+/* MESSAGES */
+#chatbox-messages {
+    padding: 12px;
+    height: 340px;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.msg {
+    margin-bottom: 12px;
+}
+
+#chatbox-input {
+    display: flex;
+    border-top: 1px solid #ddd;
+}
+
+#chatbox-text {
+    flex: 1;
+    padding: 10px;
+    border: none;
+}
+
+#chatbox-send-btn {
+    background: #37b24d;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    font-size: 20px;
+    cursor: pointer;
+}
+#chatbox-send-btn:hover {
+    background: #2f9e44;
+}
+</style>
+
+<!-- FLOATING BUTTON -->
+<div id="chatbox-toggle">💬</div>
+
+<!-- CHAT WINDOW -->
+<div id="chatbox-window">
+    <div id="chatbox-header">
+        DIVka • asistentka
+    </div>
+
+    <div id="chatbox-messages">
+        {% if user.is_authenticated %}
+            <div class="msg"><strong>Ahoj {{ user.username }} 👋</strong><br> Co bys dnes rád?</div>
+        {% else %}
+<!-- NEPRIHLASENÝ -->
+<div class="msg">
+<strong>Ahoj! 📚</strong><br>
+Vítej v DIVkvariátu — místě, kde se knihy neztrácejí, ale nacházejí nové čtenáře. ❤️
+<br><br>
+Jsem <strong>DIVka</strong>, tvoje virtuální asistentka. Ráda ti pomůžu najít knihu, kterou sháníš, doporučím něco na míru, nebo tě provedu nákupem i prodejem.
+<br><br>
+<strong>Ještě nejsi přihlášený.</strong> Jako host můžeš procházet knihy, ale přihlášení ti otevře celou knihovnu možností:
+<ul>
+  <li>🔔 Hlídání dostupnosti knih <em>(v přípravě)</em></li>
+  <li>📦 Vytváření poptávek a nákupů</li>
+  <li>📚 Doporučení podle preferencí</li>
+  <li>💬 Chytrý chat s plnou podporou</li>
+</ul>
+<br>
+Vyber si jednu z možností:
+</div>
+<div id="chat-quick-buttons">
+    <button onclick="chatSend('doporučit knihu')">📚 Doporučit knihu</button>
+    <button onclick="chatSend('jak nakoupit knihu')">🛒 Jak nakoupit</button>
+    <button onclick="chatSend('najít knihu')">🔍 Najít titul</button>
+</div>
+
+        {% endif %}
+    </div>
+
+    <div id="chatbox-input">
+        <input id="chatbox-text" type="text" placeholder="Napiš zprávu...">
+        <button id="chatbox-send-btn" onclick="chatSend()">✈️</button>
+    </div>
+</div>
+
+<script>
+document.getElementById("chatbox-toggle").onclick = function () {
+    let box = document.getElementById("chatbox-window");
+    box.style.display = (box.style.display === "flex") ? "none" : "flex";
+};
+
+async function chatSend(prefill = null) {
+    const input = document.getElementById("chatbox-text");
+    const msg = prefill ? prefill : input.value.trim();
+    if (!msg) return;
+
+    addMessage("Ty", msg);
+    input.value = "";
+
+    const res = await fetch("/api/chatbot/", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ message: msg })
+    });
+
+    const data = await res.json();
+    addMessage("DIVka", data.reply);
+}
+
+
+function addMessage(sender, text) {
+    const box = document.getElementById("chatbox-messages");
+    box.innerHTML += `<div class="msg"><strong>${sender}:</strong><br>${text}</div>`;
+    box.scrollTop = box.scrollHeight;
+}
+</script>
+
+
+
+
+
+<footer class="bg-gray-800 text-white mt-12 py-8">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-lg font-bold mb-4">DIVkvariát</h3>
+                <p class="text-gray-400">
+                    Burza knih mezi čtenáři. Prodej, koupě i darování knih.
+                </p>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold mb-4">Rychlé odkazy</h3>
+                <ul class="space-y-2 text-gray-400">
+                    <li><a href="/" class="hover:text-white">Domů</a></li>
+                    <li><a href="/nabidky/" class="hover:text-white">Všechny knihy</a></li>
+                    <li><a href="/pridat-knihu/" class="hover:text-white">Přidat knihu</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold mb-4">Podpora</h3>
+                <ul class="space-y-2 text-gray-400">
+                    <li><a href="/kontakt/" class="hover:text-white">Kontakt</a></li>
+                    <li><a href="/podminky/" class="hover:text-white">Obchodní podmínky</a></li>
+                    <li><a href="/ochrana-osobnich-udaju/" class="hover:text-white">Ochrana osobních údajů</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold mb-4">Sledujte nás</h3>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
+            <p>&copy; 2025 DIVkvariát.cz</p>
+        </div>
+    </div>
+</footer>
+
+
+
+<!-- IMAGE MODAL -->
+<div id="imageModal" 
+     class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center z-50">
+
+    <div class="relative max-w-4xl max-h-[90vh]">
+        <img id="modalImage"
+             src=""
+             class="rounded-lg max-h-[90vh] mx-auto">
+
+        <!-- Zavřít -->
+        <button 
+            class="absolute top-3 right-3 bg-white text-black px-3 py-1 rounded-full shadow"
+            onclick="closeImageModal()">
+            ✕
+        </button>
+    </div>
+</div>
+
+<script>
+function openImageModal(url) {
+    const modal = document.getElementById("imageModal");
+    const img = document.getElementById("modalImage");
+
+    img.src = url;  // ← NECHÁ TUTO URL BEZ ZMĚNY (A TÍM NEŘEŠÍ NIC JINÉHO)
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+}
+
+function closeImageModal() {
+    const modal = document.getElementById("imageModal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+}
+
+// Zavření kliknutím mimo obrázek
+document.getElementById("imageModal").addEventListener("click", function(e){
+    if (e.target === this) closeImageModal();
+});
+</script>
+
+
+
+
+</body>
+</html>

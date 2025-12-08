@@ -7,35 +7,47 @@
     Blog Div.cz | Diskuzní fórum
 {% endblock title %}
 
+{% block meta %}
+
+    <link href="https://media.div.cz/css/navbar_together.css" rel="stylesheet">
+
+{% endblock %}
+
 {% block content %}
 
-<link href="https://media.div.cz/css/navbar_together.css" rel="stylesheet">
-
 <div class="big-search">
-    <h2>Blogy{% if user.is_authenticated %}<small style="font-size:60%;"> / <a href="https://test.div.cz/blog/">Můj blog</a></small>{% endif %}</h2>
-    <form style="display: flex; max-width: 400px;" role="search" action="" method="get">
+    <h2>Blogy
+        {% if user.is_authenticated %}
+            <small style="font-size:60%;">
+                <span> / </span>
+                <a href="">Můj blog</a>
+            </small>
+        {% endif %}
+    </h2>
+
+    <form role="search" action="" method="get">
         <input class="search-field" type="type" placeholder="Hledat v blogách" aria-label="Search" name="q" id="search-input">
-        <button class="add-search" type="submit">Hledat</button>
+        <button class="btn-search" type="submit">Hledat</button>
     </form>
 </div>
 
 <div class="blogs">
     <div class="talk-img" style="background-image: url(/static/img/blogs/blogy.webp); background-size: 100% 100%;">
-        <a href="{% url 'blog_section_detail' section='filmove' %}">
+        <a href="{% url 'blog_section_detail' section='filmove' %}" class="movies">
             <img src="{% static 'img/forum/movie.webp' %}">
             <h3 class="movies">Filmové blogy</h3>
         </a>
     </div>
 
     <div class="talk-img" style="background-image: url(/static/img/blogs/blogy.webp); background-size: 100% 100%;">
-        <a href="{% url 'blog_section_detail' section='knizni' %}">
+        <a href="{% url 'blog_section_detail' section='knizni' %}" class="books">
             <img src="{% static 'img/forum/book.webp' %}">
             <h3 class="books">Knižní blogy</h3>
         </a>
     </div>
 
     <div class="talk-img" style="background-image: url(/static/img/blogs/blogy.webp); background-size: 100% 100%;">
-        <a href="{% url 'blog_section_detail' section='herni' %}">
+        <a href="{% url 'blog_section_detail' section='herni' %}" class="games">
             <img src="{% static 'img/forum/game.webp' %}">
             <h3 class="games">Herní blogy</h3>
         </a>
@@ -59,7 +71,12 @@
         <ol class="card-body" style="margin-bottom: .5rem; border: 1px solid #dee2e6;">
             <!-- Titulek příspěvku -->
             <li class="last-post">
-                <a class="hover:underline" style="font-weight:600;" href="{% url 'blog_post_detail' blog_slug=post.articleblog.slug post_slug=post.slug %}">
+                <a class="{% if post.articleblog.blog_type == 'movie' %}movies
+                        {% elif post.articleblog.blog_type == 'book' %}books
+                        {% elif post.articleblog.blog_type == 'game' %}games
+                        {% endif %}"
+                    style="font-weight:600;"
+                    href="{% url 'blog_post_detail' blog_slug=post.articleblog.slug post_slug=post.slug %}">
                     {{ post.title }}
                 </a>
 
@@ -88,6 +105,7 @@
             </li>
         </ol>
         {% endfor %}
+        
         {% else %}
         <p>Zatím žádné příspěvky.</p>
     {% endif %}

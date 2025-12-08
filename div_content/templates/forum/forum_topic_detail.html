@@ -16,7 +16,13 @@
     <link href="https://media.div.cz/css/navbar_other.css" rel="stylesheet">
 {% endif %}
 
-<h2><a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a> / <a class="hover:underline" href="{% url 'forum_section_detail' slug=topic.section.slug %}">{{ topic.section.title }}</a> / {{ topic.title }}</h2>
+<h2>
+    <a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a>
+    <span> / </span>
+    <a class="hover:underline" href="{% url 'forum_section_detail' slug=topic.section.slug %}">{{ topic.section.title }}</a>
+    <span> / </span>
+    {{ topic.title }}
+</h2>
 
 {% if user.is_authenticated %}
 <section class="new-comment">

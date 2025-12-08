@@ -1,659 +1,801 @@
-{% extends "books/base.html" %}
+{% extends "divkvariat/base.html" %}
 {% load humanize %}
 {% load custom_filters %}
-{% load static %}
 
-{% block title %}{{ listing.get_listingtype_display }} {{ book.title }} | DIV.cz{% endblock %}
-
-{% block meta %}
-
-<style>
-    .flex.flex-wrap > form.reserve-form {
-        width: 100%;
-        clear: both;
-        order: 999; 
-    }
-
-    .form-group {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
-    }
-
-    .form-group label {
-        margin-right: 10px;
-        min-width: 120px;
-    }
-
-    .form-group input {
-        margin-left: auto;
-        max-width: 100px;
-    }
-
-</style>
-
+{% block title %}
+    {{ listing.get_listingtype_display }} – {{ book.titlecz|default:book.title }} | DIVkvariát
 {% endblock %}
 
+{% block meta %}
+<meta name="description" content="{{ book.titlecz|default:book.title }} – {{ listing.get_listingtype_display }} na DIVkvariátu.">
+{% endblock %}
 
 {% block content %}
 
-<div class="container">
-    <!-- Levá strana -->
-    <div class="left-side">
-        <h1 class="mt-8" style="">
-            DIVkvariát / 
-            <a href="{% if listing.listingtype == 'SELL' %}/antikvariat/nabidky/{% else %}/antikvariat/poptavky/{% endif %}">
-                {% if listing.listingtype == 'SELL' %}Nabídky{% else %}Poptávky{% endif %}
-            </a>
-        </h1>
+<div class="max-w-6xl mx-auto py-10">
 
-        <hr>
+    <!-- NAVIGACE -->
+    <div class="mb-6">
+        <a href="/" 
+           class="text-green-700 hover:underline">DIVkvariát</a>
+        <span class="mx-2">/</span>
+        <a href="{% if listing.listingtype == 'SELL' %}/nabidky/{% else %}/poptavky/{% endif %}"
+           class="text-green-700 hover:underline">
+            {% if listing.listingtype == 'SELL' %}Nabídky{% else %}Poptávky{% endif %}
+        </a>
+    </div>
 
-        {% if messages %}
-        <div class="mt-3">
+    <!-- ZPRÁVY -->
+    {% if messages %}
+    <div class="space-y-3 mb-8">
         {% for message in messages %}
-            <div class="my-5 p-4 rounded-1xl bg-[#cfefcf] dark:bg-[#4FB021] alert-{{ message.tags }}" role="alert">
-                {{ message|safe }}
-            </div>
-        {% endfor %}
+        <div class="p-4 rounded-lg bg-green-50 border border-green-300 text-green-900">
+            {{ message|safe }}
         </div>
-        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
 
-        <div class="book-offer">  {# clearfix #}
-            <a href="/kniha/{{ book.url }}">
-            {% if book.img == "noimg.png" %}
-                <img src="/static/img/book/book.png" alt="{{ book.titlecz|default:book.title }}" style="float:left; width:200px; height:auto; margin:0 16px 8px 0; border-radius:6px;">
-                {% elif book.img == "GoogleID" %}
-                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}" style="float:left; width:200px; height:auto; margin:0 16px 8px 0; border-radius:6px;">
-                {% else %}
-                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" style="float:left; width:200px; height:auto; margin:0 16px 8px 0; border-radius:6px;">
-                {% endif %}
-            </a>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
-            <div class="book-offer-detail">
-                <div class="">
-                    <h2 style="margin:0 0 6px;">
-                        <a href="/kniha/{{ book.url }}" style="text-decoration:none;">
-                        {{ book.titlecz|default:book.title }}
+        <!-- HLAVNÍ SLOUPEC -->
+        <div class="lg:col-span-2">
+
+            <!-- INFO O KNIZE -->
+            <div class="flex gap-6 mb-10">
+
+                <a href="/kniha/{{ book.url }}">
+                    {% if book.img == "noimg.png" %}
+                    <img src="https://div.cz/static/img/book/book.png" 
+                         class="w-40 h-auto rounded-lg shadow">
+                    {% elif book.img == "GoogleID" %}
+                    <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1"
+                         class="w-40 h-auto rounded-lg shadow">
+                    {% else %}
+                    <img src="https://media.div.cz/knihy/{{ book.img }}"
+                         class="w-40 h-auto rounded-lg shadow">
+                    {% endif %}
+                </a>
+
+                <div class="flex-1">
+                    <h1 class="text-3xl font-bold mb-1">
+                        <a href="/kniha/{{ book.url }}" class="hover:underline">
+                            {{ book.titlecz|default:book.title }}
                         </a>
-                    </h2>
-                    <p style="margin:0 0 10px; color:#666;">{{ book.author }}</p>
+                    </h1>
+                    <p class="text-gray-700 mb-4">{{ book.author }}</p>
 
-                    <p style="margin:0 0 4px;">
+                    <p class="text-xl">
                         <strong>Cena:</strong>
-                        {% if listing.listingtype == 'GIVE' %}
+                        {% if listing.listingtype == "GIVE" %}
                             Daruji
                         {% else %}
                             {{ listing.price|price }} Kč
                         {% endif %}
-                        {% if listing.status == 'ACTIVE' %}
-                        <span>(poštovné od 
+
+                        {% if listing.status == "ACTIVE" %}
+                        <span class="text-gray-500 ml-1 text-sm">
+                            (poštovné od 
                             {{ listing.shippingoptions|div_split:","|first|div_split:":"|div_get:1 }} Kč)
                         </span>
                         {% elif listing.shipping %}
-                        <span>(+ {{ listing.shipping|price }} Kč poštovné)</span>
+                        <span class="text-gray-500 ml-1 text-sm">
+                            (+ {{ listing.shipping|price }} Kč poštovné)
+                        </span>
                         {% endif %}
                     </p>
-                </div>
 
-                <!-- BTN UPRAVIT NABÍDKU -->
-                {% if listing.user == user and listing.status == 'ACTIVE' %}
-                <div class="edit-offer"> 
-                    <a href="{% url 'listing_detail_edit' book_url=book.url listing_id=listing.booklistingid %}" 
-                    class="btn add-book" style="color: #ffffff;">
-                        <i class="fas fa-pencil-alt" style="margin-right: .5rem;"></i> Upravit nabídku
-                    </a>
+                </div>
+            </div>
+
+            <!-- UPRAVIT NABÍDKU -->
+            {% if listing.user == user and listing.status == 'ACTIVE' %}
+            <div class="mb-6">
+                <a href="{% url 'listing_detail_edit' book_url=book.url listing_id=listing.booklistingid %}"
+                   class="px-4 py-2 border rounded-lg hover:bg-gray-100 text-gray-700">
+                    Upravit nabídku
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- ALERTY PRO ODESLÁNÍ / HODNOCENÍ / ATD. -->
+            {% if listing.status in 'RESERVED PAID SHIPPED' and listing.user == user %}
+                {% if listing.shipping and listing.shipping > 0 and listing.shippingaddress %}
+                <div class="p-4 mb-6 rounded-lg bg-green-50 border border-green-300">
+                    <p class="font-semibold">Knihu odešlete na adresu:</p>
+                    <p>{{ listing.shippingaddress }}</p>
+                </div>
+                {% elif listing.shipping == 0 %}
+                <div class="p-4 mb-6 rounded-lg bg-green-50 border border-green-300">
+                    <p class="font-semibold">Osobní odběr – domluvte se s kupujícím.</p>
+                    <p>Kontakt: {{ listing.buyer.email }}{% if buyer_phone %}, tel: {{ buyer_phone }}{% endif %}</p>
                 </div>
                 {% endif %}
-
-            </div>
-        </div>
-
-        <!-- ODESLAT KNIHU ALERT -->
-        {% if listing.status in 'RESERVED PAID SHIPPED' and listing.user == user %}
-            {% if listing.shipping and listing.shipping > 0 and listing.shippingaddress %}
-            <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
-                <p class="font-medium">Knihu zašlete na adresu:</p>
-                <p>{{ listing.shippingaddress }}</p>
-            </div>
-            {% elif listing.shipping == 0 %}
-            <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
-                <p class="font-medium">Osobní odběr - domluvte se s kupujícím na předání knihy</p>
-                <p>Kontakt: {{ listing.buyer.email }}{% if buyer_phone %}, tel: {{ buyer_phone }}{% endif %}</p>
-            </div>
-            {% endif %}
-        {% endif %}
-
-        <!-- HODNOCENÍ ALERT -->
-        {% if listing.status == 'COMPLETED' %}
-            {% if listing.user == user and not listing.buyerrating %}
-            <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
-                <p class="font-medium">Ohodnoťte prosím kupujícího a můžete přidat i krátký komentář.</p>
-            </div>
             {% endif %}
 
-            {% if listing.buyer == user and not listing.sellerrating %}
-            <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
-                <p class="font-medium">Ohodnoťte prosím prodejce a klidně napište i krátký komentář.</p>
-            </div>
+            {% if listing.status == 'COMPLETED' %}
+                {% if listing.user == user and not listing.buyerrating %}
+                <div class="p-4 mb-6 rounded-lg bg-green-50 border border-green-300">
+                    Ohodnoťte prosím kupujícího.
+                </div>
+                {% endif %}
+                {% if listing.buyer == user and not listing.sellerrating %}
+                <div class="p-4 mb-6 rounded-lg bg-green-50 border border-green-300">
+                    Ohodnoťte prosím prodávajícího.
+                </div>
+                {% endif %}
             {% endif %}
-        {% endif %}
 
-        <div class="card">
-            <div class="card-body">
-                <div class="card-price after">
+            <!-- HLAVNÍ INFO BOX -->
+            <div class="bg-white shadow rounded-lg p-6 mb-10">
+
+                <div class="flex justify-between mb-6">
+
                     <div>
-                        <p>Cena: </p>
-                        <span class="text-2xl font-semibold">
+                        <p class="text-gray-600">Cena:</p>
+                        <p class="text-2xl font-semibold text-green-700">
                             {% if listing.listingtype == 'GIVE' %}
                                 Daruji
                             {% else %}
                                 {{ listing.price|price }} Kč
                             {% endif %}
-                        </span>
-
-                        {% if listing.status == 'ACTIVE' %}
-                        <span class="ml-2">(poštovné od 
-                            {{ listing.shippingoptions|div_split:","|first|div_split:":"|div_get:1 }} Kč)
-                        </span>
-                        {% elif listing.shipping %}
-                        <span class="ml-2">(+ {{ listing.shipping|price }} Kč poštovné)</span>
-                        {% endif %}
+                        </p>
                     </div>
 
                     <div class="text-right">
-                        <span class="">{{ listing.createdat|date:"j. n. Y" }}</span>
-                        <div class="mt-1 font-semibold">
-                            <span class="px-3 py-1 rounded-full text-sm
-                                {% if listing.status == 'ACTIVE' %} text-[#61872B]
-                                {% elif listing.status == 'RESERVED' %} text-[#A52B21]
-                                {% elif listing.status == 'COMPLETED' %} text-[#00A0E3]
-                                {% else %}{% endif %}">
-                                {{ listing.get_status_display }}
-                            </span>
-                        </div>
+                        <p class="text-sm text-gray-500">
+                            {{ listing.createdat|date:"j. n. Y" }}
+                        </p>
+                        <span class="px-3 py-1 rounded-full text-sm font-bold text-white
+                            {% if listing.status == 'ACTIVE' %} bg-green-600
+                            {% elif listing.status == 'RESERVED' %} bg-orange-500
+                            {% elif listing.status == 'PAID' %} bg-blue-600
+                            {% elif listing.status == 'SHIPPED' %} bg-purple-600
+                            {% elif listing.status == 'COMPLETED' %} bg-gray-800
+                            {% endif %}
+                        ">
+                            {{ listing.get_status_display }}
+                        </span>
                     </div>
                 </div>
 
-                <div class="after" style="width: 100%;">
-                    <span class="">Popis: </span>
-                    {{ listing.description|linebreaks }}
+                <!-- POPIS -->
+                {% if listing.description %}
+                <div class="mb-6">
+                    <p class="font-medium text-gray-700 mb-1">Popis:</p>
+                    <div class="text-gray-800">{{ listing.description|linebreaks }}</div>
                 </div>
+                {% endif %}
 
-                <div class="card-detail">
+<!-- FOTOGALERIE -->
+<div class="mb-8">
+    <h3 class="text-xl font-semibold mb-3">Fotografie</h3>
+
+    {% if listing.images.all %}
+    <div class="flex flex-wrap gap-3 mb-4">
+        {% for img in listing.images.all %}
+        <div class="relative group">
+
+            <img 
+                src="{{ img.image.url }}" 
+                class="w-32 h-auto rounded shadow cursor-pointer"
+                onclick="openImageModal('{{ img.image.url }}')"
+            >
+
+            {% if listing.user == user %}
+            <a href="{% url 'listing_delete_image' img.id %}"
+               class="absolute top-1 right-1 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+               onclick="return confirm('Smazat fotografii?');">
+               ×
+            </a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if listing.user == user and listing.status == 'ACTIVE' %}
+    <form method="post" enctype="multipart/form-data"
+          action="{% url 'listing_upload_image' listing.booklistingid %}"
+          class="mt-4">
+
+        {% csrf_token %}
+
+        <input type="file" name="images" multiple
+               class="border rounded px-3 py-2 w-full">
+
+        <button type="submit"
+                class="add-book mt-3">
+            Nahrát fotografie
+        </button>
+    </form>
+    {% endif %}
+</div>
+
+
+                <!-- PARAMETRY -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
                     {% if listing.condition %}
-                    <div>
-                        <span class="">Stav: </span>
-                        <span class="ml-2">{{ listing.get_condition_display }}</span>
-                    </div>
+                    <p><strong>Stav:</strong> {{ listing.get_condition_display }}</p>
                     {% endif %}
+
                     {% if listing.location %}
-                    <div>
-                        <span class="">Lokalita: </span>
-                        <span class="ml-2">{{ listing.location }}</span>
-                    </div>
+                    <p><strong>Lokalita:</strong> {{ listing.location }}</p>
                     {% endif %}
-                    <div>
-                        <span class="">Osobní převzetí: </span>
-                        <span class="ml-2">{% if listing.personal_pickup %}Ano{% else %}Ne{% endif %}</span>
-                    </div>
-                    <div>
-                        <span class="">Pošta: </span>
-                    {% if listing.status == 'ACTIVE' %}
-                        {% with first=listing.shippingoptions|div_split:","|first %}
-                        <span class="ml-2">od {{ first|div_split:":"|div_get:1 }} Kč</span>
-                        {% endwith %}
-                    {% elif listing.shipping %}
-                        <span class="ml-2">+ {{ listing.shipping|price }} Kč</span>
-                    {% endif %}
-                    </div>
-                    <div>
-                        <span class="">Prodávající: </span>
-                        <a href="{% url 'user_sell_listings' listing.user.id %}" class="ml-2">
+
+                    <p>
+                        <strong>Osobní převzetí:</strong>
+                        {% if listing.personal_pickup %}Ano{% else %}Ne{% endif %}
+                    </p>
+
+                    <p>
+                        <strong>Pošta:</strong>
+                        {% if listing.status == 'ACTIVE' %}
+                            {% with first=listing.shippingoptions|div_split:","|first %}
+                            od {{ first|div_split:":"|div_get:1 }} Kč
+                            {% endwith %}
+                        {% elif listing.shipping %}
+                            + {{ listing.shipping|price }} Kč
+                        {% endif %}
+                    </p>
+
+                    <p>
+                        <strong>
+                        
+        {% if listing.listingtype == 'BUY' %}
+            Poptávající:
+        {% else %}
+            Prodávající:
+        {% endif %}
+        
+                        </strong>
+                        <a href="{% url 'user_sell_listings' listing.user.id %}" 
+                           class="text-green-700 hover:underline ml-1">
                             {{ listing.user.username }}
                         </a>
-
                         {% if user != listing.user %}
-                        <a href="{% url 'chat_message' listing.user.id %}"> <i class="fa-solid fa-envelope"></i></a> 
+                        <a href="chat" 
+                           class="ml-2 text-green-700">
+                            <i class="fas fa-envelope"></i>
+                        </a>
                         {% endif %}
-
-                    </div>
+                    </p>
                 </div>
+
             </div>
-        </div>
 
-        {% if user.is_authenticated %}
-        {% if listing.status == 'ACTIVE' and user != listing.user %}
-        <div class="card">
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="reserve_listing" value="1">
-                    
-                    <label for="shippingaddress">Kam si přejete knihu zaslat?</label><br>
-                    <small>Výchozí doručení je na nejbližší Zásilkovnu dle vaší adresy (nejvýhodnější varianta).</small>
-                    <textarea name="shippingaddress" rows="4" style="mam-width:400px" class="form-control" required 
-                    placeholder="Jméno, ulice, město, PSČ">{{ request.user.userprofile.shippingaddress|default:"" }}</textarea>
+            <!-- FORMULÁŘE / REZERVACE / PLATBY / DOKONČENÍ / PROCES PRODEJE -->
 
-                    <div class="form-group mt-2">
-                        <label for="phone" title="pro zásilkovnu, balíkovnu">Telefon:</label>
-                        <input type="tel" name="phone" class="form-control" style="max-width:300px" required value="{{ request.user.userprofile.phone|default:'' }}">
-                    </div>
+            {% if user.is_authenticated %}
 
+                <!-- FORMULÁŘ PRO REZERVACI (jen ACTIVE & uživatel není prodejce) -->
+                {% if listing.status == 'ACTIVE' and user != listing.user %}
+                <div class="bg-white shadow rounded-lg p-6 mb-10">
 
-                    <select name="shipping_option" id="shipping_option" class="dark:bg-[#1A161F]" required onchange="updateShippingPrice()">
-                    {% for option in listing.shippingoptions|div_split:"," %}
-                        <option value="{{ option|div_split:":"|div_get:1 }}">
-                            {{ option|div_split:":"|div_get:0|format_shipping_name }} – {{ option|div_split:":"|div_get:1 }} Kč
-                        </option>
-                    {% endfor %}
-                    </select>
+                    <h3 class="text-xl font-semibold mb-4">Rezervace knihy</h3>
 
+                    <form method="post" class="space-y-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="reserve_listing" value="1">
 
+                        <!-- Adresa -->
+                        <div>
+                            <label for="shippingaddress" class="font-medium">Kam si přejete knihu zaslat?</label>
+                            <textarea
+                                name="shippingaddress"
+                                id="shippingaddress"
+                                rows="4"
+                                required
+                                class="w-full border rounded-lg px-3 py-2 mt-1"
+                                placeholder="Jméno, ulice, město, PSČ"
+                            >{{ request.user.userprofile.shippingaddress|default:"" }}</textarea>
+                            <p class="text-sm text-gray-600">Nejvýhodnější varianta je výchozí Zásilkovna podle adresy.</p>
+                        </div>
 
-                    <input type="hidden" name="shipping" id="shipping" value="">
+                        <!-- Telefon -->
+                        <div>
+                            <label for="phone" class="font-medium">Telefon (pro zásilkovnu/balíkovnu):</label>
+                            <input
+                                type="tel"
+                                name="phone"
+                                id="phone"
+                                required
+                                value="{{ request.user.userprofile.phone|default:'' }}"
+                                class="w-full border rounded-lg px-3 py-2"
+                            >
+                        </div>
 
-                    <script>
+                        <!-- Výběr dopravy -->
+                        <div>
+                            <label class="font-medium">Způsob doručení:</label>
+                            <select
+                                name="shipping_option"
+                                id="shipping_option"
+                                class="w-full border rounded-lg px-3 py-2 mt-1"
+                                onchange="updateShippingPrice()"
+                            >
+                                {% for option in listing.shippingoptions|div_split:"," %}
+                                <option value="{{ option|div_split:":"|div_get:1 }}">
+                                    {{ option|div_split:":"|div_get:0|format_shipping_name }} – {{ option|div_split:":"|div_get:1 }} Kč
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            <input type="hidden" name="shipping" id="shipping">
+                        </div>
+
+                        <script>
                         function updateShippingPrice() {
                             const select = document.getElementById("shipping_option");
                             const hidden = document.getElementById("shipping");
-                            const summary = document.getElementById("shipping_summary");
-
-                            hidden.value = select.value;  // uloží cenu pro backend
-                            if (summary) {
-                                summary.textContent = "(+ " + select.value + " Kč poštovné)";
-                            }
+                            hidden.value = select.value;
                         }
                         document.addEventListener("DOMContentLoaded", updateShippingPrice);
-                    </script>
+                        </script>
 
-                    <div class="form-group">
-                        <label for="commission">Příspěvek na chod webu (volitelný):</label>
-                        <input type="number" name="commission" min="0" value="10" class="form-control" />
-                    </div>
+                        <!-- Komise -->
+                        <div>
+                            <label class="font-medium">Příspěvek na chod webu (volitelný):</label>
+                            <input
+                                type="number"
+                                name="commission"
+                                min="0"
+                                value="10"
+                                class="w-full border rounded-lg px-3 py-2"
+                            >
+                        </div>
 
-                    <div class="form-group mt-3">
-                        <label>
-                            <input type="checkbox" name="agree_terms" required>
-                            Souhlasím s předáním údajů (jméno, adresa, telefon) prodejci za účelem zaslání knihy 
-                            a se <a href="/podminky-pouziti" target="_blank">Podmínkami používání</a> 
-                            a <a href="/ochrana-osobnich-udaju" target="_blank">Ochranou osobních údajů</a>.
-                        </label>
-                    </div>
+                        <!-- Právní souhlas -->
+                        <div class="flex gap-2 items-start">
+                            <input type="checkbox" name="agree_terms" id="agree_terms" required>
+                            <label for="agree_terms" class="text-sm text-gray-700">
+                                Souhlasím s předáním údajů prodávajícímu za účelem odeslání knihy
+                                a s <a href="/podminky-pouziti" target="_blank" class="text-green-700 underline">Podmínkami používání</a>
+                                a <a href="/ochrana-osobnich-udaju" target="_blank" class="text-green-700 underline">Ochranou osobních údajů</a>.
+                            </label>
+                        </div>
 
-                    <button type="submit" class="add-book mt-2">Rezervovat knihu</button>
-                </form>
-            </div>
-        </div>
-        {% endif %}
+                        <button type="submit" class="add-book w-full">Rezervovat knihu</button>
 
-        {% if listing.status == 'RESERVED' and listing.buyer == user %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="text-xl font-semibold mb-4">Platební údaje</h3>
-                
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <p class="font-medium">Cena knihy:</p>
-                        <p class="">{{ listing.price|default:"0"|price }} Kč</p>
-                    </div>
-                    {% if listing.shipping %}
-                    <div>
-                        <p class="font-medium">Poštovné:</p>
-                        <p class="">{{ listing.shipping|price }} Kč</p>
-                    </div>
-                    {% endif %}
-                    {% if listing.commission %}
-                    <div>
-                        <p class="font-medium">Provozní poplatek:</p>
-                        <p class="">{{ listing.commission|price }} Kč</p>
-                    </div>
-                    {% endif %}
-                    <div>
-                        <p class="font-medium">Celkem k úhradě:</p>
-                        <p class="text-xl font-semibold text-blue-600">{{ payment_info.total|price }} Kč</p>
-                    </div>
-                </div>
-
-                <div class="grid md:grid-cols-2 gap-6 pt-4">
-                    <div>
-                        <h4 class="font-medium mb-2">Bankovní převod</h4>
-                        <ul class="space-y-2 ">
-                            <li><span class="font-medium">Číslo účtu:</span> 2602912559/2010</li>
-                            <li><span class="font-medium">IBAN:</span> CZ5620100000002602912559</li>
-                            <li><span class="font-medium">SWIFT:</span> FIOBCZPPXXX</li>
-                            <li><span class="font-medium">Variabilní symbol:</span> {{ payment_info.variable_symbol }}</li>
-                            <li><span class="font-medium">Poznámka:</span> {{ payment_info.note }}</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="flex justify-center">
-                        <img src="data:image/png;base64,{{ payment_info.qr_code }}" alt="QR Platba" class="max-w-[200px]">
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        {% if can_rate_seller %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="text-xl font-semibold mb-4">Ohodnotit prodávajícího {{ listing.user.username }}</h3>
-                <form method="post" class="dark:bg-[#1A161F]">
-                    {% csrf_token %}
-                    <div class="mb-4">
-                        <label class="block text-gray-700 mb-2">Hodnocení (1-5):</label>
-                        <select name="rating" class="w-full border  p-2" class="dark:bg-[#1A161F]">
-                            <option value="5" class="dark:bg-[#1A161F]">5 - Výborné</option>
-                            <option value="4">4 - Velmi dobré</option>
-                            <option value="3">3 - Dobré</option>
-                            <option value="2">2 - Dostatečné</option>
-                            <option value="1">1 - Nedostatečné</option>
-                        </select>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 mb-2">Komentář:</label>
-                        <textarea name="comment" class="w-full border p-2" rows="3"></textarea>
-                    </div>
-                    <button type="submit" name="sellerrating" value="1" class="add-book mt-2">Odeslat hodnocení</button>
-                </form>
-            </div>
-        </div>
-        {% endif %}
-
-        {% if can_rate_buyer %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="text-xl font-semibold mb-4">Ohodnotit kupujícího {{ listing.buyer.username }}</h3>
-                <form method="post" class="dark:bg-[#1A161F]">
-                    {% csrf_token %}
-                    <div class="mb-4">
-                        <label class="block text-gray-700 mb-2">Hodnocení (1-5):</label>
-                        <select name="rating" class="w-full border  p-2" class="dark:bg-[#1A161F]">
-                            <option value="5">5 - Výborné</option>
-                            <option value="4">4 - Velmi dobré</option>
-                            <option value="3">3 - Dobré</option>
-                            <option value="2">2 - Dostatečné</option>
-                            <option value="1">1 - Nedostatečné</option>
-                        </select>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 mb-2">Komentář:</label>
-                        <textarea name="comment" class="w-full border p-2" rows="3"></textarea>
-                    </div>
-                    <button type="submit" name="buyerrating" 
-                            value="1" 
-                            class="add mt-2">
-                        Odeslat hodnocení
-                    </button>
-                </form>
-            </div>
-        </div>
-        {% endif %}
-
-        {% if listing.status == 'PAID' and user == listing.user %}
-        <div class="my-5 p-4 rounded-1xl bg-[#cfefcf] dark:bg-[#4FB021] alert-{{ message.tags }}" role="alert">
-        Kupující zaplatil knihu. Předejte/odešlete ji prosím kupujícímu. <br>
-            <form action="{% url 'confirm_shipping' book_url=book.url listing_id=listing.booklistingid %}" method="post">
-                {% csrf_token %}
-                <button type="submit" name="shipping_listing" class="add-book mt-4">
-                    Potvrdit předání knihy
-                </button>
-            </form>
-        </div>
-        {% endif %}
-
-        <!-- POTVRZENÍ OBRDRŽENÍ KNIHY PAID -->
-        {% if listing.status == 'PAID' and listing.buyer == user %}
-        <div class="my-5 p-4 rounded-1xl bg-[#cfefcf] dark:bg-[#4FB021] alert-{{ message.tags }}" role="alert">
-            Čekáme na potvrzení, že prodejce poslal/předal knihu. <br>
-            Kontaktovat ho můžete přes <a href="{% url 'chat_message' listing.user.id %}" style="color:blue"> Chat <span style="color:blue">&#x2709;</span></a> 
-            <form action="{% url 'confirm_payment' book_url=book.url listing_id=listing.booklistingid %}" method="post">
-                {% csrf_token %}
-                <button type="submit" name="complete_listing" class="add-book mt-4">
-                    Potvrdit obdržení knihy
-                </button>
-            </form>
-        </div>
-        {% endif %}
-
-        <!-- POTVRZENÍ OBRDRŽENÍ KNIHY SHIPPED -->
-        {% if listing.status == 'SHIPPED' and listing.buyer == user %}
-        <div class="my-5 p-4 rounded-1xl bg-[#cfefcf] dark:bg-[#4FB021] alert-{{ message.tags }}" role="alert">Prodejce již odeslal knihu, prosím potvrďte přijetí. <br>
-            <form action="{% url 'confirm_payment' book_url=book.url listing_id=listing.booklistingid %}" method="post">
-                {% csrf_token %}
-                <button type="submit" name="complete_listing" class="add-book mt-4">
-                    Potvrdit obdržení knihy
-                </button>
-            </form>
-        </div>
-        {% endif %}
- 
- 
-        {% if listing.status == 'RESERVED' or listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' and listing.buyer == user or listing.user == user %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="text-xl font-semibold mb-4">Informace o procesu prodeje</h3>
-                
-                <p class="mb-4">Vaše platba bude dočasně uložena na transparentním účtu neziskové organizace eKultura. Připravili jsme i článek <a href="https://div.cz/jak-nakupovat-knihy">Jak nakupovat</a>, kde snad najdete vše potřebné. Nebo napište na info@div.cz</p>
-                <div class="space-y-2 mb-4">
-                    <p><strong>Proces prodeje:</strong></p>
-                    <form method="post" class="reserve-form">
-                    <ol class="list-decimal ml-6 space-y-1">
-                    <li>
-                            <input type="checkbox" id="step1" {% if listing.status == 'RESERVED' or listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}checked{% endif %} disabled>
-                            <label for="step1"><span style="{% if listing.status == 'RESERVED' or listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}color:#4FB021;font-weight:bold{% endif %}">Kupující provedl rezervaci</span></label>
-                        </li>
-                        <li>
-                            <input type="checkbox" id="step2" {% if listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}checked{% endif %} disabled>
-                            <label for="step2"><span style="{% if listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}color:#4FB021;font-weight:bold{% endif %}">Kupující pošle platbu na účet eKultury</span></label>
-                        </li>
-                        <li>
-                            <input type="checkbox" id="step3" {% if listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}checked{% endif %} disabled>
-                            <label for="step3"><span style="{% if listing.status == 'SHIPPED' or listing.status == 'COMPLETED' %}color:#4FB021;font-weight:bold{% endif %}">Prodávající odešle knihu</span></label>
-                        </li>
-                        <li>
-                            <input type="checkbox" id="step4" {% if listing.status == 'COMPLETED' %}checked{% endif %} disabled>
-                            <label for="step4"><span style="{% if listing.status == 'COMPLETED' %}color:#4FB021;font-weight:bold{% endif %}">Obchod je dokončen</span></label>
-                        </li>
-                    </ol>
                     </form>
                 </div>
+                {% endif %}
 
+                <!-- PLATBA (RESERVED & kupující) -->
+                {% if listing.status == 'RESERVED' and listing.buyer == user %}
+                <div class="bg-white shadow rounded-lg p-6 mb-10">
 
+                    <h3 class="text-xl font-semibold mb-4">Platební údaje</h3>
 
-{% if deadline_date %}
-  <div class="bg-gray-100 p-4 rounded">
-    {% if listing.status == "RESERVED" %}
-      <p class="text-sm">
-        Prosím dokončete platbu do: 
-        <strong>{{ deadline_date|date:"j. n. Y" }}</strong>
-      </p>
-      <p class="text-sm">Po tomto datu bude rezervace automaticky zrušena.</p>
-    {% elif listing.status == "PAID" %}
-      <p class="text-sm">
-        Prodejce má čas potvrdit odeslání do: 
-        <strong>{{ deadline_date|date:"j. n. Y" }}</strong>
-      </p>
-      <p class="text-sm">Pokud kniha nebude odeslána, objednávka bude zrušena a peníze vráceny.</p>
-    {% endif %}
-  </div>
-{% endif %}
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <p class="font-medium">Cena knihy:</p>
+                            <p>{{ listing.price|default:"0"|price }} Kč</p>
+                        </div>
 
-{% if shipped_deadline %}
-  <div class="bg-gray-100 p-4 rounded">
-    <p class="text-sm">
-      Potvrďte prosím obdržení knihy do: 
-      <strong>{{ shipped_deadline|date:"j. n. Y" }}</strong>
-    </p>
-    <p class="text-sm">Po tomto datu bude transakce automaticky uzavřena.</p>
-  </div>
-{% endif %}
+                        {% if listing.shipping %}
+                        <div>
+                            <p class="font-medium">Poštovné:</p>
+                            <p>{{ listing.shipping|price }} Kč</p>
+                        </div>
+                        {% endif %}
 
-{% if listing.status == 'COMPLETED' %}
-<div class="bg-gray-100 p-4 rounded">
-    <p class="text-sm">
-        <strong>Obchod byl ukončen dne:</strong> 
-        {{ listing.completedat|date:"j. n. Y" }}
-    </p>
-</div>
-{% endif %}
+                        {% if listing.commission %}
+                        <div>
+                            <p class="font-medium">Provozní poplatek:</p>
+                            <p>{{ listing.commission|price }} Kč</p>
+                        </div>
+                        {% endif %}
 
-			{% if user.is_authenticated %}
-                {% if can_cancel_reservation %}
-                <div class="mb-3 px-3">
-                    <form method="post" action="{% url 'cancel_listing_reservation' listing_id=listing.booklistingid %}">
+                        <div>
+                            <p class="font-medium">Celkem k úhradě:</p>
+                            <p class="text-xl font-semibold text-blue-600">
+                                {{ payment_info.total|price }} Kč
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6 pt-4">
+                        <div>
+                            <h4 class="font-medium mb-2">Bankovní převod</h4>
+                            <ul class="space-y-1">
+                                <li><strong>Číslo účtu:</strong> 2602912559/2010</li>
+                                <li><strong>IBAN:</strong> CZ5620100000002602912559</li>
+                                <li><strong>SWIFT:</strong> FIOBCZPPXXX</li>
+                                <li><strong>Variabilní symbol:</strong> {{ payment_info.variable_symbol }}</li>
+                                <li><strong>Poznámka:</strong> {{ payment_info.note }}</li>
+                            </ul>
+                        </div>
+
+                        <div class="flex justify-center">
+                            <img src="data:image/png;base64,{{ payment_info.qr_code }}"
+                                 class="max-w-[200px]" alt="QR platba">
+                        </div>
+                    </div>
+
+                </div>
+                {% endif %}
+
+                <!-- HODNOCENÍ PRODÁVAJÍCÍHO -->
+                {% if can_rate_seller %}
+                <div class="bg-white shadow rounded-lg p-6 mb-10">
+
+                    <h3 class="text-xl font-semibold mb-4">Ohodnotit prodávajícího {{ listing.user.username }}</h3>
+
+                    <form method="post">
                         {% csrf_token %}
-                        <input type="hidden" name="cancel_reservation" value="true">
 
-                        <button type="submit" class="add-book"
-                                onclick="return confirm('Opravdu chcete zrušit rezervaci?');">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 mb-1">Hodnocení (1–5):</label>
+                            <select name="rating"
+                                    class="w-full border rounded-lg px-3 py-2">
+                                <option value="5">5 – Výborné</option>
+                                <option value="4">4 – Velmi dobré</option>
+                                <option value="3">3 – Dobré</option>
+                                <option value="2">2 – Dostatečné</option>
+                                <option value="1">1 – Nedostatečné</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-gray-700 mb-1">Komentář:</label>
+                            <textarea name="comment" rows="3"
+                                      class="w-full border rounded-lg px-3 py-2"></textarea>
+                        </div>
+
+                        <button type="submit" name="sellerrating" value="1"
+                                class="add-book">
+                            Odeslat hodnocení
+                        </button>
+                    </form>
+
+                </div>
+                {% endif %}
+
+                <!-- HODNOCENÍ KUPUJÍCÍHO -->
+                {% if can_rate_buyer %}
+                <div class="bg-white shadow rounded-lg p-6 mb-10">
+
+                    <h3 class="text-xl font-semibold mb-4">Ohodnotit kupujícího {{ listing.buyer.username }}</h3>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 mb-1">Hodnocení (1–5):</label>
+                            <select name="rating"
+                                    class="w-full border rounded-lg px-3 py-2">
+                                <option value="5">5 – Výborné</option>
+                                <option value="4">4 – Velmi dobré</option>
+                                <option value="3">3 – Dobré</option>
+                                <option value="2">2 – Dostatečné</option>
+                                <option value="1">1 – Nedostatečné</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-gray-700 mb-1">Komentář:</label>
+                            <textarea name="comment" rows="3"
+                                      class="w-full border rounded-lg px-3 py-2"></textarea>
+                        </div>
+
+                        <button type="submit" name="buyerrating" value="1"
+                                class="add-book">
+                            Odeslat hodnocení
+                        </button>
+
+                    </form>
+
+                </div>
+                {% endif %}
+
+                <!-- POTVRZENÍ ODESLÁNÍ PRODÁVAJÍCÍM -->
+                {% if listing.status == 'PAID' and user == listing.user %}
+                <div class="p-4 mb-10 rounded-lg bg-green-50 border border-green-300">
+                    Kupující zaplatil. Odešlete prosím knihu kupujícímu.
+                    <form action="{% url 'confirm_shipping' book_url=book.url listing_id=listing.booklistingid %}"
+                          method="post" class="mt-4">
+                        {% csrf_token %}
+                        <button type="submit" name="shipping_listing" class="add-book">
+                            Potvrdit odeslání / předání knihy
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+
+                <!-- POTVRZENÍ PŘEVZETÍ KUPUJÍCÍM -->
+                {% if listing.status == 'PAID' and listing.buyer == user %}
+                <div class="p-4 mb-10 rounded-lg bg-green-50 border border-green-300">
+                    Čekáme na potvrzení, že prodejce odeslal/předal knihu.
+                    <p class="mt-2">
+                        Kontaktovat prodejce můžete přes
+                        <a href="chat"
+                           class="text-blue-700 underline">Chat ✉</a>
+                    </p>
+                </div>
+                {% endif %}
+
+                {% if listing.status == 'SHIPPED' and listing.buyer == user %}
+                <div class="p-4 mb-10 rounded-lg bg-green-50 border border-green-300">
+                    Prodejce odeslal knihu, prosím potvrďte její převzetí.
+                    <form action="{% url 'confirm_payment' book_url=book.url listing_id=listing.booklistingid %}"
+                          method="post" class="mt-4">
+                        {% csrf_token %}
+                        <button type="submit" name="complete_listing" class="add-book">
+                            Potvrdit obdržení knihy
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+
+                <!-- INFORMACE O PROCESU PRODEJE -->
+				{% if listing.status == 'RESERVED' or listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' and listing.buyer == user or listing.user == user %}
+                <div class="bg-white shadow rounded-lg p-6 mb-10">
+
+                    <h3 class="text-xl font-semibold mb-4">Informace o procesu prodeje</h3>
+
+                    <p class="mb-4 text-gray-700">
+                        Vaše platba je uložena na transparentním účtu neziskové organizace eKultura.
+                        Více informací najdete v článku
+                        <a href="https://div.cz/jak-nakupovat-knihy"
+                           class="text-green-700 underline">Jak nakupovat</a>.
+                    </p>
+
+                    <p class="font-medium mb-2">Proces prodeje:</p>
+
+                    <ol class="list-decimal ml-6 space-y-2">
+
+                        <li>
+                            <input type="checkbox" disabled
+                                   {% if listing.status in 'RESERVED PAID SHIPPED COMPLETED' %}checked{% endif %}>
+                            <span class="ml-1 {% if listing.status in 'RESERVED PAID SHIPPED COMPLETED' %}text-green-700 font-semibold{% endif %}">
+                                Kupující provedl rezervaci
+                            </span>
+                        </li>
+
+                        <li>
+                            <input type="checkbox" disabled
+                                   {% if listing.status in 'PAID SHIPPED COMPLETED' %}checked{% endif %}>
+                            <span class="ml-1 {% if listing.status in 'PAID SHIPPED COMPLETED' %}text-green-700 font-semibold{% endif %}">
+                                Kupující odeslal platbu
+                            </span>
+                        </li>
+
+                        <li>
+                            <input type="checkbox" disabled
+                                   {% if listing.status in 'SHIPPED COMPLETED' %}checked{% endif %}>
+                            <span class="ml-1 {% if listing.status in 'SHIPPED COMPLETED' %}text-green-700 font-semibold{% endif %}">
+                                Prodejce odeslal/předal knihu
+                            </span>
+                        </li>
+
+                        <li>
+                            <input type="checkbox" disabled
+                                   {% if listing.status == 'COMPLETED' %}checked{% endif %}>
+                            <span class="ml-1 {% if listing.status == 'COMPLETED' %}text-green-700 font-semibold{% endif %}">
+                                Obchod byl dokončen
+                            </span>
+                        </li>
+
+                    </ol>
+
+                    <!-- DEADLINE – platba -->
+                    {% if deadline_date %}
+                    <div class="mt-6 p-4 rounded-lg bg-gray-50 border border-gray-200">
+
+                        {% if listing.status == "RESERVED" %}
+                            <p class="text-sm">
+                                <strong>Platbu prosím dokončete do:</strong>
+                                {{ deadline_date|date:"j. n. Y" }}
+                            </p>
+                            <p class="text-sm text-gray-600">Po tomto datu bude rezervace zrušena.</p>
+
+                        {% elif listing.status == "PAID" %}
+                            <p class="text-sm">
+                                <strong>Prodejce má potvrdit odeslání do:</strong>
+                                {{ deadline_date|date:"j. n. Y" }}
+                            </p>
+                            <p class="text-sm text-gray-600">
+                                Pokud kniha nebude odeslána, objednávka bude zrušena a peníze vráceny.
+                            </p>
+                        {% endif %}
+
+                    </div>
+                    {% endif %}
+
+                    <!-- DEADLINE – doručení -->
+                    {% if shipped_deadline %}
+                    <div class="mt-6 p-4 rounded-lg bg-gray-50 border border-gray-200">
+                        <p class="text-sm">
+                            <strong>Potvrďte obdržení knihy do:</strong>
+                            {{ shipped_deadline|date:"j. n. Y" }}
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            Po tomto datu se transakce automaticky uzavře.
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    {% if listing.status == 'COMPLETED' %}
+                    <div class="mt-6 p-4 rounded-lg bg-gray-50 border border-gray-200">
+                        <p class="text-sm">
+                            <strong>Obchod byl dokončen dne:</strong>
+                            {{ listing.completedat|date:"j. n. Y" }}
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    <!-- ZRUŠENÍ REZERVACE -->
+                    {% if can_cancel_reservation %}
+                    <form method="post"
+                          action="{% url 'cancel_listing_reservation' listing_id=listing.booklistingid %}"
+                          class="mt-6">
+                        {% csrf_token %}
+                        <button type="submit"
+                                onclick="return confirm('Opravdu chcete zrušit rezervaci?');"
+                                class="add-book">
                             Zrušit rezervaci
                         </button>
                     </form>
-                </div>
-                {% endif %} 
+                    {% endif %}
 
-                {% if can_cancel_offer %} 
-                <div class="mb-3 px-3">
-                    <form method="post" action="{% url 'cancel_sell' listing_id=listing.booklistingid %}">
-                        {% csrf_token %} 
-                        
-                        <button type="submit" class="add-book"
-                                onclick="return confirm('Opravdu chcete zrušit vaši nabídku?');">
-                            Zrušit moji nabídku
-                        </button>
-                    </form>
-                </div>
-                {% endif %} 
-			{% endif %}
-                <!--{% if listing.buyer == user and listing.status == 'SHIPPED' or listing.status == 'PAID' %}
-                    <form method="post">
+                    <!-- ZRUŠENÍ NABÍDKY -->
+                    {% if can_cancel_offer %}
+                    <form method="post"
+                          action="{% url 'cancel_sell' listing_id=listing.booklistingid %}"
+                          class="mt-6">
                         {% csrf_token %}
-                        <button type="submit" name="complete_listing"
-                                class="add-book mt-4 ml-4">
-                            Dokončit transakci 
+                        <button type="submit"
+                                onclick="return confirm('Opravdu chcete zrušit svou nabídku?');"
+                                class="add-book">
+                            Zrušit mou nabídku
                         </button>
                     </form>
-                {% endif %}-->
+                    {% endif %}
 
-            </div>
+                </div>
+                {% endif %}
+
+            {% else %}
+            <!-- POKUD NENÍ PŘIHLÁŠEN -->
+            <p class="mt-6 text-gray-700">
+                Pro rezervaci nebo nákup knihy se musíš
+                <a href="/prihlaseni/" class="text-green-700 underline">přihlásit</a>
+                nebo
+                <a href="/registrace/" class="text-green-700 underline">registrovat</a>.
+            </p>
+            {% endif %}
+
         </div>
-        {% endif %} 
 
-        {% else %}
-        <p class="mt-6">Pro rezervaci nebo nákup knihy se musíš <a href="/prihlaseni/">přihlásit</a> nebo <a href="/registrace/">registrovat</a>.</p>
-        {% endif %}
-    </div>
+        <!-- PRAVÝ PANEL -->
+        <div>
 
-    <!-- PRAVÁ STRANA -->
-    <div class="col-lg-4">
-        {% if request.user.is_authenticated %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title after-h3">Můj přehled</h3>
-                <ul class="list-unstyled space-y-2">
+            {% if request.user.is_authenticated %}
+            <div class="bg-white shadow rounded-lg p-6 mb-8">
+
+                <h3 class="text-xl font-semibold mb-4">Můj přehled</h3>
+
+                <ul class="space-y-2 text-gray-700">
                     <li><strong>Prodáno knih:</strong> {{ user_sold_books|default:"0" }}</li>
                     <li><strong>Koupeno knih:</strong> {{ user_buyed_books|default:"0" }}</li>
-                    <li><strong>Právě prodávám:</strong> {{ user_pending_books|default:"0" }} knih za {{ total_user_pending|default:"0" }} Kč  </li>
-                    <li><strong>K vyplacení:</strong> {{ total_user_payment |default:"0" }} Kč</li>
+                    <li><strong>Právě prodávám:</strong> {{ user_pending_books|default:"0" }} knih za {{ total_user_pending|default:"0" }} Kč</li>
+                    <li><strong>K vyplacení:</strong> {{ total_user_payment|default:"0" }} Kč</li>
                     <li><strong>Vyplaceno:</strong> {{ total_user_paid_amount|default:"0" }} Kč</li>
-                    <!--<li><strong>DIVcoinů:</strong> {{ stats.divcoins }}</li>-->
                 </ul>
-                {% if total_user_payment > 0 and button_appear %}
-                {% if user.userprofile.bankaccount %}
-                <form method="post">
+
+                {% if total_user_payment > 0 and button_appear and user.userprofile.bankaccount %}
+                <form method="post" class="mt-4">
                     {% csrf_token %}
-                    <button type="submit" name="request_payout" class="add-book mt-2">Vyžádat výplatu</button>
+                    <button type="submit" name="request_payout" class="add-book w-full">
+                        Vyžádat výplatu
+                    </button>
                 </form>
                 {% endif %}
-                {% endif %}
+
                 {% if not user.userprofile.bankaccount %}
-                <hr>
-                <p> Aby bylo možné peníze vyplatit, prosím vyplňte své číslo účtu na <a href="/ucet/upravit/">profilu. </a> </p>
+                <p class="mt-4 text-sm text-gray-600">
+                    Pro výplatu je nutné vyplnit číslo účtu na
+                    <a href="/ucet/upravit/" class="text-green-700 underline">profilu</a>.
+                </p>
                 {% endif %}
-            </div>
-        </div>
-        {% endif %}
 
-        <!-- burza knih -->
-        <div class="card">
-            <div class="card-body">
-                <div class="flex flex-wrap card-title after-h3">
-                    <h3 class="font-bold">Burza knih</h3>
-                </div>
-                <p>Nabídek: {{ recent_sell_listings|length }} | Poptávek: {{ recent_buy_listings|length }}</p>
-                <!-- prodej -->
-                <div class="flex flex-wrap">
-                    <div class="flex flex-wrap justify-between w-full">
-                        <h4>Prodej - </h4><a href="{% url 'books_market_offers' %}"><small>Zobrazit vše</small></a>
-                    </div>
+            </div>
+            {% endif %}
+
+            <!-- BURZA KNIH -->
+            <div class="bg-white shadow rounded-lg p-6">
+
+                <h3 class="text-xl font-semibold mb-2">Burza knih</h3>
+                <p class="text-gray-600 mb-4">
+                    Nabídek: {{ recent_sell_listings|length }} |
+                    Poptávek: {{ recent_buy_listings|length }}
+                </p>
+
+                <!-- PRODEJ -->
+                <h4 class="font-medium mb-2">Prodej</h4>
+                <div class="space-y-3">
                     {% for listing in recent_sell_listings %}
-                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                    <div class="flex gap-3 border p-2 rounded-lg bg-gray-50">
+
                         <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
-                        {% if listing.book.img == "noimg.png" %}
-                            <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
-                            <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;">
+                            {% if listing.book.img == "noimg.png" %}
+                            <img src="/static/img/book/book.png" class="w-16 rounded">
                             {% elif listing.book.img == "GoogleID" %}
-                            <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
-                            <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                            <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1"
+                                 class="w-16 rounded">
                             {% else %}
-                            <!-- Jinak zobraz vlastní nahraný obrázek -->
-                            <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;">
-                        {% endif %}
+                            <img src="https://media.div.cz/knihy/{{ listing.book.img }}"
+                                 class="w-16 rounded">
+                            {% endif %}
                         </a>
 
-                        <div class="ml-2 p-2" style="flex: 2;">
-                            <p> 
-                            <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
-                            {{ listing.book.titlecz }}
-                            </a></p>
-                            <p>{{ listing.book.author }}</p>
-                            <p>{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
-                            <p class="text-sm text-end w-full"><small>Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</small></p>
+                        <div class="flex-1">
+                            <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}"
+                               class="font-medium hover:underline">
+                               {{ listing.book.titlecz }}
+                            </a>
+                            <p class="text-sm text-gray-600">{{ listing.book.author }}</p>
+                            <p class="text-sm">
+                                {% if listing.price %}{{ listing.price|floatformat:0 }} Kč
+                                {% else %}Daruji{% endif %}
+                            </p>
                         </div>
+
                     </div>
                     {% endfor %}
                 </div>
 
-                <hr>
+                <hr class="my-4">
 
-                <!-- poptávka -->
-                <div class="flex flex-wrap">
-                    <div class="flex flex-wrap justify-between w-full">
-                        <h4>Poptávka</h4><a href="{% url 'books_market_wants' %}"><small>Zobrazit vše</small></a>
-                    </div>
+                <!-- POPTÁVKY -->
+                <h4 class="font-medium mb-2">Poptávky</h4>
+                <div class="space-y-3">
                     {% for listing in recent_buy_listings %}
-                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                    <div class="flex gap-3 border p-2 rounded-lg bg-gray-50">
+
                         <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">
-                        {% if listing.book.img == "noimg.png" %}
-                            <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
-                            <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                            {% if listing.book.img == "noimg.png" %}
+                            <img src="/static/img/book/book.png" class="w-16 rounded">
                             {% elif listing.book.img == "GoogleID" %}
-                            <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
-                            <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
+                            <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1"
+                                 class="w-16 rounded">
                             {% else %}
-                            <!-- Jinak zobraz vlastní nahraný obrázek -->
-                            <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;" alt="odkaz na knihu">
-                        {% endif %}
+                            <img src="https://media.div.cz/knihy/{{ listing.book.img }}"
+                                 class="w-16 rounded">
+                            {% endif %}
                         </a>
 
-                        <div class="flex flex-wrap content-between h-full p-2" style="flex: 2;">
-                            <p class="w-full">
-                            <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">
-                            {{ listing.book.titlecz }}
-                            </a></p>
-                            <p class="w-full">{{ listing.book.author }}</p>
-                            <p class="w-full">{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
-                            <p class="text-sm text-end w-full"><small>Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</small></p>
+                        <div class="flex-1">
+                            <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}"
+                               class="font-medium hover:underline">
+                               {{ listing.book.titlecz }}
+                            </a>
+                            <p class="text-sm text-gray-600">{{ listing.book.author }}</p>
+                            <p class="text-sm text-gray-700">
+                                {{ listing.price|floatformat:0 }} Kč
+                            </p>
                         </div>
+
                     </div>
                     {% endfor %}
                 </div>
+
             </div>
+
         </div>
 
     </div>
+
 </div>
 
 {% endblock %}
+
+
+
+
+
+
+
+
+
