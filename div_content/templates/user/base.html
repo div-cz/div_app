@@ -43,8 +43,8 @@
                             <small class="text-muted">{% block text_muted %}{% endblock %} s ID: {{ user_profile.user_id }}</small>
                         </h1>
                         {% if request.user == user_profile.user %}
-                        <div class="btn btn-secondary">
-                            <i class="fas fa-pen" title="Upravit profil"></i>
+                        <div class="btn add">
+                            <span title="Upravit profil">&#9999;</span>
                             <a href="/ucet/upravit/" class="edit-link">
                                 <span>Upravit profil</span>
                             </a>
@@ -99,7 +99,7 @@
                     <div class="action-buttons-group">
                         
                         <a style="text-decoration: none; font-weight: normal;" href="{% url 'chat_message' profile_user.id %}">
-                            <button class="add gap-2" style="margin: 0; margin-right: 10px; padding: 0.5em 1em; height: 32px; width: 130px;">
+                            <button class="add">
                                 <svg class="svg-icon" fill="none" height="20" viewBox="0 0 20 20" width="20">
                                     <g stroke="#fff" stroke-linecap="round" stroke-width="1.5">
                                         <path d="m6.66669 6.66667h6.66671"></path>
@@ -112,20 +112,20 @@
                         </a>
                         
                         {% if is_favorite %}
-                        <a style="text-decoration: none; font-weight: normal;" href="{% url 'remove_from_favorite_users' user_profile.userprofileid %}">
-                        {% else %}
-                        <a style="text-decoration: none; font-weight: normal;" href="{% url 'add_to_favorite_users' user_profile.userprofileid %}">
-                        {% endif %}
-                            <button class="add gap-2" style="margin: 0; margin-right: 10px; padding: 0.5em 1em; height: 32px; width: 130px;">
-                                <svg class="svg-icon" fill="{% if is_favorite %}#e91e63{% else %}none{% endif %}"  height="20" viewBox="0 0 24 24" width="20">
-                                    <g stroke="#fff" stroke-linecap="round" stroke-width="1.5">
-                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                    </g>
-                                </svg>                                
-                                <span class="lable">Oblíbený</span>
-                            </button>
-                        </a>
-                    </div>
+                            <a style="text-decoration: none; font-weight: normal;" href="{% url 'remove_from_favorite_users' user_profile.userprofileid %}">
+                            {% else %}
+                            <a style="text-decoration: none; font-weight: normal;" href="{% url 'add_to_favorite_users' user_profile.userprofileid %}">
+                            {% endif %}
+                                <button class="add">
+                                    <svg class="svg-icon" fill="{% if is_favorite %}#e91e63{% else %}none{% endif %}"  height="20" viewBox="0 0 24 24" width="20">
+                                        <g stroke="#fff" stroke-linecap="round" stroke-width="1.5">
+                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                        </g>
+                                    </svg>                                
+                                    <span class="lable">Oblíbený</span>
+                                </button>
+                            </a>
+                        </div>
                     {% endif %}
 
                     {% block content %}
@@ -151,16 +151,16 @@
                 </p>
                 
                 <ul class="popup-list">
-                    <li><span class="list-icon-star">⭐</span> Hodnocení = odměna</li>
-                    <li><span class="list-icon-comment">💬</span> Komentáře = odměna</li>
-                    <li><span class="list-icon-book">📚</span> Obchody a e-knihy = odměna</li>
+                    <li><span class="list-icon-star">&#11088;</span> Hodnocení = odměna</li>
+                    <li><span class="list-icon-comment">&#128172;</span> Komentáře = odměna</li>
+                    <li><span class="list-icon-book">&#128218;</span> Obchody a e-knihy = odměna</li>
                 </ul>
                 
                 <p class="popup-text">
                     DIVcoiny pak můžeš vyměnit za slevy, dárky nebo boost nabídky na burze knih.
                 </p>
                 
-                <p>👉 
+                <p>&#128073; 
                 <a href="https://div.cz/co-je-divcoin" target="_blank" class="popup-link">
                     Více o DIVcoinech
                 </a></p>

@@ -218,46 +218,45 @@
                     <div class="chat-container" id="chatContainer" data-last-message-id="{{ last_message_id }}">
                         <div class="chat-box" data-chat="person3">
                             {% if has_older_messages %}
-                            <a class="old-msg" id="loadOlderButton">
-                                <svg class="svgIcon" viewBox="0 0 384 512" fill="#666666">
-                                    <path d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"></path>
-                                </svg>
-                            </a>
+                                <a class="old-msg" id="loadOlderButton">
+                                    <svg class="svgIcon" viewBox="0 0 384 512" fill="#666666">
+                                        <path d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"></path>
+                                    </svg>
+                                </a>
                             {% endif %}
-                            <ul id="chatMessageList">
-                            
-                            {% for chat_session in chat_sessions %}
-                                {% for message in chat_session.latest_messages reversed %}
-                                    {% if message.sender == request.user %}
-                                    <li class="chat-right" data-message-id="{{ message.usermessageid }}">
-                                        <div class="my-msg">
-                                            <div class="chat-hour">{{ message.sentat }}</div>
-                                            <div class="chat-text">{{ message.message }}</div>
-                                        </div>
-                                        <div class="chat-avatar">
-                                            <img src="/static/img/avatar/{{message.sender.userprofile.avatar.imagepath}}" alt="Avatar">
-                                        </div>
-                                    </li>
-                                    {% else %}
-                                    <li class="chat-left" data-message-id="{{ message.usermessageid }}">
-                                        <div class="chat-avatar">
-                                            <img src="/static/img/avatar/{{receiver.userprofile.avatar.imagepath}}" alt="Avatar">
-                                        </div>
-                                        <div class="their-msg">
-                                            <div class="chat-hour">{{ message.sentat }}</div>
-                                            <div class="chat-text">{{ message.message }}</div>
-                                        </div>
-                                    </li>
-                                    {% endif %}
-                                {% endfor %}
-                            {% endfor %}
 
+                            <ul id="chatMessageList">
+                                {% for chat_session in chat_sessions %}
+                                    {% for message in chat_session.latest_messages reversed %}
+                                        {% if message.sender == request.user %}
+                                            <li class="chat-right" data-message-id="{{ message.usermessageid }}">
+                                                <div class="my-msg">
+                                                    <div class="chat-hour">{{ message.sentat }}</div>
+                                                    <div class="chat-text">{{ message.message }}</div>
+                                                </div>
+                                                <div class="chat-avatar">
+                                                    <img src="/static/img/avatar/{{message.sender.userprofile.avatar.imagepath}}" alt="Avatar">
+                                                </div>
+                                            </li>
+                                            {% else %}
+                                            <li class="chat-left" data-message-id="{{ message.usermessageid }}">
+                                                <div class="chat-avatar">
+                                                    <img src="/static/img/avatar/{{receiver.userprofile.avatar.imagepath}}" alt="Avatar">
+                                                </div>
+                                                <div class="their-msg">
+                                                    <div class="chat-hour">{{ message.sentat }}</div>
+                                                    <div class="chat-text">{{ message.message }}</div>
+                                                </div>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
                         </div>
                         
                         <form method="post" class="chat-form">
                             {% csrf_token %}
                             <div id="emoji-picker" class="emoji-picker">
-                                
                                 <button type="button" class="emoji-btn" data-emoji="🙂">🙂</button>
                                 <button type="button" class="emoji-btn" data-emoji="😊">😊</button>
                                 <button type="button" class="emoji-btn" data-emoji="😂">😂</button>
@@ -267,6 +266,7 @@
                                 <button type="button" class="emoji-btn" data-emoji="❤️">❤️</button>
                                 <button type="button" class="emoji-btn" data-emoji="👍">👍</button>
                             </div>
+                            
                             <div class="form-group">
                                 {{ form.message.errors }}
                                 {{ form.message }}
