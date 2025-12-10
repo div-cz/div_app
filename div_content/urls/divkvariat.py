@@ -2,7 +2,7 @@
 #                    URLS.DIVKVARIAT.PY
 # -------------------------------------------------------------------
 
-from allauth.account.views import LoginView, LogoutView, SignupView
+from allauth.account.views import confirm_email, LoginView, LogoutView, SignupView, email_verification_sent
 
 
 
@@ -43,7 +43,8 @@ urlpatterns = [
     #path("ucet/", include("allauth.urls")),
     path("ucet/", login_required(account_view), name="dk_account"),
     path("api/chatbot/", chatbot_api, name="chatbot_api"),
-
+    path('ucet/potvrdit-email/<str:key>/', confirm_email, name='account_confirm_email'),
+    path('ucet/overeni-odeslano/', email_verification_sent, name='account_email_verification_sent'),
 
     # Přihlášení / registrace
     path("prihlaseni/", CustomLoginView.as_view(template_name="divkvariat/account/login.html"), name="account_login"),
