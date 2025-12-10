@@ -23,7 +23,7 @@ def get_metastats(request):
 
     if data is None:
         stats = {item.statname: item.value for item in Metastats.objects.all()}
-        cache.set("metastats_global", stats, 14400)  # 24 hodin
+        cache.set("metastats_global", stats, 14400)  # 14400 = 4 hodin
         return {"metastats": stats}
 
     return {"metastats": data}
