@@ -1,3 +1,4 @@
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="cs">
     
@@ -722,7 +723,7 @@
           <!-- Uživatel -->
           <div style="text-align:right">
             <small>
-              Uživatel: <a href="/uzivatel/{{ comment.user.username }}">{{ comment.user.username }}</a>
+              Uživatel: <a href="/uzivatel/{{ comment.user.id }}/">{{ comment.user.username }}</a>
             </small>
           </div>
         </div>
@@ -875,16 +876,55 @@
                             </div>
                         </div>
 
-                        <!-- licence her -->
-                        <div class="card box-shadow mb-4">
-                            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                                <h3 class="card-title font-bold after-h3">Licence her</h3>
-                                <ul>
-                                    <li>Playstation Store<!--, kredit 500,--></li>
-                                    <li>xBox Store<!--, kredit 1000,--></li>
-                                </ul>
-                            </div>
-                        </div>
+
+<!-- META STATS -->
+<div class="card box-shadow mb-4">
+    <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+        
+        <h3 class="card-title font-bold after-h3">Statistiky DIV</h3>
+
+        <ul class="list-unstyled mt-2" style="line-height: 1.6; font-size: 14px;">
+
+        <li>🎬 Filmy: {{ metastats.MoviesCount|intcomma }}</li>
+        <li>📚 Knihy: {{ metastats.BooksCount|intcomma }}</li>
+        <li>🎮 Hry: {{ metastats.GamesCount|intcomma }}</li>
+        
+        <hr>
+        
+        <li>🧑‍🎤 Tvůrci: {{ metastats.CreatorsCount|intcomma }}</li>
+        <li>🧙‍♂️ Postavy: {{ metastats.CharactersCount|intcomma }}</li>
+        <li>👥 Registrovaní uživatelé: {{ metastats.UsersCount|intcomma }}</li>
+        
+        <hr>
+        
+        <li>⭐ Hodnocení filmů: {{ metastats.MovieRatingsCount|intcomma }}</li>
+        <li>📚 Hodnocení knih: {{ metastats.BookRatingsCount|intcomma }}</li>
+        <li>🎮 Hodnocení her: {{ metastats.GameRatingsCount|intcomma }}</li>
+        
+        <hr>
+        
+        <li>🎞️ Filmové zajímavosti: {{ metastats.MovieTriviaCount|intcomma }}</li>
+        <li>💬 Filmové hlášky: {{ metastats.MovieQuotesCount|intcomma }}</li>
+        <li>🐞 Filmové chyby: {{ metastats.MovieErrorsCount|intcomma }}</li>
+        
+        <hr>
+        
+        <li>💬 Knižní komentáře: {{ metastats.BookCommentsCount|intcomma }}</li>
+        <li>🗯️ Knižní hlášky: {{ metastats.BookQuotesCount|intcomma }}</li>
+        <li>✍️ Spisovatelé: {{ metastats.BookWritersCount|intcomma }}</li>
+        
+        <hr>
+        
+        <li>📺 Seriály: {{ metastats.ShowsCount|intcomma }}</li>
+        <li>🎞️ Sezóny: {{ metastats.SeasonsCount|intcomma }}</li>
+        <li>🎬 Epizody: {{ metastats.EpisodesCount|intcomma }}</li>
+
+        </ul>
+
+    </div>
+</div>
+
+
 
                     </div>
                 </div>

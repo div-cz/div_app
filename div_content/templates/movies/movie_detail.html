@@ -124,7 +124,7 @@
 
         <!-- Info Bar -->
         <div class="rounded-3 p-2 mb-3 d-flex w-full bg-[#F9F9F9] dark:bg-[#1A161F] border-[#ccc] rounded-1xl">
-            <span><a href="https://div.cz/filmy/{{ movie.releaseyear }}" title="Filmy roku {{ movie.releaseyear }} | {{ movie.movieid }}">{{ movie.releaseyear }}</a></span>
+            <span><a href="https://div.cz/filmy/{{ movie.releaseyear }}" title="Filmy roku {{ movie.releaseyear }} | {{ movie.movieid }}">{{ movie.releaseyear|default:"" }}</a></span>
             &nbsp;|&nbsp;
             <span>
             {% if countries %}
@@ -775,6 +775,29 @@ document.querySelectorAll('.thumb-btn').forEach(btn => {
                     {% if not forloop.last %} 
                     {% endif %}
                     {% endfor %}
+
+
+{% if keywordsCZ %}
+    {% for key in keywordsCZ %}
+        <span class="rounded bg-[#c0c0c0] dark:bg-[#0d0c0f] p-1 label">
+            {{ key }}
+        </span>
+    {% endfor %}
+{% elif keywordsEN %}
+    {% for key in keywordsEN %}
+        <span class="rounded bg-[#c0c0c0] dark:bg-[#0d0c0f] p-1 label">
+            {{ key }}
+        </span>
+    {% endfor %}
+{% else %}
+    <!-- fallback: žánry -->
+    {% for movie_genre in genres %}
+        <span class="rounded bg-[#c0c0c0] dark:bg-[#0d0c0f] p-1 label">
+            {{ movie_genre.genreid.genrenamecz }}
+        </span>
+    {% endfor %}
+{% endif %}
+
                 </div>
             </div>
         </div>

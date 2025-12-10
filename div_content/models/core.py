@@ -106,6 +106,7 @@ class Articleblog(models.Model):
         ('book', 'Knižní'),
         ('game', 'Herní'),
         ('movie', 'Filmový'),
+        ('series', 'Seriálový'),
         ('general', 'Obecný'),
     ]
 

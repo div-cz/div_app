@@ -6,9 +6,27 @@
 # Tyto funkce se přidávájí do SETTINGS.PY -> TEMPLATES
 
 from div_content.models import Userprofile, Favorite
+from django.core.cache import cache
+
 from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
-from div_content.models import Usermessage, Userchatsession
+from div_content.models import Metastats, Usermessage, Userchatsession
+#from div_content.models.meta import Metastats
+
+
+def get_metastats(request):
+    """
+    Vrací metastats jako globální kontext dostupný ve všech šablonách.
+    Cache na 24 hodin – aktualizace probíhá jednou denně v noci.
+    """
+    data = cache.get("metastats_global")
+
+    if data is None:
+        stats = {item.statname: item.value for item in Metastats.objects.all()}
+        cache.set("metastats_global", stats, 14400)  # 24 hodin
+        return {"metastats": stats}
+
+    return {"metastats": data}
 
 
 def get_userprofile_avatar(request):
@@ -67,4 +85,3 @@ def get_user_unread_messages(request):
         return {
             "has_unread_messages": False
         }
-

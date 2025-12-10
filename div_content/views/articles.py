@@ -46,7 +46,11 @@ def article_detail(request, article_url):
 
 
 def articles_index(request):
-    latest_articles = Article.objects.filter(typ='Článek').order_by('-created')[:10]
+    latest_articles = (
+        Article.objects
+        .filter(typ__in=["Movie", "Book", "Game", "General"])
+        .order_by('-created')[:10]
+    )
     sections = [
         {'name': 'Filmové články', 'url': 'filmy'},
         {'name': 'Knižní články', 'url': 'knihy'},

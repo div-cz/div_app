@@ -91,6 +91,62 @@
     </div>
 </div>
 
+
+<h3 class="mt-10 mb-3">📌 Poslední články</h3>
+
+<section class="my-4 w-3/4">
+    {% if latest_articles %}
+        {% for art in latest_articles %}
+        <ol class="border mb-2">
+
+            <!-- Titulek + typ -->
+            <li class="flex justify-between">
+                <a class="hover:underline font-semibold" href="/{{ art.url }}">
+                    {{ art.title }}
+                </a>
+
+                <span class="flex items-center gap-1">
+                    {% if art.typ == "Movie" %}
+                        <span class="text-red-600">&#127916; Filmy</span>
+                    {% elif art.typ == "Book" %}
+                        <span class="text-green-700">&#128214; Knihy</span>
+                    {% elif art.typ == "Game" %}
+                        <span class="text-blue-700">&#127918; Hry</span>
+                    {% elif art.typ == "Series" %}
+                        <span class="text-purple-700">&#128253; Seriály</span>
+                    {% else %}
+                        <span class="text-gray-600">&#128172; Ostatní</span>
+                    {% endif %}
+                </span>
+            </li>
+
+            <hr style="width: 98%; margin: 0 auto;">
+
+            <!-- Info -->
+            <li>
+                <small>
+                    {{ art.created|date:"d.m.Y" }}
+                </small>
+
+                {% if art.img400x250 %}
+                <div class="mt-2">
+                    <img src="{{ art.img400x250 }}" alt="{{ art.alt }}" class="w-48 rounded shadow">
+                </div>
+                {% endif %}
+
+                <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                    {{ art.perex|default:art.content|striptags|truncatechars:140 }}
+                </p>
+            </li>
+
+        </ol>
+        {% endfor %}
+    {% else %}
+        <p>Zatím žádné články.</p>
+    {% endif %}
+</section>
+
+
 <script>
     // Funkce pro zobrazení/skrytí roletového menu po kliknutí na text "Akce"
     function toggleDropdown(event) {

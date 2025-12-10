@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load ratings %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Hry na DIV.cz{% endblock %}
 
@@ -404,19 +405,29 @@
             </div>
         </div>
 
-        <!-- STATISTIKY -->
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <h3 class="card-title font-bold after-h3">V databázi máme:</h3>
-                <ul>
-                    <li><p>89.564 her</p></li>
-                    <!--<li>--><!--počet--><!--<p>her na PC</p></li>-->
-                    <!--<li>--><!--počet--><!--<p>her na PS</p></li>-->
-                    <!--<li>--><!--počet--><!--<p>her na Xbox</p></li>-->
-                    <!--<li>--><!--počet--><!--<p>stolních her</p></li>-->
-                </ul>
-            </div>
-        </div>
+<!-- META STATS -->
+<div class="card box-shadow mb-4">
+    <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
+        
+        <h3 class="card-title font-bold after-h3">Herní statistiky DIV</h3>
+
+        <ul class="list-unstyled mt-2" style="line-height: 1.6; font-size: 14px;">
+
+<li>🎮 Hry: {{ metastats.GamesCount|intcomma }}</li>
+
+<hr>
+
+<li>🎮 Hodnocení her: {{ metastats.GameRatingsCount|intcomma }}</li>
+
+<hr>
+
+<li>🧑‍🎤 Tvůrci: {{ metastats.CreatorsCount|intcomma }}</li>
+<li>🧙‍♂️ Postavy: {{ metastats.CharactersCount|intcomma }}</li>
+
+        </ul>
+    </div>
+</div>
+
 
     </div>
 </div>
