@@ -4,7 +4,7 @@
 {% block title %}{{ profile_user.username }} – Nabídky k prodeji | DIVkvariát{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto py-10">
+<div class="max-w-7xl mx-auto px-4">
 
     <h1 class="text-3xl font-bold mb-2 text-gray-800">
         {{ profile_user.username }} – Nabídky k prodeji
@@ -26,57 +26,55 @@
         ← Všechny nabídky
     </a>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
         {% for listing in listings %}
-        <div class="book-card border bg-white rounded-lg p-4 shadow">
+<div class="bg-white border rounded-xl shadow-sm hover:shadow-lg p-4 transition flex flex-col h-full">
 
-            <div class="flex gap-4">
+    <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+        {% if listing.book.img == "noimg.png" %}
+            <img src="https://media.div.cz/img/book/book.png"
+                 class="w-full h-40 object-cover rounded-md mb-3 bg-gray-100">
+        {% elif listing.book.img == "GoogleID" %}
+            <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1"
+                 class="w-full h-40 object-cover rounded-md mb-3 bg-gray-100">
+        {% else %}
+            <img src="https://media.div.cz/knihy/{{ listing.book.img }}"
+                 class="w-full h-40 object-cover rounded-md mb-3 bg-gray-100">
+        {% endif %}
+    </a>
 
-                <a href="{% url 'book_detail_cz' listing.book.url %}">
-                    {% if listing.book.img == "noimg.png" %}
-                        <img src="/static/img/book/book.png"
-                             class="w-24 h-32 object-cover rounded shadow">
-                    {% elif listing.book.img == "GoogleID" %}
-                        <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1"
-                             class="w-24 h-32 object-cover rounded shadow">
-                    {% else %}
-                        <img src="https://media.div.cz/knihy/{{ listing.book.img }}"
-                             class="w-24 h-32 object-cover rounded shadow">
-                    {% endif %}
-                </a>
+    <div class="flex-1">
+        <h3 class="text-base font-semibold text-gray-800 line-clamp-2">
+            {{ listing.book.titlecz|default:listing.book.title }}
+        </h3>
 
-                <div class="flex-1">
+        <p class="text-sm text-gray-500 mb-2">
+            {{ listing.book.author }}
+        </p>
+    </div>
 
-                    <a href="{% url 'book_detail_cz' listing.book.url %}"
-                       class="font-semibold text-gray-800 hover:underline">
-                        {{ listing.book.titlecz|default:listing.book.title }}
-                    </a>
+    <div class="mt-4">
+        <p class="text-lg font-bold text-green-600 mb-1">
+            {% if listing.listingtype == "GIVE" %}
+                Daruji
+            {% else %}
+                {{ listing.price|intcomma }} Kč
+            {% endif %}
+        </p>
 
-                    <p class="text-gray-600 text-sm mb-2">{{ listing.book.author }}</p>
+        <p class="text-xs text-gray-500 mb-3">
+            Přidáno {{ listing.createdat|naturaltime }}
+        </p>
 
-                    <p class="text-green-700 font-semibold">
-                        {% if listing.listingtype == "GIVE" %}
-                            Daruji
-                        {% else %}
-                            {{ listing.price|intcomma }} Kč
-                        {% endif %}
-                    </p>
+        <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}"
+           class="block w-full text-center py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold">
+            Detail nabídky
+        </a>
+    </div>
 
-                    <p class="text-xs text-gray-500 mb-2">
-                        {{ listing.createdat|naturaltime }}
-                    </p>
+</div>
 
-                    <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}"
-                       class="text-sm text-green-700 hover:underline">
-                        Detail nabídky →
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
         {% empty %}
         <p class="text-gray-600">Žádné aktivní nabídky.</p>
         {% endfor %}

@@ -433,6 +433,12 @@ def antikvariat_home(request):
         context_data = {}
 
 
+    pending_payout = Booklisting.objects.filter(
+        status='COMPLETED',
+        paidtoseller=False
+    ).aggregate(
+        total=Sum(F('price') + F('shipping'))
+    )['total'] or 0
 
     final_context = {
         "count_sell": count_sell,
@@ -441,6 +447,7 @@ def antikvariat_home(request):
         "listings_buy": listings_buy,
         #"random_listings": random_listings,
         **context_data, 
+        "pending_payout":pending_payout,
     }
 
 #    template = "books/antikvariat_home.html"

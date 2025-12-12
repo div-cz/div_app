@@ -103,12 +103,12 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {% for listing in listings %}
-        <div class="bg-white border rounded-xl shadow-sm hover:shadow-lg p-4 transition">
+        <div class="bg-white border rounded-xl shadow-sm hover:shadow-lg p-4 transition flex flex-col h-full">
 
             <!-- Obrázek -->
             <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
                 {% if listing.book.img == "noimg.png" %}
-                    <img src="/static/img/book/book.png"
+                    <img src="https://media.div.cz/img/book/book.png"
                          class="w-full h-64 object-cover rounded-md mb-4">
                 {% elif listing.book.img == "GoogleID" %}
                     <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1"
@@ -141,9 +141,9 @@
                 {% endif %}
             </p>
 
-            <!-- Detail -->
+            <!-- Detail Tlačítko -->
             <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}"
-               class="block w-full text-center py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold">
+               class="mt-auto block w-full text-center py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold">
                 Detail nabídky
             </a>
 
