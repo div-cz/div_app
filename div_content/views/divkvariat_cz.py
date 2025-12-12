@@ -801,7 +801,7 @@ def listing_add_book(request):
 
                     
                     title = book.title or book.titlecz
-                    messages.success(request, f'Nabídka pro knihu "{title}" byla úspěšně vytvořena - <a href=\"https://magic.div.cz/antikvariat/pridat-knihu/\">Vytvořit novou</a>.')
+                    messages.success(request, f'Nabídka pro knihu "{title}" byla úspěšně vytvořena - <a href=\"/pridat-knihu/\">Vytvořit novou</a>.')
                     return redirect('book_detail_cz', book_url=book.url)
             except Book.DoesNotExist:
                 messages.error(request, 'Kniha nebyla nalezena.')
@@ -1957,7 +1957,98 @@ def user_book_listings(request, user_id):
     )
     avg_buyer_rating = buyer_ratings.aggregate(Avg('buyerrating'))['buyerrating__avg']
     buyer_ratings_count = buyer_ratings.count()
+
+
+    # UŽIVATELSKÝ EDIT
+    # Jen vlastník může spravovat
+    if request.user != user:
+        messages.error(request, "Nemáte oprávnění zobrazit tyto nabídky.")
+        return redirect('antikvariat_home')
     
+    # ✅ BASE QUERYSET
+    qs = Booklisting.objects.filter(user=user).select_related("book")
+    
+    # ✅ TABS
+    tabs = [
+        ("all", "Vše"),
+        ("sell", "Prodej"),
+        ("buy", "Poptávky"),
+        ("archive", "Archiv"),
+    ]
+    
+    # ✅ FILTR TYP
+    filter_type = request.GET.get("type", "all")
+    if filter_type == "sell":
+        qs = qs.filter(listingtype__in=['SELL', 'GIVE'], status__in=['ACTIVE', 'RESERVED', 'PAID', 'SHIPPED'])
+    elif filter_type == "buy":
+        qs = qs.filter(listingtype='BUY', status__in=['ACTIVE', 'RESERVED', 'PAID', 'SHIPPED'])
+    elif filter_type == "archive":
+        qs = qs.filter(status__in=['COMPLETED', 'CANCELLED', 'EXPIRED', 'DELETED'])
+    else:  # all
+        qs = qs.filter(status__in=['ACTIVE', 'RESERVED', 'PAID', 'SHIPPED'])
+    
+    # ✅ ŘAZENÍ
+    order = request.GET.get("order", "date")
+    if order == "alpha":
+        qs = qs.order_by("book__titlecz")
+    else:
+        qs = qs.order_by("-createdat")
+    
+    # ✅ FILTR PÍSMENO
+    alphabet = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    active_letter = request.GET.get("letter")
+    if active_letter:
+        qs = qs.filter(book__titlecz__istartswith=active_letter)
+    
+    # ✅ POST – HROMADNÉ AKCE
+    if request.method == 'POST':
+        action = request.POST.get("action")
+        
+        # ZRUŠENÍ VYBRANÝCH
+        if action == "cancel":
+            selected_ids = request.POST.getlist("selected_ids")
+            if selected_ids:
+                cancelled = Booklisting.objects.filter(
+                    booklistingid__in=selected_ids,
+                    user=user,
+                    status='ACTIVE'
+                ).update(status='CANCELLED')
+                messages.success(request, f"Zrušeno {cancelled} nabídek.")
+            else:
+                messages.warning(request, "Nevybrali jste žádné nabídky.")
+            return redirect('user_book_listings', user_id=user.id)
+        
+        # AKTUALIZACE CEN (INDIVIDUÁLNĚ)
+        elif action == "update_prices":
+            updated = 0
+            for key, value in request.POST.items():
+                if key.startswith("price_") and value:
+                    listing_id = key.replace("price_", "")
+                    try:
+                        listing = Booklisting.objects.get(
+                            booklistingid=listing_id, 
+                            user=user, 
+                            status='ACTIVE'
+                        )
+                        new_price = int(value)
+                        if new_price != listing.price:
+                            listing.price = new_price
+                            listing.save()
+                            updated += 1
+                    except (Booklisting.DoesNotExist, ValueError):
+                        continue
+            
+            if updated > 0:
+                messages.success(request, f"Aktualizováno {updated} cen.")
+            else:
+                messages.info(request, "Žádné ceny nebyly změněny.")
+            return redirect('user_book_listings', user_id=user.id)
+    
+    # ✅ STRÁNKOVÁNÍ
+    paginator = Paginator(qs, 24)
+    page = request.GET.get("page")
+    listings = paginator.get_page(page)
+
     return render(request, 'divkvariat/user_book_listings.html', {  # změněna cesta k šabloně
         'profile_user': user,
         'sell_listings': sell_listings,
@@ -1965,7 +2056,13 @@ def user_book_listings(request, user_id):
         'seller_rating': avg_seller_rating,
         'seller_ratings_count': seller_ratings_count,
         'buyer_rating': avg_buyer_rating,
-        'buyer_ratings_count': buyer_ratings_count
+        'buyer_ratings_count': buyer_ratings_count, 
+        'listings': listings,
+        'tabs': tabs,
+        'filter_type': filter_type,
+        'order': order,
+        'alphabet': alphabet,
+        'active_letter': active_letter,
     })
 
 

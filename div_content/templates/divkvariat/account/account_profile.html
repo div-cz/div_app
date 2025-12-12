@@ -18,9 +18,13 @@
       </p>
     </div>
     <div>
+      <a href="{% url 'user_book_listings' user.id %}" class="inline-block px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">
+        📦 Spravovat moje nabídky
+      </a>
       <a href="{% url 'account_edit' %}" class="inline-block px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">
         Upravit údaje
       </a>
+
     </div>
   </div>
 
@@ -96,6 +100,11 @@
               <span class="font-semibold">{{ listing.price }} Kč</span>
             </li>
           {% endfor %}
+
+      <a href="{% url 'user_book_listings' user.id %}" class="inline-block px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">
+        📦 Všechny moje nabídky
+      </a>
+      
         </ul>
       {% else %}
         <p class="text-sm text-gray-500">Nemáš žádné aktivní nabídky.</p>
@@ -122,6 +131,12 @@
     </div>
 
   </div>
-
+            {% if request.user.is_authenticated %}
+            <div style="margin-top:20px;text-align:center">
+                <a href="/odhlaseni/" class="text-red-600 hover:text-red-700 text-sm font-medium">
+                    Odhlásit se
+                </a>
+            </div>
+            {% endif %}
 </div>
 {% endblock %}
