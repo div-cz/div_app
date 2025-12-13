@@ -43,31 +43,31 @@
     <div class="container">
         <!-- Seznam herců -->
         <div class="celebrit-list">
-        {% for creator in creators %}
-            <div class="card card-body" style="padding: 0;">
-                <a href="/tvurce/{{ creator.url }}">
-                {% if not creator.img or creator.img == "" %}
-                    <img src="/static/img/creator/noperson.svg" alt="{{ creator.lastname }}">
-                    {% else %}
-                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ creator.img }}" alt="{{ creator.lastname }}">
-                {% endif %}
-                </a> 
+            {% for creator in creators %}
+                <div class="card card-body" style="padding: 0;">
+                    <a href="/tvurce/{{ creator.url }}">
+                        {% if not creator.img or creator.img == "" %}
+                            <img src="/static/img/creator/noperson.svg" alt="{{ creator.lastname }}">
+                            {% else %}
+                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ creator.img }}" alt="{{ creator.lastname }}">
+                        {% endif %}
+                    </a> 
 
-                <h4>{{ creator.firstname }} {{ creator.lastname }}</h4>
-                <span class="card-text" style="text-align: center;"><!--{{ creator.knownfordepartment }}-->
-                {% if creator.knownfordepartment == "Acting" %}
-                    Herec
-                {% elif creator.knownfordepartment == "Directing" %}
-                    Režisér
-                {% elif creator.knownfordepartment == "Production" %}
-                    Producent
-                {% elif creator.knownfordepartment == "Writing" %}
-                    Scénárista
-                {% else %}
-                    Těžko říct
-                {% endif %} 
-                </span>
-            </div>
+                    <h4>{{ creator.firstname }} {{ creator.lastname }}</h4>
+                    <span class="card-text" style="text-align: center;"><!--{{ creator.knownfordepartment }}-->
+                        {% if creator.knownfordepartment == "Acting" %}
+                            Herec
+                        {% elif creator.knownfordepartment == "Directing" %}
+                            Režisér
+                        {% elif creator.knownfordepartment == "Production" %}
+                            Producent
+                        {% elif creator.knownfordepartment == "Writing" %}
+                            Scénárista
+                        {% else %}
+                            Těžko říct
+                        {% endif %} 
+                    </span>
+                </div>
             {% endfor %}
         </div>
 

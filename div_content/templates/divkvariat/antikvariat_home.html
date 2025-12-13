@@ -102,16 +102,21 @@
     </a>.
 </p>
 
-<!-- Zprávy -->
-{% if messages %}
-<div class="mt-3">
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}" role="alert">
-            {{ message|safe }}
-        </div>
-    {% endfor %}
+
+
+
+{% if request.user.is_authenticated and request.user.is_superuser %}
+<div class="mb-10 border border-yellow-200 bg-yellow-50 rounded-lg p-4 shadow-sm">
+    <p class="text-sm text-gray-700">
+        <strong>💰 Administrace – závazky k vyplacení:</strong><br>
+        Celkem čeká na vyplacení
+        <span class="font-semibold text-gray-900">
+            {{ pending_payout|floatformat:0 }} Kč
+        </span>
+    </p>
 </div>
 {% endif %}
+
 
 <!-- Statistiky a akce -->
 <div class="flex flex-col sm:flex-row gap-4 mb-12">
@@ -168,53 +173,46 @@
     <i class="fas fa-book-open mr-2 text-green-600"></i> Nejnovější nabídky
 </h2>
 
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
     {% for listing in listings_sell %}
-    <div class="book-card border border-gray-200 rounded-lg bg-white p-4 shadow-sm">
-        <div class="flex gap-4">
+        <div class="bg-white border rounded-xl shadow-sm hover:shadow-lg p-4 transition flex flex-col h-full">
+        
             <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
                 {% if listing.book.img == "noimg.png" %}
-                <img src="/static/img/book/book.png"
-                     alt="{{ listing.book.titlecz }}"
-                     class="w-16 h-24 object-cover rounded shadow"
-                     style="max-width:150px">
+                    <img src="https://media.div.cz/img/book/book.png"
+                         class="w-full aspect-[3/4] object-contain sm:object-cover rounded-md mb-3 bg-gray-100">
                 {% elif listing.book.img == "GoogleID" %}
-                <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1"
-                     class="w-16 h-24 object-cover rounded shadow"
-                     alt="{{ listing.book.titlecz }}">
+                    <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1"
+                         class="w-full aspect-[3/4] object-contain sm:object-cover rounded-md mb-3 bg-gray-100">
                 {% else %}
-                <img src="https://media.div.cz/knihy/{{ listing.book.img }}"
-                     class="w-16 h-24 object-cover rounded shadow"
-                     alt="{{ listing.book.titlecz }}"
-                     style="max-width:150px">
+                    <img src="https://media.div.cz/knihy/{{ listing.book.img }}"
+                         class="w-full aspect-[3/4] object-contain sm:object-cover rounded-md mb-3 bg-gray-100">
                 {% endif %}
             </a>
-
-            <div class="flex flex-col justify-between flex-1">
-                <div>
-                    <strong class="text-gray-800">
-                        {{ listing.book.titlecz|default:listing.book.title }}
-                    </strong><br>
-                    <span class="text-sm text-gray-600">Autor: {{ listing.book.author }}</span>
-                </div>
-
-                <div class="mt-2">
-                    <span class="text-green-800 font-medium">
-                        {% if listing.price %}
-                            {{ listing.price|floatformat:0 }} Kč
-                        {% else %}
-                            Daruji
-                        {% endif %}
-                    </span><br>
-
-                    <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}"
-                       class="text-green-700 hover:underline text-sm">
-                        Detail nabídky
-                    </a>
-                </div>
-            </div>
+        <div class="flex-1">
+            <h3 class="text-base font-semibold text-gray-800 line-clamp-2">
+                {{ listing.book.titlecz|default:listing.book.title }}
+            </h3>
+        
+            <p class="text-sm text-gray-500 mb-2">
+                {{ listing.book.author }}
+            </p>
         </div>
-    </div>
+        <div class="mt-4">
+            <p class="text-lg font-bold text-green-600 mb-3">
+                {% if listing.price %}
+                    {{ listing.price|floatformat:0 }} Kč
+                {% else %}
+                    Daruji
+                {% endif %}
+            </p>
+        
+            <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}"
+               class="block w-full text-center py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold">
+                Detail nabídky
+            </a>
+        </div>
+        </div>
     {% endfor %}
 </div>
 

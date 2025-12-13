@@ -7,37 +7,34 @@
 
 {% block meta %}
 
-<style>
-    .navbar, footer {
-        background: linear-gradient(90deg, #330000 10%, #A52B21 90%);
-    }
+    <link href="/static/css/movies.css" rel="stylesheet">
 
-    .nav-tabs-item a.active,
-    .tab.active,
-    .rating-score {
-        background-color: #A52B21;
-    }
+    <style>
+        .nav-tabs-item a.active,
+        .tab.active,
+        .rating-score {
+            background-color: #A52B21;
+        }
 
-    .nav-tabs-link,
-    .tab-content a {
-        color: #A52B21;
-    }
+        .nav-tabs-link,
+        .tab-content a {
+            color: #A52B21;
+        }
 
-    .nav-tabs-link:is(.dark *),
-    .tab-content a:is(.dark *) {
-        color: #ED3F2F;
-    }
+        .nav-tabs-link:is(.dark *),
+        .tab-content a:is(.dark *) {
+            color: #ED3F2F;
+        }
 
-    .select-options a:hover {
-        background-color: #A52B21;
-        color: white;
-    }
-    
-    .rating-score:is(.dark *) {
-        background: #ED3F2F;
-    }
-
-</style>
+        .select-options a:hover {
+            background-color: #A52B21;
+            color: white;
+        }
+        
+        .rating-score:is(.dark *) {
+            background: #ED3F2F;
+        }
+    </style>
 
 {% endblock %}
 
@@ -68,57 +65,55 @@
         </li>
     </ul>
 
-    <div class="tab-content">
+    <div class="tab-content-body">
         <!-- Tab Hodnocení filmů -->
         <div id="filmy" class="tab-show active {% if not hash or hash == 'filmy' %}active{% else %}hidden{% endif %}">
             <div class="tab-content-item">
                 <h3 class="after-h3">Nejlépe hodnocené filmy</h3>
-                <div class="table">
-                    {% for movie in top_movies %}
-                        <div class="table-row">
-                            <div>
-                                {% if movie.imgposter %}
-                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.imgposter }}" alt="{{ movie.titlecz }}" style="width: 70px;">
-                                    {% else %}
-                                    <img src="/static/img/movies/nomovie.jpg" alt="{{ movie.titlecz }}" style="width: 70px;">
+                {% for movie in top_movies %}
+                    <div class="table-row">
+                        <div>
+                            {% if movie.imgposter %}
+                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.imgposter }}" alt="{{ movie.titlecz }}" style="width: 70px;">
+                                {% else %}
+                                <img src="/static/img/movies/nomovie.jpg" alt="{{ movie.titlecz }}" style="width: 70px;">
+                            {% endif %}
+                        </div>
+                        <div style="margin-left: .75rem;">
+                            <h3>{{ forloop.counter }}. 
+                                <a href="/film/{{ movie.url }}">
+                                    {{ movie.titlecz }}
+                                </a> 
+                                ({{ movie.releaseyear }})
+                            </h3>
+                            <p>Režie: 
+                            {% for director in directors %}
+                                {% if director.movieid.movieid == movie.movieid %}
+                                <a href="{% url 'creator_detail' director.peopleid.url %}">
+                                    {{ director.peopleid.firstname }} {{ director.peopleid.lastname }}
+                                </a><!--{% if not forloop.last %}, {% endif %}-->
                                 {% endif %}
+                            {% endfor %}
+                            </p>
+                            <p>Země: 
+                            {% for country in countries %}
+                                {% if country.movieid.movieid == movie.movieid %}
+                                    {{ country.countryid.countrynamecz }}<!--{% if not forloop.last %}, {% endif %}-->
+                                {% endif %}
+                            {% endfor %}
+                            </p>
+                        </div>
+                        <div class="rating-box">
+                            <div class="rating-score">
+                                <span class="rating-value">99%</span>
                             </div>
-                            <div style="margin-left: .75rem;">
-                                <h3>{{ forloop.counter }}. 
-                                    <a href="/film/{{ movie.url }}">
-                                        {{ movie.titlecz }}
-                                    </a> 
-                                    ({{ movie.releaseyear }})
-                                </h3>
-                                <p>Režie: 
-                                {% for director in directors %}
-                                    {% if director.movieid.movieid == movie.movieid %}
-                                    <a href="{% url 'creator_detail' director.peopleid.url %}">
-                                        {{ director.peopleid.firstname }} {{ director.peopleid.lastname }}
-                                    </a><!--{% if not forloop.last %}, {% endif %}-->
-                                    {% endif %}
-                                {% endfor %}
-                                </p>
-                                <p>Země: 
-                                {% for country in countries %}
-                                    {% if country.movieid.movieid == movie.movieid %}
-                                        {{ country.countryid.countrynamecz }}<!--{% if not forloop.last %}, {% endif %}-->
-                                    {% endif %}
-                                {% endfor %}
-                                </p>
-                            </div>
-                            <div class="rating-box">
-                                <div class="rating-score">
-                                    <span class="rating-value">99%</span>
-                                </div>
-                                <div class="rating-count">
-                                    <i class="fa-solid fa-users"></i>
-                                    <span>10 000</span>
-                                </div>
+                            <div class="rating-count">
+                                <i class="fa-solid fa-users"></i>
+                                <span>10 000</span>
                             </div>
                         </div>
-                    {% endfor %}
-                </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
 
@@ -126,34 +121,32 @@
         <div id="serialy" class="tab-show {% if hash == 'serialy' %}active{% else %}hidden{% endif %}">
             <div class="tab-content-item">
                 <h3 class="after-h3">Nejlépe hodnocené seriály</h3>
-                <div class="table">
-                    {% for series in top_series %}
-                        <div class="table-row">
-                            <div>
-                                {% if not series.imgposter or series.imgposter == "" %}
-                                        <img src="/static/img/creator/noperson.svg" alt="{{ series.title }}" style="width: 70px; height: 90px;">
-                                    {% else %}
-                                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ series.imgposter }}" alt="{{ series.title }}" style="width: 70px;">
-                                {% endif %}
+                {% for series in top_series %}
+                    <div class="table-row">
+                        <div>
+                            {% if not series.imgposter or series.imgposter == "" %}
+                                    <img src="/static/img/creator/noperson.svg" alt="{{ series.title }}" style="width: 70px; height: 90px;">
+                                {% else %}
+                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ series.imgposter }}" alt="{{ series.title }}" style="width: 70px;">
+                            {% endif %}
+                        </div>
+                        <div style="margin-left: .75rem;">
+                            <h3>{{ forloop.counter }}. <a href="{% url 'serie_detail' series.url %}">{{ series.titlecz }}</a> ({{ series.premieredate|date:"Y" }})</h3>
+                            <p>Režie: </p>
+                            <p>Země: </p>
+                            <!-- <p>Průměrné hodnocení: {{series.avg_rating|floatformat:1 }}</p> -->
+                        </div>
+                        <div class="rating-box">
+                            <div class="rating-score">
+                                <span class="rating-value">99%</span>
                             </div>
-                            <div style="margin-left: .75rem;">
-                                <h3>{{ forloop.counter }}. <a href="{% url 'serie_detail' series.url %}">{{ series.titlecz }}</a> ({{ series.premieredate|date:"Y" }})</h3>
-                                <p>Režie: </p>
-                                <p>Země: </p>
-                                <!-- <p>Průměrné hodnocení: {{series.avg_rating|floatformat:1 }}</p> -->
-                            </div>
-                            <div class="rating-box">
-                                <div class="rating-score">
-                                    <span class="rating-value">99%</span>
-                                </div>
-                                <div class="rating-count">
-                                    <i class="fa-solid fa-users"></i>
-                                    <span>{{ series.rating_count }}</span>
-                                </div>
+                            <div class="rating-count">
+                                <i class="fa-solid fa-users"></i>
+                                <span>{{ series.rating_count }}</span>
                             </div>
                         </div>
-                    {% endfor %}
-                </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
 
@@ -163,58 +156,54 @@
                 <!-- Levý sloupec: Nejoblíbenější režiséři -->
                 <div class="tab-content-item">
                     <h3 class="after-h3">Nejoblíbenější režiséři</h3>
-                    <div class="table">
-                        {% for director in popular_directors %}
-                            <div class="table-row">
-                                <div>
-                                    {% if director.img %}
-                                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ director.img }}" alt="{{ director.firstname }} {{ director.lastname }}" style="width: 70px;">
-                                    {% else %}
-                                        <img src="/static/img/creator/noperson.svg" alt="{{ director.firstname }} {{ director.lastname }}" style="width: 70px; height: 90px;">
-                                    {% endif %}
-                                </div>
-                                <div style="margin-left: .75rem;">
-                                    <h3>{{ forloop.counter }}. 
-                                        <a href="{% url 'creator_detail' director.url %}">
-                                            {{ director.firstname }} 
-                                            {{ director.lastname }}
-                                        </a>
-                                    </h3>
-                                    <p>Země: {{ director.countryid.countrynamecz }}</p>
-                                </div>
-                                <div class="fan-count-container" title="počet fanoušků">
-                                    <i class="fa-regular fa-heart fan-icon"></i>
-                                    <span class="fan-number">100</span>
-                                </div>
+                    {% for director in popular_directors %}
+                        <div class="table-row">
+                            <div>
+                                {% if director.img %}
+                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ director.img }}" alt="{{ director.firstname }} {{ director.lastname }}" style="width: 70px;">
+                                {% else %}
+                                    <img src="/static/img/creator/noperson.svg" alt="{{ director.firstname }} {{ director.lastname }}" style="width: 70px; height: 90px;">
+                                {% endif %}
                             </div>
-                        {% endfor %}
-                    </div>
+                            <div style="margin-left: .75rem;">
+                                <h3>{{ forloop.counter }}. 
+                                    <a href="{% url 'creator_detail' director.url %}">
+                                        {{ director.firstname }} 
+                                        {{ director.lastname }}
+                                    </a>
+                                </h3>
+                                <p>Země: {{ director.countryid.countrynamecz }}</p>
+                            </div>
+                            <div class="fan-count-container" title="počet fanoušků">
+                                <i class="fa-regular fa-heart fan-icon"></i>
+                                <span class="fan-number">100</span>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
 
                 <!-- Nejoblíbenější režisérky -->
                 <div class="tab-content-item">
                     <h3 class="after-h3">Nejoblíbenější režisérky</h3>
-                    <div class="table">
-                        {% for director in popular_directresses %}
-                            <div class="table-row">
-                                <div>
-                                    {% if director.img == "noimg.png" %}
-                                        <img src="/static/img/creator/noperson.svg" alt="{{ director.firstname }} {{ director.lastname }}" style="width: 70px; height: 90px;">
-                                    {% else %}
-                                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ director.img }}" alt="{{ director.firstname }} {{ director.lastname }}" style="width: 70px;">
-                                    {% endif %}
-                                </div>
-                                <div style="margin-left: .75rem;">
-                                    <h3>{{ forloop.counter }}. <a href="{% url 'creator_detail' director.url %}">{{ director.firstname }} {{ director.lastname }}</a></h3>
-                                    <p>Země: {{ director.countryid.countrynamecz }}</p>
-                                </div>
-                                <div class="fan-count-container" title="počet fanoušků">
-                                    <i class="fa-regular fa-heart fan-icon"></i>
-                                    <span class="fan-number">100</span>
-                                </div>
+                    {% for director in popular_directresses %}
+                        <div class="table-row">
+                            <div>
+                                {% if director.img == "noimg.png" %}
+                                    <img src="/static/img/creator/noperson.svg" alt="{{ director.firstname }} {{ director.lastname }}" style="width: 70px; height: 90px;">
+                                {% else %}
+                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ director.img }}" alt="{{ director.firstname }} {{ director.lastname }}" style="width: 70px;">
+                                {% endif %}
                             </div>
-                        {% endfor %}
-                    </div>
+                            <div style="margin-left: .75rem;">
+                                <h3>{{ forloop.counter }}. <a href="{% url 'creator_detail' director.url %}">{{ director.firstname }} {{ director.lastname }}</a></h3>
+                                <p>Země: {{ director.countryid.countrynamecz }}</p>
+                            </div>
+                            <div class="fan-count-container" title="počet fanoušků">
+                                <i class="fa-regular fa-heart fan-icon"></i>
+                                <span class="fan-number">100</span>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -225,53 +214,49 @@
                 <!-- Levý sloupec: Nejoblíbenější herci -->
                 <div class="tab-content-item">
                     <h3 class="after-h3">Nejoblíbenější herci</h3>
-                    <div class="table">
-                        {% for actor in popular_actors %}
-                            <div class="table-row">
-                                <div>
-                                    {% if not actor.img or actor.img == "" %}
-                                        <img src="/static/img/creator/noperson.svg" alt="{{ actor.firstname }} {{ actor.lastname }}" style="width: 70px; height: 90px;">
-                                    {% else %}
-                                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ actor.img }}" alt="{{ actor.firstname }} {{ actor.lastname }}" style="width: 70px;">
-                                    {% endif %}
-                                </div>
-                                <div style="margin-left: .75rem;">
-                                    <h3>{{ forloop.counter }}. <a href="{% url 'creator_detail' actor.creatorid %}">{{ actor.firstname }} {{ actor.lastname }}</a></h3>
-                                    <p>Země: {{ actor.countryid.countrynamecz }}</p>
-                                </div>
-                                <div class="fan-count-container" title="počet fanoušků">
-                                    <i class="fa-regular fa-heart fan-icon"></i>
-                                    <span class="fan-number">100</span>
-                                </div>
+                    {% for actor in popular_actors %}
+                        <div class="table-row">
+                            <div>
+                                {% if not actor.img or actor.img == "" %}
+                                    <img src="/static/img/creator/noperson.svg" alt="{{ actor.firstname }} {{ actor.lastname }}" style="width: 70px; height: 90px;">
+                                {% else %}
+                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ actor.img }}" alt="{{ actor.firstname }} {{ actor.lastname }}" style="width: 70px;">
+                                {% endif %}
                             </div>
-                        {% endfor %}
-                    </div>
+                            <div style="margin-left: .75rem;">
+                                <h3>{{ forloop.counter }}. <a href="{% url 'creator_detail' actor.creatorid %}">{{ actor.firstname }} {{ actor.lastname }}</a></h3>
+                                <p>Země: {{ actor.countryid.countrynamecz }}</p>
+                            </div>
+                            <div class="fan-count-container" title="počet fanoušků">
+                                <i class="fa-regular fa-heart fan-icon"></i>
+                                <span class="fan-number">100</span>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
 
                 <!-- Pravý sloupec: Nejoblíbenější herečky -->
                 <div class="tab-content-item">
                     <h3 class="after-h3">Nejoblíbenější herečky</h3>
-                    <div class="table">
-                        {% for actress in popular_actresses %}
-                            <div class="table-row">
-                                <div>
-                                    {% if not actress.img or actress.img == "" %}
-                                        <img src="/static/img/creator/noperson.svg" alt="{{ actress.firstname }} {{ actress.lastname }}" style="width: 70px; height: 90px;">
-                                    {% else %}
-                                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ actress.img }}" alt="{{ actress.firstname }} {{ actress.lastname }}" style="width: 70px;">
-                                    {% endif %}
-                                </div>
-                                <div style="margin-left: .75rem;">
-                                    <h3>{{ forloop.counter }}. <a href="{% url 'creator_detail' actress.creatorid %}">{{ actress.firstname }} {{ actress.lastname }}</a></h3>
-                                    <p>Země: {{ actress.countryid.countrynamecz }}</p>
-                                </div>
-                                <div class="fan-count-container" title="počet fanoušků">
-                                    <i class="fa-regular fa-heart fan-icon"></i>
-                                    <span class="fan-number">100</span>
-                                </div>
+                    {% for actress in popular_actresses %}
+                        <div class="table-row">
+                            <div>
+                                {% if not actress.img or actress.img == "" %}
+                                    <img src="/static/img/creator/noperson.svg" alt="{{ actress.firstname }} {{ actress.lastname }}" style="width: 70px; height: 90px;">
+                                {% else %}
+                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ actress.img }}" alt="{{ actress.firstname }} {{ actress.lastname }}" style="width: 70px;">
+                                {% endif %}
                             </div>
-                        {% endfor %}
-                    </div>
+                            <div style="margin-left: .75rem;">
+                                <h3>{{ forloop.counter }}. <a href="{% url 'creator_detail' actress.creatorid %}">{{ actress.firstname }} {{ actress.lastname }}</a></h3>
+                                <p>Země: {{ actress.countryid.countrynamecz }}</p>
+                            </div>
+                            <div class="fan-count-container" title="počet fanoušků">
+                                <i class="fa-regular fa-heart fan-icon"></i>
+                                <span class="fan-number">100</span>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -282,76 +267,74 @@
                 <!-- Levý sloupec: Nejoblíbenější země -->
                 <div class="tab-content-item">
                     <h3 class="after-h3">Nejoblíbenější země</h3>
-                    <div class="table">
-                        <div class="stat-item">
-                            <span class="label">USA</span>
-                            <div class="bar-container">
-                                <p>60%</p>
-                                <div class="bar-movie" style="width: 60%;"></div>
-                            </div>
+                    <div class="stat-item">
+                        <span class="label">USA</span>
+                        <div class="bar-container">
+                            <p>60%</p>
+                            <div class="bar-movie" style="width: 60%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Francie</span>
-                            <div class="bar-container">
-                                <p>12%</p>
-                                <div class="bar-movie" style="width: 12%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Francie</span>
+                        <div class="bar-container">
+                            <p>12%</p>
+                            <div class="bar-movie" style="width: 12%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Německo</span>
-                            <div class="bar-container">
-                                <p>10%</p>
-                                <div class="bar-movie" style="width: 10%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Německo</span>
+                        <div class="bar-container">
+                            <p>10%</p>
+                            <div class="bar-movie" style="width: 10%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Japonsko</span>
-                            <div class="bar-container">
-                                <p>9%</p>
-                                <div class="bar-movie" style="width: 9%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Japonsko</span>
+                        <div class="bar-container">
+                            <p>9%</p>
+                            <div class="bar-movie" style="width: 9%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Velká Británie</span>
-                            <div class="bar-container">
-                                <p>9%</p>
-                                <div class="bar-movie" style="width: 9%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Velká Británie</span>
+                        <div class="bar-container">
+                            <p>9%</p>
+                            <div class="bar-movie" style="width: 9%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Španělsko</span>
-                            <div class="bar-container">
-                                <p>7%</p>
-                                <div class="bar-movie" style="width: 7%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Španělsko</span>
+                        <div class="bar-container">
+                            <p>7%</p>
+                            <div class="bar-movie" style="width: 7%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Indie</span>
-                            <div class="bar-container">
-                                <p>5%</p>
-                                <div class="bar-movie" style="width: 5%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Indie</span>
+                        <div class="bar-container">
+                            <p>5%</p>
+                            <div class="bar-movie" style="width: 5%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Kanada</span>
-                            <div class="bar-container">
-                                <p>5%</p>
-                                <div class="bar-movie" style="width: 5%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Kanada</span>
+                        <div class="bar-container">
+                            <p>5%</p>
+                            <div class="bar-movie" style="width: 5%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Itálie</span>
-                            <div class="bar-container">
-                                <p>5%</p>
-                                <div class="bar-movie" style="width: 5%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Itálie</span>
+                        <div class="bar-container">
+                            <p>5%</p>
+                            <div class="bar-movie" style="width: 5%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Brazílie</span>
-                            <div class="bar-container">
-                                <p>4%</p>
-                                <div class="bar-movie" style="width: 4%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Brazílie</span>
+                        <div class="bar-container">
+                            <p>4%</p>
+                            <div class="bar-movie" style="width: 4%;"></div>
                         </div>
                     </div>
                 </div>
@@ -359,76 +342,74 @@
                 <!-- Pravý sloupec: Země podle počtu filmů -->
                 <div class="tab-content-item">
                     <h3 class="after-h3">Země podle počtu filmů</h3>
-                    <div class="table">
-                        <div class="stat-item">
-                            <span class="label">USA</span>
-                            <div class="bar-container">
-                                <p>529953</p>
-                                <div class="bar-movie" style="width: 100%;"></div>
-                            </div>
+                    <div class="stat-item">
+                        <span class="label">USA</span>
+                        <div class="bar-container">
+                            <p>529953</p>
+                            <div class="bar-movie" style="width: 100%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Francie</span>
-                            <div class="bar-container">
-                                <p>65869</p>
-                                <div class="bar-movie" style="width: 12%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Francie</span>
+                        <div class="bar-container">
+                            <p>65869</p>
+                            <div class="bar-movie" style="width: 12%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Německo</span>
-                            <div class="bar-container">
-                                <p>54872</p>
-                                <div class="bar-movie" style="width: 10%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Německo</span>
+                        <div class="bar-container">
+                            <p>54872</p>
+                            <div class="bar-movie" style="width: 10%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Japonsko</span>
-                            <div class="bar-container">
-                                <p>51021</p>
-                                <div class="bar-movie" style="width: 9%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Japonsko</span>
+                        <div class="bar-container">
+                            <p>51021</p>
+                            <div class="bar-movie" style="width: 9%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Velká Británie</span>
-                            <div class="bar-container">
-                                <p>48853</p>
-                                <div class="bar-movie" style="width: 9%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Velká Británie</span>
+                        <div class="bar-container">
+                            <p>48853</p>
+                            <div class="bar-movie" style="width: 9%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Španělsko</span>
-                            <div class="bar-container">
-                                <p>36197</p>
-                                <div class="bar-movie" style="width: 7%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Španělsko</span>
+                        <div class="bar-container">
+                            <p>36197</p>
+                            <div class="bar-movie" style="width: 7%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Indie</span>
-                            <div class="bar-container">
-                                <p>27067</p>
-                                <div class="bar-movie" style="width: 5%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Indie</span>
+                        <div class="bar-container">
+                            <p>27067</p>
+                            <div class="bar-movie" style="width: 5%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Kanada</span>
-                            <div class="bar-container">
-                                <p>26000</p>
-                                <div class="bar-movie" style="width: 5%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Kanada</span>
+                        <div class="bar-container">
+                            <p>26000</p>
+                            <div class="bar-movie" style="width: 5%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Itálie</span>
-                            <div class="bar-container">
-                                <p>25676</p>
-                                <div class="bar-movie" style="width: 5%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Itálie</span>
+                        <div class="bar-container">
+                            <p>25676</p>
+                            <div class="bar-movie" style="width: 5%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Brazílie</span>
-                            <div class="bar-container">
-                                <p>24186</p>
-                                <div class="bar-movie" style="width: 4%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Brazílie</span>
+                        <div class="bar-container">
+                            <p>24186</p>
+                            <div class="bar-movie" style="width: 4%;"></div>
                         </div>
                     </div>
                 </div>
@@ -441,193 +422,187 @@
                 <!-- Levý sloupec: Nejoblíbenější -->
                 <div class="tab-content-item">
                     <h3 class="after-h3">Top 10 ze žánru</h3>
-                    <div class="table">
-                        <!-- Výběr žánru -->
-                        <div class="custom-select" onclick="toggleDropdown(event)">
-                            <span id="action-header"></span>
+                    <!-- Výběr žánru -->
+                    <div class="custom-select" onclick="toggleDropdown(event)">
+                        <span id="action-header"></span>
 
-                            <div id="action-dropdown" class="select-as" style="display: none;">
-                                {% for genre, movies in genre_movies.items %}
-                                    <a href="javascript:void(0);" onclick="filterMovies('{{ genre }}')">{{ genre }}</a>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        
-                        <!-- Filmy podle žánru -->
-                        <div id="movies-list">
+                        <div id="action-dropdown" class="select-as" style="display: none;">
                             {% for genre, movies in genre_movies.items %}
-                                <div id="movies-{{ genre }}" class="movie-group hidden">
-                                    {% for movie in movies %}
-                                    <div class="table-row">
-                                        <div>
-                                            {% if movie.imgposter %}
-                                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.imgposter }}" alt="{{ movie.title }}" style="width: 70px;">
-                                            {% else %}
-                                            <img src="/static/img/movie/nomovie.jpg" alt="{{ movie.title }}" style="width: 70px;">
-                                            {% endif %}
-                                        </div>
-                                        <div style="margin-left: .75rem;">
-                                            <h3>
-                                                <a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a>
-                                            </h3>
-                                            <h4>{{ movie.releaseyear }}</h4>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
+                                <a href="javascript:void(0);" onclick="filterMovies('{{ genre }}')">{{ genre }}</a>
                             {% endfor %}
                         </div>
+                    </div>
+                    
+                    <!-- Filmy podle žánru -->
+                    <div id="movies-list">
+                        {% for genre, movies in genre_movies.items %}
+                            <div id="movies-{{ genre }}" class="movie-group hidden">
+                                {% for movie in movies %}
+                                <div class="other-row">
+                                    <div>
+                                        {% if movie.imgposter %}
+                                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.imgposter }}" alt="{{ movie.title }}" style="width: 70px;">
+                                        {% else %}
+                                        <img src="/static/img/movie/nomovie.jpg" alt="{{ movie.title }}" style="width: 70px;">
+                                        {% endif %}
+                                    </div>
+                                    <div style="margin-left: .75rem;">
+                                        <h3>
+                                            <a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a>
+                                        </h3>
+                                        <h4>{{ movie.releaseyear }}</h4>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
 
                 <!-- Pravý sloupec: Nejvíce filmů -->
                 <div class="tab-content-item">
                     <h3 class="after-h3">Žánry podle počtu filmů</h3>
-                    <div class="table">
+                    <div class="stat-item">
+                        <span class="label">Drama</span>
+                        <div class="bar-container">
+                            <p>240912</p>
+                            <div class="bar-movie" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Dokumentární</span>
+                        <div class="bar-container">
+                            <p>177245</p>
+                            <div class="bar-movie" style="width: 73%;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Komedie</span>
+                        <div class="bar-container">
+                            <p>145968</p>
+                            <div class="bar-movie" style="width: 61%;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Rodinný</span>
+                        <div class="bar-container">
+                            <p>29017</p>
+                            <div class="bar-movie" style="width: 12%;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Fantasy</span>
+                        <div class="bar-container">
+                            <p>24364</p>
+                            <div class="bar-movie" style="width: 10%;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Akční</span>
+                        <div class="bar-container">
+                            <p>45457</p>
+                            <div class="bar-movie" style="width: 19%;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Krimi</span>
+                        <div class="bar-container">
+                            <p>35545</p>
+                            <div class="bar-movie" style="width: 15%;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Animovaný</span>
+                        <div class="bar-container">
+                            <p>60223</p>
+                            <div class="bar-movie" style="width: 25%;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Dobrodružný</span>
+                        <div class="bar-container">
+                            <p>24143</p>
+                            <div class="bar-movie" style="width: 10%;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Historický</span>
+                        <div class="bar-container">
+                            <p>18036</p>
+                            <div class="bar-movie" style="width: 8%;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2.5rem;">
+                        <h3 class="after-h3">Nejoblíbenější žánry</h3>
                         <div class="stat-item">
                             <span class="label">Drama</span>
                             <div class="bar-container">
-                                <p>240912</p>
-                                <div class="bar-movie" style="width: 100%;"></div>
-                            </div>
-                        </div>
-                        <div class="stat-item">
-                            <span class="label">Dokumentární</span>
-                            <div class="bar-container">
-                                <p>177245</p>
-                                <div class="bar-movie" style="width: 73%;"></div>
+                                <p>85%</p>
+                                <div class="bar-movie" style="width: 85%;"></div>
                             </div>
                         </div>
                         <div class="stat-item">
                             <span class="label">Komedie</span>
                             <div class="bar-container">
-                                <p>145968</p>
-                                <div class="bar-movie" style="width: 61%;"></div>
-                            </div>
-                        </div>
-                        <div class="stat-item">
-                            <span class="label">Rodinný</span>
-                            <div class="bar-container">
-                                <p>29017</p>
-                                <div class="bar-movie" style="width: 12%;"></div>
-                            </div>
-                        </div>
-                        <div class="stat-item">
-                            <span class="label">Fantasy</span>
-                            <div class="bar-container">
-                                <p>24364</p>
-                                <div class="bar-movie" style="width: 10%;"></div>
+                                <p>78%</p>
+                                <div class="bar-movie" style="width: 78%;"></div>
                             </div>
                         </div>
                         <div class="stat-item">
                             <span class="label">Akční</span>
                             <div class="bar-container">
-                                <p>45457</p>
-                                <div class="bar-movie" style="width: 19%;"></div>
+                                <p>72%</p>
+                                <div class="bar-movie" style="width: 72%;"></div>
                             </div>
                         </div>
                         <div class="stat-item">
                             <span class="label">Krimi</span>
                             <div class="bar-container">
-                                <p>35545</p>
-                                <div class="bar-movie" style="width: 15%;"></div>
+                                <p>66%</p>
+                                <div class="bar-movie" style="width: 66%;"></div>
                             </div>
                         </div>
                         <div class="stat-item">
-                            <span class="label">Animovaný</span>
+                            <span class="label">Fantasy</span>
                             <div class="bar-container">
-                                <p>60223</p>
-                                <div class="bar-movie" style="width: 25%;"></div>
+                                <p>62%</p>
+                                <div class="bar-movie" style="width: 62%;"></div>
                             </div>
                         </div>
                         <div class="stat-item">
-                            <span class="label">Dobrodružný</span>
+                            <span class="label">Thriller</span>
                             <div class="bar-container">
-                                <p>24143</p>
-                                <div class="bar-movie" style="width: 10%;"></div>
+                                <p>59%</p>
+                                <div class="bar-movie" style="width: 59%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Sci-fi</span>
+                            <div class="bar-container">
+                                <p>54%</p>
+                                <div class="bar-movie" style="width: 54%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Romantika</span>
+                            <div class="bar-container">
+                                <p>50%</p>
+                                <div class="bar-movie" style="width: 50%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label">Horor</span>
+                            <div class="bar-container">
+                                <p>45%</p>
+                                <div class="bar-movie" style="width: 45%;"></div>
                             </div>
                         </div>
                         <div class="stat-item">
                             <span class="label">Historický</span>
                             <div class="bar-container">
-                                <p>18036</p>
-                                <div class="bar-movie" style="width: 8%;"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="w-full mt-10 lg:pl-5">
-                        <h3 class="after-h3">Nejoblíbenější žánry</h3>
-                        <div class="table">
-                            <div class="stat-item">
-                                <span class="label">Drama</span>
-                                <div class="bar-container">
-                                    <p>85%</p>
-                                    <div class="bar-movie" style="width: 85%;"></div>
-                                </div>
-                            </div>
-                            <div class="stat-item">
-                                <span class="label">Komedie</span>
-                                <div class="bar-container">
-                                    <p>78%</p>
-                                    <div class="bar-movie" style="width: 78%;"></div>
-                                </div>
-                            </div>
-                            <div class="stat-item">
-                                <span class="label">Akční</span>
-                                <div class="bar-container">
-                                    <p>72%</p>
-                                    <div class="bar-movie" style="width: 72%;"></div>
-                                </div>
-                            </div>
-                            <div class="stat-item">
-                                <span class="label">Krimi</span>
-                                <div class="bar-container">
-                                    <p>66%</p>
-                                    <div class="bar-movie" style="width: 66%;"></div>
-                                </div>
-                            </div>
-                            <div class="stat-item">
-                                <span class="label">Fantasy</span>
-                                <div class="bar-container">
-                                    <p>62%</p>
-                                    <div class="bar-movie" style="width: 62%;"></div>
-                                </div>
-                            </div>
-                            <div class="stat-item">
-                                <span class="label">Thriller</span>
-                                <div class="bar-container">
-                                    <p>59%</p>
-                                    <div class="bar-movie" style="width: 59%;"></div>
-                                </div>
-                            </div>
-                            <div class="stat-item">
-                                <span class="label">Sci-fi</span>
-                                <div class="bar-container">
-                                    <p>54%</p>
-                                    <div class="bar-movie" style="width: 54%;"></div>
-                                </div>
-                            </div>
-                            <div class="stat-item">
-                                <span class="label">Romantika</span>
-                                <div class="bar-container">
-                                    <p>50%</p>
-                                    <div class="bar-movie" style="width: 50%;"></div>
-                                </div>
-                            </div>
-                            <div class="stat-item">
-                                <span class="label">Horor</span>
-                                <div class="bar-container">
-                                    <p>45%</p>
-                                    <div class="bar-movie" style="width: 45%;"></div>
-                                </div>
-                            </div>
-                            <div class="stat-item">
-                                <span class="label">Historický</span>
-                                <div class="bar-container">
-                                    <p>40%</p>
-                                    <div class="bar-movie" style="width: 40%;"></div>
-                                </div>
+                                <p>40%</p>
+                                <div class="bar-movie" style="width: 40%;"></div>
                             </div>
                         </div>
                     </div>

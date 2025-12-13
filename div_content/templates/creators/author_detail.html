@@ -5,17 +5,17 @@
 
 {% block title %} {{ book.titlecz }} | DIV.cz{% endblock %}
 
-<link href="https://media.div.cz/css/navbar_other.css" rel="stylesheet">
-<link href="https://media.div.cz/css/books.css" rel="stylesheet">
+    <link href="https://media.div.cz/css/navbar_other.css" rel="stylesheet">
+    <link href="https://media.div.cz/css/books.css" rel="stylesheet">
 
 {% block meta %}
 
-<style>
-    .series-link.active {
-        color: #2563eb; 
-        font-weight: bold;
-    }
-</style>
+    <style>
+        .series-link.active {
+            color: #2563eb; 
+            font-weight: bold;
+        }
+    </style>
 
 {% endblock %}
 
@@ -28,22 +28,22 @@
             <h2 style="width:100%; margin-bottom:0;">
                 {{ author.firstname }} {{ author.lastname }} 
                 {% if author.birthyear %}
-                <small style="color:#6c757d;">({{ author.birthyear }})</small>
+                    <small class="text-muted">({{ author.birthyear }})</small>
                 {% endif %}
             </h2>
 
             <!-- FAVORITE by xSilence8x -->
             {% if user.is_authenticated %}
-            <div class="heart">
-                {% if not is_favorite %}
-                <a href="{% url 'add_to_favourite_authors' authorid=author.authorid %}">
-                    <i class="far fa-regular fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} unset {% endif %}" title="přidat do oblíbených"></i>
-                {% else %}
-                <a href="{% url 'remove_from_favourite_authors' authorid=author.authorid %}">
-                    <i class="fas fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} unset {% endif %}" title="odebrat z oblíbených"></i>
-                {% endif %}
-                </a>
-            </div>
+                <div class="heart">
+                    {% if not is_favorite %}
+                    <a href="{% url 'add_to_favourite_authors' authorid=author.authorid %}">
+                        <i class="far fa-regular fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} unset {% endif %}" title="přidat do oblíbených"></i>
+                    {% else %}
+                    <a href="{% url 'remove_from_favourite_authors' authorid=author.authorid %}">
+                        <i class="fas fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} unset {% endif %}" title="odebrat z oblíbených"></i>
+                    {% endif %}
+                    </a>
+                </div>
             {% endif %}
         </div>
         
@@ -57,22 +57,22 @@
         <!-- INFO -->
         <div class="author-info">
             <div class="author-poster">
-            {% if not author.img or author.img == "" %}
-                <img src="https://div.cz/static/img/creator/noperson.svg" alt="{{ author.firstname }} {{ author.lastname }}" class="img-fluid img-size">
-                {% else %}
-                <img src="https://div.cz/static/img/author/{{ author.img }}" alt="{{ author.firstname }} {{ author.lastname }}" class="img-fluid img-size">
-            {% endif %}
+                {% if not author.img or author.img == "" %}
+                    <img src="https://div.cz/static/img/creator/noperson.svg" alt="{{ author.firstname }} {{ author.lastname }}" class="img-fluid img-size">
+                    {% else %}
+                    <img src="https://div.cz/static/img/author/{{ author.img }}" alt="{{ author.firstname }} {{ author.lastname }}" class="img-fluid img-size">
+                {% endif %}
             </div>
 
             <div class="author-info-detail">
                 <ul class="list-unstyled">
-                {% if author.birthdate %}
-                    <li><strong>Datum narození:</strong> {{ author.birthdate }}</li>
-                {% endif %}
+                    {% if author.birthdate %}
+                        <li><strong>Datum narození:</strong> {{ author.birthdate }}</li>
+                    {% endif %}
 
-                {% if author.deathdate %}
-                    <li><strong>Datum úmrtí:</strong> {{ author.deathdate }}</li>
-                {% endif %}
+                    {% if author.deathdate %}
+                        <li><strong>Datum úmrtí:</strong> {{ author.deathdate }}</li>
+                    {% endif %}
                 <!--<li>ID: {{ author.creatorid }}</li>-->
                 <!--<li>{{ author.popularity }}</li>-->
 
@@ -83,18 +83,18 @@
 
         <!-- BIOGRAFIE -->
         {% if author.description %}
-        <p>{{ author.description|safe }}</p>
+            <p>{{ author.description|safe }}</p>
 
-        {% else %}
-        <div class="author-bio">
-            <details>
-                <summary>Přidej vlastní popis, zatím tu žádný není!</summary>
-                <form action="">
-                    <textarea id="w3review" name="w3review" rows="3" cols="50"></textarea>
-                    <input class="btn add-book" type="submit" value="Přidat">
-                </form>
-            </details>
-        </div>
+            {% else %}
+            <div class="author-bio">
+                <details>
+                    <summary>Přidej vlastní popis, zatím tu žádný není!</summary>
+                    <form action="">
+                        <textarea id="w3review" name="w3review" rows="3" cols="50"></textarea>
+                        <input class="btn add-book" type="submit" value="Přidat">
+                    </form>
+                </details>
+            </div>
         {% endif %}
 
         <!-- JAZYK KNIH -->
@@ -132,70 +132,70 @@
                     <div class="author-book">
                         <!-- Sekce pro všechny knihy -->
                         <div id="all-books" style="width:100%;">
-                        {% for book in books %}
-                            <hr>
-                            <div class="author-book-list">
-                                <a href="/kniha/{{ book.url }}">
-                                {% if book.img == "noimg.png" %}
-                                    <img src="https://div.cz/static/img/book/book.png" alt="Kniha {{ book.titlecz }}">
-                                {% elif book.img == "GoogleID" %}
-                                    <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}">
-                                {% else %}
-                                    <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz }}">
-                                {% endif %}
-                                </a>
-
-                                <div class="author-book-detail">
-                                    <div style="width: 100%;">
-                                        <p>
-                                            <a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a> <span>{% if book.year %} ({{ book.year }}){% endif %}</span>
-                                        </p>
-                                        {% if book.is_read %}
-                                            <i class="fas fa-book" title="přečteno" style="margin-right: 1rem;"></i>
+                            {% for book in books %}
+                                <hr>
+                                <div class="author-book-list">
+                                    <a href="/kniha/{{ book.url }}">
+                                        {% if book.img == "noimg.png" %}
+                                            <img src="https://div.cz/static/img/book/book.png" alt="Kniha {{ book.titlecz }}">
+                                            {% elif book.img == "GoogleID" %}
+                                            <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}">
+                                            {% else %}
+                                            <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz }}">
                                         {% endif %}
+                                    </a>
+
+                                    <div class="author-book-detail">
+                                        <div style="width: 100%;">
+                                            <p>
+                                                <a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a> <span>{% if book.year %} ({{ book.year }}){% endif %}</span>
+                                            </p>
+                                            {% if book.is_read %}
+                                                <i class="fas fa-book" title="přečteno" style="margin-right: 1rem;"></i>
+                                            {% endif %}
+                                        </div>
+                                        {% if book.universumid %}
+                                            <p>Série: 
+                                                <a href="#" data-series-id="{{ book.universumid.universumid }}">
+                                                {{ book.universumid.universumnamecz|default:book.universumid.universumname }}</a>
+                                            </p>
+                                        {% endif %}
+                                        <p class="card-text">{{ book.description|default_if_none:"Popis není dostupný"|safe|truncatewords:40 }}</p>
                                     </div>
-                                    {% if book.universumid %}
-                                    <p>Série: 
-                                        <a href="#" data-series-id="{{ book.universumid.universumid }}">
-                                        {{ book.universumid.universumnamecz|default:book.universumid.universumname }}</a>
-                                    </p>
-                                    {% endif %}
-                                    <p class="card-text">{{ book.description|default_if_none:"Popis není dostupný"|safe|truncatewords:40 }}</p>
                                 </div>
-                            </div>
-                        {% endfor %}
+                            {% endfor %}
                         </div>
             
                         <!-- Sekce pro knihy v sériích -->
                         {% for series_id, data in series_books.items %}
-                        <div id="series-{{ series_id }}" style="width: 100%; display: none;">
-                        {% for book in data.books %}
-                            <hr>
-                            <div class="author-book-list">
-                                <a href="/kniha/{{ book.url }}">
-                                {% if book.img == "noimg.png" %}
-                                    <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz|default:book.title }}">
-                                {% elif book.img == "GoogleID" %}
-                                    <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}">
-                                {% else %}
-                                    <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}">
-                                {% endif %}
-                                </a>
-                                
-                                <div class="author-book-detail">
-                                    <div  style="width: 100%;">
-                                        <p>
-                                            <a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a> <span>{% if book.year %} ({{ book.year }}){% endif %}</span>
-                                        </p>
-                                        {% if book.is_read %}
-                                            <i class="fas fa-book" title="přečteno" style="margin-right: 1rem;"></i>
-                                        {% endif %}
+                            <div id="series-{{ series_id }}" style="width: 100%; display: none;">
+                                {% for book in data.books %}
+                                    <hr>
+                                    <div class="author-book-list">
+                                        <a href="/kniha/{{ book.url }}">
+                                            {% if book.img == "noimg.png" %}
+                                                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz|default:book.title }}">
+                                                {% elif book.img == "GoogleID" %}
+                                                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}">
+                                                {% else %}
+                                                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}">
+                                            {% endif %}
+                                        </a>
+                                        
+                                        <div class="author-book-detail">
+                                            <div  style="width: 100%;">
+                                                <p>
+                                                    <a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a> <span>{% if book.year %} ({{ book.year }}){% endif %}</span>
+                                                </p>
+                                                {% if book.is_read %}
+                                                    <i class="fas fa-book" title="přečteno" style="margin-right: 1rem;"></i>
+                                                {% endif %}
+                                            </div>
+                                            <p class="card-text">{{ book.description|default_if_none:"Popis není dostupný"|safe|truncatewords:40 }}</p>
+                                        </div>
                                     </div>
-                                    <p class="card-text">{{ book.description|default_if_none:"Popis není dostupný"|safe|truncatewords:40 }}</p>
-                                </div>
+                                {% endfor %}
                             </div>
-                        {% endfor %}
-                        </div>
                         {% endfor %}
                     </div>
                 </div>
@@ -211,18 +211,19 @@
             <div class="card-body">
                 <h3 class="card-title after-h3">Fanoušci</h3>
                 <div class="fans">
-                {% if fans %}
-                    {% for fan in fans %}
-                        <a style="width: 100%;" href="{% url 'myuser_detail' fan.userlist.user.id %}">{{ fan.userlist.user.username }}</a>
-                    {% endfor %}
-                {% else %}
-                    <p>Zatím žádní fanoušci.</p>
-                {% endif %}
+                    {% if fans %}
+                        {% for fan in fans %}
+                            <a style="width: 100%;" href="{% url 'myuser_detail' fan.userlist.user.id %}">{{ fan.userlist.user.username }}</a>
+                        {% endfor %}
+
+                        {% else %}
+                        <p>Zatím žádní fanoušci.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
 
-        {% comment %}
+        <!-- SDÍLET NA SÍTÍCH -->
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title after-h3">{{  }}</h3>
@@ -248,22 +249,22 @@
                 </a>
             </div>
         </div>
-        {% endcomment %}
 
+        <!-- DALŠÍ SPISOVATELÉ -->
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title after-h3">Další spisovatelé</h3>
                 <ul>
-                {% for author in author_list_10 %}
-                    <li>
-                        <a href="/autor/{{ author.url }}"> {{ author.firstname }}  {{ author.lastname }}</a> 
-                    </li>
-                {% endfor %}
+                    {% for author in author_list_10 %}
+                        <li>
+                            <a href="/autor/{{ author.url }}"> {{ author.firstname }}  {{ author.lastname }}</a> 
+                        </li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
 
-        <!-- Tags  -->
+        <!-- TAGS -->
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title after-h3">Tagy</h3>

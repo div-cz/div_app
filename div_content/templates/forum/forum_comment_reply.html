@@ -7,6 +7,7 @@ Odpovědět {{ topic.title }}
 {% endblock title %}
 
 {% block content %}
+
 <h2>
     <a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a>
     <span> / </span>
@@ -17,12 +18,12 @@ Odpovědět {{ topic.title }}
 
 {% if user.is_authenticated %}
 
-<section class="w-3/4">
+<section style="width: 75%;">
     <h2>Odpovědět na komentář</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button class="btn mb-4 mr-1 btn-action add" type="submit">Odpovědět</button>
+        <button class="btn add" type="submit">Odpovědět</button> <!-- sem barvičky tlačítek -->
     </form>
 </section>
 {% endif %}

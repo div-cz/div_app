@@ -3,64 +3,97 @@
 {% block title %}{{ universum.universumnamecz|default:universum.universumname }} na DIV.cz{% endblock %}
 
 {% block meta %}
+
+    <style>
+        .universe-bg-image {
+            background-image: url("https://image.tmdb.org/t/p/original/{{ movies.0.img }}");
+        }
+    </style>
+
 {% endblock %}
 
 {% block content %}
 
-<div class="container relative">
-    <!-- Use the first movie image as the background -->
+<div class="container universe-section">
     
     {% if movies|length > 0 %}
+        <!-- BACKGROUND -->
+        <div class="universe-bg">
+            <div class="universe-bg-image"></div>
+            <div class="universe-bg-overlay"></div>
+        </div>
+    {% endif %}
 
-    <div class="w-full relative" style="top: 0; left: 0; height: 150vh;">
-        <div style="background-image: url('https://image.tmdb.org/t/p/original/{{ movies.0.img }}'); background-size: cover; background-position: center; height: 100%; opacity: 0.2; z-index: 1;"></div>
-
-        <div class="container absolute h-full p-6" style="top: 0; left: 0; z-index: 2;">
+    <!-- HLAVNÍ OBSAH -->
+    <div class="universe-content container">
 
             <!-- LEVÁ STRANA -->
             <div class="left-side">
-            {% endif %}
                 <h1>{{ universum.universumnamecz|default:universum.universumname }}</h1>
                 <p>{{ universum.universumdescriptioncz|default:"" }}</p>
-                <div class="ml-8 mt-8">
+
+                <!-- FILMY -->
+                <div class="list-group">
                     <h2>Filmy ze stejného světa</h2>
-                    <ul class="list-group ml-8">
-                    {% if movies %}
-                    {% else %}Zatím žádný natočený film neevidujeme
-                    {% endif %}
+                    <ul class="list-group-item">
+                        {% if movies %}
+                            {% else %}
+                            Zatím žádný natočený film neevidujeme
+                        {% endif %}
+
                         {% for movie in movies %}
-                        <li class="list-group-item">
-                            <a class="movies" href="{% url 'movie_detail' movie_url=movie.url %}">
-                                {{ movie.titlecz|default:movie.title }} ({{ movie.releaseyear }})
-                            </a>
-                        </li>
+                            <li>
+                                <a class="movies" href="{% url 'movie_detail' movie_url=movie.url %}">
+                                    {{ movie.titlecz|default:movie.title }} ({{ movie.releaseyear }})
+                                </a>
+                            </li>
                         {% endfor %}
                     </ul>
                 </div>
 
-                <div class="ml-8 mt-8">
+                <!-- KNIHY -->
+                <div class="list-group">
                     <h2>Knihy ze stejného světa</h2>
-                    <ul class="list-group ml-8">
-                    {% if books %}
-                    {% else %}Zatím žádné
-                    {% endif %}
+                    <div style="margin: 1rem 0;">
+                        <ul class="card-body lang-toggle">
+                            <p style="margin:0 1.25rem; font-weight:bold;">Jazyk</p>
+                            <li><a href="" class="lang-item active">CZ</a></li>
+                            <li><a href="" class="lang-item">EN</a></li>
+                            <li><a href="" class="lang-item">SK</a></li>
+                            <li><a href="" class="lang-item">PL</a></li>
+                            <li><a href="" class="lang-item">UA</a></li>
+                        </ul>
+                    </div>
+
+                    <ul class="list-group-item">
+                        {% if books %}
+                            {% else %}
+                            Zatím žádné
+                        {% endif %}
+
                         {% for book in books %}
-                        <li class="list-group-item">
-                            <a class="books" href="{% url 'book_detail' book_url=book.url %}">
-                                {{  book.titlecz|default:book.title }} {% if book.year %}({{ book.year|default:"" }}){% endif %}
-                            </a>
-                        </li>
+                            <li>
+                                <a class="books" href="{% url 'book_detail' book_url=book.url %}">
+                                    {{ book.titlecz|default:book.title }} 
+                                    {% if book.year %}
+                                        ({{ book.year|default:"" }})
+                                    {% endif %}
+                                </a>
+                            </li>
                         {% endfor %}
                     </ul>
                 </div>
 
-                <div class="ml-8 mt-8">
+                <!-- HRY -->
+                <div class="list-group">
                     <h2>Hry ze stejného světa</h2>
-                    <ul class="list-group ml-8">
-                    {% if games %}
-                    {% else %}Zatím žádné
-                    {% endif %}
-                        <li class="list-group-item">
+                    <ul class="list-group-item">
+                        {% if games %}
+                            {% else %}
+                            Zatím žádné
+                        {% endif %}
+
+                        <li>
                             <a class="games"></a>
                             <!-- Add games section here -->
                         </li>
@@ -73,7 +106,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h3 class="card-title after-h3">Lokality</h3>
-                        <ul class="w-full" style="list-style-type:none">
+                        <ul style="list-style-type:none; width: 100%;">
                             <!--<li><a href="">Bradavice</a></li>
                             <li><a href="">Nádraží King Cross</a></li>
                             <li><a href="">Kvikálkov</a></li>
@@ -84,60 +117,51 @@
                     </div>
                 </div>
 
-                <!-- Postavy -->
+                <!-- POSTAVY -->
                 <div class="card">
                     <div class="card-body">
-                        <!--<h3 class="card-title after-h3">Postavy</h3>
-                        <ul>
-                            <li><a href="">Harry Potter</a></li>
-                            <li><a href="">Hagrid</a></li>
-                            <li><a href="">Ron</a></li>
-                            <li><a href="">Snape</a></li>
-                            <li><a href="">Draco Malfoy</a></li>
-                            <li><a href="">Skorobezhlavý Nick</a></li>
-                        </ul>-->
 
                         <!-- POSTAVY Z KNIH -->
                         {% if book_characters %}
-                        <h3 class="card-title after-h3">Postavy v knihách tohoto světa</h3>
-                        <ul class="w-full" style="list-style-type:none">
-                        {% for char in book_characters %}
-                            <li><a href="{% url 'character_detail' character_url=char.characterurl %}">
-                            {{ char.characternamecz|default:char.charactername }}
-                            </a></li>
-                        {% endfor %}
-                        </ul>
+                            <h3 class="card-title after-h3">Postavy v knihách tohoto světa</h3>
+                            <ul class="w-full" style="list-style-type:none">
+                                {% for char in book_characters %}
+                                    <li><a href="{% url 'character_detail' character_url=char.characterurl %}">
+                                    {{ char.characternamecz|default:char.charactername }}
+                                    </a></li>
+                                {% endfor %}
+                            </ul>
                         {% endif %}
 
                         <!-- POSTAVY Z FILMŮ -->
                         {% if movie_characters %}
-                        <h3 class="card-title after-h3">Postavy ve filmech tohoto světa</h3>
-                        <ul class="w-full" style="list-style-type:none">
-                        {% for char in movie_characters %}
-                            <li><!--<a href="{% url 'character_detail' character_url=char.characterurl %}">-->
-                            {{ char.characternamecz|default:char.charactername }}
-                            <!--</a>--></li>
-                        {% endfor %}
-                        </ul>
+                            <h3 class="card-title after-h3">Postavy ve filmech tohoto světa</h3>
+                            <ul class="w-full" style="list-style-type:none">
+                                {% for char in movie_characters %}
+                                    <li><!--<a href="{% url 'character_detail' character_url=char.characterurl %}">-->
+                                    {{ char.characternamecz|default:char.charactername }}
+                                    <!--</a>--></li>
+                                {% endfor %}
+                            </ul>
                         {% endif %}
 
 
-                        <!-- POSTAVY Z FILMŮ -->
+                        <!-- POSTAVY Z HER -->
                         {% if game_characters %}
-                        <h3 class="card-title after-h3">Postavy ve hrách tohoto světa</h3>
-                        <ul class="w-full" style="list-style-type:none">
-                        {% for char in game_characters %}
-                            <li><a href="{% url 'character_detail' character_url=char.characterurl %}">
-                            {{ char.characternamecz|default:char.charactername }}
-                            </a></li>
-                        {% endfor %}
-                        </ul>
+                            <h3 class="card-title after-h3">Postavy ve hrách tohoto světa</h3>
+                            <ul class="w-full" style="list-style-type:none">
+                                {% for char in game_characters %}
+                                    <li><a href="{% url 'character_detail' character_url=char.characterurl %}">
+                                    {{ char.characternamecz|default:char.charactername }}
+                                    </a></li>
+                                {% endfor %}
+                            </ul>
                         {% endif %}
 
                     </div>
                 </div>
             
-                <!-- // Postavy -->
+                <!-- JÍDLO -->
                 <div class="card">
                     <div class="card-body">
                         <h3 class="card-title after-h3">Jídlo ze světa</h3>

@@ -7,37 +7,35 @@
 
 {% block meta %}
 
-<style>    
-    .navbar, .footer {
-        background: linear-gradient(90deg, #001933 10%, #0A76A9 90%);
-    }
+    <link href="/static/css/games.css" rel="stylesheet">
 
-    .nav-tabs-item a.active,
-    .tab.active,
-    .rating-score {
-        background-color: #0A76A9;
-    }
+    <style>    
+        .nav-tabs-item a.active,
+        .tab.active,
+        .rating-score {
+            background-color: #0A76A9;
+        }
 
-    .nav-tabs-link,
-    .tab-content a {
-        color: #0A76A9;
-    }
+        .nav-tabs-link,
+        .tab-content a {
+            color: #0A76A9;
+        }
 
-    .nav-tabs-link:is(.dark *),
-    .tab-content a:is(.dark *) {
-        color: #14ACF5;
-    }
+        .nav-tabs-link:is(.dark *),
+        .tab-content a:is(.dark *) {
+            color: #14ACF5;
+        }
 
-    .select-options a:hover {
-        background-color: #0A76A9;
-        color: white;
-    }
+        .select-options a:hover {
+            background-color: #0A76A9;
+            color: white;
+        }
 
-    .rating-score:is(.dark *) {
-        background: #14ACF5;
-    }
+        .rating-score:is(.dark *) {
+            background: #14ACF5;
+        }
 
-</style>
+    </style>
 
 {% endblock %}
 
@@ -62,39 +60,47 @@
         </li>
     </ul>
 
-    <div class="tab-content">
+    <div class="tab-content-body">
         <!-- Tab Hodnocení her -->
         <div id="hry" class="tab-show active {% if not hash or hash == 'hry' %}active{% else %}hidden{% endif %}">
             <div class="tab-content-item">
                 <h3 class="after-h3">Nejlépe hodnocené hry</h3>
-                <div class="table">
-                    {% for game in top_games %}
-                        <div class="table-row">
-                            <img src="https://div.cz/static/img/game/game.png" alt="{{ game.title }}" style="width: 60px;">
-                            <div style="margin-left: .75rem;">
-                                <h3>{{ forloop.counter }}. 
-                                    <a href="{% url 'game_detail' game.url %}">
-                                        {{ game.title }}
-                                    </a> 
-                                    ({{ game.year }})
-                                </h3>
-                                <p>Vydavatel: 
-                                    {{ game.publisherid.name }}
-                                </p>
-                                <p>{{ game.countryid.name }}</p>
+                {% for game in top_games %}
+                    <div class="table-row">
+                        {% if game.img %}
+                            {% if game.img == "rawg.io" %}
+                                <img src="https://rawg.io/ ... ... .../{{ game.img }}" alt="{{ game.title }}" class="card-img-top game-card-image">
+                            {% else %}
+                                <img src="https://media.div.cz/hry/{{ game.img }}" alt="{{ game.title }}" class="card-img-top game-card-image">
+                            {% endif %}
+
+                            {% else %}
+                            <img src="/static/img/game/game.png" alt="{{ game.title }}" class="card-img-top game-card-image">
+                        {% endif %}
+
+                        <div style="margin-left: .75rem;">
+                            <h3>{{ forloop.counter }}. 
+                                <a href="{% url 'game_detail' game.url %}">
+                                    {{ game.title }}
+                                </a> 
+                                ({{ game.year }})
+                            </h3>
+                            <p>Vydavatel: 
+                                {{ game.publisherid.name }}
+                            </p>
+                            <p>{{ game.countryid.name }}</p>
+                        </div>
+                        <div class="rating-box">
+                            <div class="rating-score">
+                                <span class="rating-value">99%</span>
                             </div>
-                            <div class="rating-box">
-                                <div class="rating-score">
-                                    <span class="rating-value">99%</span>
-                                </div>
-                                <div class="rating-count">
-                                    <i class="fa-solid fa-users"></i>
-                                    <span>10 000</span>
-                                </div>
+                            <div class="rating-count">
+                                <i class="fa-solid fa-users"></i>
+                                <span>10 000</span>
                             </div>
                         </div>
-                    {% endfor %}
-                </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
 
@@ -104,90 +110,86 @@
                 <!-- Levý sloupec: Nejoblíbenější země -->
                 <div class="tab-content-item">
                     <h3 class="after-h3">Země ze kterých hry vycházejí</h3>
-                    <div class="table">
-                        {% for country in top_countries %}
+                    {% for country in top_countries %}
                         <div class="table-row-line">
                             <div style="margin-left: .75rem;">
                                 <h3>{{ forloop.counter }}. {{ country.countrynamecz }}</h3>
                             </div>
                         </div>
-                        {% endfor %}
-                    </div>
+                    {% endfor %}
                 </div>
 
                 <!-- Pravý sloupec: Země podle počtu her -->
                 <div class="tab-content-item">
                     <h3 class="after-h3">Země podle počtu her</h3>
-                    <div class="table">
-                        <div class="stat-item">
-                            <span class="label">USA</span>
-                            <div class="bar-container">
-                                <p>529953</p>
-                                <div class="bar-game" style="width: 100%;"></div>
-                            </div>
+                    <div class="stat-item">
+                        <span class="label">USA</span>
+                        <div class="bar-container">
+                            <p>529953</p>
+                            <div class="bar-game" style="width: 100%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Francie</span>
-                            <div class="bar-container">
-                                <p>65869</p>
-                                <div class="bar-game" style="width: 12%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Francie</span>
+                        <div class="bar-container">
+                            <p>65869</p>
+                            <div class="bar-game" style="width: 12%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Německo</span>
-                            <div class="bar-container">
-                                <p>54872</p>
-                                <div class="bar-game" style="width: 10%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Německo</span>
+                        <div class="bar-container">
+                            <p>54872</p>
+                            <div class="bar-game" style="width: 10%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Japonsko</span>
-                            <div class="bar-container">
-                                <p>51021</p>
-                                <div class="bar-game" style="width: 9%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Japonsko</span>
+                        <div class="bar-container">
+                            <p>51021</p>
+                            <div class="bar-game" style="width: 9%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Velká Británie</span>
-                            <div class="bar-container">
-                                <p>48853</p>
-                                <div class="bar-game" style="width: 9%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Velká Británie</span>
+                        <div class="bar-container">
+                            <p>48853</p>
+                            <div class="bar-game" style="width: 9%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Španělsko</span>
-                            <div class="bar-container">
-                                <p>36197</p>
-                                <div class="bar-game" style="width: 7%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Španělsko</span>
+                        <div class="bar-container">
+                            <p>36197</p>
+                            <div class="bar-game" style="width: 7%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Indie</span>
-                            <div class="bar-container">
-                                <p>27067</p>
-                                <div class="bar-game" style="width: 5%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Indie</span>
+                        <div class="bar-container">
+                            <p>27067</p>
+                            <div class="bar-game" style="width: 5%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Kanada</span>
-                            <div class="bar-container">
-                                <p>26000</p>
-                                <div class="bar-game" style="width: 5%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Kanada</span>
+                        <div class="bar-container">
+                            <p>26000</p>
+                            <div class="bar-game" style="width: 5%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Itálie</span>
-                            <div class="bar-container">
-                                <p>25676</p>
-                                <div class="bar-game" style="width: 5%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Itálie</span>
+                        <div class="bar-container">
+                            <p>25676</p>
+                            <div class="bar-game" style="width: 5%;"></div>
                         </div>
-                        <div class="stat-item">
-                            <span class="label">Brazílie</span>
-                            <div class="bar-container">
-                                <p>24186</p>
-                                <div class="bar-game" style="width: 4%;"></div>
-                            </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Brazílie</span>
+                        <div class="bar-container">
+                            <p>24186</p>
+                            <div class="bar-game" style="width: 4%;"></div>
                         </div>
                     </div>
                 </div>
@@ -200,120 +202,115 @@
                 <!-- Levý sloupec: Oblíbené hry -->
                 <div class="tab-content-item">
                     <h3 class="after-h3">Oblíbené hry</h3>
-                    <div class="table">
-                        <!-- Výběr konzole -->
-                        <div class="custom-select" onclick="toggleDropdown(event)">
-                            <span id="action-header">
-                                Vyber konzoli <i class="fas fa-chevron-down"></i>
-                            </span>
+                    <!-- Výběr vydavatele -->
+                    <div class="custom-select" onclick="toggleDropdown(event)">
+                        <span id="action-header">
+                            Vydavatel <i class="fas fa-chevron-down"></i>
+                        </span>
 
-                            <div id="action-dropdown" class="select-as" style="display: none;">
-                                <a href="" value="PS4">PS4</a>
-                                <a href="" value="PS5">PS5</a>
-                                <a href="" value="X box">X box</a>
-                                <a href="" value="PC">PC</a>
-                                <a href="" value="Deskovky">Deskové</a>
+                        <div id="action-dropdown" class="select-as" style="display: none;">
+                            <a href="" value="vydavatel 1">vydavatel 1</a>
+                            <a href="" value="vydavatel 2">vydavatel 2</a>
+                            <a href="" value="vydavatel 3">vydavatel 3</a>
+                            <a href="" value="vydavatel 4">vydavatel 4</a>
+                            <a href="" value="vydavatel 5">vydavatel 5</a>
+                        </div>
+                    </div>
+
+                    <div id="dropdown" class="">
+                        <div class="other-row">
+                            <div>
+                                <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                            </div>
+                            <div style="margin-left: .75rem;">
+                                <h3>1. GTA 5</h3>
                             </div>
                         </div>
-
-                        <div id="dropdown" class="">
-                            <div class="flex items-center p-1 border sudy">
-                                <div>
-                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
-                                </div>
-                                <div style="margin-left: .75rem;">
-                                    <h3>1. GTA 5</h3>
-                                </div>
+                        <div class="other-row">
+                            <div>
+                                <img src="/static/img/game/game.png" alt="" style="width: 70px;">
                             </div>
-                            <div class="flex items-center p-1 border sudy">
-                                <div>
-                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
-                                </div>
-                                <div style="margin-left: .75rem;">
-                                    <h3>2. Warcraft</h3>
-                                </div>
-                            </div>
-                            <div class="flex items-center p-1 border sudy">
-                                <div>
-                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
-                                </div>
-                                <div style="margin-left: .75rem;">
-                                    <h3>3. Hogwarts legacy</h3>
-                                </div>
-                            </div>
-                            <div class="flex items-center p-1 border sudy">
-                                <div>
-                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
-                                </div>
-                                <div style="margin-left: .75rem;">
-                                    <h3>4. Need for speed</h3>
-                                </div>
-                            </div>
-                            <div class="flex items-center p-1 border sudy">
-                                <div>
-                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
-                                </div>
-                                <div style="margin-left: .75rem;">
-                                    <h3>5. Uncharted</h3>
-                                </div>
-                            </div>
-                            <div class="flex items-center p-1 border sudy">
-                                <div>
-                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
-                                </div>
-                                <div style="margin-left: .75rem;">
-                                    <h3>6. NHL</h3>
-                                </div>
-                            </div>
-                            <div class="flex items-center p-1 border sudy">
-                                <div>
-                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
-                                </div>
-                                <div style="margin-left: .75rem;">
-                                    <h3>7. FIFA</h3>
-                                </div>
-                            </div>
-                            <div class="flex items-center p-1 border sudy">
-                                <div>
-                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
-                                </div>
-                                <div style="margin-left: .75rem;">
-                                    <h3>8. Tetris</h3>
-                                </div>
-                            </div>
-                            <div class="flex items-center p-1 border sudy">
-                                <div>
-                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
-                                </div>
-                                <div style="margin-left: .75rem;">
-                                    <h3>9. Mario</h3>
-                                </div>
-                            </div>
-                            <div class="flex items-center p-1 border sudy">
-                                <div>
-                                    <img src="/static/img/game/game.png" alt="" style="width: 70px;">
-                                </div>
-                                <div style="margin-left: .75rem;">
-                                    <h3>10. Zimní hry</h3>
-                                </div>
+                            <div style="margin-left: .75rem;">
+                                <h3>2. Warcraft</h3>
                             </div>
                         </div>
-
+                        <div class="other-row">
+                            <div>
+                                <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                            </div>
+                            <div style="margin-left: .75rem;">
+                                <h3>3. Hogwarts legacy</h3>
+                            </div>
+                        </div>
+                        <div class="other-row">
+                            <div>
+                                <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                            </div>
+                            <div style="margin-left: .75rem;">
+                                <h3>4. Need for speed</h3>
+                            </div>
+                        </div>
+                        <div class="other-row">
+                            <div>
+                                <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                            </div>
+                            <div style="margin-left: .75rem;">
+                                <h3>5. Uncharted</h3>
+                            </div>
+                        </div>
+                        <div class="other-row">
+                            <div>
+                                <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                            </div>
+                            <div style="margin-left: .75rem;">
+                                <h3>6. NHL</h3>
+                            </div>
+                        </div>
+                        <div class="other-row">
+                            <div>
+                                <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                            </div>
+                            <div style="margin-left: .75rem;">
+                                <h3>7. FIFA</h3>
+                            </div>
+                        </div>
+                        <div class="other-row">
+                            <div>
+                                <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                            </div>
+                            <div style="margin-left: .75rem;">
+                                <h3>8. Tetris</h3>
+                            </div>
+                        </div>
+                        <div class="other-row">
+                            <div>
+                                <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                            </div>
+                            <div style="margin-left: .75rem;">
+                                <h3>9. Mario</h3>
+                            </div>
+                        </div>
+                        <div class="other-row">
+                            <div>
+                                <img src="/static/img/game/game.png" alt="" style="width: 70px;">
+                            </div>
+                            <div style="margin-left: .75rem;">
+                                <h3>10. Zimní hry</h3>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Pravý sloupec: Oblíbené deskové -->
+                <!-- Pravý sloupec: Oblíbení vydavatelé -->
                 <div class="tab-content-item">
-                    <h3 class="after-h3">Nejoblíbenější vydavatelé</h3>
-                    <div class="table">
-                        {% for publisher in top_publishers %}
+                    <h3 class="after-h3">Oblíbení vydavatelé</h3>
+                    {% for publisher in top_publishers %}
                         <div class="table-row">
                             <div style="margin-left: .75rem;">
                                 <h3>{{ forloop.counter }}. {{ publisher.name }}</h3>
                             </div>
                         </div>
-                        {% endfor %}
-                    </div>
+                    {% endfor %}
                 </div>
 
             </div>

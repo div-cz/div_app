@@ -1,106 +1,239 @@
 {% extends "divkvariat/base.html" %}
 {% load humanize %}
 
-{% block title %}{{ profile_user.username }} – Nabídky & Poptávky | DIVkvariát{% endblock %}
+{% block title %}
+{{ profile_user.username }} – Moje nabídky | DIVkvariát
+{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto py-10">
+<div class="max-w-7xl mx-auto py-10">
 
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">{{ profile_user.username }}</h1>
+    <!-- HLAVIČKA -->
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">
+        {{ profile_user.username }} – Moje nabídky
+    </h1>
+    <p class="text-gray-600 mb-8">
+        Přehled všech vašich prodejů, poptávek a archivovaných nabídek.
+    </p>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+    <!-- TABS -->
+    <div class="flex flex-wrap gap-3 mb-6">
+        {% for key,label in tabs %}
+        <a href="?type={{ key }}"
+           class="px-4 py-2 rounded-lg border shadow-sm
+           {% if filter_type == key %}
+               bg-green-100 border-green-300 text-green-800
+           {% else %}
+               bg-white text-gray-700 hover:bg-gray-50
+           {% endif %}">
+            {{ label }}
+        </a>
+        {% endfor %}
+    </div>
 
-        <!-- PRODEJ -->
-        <div>
-            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Nabídky k prodeji</h2>
+    <!-- ŘAZENÍ -->
+    <form method="get" class="flex flex-wrap items-center gap-4 mb-6 text-sm text-gray-700">
+        <input type="hidden" name="type" value="{{ filter_type }}">
+        <span class="font-semibold">Řadit:</span>
 
-            {% if seller_rating %}
-            <p class="mb-4 text-gray-700">
-                <span class="font-bold">{{ seller_rating|floatformat:1 }}/5</span>
-                <span class="ml-1">
-                    {% for i in "12345"|make_list %}
-                        {% if forloop.counter <= seller_rating %}★{% else %}☆{% endif %}
-                    {% endfor %}
-                </span>
-                <span class="ml-2 text-sm text-gray-600">({{ seller_ratings_count }} hodnocení)</span>
-            </p>
-            {% endif %}
+        <label class="flex items-center gap-1">
+            <input type="radio" name="order" value="date" {% if order == "date" %}checked{% endif %}>
+            podle data
+        </label>
 
-            {% for listing in sell_listings %}
-            <div class="book-card border bg-white rounded-lg p-4 shadow mb-4">
+        <label class="flex items-center gap-1">
+            <input type="radio" name="order" value="alpha" {% if order == "alpha" %}checked{% endif %}>
+            A–Z
+        </label>
 
-                <a href="{% url 'book_detail_cz' listing.book.url %}"
-                   class="font-semibold text-gray-800 hover:underline">
+        <button class="ml-2 px-3 py-1 border rounded-lg bg-white hover:bg-gray-50">
+            Použít
+        </button>
+    </form>
+
+    <!-- ABECEDA -->
+    <div class="flex flex-wrap gap-1 mb-8 text-sm">
+        <a href="?type={{ filter_type }}&order={{ order }}"
+           class="px-2 py-1 rounded
+           {% if not active_letter %}
+               bg-green-600 text-white
+           {% else %}
+               bg-gray-100 hover:bg-gray-200
+           {% endif %}">
+            Vše
+        </a>
+        {% for letter in alphabet %}
+        <a href="?type={{ filter_type }}&order={{ order }}&letter={{ letter }}"
+           class="px-2 py-1 rounded
+           {% if active_letter == letter %}
+               bg-green-600 text-white
+           {% else %}
+               bg-gray-100 hover:bg-gray-200
+           {% endif %}">
+            {{ letter }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- FORMULÁŘ -->
+    <form method="post">
+        {% csrf_token %}
+
+        {% if listings %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            {% for listing in listings %}
+            <div class="bg-white border rounded-xl shadow-sm hover:shadow-md transition p-4">
+
+                <!-- CHECKBOX -->
+                {% if listing.status == "ACTIVE" %}
+                <div class="mb-2">
+                    <label class="text-sm text-gray-600 flex items-center gap-2">
+                        <input type="checkbox" name="selected_ids" value="{{ listing.booklistingid }}"
+                               class="rounded">
+                        vybrat
+                    </label>
+                </div>
+                {% endif %}
+
+                <!-- OBSAH -->
+                <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}"
+                   class="font-semibold text-gray-800 hover:underline block mb-1">
                     {{ listing.book.titlecz|default:listing.book.title }}
                 </a>
 
-                <p class="text-gray-600 text-sm">{{ listing.book.author }}</p>
+                <p class="text-sm text-gray-500 mb-2">
+                    {{ listing.book.author }}
+                </p>
 
-                <p class="text-green-700 font-semibold mt-1">
+                <!-- CENA - EDITOVATELNÁ -->
+                {% if listing.status == "ACTIVE" and listing.listingtype != "GIVE" %}
+                <div class="mb-2">
+                    <label class="text-xs text-gray-500">Cena:</label>
+                    <div class="flex items-center gap-1">
+                        <input type="number" 
+                               name="price_{{ listing.booklistingid }}" 
+                               value="{{ listing.price|floatformat:0 }}"
+                               class="w-24 px-2 py-1 border rounded text-sm"
+                               min="0">
+                        <span class="text-sm text-gray-600">Kč</span>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-lg font-bold mb-1
+                    {% if listing.listingtype == 'GIVE' %}
+                        text-blue-600
+                    {% else %}
+                        text-green-600
+                    {% endif %}">
                     {% if listing.listingtype == "GIVE" %}
                         Daruji
                     {% else %}
                         {{ listing.price|intcomma }} Kč
                     {% endif %}
                 </p>
+                {% endif %}
 
-                <p class="text-xs text-gray-500 mt-1">{{ listing.createdat|naturaltime }}</p>
-
-                <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}"
-                   class="text-sm text-green-700 hover:underline mt-2 inline-block">
-                    Detail nabídky →
-                </a>
-
-            </div>
-            {% empty %}
-            <p class="text-gray-600">Žádné aktivní nabídky.</p>
-            {% endfor %}
-        </div>
-
-        <!-- POPTÁVKY -->
-        <div>
-            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Poptávky</h2>
-
-            {% if buyer_rating %}
-            <p class="mb-4 text-gray-700">
-                <span class="font-bold">{{ buyer_rating|floatformat:1 }}/5</span>
-                <span class="ml-1">
-                    {% for i in "12345"|make_list %}
-                        {% if forloop.counter <= buyer_rating %}★{% else %}☆{% endif %}
-                    {% endfor %}
-                </span>
-                <span class="ml-2 text-sm text-gray-600">({{ buyer_ratings_count }} hodnocení)</span>
-            </p>
-            {% endif %}
-
-            {% for listing in buy_listings %}
-            <div class="book-card border bg-white rounded-lg p-4 shadow mb-4">
-
-                <a href="{% url 'book_detail_cz' listing.book.url %}"
-                   class="font-semibold text-gray-800 hover:underline">
-                    {{ listing.book.titlecz|default:listing.book.title }}
-                </a>
-
-                <p class="text-gray-600 text-sm">{{ listing.book.author }}</p>
-
-                <p class="text-green-700 font-semibold mt-1">
-                    {{ listing.price|intcomma }} Kč
+                <p class="text-xs text-gray-500 mb-3">
+                    <span class="font-semibold">{{ listing.get_listingtype_display }}</span> ·
+                    <span class="
+                        {% if listing.status == 'ACTIVE' %}text-green-600
+                        {% elif listing.status == 'RESERVED' %}text-blue-600
+                        {% elif listing.status == 'PAID' %}text-yellow-600
+                        {% elif listing.status == 'SHIPPED' %}text-purple-600
+                        {% elif listing.status == 'COMPLETED' %}text-gray-600
+                        {% else %}text-red-600
+                        {% endif %}">
+                        {{ listing.get_status_display }}
+                    </span>
+                    <br>
+                    {{ listing.createdat|date:"j. n. Y" }}
                 </p>
 
-                <p class="text-xs text-gray-500 mt-1">{{ listing.createdat|naturaltime }}</p>
+                <!-- AKCE -->
+                <div class="flex gap-3 text-sm">
+                    {% if listing.status == "ACTIVE" %}
+                    <a href="{% url 'listing_detail_edit' listing.book.url listing.booklistingid %}"
+                       class="text-green-700 hover:underline">
+                        Upravit
+                    </a>
+                    {% endif %}
 
-                <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}"
-                   class="text-sm text-green-700 hover:underline mt-2 inline-block">
-                    Detail poptávky →
-                </a>
+                    <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}"
+                       class="text-gray-700 hover:underline">
+                        Detail
+                    </a>
+
+                    {% if listing.status == "ACTIVE" %}
+                    <a href="{% url 'cancel_sell' listing.booklistingid %}"
+                       class="text-red-600 hover:underline"
+                       onclick="return confirm('Opravdu chcete zrušit tuto nabídku?')">
+                        Zrušit
+                    </a>
+                    {% endif %}
+                </div>
 
             </div>
-            {% empty %}
-            <p class="text-gray-600">Žádné aktivní poptávky.</p>
             {% endfor %}
         </div>
 
+        <!-- HROMADNÉ AKCE -->
+        <div class="mt-8 p-4 bg-gray-50 border rounded-xl flex flex-wrap gap-4 items-center">
+            <button type="submit" name="action" value="update_prices"
+                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                💾 Uložit změny cen
+            </button>
+
+            <button type="submit" name="action" value="cancel"
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    onclick="return confirm('Opravdu chcete zrušit vybrané nabídky?')">
+                🗑️ Zrušit vybrané
+            </button>
+
+            <span class="text-sm text-gray-600 ml-auto">
+                Celkem: {{ listings.paginator.count }} nabídek
+            </span>
+        </div>
+
+        {% else %}
+        <div class="text-center py-16">
+            <p class="text-gray-500 text-lg mb-4">
+                Zatím zde nemáte žádné nabídky.
+            </p>
+            <a href="{% url 'listing_add_book' %}" 
+               class="inline-block px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                + Přidat první nabídku
+            </a>
+        </div>
+        {% endif %}
+    </form>
+
+    <!-- PAGINACE -->
+    {% if listings.has_other_pages %}
+    <div class="flex justify-center mt-10">
+        <nav class="flex items-center gap-2 text-sm">
+
+            {% if listings.has_previous %}
+            <a href="?page={{ listings.previous_page_number }}&type={{ filter_type }}&order={{ order }}{% if active_letter %}&letter={{ active_letter }}{% endif %}"
+               class="px-3 py-2 bg-white border rounded-lg hover:bg-gray-50">
+                ‹ Předchozí
+            </a>
+            {% endif %}
+
+            <span class="px-4 py-2 bg-gray-100 border rounded-lg">
+                {{ listings.number }} / {{ listings.paginator.num_pages }}
+            </span>
+
+            {% if listings.has_next %}
+            <a href="?page={{ listings.next_page_number }}&type={{ filter_type }}&order={{ order }}{% if active_letter %}&letter={{ active_letter }}{% endif %}"
+               class="px-3 py-2 bg-white border rounded-lg hover:bg-gray-50">
+                Další ›
+            </a>
+            {% endif %}
+
+        </nav>
     </div>
+    {% endif %}
 
 </div>
 {% endblock %}

@@ -7,7 +7,7 @@
 {% block content %}
 
 {% if slug == "filmy" %}
-    <link href="https://media.div.cz/css/movies.css" rel="stylesheet">
+    <link href="/static/css/movies.css" rel="stylesheet">
     <style>
         .cta:before {
             background: #A52B21;
@@ -17,87 +17,127 @@
             background: #b12a20;
         }
     </style>
-{% elif slug == "knihy" %}
-    <link href="https://media.div.cz/css/books.css" rel="stylesheet">
-    <style>
-        .cta:before {
-            background: #61872B;
-        }
+    {% elif slug == "knihy" %}
+        <link href="/static/css/books.css" rel="stylesheet">
+        <style>
+            .cta:before {
+                background: #61872B;
+            }
 
-        .cta:hover:before {
-            background: #619618;
-        }
-    </style>
-{% elif slug == "hry" %}
-    <link href="https://media.div.cz/css/games.css" rel="stylesheet">
-    <style>
-        .cta:before {
-            background: #0A76A9;
-        }
+            .cta:hover:before {
+                background: #619618;
+            }
+        </style>
+    {% elif slug == "hry" %}
+        <link href="/static/css/games.css" rel="stylesheet">
+        <style>
+            .cta:before {
+                background: #0A76A9;
+            }
 
-        .cta:hover:before {
-            background: #2a8dbb;
-        }
-    </style>
-{% else %}
-    <link href="https://media.div.cz/css/navbar_other.css" rel="stylesheet">
+            .cta:hover:before {
+                background: #2a8dbb;
+            }
+        </style>
+
+    {% else %}
+    <link href="/static/css/navbar_other.css" rel="stylesheet">
 {% endif %}
 
-<h2>
+<h2 style="width: 100%;">
     <a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a>
     <span> / </span>{{ title }}
 </h2>
 
 {% if user.is_authenticated %}
     <a href="{% url 'create_new_topic' slug=section.slug %}" class="cta">
-        <span class="text-[#0d0c0f] dark:text-[#F9F9F9]">Přidat nový příspěvek</span>
+        <span>Přidat nový příspěvek</span>
         <svg width="15px" height="10px" viewBox="0 0 13 10">
             <path d="M1,5 L11,5"></path>
             <polyline points="8 1 12 5 8 9"></polyline>
         </svg>
     </a>
-{% else %}
-    <p class="my-4">Pro založení nového příspěvku se prosím <a href="{% url 'login' %}">přihlašte</a>.</p>
+
+    {% else %}
+    <p style="margin-bottom: 1rem; margin-top: 1rem;">Pro založení nového příspěvku se prosím <a href="{% url 'login' %}">přihlašte</a>.</p>
 {% endif %}
 
-<section class="my-4 w-3/4">
+<div class="forum-body">
     {% if topics %}
         {% for topic in page.object_list %}
-        <ol class="border mb-2">
-            <li class="flex justify-between">
-                <a class="hover:underline" href="{% url 'forum_topic_detail' slug=section.slug topicurl=topic.topicurl %}">{{ topic.title }}</a> 
-                <span><small>Počet příspěvků: </small><strong>{{ topic.comment_count }}</strong></span>
-            </li>
-            <hr style="width: 98%; margin: 0 auto;">
-            {% if topic.latest_user %}
-            <li><small><strong>Poslední aktivita:</strong> {{ topic.latest_activity }} - <a href="{% url 'user_profile_with_profil' user_id=topic.latest_user_id %}">{% if topic.latest_user %}{{ topic.latest_user }}{% else %}Smazaný uživatel{% endif %}</small></a></li>
-            {% else %}
-            <li><small>Zatím žádné komentáře</small></li>
-            {% endif %}
-        </ol>
+            <div class="card-body" style="border: 1px solid #dee2e6; margin-bottom: .5rem;">
+                <div class="forum-card-head after">
+                    <a class="hover:underline" href="{% url 'forum_topic_detail' slug=section.slug topicurl=topic.topicurl %}">{{ topic.title }}</a> 
+                    
+                    <div class="custom-select" onclick="toggleDropdown(event)">
+                        <span id="action-header" style="padding: 0 5px;">
+                            <i style="font-size: small;" class="fas fa-chevron-down"></i>
+                        </span>
+                        <div id="action-dropdown" class="select-options" style="display: none;">
+                            <a href="">Upravit</a>
+                            <a href="" style="border-radius: 0 0 10px 10px;">Smazat</a>
+                        </div>
+                    </div>
+                </div>
+
+                {% if topic.latest_user %}
+                    <div class="forum-card-body">
+                        <small><strong>Poslední aktivita:</strong> {{ topic.latest_activity }} - 
+                            <a href="{% url 'user_profile_with_profil' user_id=topic.latest_user_id %}">{% if topic.latest_user %}{{ topic.latest_user }}{% else %}Smazaný uživatel{% endif %}</a>
+                        </small>
+                        <p>
+                            <span><small>Počet příspěvků: </small><strong>{{ topic.comment_count }}</strong></span>
+                        </p>
+                    </div>
+                    
+                    {% else %}
+                    <small>Zatím žádné komentáře</small>
+                {% endif %}
+            </div>
         {% endfor %}
-    {% else %}
+
+        {% else %}
         <p>Žádné příspěvky.</p>
     {% endif %}
-</section>
+</div>
 
 <!-- PAGINÁTOR -->
 <div class="pagination">
     <span class="step-links">
-    {% if page.has_previous %}
-        <a class="first-page" href="?page=1">&laquo; První</a>
-        <a href="?page={{ page.previous_page_number }}">Předchozí</a>
-    {% endif %}
+        {% if page.has_previous %}
+            <a class="first-page" href="?page=1">&laquo; První</a>
+            <a href="?page={{ page.previous_page_number }}">Předchozí</a>
+        {% endif %}
 
-    <span class="current-page">
-        {{ page.number }} / {{ page.paginator.num_pages }}
-    </span>
+        <span class="current-page">
+            {{ page.number }} / {{ page.paginator.num_pages }}
+        </span>
 
-    {% if page.has_next %}
-        <a href="?page={{ page.next_page_number }}">Další</a>
-        <a class="last-page" href="?page={{ page.paginator.num_pages }}">Poslední &raquo;</a>
-    {% endif %}
+        {% if page.has_next %}
+            <a href="?page={{ page.next_page_number }}">Další</a>
+            <a class="last-page" href="?page={{ page.paginator.num_pages }}">Poslední &raquo;</a>
+        {% endif %}
     </span>
 </div>
+
+
+<!-- Funkce pro zobrazení/skrytí roletového menu po kliknutí na text "Akce" -->
+<script>
+    function toggleDropdown(event) {
+        var dropdown = document.getElementById('action-dropdown');
+        dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'flex' : 'none';
+        
+        // Zastavíme šíření události, abychom zabránili jejímu zachycení dokumentem
+        event.stopPropagation();
+    }
+
+    // Funkce pro zavření nabídky, pokud uživatel klikne někam mimo pole
+    document.addEventListener('click', function(event) {
+        var dropdown = document.getElementById('action-dropdown');
+        if (!dropdown.contains(event.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+</script>
 
 {% endblock content %}

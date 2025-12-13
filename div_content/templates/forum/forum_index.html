@@ -9,8 +9,6 @@
 
 {% block meta %}
 
-    <link href="/static/css/navbar_together.css" rel="stylesheet">
-
 {% endblock %}
 
 {% block content %}
@@ -45,50 +43,50 @@
     <h3 style="margin-top:2.5rem; margin-bottom:.75rem; width:100%;">📌 Poslední příspěvky</h3>
 
     <div class="">
-    {% if latest_comments %}
-        {% for comment in latest_comments %}
-        <ul class="card-body" style="margin-bottom:.5rem; border: 1px solid #dee2e6;">
-            <!-- Titulek vlákna -->
-            <li class="last-post">
-                <a class="{% if comment.topic.section.slug == 'filmy' %}movies
-                    {% elif comment.topic.section.slug == 'knihy' %}books
-                    {% elif comment.topic.section.slug == 'hry' %}games
-                    {% endif %}"
-                    style="font-weight:600;"
-                    href="{% url 'forum_topic_detail' slug=comment.topic.section.slug topicurl=comment.topic.topicurl %}">
-                    {{ comment.topic.title }}
-                </a>
+        {% if latest_comments %}
+            {% for comment in latest_comments %}
+            <ul class="card-body" style="margin-bottom:.5rem; border: 1px solid #dee2e6;">
+                <!-- Titulek vlákna -->
+                <li class="last-post">
+                    <a class="{% if comment.topic.section.slug == 'filmy' %}movies
+                        {% elif comment.topic.section.slug == 'knihy' %}books
+                        {% elif comment.topic.section.slug == 'hry' %}games
+                        {% endif %}"
+                        style="font-weight:600;"
+                        href="{% url 'forum_topic_detail' slug=comment.topic.section.slug topicurl=comment.topic.topicurl %}">
+                        {{ comment.topic.title }}
+                    </a>
 
-                {% if comment.topic.section.slug == "filmy" %}
-                    <p class="movies">&#127916; Filmy</p>
-                    {% elif comment.topic.section.slug == "knihy" %}
-                    <p class="books">&#128214; Knihy</p>
-                    {% elif comment.topic.section.slug == "hry" %}
-                    <p class="games">&#127918; Hry</p>
-                    {% elif comment.topic.section.slug == "obecne" %}
-                    <p class="">&#128172; Ostatní</p>
-                {% endif %}
-            </li>
+                    {% if comment.topic.section.slug == "filmy" %}
+                        <p class="movies">&#127916; Filmy</p>
+                        {% elif comment.topic.section.slug == "knihy" %}
+                        <p class="books">&#128214; Knihy</p>
+                        {% elif comment.topic.section.slug == "hry" %}
+                        <p class="games">&#127918; Hry</p>
+                        {% elif comment.topic.section.slug == "obecne" %}
+                        <p class="">&#128172; Ostatní</p>
+                    {% endif %}
+                </li>
 
-            <hr>
+                <hr>
 
-            <!-- Info o komentáři -->
-            <li class="last-comment">
-                <p>
-                    {{ comment.body|striptags|truncatechars:120 }}
-                </p>
-                <small style="white-space: nowrap;">
-                    <a style="margin-right: .5rem;" href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">{{ comment.user.username|default:"Smazaný uživatel" }}</a> 
-                    {{ comment.createdat|date:"d.m.Y H:i" }}
-                </small>
-            </li>
-        </ul>
-        {% endfor %}
-    {% endif %}
+                <!-- Info o komentáři -->
+                <li class="last-comment">
+                    <p>
+                        {{ comment.body|striptags|truncatechars:120 }}
+                    </p>
+                    <small style="white-space: nowrap;">
+                        <a style="margin-right: .5rem;" href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">{{ comment.user.username|default:"Smazaný uživatel" }}</a> 
+                        {{ comment.createdat|date:"d.m.Y H:i" }}
+                    </small>
+                </li>
+            </ul>
+            {% endfor %}
+        {% endif %}
     </div>
 </div>
 {% endblock content %}
 
 {% block script %}
-<script src="/static/js/forum-comment-summernote.js"></script>
+    <script src="/static/js/forum-comment-summernote.js"></script>
 {% endblock script %}

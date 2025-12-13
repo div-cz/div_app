@@ -6,14 +6,13 @@
 {% block content %}
 
 {% if slug == "filmy" %}
-    <link href="https://media.div.cz/css/movies.css" rel="stylesheet">
-    </style>
-    {% elif slug == "knihy" %}
-    <link href="https://media.div.cz/css/books.css" rel="stylesheet">
-    {% elif slug == "hry" %}
-    <link href="https://media.div.cz/css/games.css" rel="stylesheet">
+    <link href="/static/css/movies.css" rel="stylesheet">
+        {% elif slug == "knihy" %}
+        <link href="/static/css/books.css" rel="stylesheet">
+        {% elif slug == "hry" %}
+        <link href="/static/css/games.css" rel="stylesheet">
     {% else %}
-    <link href="https://media.div.cz/css/navbar_other.css" rel="stylesheet">
+    <link href="/static/css/navbar_other.css" rel="stylesheet">
 {% endif %}
 
 <h2>
@@ -25,16 +24,17 @@
 </h2>
 
 {% if user.is_authenticated %}
-<section class="new-comment">
-    <h2 style="width: 100%;">Přidat komentář</h2>
-    <form method="post" style="margin-bottom: 20px;">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn add" type="submit">Přidat</button>
-    </form>
-</section>
-{% else %}
-<p class="my-4">Pro přidání komentáře se prosím <a href="{% url 'login' %}">přihlašte</a>.</p>
+    <section class="new-comment">
+        <h2 style="width: 100%;">Přidat komentář</h2>
+        <form method="post" style="margin-bottom: 20px;">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn add" type="submit">Přidat</button>
+        </form>
+    </section>
+
+    {% else %}
+    <p style="margin-bottom: 1rem; margin-top: 1rem;">Pro přidání komentáře se prosím <a href="{% url 'login' %}">přihlašte</a>.</p>
 {% endif %}
 
 <!-- komentáře se načítají v šabloně níže -->
@@ -43,5 +43,5 @@
 {% endblock content %}
 
 {% block script %}
-<script src="/static/js/forum-comment-summernote.js"></script>
+    <script src="/static/js/forum-comment-summernote.js"></script>
 {% endblock script %}
