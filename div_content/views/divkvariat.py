@@ -848,11 +848,11 @@ def listing_detail_edit(request, book_url, listing_id):
         # Vytvoření shippingoptions stringu
         shipping_options = []
         if zasilkovna:
-            shipping_options.append(f"zasilkovna:{zasilkovna}")
+            shipping_options.append(f"ZASILKOVNA:{zasilkovna}")
         if balikovna:
-            shipping_options.append(f"balikovna:{balikovna}")
+            shipping_options.append(f"BALIKOVNA:{balikovna}")
         if osobni is not None and osobni != '':
-            shipping_options.append(f"osobni:{osobni}")
+            shipping_options.append(f"OSOBNI:{osobni}")
         
         listing.price = new_price
         listing.shippingoptions = ",".join(shipping_options) if shipping_options else listing.shippingoptions
@@ -867,7 +867,7 @@ def listing_detail_edit(request, book_url, listing_id):
         return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
     
     # Parsování současných shipping options pro předvyplnění formuláře
-    current_shipping = {'zasilkovna': '49', 'balikovna': '69', 'osobni': '0'}
+    current_shipping = {'ZASILKOVNA': '49', 'BALIKOVNA': '69', 'OSOBNI': '0'}
     if listing.shippingoptions:
         for opt in listing.shippingoptions.split(','):
             parts = opt.split(':')

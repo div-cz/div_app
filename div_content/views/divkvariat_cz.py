@@ -783,23 +783,24 @@ def listing_add_book(request):
                     if request.POST.get("shipping_zasilkovna"):
                         price = request.POST.get("shipping_zasilkovna_price", "").strip()
                         if price:
-                            shipping_options.append(f"zasilkovna:{price}")
+                            shipping_options.append(f"ZASILKOVNA:{price}")
                 
                     # Balíkovna
                     if request.POST.get("shipping_balikovna"):
                         price = request.POST.get("shipping_balikovna_price", "").strip()
                         if price:
-                            shipping_options.append(f"balikovna:{price}")
+                            shipping_options.append(f"BALIKOVNA:{price}")
                 
-                    # Česká pošta
-                    if request.POST.get("shipping_ceskaposta"):
-                        price = request.POST.get("shipping_posta_price", "").strip()
+                    # Pošta
+                    if request.POST.get("shipping_posta"):  # Změna z 'enable_posta' na 'shipping_posta'
+                        price = request.POST.get("shipping_posta_price", "").strip()  # Pozor na název pole!
                         if price:
-                            shipping_options.append(f"ceskaposta:{price}")
+                            shipping_options.append(f"POSTA:{price}")
+
                 
                     # Osobní převzetí – pokud máš checkbox v BookListingForm → boolean field personal_pickup
                     if listing.personal_pickup:
-                        shipping_options.append("osobni:0")
+                        shipping_options.append("OSOBNI:0")
                 
                     if shipping_options:
                         listing.shippingoptions = ",".join(shipping_options)
@@ -1134,27 +1135,23 @@ def listing_detail_edit(request, book_url, listing_id):
         if 'enable_zasilkovna' in request.POST:
             zasilkovna_price = request.POST.get('shipping_zasilkovna', '89').strip()
             if zasilkovna_price:
-                shipping_options.append(f"zasilkovna:{zasilkovna_price}")
+                shipping_options.append(f"ZASILKOVNA:{zasilkovna_price}")
         
         # Balíkovna
         if 'enable_balikovna' in request.POST:
             balikovna_price = request.POST.get('shipping_balikovna', '99').strip()
             if balikovna_price:
-                shipping_options.append(f"balikovna:{balikovna_price}")
+                shipping_options.append(f"BALIKOVNA:{balikovna_price}")
         
-        # Česká pošta
-        if 'enable_ceskaposta' in request.POST:
-            ceskaposta_price = request.POST.get('shipping_ceskaposta', '109').strip()
-            if ceskaposta_price:
-                shipping_options.append(f"ceskaposta:{ceskaposta_price}")
+        # Pošta
+        if 'enable_posta' in request.POST:
+            posta_price = request.POST.get('shipping_posta', '109').strip()
+            if posta_price:
+                shipping_options.append(f"POSTA:{posta_price}")
         
         # Osobní odběr - VŽDY 0 Kč (checkbox už existuje níže)
         if new_personal_pickup:
-            shipping_options.append("osobni:0")
-        
-        listing.shippingoptions = ",".join(shipping_options) if shipping_options else ""
-        
-        
+            shipping_options.append("OSOBNI:0")
 
 
         listing.price = new_price
@@ -1170,13 +1167,13 @@ def listing_detail_edit(request, book_url, listing_id):
         return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
 
     # ✅ TOTO MUSÍ BÝT MIMO POST BLOK!
-    current_shipping = {'zasilkovna': '', 'balikovna': '', 'ceskaposta': '', 'osobni': ''}
+    current_shipping = {'ZASILKOVNA': '', 'BALIKOVNA': '', 'POSTA': '', 'OSOBNI': ''}
 
     if listing.shippingoptions:
         for opt in listing.shippingoptions.split(','):
             parts = opt.split(':')
             if len(parts) == 2:
-                key = parts[0].lower().strip()
+                key = parts[0].strip().upper()
                 value = parts[1].strip()
                 current_shipping[key] = value
 

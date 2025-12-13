@@ -127,13 +127,13 @@
             <input type="checkbox" 
                    id="enable_zasilkovna" 
                    name="enable_zasilkovna"
-                   {% if current_shipping.zasilkovna %}checked{% endif %}
+                   {% if current_shipping.ZASILKOVNA %}checked{% endif %}
                    class="w-5 h-5">
             <label for="enable_zasilkovna" class="font-medium w-32">Zásilkovna</label>
             <input type="number"
                    id="shipping_zasilkovna"
                    name="shipping_zasilkovna"
-                   value="{{ current_shipping.zasilkovna|default:'89' }}"
+                   value="{{ current_shipping.ZASILKOVNA|default:'89' }}"
                    min="0"
                    placeholder="89"
                    class="w-24 border border-gray-300 rounded px-3 py-2">
@@ -145,13 +145,13 @@
             <input type="checkbox" 
                    id="enable_balikovna" 
                    name="enable_balikovna"
-                   {% if current_shipping.balikovna %}checked{% endif %}
+                   {% if current_shipping.BALIKOVNA %}checked{% endif %}
                    class="w-5 h-5">
             <label for="enable_balikovna" class="font-medium w-32">Balíkovna</label>
             <input type="number"
                    id="shipping_balikovna"
                    name="shipping_balikovna"
-                   value="{{ current_shipping.balikovna|default:'99' }}"
+                   value="{{ current_shipping.BALIKOVNA|default:'99' }}"
                    min="0"
                    placeholder="99"
                    class="w-24 border border-gray-300 rounded px-3 py-2">
@@ -161,15 +161,15 @@
         <!-- ČESKÁ POŠTA -->
         <div class="flex items-center gap-3">
             <input type="checkbox" 
-                   id="enable_ceskaposta" 
-                   name="enable_ceskaposta"
-                   {% if current_shipping.ceskaposta %}checked{% endif %}
+                   id="enable_posta" 
+                   name="enable_posta"
+                   {% if current_shipping.POSTA %}checked{% endif %}
                    class="w-5 h-5">
-            <label for="enable_ceskaposta" class="font-medium w-32">Česká pošta</label>
+            <label for="enable_posta" class="font-medium w-32">Česká pošta</label>
             <input type="number"
-                   id="shipping_ceskaposta"
-                   name="shipping_ceskaposta"
-                   value="{{ current_shipping.ceskaposta|default:'109' }}"
+                   id="shipping_posta"
+                   name="shipping_posta"
+                   value="{{ current_shipping.POSTA|default:'109' }}"
                    min="0"
                    placeholder="109"
                    class="w-24 border border-gray-300 rounded px-3 py-2">
@@ -229,7 +229,7 @@
                             type="checkbox"
                             id="id_new_personal_pickup"
                             name="new_personal_pickup"
-                            {% if listing.personal_pickup %}checked{% endif %}
+                            {% if current_shipping.OSOBNI == "0" %}checked{% endif %}
                             class="w-5 h-5 border-gray-300 rounded"
                         >
                         <label for="id_new_personal_pickup" class="text-gray-700">

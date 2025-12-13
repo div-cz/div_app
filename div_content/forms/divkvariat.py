@@ -7,9 +7,9 @@ from div_content.models import Booklisting
 
 
 DEFAULT_SHIPPING = {
-    "zasilkovna": 89,
-    "balikovna": 99,
-    "posta": 99,
+    "ZASILKOVNA": 89,
+    "BALIKOVNA": 99,
+    "POSTA": 99,
     }
 class BookListingForm(forms.ModelForm):
     listingtype = forms.ChoiceField(
@@ -151,7 +151,7 @@ class BookListingForm(forms.ModelForm):
         options = []
 
         if self.cleaned_data.get("personal_pickup"):
-            options.append("osobni_odber:0")
+            options.append("OSOBNI:0")
         if self.cleaned_data.get("shipping_zasilkovna"):
             price = self.cleaned_data.get("shipping_zasilkovna_price") or 0
             options.append(f"ZASILKOVNA:{price}")

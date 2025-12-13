@@ -219,16 +219,34 @@
                         {% if listing.personal_pickup %}Ano{% else %}Ne{% endif %}
                     </p>
 
-                    <p>
-                        <strong>Poštovné:</strong>
-                        {% if listing.status == 'ACTIVE' %}
-                            {% with first=listing.shippingoptions|div_split:","|first %}
-                            od {{ first|div_split:":"|div_get:1 }} Kč
-                            {% endwith %}
-                        {% elif listing.shipping %}
-                            + {{ listing.shipping|price }} Kč
-                        {% endif %}
-                    </p>
+
+
+<p>
+    {% for opt in listing.shippingoptions|div_split:"," %}
+        {% with price=opt|div_split:":"|div_get:1 %}
+            {% if price != "0" and forloop.first %}
+                <strong>Poštovné</strong> od {{ price }} Kč<br>
+            {% endif %}
+        {% endwith %}
+    {% endfor %}
+
+    {% for opt in listing.shippingoptions|div_split:"," %}
+        {% if opt|div_split:":"|first == "OSOBNI" %}
+            Osobní převzetí zdarma
+        {% endif %}
+    {% endfor %}
+{% if request.user == listing.user %}
+    <span class="text-sm text-gray-400 mt-2">
+        {% for opt in listing.shippingoptions|div_split:"," %}
+            {{ opt }}<br>
+        {% endfor %}
+    </span>
+{% endif %}
+
+</p>
+
+
+
 
                     <p>
                         <strong>
