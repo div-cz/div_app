@@ -1105,77 +1105,87 @@ def listing_detail_edit(request, book_url, listing_id):
     book = get_object_or_404(Book, url=book_url)
     listing = get_object_or_404(Booklisting, booklistingid=listing_id, book=book, user=request.user)
 
-    # DEBUG - PŘIDEJ TOHLE
-    print("=" * 50)
-    print(f"DEBUG EDIT FORM:")
-    print(f"listing.price = {listing.price}")
-    print(f"type(listing.price) = {type(listing.price)}")
-    print(f"listing.price repr = {repr(listing.price)}")
-    print("=" * 50)
-    # KONEC DEBUG
-    
     # Pouze ACTIVE nabídky lze editovat
     if listing.status != 'ACTIVE':
         messages.error(request, 'Tuto nabídku už nelze upravovat.')
         return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
-    
+
     if request.method == 'POST':
         try:
             new_price = int(request.POST.get('new_price', 0))
         except (ValueError, TypeError):
             new_price = listing.price or 0
-            
+
         new_description = request.POST.get('new_description', '')
         new_personal_pickup = 'new_personal_pickup' in request.POST
         new_location = request.POST.get('new_location', '')
         new_condition = request.POST.get('new_condition', '')
-        
+
         # Zpracování shipping options
         zasilkovna = request.POST.get('shipping_zasilkovna', '')
         balikovna = request.POST.get('shipping_balikovna', '')
         osobni = request.POST.get('shipping_osobni', '')
-        
+
         # Vytvoření shippingoptions stringu
+        # Zpracování shipping options - s checkboxy
         shipping_options = []
-        if zasilkovna:
-            shipping_options.append(f"zasilkovna:{zasilkovna}")
-        if balikovna:
-            shipping_options.append(f"balikovna:{balikovna}")
-        if osobni is not None and osobni != '':
-            shipping_options.append(f"osobni:{osobni}")
         
+        # Zásilkovna
+        if 'enable_zasilkovna' in request.POST:
+            zasilkovna_price = request.POST.get('shipping_zasilkovna', '89').strip()
+            if zasilkovna_price:
+                shipping_options.append(f"zasilkovna:{zasilkovna_price}")
+        
+        # Balíkovna
+        if 'enable_balikovna' in request.POST:
+            balikovna_price = request.POST.get('shipping_balikovna', '99').strip()
+            if balikovna_price:
+                shipping_options.append(f"balikovna:{balikovna_price}")
+        
+        # Česká pošta
+        if 'enable_ceskaposta' in request.POST:
+            ceskaposta_price = request.POST.get('shipping_ceskaposta', '109').strip()
+            if ceskaposta_price:
+                shipping_options.append(f"ceskaposta:{ceskaposta_price}")
+        
+        # Osobní odběr - VŽDY 0 Kč (checkbox už existuje níže)
+        if new_personal_pickup:
+            shipping_options.append("osobni:0")
+        
+        listing.shippingoptions = ",".join(shipping_options) if shipping_options else ""
+        
+        
+
+
         listing.price = new_price
         listing.shippingoptions = ",".join(shipping_options) if shipping_options else listing.shippingoptions
         listing.personal_pickup = new_personal_pickup
         listing.description = new_description
         listing.location = new_location
         listing.condition = new_condition
-        
+
         listing.save()
-        
+
         messages.success(request, 'Nabídka byla úspěšně aktualizována!')
         return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
-    
-    # Parsování současných shipping options pro předvyplnění formuláře
-    current_shipping = {'zasilkovna': '49', 'balikovna': '69', 'osobni': '0'}
+
+    # ✅ TOTO MUSÍ BÝT MIMO POST BLOK!
+    current_shipping = {'zasilkovna': '', 'balikovna': '', 'ceskaposta': '', 'osobni': ''}
+
     if listing.shippingoptions:
         for opt in listing.shippingoptions.split(','):
             parts = opt.split(':')
             if len(parts) == 2:
-                current_shipping[parts[0]] = parts[1]
-    
-    # Debug - vypsat hodnoty
-    print(f"DEBUG: listing.price = {listing.price}, type = {type(listing.price)}")
-    
-    # Zajistit, že price je číslo nebo prázdný string
-    display_price = listing.price if listing.price is not None else ''
-    
+                key = parts[0].lower().strip()
+                value = parts[1].strip()
+                current_shipping[key] = value
+
     return render(request, 'divkvariat/listing_edit.html', {
         'book': book,
         'listing': listing,
         'current_shipping': current_shipping,
-        'display_price': display_price,  # Přidáno
     })
+
 
 
 # -------------------------------------------------------------------
@@ -2134,35 +2144,45 @@ def user_buy_listings(request, user_id):
 # -------------------------------------------------------------------
 def search_view(request):
     query = request.GET.get("q", "").strip()
-    books = []
-    listings = []
+    sell_listings = []
+    buy_listings = []
 
     if query:
-        # Vyhledávání knih
-        books = Book.objects.filter(
-            Q(title__icontains=query) |
-            Q(titlecz__icontains=query) |
-            Q(author__icontains=query)
-        ).order_by("title")[:30]
-
-        # Vyhledávání v nabídce i poptávce
-        listings = Booklisting.objects.filter(
+        # Jen aktivní nabídky/poptávky
+        base_qs = Booklisting.objects.filter(
             Q(book__title__icontains=query) |
             Q(book__titlecz__icontains=query) |
             Q(book__author__icontains=query),
-            active=True
-        ).select_related("book", "user").order_by("-createdat")
+            active=True,
+            status='ACTIVE'
+        ).select_related("book", "user")
 
-    # Stránkování
-    paginator = Paginator(listings, 18)
-    page = request.GET.get("page")
-    listings_page = paginator.get_page(page)
+        # PRODEJ (SELL + GIVE) nahoře
+        sell_listings = base_qs.filter(
+            listingtype__in=['SELL', 'GIVE']
+        ).order_by("-createdat")
+
+        # POPTÁVKY (BUY) pod tím
+        buy_listings = base_qs.filter(
+            listingtype='BUY'
+        ).order_by("-createdat")
+
+    # Stránkování pro PRODEJ
+    paginator_sell = Paginator(sell_listings, 18)
+    page_sell = request.GET.get("page_sell")
+    sell_page = paginator_sell.get_page(page_sell)
+
+    # Stránkování pro POPTÁVKY
+    paginator_buy = Paginator(buy_listings, 18)
+    page_buy = request.GET.get("page_buy")
+    buy_page = paginator_buy.get_page(page_buy)
 
     return render(request, "divkvariat/search.html", {
         "query": query,
-        "books": books,
-        "listings": listings_page,
+        "sell_listings": sell_page,
+        "buy_listings": buy_page,
     })
+
 
 # -------------------------------------------------------------------
 #                    KONEC

@@ -115,45 +115,70 @@
                         >
                     </div>
 
-                    <!-- Doprava -->
-                    <div>
-                        <label class="font-semibold">Možnosti dopravy</label>
-                        <p class="text-sm text-gray-600 mb-2">Nastavte cenu nebo 0 Kč pro zdarma.</p>
+     <!-- Doprava -->
+<div>
+    <label class="font-semibold">Možnosti dopravy</label>
+    <p class="text-sm text-gray-600 mb-3">Zaškrtněte možnosti dopravy a nastavte cenu. Nezaškrtnuté možnosti nebudou dostupné.</p>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="space-y-4">
 
-                            <div>
-                                <label for="shipping_zasilkovna">Zásilkovna (Kč):</label>
-                                <input type="number"
-                                       id="shipping_zasilkovna"
-                                       name="shipping_zasilkovna"
-                                       value="{{ current_shipping.zasilkovna }}"
-                                       min="0"
-                                       class="w-full border border-gray-300 rounded px-3 py-2">
-                            </div>
+        <!-- ZÁSILKOVNA -->
+        <div class="flex items-center gap-3">
+            <input type="checkbox" 
+                   id="enable_zasilkovna" 
+                   name="enable_zasilkovna"
+                   {% if current_shipping.zasilkovna %}checked{% endif %}
+                   class="w-5 h-5">
+            <label for="enable_zasilkovna" class="font-medium w-32">Zásilkovna</label>
+            <input type="number"
+                   id="shipping_zasilkovna"
+                   name="shipping_zasilkovna"
+                   value="{{ current_shipping.zasilkovna|default:'89' }}"
+                   min="0"
+                   placeholder="89"
+                   class="w-24 border border-gray-300 rounded px-3 py-2">
+            <span class="text-sm text-gray-600">Kč</span>
+        </div>
 
-                            <div>
-                                <label for="shipping_balikovna">Balíkovna (Kč):</label>
-                                <input type="number"
-                                       id="shipping_balikovna"
-                                       name="shipping_balikovna"
-                                       value="{{ current_shipping.balikovna }}"
-                                       min="0"
-                                       class="w-full border border-gray-300 rounded px-3 py-2">
-                            </div>
+        <!-- BALÍKOVNA -->
+        <div class="flex items-center gap-3">
+            <input type="checkbox" 
+                   id="enable_balikovna" 
+                   name="enable_balikovna"
+                   {% if current_shipping.balikovna %}checked{% endif %}
+                   class="w-5 h-5">
+            <label for="enable_balikovna" class="font-medium w-32">Balíkovna</label>
+            <input type="number"
+                   id="shipping_balikovna"
+                   name="shipping_balikovna"
+                   value="{{ current_shipping.balikovna|default:'99' }}"
+                   min="0"
+                   placeholder="99"
+                   class="w-24 border border-gray-300 rounded px-3 py-2">
+            <span class="text-sm text-gray-600">Kč</span>
+        </div>
 
-                            <div>
-                                <label for="shipping_osobni">Osobní odběr (Kč):</label>
-                                <input type="number"
-                                       id="shipping_osobni"
-                                       name="shipping_osobni"
-                                       value="{{ current_shipping.osobni }}"
-                                       min="0"
-                                       class="w-full border border-gray-300 rounded px-3 py-2">
-                            </div>
+        <!-- ČESKÁ POŠTA -->
+        <div class="flex items-center gap-3">
+            <input type="checkbox" 
+                   id="enable_ceskaposta" 
+                   name="enable_ceskaposta"
+                   {% if current_shipping.ceskaposta %}checked{% endif %}
+                   class="w-5 h-5">
+            <label for="enable_ceskaposta" class="font-medium w-32">Česká pošta</label>
+            <input type="number"
+                   id="shipping_ceskaposta"
+                   name="shipping_ceskaposta"
+                   value="{{ current_shipping.ceskaposta|default:'109' }}"
+                   min="0"
+                   placeholder="109"
+                   class="w-24 border border-gray-300 rounded px-3 py-2">
+            <span class="text-sm text-gray-600">Kč</span>
+        </div>
 
-                        </div>
-                    </div>
+    </div>
+</div>
+
 
                     <!-- Popis -->
                     <div>
