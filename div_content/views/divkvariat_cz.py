@@ -1098,36 +1098,27 @@ def listing_detail_edit(request, book_url, listing_id):
     book = get_object_or_404(Book, url=book_url)
     listing = get_object_or_404(Booklisting, booklistingid=listing_id, book=book, user=request.user)
 
-    # DEBUG - PŘIDEJ TOHLE
-    print("=" * 50)
-    print(f"DEBUG EDIT FORM:")
-    print(f"listing.price = {listing.price}")
-    print(f"type(listing.price) = {type(listing.price)}")
-    print(f"listing.price repr = {repr(listing.price)}")
-    print("=" * 50)
-    # KONEC DEBUG
-    
     # Pouze ACTIVE nabídky lze editovat
     if listing.status != 'ACTIVE':
         messages.error(request, 'Tuto nabídku už nelze upravovat.')
         return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
-    
+
     if request.method == 'POST':
         try:
             new_price = int(request.POST.get('new_price', 0))
         except (ValueError, TypeError):
             new_price = listing.price or 0
-            
+
         new_description = request.POST.get('new_description', '')
         new_personal_pickup = 'new_personal_pickup' in request.POST
         new_location = request.POST.get('new_location', '')
         new_condition = request.POST.get('new_condition', '')
-        
+
         # Zpracování shipping options
         zasilkovna = request.POST.get('shipping_zasilkovna', '')
         balikovna = request.POST.get('shipping_balikovna', '')
         osobni = request.POST.get('shipping_osobni', '')
-        
+
         # Vytvoření shippingoptions stringu
         shipping_options = []
         if zasilkovna:
@@ -1136,38 +1127,34 @@ def listing_detail_edit(request, book_url, listing_id):
             shipping_options.append(f"balikovna:{balikovna}")
         if osobni is not None and osobni != '':
             shipping_options.append(f"osobni:{osobni}")
-        
+
         listing.price = new_price
         listing.shippingoptions = ",".join(shipping_options) if shipping_options else listing.shippingoptions
         listing.personal_pickup = new_personal_pickup
         listing.description = new_description
         listing.location = new_location
         listing.condition = new_condition
-        
+
         listing.save()
-        
+
         messages.success(request, 'Nabídka byla úspěšně aktualizována!')
         return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
-    
-    # Parsování současných shipping options pro předvyplnění formuláře
-    current_shipping = {'zasilkovna': '49', 'balikovna': '69', 'osobni': '0'}
+
+    # Parsování současných shipping options - case-insensitive
+    current_shipping = {'zasilkovna': '', 'balikovna': '', 'ceskaposta': '', 'osobni': ''}
+
     if listing.shippingoptions:
         for opt in listing.shippingoptions.split(','):
             parts = opt.split(':')
             if len(parts) == 2:
-                current_shipping[parts[0]] = parts[1]
-    
-    # Debug - vypsat hodnoty
-    print(f"DEBUG: listing.price = {listing.price}, type = {type(listing.price)}")
-    
-    # Zajistit, že price je číslo nebo prázdný string
-    display_price = listing.price if listing.price is not None else ''
-    
+                key = parts[0].lower().strip()  # case-insensitive!
+                value = parts[1].strip()
+                current_shipping[key] = value
+
     return render(request, 'divkvariat/listing_edit.html', {
         'book': book,
         'listing': listing,
         'current_shipping': current_shipping,
-        'display_price': display_price,  # Přidáno
     })
 
 
