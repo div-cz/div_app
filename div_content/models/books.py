@@ -79,6 +79,10 @@ class Booklisting(models.Model):
     completedat = models.DateTimeField(db_column='CompletedAt', null=True, blank=True)
     active = models.BooleanField(db_column='Active', default=True)
     status = models.CharField(db_column='Status', max_length=10, choices=LISTING_STATUS, default='ACTIVE')
+    # Edition
+    editionyear = models.IntegerField(db_column='EditionYear',null=True,blank=True,verbose_name='Rok vydání')
+    firstedition = models.BooleanField(db_column='FirstEdition',null=True,blank=True,verbose_name='První vydání (dle prodejce)')
+    edition_note = models.CharField(db_column='EditionNote', max_length=255, null=True, blank=True, verbose_name='Poznámka k vydání')
     # Shipping
     shippingoptions= models.CharField(db_column='ShippingOptions', max_length=255, blank=True, null=True)
     shippingaddress = models.CharField(db_column='ShippingAddress', max_length=1024, blank=True, null=True)
@@ -87,6 +91,9 @@ class Booklisting(models.Model):
     sellercomment = models.TextField(db_column='SellerComment', max_length=512, blank=True, null=True)
     buyerrating = models.IntegerField(db_column='BuyerRating', null=True, blank=True)
     buyercomment = models.TextField(db_column='BuyerComment', max_length=512, blank=True, null=True)
+
+    divrating = models.IntegerField(db_column='DIVRating', default=0, db_index=True, blank=True, null=True)
+
     # Platba prodejci
     paidtoseller = models.BooleanField(db_column='PaidToSeller', default=False)
     paidat = models.DateTimeField(db_column='PaidAt', null=True, blank=True)
