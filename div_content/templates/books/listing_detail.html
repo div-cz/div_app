@@ -250,23 +250,54 @@ function deleteImg(id) {
                     {{ listing.description|linebreaks }}
                 </div>
 
-                <div class="grid sm:grid-cols-2 grid-cols-1 gap-4 mb-6">
-                    {% if listing.condition %}
-                    <div>
-                        <span class="">Stav: </span>
-                        <span class="ml-2">{{ listing.get_condition_display }}</span>
-                    </div>
-                    {% endif %}
-                    {% if listing.location %}
-                    <div>
-                        <span class="">Lokalita: </span>
-                        <span class="ml-2">{{ listing.location }}</span>
-                    </div>
-                    {% endif %}
-                    <div>
-                        <span class="">Osobní převzetí: </span>
-                        <span class="ml-2">{% if listing.personal_pickup %}Ano{% else %}Ne{% endif %}</span>
-                    </div>
+
+
+<div class="grid sm:grid-cols-2 grid-cols-1 gap-4 mb-6">
+    {% if listing.condition %}
+    <div>
+        <span class="">Stav: </span>
+        <span class="ml-2">{{ listing.get_condition_display }}</span>
+    </div>
+    {% endif %}
+    
+    {% if listing.editionyear %}
+    <div>
+        <span class="">Rok vydání: </span>
+        <span class="ml-2">{{ listing.editionyear }}</span>
+    </div>
+    {% endif %}
+    
+    {% if listing.firstedition %}
+    <div>
+        <span class="">První vydání: </span>
+        <span class="ml-2">Ano</span>
+    </div>
+    {% endif %}
+    
+    {% if listing.edition_note %}
+    <div style="grid-column: 1 / -1;">
+        <span class="">Ediční poznámka: </span>
+        <span class="ml-2">{{ listing.edition_note }}</span>
+    </div>
+    {% endif %}
+
+</div>
+<hr>
+<div class="grid sm:grid-cols-2 grid-cols-1 gap-4 mb-6">
+
+    {% if listing.location %}
+    <div>
+        <span class="">Lokalita: </span>
+        <span class="ml-2">{{ listing.location }}</span>
+    </div>
+    {% endif %}
+
+    <div>
+        <span class="">Osobní převzetí: </span>
+        <span class="ml-2">{% if "OSOBNI" in listing.shippingoptions %}Ano{% else %}Ne{% endif %}</span>
+    </div>
+
+
                     <div>
                         <span class="">Pošta: </span>
                     {% if listing.status == 'ACTIVE' %}

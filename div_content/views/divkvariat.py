@@ -70,7 +70,7 @@ from div_content.models import Book, Booklisting, Booklistingimage, Userprofile
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.core.mail import EmailMessage 
+#from django.core.mail import EmailMessage 
 from django.core.paginator import Paginator
 
 from django.db.models import Sum, F, Q
@@ -87,7 +87,8 @@ from django.utils.timezone import now
 
 
 from dotenv import load_dotenv
-from email.message import EmailMessage
+from email.message import EmailMessage as PyEmailMessage
+
 from io import BytesIO
 
 # -------------------------------------------------------------------
@@ -462,7 +463,7 @@ def send_listing_request_seller_payment(listing,total_user_payment):
 
     html_email = render_to_string('emails/listing_request_payment_seller.html', context)
 
-    msg = EmailMessage()
+    msg = PyEmailMessage()
     msg['Subject'] = os.getenv("EMAIL_SUBJECT_REQUEST")
     msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
     msg['To'] = recipient
@@ -804,89 +805,75 @@ def listing_detail(request, book_url, listing_id):
         'buyer_phone': buyer_phone,
     })
 
-
-
 # -------------------------------------------------------------------
 #                    LISTING DETAIL EDIT
 # -------------------------------------------------------------------
 @login_required
 def listing_detail_edit(request, book_url, listing_id):
-    """Editace existující nabídky - samostatná stránka"""
     book = get_object_or_404(Book, url=book_url)
-    listing = get_object_or_404(Booklisting, booklistingid=listing_id, book=book, user=request.user)
+    listing = get_object_or_404(
+        Booklisting,
+        booklistingid=listing_id,
+        book=book,
+        user=request.user,
+        status='ACTIVE'
+    )
 
-    # DEBUG - PŘIDEJ TOHLE
-    print("=" * 50)
-    print(f"DEBUG EDIT FORM:")
-    print(f"listing.price = {listing.price}")
-    print(f"type(listing.price) = {type(listing.price)}")
-    print(f"listing.price repr = {repr(listing.price)}")
-    print("=" * 50)
-    # KONEC DEBUG
-    
-    # Pouze ACTIVE nabídky lze editovat
-    if listing.status != 'ACTIVE':
-        messages.error(request, 'Tuto nabídku už nelze upravovat.')
-        return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
-    
-    if request.method == 'POST':
-        try:
-            new_price = int(request.POST.get('new_price', 0))
-        except (ValueError, TypeError):
-            new_price = listing.price or 0
-            
-        new_description = request.POST.get('new_description', '')
-        new_personal_pickup = 'new_personal_pickup' in request.POST
-        new_location = request.POST.get('new_location', '')
-        new_condition = request.POST.get('new_condition', '')
-        
-        # Zpracování shipping options
-        zasilkovna = request.POST.get('shipping_zasilkovna', '')
-        balikovna = request.POST.get('shipping_balikovna', '')
-        osobni = request.POST.get('shipping_osobni', '')
-        
-        # Vytvoření shippingoptions stringu
-        shipping_options = []
-        if zasilkovna:
-            shipping_options.append(f"ZASILKOVNA:{zasilkovna}")
-        if balikovna:
-            shipping_options.append(f"BALIKOVNA:{balikovna}")
-        if osobni is not None and osobni != '':
-            shipping_options.append(f"OSOBNI:{osobni}")
-        
-        listing.price = new_price
-        listing.shippingoptions = ",".join(shipping_options) if shipping_options else listing.shippingoptions
-        listing.personal_pickup = new_personal_pickup
-        listing.description = new_description
-        listing.location = new_location
-        listing.condition = new_condition
-        
-        listing.save()
-        
-        messages.success(request, 'Nabídka byla úspěšně aktualizována!')
-        return redirect('listing_detail_sell', book_url=book_url, listing_id=listing_id)
-    
-    # Parsování současných shipping options pro předvyplnění formuláře
-    current_shipping = {'ZASILKOVNA': '49', 'BALIKOVNA': '69', 'OSOBNI': '0'}
+    # Parsování aktuálních shipping options
+    current_shipping = {}
     if listing.shippingoptions:
-        for opt in listing.shippingoptions.split(','):
-            parts = opt.split(':')
+        for opt in listing.shippingoptions.split(","):
+            parts = opt.split(":")
             if len(parts) == 2:
                 current_shipping[parts[0]] = parts[1]
-    
-    # Debug - vypsat hodnoty
-    print(f"DEBUG: listing.price = {listing.price}, type = {type(listing.price)}")
-    
-    # Zajistit, že price je číslo nebo prázdný string
-    display_price = listing.price if listing.price is not None else ''
-    
-    return render(request, 'books/listing_edit.html', {
-        'book': book,
-        'listing': listing,
-        'current_shipping': current_shipping,
-        'display_price': display_price,  # Přidáno
-    })
 
+    if request.method == "POST":
+        # Manuální zpracování POST dat
+        listing.price = request.POST.get("new_price", listing.price)
+        listing.description = request.POST.get("new_description", "")
+        listing.condition = request.POST.get("condition") or request.POST.get("new_condition")
+        listing.location = request.POST.get("new_location", "")
+
+        listing.editionyear = request.POST.get("editionyear") or None
+        listing.firstedition = bool(request.POST.get("firstedition"))
+        listing.edition_note = request.POST.get("edition_note", "")
+    
+        # Zpracování shipping options
+        options = []
+        if request.POST.get("personal_pickup"):
+            options.append("OSOBNI:0")
+        
+        # Pro div.cz (shipping_zasilkovna + shipping_zasilkovna_price)
+        if request.POST.get("shipping_zasilkovna"):
+            price = request.POST.get("shipping_zasilkovna_price", "89")
+            options.append(f"ZASILKOVNA:{price}")
+        
+        # Pro divkvariat.cz (enable_zasilkovna + shipping_zasilkovna jako cena)
+        if request.POST.get("enable_zasilkovna"):
+            price = request.POST.get("shipping_zasilkovna", "89")
+            options.append(f"ZASILKOVNA:{price}")
+        
+        # Balíkovna
+        if request.POST.get("shipping_balikovna") or request.POST.get("enable_balikovna"):
+            price = request.POST.get("shipping_balikovna_price") or request.POST.get("shipping_balikovna", "99")
+            options.append(f"BALIKOVNA:{price}")
+        
+        # Pošta
+        if request.POST.get("shipping_posta") or request.POST.get("enable_posta"):
+            price = request.POST.get("shipping_posta_price") or request.POST.get("shipping_posta", "109")
+            options.append(f"POSTA:{price}")
+        
+        listing.shippingoptions = ",".join(options)
+        listing.save()
+        
+        messages.success(request, "Nabídka byla aktualizována.")
+        return redirect("listing_detail_sell", book_url=book.url, listing_id=listing.booklistingid)
+    
+    return render(request, "books/listing_edit.html", {
+        "book": book,
+        "listing": listing,
+        "current_shipping": current_shipping,
+    })
 
 # -------------------------------------------------------------------
 # LISTING SEARCH BOOKS
@@ -943,7 +930,7 @@ def send_listing_auto_completed_email_buyer(listing):
 
         html_email = render_to_string('emails/listing_auto_completed_buyer.html', context)
 
-        msg = EmailMessage()
+        msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_AUTO_COMPLETED_BUYER").format(title=book.titlecz)
         msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
         msg['To'] = recipient
@@ -981,7 +968,7 @@ def send_listing_auto_completed_email_seller(listing):
 
         html_email = render_to_string('emails/listing_auto_completed_seller.html', context)
 
-        msg = EmailMessage()
+        msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_AUTO_COMPLETED_SELLER").format(title=book.titlecz)
         msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
         msg['To'] = recipient
@@ -1015,7 +1002,7 @@ def send_listing_cancel_email(request_or_user, listing):
 
         html_email = render_to_string('emails/listing_cancel_reservation_buyer.html', context)
 
-        msg = EmailMessage()
+        msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_ACTIVE").format(title=book.title)
         msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
         msg['To'] = recipient
@@ -1058,7 +1045,7 @@ def send_listing_expired_email_buyer(listing):
 
     html_email = render_to_string('emails/listing_expired_buyer.html', context)
 
-    msg = EmailMessage()
+    msg = PyEmailMessage()
     msg['Subject'] = f"Rezervace knihy {book_title} vypršela"
     msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
     msg['To'] = buyer.email
@@ -1089,7 +1076,7 @@ def send_listing_paid_expired_email_buyer(listing):
     recipient = buyer.email
     html_email = render_to_string('emails/listing_paid_expired_buyer.html', context)
 
-    msg = EmailMessage()
+    msg = PyEmailMessage()
     msg['Subject'] = f"Objednávka knihy {book.titlecz or book.title} – zrušena"
     msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
     msg['To'] = recipient
@@ -1120,7 +1107,7 @@ def send_listing_paid_expired_email_seller(listing):
     recipient = seller.email
     html_email = render_to_string('emails/listing_paid_expired_seller.html', context)
 
-    msg = EmailMessage()
+    msg = PyEmailMessage()
     msg['Subject'] = f"Nabídka knihy {book.titlecz or book.title} – zrušena"
     msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
     msg['To'] = recipient
@@ -1160,7 +1147,7 @@ def send_listing_payment_confirmation_email(listing):
         recipient = user.email
         html_email = render_to_string('emails/listing_paid_confirmation_buyer.html', context)
 
-        msg = EmailMessage()
+        msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_PAID").format(title=book.titlecz)
         msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
         msg['To'] = recipient
@@ -1237,7 +1224,7 @@ def send_listing_payment_email(listing):
 
         html_email = render_to_string('emails/listing_paid_confirmation_seller.html', context)
 
-        msg = EmailMessage()
+        msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_PAID").format(title=book.titlecz)
         msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
         msg['To'] = recipient
@@ -1275,7 +1262,7 @@ def send_listing_payment_request_confirmed(listing, amount_to_seller):
 
         html_email = render_to_string('emails/listing_payment_request_confirmed.html', context)
 
-        msg = EmailMessage()
+        msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_REQUEST_CONFIRMED")
         msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
         msg['To'] = recipient
@@ -1329,7 +1316,7 @@ def send_listing_reservation_email(request, listing_id):
             recipient = buyer.email
             html_email = render_to_string('emails/listing_send_reservation_buyer.html', context)
 
-            msg = EmailMessage()
+            msg = PyEmailMessage()
             msg['Subject'] = os.getenv("EMAIL_SUBJECT_RESERVED").format(title=book.titlecz)
             msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
             msg['To'] = recipient
@@ -1368,7 +1355,7 @@ def send_listing_shipped_email(listing):
             'book_url': book.url,
         }
         html_email = render_to_string('emails/listing_shipped_information_buyer.html', context)
-        msg = EmailMessage()
+        msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_SHIPPED").format(title=book.titlecz)
         msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
         msg['To'] = buyer.email
@@ -1404,7 +1391,7 @@ def send_listing_completed_email_buyer(listing):
 
         html_email = render_to_string('emails/listing_completed_confirmation_buyer.html', context)
 
-        msg = EmailMessage()
+        msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_COMPLETED_BUYER").format(title=book.titlecz)
         msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
         msg['To'] = recipient
@@ -1442,7 +1429,7 @@ def send_listing_completed_email_seller(listing):
 
         html_email = render_to_string('emails/listing_completed_confirmation_seller.html', context)
 
-        msg = EmailMessage()
+        msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_COMPLETED_SELLER").format(title=book.titlecz)
         msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
         msg['To'] = recipient

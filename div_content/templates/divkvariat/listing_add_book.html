@@ -6,6 +6,68 @@
     Přidat inzerát knihy | DIVkvariát
 {% endblock %}
 
+
+    {% block meta %}
+<style>
+/* === UNIVERZÁLNÍ FORM CONTROL === */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="tel"],
+select,
+textarea {
+    height: 48px;
+    padding: 10px 14px;
+    font-size: 16px;
+    line-height: 1.4;
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    background-color: #fff;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* textarea výjimka */
+textarea {
+    height: auto;
+    min-height: 140px;
+}
+
+/* === SELECT – srovnat text vertikálně === */
+select {
+    padding-right: 40px;          /* místo pro šipku */
+    line-height: 1.4;
+}
+
+/* === NUMBER INPUT (ROK) – spinner fix === */
+input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+/* Chrome / Safari – spinner */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    height: 100%;
+}
+
+/* === CHECKBOXY – větší a konzistentnější === */
+input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    accent-color: #22c55e;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+label {
+    cursor: pointer;
+}
+
+</style>
+    {% endblock %}
+
+
 {% block content %}
 
 <div class="max-w-4xl mx-auto py-10">
@@ -76,44 +138,64 @@
 
     <!-- Typ nabídky -->
     <div>
-        <label class="font-medium block mb-1">Typ nabídky</label>
-        {{ booklisting_form.listingtype|add_class:"w-full border rounded-lg px-3 py-2" }}
+        <label class="font-medium block mb-1">{{ booklisting_form.listingtype.label }}</label>
+        {{ booklisting_form.listingtype }}
     </div>
 
     <!-- Cena -->
     <div>
-        <label class="font-medium block mb-1">Cena</label>
-        {{ booklisting_form.price|add_class:"w-full border rounded-lg px-3 py-2" }}
+        <label class="font-medium block mb-1">{{ booklisting_form.price.label }}</label>
+        {{ booklisting_form.price }}
     </div>
 
     <!-- Popis -->
     <div class="md:col-span-2">
-        <label class="font-medium block mb-1">Popis</label>
-        {{ booklisting_form.description|add_class:"w-full border rounded-lg px-3 py-2 h-28" }}
+        <label class="font-medium block mb-1">{{ booklisting_form.description.label }}</label>
+        {{ booklisting_form.description }}
     </div>
 
     <!-- Stav -->
     <div>
-        <label class="font-medium block mb-1">Stav knihy</label>
-        {{ booklisting_form.condition|add_class:"w-full border rounded-lg px-3 py-2" }}
+        <label class="font-medium block mb-1">{{ booklisting_form.condition.label }}</label>
+        {{ booklisting_form.condition }}
+    </div>
+
+    <!-- Rok vydání -->
+    <div>
+        <label class="font-medium block mb-1">{{ booklisting_form.editionyear.label }}</label>
+        {{ booklisting_form.editionyear }}
+    </div>
+
+    <!-- První vydání -->
+    <div class="md:col-span-2 flex items-center gap-3 mt-2">
+        {{ booklisting_form.firstedition }}
+        <label class="font-medium select-none">
+            {{ booklisting_form.firstedition.label }}
+        </label>
+    </div>
+
+    <!-- Ediční poznámka -->
+    <div class="md:col-span-2">
+        <label class="font-medium block mb-1">{{ booklisting_form.edition_note.label }}</label>
+        {{ booklisting_form.edition_note }}
     </div>
 
     <!-- Místo -->
     <div>
-        <label class="font-medium block mb-1">Místo</label>
-        {{ booklisting_form.location|add_class:"w-full border rounded-lg px-3 py-2" }}
-    </div>
-
-    <!-- Osobní převzetí -->
-    <div class="flex gap-2 items-center mt-6">
-        {{ booklisting_form.personal_pickup }}
-        <label class="font-medium">Osobní převzetí</label>
+        <label class="font-medium block mb-1">{{ booklisting_form.location.label }}</label>
+        {{ booklisting_form.location }}
     </div>
 
     <!-- Telefon -->
     <div>
-        <label class="font-medium block mb-1">Telefon (volitelně)</label>
-        {{ booklisting_form.phone|add_class:"w-full border rounded-lg px-3 py-2" }}
+        <label class="font-medium block mb-1">{{ booklisting_form.phone.label }}</label>
+        {{ booklisting_form.phone }}
+    </div>
+
+    <!-- Osobní převzetí -->
+    <div class="md:col-span-2 flex items-center gap-3 mt-2">
+        {{ booklisting_form.personal_pickup }}
+        <label class="font-medium select-none">{{ booklisting_form.personal_pickup.label }}</label>
     </div>
 
 </div>
@@ -125,27 +207,27 @@
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
     <div>
-        <label class="flex items-center gap-2 font-medium">
+        <label class="flex items-center gap-3 font-medium mb-2">
             {{ booklisting_form.shipping_zasilkovna }}
-            Zásilkovna
+            <span>Zásilkovna</span>
         </label>
-        {{ booklisting_form.shipping_zasilkovna_price|add_class:"w-full border rounded-lg px-3 py-2 mt-1" }}
+        {{ booklisting_form.shipping_zasilkovna_price }}
     </div>
 
     <div>
-        <label class="flex items-center gap-2 font-medium">
+        <label class="flex items-center gap-3 font-medium mb-2">
             {{ booklisting_form.shipping_balikovna }}
-            Balíkovna
+            <span>Balíkovna</span>
         </label>
-        {{ booklisting_form.shipping_balikovna_price|add_class:"w-full border rounded-lg px-3 py-2 mt-1" }}
+        {{ booklisting_form.shipping_balikovna_price }}
     </div>
 
     <div>
-        <label class="flex items-center gap-2 font-medium">
+        <label class="flex items-center gap-3 font-medium mb-2">
             {{ booklisting_form.shipping_posta }}
-            Česká pošta
+            <span>Česká pošta</span>
         </label>
-        {{ booklisting_form.shipping_posta_price|add_class:"w-full border rounded-lg px-3 py-2 mt-1" }}
+        {{ booklisting_form.shipping_posta_price }}
     </div>
 
 </div>

@@ -12,6 +12,39 @@ DEFAULT_SHIPPING = {
     "POSTA": 99,
     }
 class BookListingForm(forms.ModelForm):
+    condition = forms.ChoiceField(
+        choices=Booklisting.CONDITION_CHOICES,
+        required=True, 
+        initial='jako-nova',
+        label='Stav knihy',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    editionyear = forms.IntegerField(
+        required=False,
+        label='Rok vydání',
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'style': 'max-width:150px',
+            'placeholder': '(volitelně)'
+        })
+    )
+    
+    firstedition = forms.BooleanField(
+        required=False,
+        label='První vydání',
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    
+    edition_note = forms.CharField(
+        required=False,
+        label='Ediční poznámka',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '(volitelně)'
+        })
+    )
+
     listingtype = forms.ChoiceField(
         choices=[
             ('SELL', 'Prodám'),
@@ -21,20 +54,7 @@ class BookListingForm(forms.ModelForm):
         label='Typ',
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    CONDITION_CHOICES = [
-        ("nova", "Nová"),
-        ("jako-nova", "Použitá, jako nová"),
-        ("dobry", "Použitá, dobrý stav"),
-        ("zachovaly", "Použitá, zachovalý stav"),
-        ("spatny", "Špatný stav"),
-    ]
-    condition = forms.ChoiceField(
-        choices=CONDITION_CHOICES,
-        required=False,
-        label="Stav",
-        initial="jako-nova",
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
+
     price = forms.DecimalField(
         max_digits=10, 
         required=True, 
@@ -112,21 +132,34 @@ class BookListingForm(forms.ModelForm):
 
     class Meta:
         model = Booklisting
-        fields = ['listingtype', 'price', 'description', 'condition', 'location', 'personal_pickup']
+        fields = [
+            'listingtype',
+            'price',
+            'description',
+            'condition',
+            'editionyear',
+            'firstedition',
+            'edition_note',
+            'location',
+            'personal_pickup',
+        ]
         labels = {
             'listingtype': 'Typ',
-            'price': 'Cena',
-            'description': 'Popis',
-            'condition': 'Stav',
+            'price': 'Cena *',
+            'description': 'Popis *',
+            'condition': 'Stav *',
+            'editionyear': 'Rok',
+            'edition_note': 'Ediční poznámka',
             'location': 'Místo'
         }
         widgets = {
             #'listingtype': forms.Select(attrs={'class': 'form-control'}),
             'price': forms.NumberInput(attrs={'class': 'form-control'}),
-            'shipping': forms.NumberInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'style': 'height:100px !important'}),
-            'condition': forms.TextInput(attrs={'class': 'form-control'}),
-            'location': forms.TextInput(attrs={'class': 'form-control'})
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'style': 'height:100px !important', 'required': True}),
+            'condition': forms.Select(attrs={'class': 'form-control'}),
+            'editionyear': forms.NumberInput(attrs={'class': 'form-control'}),
+            'edition_note': forms.TextInput(attrs={'class': 'form-control'}),
+            'location': forms.TextInput(attrs={'class': 'form-control','placeholder': '(volitelně - např. Liberec, Brno)'})
         }
 
     def __init__(self, *args, **kwargs):

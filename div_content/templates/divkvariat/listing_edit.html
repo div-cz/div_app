@@ -7,6 +7,70 @@
     Upravit nabídku – {{ book.titlecz|default:book.title }} | DIVkvariát
 {% endblock %}
 
+{% block meta %}
+<style>
+/* === UNIVERZÁLNÍ FORM CONTROL === */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="tel"],
+select,
+textarea {
+    height: 48px;
+    padding: 10px 14px;
+    font-size: 16px;
+    line-height: 1.4;
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+/* textarea výjimka */
+textarea {
+    height: auto;
+    min-height: 140px;
+}
+
+/* === SELECT – srovnat text vertikálně === */
+select {
+    padding-right: 40px;          /* místo pro šipku */
+    line-height: 1.4;
+}
+
+/* === NUMBER INPUT – spinner fix === */
+input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+/* Chrome / Safari – spinner */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    height: 100%;
+}
+
+/* === CHECKBOXY – větší a konzistentnější === */
+input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    accent-color: #22c55e;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* === FILE INPUT === */
+input[type="file"] {
+    height: auto;
+    padding: 8px;
+}
+
+label {
+    cursor: pointer;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 
 <div class="max-w-5xl mx-auto py-10">
@@ -103,7 +167,7 @@
 
                     <!-- Cena -->
                     <div>
-                        <label for="id_new_price" class="font-semibold">Cena (Kč): *</label>
+                        <label for="id_new_price" class="font-semibold block mb-2">Cena (Kč): *</label>
                         <input 
                             type="number"
                             id="id_new_price"
@@ -111,13 +175,13 @@
                             value="{{ listing.price|floatformat:0 }}"
                             min="0"
                             required
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1"
+                            class="w-full"
                         >
                     </div>
 
      <!-- Doprava -->
 <div>
-    <label class="font-semibold">Možnosti dopravy</label>
+    <label class="font-semibold block mb-2">Možnosti dopravy</label>
     <p class="text-sm text-gray-600 mb-3">Zaškrtněte možnosti dopravy a nastavte cenu. Nezaškrtnuté možnosti nebudou dostupné.</p>
 
     <div class="space-y-4">
@@ -127,8 +191,7 @@
             <input type="checkbox" 
                    id="enable_zasilkovna" 
                    name="enable_zasilkovna"
-                   {% if current_shipping.ZASILKOVNA %}checked{% endif %}
-                   class="w-5 h-5">
+                   {% if current_shipping.ZASILKOVNA %}checked{% endif %}>
             <label for="enable_zasilkovna" class="font-medium w-32">Zásilkovna</label>
             <input type="number"
                    id="shipping_zasilkovna"
@@ -136,7 +199,7 @@
                    value="{{ current_shipping.ZASILKOVNA|default:'89' }}"
                    min="0"
                    placeholder="89"
-                   class="w-24 border border-gray-300 rounded px-3 py-2">
+                   style="width: 120px;">
             <span class="text-sm text-gray-600">Kč</span>
         </div>
 
@@ -145,8 +208,7 @@
             <input type="checkbox" 
                    id="enable_balikovna" 
                    name="enable_balikovna"
-                   {% if current_shipping.BALIKOVNA %}checked{% endif %}
-                   class="w-5 h-5">
+                   {% if current_shipping.BALIKOVNA %}checked{% endif %}>
             <label for="enable_balikovna" class="font-medium w-32">Balíkovna</label>
             <input type="number"
                    id="shipping_balikovna"
@@ -154,7 +216,7 @@
                    value="{{ current_shipping.BALIKOVNA|default:'99' }}"
                    min="0"
                    placeholder="99"
-                   class="w-24 border border-gray-300 rounded px-3 py-2">
+                   style="width: 120px;">
             <span class="text-sm text-gray-600">Kč</span>
         </div>
 
@@ -163,8 +225,7 @@
             <input type="checkbox" 
                    id="enable_posta" 
                    name="enable_posta"
-                   {% if current_shipping.POSTA %}checked{% endif %}
-                   class="w-5 h-5">
+                   {% if current_shipping.POSTA %}checked{% endif %}>
             <label for="enable_posta" class="font-medium w-32">Česká pošta</label>
             <input type="number"
                    id="shipping_posta"
@@ -172,7 +233,7 @@
                    value="{{ current_shipping.POSTA|default:'109' }}"
                    min="0"
                    placeholder="109"
-                   class="w-24 border border-gray-300 rounded px-3 py-2">
+                   style="width: 120px;">
             <span class="text-sm text-gray-600">Kč</span>
         </div>
 
@@ -182,57 +243,90 @@
 
                     <!-- Popis -->
                     <div>
-                        <label for="id_new_description" class="font-semibold">Popis</label>
+                        <label for="id_new_description" class="font-semibold block mb-2">Popis</label>
                         <textarea
                             id="id_new_description"
                             name="new_description"
                             rows="5"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1"
+                            class="w-full"
                         >{{ listing.description }}</textarea>
-                        <p class="text-sm text-gray-600">Popište stav knihy, případné nedostatky apod.</p>
+                        <p class="text-sm text-gray-600 mt-1">Popište stav knihy, případné nedostatky apod.</p>
                     </div>
 
-                    <!-- Stav a lokalita -->
+                    <!-- Stav a Rok vydání -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
                         <div>
-                            <label for="id_new_condition" class="font-semibold">Stav knihy</label>
+                            <label for="id_new_condition" class="font-semibold block mb-2">Stav knihy</label>
                             <select id="id_new_condition"
                                     name="new_condition"
-                                    class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
-                                <option value="">-- Vyberte --</option>
-                                <option value="NEW" {% if listing.condition == "NEW" %}selected{% endif %}>Nová</option>
-                                <option value="LIKE_NEW" {% if listing.condition == "LIKE_NEW" %}selected{% endif %}>Jako nová</option>
-                                <option value="VERY_GOOD" {% if listing.condition == "VERY_GOOD" %}selected{% endif %}>Velmi dobrá</option>
-                                <option value="GOOD" {% if listing.condition == "GOOD" %}selected{% endif %}>Dobrá</option>
-                                <option value="ACCEPTABLE" {% if listing.condition == "ACCEPTABLE" %}selected{% endif %}>Přijatelná</option>
+                                    class="w-full">
+
+<option value="">-- Vyberte --</option>
+<option value="nova" {% if listing.condition == "nova" %}selected{% endif %}>Nová</option>
+<option value="jako-nova" {% if listing.condition == "jako-nova" %}selected{% endif %}>Použitá, jako nová</option>
+<option value="dobry" {% if listing.condition == "dobry" %}selected{% endif %}>Použitá, dobrý stav</option>
+<option value="zachovaly" {% if listing.condition == "zachovaly" %}selected{% endif %}>Použitá, zachovalý stav</option>
+<option value="spatny" {% if listing.condition == "spatny" %}selected{% endif %}>Špatný stav</option>
+
                             </select>
                         </div>
 
+                        <!-- Rok vydání -->
                         <div>
-                            <label for="id_new_location" class="font-semibold">Lokalita</label>
-                            <input
-                                type="text"
-                                id="id_new_location"
-                                name="new_location"
-                                value="{{ listing.location|default:'' }}"
-                                placeholder="např. Praha, Brno…"
-                                class="w-full border border-gray-300 rounded px-3 py-2 mt-1"
-                            >
+                            <label for="id_editionyear" class="font-semibold block mb-2">Rok vydání</label>
+                            <input type="number" 
+                                   id="id_editionyear"
+                                   name="editionyear" 
+                                   value="{{ listing.editionyear|default:'' }}"
+                                   placeholder="např. 2020"
+                                   style="width: 160px;">
                         </div>
 
                     </div>
 
+                    <!-- První vydání -->
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" 
+                               id="id_firstedition"
+                               name="firstedition"
+                               {% if listing.firstedition %}checked{% endif %}>
+                        <label for="id_firstedition" class="font-semibold">První vydání</label>
+                    </div>
+
+                    <!-- Ediční poznámka -->
+                    <div>
+                        <label for="id_edition_note" class="font-semibold block mb-2">Ediční poznámka</label>
+                        <input type="text"
+                               id="id_edition_note"
+                               name="edition_note"
+                               value="{{ listing.edition_note|default:'' }}"
+                               class="w-full"
+                               placeholder="např. druhé, rozšířené vydání">
+                    </div>
+
+                    <!-- Lokalita -->
+                    <div>
+                        <label for="id_new_location" class="font-semibold block mb-2">Lokalita</label>
+                        <input
+                            type="text"
+                            id="id_new_location"
+                            name="new_location"
+                            value="{{ listing.location|default:'' }}"
+                            placeholder="např. Praha, Brno…"
+                            class="w-full"
+                        >
+                    </div>
+
                     <!-- Osobní převzetí -->
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-3">
                         <input 
                             type="checkbox"
                             id="id_new_personal_pickup"
                             name="new_personal_pickup"
                             {% if current_shipping.OSOBNI == "0" %}checked{% endif %}
-                            class="w-5 h-5 border-gray-300 rounded"
                         >
-                        <label for="id_new_personal_pickup" class="text-gray-700">
+                        <label for="id_new_personal_pickup" class="font-semibold">
                             Umožnit osobní převzetí
                         </label>
                     </div>
