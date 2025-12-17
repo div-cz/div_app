@@ -778,7 +778,16 @@ def listing_detail(request, book_url, listing_id):
             buyer_phone = profile.phone
         except Userprofile.DoesNotExist:
             buyer_phone = None
-        
+
+    # seřadit možnosti poštovného, aby osobní nebyl první
+    if listing.shippingoptions:
+        options = listing.shippingoptions.split(",")
+        paid_options = [o for o in options if not o.startswith("OSOBNI")]
+        personal_options = [o for o in options if o.startswith("OSOBNI")]
+        sorted_options = paid_options + personal_options
+        listing.shippingoptions = ",".join(sorted_options)
+
+
     return render(request, 'books/listing_detail.html', {
         'book': book,
         'listing': listing,
