@@ -7,75 +7,81 @@
 {% block title %}Filmy | DIV.cz{% endblock %}
 
 {% block meta %}
+    <style>
+        .rating {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-top: 0;
+            margin-right: 0;
+            padding: 0;
+            box-shadow: 0px 8px 16px rgb(147 147 147);
+        }
 
-<style>
-    .rating {
-        position: relative;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        margin-top: 0;
-        margin-right: 0;
-        padding: 0;
-        box-shadow: 0px 8px 16px rgb(147 147 147);
-    }
+        .rating::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 44px;
+            height: 44px;
+            background: #444444;
+            border-radius: 50%;
+            z-index: 2;
+            margin: 0;
+        }
 
-    .rating::before {
-        content: '';
-        position: absolute;
-        top: 3px;
-        left: 3px;
-        width: 44px;
-        height: 44px;
-        background: #444444;
-        border-radius: 50%;
-        z-index: 2;
-        margin: 0;
-    }
+        .rating::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50px;
+            height: 50px;
+            background: conic-gradient(
+                var(--gradient-color, #0a0) 0%,
+                var(--gradient-color, #0a0) var(--gradient-value, 50%),
+                #777777 var(--gradient-value, 50%)
+            );
+            border-radius: 50%;
+            z-index: 1;
+            margin: 0;
+        }
 
-    .rating::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 50px;
-        height: 50px;
-        background: conic-gradient(
-            var(--gradient-color, #0a0) 0%,
-            var(--gradient-color, #0a0) var(--gradient-value, 50%),
-            #777777 var(--gradient-value, 50%)
-        );
-        border-radius: 50%;
-        z-index: 1;
-        margin: 0;
-    }
+        .rating-inner {
+            position: relative;
+            z-index: 3;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            /* margin-top: 10px;
+            margin-right: -10px; */
+        }
 
-    .rating-inner {
-        position: relative;
-        z-index: 3;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #fff;
-        font-size: 16px;
-        font-weight: bold;
-        /* margin-top: 10px;
-        margin-right: -10px; */
-    }
+        .rating-inner span {
+            font-size: 10px;
+            margin-left: 2px;
+            color: #ffd700;
+        }
 
-    .rating-inner span {
-        font-size: 10px;
-        margin-left: 2px;
-        color: #ffd700;
-    }
+        .rating:is(.dark *) {
+            box-shadow: none;
+        }
+        
+        .title-rating {
+            display: flex; 
+            justify-content: end; 
+            width: 100%; 
+            margin-top: -50px;
+        }
 
-    .rating:is(.dark *) {
-        box-shadow: none;
-    }
-</style>
-
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -86,31 +92,30 @@
         <!-- carousel - V kinech -->
         <div id="image-slider" class="carousel box-shadow">
             {% for movie in carousel_cinema %}
-            <div class="carousel-slide">
-                <a href="/film/{{ movie.movieid__url }}">
-                    <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.movieid__img }}" alt="{{ movie.movieid__titlecz }}">
-                </a>
-                <div class="overlay">
-                    <h2>{{ movie.movieid__titlecz }}</h2>
+                <div class="carousel-slide">
+                    <a href="/film/{{ movie.movieid__url }}">
+                        <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.movieid__img }}" alt="{{ movie.movieid__titlecz }}">
+                    </a>
+                    <div class="overlay">
+                        <h2>{{ movie.movieid__titlecz }}</h2>
+                    </div>
                 </div>
-            </div>
             {% endfor %}
         </div>
         
         <!-- generování filmů -->
-        <div style="margin-bottom: 1rem;">
-            <div class="grid grid-cols-3 gap-2">
-                {% for movie in movies_list_15 %} 
-                <div class="card card2">
+        <div class="genre-list" style="margin-bottom: 1rem;">
+            {% for movie in movies_list_15 %} 
+                <div class="card">
                     {% if movie.img == "noimg.png" %}
-                    <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" class="card-img-top rounded-t-lg">
-                    {% else %}
-                    <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" alt="{{ movie.titlecz }}" class="card-img-top rounded-t-lg">
+                        <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" style="border-radius: .5rem .5rem 0 0;">
+                        {% else %}
+                        <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.img }}" alt="{{ movie.titlecz }}" style="border-radius: .5rem .5rem 0 0;">
                     {% endif %}
                     
-                    <div class="card-body">
+                    <div class="card-body" style="border-radius: 0 0 .5rem .5rem !important;">
                         <!-- hodnocení -->
-                        <div class="flex justify-end w-full" style="margin-top: -55px;">
+                        <div class="title-rating">
                             <div class="rating" data-rating="{{ movie.average_rating }}">
                                 <div class="rating-inner">
                                     {{ movie.average_rating }}%
@@ -119,60 +124,60 @@
                         </div>
                         
                         <h4 class="card-title"><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></h4>
-                        <p class="card-text">{{ movie.description|safe|truncatewords:40 }}</p>
+                        <p class="card-text">{{ movie.description }}</p>
                     </div>
                 </div>
-                {% endfor %}
-            </div>
+            {% endfor %}
         </div>
 
         <!-- Poslední filmové recenze -->
         <div class="card">
             <div class="card-body">
-                <div class="flex flex-wrap justify-between card-title after-h3">
+                <div class="card-title after-h3">
                     <h3 class="font-bold">Poslední filmové recenze</h3><a href="/filmy/"><small>Zobrazit filmy</small></a>
                 </div>
 
                 <div class="after last-line">
-                {% if latest_comments %} 
-                    {% for comment in latest_comments %} 
-                    <div class="flex mb-3">
-                        <div class="mr-4 flex" style="width:100px; max-width:100px; flex-shrink:0;"> 
-                        {% if comment.movieid.imgposter == "noimg.png" %}
-                            {% if comment.movieid.img == "noimg.png" %}
-                                <img src="/static/img/movie/w200/noimg.jpg" alt="{{ comment.movieid.titlecz|default:'Neznámý film' }}" class="img-fluid" style="object-fit: cover; max-width: 100px; height: 150px;"> 
-                            {% else %}
-                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ comment.movieid.img }}" alt="{{ comment.movieid.titlecz|default:'Neznámý film' }}" class="img-fluid" style="object-fit: cover; max-width: 100px; height: 150px;"> 
-                            {% endif %}
-                            {% else %}
-                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ comment.movieid.imgposter }}" alt="{{ comment.movieid.titlecz|default:'Neznámý film' }}" class="img-fluid" style="object-fit: cover; max-width: 100px; height: 150px;"> 
-                        {% endif %}
-                        </div>
-                        
-                        <div class="flex flex-wrap content-between ml-2" style="flex: 2;">
-                            <div class="flex flex-wrap">
-                                <a class="w-full font-semibold" href="{% url 'movie_detail' comment.movieid.url %}">{{ comment.movieid.titlecz }}</a>
-                                <p class="w-full text-sm">{{ comment.comment|truncatewords:30 }}</p>
+                    {% if latest_comments %} 
+                        {% for comment in latest_comments %} 
+                            <div class="flex mb-3">
+                                <div class="mr-4 flex" style="width:100px; max-width:100px; flex-shrink:0;"> 
+                                    {% if comment.movieid.imgposter == "noimg.png" %}
+                                        {% if comment.movieid.img == "noimg.png" %}
+                                            <img src="/static/img/movie/w200/noimg.jpg" alt="{{ comment.movieid.titlecz|default:'Neznámý film' }}" class="img-fluid" style="object-fit: cover; max-width: 100px; height: 150px;"> 
+                                        {% else %}
+                                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ comment.movieid.img }}" alt="{{ comment.movieid.titlecz|default:'Neznámý film' }}" class="img-fluid" style="object-fit: cover; max-width: 100px; height: 150px;"> 
+                                        {% endif %}
+                                        {% else %}
+                                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ comment.movieid.imgposter }}" alt="{{ comment.movieid.titlecz|default:'Neznámý film' }}" class="img-fluid" style="object-fit: cover; max-width: 100px; height: 150px;"> 
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="flex flex-wrap content-between ml-2" style="flex: 2;">
+                                    <div class="flex flex-wrap">
+                                        <a class="w-full font-semibold" href="{% url 'movie_detail' comment.movieid.url %}">{{ comment.movieid.titlecz }}</a>
+                                        <p class="w-full text-sm">{{ comment.comment|truncatewords:30 }}</p>
+                                    </div>
+                                    
+                                    <div class="w-full flex justify-end" style="font-size: small;">
+                                        <p>Uživatel:
+                                            {% if comment.user %}
+                                                <a href="/uzivatel/{{ comment.user.id }}/">{{ comment.user.username }}</a>
+                                            {% endif %}
+                                        </p>
+                                        <span style="margin-left: .25rem;">| {{ comment.dateadded|date:"d.m.Y H:i" }}</span>
+                                    </div>
+                                </div>
                             </div>
-                            
-                            <div class="w-full flex justify-end" style="font-size: small;">
-                                <p>Uživatel:
-                                {% if comment.user %}
-                                    <a href="/uzivatel/{{ comment.user.id }}/">{{ comment.user.username }}</a>
-                                {% endif %}
-                                </p>
-                                <span class="ml-1">| {{ comment.dateadded|date:"d.m.Y H:i" }}</span>
-                            </div>
-                        </div>
-                    </div>
 
-                    {% if not forloop.last %}
-                    <hr class="my-3">
+                            {% if not forloop.last %}
+                                <hr style="margin: .75rem 0;">
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% else %}
+                        <p>Zatím žádné recenze od komunity.</p>
                     {% endif %}
-                    {% endfor %}
-                    {% else %}
-                    <p>Zatím žádné recenze od komunity.</p>
-                {% endif %}
                 </div>
             </div>
         </div>
@@ -184,14 +189,13 @@
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title after-h3">V kinech</h3>
-                <div class="grid grid-cols-1 w-full text-left">
-                    {% for movie in movies_in_cinema %}
+                {% for movie in movies_in_cinema %}
                     <div class="after last-line">
-                        <div class="flex items-center">
+                        <div style="display: flex; justify-items: center;">
                             {% if movie.movieid__img == "noimg.png" %}
-                            <img src="/static/img/nomovie_400.jpg" alt="Bez obrázku - {{ movie.movieid__img }}" class="mr-2" style="float:left; width:75px;">
-                            {% else %}
-                            <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.movieid__img }}" alt="{{ movie.titlecz }}" class="mr-2" style="float:left; width:75px;">
+                                <img src="/static/img/nomovie_400.jpg" alt="Bez obrázku - {{ movie.movieid__img }}" style="float:left; width:75px; margin-right:.5rem;">
+                                {% else %}
+                                <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.movieid__img }}" alt="{{ movie.titlecz }}" style="float:left; width:75px; margin-right:.5rem;">
                             {% endif %}
                             <div style="flex: 2;">
                                 <a href="https://div.cz/film/{{ movie.movieid__url }}">{{ movie.movieid__titlecz }}</a> 
@@ -201,26 +205,26 @@
                         <!-- <div>{{ movie.distributorid__name }}</div> -->
                     </div>
                 {% endfor %}
-                </div>
             </div>
         </div>
 
         <!-- ČLÁNKY -->
         <div class="card">
             <div class="card-body">
-                <div class="flex flex-wrap justify-between card-title after-h3">
-                    <h3 class="font-bold">Články</h3><!--<a href="{% url 'articles_list' category='filmy' %}"><small>Zobrazit vše</small></a>-->
+                <div class="card-title after-h3">
+                    <h3>Články</h3>
+                    <a href="{% url 'articles_list' category='filmy' %}"><small>Zobrazit vše</small></a>
                 </div>
-                <div class="flex flex-wrap after">
-                    <a href="https://div.cz/akcni" class="w-full">Akční filmy</a> <!-- stačí název ne?-->
-                    <a href="https://div.cz/romanticke" class="w-full">Romantické</a>
-                    <a href="https://div.cz/seznam-filmu" class="w-full">Seznam filmů</a>
-                    <a href="https://div.cz/komedie" class="w-full">Komedie</a>
-                    <a href="https://div.cz/zlata-malina" class="w-full">Zlaté maliny</a>
+                <div class="article-head-title after">
+                    <a href="https://div.cz/akcni">Akční filmy</a>
+                    <a href="https://div.cz/romanticke">Romantické</a>
+                    <a href="https://div.cz/seznam-filmu">Seznam filmů</a>
+                    <a href="https://div.cz/komedie">Komedie</a>
+                    <a href="https://div.cz/zlata-malina">Zlaté maliny</a>
                 </div>
-                <div class="text-right">
+                <div style="text-align: right;">
                     {% if user.is_superuser %}
-                    <a href="{% url 'article_new' category=category_key %}"><i class="fa-solid fa-plus"></i> Přidat nový článek</a>
+                        <a href="{% url 'article_new' category=category_key %}"><i class="fa-solid fa-plus"></i> Přidat nový článek</a>
                     {% endif %}
                 </div>
             </div>

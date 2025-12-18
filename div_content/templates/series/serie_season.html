@@ -17,21 +17,21 @@
         <div class="flex justify-between items-center">
             <h2><a href="{% url 'serie_detail' tv_url=tvshow.url %}">{{ tvshow.titlecz }}</a> - {{ season.seasonnumber }}. {{ season.titlecz }} </h2>
             <div class="postava">
-            {% if previous_season %}
-                <a class="arrow-prev" title="Předchozí sezóna" style="text-decoration: none;" href="{% url 'serie_season' tv_url=tvshow.url seasonurl=previous_season.seasonurl %}">
-                </a>
-            {% else %}
-                <span class="arrow-prev disabled" title="Předchozí sezóna nedostupná" style="cursor: not-allowed;">
-                </span>
-            {% endif %}
-            
-            {% if next_season %}
-                <a class="arrow-next ml-2" title="Další sezóna" style="text-decoration: none;" href="{% url 'serie_season' tv_url=tvshow.url seasonurl=next_season.seasonurl %}">
-                </a>
-            {% else %}
-                <span class="arrow-next ml-2 disabled" title="Další sezóna nedostupná" style="cursor: not-allowed;">
-                </span>
-            {% endif %}
+                {% if previous_season %}
+                    <a class="arrow-prev" title="Předchozí sezóna" style="text-decoration: none;" href="{% url 'serie_season' tv_url=tvshow.url seasonurl=previous_season.seasonurl %}">
+                    </a>
+                {   % else %}
+                    <span class="arrow-prev disabled" title="Předchozí sezóna nedostupná" style="cursor: not-allowed;">
+                    </span>
+                {% endif %}
+                
+                {% if next_season %}
+                    <a class="arrow-next ml-2" title="Další sezóna" style="text-decoration: none;" href="{% url 'serie_season' tv_url=tvshow.url seasonurl=next_season.seasonurl %}">
+                    </a>
+                    {% else %}
+                    <span class="arrow-next ml-2 disabled" title="Další sezóna nedostupná" style="cursor: not-allowed;">
+                    </span>
+                {% endif %}
             </div>
         </div>
 
@@ -280,7 +280,7 @@
             <!-- RECENZE -->
             <div id="tab1" class="tab-list active">
                 <div class="">    
-                    <h3 class="after-h3">Recenze</h3> 
+                    <h3 class="card-title after-h3">Recenze</h3> 
                     {% if user.is_authenticated %}
                     <h4>Přidat novou recenzi</h4>
                     <form method="post">
@@ -299,7 +299,7 @@
                         <li class="card-body">
                             <p class="after">{{ comment.comment }}</p>
                             <div class="user">
-                                <a href="{% url 'user_profile_with_profil' comment.user.pk %}" class="font-bold">
+                                <a href="{% url 'user_profile_with_profil' comment.user.pk %}">
                                     {{ comment.user }}
                                 </a>
                                 <p class="text-sm">{{ comment.dateadded|date:"j. F Y H:i" }}</p>
@@ -328,7 +328,7 @@
 
             <!-- HRAJÍ -->
             <div id="tab2" class="tab-list">
-                <h3 class="after-h3">Informace o postavách seriálu</h3>
+                <h3 class="card-title after-h3">Informace o postavách seriálu</h3>
                 <div class="grid lg:grid-colums-2 ml-4 mt-4">
                 {% if actors_and_characters %}
                     {% for actor in actors_and_characters %}
@@ -367,7 +367,7 @@
 
             <!-- ZAJÍMAVOSTI -->
             <div id="tab3" class="tab-list">
-                <h3 class="after-h3">Zajímavosti k sezóně</h3>
+                <h3 class="card-title after-h3">Zajímavosti k sezóně</h3>
 
                 <!-- přidat zajímavost -->
                 {% if user.is_authenticated %}
@@ -424,7 +424,7 @@
 
             <!-- TRAILER -->
             <div id="tab4" class="tab-list">
-                <h3 class="after-h3">Trailer</h3>
+                <h3 class="card-title after-h3">Trailer</h3>
                 {% if tvshow_trailer %}
                     <iframe style="width:100%; height:300px" src="https://www.youtube.com/embed/{{ tvshow_trailer.youtubeurl }}" frameborder="0" allowfullscreen></iframe>
                     {% else %}
@@ -449,7 +449,7 @@
 
             <!-- HLÁŠKY -->
             <div id="tab5" class="tab-list">
-                <h3 class="after-h3">Známé hlášky z filmu</h3>
+                <h3 class="card-title after-h3">Známé hlášky z filmu</h3>
                 <!-- přidat hlášku -->
                 {% if user.is_authenticated %}
                 <h4>Přidat novou hlášku</h4>

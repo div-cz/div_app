@@ -689,7 +689,7 @@
     
             <!-- RECENZE -->
             <div id="tab1" class="tab-list active">   
-                <h3 class="after-h3" id="recenze">Recenze</h3> 
+                <h3 class="card-title after-h3" id="recenze">Recenze</h3> 
                     
                 <!-- přidat recenzi -->       
                 {% if user.is_authenticated %}
@@ -725,7 +725,7 @@
 
             <!-- POSTAVY -->
             <div id="tab2" class="tab-list ">
-                <h3 class="after-h3">Seznam postav v knize</h3>
+                <h3 class="card-title after-h3">Seznam postav v knize</h3>
     
                 {% if user.is_authenticated %}
                     <h4>Přidat postavu ke knize</h4>
@@ -816,7 +816,7 @@
 
             <!-- CICÁTY -->
             <div id="tab3" class="tab-list ">
-                <h3 class="after-h3">Citáty z knihy {{ book.titlecz|default:book.title }}</h3>
+                <h3 class="card-title after-h3">Citáty z knihy {{ book.titlecz|default:book.title }}</h3>
 
                 <!-- přidat citát -->
                 {% if user.is_authenticated %}
@@ -872,7 +872,7 @@
 
             <!-- ZAJÍMAVOSTI
             <div id="tab4" class="tab-list ">
-                <h3 class="after-h3">Informace o zajímavostech filmu</h3>
+                <h3 class="card-title after-h3">Informace o zajímavostech filmu</h3>
                 <h4>Přidat novou zajímavost</h4>
                 <form method="post" action="">
                     <textarea>
@@ -919,7 +919,7 @@
             <!-- DIVKVARIÁT -->
             <div id="market">
                 <div id="tab5" class="tab-list">
-                    <h3 class="after-h3">Tuto knihu prodává / poptává</h3>
+                    <h3 class="card-title after-h3">Tuto knihu prodává / poptává</h3>
 
                     <!-- PRODAM / KOUPIM -->
                     <details>
@@ -1543,7 +1543,7 @@ function showQr(fmt) {
                             if (downloadBtn) {
                                 downloadBtn.removeAttribute("disabled");
                                 downloadBtn.href = `/stahnout-eknihu/${isbn}/${fmt}/`;
-                                downloadBtn.classList.remove("btn-secondary");
+                                downloadBtn.classList.remove("add-other");
                                 downloadBtn.classList.add("btn-success");
                                 downloadBtn.innerText = "Stáhnout";
                             }
@@ -1599,8 +1599,8 @@ function renderEbookActions() {
     if (data.show_qr) {
         html += `
             <div style="margin-top:15px;">
-                <button class="btn btn-secondary" disabled>Poslat do čtečky</button>
-                <button class="btn btn-secondary" disabled>Stáhnout</button>
+                <button class="btn add-other" disabled>Poslat do čtečky</button>
+                <button class="btn add-other" disabled>Stáhnout</button>
             </div>
             <div id="qr-wrap" style="margin-top:20px;">
                 <img src="/generate-qr/{{ book.bookid }}/${fmt}" alt="QR ${fmt}" style="width:160px;">

@@ -67,11 +67,11 @@
             <span><a href="https://div.cz/filmy/{{ movie.releaseyear }}" title="Filmy roku {{ movie.releaseyear }} | {{ movie.movieid }}">{{ movie.releaseyear }}</a></span>
             &nbsp;|&nbsp;
             <span>
-            {% if countries %}
-                {% for movie_country in countries %}
-                    {{ movie_country.countryid.countrynamecz }}{% if not forloop.last %}, {% endif %}
-                {% endfor %}
-            {% endif %}
+                {% if countries %}
+                    {% for movie_country in countries %}
+                        {{ movie_country.countryid.countrynamecz }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                {% endif %}
             </span>
 
             {% if movie.duration != 0 %}
@@ -110,7 +110,7 @@
                             </div>
                         </div>
 
-                        <button class="rating-popup-btn btn add-movie" style="margin: 0 auto;">Hodnocení filmu</button>
+                        <button class="btn add-movie" style="margin: 0 auto;">Hodnocení filmu</button>
                     </div>
 
                     <!-- POPUP – VÝPIS HODNOCENÍ PRO FILM -->
@@ -144,12 +144,12 @@
                                                 </span>
 
                                                 {% if rating.user == request.user %}
-                                                <form method="post" action="">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn">
-                                                        <i class="fa-solid fa-trash-can" title="smazat hodnocení" style="color:#A52B21; margin-right:0;"></i>
-                                                    </button>
-                                                </form>
+                                                    <form method="post" action="">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn">
+                                                            <i class="fa-solid fa-trash-can" title="smazat hodnocení" style="color:#A52B21; margin-right:0;"></i>
+                                                        </button>
+                                                    </form>
                                                 {% endif %}
                                             </div>
                                         </li>
@@ -177,53 +177,53 @@
                     <ul class="list-unstyled">
                         <li><strong>Originální název:</strong> {{ movie.title }}</li>
                         {% if genres %}
-                        <li><strong>Žánr:</strong>
-                            {% for movie_genre in genres %}
-                                <a href="/filmy/{{ movie_genre.genreid.url }}">{{ movie_genre.genreid.genrenamecz }}</a>{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        </li>
+                            <li><strong>Žánr:</strong>
+                                {% for movie_genre in genres %}
+                                    <a href="/filmy/{{ movie_genre.genreid.url }}">{{ movie_genre.genreid.genrenamecz }}</a>{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </li>
                         {% endif %}
 
                         {% if directors %}
-                        <li><strong>Režie:</strong>
-                            {% for director in directors %}
-                                <a href="/tvurce/{{ director.peopleid.url }}">{{ director.peopleid.firstname }} {{ director.peopleid.lastname }}</a>{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        </li>
+                            <li><strong>Režie:</strong>
+                                {% for director in directors %}
+                                    <a href="/tvurce/{{ director.peopleid.url }}">{{ director.peopleid.firstname }} {{ director.peopleid.lastname }}</a>{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </li>
                         {% endif %}
 
                         {% if writers %}
-                        <li><strong>Scénář:</strong> 
-                            {% for writer in writers %}
-                                {{ writer.peopleid.firstname }}{% if not forloop.last %},{% endif %}
-                            {% endfor %}
-                        </li>
+                            <li><strong>Scénář:</strong> 
+                                {% for writer in writers %}
+                                    {{ writer.peopleid.firstname }}{% if not forloop.last %},{% endif %}
+                                {% endfor %}
+                            </li>
                         {% endif %}
 
                         {% if actors_and_characters %}
-                        <li><strong>Hrají:</strong>
-                            {% for actor in actors_and_characters|slice:":20" %}
-                                {% if not forloop.last %}
-                                <a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a>,
-                                {% else %}
-                                <a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a>
-                                {% endif %}
-
-                                {% comment %}
-                                {% if actor.characterid %}
-                                    {% if actor.characterid.characterbio %}
-                                    jako <a href="/postava/{{ actor.characterid.characterurl }}" class="character-link">{{ actor.characterid.characternamecz|default:actor.characterid.charactername }}</a>
-                                    {% elif actor.characterid.characternamecz %}
-                                    jako {{ actor.characterid.characternamecz }}
-                                    {% elif actor.characterid.charactername %}
-                                    jako {{ actor.characterid.charactername }}
+                            <li><strong>Hrají:</strong>
+                                {% for actor in actors_and_characters|slice:":20" %}
+                                    {% if not forloop.last %}
+                                        <a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a>,
+                                        {% else %}
+                                        <a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a>
                                     {% endif %}
-                                {% endif %}
-                                {% endcomment %}
 
-                            {% endfor %}
-                            , <a href="#tab2" id="go-to-characters">další...</a>
-                        </li>
+                                    {% comment %}
+                                    {% if actor.characterid %}
+                                        {% if actor.characterid.characterbio %}
+                                        jako <a href="/postava/{{ actor.characterid.characterurl }}" class="character-link">{{ actor.characterid.characternamecz|default:actor.characterid.charactername }}</a>
+                                        {% elif actor.characterid.characternamecz %}
+                                        jako {{ actor.characterid.characternamecz }}
+                                        {% elif actor.characterid.charactername %}
+                                        jako {{ actor.characterid.charactername }}
+                                        {% endif %}
+                                    {% endif %}
+                                    {% endcomment %}
+
+                                {% endfor %}
+                                , <a href="#tab2" id="go-to-characters">další...</a>
+                            </li>
                         {% endif %}
                     </ul>
                 </div>
@@ -297,37 +297,42 @@
         </div>
 
         {% if user.is_staff %}
-        <!-- PŘIDAT DO KINA -->
-        <details>
-            <summary>Přidat do kina</summary>
-            <form method="post" name="distributor_form">
-                {% csrf_token %}
-                
-                <!-- Roletka pro distributory -->
-                <label for="distributor_id">Distributor:</label>
-                <select name="distributor_id" id="distributor_id">
-                    {% for distributor in distributors %}
-                        <option value="{{ distributor.distributorid }}">{{ distributor.name }}</option>
-                    {% endfor %}
-                </select>
+            <!-- PŘIDAT DO KINA -->
+            <details>
+                <summary>Přidat do kina</summary>
+                <form class="add-cinema" method="post" name="distributor_form">
+                    {% csrf_token %}
+                    
+                    <!-- Roletka pro distributory -->
+                    <div style="width: 100%;">
+                        <label style="width: 110px;" for="distributor_id">Distributor:</label>
+                        <select name="distributor_id" id="distributor_id" style="padding: 5px 10px; color: black;">
+                            {% for distributor in distributors %}
+                                <option style="color: black;" value="{{ distributor.distributorid }}">{{ distributor.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-                <!-- Kalendář pro výběr data -->
-                <label for="release_date">Datum vydání:</label>
-                <input type="date" name="release_date" id="release_date">
-
-                <button type="submit" name="add_distributor">Přidat do kina</button>
-            </form>
-            <hr>
-        </details>
+                    <!-- Kalendář pro výběr data -->
+                    <div style="width: 100%;">
+                        <label style="width: 110px;" for="release_date">Datum vydání:</label>
+                        <input type="date" name="release_date" id="release_date">
+                    </div>
+                    <button type="submit" name="add_distributor" class="add-movie">Přidat do kina</button>
+                </form>
+            </details>
         {% endif %}
+
+        <hr>
 
         <!-- POPIS FILMU -->
         <div style="width: 100%; margin-bottom: 1rem;">
             <p id="biography-text">
                 {% if movie.description %}
                     {{ movie.description|safe }} 
-                    <p><a id="toggle-biography">Více...</a></p>   
-                {% else %}
+                    <p><a id="toggle-biography">Více...</a></p>  
+
+                    {% else %}
                     Zatím žádný popis    
                 {% endif %}
             </p>
@@ -341,33 +346,32 @@
                 <li class="karta"><a href="#tab3">Zajímavosti</a></li>
                 <li class="karta"><a href="#tab4">Trailer</a></li>
                 <li class="karta"><a href="#tab5">Hlášky</a></li>
-                <!--<li class="karta"><a href="#tab6">Lokality</a></li>-->
+                <!-- <li class="karta"><a href="#tab6">Lokality</a></li> -->
                 <li class="karta"><a href="#tab7">Chyby</a></li>
             </ul>
     
             <!-- RECENZE -->
             <div id="tab1" class="tab-list active">
-                <div class="">    
-                    <h3 class="after-h3" id="recenze">Recenze</h3>   
-                    
-                    <!-- přidat recenzi --> 
-                    {% if user.is_authenticated %}
-                        <h4>Přidat novou recenzi</h4>
-                        <form method="post" action="">
-                            {% csrf_token %}
-                            {{ comment_form.comment }}
-                            <button type="submit" class="btn add-movie">Vložit recenzi</button>
-                        </form>
-                        {% else %}
-                        <p>Pro komentování je nutné být 
-                            <a href="/prihlaseni/">přihlášený</a>.
-                            <br>Nemáš účet? Nevadí, 
-                            <a href="/registrace/">rychlá registrace!</a>
-                        </p>
-                    {% endif %}
+                <h3 class="card-title after-h3" id="recenze">Recenze</h3>   
+                
+                <!-- přidat recenzi --> 
+                {% if user.is_authenticated %}
+                    <h4>Přidat novou recenzi</h4>
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        {{ comment_form.comment }}
+                        <button type="submit" class="btn add-movie">Vložit recenzi</button>
+                    </form>
+                    {% else %}
+                    <p>Pro komentování je nutné být 
+                        <a href="/prihlaseni/">přihlášený</a>.
+                        <br>Nemáš účet? Nevadí, 
+                        <a href="/registrace/">rychlá registrace!</a>
+                    </p>
+                {% endif %}
 
-                    <!-- Výpis recenzí -->
-                    <ul class="list-unstyled komentar">
+                <!-- Výpis recenzí -->
+                <ul class="list-unstyled komentar">
                     {% for comment in comments %}
                         <li class="card-body">
                             <p class="after">{{ comment.comment }}</p>
@@ -379,102 +383,98 @@
                             </div>
                         </li>
                     {% endfor %}
-                    </ul>
-                </div>
+                </ul>
             </div>
 
             <!-- HRAJÍ -->
             <div id="tab2" class="tab-list">
-                <h3 class="after-h3">Informace o postavách filmu</h3>
+                <h3 class="card-title after-h3">Informace o postavách filmu</h3>
                 <div class="actors">
-                {% if actors_and_characters %}
-                    {% for actor in actors_and_characters %}
-                    <div class="after line">
-                        <div class="postava">
-                        {% if actor.peopleid.img and actor.peopleid.img != "noimg.png" %}
-                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ actor.peopleid.img }}" 
-                                alt="{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}" class="img-fluid">
-                            {% else %}
-                            <img src="/static/img/creator/noperson.svg" 
-                                alt="{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}" 
-                                class="img-fluid">
-                            {% endif %}
+                    {% if actors_and_characters %}
+                        {% for actor in actors_and_characters %}
+                            <div class="after line">
+                                <div class="postava">
+                                    {% if actor.peopleid.img and actor.peopleid.img != "noimg.png" %}
+                                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ actor.peopleid.img }}" alt="{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}" class="img-fluid">
+                                        {% else %}
+                                        <img src="/static/img/creator/noperson.svg" alt="{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}" class="img-fluid">
+                                    {% endif %}
 
-                            <div class="flex flex-wrap ml-2 w-full">
-                            {% if actor.characterid %}
-                                <h4 style="width: 100%"><a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a></h4>
-                                {% if actor.characterid.characterbio %}
-                                <a href="/postava/{{ actor.characterid.characterurl }}" class="character-link">
-                                    {{ actor.characterid.characternamecz|default:actor.characterid.charactername }}
-                                </a>
-                                    {% elif actor.characterid.characternamecz %}
-                                        {{ actor.characterid.characternamecz }}
-                                    {% elif actor.characterid.charactername %}
-                                        {{ actor.characterid.charactername }}
-                                {% endif %}
-                            {% endif %}
+                                    <div class="postava-detail">
+                                        {% if actor.characterid %}
+                                            <h4 style="width: 100%"><a href="/tvurce/{{ actor.peopleid.url }}">{{ actor.peopleid.firstname }} {{ actor.peopleid.lastname }}</a></h4>
+                                            {% if actor.characterid.characterbio %}
+                                                <a href="/postava/{{ actor.characterid.characterurl }}" class="character-link">
+                                                    {{ actor.characterid.characternamecz|default:actor.characterid.charactername }}
+                                                </a>
+                                                {% elif actor.characterid.characternamecz %}
+                                                    {{ actor.characterid.characternamecz }}
+                                                {% elif actor.characterid.charactername %}
+                                                    {{ actor.characterid.charactername }}
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% endif %}
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
 
             <!-- ZAJÍMAVOSTI -->
             <div id="tab3" class="tab-list">
-                <h3 class="after-h3">Informace o zajímavostech filmu</h3>
+                <h3 class="card-title after-h3">Informace o zajímavostech filmu</h3>
                 
                 <!-- přidat zajímavost -->
                 {% if user.is_authenticated %}
-                <h4>Přidat novou zajímavost</h4>
-                <form method="post" action="">
-                    {% csrf_token %}
-                    <textarea name="trivia_text" rows="3" placeholder="Zadejte zajímavost" required></textarea>
-                    <button type="submit" class="btn add-movie">Vložit zajímavost</button>
-                </form>
+                    <h4>Přidat novou zajímavost</h4>
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        <textarea name="trivia_text" rows="3" placeholder="Zadejte zajímavost" required></textarea>
+                        <button type="submit" class="btn add-movie">Vložit zajímavost</button>
+                    </form>
                 {% endif %}
 
                 <!-- Výpis zajímavostí -->
                 <ul class="list-unstyled komentar">
-                {% for item in trivia %}
-                    <li class="card-body">
-                        <p class="after">{{ item.trivia|safe }}</p>
-                        <div class="user" style="justify-content: end;">
-                            <p>Přidal: 
-                            {% if not item.userid.id is None %}
-                                <a href="{% url 'user_profile_with_profil' user_id=item.userid.id %}">{{ item.userid.username|default:"Anonym" }}</a>
-                            {% endif %}
-                            </p>
-                        </div>
+                    {% for item in trivia %}
+                        <li class="card-body">
+                            <p class="after">{{ item.trivia|safe }}</p>
+                            <div class="user" style="justify-content: end;">
+                                <p>Přidal: 
+                                    {% if not item.userid.id is None %}
+                                        <a href="{% url 'user_profile_with_profil' user_id=item.userid.id %}">{{ item.userid.username|default:"Anonym" }}</a>
+                                    {% endif %}
+                                </p>
+                            </div>
 
-                        <!-- drobečky -->
+                            <!-- drobečky -->
 
-                    </li>
-                {% endfor %}
+                        </li>
+                    {% endfor %}
                 </ul>
             </div>
 
             <!-- TRAILER -->
             <div id="tab4" class="tab-list">
-                <h3 class="after-h3">Trailer</h3>
+                <h3 class="card-title after-h3">Trailer</h3>
                 {% if movie_trailer %}
                     <iframe style="width:100%; height:300px" src="https://www.youtube.com/embed/{{ movie_trailer.youtubeurl }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     {% else %}
                     
-                        {% if user.is_authenticated %}
+                    {% if user.is_authenticated %}
                         <h4>Přidat trailer</h4>
                         <form method="post">
-                        {% csrf_token %}
+                            {% csrf_token %}
                             {{ trailer_form.as_p }}
                                 
                             {% if user.is_staff %}
-                            <button type="submit" class="btn add-movie">Přidat trailer (Jen YoutubeID: dGzY9zp46KI)</button>
-                            {% else %}
-                            <p style="color: #6c757d; font-size: 0.875rem; line-height: 1.25rem;">
-                                Chcete přidávat videa? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
-                            </p>
-                        {% endif %}
+                                <button type="submit" class="btn add-movie">Přidat trailer (Jen YoutubeID: dGzY9zp46KI)</button>
+                                {% else %}
+                                <p style="color: #6c757d; font-size: 0.875rem; line-height: 1.25rem;">
+                                    Chcete přidávat videa? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
+                                </p>
+                            {% endif %}
                         </form>
                     {% endif %}
                 {% endif %}
@@ -482,118 +482,87 @@
 
             <!-- HLÁŠKY -->
             <div id="tab5" class="tab-list">        
-                <h3 class="after-h3">Známé hlášky z filmu</h3>
+                <h3 class="card-title after-h3">Známé hlášky z filmu</h3>
+
                 <!-- přidat hlášku -->
                 {% if user.is_authenticated %}
-                <h4>Přidat novou hlášku</h4>
-                <form method="post">
-                {% csrf_token %}
-                    <textarea name="quote_text" rows="3" required></textarea>
-                    <button type="submit" class="btn add-movie">Vložit hlášku</button>
-                </form>               
+                    <h4>Přidat novou hlášku</h4>
+                    <form method="post">
+                    {% csrf_token %}
+                        <textarea name="quote_text" rows="3" required></textarea>
+                        <button type="submit" class="btn add-movie">Vložit hlášku</button>
+                    </form>               
                 {% endif %}
 
                 <!-- Výpis hlášek -->
                 <ul class="list-unstyled komentar">
                     {% for quote in quotes %}
-                    <li class="card-body" data-quote-id="{{ quote.quoteid }}">
-                        <p class="after">{{ quote.quote }}</p>
-                        <div class="user">
-                            <p>Vložil:
-                            {% if quote.user %}
-                                <a href="{% url 'user_profile_with_profil' user_id=quote.user.id %}">
-                                    {{ quote.user.username|default:"Anonym" }}
-                                </a>
-                            {% endif %}
-                            </p>
+                        <li class="card-body" data-quote-id="{{ quote.quoteid }}">
+                            <p class="after">{{ quote.quote }}</p>
+                            <div class="user">
+                                <p>Vložil:
+                                    {% if quote.user %}
+                                        <a href="{% url 'user_profile_with_profil' user_id=quote.user.id %}">
+                                            {{ quote.user.username|default:"Anonym" }}
+                                        </a>
+                                    {% endif %}
+                                </p>
 
-                            <!-- Hodnocení -->
-                            <div class="rating-buttons">
-                                <button class="thumb-btn" data-action="thumbsup" style="background:none;border:none;cursor:pointer;">
-                                    &#x1F44D; <span>{{ quote.thumbsup|default:0 }}</span>
-                                </button>
-                                <button class="thumb-btn" data-action="thumbsdown" style="background:none;border:none;cursor:pointer;">
-                                    &#x1F44E; <span>{{ quote.thumbsdown|default:0 }}</span>
-                                </button>
-                                <div class="star-display" style="display:inline-block;">
-                                    &#x2B50; <span>{{ quote.divrating|default:0 }}</span>
+                                <!-- Hodnocení -->
+                                <div class="rating-buttons">
+                                    <button class="thumb-btn" data-action="thumbsup" style="background:none;border:none;cursor:pointer;">
+                                        &#x1F44D; <span>{{ quote.thumbsup|default:0 }}</span>
+                                    </button>
+                                    <button class="thumb-btn" data-action="thumbsdown" style="background:none;border:none;cursor:pointer;">
+                                        &#x1F44E; <span>{{ quote.thumbsdown|default:0 }}</span>
+                                    </button>
+                                    <div class="star-display" style="display:inline-block;">
+                                        &#x2B50; <span>{{ quote.divrating|default:0 }}</span>
+                                    </div>
                                 </div>
+
                             </div>
-
-                        </div>
-                    </li>
-                {% endfor %}
+                        </li>
+                    {% endfor %}
                 </ul>
-
-                <script>
-                    document.querySelectorAll('.thumb-btn').forEach(btn => {
-                        btn.addEventListener('click', async e => {
-                            const block = e.target.closest('[data-quote-id]');
-                            if (!block) return;
-                            const id = block.dataset.quoteId;
-                            const action = e.target.dataset.action;
-                            try {
-                            const r = await fetch(`/moviequote/${id}/rate/`, {
-                                method: 'POST',
-                                headers: {
-                                'X-CSRFToken': '{{ csrf_token }}',
-                                'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ action })
-                            });
-                            const data = await r.json();
-                            if (data.error) {
-                                alert(data.error);
-                            } else {
-                                block.querySelector('[data-action="thumbsup"] span').textContent = data.thumbsup;
-                                block.querySelector('[data-action="thumbsdown"] span').textContent = data.thumbsdown;
-                                block.querySelector('.star-display span').textContent = data.divrating;
-                            }
-                            } catch (err) {
-                                console.error('Fetch error:', err);
-                            }
-                        });
-                    });
-                </script>
-
             </div>
 
             <!-- lokality -->
-            <!--<div id="tab6" class="tab-list">
-                <h3>Lokality</h3>
-                <p>Informace o natáčecích lokalitách.</p>
-            </div>-->
+            <!-- <div id="tab6" class="tab-list">
+                <h3 class="card-title after-h3">Lokality</h3>
+
+            </div> -->
 
             <!-- CHYBY -->
             <div id="tab7" class="tab-list">
-                <h3 class="after-h3">Chyby ve filmu</h3>   
+                <h3 class="card-title after-h3">Chyby ve filmu</h3>   
 
                 <!-- Přidat chybu -->
                 {% if user.is_authenticated %}
-                <h4>Přidat novou chybu</h4>
-                <form method="post" action="">
-                    {% csrf_token %}
-                    <textarea name="error_text" rows="3" required></textarea>
-                    <button type="submit" class="btn add-movie">Vložit chybu</button>
-                </form>
+                    <h4>Přidat novou chybu</h4>
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        <textarea name="error_text" rows="3" required></textarea>
+                        <button type="submit" class="btn add-movie">Vložit chybu</button>
+                    </form>
                 {% endif %}
 
                 <!-- Výpis chyb -->
                 <ul class="list-unstyled komentar">
                     {% for error in errors %}
-                    <li class="card-body">
-                        <p class="after">{{ error.error }}</p>
-                        <div class="user" style="justify-content: end;">
-                            <p>Přidal: 
-                            {% if error.userid %}
-                                <a href="{% url 'user_profile_with_profil' user_id=error.userid.id %}">{{ error.userid.username }}</a>
-                                {% else %}
-                                Anonym
-                            {% endif %}
-                            </p>
-                        </div>
-                    </li>
-                {% endfor %}
+                        <li class="card-body">
+                            <p class="after">{{ error.error }}</p>
+                            <div class="user" style="justify-content: end;">
+                                <p>Přidal: 
+                                    {% if error.userid %}
+                                        <a href="{% url 'user_profile_with_profil' user_id=error.userid.id %}">{{ error.userid.username }}</a>
+                                        {% else %}
+                                        Anonym
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </li>
+                    {% endfor %}
                 </ul>
                 
             </div>
@@ -601,7 +570,7 @@
 
     </div>
 
-    <!-- Pravá strana -->
+    <!-- PRAVÁ STRANA -->
     <div class="right-side">
         
         <!-- Hodnocení na desktop -->
@@ -618,8 +587,8 @@
                     <div class="hvezdicky after">
                         {% ratings movie %}
                         {% if user.is_authenticated %}
-                        {% else %}
-                        <p>Pro hodnocení je třeba se <a href="/prihlaseni/">Přihlásit!</a></p>
+                            {% else %}
+                            <p>Pro hodnocení je třeba se <a href="/prihlaseni/">Přihlásit!</a></p>
                         {% endif %}
                     </div>
                 
@@ -629,113 +598,124 @@
                     
                     <!-- Výpis hodnotitelů a jejich hodnocení -->
                     {% if ratings %}
-                    <ul class="list-unstyled rating-users">
-                    {% for rating in ratings %}
-                        <li class="after">
-                            <small><p style="text-align: center; padding: .25rem;">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
-                            <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">
-                                {{ rating.user.username }}
-                            </a>
-                            <span>
-                            {% for _ in "12345" %}
-                                {% if forloop.counter <= rating.score %}
-                                <span>★</span>
-                                {% else %}
-                                ☆
-                                {% endif %}
-                            {% endfor %}
-                            </span>
+                        <ul class="list-unstyled rating-users">
+                            {% for rating in ratings %}
+                                <li class="after">
+                                    <small><p style="text-align: center; padding: .25rem;">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
+                                    <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">
+                                        {{ rating.user.username }}
+                                    </a>
+                                    <span>
+                                        {% for _ in "12345" %}
+                                            {% if forloop.counter <= rating.score %}
+                                            <span>★</span>
+                                            {% else %}
+                                            ☆
+                                            {% endif %}
+                                        {% endfor %}
+                                    </span>
 
-                            <!-- Zobrazí tlačítko jen u vlastního hodnocení -->
-                            {% if rating.user == request.user %}
-                            <form method="post" action="{% url 'remove_movie_rating' movie_url=movie.url %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn add-movie">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                    Smazat hodnocení
-                                </button>
-                            </form>
-                            {% endif %}
-                        </li>
-                        {% endfor %}
-                    </ul>
+                                    <!-- Zobrazí tlačítko jen u vlastního hodnocení -->
+                                    {% if rating.user == request.user %}
+                                        <form method="post" action="{% url 'remove_movie_rating' movie_url=movie.url %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn add-movie">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                                Smazat hodnocení
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
                     {% endif %}
                 </div>
             </div>
         </div>
 
-        <!--<div class="card">
+        <!-- VOD -->
+        <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">Sledujte na</h3>
+                <h3 class="card-title after-h3">VOD - Sledujte na</h3>
                 <div class="watching">
-                    <a href=""><img src="/static/img/tv/cool.png" alt="cool"></a>
-                    <a href=""><img src="/static/img/tv/ct1.png" alt="čt 1"></a>
-                    <a href=""><img src="/static/img/tv/disney.png" alt="dysney"></a>
-                    <a href=""><img src="/static/img/tv/hbo-max.png" alt="hbo max"></a>
-                    <a href=""><img src="/static/img/tv/hbo.png" alt="hbo"></a>
-                    <a href=""><img src="/static/img/tv/lepsi-tv.png" alt="lepší tv"></a>
-                    <a href=""><img src="/static/img/tv/netflix.png" alt="netflix"></a>
-                    <a href=""><img src="/static/img/tv/nova-cinema.png" alt="nova cinema"></a>
-                    <a href=""><img src="/static/img/tv/nova.png" alt="nova"></a>
-                    <a href=""><img src="/static/img/tv/o2tv.png" alt="o2 tv"></a>
-                    <a href=""><img src="/static/img/tv/prima.png" alt="prima"></a>
-                    <a href=""><img src="/static/img/tv/prime-video.png" alt="prime video"></a>
-                    <a href=""><img src="/static/img/tv/seznam.png" alt="seznam"></a>
-                    <a href=""><img src="/static/img/tv/sky-sho.png" alt="sky sho"></a>
-                    <a href=""><img src="/static/img/tv/tv.png" alt="apple tv"></a>
-                    <a href=""><img src="/static/img/tv/voyo.png" alt="voyo"></a>
+                    <a href=""><img src="/static/img/tv/cool.png" alt="cool" title="cool"></a>
+                    <a href=""><img src="/static/img/tv/ct1.png" alt="čt 1" title="čt 1"></a>
+                    <a href=""><img src="/static/img/tv/disney.png" alt="dysney" title="dysney"></a>
+                    <a href=""><img src="/static/img/tv/hbo-max.png" alt="hbo max" title="hbo max"></a>
+                    <a href=""><img src="/static/img/tv/hbo.png" alt="hbo" title="hbo"></a>
+                    <a href=""><img src="/static/img/tv/lepsi-tv.png" alt="lepší tv" title="lepší tv"></a>
+                    <a href=""><img src="/static/img/tv/netflix.png" alt="netflix" title="netflix"></a>
+                    <a href=""><img src="/static/img/tv/nova-cinema.png" alt="nova cinema" title="nova cinema"></a>
+                    <a href=""><img src="/static/img/tv/nova.png" alt="nova" title="nova"></a>
+                    <a href=""><img src="/static/img/tv/o2tv.png" alt="o2 tv" title="o2 tv"></a>
+                    <a href=""><img src="/static/img/tv/prima.png" alt="prima" title="prima"></a>
+                    <a href=""><img src="/static/img/tv/prime-video.png" alt="prime video" title="prime video"></a>
+                    <a href=""><img src="/static/img/tv/seznam.png" alt="seznam" title="seznam"></a>
+                    <a href=""><img src="/static/img/tv/sky-sho.png" alt="sky sho" title="sky sho"></a>
+                    <a href=""><img src="/static/img/tv/tv.png" alt="apple tv" title="apple tv"></a>
+                    <a href=""><img src="/static/img/tv/voyo.png" alt="voyo" title="voyo"></a>
                 </div>
             </div>
-        </div>-->
-
-        {% if request.user.is_superuser %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title">Přidat na hlavní stranu</h3>
-                <form method="post">
-                    {% csrf_token %}
-                    <button type="submit" name="add_to_metaindex" class="btn add-movie mt-2">
-                    Přidat na hlavní stránku
-                    </button>
-                </form>
-            </div>
         </div>
+
+        <!-- Přidat na hlavní stranu -->
+        {% if request.user.is_superuser %}
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Přidat na hlavní stranu</h3>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" name="add_to_metaindex" class="btn add-movie mt-2">
+                        Přidat na hlavní stránku
+                        </button>
+                    </form>
+                </div>
+            </div>
         {% endif %}
 
+        <!-- Upravit DIV Rating -->
         {% if request.user.is_superuser or request.user.is_staff %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title">Upravit DIV Rating</h3>
-                <form method="post">
-                    {% csrf_token %}
-                    {{ div_rating_form.as_p }}
-                    <button type="submit" name="update_divrating" class="btn add-movie">Uložit</button>
-                </form>
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Upravit DIV Rating</h3>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ div_rating_form.as_p }}
+                        <button type="submit" name="update_divrating" class="btn add-movie">Uložit</button>
+                    </form>
+                </div>
             </div>
-        </div>
         {% endif %}
 
         <!-- Universum -->
         {% if same_universe_movies %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title after-h3">
-                    Filmy ze světa <a href="/svet/{{ universum.universumurl }}">{{ universum.universumnamecz|default:universum.universumname }}</a>
-                </h3>
-                <div class="flex gap-1">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title after-h3">
+                        Filmy ze světa <a href="/svet/{{ universum.universumurl }}">{{ universum.universumnamecz|default:universum.universumname }}</a>
+                    </h3>
                     <ul class="list-group">
                         {% for movie in same_universe_movies %}
-                        <li class="list-group-item">
-                            <a href="{% url 'movie_detail' movie_url=movie.url %}">
-                                {{ movie.titlecz }} ({{ movie.releaseyear|default:"" }})
-                            </a>
-                        </li>
+                            <li class="list-group-item">
+                                <a href="{% url 'movie_detail' movie_url=movie.url %}">
+                                    {{ movie.titlecz }} ({{ movie.releaseyear|default:"" }})
+                                </a>
+                            </li>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
-        </div>
         {% endif %}
+
+        <!-- PREMIÉRA -->
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title after-h3">Premiéra</h3>
+                <div class="after last-line">
+                    <p>datum a distributor</p>
+                </div>
+            </div>
+        </div>
 
         <!-- SDÍLET NA SÍTÍCH -->
         <div class="card">
@@ -765,17 +745,17 @@
             </div>
         </div>
 
-        <!-- Tags -->
+        <!-- TAGS -->
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title after-h3">Tagy</h3>
                 <div class="tags">
                     {% for movie_genre in genres %}
-                    <span class="tag-detail label">
-                        <a href="https://div.cz/filmy/{{ movie_genre.genreid.url }}">{{ movie_genre.genreid.genrenamecz }}</a>
-                    </span> 
-                    {% if not forloop.last %} 
-                    {% endif %}
+                        <span class="tag-detail label">
+                            <a href="https://div.cz/filmy/{{ movie_genre.genreid.url }}">{{ movie_genre.genreid.genrenamecz }}</a>
+                        </span> 
+                        {% if not forloop.last %} 
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>
@@ -783,6 +763,38 @@
         
     </div>
 </div>
+
+<!--  -->
+<script>
+    document.querySelectorAll('.thumb-btn').forEach(btn => {
+        btn.addEventListener('click', async e => {
+            const block = e.target.closest('[data-quote-id]');
+            if (!block) return;
+            const id = block.dataset.quoteId;
+            const action = e.target.dataset.action;
+            try {
+            const r = await fetch(`/moviequote/${id}/rate/`, {
+                method: 'POST',
+                headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action })
+            });
+            const data = await r.json();
+            if (data.error) {
+                alert(data.error);
+            } else {
+                block.querySelector('[data-action="thumbsup"] span').textContent = data.thumbsup;
+                block.querySelector('[data-action="thumbsdown"] span').textContent = data.thumbsdown;
+                block.querySelector('.star-display span').textContent = data.divrating;
+            }
+            } catch (err) {
+                console.error('Fetch error:', err);
+            }
+        });
+    });
+</script>
 
 <!-- více, méně - zobrazit celý bio -->
 <script>

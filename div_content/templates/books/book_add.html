@@ -1,14 +1,12 @@
-<!-- templates/books/book_add.html -->
 {% extends "admin/base.html" %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
 
-
     <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <h1 class="mb-4">{{ page_title }}</h1>
+        <div class="side">
+            <h1 style="margin-bottom: 1rem; width: 100%;">{{ page_title }}</h1>
             
             {% if messages %}
                 {% for message in messages %}
@@ -19,7 +17,7 @@
                 {% endfor %}
             {% endif %}
             
-            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            <form method="post" enctype="multipart/form-data" novalidate>
                 {% csrf_token %}
                 
                 <div class="card">
@@ -28,7 +26,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="side">
                                 <div style="margin-bottom: .75rem;">
                                     <label for="{{ form.title.id_for_label }}" class="form-label">
                                         {{ form.title.label }}
@@ -41,7 +39,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="side">
                                 <div style="margin-bottom: .75rem;">
                                     <label for="{{ form.titlecz.id_for_label }}" class="form-label">
                                         {{ form.titlecz.label }}
@@ -63,13 +61,15 @@
                             {{ form.subtitle }}
                             {% if form.subtitle.errors %}
                                 <div>
-                                    {% for error in form.subtitle.errors %}{{ error }}{% endfor %}
+                                    {% for error in form.subtitle.errors %}
+                                        {{ error }}
+                                    {% endfor %}
                                 </div>
                             {% endif %}
                         </div>
                         
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="side">
                                 <div style="margin-bottom: .75rem;">
                                     <label for="{{ form.author.id_for_label }}" class="form-label">
                                         {{ form.author.label }}
@@ -77,12 +77,14 @@
                                     {{ form.author }}
                                     {% if form.author.errors %}
                                         <div>
-                                            {% for error in form.author.errors %}{{ error }}{% endfor %}
+                                            {% for error in form.author.errors %}
+                                                {{ error }}
+                                            {% endfor %}
                                         </div>
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="side">
                                 <div style="margin-bottom: .75rem;">
                                     <label for="{{ form.authorid.id_for_label }}" class="form-label">
                                         {{ form.authorid.label }}
@@ -98,7 +100,7 @@
                         </div>
                         
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="side">
                                 <div style="margin-bottom: .75rem;">
                                     <label for="{{ form.year.id_for_label }}" class="form-label">
                                         {{ form.year.label }}
@@ -106,12 +108,14 @@
                                     {{ form.year }}
                                     {% if form.year.errors %}
                                         <div>
-                                            {% for error in form.year.errors %}{{ error }}{% endfor %}
+                                            {% for error in form.year.errors %}
+                                                {{ error }}
+                                            {% endfor %}
                                         </div>
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="side">
                                 <div style="margin-bottom: .75rem;">
                                     <label for="{{ form.pages.id_for_label }}" class="form-label">
                                         {{ form.pages.label }}
@@ -119,12 +123,14 @@
                                     {{ form.pages }}
                                     {% if form.pages.errors %}
                                         <div>
-                                            {% for error in form.pages.errors %}{{ error }}{% endfor %}
+                                            {% for error in form.pages.errors %}
+                                                {{ error }}
+                                            {% endfor %}
                                         </div>
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="side">
                                 <div style="margin-bottom: .75rem;">
                                     <label for="{{ form.language.id_for_label }}" class="form-label">
                                         {{ form.language.label }}
@@ -132,7 +138,9 @@
                                     {{ form.language }}
                                     {% if form.language.errors %}
                                         <div>
-                                            {% for error in form.language.errors %}{{ error }}{% endfor %}
+                                            {% for error in form.language.errors %}
+                                                {{ error }}
+                                            {% endfor %}
                                         </div>
                                     {% endif %}
                                 </div>
@@ -146,7 +154,9 @@
                             {{ form.description }}
                             {% if form.description.errors %}
                                 <div>
-                                    {% for error in form.description.errors %}{{ error }}{% endfor %}
+                                    {% for error in form.description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
                                 </div>
                             {% endif %}
                         </div>
@@ -159,7 +169,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="side">
                                 <div style="margin-bottom: .75rem;">
                                     <label for="{{ form.genres.id_for_label }}" class="form-label">
                                         {{ form.genres.label }}
@@ -170,12 +180,14 @@
                                     </small>
                                     {% if form.genres.errors %}
                                         <div>
-                                            {% for error in form.genres.errors %}{{ error }}{% endfor %}
+                                            {% for error in form.genres.errors %}
+                                                {{ error }}
+                                            {% endfor %}
                                         </div>
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="side">
                                 <div style="margin-bottom: .75rem;">
                                     <label for="{{ form.publisher.id_for_label }}" class="form-label">
                                         {{ form.publisher.label }}
@@ -183,7 +195,9 @@
                                     {{ form.publisher }}
                                     {% if form.publisher.errors %}
                                         <div>
-                                            {% for error in form.publisher.errors %}{{ error }}{% endfor %}
+                                            {% for error in form.publisher.errors %}
+                                                {{ error }}
+                                            {% endfor %}
                                         </div>
                                     {% endif %}
                                 </div>
@@ -207,7 +221,9 @@
                             </small>
                             {% if form.cover_image.errors %}
                                 <div>
-                                    {% for error in form.cover_image.errors %}{{ error }}{% endfor %}
+                                    {% for error in form.cover_image.errors %}
+                                        {{ error }}
+                                    {% endfor %}
                                 </div>
                             {% endif %}
                         </div>
@@ -218,7 +234,7 @@
                     <button type="submit" class="btn add-book">
                         <i class="fas fa-save"></i> Uložit knihu
                     </button>
-                    <a href="{% url 'admin:index' %}" class="btn btn-secondary">
+                    <a href="{% url 'admin:index' %}" class="btn add-other">
                         <i class="fas fa-times"></i> Zrušit
                     </a>
                 </div>
@@ -226,6 +242,7 @@
         </div>
     </div>
 </div>
+
 
 <script>
     // Initialize Select2 for better UX (optional)

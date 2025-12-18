@@ -15,10 +15,6 @@
 
 {% block content %}
 
-<style>
-    
-</style>
-
 <div class="container">
     <!-- Levá strana -->
     <div class="left-side">
@@ -335,17 +331,18 @@
             <!-- RECENZE -->
             <div id="tab1" class="tab-list active">
                 <div class="">    
-                    <h3 class="after-h3">Recenze</h3> 
+                    <h3 class="card-title after-h3">Recenze</h3> 
                     {% if user.is_authenticated %}
-                    <h4>Přidat novou recenzi</h4>
-                    <form method="post" action="">
-                        {% csrf_token %}
-                        {{ comment_form.comment }}
-                        <button type="submit" class="btn add-movie">Vložit recenzi</button>
-                    </form>
-                    {% else %}
-                    <p>Pro komentování je nutné být <a href="/prihlaseni/">přihlášený</a>.<br>
-                    Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
+                        <h4>Přidat novou recenzi</h4>
+                        <form method="post" action="">
+                            {% csrf_token %}
+                            {{ comment_form.comment }}
+                            <button type="submit" class="btn add-movie">Vložit recenzi</button>
+                        </form>
+
+                        {% else %}
+                        <p>Pro komentování je nutné být <a href="/prihlaseni/">přihlášený</a>.<br>
+                        Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
                     {% endif %}
 
                     <!-- Výpis recenzí -->
@@ -391,7 +388,7 @@
 
             <!-- HRAJÍ -->
             <div id="tab2" class="tab-list">
-                <h3 class="after-h3">Informace o postavách seriálu</h3>
+                <h3 class="card-title after-h3">Informace o postavách seriálu</h3>
                 <div class="actors">
                 {% if actors_and_characters %}
                     {% for actor in actors_and_characters %}
@@ -430,7 +427,7 @@
 
             <!-- ZAJÍMAVOSTI -->
             <div id="tab3" class="tab-list">
-                <h3 class="after-h3">Zajímavosti ze seriálu</h3>
+                <h3 class="card-title after-h3">Zajímavosti ze seriálu</h3>
 
                 {% if user.is_authenticated %}
                 <h4>Přidat novou zajímavost</h4>
@@ -489,7 +486,7 @@
 
             <!-- TRAILER -->
             <div id="tab4" class="tab-list">
-                <h3 class="after-h3">Trailer</h3>
+                <h3 class="card-title after-h3">Trailer</h3>
                 {% if tvshow_trailer %}
                     <iframe style="width:100%; height:300px" src="https://www.youtube.com/embed/{{ tvshow_trailer.youtubeurl }}" frameborder="0" allowfullscreen></iframe>
                     {% else %}
@@ -514,7 +511,7 @@
 
             <!-- HLÁŠKY -->
             <div id="tab5" class="tab-list">
-                <h3 class="after-h3">Známé hlášky ze seriálu</h3>
+                <h3 class="card-title after-h3">Známé hlášky ze seriálu</h3>
                 <!-- přidat hlášku -->
                 {% if user.is_authenticated %}
                     <h4>Přidat novou hlášku</h4>
@@ -583,9 +580,9 @@
 
                     <div class="hvezdicky after">
                         {% ratings tvshow %}
-                        {% if user.is_authenticated %}
-                        {% else %}
-                        <p>Pro hodnocení je třeba se <a href="/prihlaseni/">Přihlásit!</a></p>
+                            {% if user.is_authenticated %}
+                            {% else %}
+                            <p>Pro hodnocení je třeba se <a href="/prihlaseni/">Přihlásit!</a></p>
                         {% endif %}
                     </div>
         
@@ -628,6 +625,32 @@
             </div>
         </div>
 
+        <!-- VOD -->
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title after-h3">VOD - Sledujte na</h3>
+                <div class="watching">
+                    <a href=""><img src="/static/img/tv/cool.png" alt="cool" title="cool"></a>
+                    <a href=""><img src="/static/img/tv/ct1.png" alt="čt 1" title="čt 1"></a>
+                    <a href=""><img src="/static/img/tv/disney.png" alt="dysney" title="dysney"></a>
+                    <a href=""><img src="/static/img/tv/hbo-max.png" alt="hbo max" title="hbo max"></a>
+                    <a href=""><img src="/static/img/tv/hbo.png" alt="hbo" title="hbo"></a>
+                    <a href=""><img src="/static/img/tv/lepsi-tv.png" alt="lepší tv" title="lepší tv"></a>
+                    <a href=""><img src="/static/img/tv/netflix.png" alt="netflix" title="netflix"></a>
+                    <a href=""><img src="/static/img/tv/nova-cinema.png" alt="nova cinema" title="nova cinema"></a>
+                    <a href=""><img src="/static/img/tv/nova.png" alt="nova" title="nova"></a>
+                    <a href=""><img src="/static/img/tv/o2tv.png" alt="o2 tv" title="o2 tv"></a>
+                    <a href=""><img src="/static/img/tv/prima.png" alt="prima" title="prima"></a>
+                    <a href=""><img src="/static/img/tv/prime-video.png" alt="prime video" title="prime video"></a>
+                    <a href=""><img src="/static/img/tv/seznam.png" alt="seznam" title="seznam"></a>
+                    <a href=""><img src="/static/img/tv/sky-sho.png" alt="sky sho" title="sky sho"></a>
+                    <a href=""><img src="/static/img/tv/tv.png" alt="apple tv" title="apple tv"></a>
+                    <a href=""><img src="/static/img/tv/voyo.png" alt="voyo" title="voyo"></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Přidat na hlavní stranu -->
         {% if request.user.is_superuser %}
         <div class="card">
             <div class="card-body">
@@ -642,19 +665,21 @@
         </div>
         {% endif %}
 
+        <!-- Upravit DIV Rating -->
         {% if request.user.is_superuser or request.user.is_staff %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title">Upravit DIV Rating</h3>
-                <form method="post">
-                    {% csrf_token %}
-                    {{ tvshow_div_rating_form.as_p }}
-                    <button type="submit" name="update_divrating" class="btn add-movie">Uložit</button>
-                </form>
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Upravit DIV Rating</h3>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ tvshow_div_rating_form.as_p }}
+                        <button type="submit" name="update_divrating" class="btn add-movie">Uložit</button>
+                    </form>
+                </div>
             </div>
-        </div>
         {% endif %}
 
+        <!-- SEZÓNY -->
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title after-h3">Sezóny</h3>

@@ -435,7 +435,31 @@ def movies(request, year=None, genre_url=None, movie_url=None):
     if year:
         movies = Movie.objects.filter(releaseyear=year).order_by('-divrating')
         movies_carousel = Movie.objects.filter(releaseyear=year,adult=0).order_by('-divrating').values('titlecz', 'url', 'img', 'description')[:3]
-        movies_list_30 = Movie.objects.filter(releaseyear=year,adult=0).order_by('-divrating').values('title', 'titlecz', 'url', 'img', 'description')[:30]
+
+        movie_content_type = ContentType.objects.get_for_model(Movie)
+        
+        movies_list_30 = Movie.objects.filter(
+            releaseyear=year,
+            adult=0
+        ).annotate(
+            average_rating=models.Subquery(
+                Rating.objects.filter(
+                    content_type=movie_content_type,
+                    object_id=models.OuterRef('movieid')
+                ).values('average')[:1]
+            )
+        ).order_by('-divrating').values(
+            'title',
+            'titlecz',
+            'url',
+            'img',
+            'description',
+            'average_rating'
+        )[:30]
+        
+        for movie in movies_list_30:
+            movie['average_rating'] = round(float(movie['average_rating']) * 20) if movie['average_rating'] else 0
+        
         return render(request, 'movies/movies_year.html', {
             'movies': movies, 
             'movies_carousel': movies_carousel, 
@@ -449,7 +473,29 @@ def movies(request, year=None, genre_url=None, movie_url=None):
         movies_carousel_genre = Metaindex.objects.filter(section='Movie').order_by('-indexid').values('title', 'url', 'img', 'description')[:3]
 
         #movies_list_30_genre = Movie.objects.filter(moviegenre__genreid=genre.genreid).values('title', 'titlecz', 'url', 'img', 'description')[:30]
-        movies_list_30_genre = Movie.objects.filter(moviegenre__genreid=genre.genreid).order_by('-divrating').values('title', 'titlecz', 'url', 'img', 'description', 'divrating')[:30]
+        movie_content_type = ContentType.objects.get_for_model(Movie)
+        
+        movies_list_30_genre = Movie.objects.filter(
+            moviegenre__genreid=genre.genreid
+        ).annotate(
+            average_rating=models.Subquery(
+                Rating.objects.filter(
+                    content_type=movie_content_type,
+                    object_id=models.OuterRef('movieid')
+                ).values('average')[:1]
+            )
+        ).order_by('-divrating').values(
+            'title',
+            'titlecz',
+            'url',
+            'img',
+            'description',
+            'average_rating'
+        )[:30]
+        
+        for movie in movies_list_30_genre:
+            movie['average_rating'] = round(float(movie['average_rating']) * 20) if movie['average_rating'] else 0
+        
 
         return render(request, 'movies/movies_genre.html', {
             'movies_for_genre': movies_for_genre, 

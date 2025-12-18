@@ -6,41 +6,124 @@
 
 {% block title %}{{ genre.genrenamecz  }} filmy na DIV.cz{% endblock %}
 
+{% block meta %}
+    <style>
+        .rating {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-top: 0;
+            margin-right: 0;
+            padding: 0;
+            box-shadow: 0px 8px 16px rgb(147 147 147);
+        }
+
+        .rating::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 44px;
+            height: 44px;
+            background: #444444;
+            border-radius: 50%;
+            z-index: 2;
+            margin: 0;
+        }
+
+        .rating::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50px;
+            height: 50px;
+            background: conic-gradient(
+                var(--gradient-color, #0a0) 0%,
+                var(--gradient-color, #0a0) var(--gradient-value, 50%),
+                #777777 var(--gradient-value, 50%)
+            );
+            border-radius: 50%;
+            z-index: 1;
+            margin: 0;
+        }
+
+        .rating-inner {
+            position: relative;
+            z-index: 3;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            /* margin-top: 10px;
+            margin-right: -10px; */
+        }
+
+        .rating-inner span {
+            font-size: 10px;
+            margin-left: 2px;
+            color: #ffd700;
+        }
+
+        .rating:is(.dark *) {
+            box-shadow: none;
+        }
+
+        .title-rating {
+            display: flex; 
+            justify-content: end; 
+            width: 100%; 
+            margin-top: -50px;
+        }
+
+    </style>
+{% endblock %}
+
 {% block content %}
 
 <div class="container">
     <h2 class="mb-4 px-4">Seznam filmů žánru: {{ genre.genrenamecz  }}</h2>
     <div class="row">
         <!-- LEVÁ STRANA -->
-        {% cache 86400 'genre_page' genre.id %}
         <div class="left-side">
             <!-- Seznam filmů -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div class="genre-list">
                 {% for movie in movies_list_30_genre %}
-                <div class="card card2">
-                    <div class="w-full h-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                    <div class="card">
                         <a href="/film/{{ movie.url }}">
                             {% if movie.img == "noimg.png" %}
-                            <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" class="card-img-top rounded-t-lg">
-                            {% else %}
-                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.img }}" alt="{{ movie.titlecz }}" class="card-img-top rounded-t-lg">
+                                <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" style="border-radius: .5rem .5rem 0 0;">
+                                {% else %}
+                                <img src="https://www.themoviedb.org/t/p/w400{{ movie.img }}" alt="{{ movie.titlecz }}" style="border-radius: .5rem .5rem 0 0;">
                             {% endif %}
                         </a>
-                        <!--<img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/{{ movie.img }}" class="card-img-top" alt="{{ movie.titlecz }}">-->
-                        <div class="card-body">
+                        
+                        <div class="card-body" style="border-radius: 0 0 .5rem .5rem !important;">
+                            <!-- hodnocení -->
+                            <div class="title-rating">
+                                <div class="rating" data-rating="{{ movie.average_rating }}">
+                                    <div class="rating-inner">
+                                        {{ movie.average_rating }}%
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <h4 class="card-title"><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></h4>
-                            <p class="card-text">{{ movie.description|safe|truncatewords:40 }}</p>
-                            <!--<a href="/film/{{ movie.url }}" class="btn btn-primary">{{ movie.title }}</a>-->
+                            <p class="card-text">{{ movie.description }}</p>
                         </div>
                     </div>
-                </div>
                 {% endfor %}
             </div>
         </div>
-        {% endcache %}
 
         <!-- Pravá strana -->
         <div class="right-side">
+            <!-- ŽÁNRY -->
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title after-h3">Žánry</h3>
@@ -68,6 +151,7 @@
                 </div>
             </div>
 
+            <!-- ROKY -->
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title after-h3">Roky</h3>
