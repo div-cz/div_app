@@ -1110,28 +1110,26 @@ def listing_detail_edit(request, book_url, listing_id):
 
         # Zpracování shipping options
         options = []
-        if request.POST.get("personal_pickup"):
+        
+        # Osobní převzetí
+        if request.POST.get("personal_pickup") or request.POST.get("new_personal_pickup"):
             options.append("OSOBNI:0")
         
-        # Pro div.cz (shipping_zasilkovna + shipping_zasilkovna_price)
-        if request.POST.get("shipping_zasilkovna"):
-            price = request.POST.get("shipping_zasilkovna_price", "89")
-            options.append(f"ZASILKOVNA:{price}")
-        
-        # Pro divkvariat.cz (enable_zasilkovna + shipping_zasilkovna jako cena)
+        # Zásilkovna
         if request.POST.get("enable_zasilkovna"):
             price = request.POST.get("shipping_zasilkovna", "89")
             options.append(f"ZASILKOVNA:{price}")
         
         # Balíkovna
-        if request.POST.get("shipping_balikovna") or request.POST.get("enable_balikovna"):
-            price = request.POST.get("shipping_balikovna_price") or request.POST.get("shipping_balikovna", "99")
+        if request.POST.get("enable_balikovna"):
+            price = request.POST.get("shipping_balikovna", "99")
             options.append(f"BALIKOVNA:{price}")
         
-        # Pošta
-        if request.POST.get("shipping_posta") or request.POST.get("enable_posta"):
-            price = request.POST.get("shipping_posta_price") or request.POST.get("shipping_posta", "109")
+        # Česká pošta
+        if request.POST.get("enable_posta"):
+            price = request.POST.get("shipping_posta", "109")
             options.append(f"POSTA:{price}")
+
         
         listing.shippingoptions = ",".join(options)
         listing.save()
