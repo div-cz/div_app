@@ -1181,7 +1181,7 @@ def listing_upload_image(request, listing_id):
     if request.method == "POST" and files:
         for img in request.FILES.getlist("images"):
             compressed = compress_image(img)
-            BookListingImage.objects.create(listing=listing, image=compressed)
+            Booklistingimage.objects.create(listing=listing, image=compressed)
 
         messages.success(request, "Fotografie byly nahrány.")
         return redirect("listing_detail_sell", book_url=listing.book.url, listing_id=listing.booklistingid)
@@ -1191,7 +1191,7 @@ def listing_upload_image(request, listing_id):
 
 @login_required
 def listing_delete_image(request, image_id):
-    image = get_object_or_404(BookListingImage, id=image_id, listing__user=request.user)
+    image = get_object_or_404(Booklistingimage, id=image_id, listing__user=request.user)
 
     listing = image.listing
     image.image.delete(save=False)
