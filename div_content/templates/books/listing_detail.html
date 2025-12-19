@@ -139,58 +139,20 @@
 {% endif %}
 
 {% if listing.user == user and listing.status == 'ACTIVE' %}
-<div class="mb-4">
-    <label class="font-bold">Přidat obrázek knihy:</label>
+<form method="post" enctype="multipart/form-data"
+      action="{% url 'listing_upload_image' listing.booklistingid %}"
+      class="mt-4">
 
-    <input type="file" id="uploadImageInput" accept="image/*" class="form-control mt-2">
+    {% csrf_token %}
 
-    <button onclick="uploadImage()" class="btn btn-primary mt-2">Nahrát</button>
+    <input type="file" name="images" multiple class="form-control mt-2">
 
-    <script>
-    function uploadImage() {
-        const file = document.getElementById("uploadImageInput").files[0];
-        if (!file) return alert("Vyberte soubor");
-
-        const formData = new FormData();
-        formData.append("image", file);
-
-        fetch("{% url 'listing_upload_image' listing_id=listing.booklistingid %}", {
-            method: "POST",
-            headers: { "X-CSRFToken": "{{ csrf_token }}" },
-            body: formData
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.url) location.reload();
-            else alert(data.error || "Chyba");
-        });
-    }
-    </script>
-</div>
+    <button type="submit" class="btn btn-primary mt-2">
+        Nahrát fotografie
+    </button>
+</form>
 {% endif %}
 
-
-{% for img in listing.images.all %}
-<div class="relative inline-block">
-    <img src="{{ img.image.url }}" style="max-width:130px;" class="rounded">
-    <button 
-        onclick="deleteImg({{ img.id }})"
-        class="absolute top-0 right-0 bg-red-600 text-white px-1 rounded">
-        ×
-    </button>
-</div>
-{% endfor %}
-
-<script>
-function deleteImg(id) {
-    fetch("/antikvariat/image/" + id + "/delete/", {
-        method: "POST",
-        headers: { "X-CSRFToken": "{{ csrf_token }}" }
-    })
-    .then(r => r.json())
-    .then(data => { if (data.success) location.reload(); });
-}
-</script>
 
 
 
