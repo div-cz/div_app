@@ -2,7 +2,7 @@
 {% load humanize %}
 {% load custom_filters %}
 
-{% block title %}{{ listing.get_listingtype_display }} {{ book.title }} | DIV.cz{% endblock %}
+{% block title %}{{ listing.get_listingtype_display }} {{ book.titlecz|default:book.title }} | DIV.cz{% endblock %}
 
 {% block meta %}
 
@@ -59,7 +59,7 @@
         {% endif %}
 
 
-{% if listing.user == user and listing.status == 'ACTIVE' %}
+{% if listing.status == 'ACTIVE' and listing.user == user %}
 <div class="d-flex justify-content-end mb-3"> 
     <a href="{% url 'listing_detail_edit' book_url=book.url listing_id=listing.booklistingid %}" 
        class="btn btn-primary">
@@ -111,22 +111,6 @@
         </div>
 
 
-<!-- ODESLAT KNIHU ALERT -->
-{% if listing.status in 'RESERVED PAID SHIPPED' and listing.user == user %}
-    {% if listing.shipping and listing.shipping > 0 and listing.shippingaddress %}
-    <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
-        <p class="font-medium">Knihu zašlete na adresu:</p>
-        <p>{{ listing.shippingaddress }}</p>
-    </div>
-    {% elif listing.shipping == 0 %}
-    <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
-        <p class="font-medium">Osobní odběr - domluvte se s kupujícím na předání knihy</p>
-        <p>Kontakt: {{ listing.buyer.email }}{% if buyer_phone %}, tel: {{ buyer_phone }}{% endif %}</p>
-    </div>
-    {% endif %}
-{% endif %}
-
-
 
 {% if listing.images.all %}
 <div class="mb-4 flex flex-wrap gap-2">
@@ -167,21 +151,72 @@
 
 
 
+{% if listing.status == 'RESERVED' and listing.user == user %}
+<div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021];">
+    <p class="font-medium">
+        Kniha byla rezervována – čekáme na zaplacení kupujícím.
+    </p>
+</div>
+{% endif %}
+
+{% if listing.status == 'RESERVED' and listing.buyer == user %}
+<div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]">
+    <p class="font-medium">
+        Rezervace byla vytvořena.
+    </p>
+    <p class="text-sm mt-1">
+        Pro dokončení rezervace prosím proveďte platbu – údaje najdete níže nebo v e-mailu.
+    </p>
+</div>
+{% endif %}
+
+
+<!-- ODESLAT KNIHU ALERT -->
+{% if listing.status == 'PAID' and listing.user == user %}
+    {% if listing.shipping and listing.shipping > 0 and listing.shippingaddress %}
+    <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]">
+        <p class="font-medium">Knihu zašlete na adresu:</p>
+        <p>{{ listing.shippingaddress }}</p>
+    </div>
+    {% elif listing.shipping == 0 %}
+    <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
+        <p class="font-medium">Osobní odběr - domluvte se s kupujícím na předání knihy</p>
+        <p>Kontakt: {{ listing.buyer.email }}{% if buyer_phone %}, tel: {{ buyer_phone }}{% endif %}</p>
+    </div>
+    {% endif %}
+{% endif %}
+<!-- pro kupujiho -->
+{% if listing.status == 'PAID' and listing.buyer == user %}
+    <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]">
+        <p class="font-medium">Čekáme na odeslání / předání knihy prodejcem.</p>
+    </div>
+{% endif %}
+
+{% if listing.status == 'SHIPPED' and listing.user == user %}
+<div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]">
+    <p class="font-medium">
+        Kniha byla odeslána. Čekáme na potvrzení převzetí kupujícím.
+    </p>
+</div>
+{% endif %}
+
+
 
         <!-- HODNOCENÍ ALERT -->
         {% if listing.status == 'COMPLETED' %}
             {% if listing.user == user and not listing.buyerrating %}
-            <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
+            <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]">
                 <p class="font-medium">Ohodnoťte prosím kupujícího a můžete přidat i krátký komentář.</p>
             </div>
             {% endif %}
 
             {% if listing.buyer == user and not listing.sellerrating %}
-            <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
+            <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]">
                 <p class="font-medium">Ohodnoťte prosím prodejce a klidně napište i krátký komentář.</p>
             </div>
             {% endif %}
         {% endif %}
+
 
         <div class="card box-shadow mb-4">
             <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
@@ -268,7 +303,7 @@
 
     <div>
         <span class="">Osobní převzetí: </span>
-        <span class="ml-2">{% if "OSOBNI" in listing.shippingoptions %}Ano{% else %}Ne{% endif %}</span>
+        <span class="ml-2">{% if listing.shippingoptions and "OSOBNI" in listing.shippingoptions %}Ano{% else %}Ne{% endif %}</span>
     </div>
 
 
@@ -351,9 +386,11 @@
 
                     <div class="form-group mt-3">
                         <label>
-                            <input type="checkbox" name="agree_terms" required>
+                            <input type="checkbox" name="agree_terms" required
+                            title="Pro pokračování je nutné souhlasit s podmínkami">
                             Souhlasím s předáním údajů (jméno, adresa, telefon) prodejci za účelem zaslání knihy 
-                            a se <a href="/podminky-pouziti" target="_blank">Podmínkami používání</a> 
+                            a a s tím, že nabídka může být zveřejněna také na platformě <a href="https://divkvariat.cz">DIVkvariat</a>. 
+                            Souhlasim s <a href="/podminky-pouziti" target="_blank">Podmínkami používání</a> 
                             a <a href="/ochrana-osobnich-udaju" target="_blank">Ochranou osobních údajů</a>.
                         </label>
                     </div>
@@ -471,43 +508,61 @@
         {% if listing.status == 'PAID' and user == listing.user %}
         <div class="my-5 p-4 rounded-1xl bg-[#cfefcf] dark:bg-[#4FB021] alert-{{ message.tags }}" role="alert">
         Kupující zaplatil knihu. Předejte/odešlete ji prosím kupujícímu. <br>
-            <form action="{% url 'confirm_shipping' book_url=book.url listing_id=listing.booklistingid %}" method="post">
-                {% csrf_token %}
-                <button type="submit" name="shipping_listing" class="add-book mt-4">
-                    Potvrdit předání knihy
-                </button>
-            </form>
+
+
+<form method="post" class="mt-4">
+    {% csrf_token %}
+    <button type="submit" name="shipping_listing" class="add-book mt-4">
+        Potvrdit odeslání / předání knihy
+    </button>
+</form>
+
+
         </div>
         {% endif %}
 
         <!-- POTVRZENÍ OBRDRŽENÍ KNIHY PAID -->
-        {% if listing.status == 'PAID' and listing.buyer == user %}
-        <div class="my-5 p-4 rounded-1xl bg-[#cfefcf] dark:bg-[#4FB021] alert-{{ message.tags }}" role="alert">
-            Čekáme na potvrzení, že prodejce poslal/předal knihu. <br>
-            Kontaktovat ho můžete přes <a href="{% url 'chat_message' listing.user.id %}" style="color:blue"> Chat <span style="color:blue">&#x2709;</span></a> 
-            <form action="{% url 'confirm_payment' book_url=book.url listing_id=listing.booklistingid %}" method="post">
-                {% csrf_token %}
-                <button type="submit" name="complete_listing" class="add-book mt-4">
-                    Potvrdit obdržení knihy
-                </button>
-            </form>
-        </div>
-        {% endif %}
+{% if listing.status == 'PAID' and listing.buyer == user %}
+<div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]">
+    <p>
+        Platba proběhla. Čekáme na odeslání nebo předání knihy prodejcem.<br>
+        Pokud jste si knihu již převzali (např. osobně), můžete obchod dokončit.
+    </p>
+
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        <button type="submit"
+                name="complete_listing"
+                class="add-book">
+            Potvrdit převzetí knihy
+        </button>
+    </form>
+</div>
+{% endif %}
+
 
         <!-- POTVRZENÍ OBRDRŽENÍ KNIHY SHIPPED -->
-        {% if listing.status == 'SHIPPED' and listing.buyer == user %}
-        <div class="my-5 p-4 rounded-1xl bg-[#cfefcf] dark:bg-[#4FB021] alert-{{ message.tags }}" role="alert">Prodejce již odeslal knihu, prosím potvrďte přijetí. <br>
-            <form action="{% url 'confirm_payment' book_url=book.url listing_id=listing.booklistingid %}" method="post">
-                {% csrf_token %}
-                <button type="submit" name="complete_listing" class="add-book mt-4">
-                    Potvrdit obdržení knihy
-                </button>
-            </form>
-        </div>
-        {% endif %}
- 
- 
-        {% if listing.status == 'RESERVED' or listing.status == 'PAID' or listing.status == 'SHIPPED' or listing.status == 'COMPLETED' and listing.buyer == user or listing.user == user %}
+{% if listing.status == 'SHIPPED' and listing.buyer == user %}
+<div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]">
+    <p>
+        Prodejce označil knihu jako odeslanou.  <br>
+        Po jejím převzetí prosím potvrďte dokončení obchodu.
+    </p>
+
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        <button type="submit"
+                name="complete_listing"
+                class="add-book">
+            Potvrdit převzetí knihy
+        </button>
+    </form>
+</div>
+{% endif %}
+
+
+
+        {% if listing.buyer == user or listing.user == user %}
         <div class="card box-shadow mb-4">
             <div class="card-body bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="text-xl font-semibold mb-4">Informace o procesu prodeje</h3>
@@ -576,7 +631,7 @@
 </div>
 {% endif %}
 
-			{% if user.is_authenticated %}
+            {% if user.is_authenticated %}
                 {% if can_cancel_reservation %}
                 <div class="mb-3 px-3">
                     <form method="post" action="{% url 'cancel_listing_reservation' listing_id=listing.booklistingid %}">
@@ -603,7 +658,7 @@
                     </form>
                 </div>
                 {% endif %} 
-			{% endif %}
+            {% endif %}
                 <!--{% if listing.buyer == user and listing.status == 'SHIPPED' or listing.status == 'PAID' %}
                     <form method="post">
                         {% csrf_token %}

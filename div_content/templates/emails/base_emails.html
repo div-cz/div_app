@@ -1,31 +1,70 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}DIV.cz / DIVkvariát{% endblock %}</title>
+</head>
 
-    <head>
-        <meta charset="utf-8">
-        <title>Email z DIV.CZ</title>
-    </head>
+<body style="margin:0;padding:0;background:#f4f4f4;">
 
-    <body>
+<div style="max-width:600px;margin:0 auto;background:#ffffff;">
 
-        <div style="display: flex; justify-content: center; margin-left:-10px; align-items: center; padding: 20px 0; background: linear-gradient(90deg, #003300 10%, #61872B 90%);">
-            <img src="https://ekultura.eu/img/div.cz.png" alt="DIV.CZ Ikona" style="width: 45px; vertical-align: middle;">
-            <h1 style="display: inline-block; margin: 0; padding-left: 10px; font-family: Arial, sans-serif; color: #ffffff;">DIV.CZ</h1>
+    <!-- HEADER -->
+    <div style="
+        padding:16px 20px;
+        background:linear-gradient(90deg,#003300 10%,#61872B 90%);
+        color:#ffffff;
+        font-family:Arial,sans-serif;
+    ">
+        <div style="font-size:20px;font-weight:bold;">
+            DIV.cz / DIVkvariát
         </div>
-
-        <div style="padding: 20px; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333;">
-            {% block content %}
-            {% endblock %}
+        <div style="font-size:12px;opacity:0.9;">
+            knižní tržiště platformy DIV.cz
         </div>
+    </div>
 
-        <!-- FOOTER -->
-        <div style="margin-left:-10px; text-align: center; padding: 15px 0; font-size: 12px; color: #ffffff; background: linear-gradient(90deg, #003300 10%, #61872B 90%);">
-            <p>Provozovatel je nezisková organizace eKultura</p>
-            <small><em>Doklad o platbě vystavíme na vyžádání: 
-                <a style="color: #8ebfff;" href="mailto:info@div.cz" target="_blank" rel="noopener">info@div.cz</a>
-            </em></small>
-            <p>&copy; {% now "Y" %} DIV.CZ. Všechna práva vyhrazena.</p>
-        </div>
+    <!-- CONTENT -->
+    <div style="
+        padding:20px;
+        font-family:Arial,sans-serif;
+        font-size:14px;
+        line-height:1.6;
+        color:#333;
+    ">
+        {% block content %}{% endblock %}
+    </div>
 
-    </body>
+    <!-- FOOTER -->
+    <div style="
+        padding:16px;
+        background:#1f2d1f;
+        color:#cfd8cf;
+        font-size:12px;
+        text-align:center;
+    ">
+        <p style="margin:0 0 6px 0;">
+            Provozovatel platformy: <strong>eKultura z. s.</strong>
+        </p>
+
+        <p style="margin:0 0 6px 0;">
+            Platforma: DIV.cz / DIVkvariát
+        </p>
+
+        <p style="margin:0;">
+            Kontakt:
+            <a href="mailto:info@div.cz"
+               style="color:#8ebfff;text-decoration:none;">
+               info@div.cz
+            </a>
+        </p>
+
+        <p style="margin-top:10px;font-size:11px;opacity:.7;">
+            © {% now "Y" %} eKultura
+        </p>
+    </div>
+
+</div>
+
+</body>
 </html>
