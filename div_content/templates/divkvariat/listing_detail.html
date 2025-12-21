@@ -83,7 +83,8 @@
             {% if listing.user == user and listing.status == 'ACTIVE' %}
             <div class="mb-6">
                 <a href="{% url 'listing_detail_edit' book_url=book.url listing_id=listing.booklistingid %}"
-                   class="px-4 py-2 border rounded-lg hover:bg-gray-100 text-gray-700">
+                   class="add-book "
+                   style="">
                     Upravit nabídku
                 </a>
             </div>
@@ -229,8 +230,13 @@
         {% csrf_token %}
 
         <input type="file" name="images" multiple
+               accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,image/avif"
                class="border rounded px-3 py-2 w-full">
 
+        <p class="text-sm text-gray-600 mt-1">
+            Podporované formáty: JPG, PNG, WebP, GIF, HEIC, HEIF, AVIF
+        </p>
+        
         <button type="submit"
                 class="add-book mt-3">
             Nahrát fotografie
@@ -702,7 +708,7 @@
                         {% csrf_token %}
                         <button type="submit"
                                 onclick="return confirm('Opravdu chcete zrušit svou nabídku?');"
-                                class="add-book">
+                                class="add-book" style="background-color:red">
                             Zrušit mou nabídku
                         </button>
                     </form>

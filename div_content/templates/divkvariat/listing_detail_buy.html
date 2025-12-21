@@ -1,0 +1,141 @@
+{% extends "divkvariat/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+    {{ listing.book.titlecz|default:listing.book.title }} – poptávka knihy | DIVkvariát
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+
+    <!-- TITULEK -->
+    <h1 class="text-3xl font-bold mb-1">
+        {{ listing.book.titlecz|default:listing.book.title }}
+    </h1>
+
+    <p class="text-gray-600 mb-4">
+        {{ listing.book.author }}
+        {% if listing.editionyear %} · {{ listing.editionyear }}{% endif %}
+    </p>
+
+    <!--  =======================
+       STAVOVÝ BOX – CANCELLED
+       ======================= -->
+    {% if listing.status == 'CANCELLED' %}
+    <div class="my-5 p-4 rounded-lg bg-gray-100 border border-gray-300">
+        <p class="font-semibold mb-1">
+            Tato poptávka již není aktivní
+        </p>
+        <p class="text-sm text-gray-700">
+            Poptávka byla ukončena dne {{ listing.updatedat|date:"j. n. Y" }}.
+        </p>
+    </div>
+    {% else %}
+
+    <!-- =======================
+       INFO BOX – AKTIVNÍ POPTÁVKA
+       ======================= -->
+    <div class="my-5 p-4 rounded-lg bg-green-50 border border-green-300">
+        <p class="font-semibold mb-1">
+            Poptávka – tato kniha je právě sháněná
+        </p>
+
+        <p class="text-sm text-gray-700">
+            {% if user.is_authenticated and user == listing.user %}
+                <strong>Toto je vaše poptávka.</strong>
+            {% else %}
+                Poptává: <strong>{{ listing.user.username }}</strong>
+            {% endif %}
+            · Vloženo: {{ listing.createdat|date:"j. n. Y" }}
+        </p>
+
+        {% if listing.price %}
+        <p class="text-sm mt-2">
+            <strong>Maximální cena:</strong> {{ listing.price|floatformat:0 }} Kč
+        </p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- KNIHA / OBÁLKA + POPIS -->
+    <div class="flex flex-col md:flex-row gap-6 mb-8">
+
+        <div class="shrink-0">
+            {% if listing.book.img == "noimg.png" %}
+                <img src="/static/img/book/book.png" class="w-40 rounded shadow" alt="Obálka knihy">
+            {% elif listing.book.img == "GoogleID" %}
+                <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1"
+                     class="w-40 rounded shadow" alt="Obálka knihy">
+            {% else %}
+                <img src="https://media.div.cz/knihy/{{ listing.book.img }}"
+                     class="w-40 rounded shadow" alt="Obálka knihy">
+            {% endif %}
+        </div>
+
+        <div>
+            {% if listing.description %}
+                <h2 class="text-xl font-semibold mb-2">
+                    {% if listing.status == 'CANCELLED' %}
+                        Poznámka k původní poptávce
+                    {% else %}
+                        Poznámka k poptávce
+                    {% endif %}
+                </h2>
+                <p class="text-gray-700">
+                    {{ listing.description }}
+                </p>
+            {% else %}
+                <p class="text-gray-600">
+                    Bez doplňující poznámky.
+                </p>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- =======================
+       AKČNÍ BLOK – JEN KDYŽ NENÍ CANCELLED
+       ======================= -->
+    {% if listing.status != 'CANCELLED' %}
+    <div class="mt-10 p-4 rounded-lg bg-green-50 border border-green-300">
+
+        {% if not user.is_authenticated %}
+            <p class="font-semibold mb-2">Máte tuto knihu?</p>
+            <p class="text-sm text-gray-700 mb-3">
+                Pro vytvoření nabídky se prosím přihlaste.
+            </p>
+            <a href="/prihlaseni/" class="add-book">
+                Přihlásit se
+            </a>
+
+        {% elif user == listing.user %}
+            <p class="font-semibold mb-2">Toto je vaše poptávka</p>
+            <p class="text-sm text-gray-700 mb-3">
+                Pokud už knihu nehledáte, můžete poptávku zrušit.
+            </p>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit"
+                        name="cancel_buy"
+                        class="text-red-700 underline"
+                        onclick="return confirm('Opravdu chcete zrušit tuto poptávku?');">
+                    Zrušit poptávku
+                </button>
+            </form>
+
+        {% else %}
+            <p class="font-semibold mb-2">Máte tuto knihu?</p>
+            <p class="text-sm text-gray-700 mb-3">
+                Vytvořte nabídku a poptávající ji uvidí v seznamu nabídek a dostane upozornění na e-mail.
+            </p>
+            <a href="/pridat-knihu/?book_id={{ listing.book.bookid }}" class="add-book">
+                Vytvořit nabídku
+            </a>
+        {% endif %}
+
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

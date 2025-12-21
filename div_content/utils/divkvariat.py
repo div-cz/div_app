@@ -9,6 +9,8 @@
 import time
 from PIL import Image, ExifTags
 from django.core.files.base import ContentFile
+from django.shortcuts import render
+
 from io import BytesIO
 import time
 
@@ -75,6 +77,11 @@ def compress_image(image_file, max_kb=400, max_width=1600):
         img.save(buffer, format="JPEG", optimize=True, quality=quality)
 
     return ContentFile(buffer.getvalue(), name=image_file.name)
+
+
+
+
+
 
 
 

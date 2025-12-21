@@ -236,7 +236,12 @@ def chatbot_api(request):
 # -------------------------------------------------------------------
 def book_detail_cz(request, book_url):
 
-    book = get_object_or_404(Book, url=book_url)
+    #book = get_object_or_404(Book, url=book_url)
+    # New 404
+    book = Book.objects.filter(url=book_url).first()
+    if not book:
+        return render(request, "divkvariat/404.html", status=404)
+
 
     # --- Aktivní nabídky a poptávky ---
     listings = Booklisting.objects.filter(book=book, active=True)
@@ -276,7 +281,11 @@ def book_detail_cz(request, book_url):
 # -------------------------------------------------------------------
 def author_detail_cz(request, author_url):
 
-    author = get_object_or_404(Bookauthor, url=author_url)
+    #author = get_object_or_404(Bookauthor, url=author_url)
+    # New 404
+    author = Bookauthor.objects.filter(url=author_url).first()
+    if not author:
+        return render(request, "divkvariat/404.html", status=404)
 
     # ID knih od autora
     book_ids = Bookwriters.objects.filter(author=author).values_list('book', flat=True)
@@ -1047,7 +1056,13 @@ def listing_detail(request, book_url, listing_id):
         sorted_options = paid_options + personal_options
         listing.shippingoptions = ",".join(sorted_options)
 
-    return render(request, 'divkvariat/listing_detail.html', {
+
+    template = "divkvariat/listing_detail.html"
+    if listing.listingtype == "BUY":
+        template = "divkvariat/listing_detail_buy.html"
+
+
+    return render(request, template, {
         'book': book,
         'listing': listing,
         'payment_info': payment_info,
