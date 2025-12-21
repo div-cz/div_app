@@ -668,23 +668,32 @@ def confirm_sale(request, purchase_id):
 # -------------------------------------------------------------------
 #                    CANCEL SELL
 # -------------------------------------------------------------------
+@require_POST
 @login_required
 def cancel_sell(request, listing_id):
-    listing_to_cancel = get_object_or_404(Booklisting, booklistingid=listing_id, user=request.user)
+    listing_to_cancel = get_object_or_404(
+        Booklisting,
+        booklistingid=listing_id,
+        user=request.user
+    )
 
-    if request.method == "POST":
-        if listing_to_cancel.status == 'ACTIVE' or listing_to_cancel.status == 'RESERVED':
-            #listing_to_cancel.delete()
-            listing_to_cancel.status = 'CANCELLED'
-            listing_to_cancel.save()
-            messages.success(request, f'Vaše nabídka knihy "{listing_to_cancel.book.titlecz}" byla úspěšně smazána.')
-            return redirect('antikvariat_home')
-        else:
-            messages.error(request, 'Tuto nabídku nelze smazat v aktuálním stavu.')
-            return redirect('antikvariat_home')
+    if listing_to_cancel.status in ['ACTIVE', 'RESERVED']:
+        listing_to_cancel.status = 'CANCELLED'
+        listing_to_cancel.active = False
+        listing_to_cancel.save()
 
-    return render(request, "divkvariat/market_cancel_offer.html", {"listing_offer": listing_to_cancel})
+        messages.success(
+            request,
+            f'Vaše nabídka knihy „{listing_to_cancel.book.titlecz}“ byla úspěšně zrušena.'
+        )
+    else:
+        messages.error(
+            request,
+            'Tuto nabídku nelze zrušit v aktuálním stavu.'
+        )
 
+    # návrat tam, odkud přišel
+    return redirect(request.META.get("HTTP_REFERER", "antikvariat_home"))
 
 # -------------------------------------------------------------------
 #                    GET BOOK PRICE

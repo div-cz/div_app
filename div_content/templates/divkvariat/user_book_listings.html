@@ -164,13 +164,17 @@
                         Detail
                     </a>
 
-                    {% if listing.status == "ACTIVE" %}
-                    <a href="{% url 'cancel_sell' listing.booklistingid %}"
-                       class="text-red-600 hover:underline"
-                       onclick="return confirm('Opravdu chcete zrušit tuto nabídku?')">
-                        Zrušit
-                    </a>
-                    {% endif %}
+{% if listing.status == "ACTIVE" %}
+<button type="submit"
+        formaction="{% url 'cancel_sell' listing.booklistingid %}"
+        formmethod="post"
+        onclick="return confirm('Opravdu chcete smazat tuto nabídku?');"
+        class="text-red-600 hover:underline bg-transparent p-0">
+    {% csrf_token %}
+    Smazat
+</button>
+{% endif %}
+
                 </div>
 
             </div>
@@ -187,7 +191,7 @@
             <button type="submit" name="action" value="cancel"
                     class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                     onclick="return confirm('Opravdu chcete zrušit vybrané nabídky?')">
-                🗑️ Zrušit vybrané
+                🗑️ Smazat vybrané inzeráty
             </button>
 
             <span class="text-sm text-gray-600 ml-auto">
