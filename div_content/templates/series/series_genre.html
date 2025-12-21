@@ -6,7 +6,6 @@
 {% block title %}{{ movie.titlecz }} ({{ genre.genrenamecz }}) | DIV.cz{% endblock %}
 
 {% block meta %}
-
     <style>
         .rating {
             position: relative;
@@ -87,42 +86,43 @@
 {% block content %}
         
 <div class="container">
-    <h2 class="mb-4 px-4">Seznam seriálů - {{ genre.genrenamecz }}</h2>
+    <h2>Seznam seriálů - {{ genre.genrenamecz }}</h2>
     <div class="row">
         <!-- LEVÁ STRANA -->
         <div class="left-side">
             <!-- Seznam seriálů -->
             <div class="genre-list">
                 {% for tvshow in tvshows %}
-                <div class="card">
-                    <a href="/serial/{{ tvshow.url }}">
-                        {% if tvshow.img == "noimg.png" %}
-                            <img src="/static/img/nomovie_400.jpg" alt="{{ tvshow.titlecz }}" style="border-radius: .5rem .5rem 0 0;">
-                            {% else %}
-                            <img src="https://www.themoviedb.org/t/p/w400{{ tvshow.img }}" alt="{{ tvshow.titlecz }}" style="border-radius: .5rem .5rem 0 0;">
-                        {% endif %}
-                    </a>
+                    <div class="card">
+                        <a href="/serial/{{ tvshow.url }}">
+                            {% if tvshow.img == "noimg.png" %}
+                                <img src="/static/img/movie/w400/nomovie.jpg" alt="{{ tvshow.titlecz }}" style="border-radius: .5rem .5rem 0 0;">
+                                {% else %}
+                                <img src="https://www.themoviedb.org/t/p/w400{{ tvshow.img }}" alt="{{ tvshow.titlecz }}" style="border-radius: .5rem .5rem 0 0;">
+                            {% endif %}
+                        </a>
 
-                    <div class="card-body" style="border-radius: 0 0 .5rem .5rem !important;">
-                        <!-- hodnocení -->
-                        <div class="title-rating">
-                            <div class="rating" data-rating="{{ tvshow.average_rating }}">
-                                <div class="rating-inner">
-                                    {{ tvshow.average_rating }}%
+                        <div class="card-body" style="border-radius: 0 0 .5rem .5rem !important;">
+                            <!-- hodnocení -->
+                            <div class="title-rating">
+                                <div class="rating" data-rating="{{ tvshow.average_rating }}">
+                                    <div class="rating-inner">
+                                        {{ tvshow.average_rating }}%
+                                    </div>
                                 </div>
                             </div>
+                            
+                            <h5 class="card-title"><a href="/serial/{{ tvshow.url }}">{{ tvshow.titlecz }}</a></h5>
+                            <p class="card-text">{{ tvshow.description|safe|truncatewords:40 }}</p>
                         </div>
-                        
-                        <h5 class="card-title"><a href="/serial/{{ tvshow.url }}">{{ tvshow.titlecz }}</a></h5>
-                        <p class="card-text">{{ tvshow.description|safe|truncatewords:40 }}</p>
                     </div>
-                </div>
                 {% endfor %}
             </div>
         </div>
 
         <!-- Pravá strana -->
         <div class="right-side">
+            <!-- ŽÁNRY -->
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title after-h3">Žánry</h3>

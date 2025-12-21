@@ -159,51 +159,51 @@
         <div style="margin-bottom: 1rem;">
             <div class="generating-books">
                 {% for book in book_list_15 %} 
-                <div class="book-card">
-                    <a href="/kniha/{{ book.url }}" style="width: 130px;">
-                        {% if book.img == "noimg.png" %}
-                            <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
-                            <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz|default:book.title }}" style="height: 100%;">
-                            {% elif book.img == "GoogleID" %}
-                            <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
-                            <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}" style="height: 100%;">
-                            {% else %}
-                            <!-- Jinak zobraz vlastní nahraný obrázek -->
-                            <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" style="height: 100%;">
-                        {% endif %}   
-                    </a>
+                    <div class="book-card">
+                        <a href="/kniha/{{ book.url }}" style="width: 130px;">
+                            {% if book.img == "noimg.png" %}
+                                <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
+                                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz|default:book.title }}" style="height: 100%;">
+                                {% elif book.img == "GoogleID" %}
+                                <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
+                                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}" style="height: 100%;">
+                                {% else %}
+                                <!-- Jinak zobraz vlastní nahraný obrázek -->
+                                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" style="height: 100%;">
+                            {% endif %}   
+                        </a>
 
-                    <div class="card-body" style="width: min-content;">
-                        <div class="card-header">
-                            <div>
-                                <h4>
-                                    <a href="/kniha/{{ book.url }}">
-                                    {{ book.titlecz|default:book.title }}
-                                    </a>
-                                </h4>
-                                <h4>
-                                    {% if book.authorid and book.authorid.url %}
-                                        <a href="{% url 'author_detail' author_url=book.authorid.url %}">{{ book.author }}</a>
-                                    {% else %}
-                                        {{ book.author }}
-                                    {% endif %}
-                                </h4>
-                            </div>
+                        <div class="card-body" style="width: min-content;">
+                            <div class="card-header">
+                                <div>
+                                    <h4>
+                                        <a href="/kniha/{{ book.url }}">
+                                        {{ book.titlecz|default:book.title }}
+                                        </a>
+                                    </h4>
+                                    <h4>
+                                        {% if book.authorid and book.authorid.url %}
+                                            <a href="{% url 'author_detail' author_url=book.authorid.url %}">{{ book.author }}</a>
+                                        {% else %}
+                                            {{ book.author }}
+                                        {% endif %}
+                                    </h4>
+                                </div>
 
-                            <!-- hodnocení -->
-                            <div style="display: flex; width: 50px;">
-                                <div class="rating" data-rating="{{ book.average_rating }}">
-                                    <div class="rating-inner">
-                                        {{ book.average_rating }}%
+                                <!-- hodnocení -->
+                                <div style="display: flex; width: 50px;">
+                                    <div class="rating" data-rating="{{ book.average_rating }}">
+                                        <div class="rating-inner">
+                                            {{ book.average_rating }}%
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            <p class="card-text">{{ book.description|default_if_none:""|safe|truncatewords:40 }}</p>
+                            
                         </div>
-                        <p class="card-text">{{ book.description|default_if_none:""|safe|truncatewords:40 }}</p>
-                        
                     </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
             </div>
         </div>
 
@@ -213,46 +213,43 @@
                 <div class="card-title after-h3">
                     <h3>Poslední knižní recenze</h3><a href="/knihy/"><small>Zobrazit vše</small></a>
                 </div>
-                <div class="after last-line">   
-                    {% if latest_comments %} 
-                        {% for comment in latest_comments %}  
-                            <div class="flex mb-3"> 
-                                <div class="mr-4 flex" style="width:100px; max-width:100px; flex-shrink:0;"> 
-                                    {% if comment.bookid.img == "noimg.png" %} 
-                                        <img src="/static/img/book/book.png" alt="Kniha {{ comment.bookid.titlecz }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
-                                    {% elif comment.bookid.img == "GoogleID" %}
-                                        <img src="https://books.google.com/books/content?id={{ comment.bookid.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ comment.bookid.titlecz }}" class="img-fluid" style="object-fit: cover; max-width: 200px;">
-                                    {% else %}
-                                        <img src="https://media.div.cz/knihy/{{ comment.bookid.img }}" alt="{{ comment.bookid.titlecz }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
-                                    {% endif %}
-                                </div>         
-                    
-                                <div class="flex flex-wrap content-between ml-2" style="flex: 2;">
-                                    <div class="flex flex-wrap">
-                                        <a class="w-full font-semibold" href="{% url 'book_detail' comment.bookid.url %}#recenze">{{ comment.bookid.titlecz|default:comment.bookid.title }}</a>
-                                        <p class="w-full text-sm">{{ comment.comment|truncatewords:30 }}</p>
-                                    </div>
-                                    
-                                    <div class="w-full flex justify-end" style="font-size: small;">
-                                        <p>Uživatel:
+  
+                {% if latest_comments %} 
+                    {% for comment in latest_comments %}  
+                        <div class="last-review">  
+                            {% if comment.bookid.img == "noimg.png" %} 
+                                <img src="/static/img/book/book.png" alt="Kniha {{ comment.bookid.titlecz }}" class="img-fluid" style="object-fit: cover; max-width: 100px; margin-right: .5rem;">
+                                {% elif comment.bookid.img == "GoogleID" %}
+                                <img src="https://books.google.com/books/content?id={{ comment.bookid.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ comment.bookid.titlecz }}" class="img-fluid" style="object-fit: cover; max-width: 100px; margin-right: .5rem;">
+                                {% else %}
+                                <img src="https://media.div.cz/knihy/{{ comment.bookid.img }}" alt="{{ comment.bookid.titlecz }}" class="img-fluid" style="object-fit: cover; max-width: 100px; margin-right: .5rem;">
+                            {% endif %}        
+                
+                            <div class="last-review-body">
+                                <div class="last-review-title">
+                                    <a href="{% url 'book_detail' comment.bookid.url %}#recenze">{{ comment.bookid.titlecz|default:comment.bookid.title }}</a>
+                                    <p class="last-review-text">{{ comment.comment|truncatewords:30 }}</p>
+                                </div>
+                                
+                                <div class="last-review-user">
+                                    <p>Uživatel:
                                         {% if comment.user %}
                                             <a href="/uzivatel/{{ comment.user.id }}/">{{ comment.user.username }}</a>
-                                        </p> 
                                         {% endif %}
-                                        <span class="ml-1">| {{ comment.dateadded|date:"d.m.Y H:i" }}</span>
-                                    </div>
-                                </div> 
-                            </div>
+                                    </p> 
+                                    <span>{{ comment.dateadded|date:"d.m.Y H:i" }}</span>
+                                </div>
+                            </div> 
+                        </div>
 
-                            {% if not forloop.last %}
-                                <hr class="my-3">
-                            {% endif %}
-                        {% endfor %} 
-                        
-                        {% else %}
-                        <p>Zatím žádné recenze od komunity.</p>
-                    {% endif %}
-                </div>
+                        {% if not forloop.last %}
+                            <hr style="margin: .75rem 0;">
+                        {% endif %}
+                    {% endfor %} 
+                    
+                    {% else %}
+                    <p>Zatím žádné recenze od komunity.</p>
+                {% endif %}
             </div>
         </div>
     </div>

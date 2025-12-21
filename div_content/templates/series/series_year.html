@@ -87,7 +87,7 @@
 {% block content %}
 
 <div class="container">
-    <h2 class="mb-4 px-4">Seznam seriálů z roku {{ year }}</h2>
+    <h2>Seznam seriálů z roku {{ year }}</h2>
     <div class="row">
         <!-- LEVÁ STRANA -->
         <div class="left-side">
@@ -97,11 +97,10 @@
                     <div class="card">
                         <a href="/serial/{{ tvshow.url }}">
                             {% if tvshow.img == "noimg.png" %}
-                                <img src="/static/img/nomovie_400.jpg" alt="{{ tvshow.titlecz }}" style="border-radius: .5rem .5rem 0 0;">
+                                <img src="/static/img/movie/w400/nomovie.jpg" alt="{{ tvshow.titlecz }}" style="border-radius: .5rem .5rem 0 0;">
                                 {% else %}
                                 <img src="https://www.themoviedb.org/t/p/w400{{ tvshow.img }}" alt="{{ tvshow.titlecz }}" style="border-radius: .5rem .5rem 0 0;">
                             {% endif %}
-
                         </a>
                         
                         <div class="card-body" style="border-radius: 0 0 .5rem .5rem !important;">
@@ -114,7 +113,9 @@
                                 </div>
                             </div>
                             
-                            <h5 class="card-title"><a href="/serial/{{ tvshow.url }}">{{ tvshow.titlecz }}</a></h5>
+                            <h4 class="card-title">
+                                <a href="/serial/{{ tvshow.url }}">{{ tvshow.titlecz }}</a>
+                            </h4>
                             <p class="card-text">{{ tvshow.description|safe|truncatewords:40 }}</p>
                         </div>
                     </div>
@@ -124,6 +125,7 @@
 
         <!-- Pravá strana-->
         <div class="right-side">
+            <!-- ŽÁNRY -->
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title after-h3">Žánry</h3>

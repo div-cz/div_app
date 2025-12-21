@@ -137,48 +137,40 @@
                     <h3 class="font-bold">Poslední filmové recenze</h3><a href="/filmy/"><small>Zobrazit filmy</small></a>
                 </div>
 
-                <div class="after last-line">
-                    {% if latest_comments %} 
-                        {% for comment in latest_comments %} 
-                            <div class="flex mb-3">
-                                <div class="mr-4 flex" style="width:100px; max-width:100px; flex-shrink:0;"> 
-                                    {% if comment.movieid.imgposter == "noimg.png" %}
-                                        {% if comment.movieid.img == "noimg.png" %}
-                                            <img src="/static/img/movie/w200/noimg.jpg" alt="{{ comment.movieid.titlecz|default:'Neznámý film' }}" class="img-fluid" style="object-fit: cover; max-width: 100px; height: 150px;"> 
-                                        {% else %}
-                                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ comment.movieid.img }}" alt="{{ comment.movieid.titlecz|default:'Neznámý film' }}" class="img-fluid" style="object-fit: cover; max-width: 100px; height: 150px;"> 
-                                        {% endif %}
-                                        {% else %}
-                                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ comment.movieid.imgposter }}" alt="{{ comment.movieid.titlecz|default:'Neznámý film' }}" class="img-fluid" style="object-fit: cover; max-width: 100px; height: 150px;"> 
-                                    {% endif %}
+                {% if latest_comments %} 
+                    {% for comment in latest_comments %} 
+                        <div class="last-review"> 
+                            {% if comment.movieid.imgposter == "noimg.png" %}
+                                <img src="/static/img/movie/w200/noimg.jpg" alt="{{ comment.movieid.titlecz|default:'Neznámý film' }}" class="img-fluid" style="object-fit: cover; max-width: 100px; height: fit-content; margin-right: .5rem;"> 
+                                {% else %}
+                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ comment.movieid.imgposter }}" alt="{{ comment.movieid.titlecz|default:'Neznámý film' }}" class="img-fluid" style="object-fit: cover; max-width: 100px; height: fit-content; margin-right: .5rem;"> 
+                            {% endif %}
+                            
+                            <div class="last-review-body">
+                                <div class="last-review-title">
+                                    <a href="{% url 'movie_detail' comment.movieid.url %}">{{ comment.movieid.titlecz }}</a>
+                                    <p class="last-review-text">{{ comment.comment|truncatewords:30 }}</p>
                                 </div>
                                 
-                                <div class="flex flex-wrap content-between ml-2" style="flex: 2;">
-                                    <div class="flex flex-wrap">
-                                        <a class="w-full font-semibold" href="{% url 'movie_detail' comment.movieid.url %}">{{ comment.movieid.titlecz }}</a>
-                                        <p class="w-full text-sm">{{ comment.comment|truncatewords:30 }}</p>
-                                    </div>
-                                    
-                                    <div class="w-full flex justify-end" style="font-size: small;">
-                                        <p>Uživatel:
-                                            {% if comment.user %}
-                                                <a href="/uzivatel/{{ comment.user.id }}/">{{ comment.user.username }}</a>
-                                            {% endif %}
-                                        </p>
-                                        <span style="margin-left: .25rem;">| {{ comment.dateadded|date:"d.m.Y H:i" }}</span>
-                                    </div>
+                                <div class="last-review-user">
+                                    <p>Uživatel:
+                                        {% if comment.user %}
+                                            <a href="/uzivatel/{{ comment.user.id }}/">{{ comment.user.username }}</a>
+                                        {% endif %}
+                                    </p>
+                                    <span style="margin-left: .25rem;">{{ comment.dateadded|date:"d.m.Y H:i" }}</span>
                                 </div>
                             </div>
+                        </div>
 
-                            {% if not forloop.last %}
-                                <hr style="margin: .75rem 0;">
-                            {% endif %}
-                        {% endfor %}
-                        
-                        {% else %}
-                        <p>Zatím žádné recenze od komunity.</p>
-                    {% endif %}
-                </div>
+                        {% if not forloop.last %}
+                            <hr style="margin: .75rem 0;">
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% else %}
+                    <p>Zatím žádné recenze od komunity.</p>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -402,10 +394,18 @@
         <!-- STATISTIKY -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">V databázi máme:</h3>
+                <h3 class="card-title after-h3">Filmové statistiky DIV</h3>
                 <ul>
-                    <li>{{ stats_movie.value|intcomma }} filmů</li>
-                    <li>{{ stats_moviecomments.value|intcomma }} filmových komentářů</li>
+                    <li>&#127902; Filmy: 1 297 858</li>
+                    <hr>
+                    <li>&#11088; Hodnocení filmů: 213</li>
+                    <hr>
+                    <li>&#128161; Filmové zajímavosti: 107</li>
+                    <li>&#128172; Filmové hlášky: 70</li>
+                    <li>&#128030; Filmové chyby: 10</li>
+                    <hr>
+                    <li>&#129333; Tvůrci: 4 627 637</li>
+                    <li>&#129497; Postavy: 3 280 040</li>
                 </ul>
             </div>
         </div>

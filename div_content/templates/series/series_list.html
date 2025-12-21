@@ -130,46 +130,45 @@
         <!-- Poslední seriálové recenze -->
         <div class="card">
             <div class="card-body">
-                <div class="flex flex-wrap justify-between card-title after-h3">
+                <div class="card-title after-h3">
                     <h3>Poslední seriálové recenze</h3>
                     <a href=""><small>Zobrazit vše</small></a> 
                 </div>
-                <div>
+
                 {% if latest_comments %}
                     {% for comment in latest_comments %}  
-                    <div class="flex mb-3"> 
-                        <div class="mr-4 flex" style="width:100px; max-width:100px; flex-shrink:0;"> 
+                        <div class="last-review"> 
                             {% if comment.tvshowkid.imgposter == "noimg.png" %}
-                            <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ comment.tvshowkid.titlecz }}" class="img-fluid" style="object-fit: cover; max-width: 200px; height: fit-content;">
-                            {% else %}
-                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ comment.tvshowkid.imgposter }}" alt="{{ comment.tvshowkid.titlecz }}" class="img-fluid" style="object-fit: cover; max-width: 200px; height: fit-content;">
+                                <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ comment.tvshowkid.titlecz }}" class="img-fluid" style="object-fit: cover; max-width: 100px; height: fit-content; margin-right: .5rem;">
+                                {% else %}
+                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ comment.tvshowkid.imgposter }}" alt="{{ comment.tvshowkid.titlecz }}" class="img-fluid" style="object-fit: cover; max-width: 100px; height: fit-content; margin-right: .5rem;">
                             {% endif %}
-                        </div>
-            
-                        <div class="flex flex-wrap content-between ml-2" style="flex: 2;">
-                            <div class="flex flex-wrap">
-                                <a class="w-full font-semibold" href="{% url 'serie_detail'  comment.tvshowkid.url  %}">{{ comment.tvshowkid.titlecz  }}</a>
-                                <p class="w-full text-sm">{{ comment.comment|truncatewords:30  }}</p>
-                            </div>
-                            
-                            <div class="w-full flex justify-end" style="font-size: small;"> 
-                                <p>Uživatel:
-                                {% if comment.user %}
-                                    <a href="/uzivatel/{{ comment.user.id }}/">{{ comment.user.username }}</a>
-                                </p>
-                                {% endif %}    
-                                <span class="ml-1">| {{ comment.dateadded|date:"d.m.Y H:i" }}</span>
-                            </div>
+                
+                            <div class="last-review-body">
+                                <div class="last-review-title">
+                                    <a href="{% url 'serie_detail'  comment.tvshowkid.url  %}">{{ comment.tvshowkid.titlecz }}</a>
+                                    <p class="last-review-text">{{ comment.comment|truncatewords:30 }}</p>
+                                </div>
+                                
+                                <div class="last-review-user"> 
+                                    <p>Uživatel:
+                                        {% if comment.user %}
+                                            <a href="/uzivatel/{{ comment.user.id }}/">{{ comment.user.username }}</a>
+                                        {% endif %}  
+                                    </p>
+                                    <span style="margin-left: .25rem;">{{ comment.dateadded|date:"d.m.Y H:i" }}</span>
+                                </div>
+                            </div>  
                         </div>  
-                    </div>  
-                    {% if not forloop.last %}
-                    <hr class="my-3">
-                    {% endif %}
+
+                        {% if not forloop.last %}
+                            <hr style="margin: .75rem 0;">
+                        {% endif %}
                     {% endfor %}
+
                     {% else %}
                     <p>Zatím žádné recenze od komunity.</p>
                 {% endif %}
-                </div>
             </div>
         </div>    
     </div>
@@ -181,16 +180,16 @@
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title after-h3">Nové sezóny</h3>
-                <ul class="w-full" style="list-style-type:none">
+                <ul style="list-style-type:none; width: 100%;">
                     {% for season in latest_seasons %}
-                    <li class="after last-line">
-                        <a href="{% url 'serie_season' tv_url=season.tvshowid.url seasonurl=season.seasonurl %}">
-                            {{ season.tvshowid.titlecz }}: S{{ season.seasonnumber|stringformat:"02d" }}
-                        </a>
-                        <p><small>(premiéra {{ season.premieredate|date:"j.n.Y" }})</small></p>
-                    </li>
-                    {% empty %}
-                    <li>Žádné nové sezóny k dispozici</li>
+                        <li class="after last-line">
+                            <a href="{% url 'serie_season' tv_url=season.tvshowid.url seasonurl=season.seasonurl %}">
+                                {{ season.tvshowid.titlecz }}: S{{ season.seasonnumber|stringformat:"02d" }}
+                            </a>
+                            <p><small>(premiéra {{ season.premieredate|date:"j.n.Y" }})</small></p>
+                        </li>
+                        {% empty %}
+                        <li>Žádné nové sezóny k dispozici</li>
                     {% endfor %}
                 </ul>
             </div>
@@ -204,7 +203,7 @@
                     <a href="{% url 'articles_list' category='serialy' %}"><small>Zobrazit vše</small></a>
                 </div>
                 <div class="article-head-title after">
-                    <a href="https://div.cz/serialy/2025">Seriály roku 2025</a> <!-- stačí název ne?-->
+                    <a href="https://div.cz/serialy/2025">Seriály roku 2025</a>
                     <a href="https://div.cz/serialy/2024">Seriály roku 2024</a>
                     <a href="https://div.cz/serialy/2023">Seriály roku 2023</a>
                     <a href="https://div.cz/duna-proroctvi-novy-tv-spin-off">Duna: Proroctví</a>

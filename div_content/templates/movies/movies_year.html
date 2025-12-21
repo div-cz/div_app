@@ -86,7 +86,7 @@
 {% block content %}
 
 <div class="container">
-    <h2 class="mb-4 px-4">Seznam filmů {{ year }}</h2>
+    <h2>Seznam filmů {{ year }}</h2>
     <div class="row">
         <!-- LEVÁ STRANA -->
         <div class="left-side">
@@ -96,7 +96,7 @@
                     <div class="card">
                         <a href="/film/{{ movie.url }}">
                             {% if movie.img == "noimg.png" %}
-                                <img src="/static/img/nomovie_400.jpg" alt="{{ movie.titlecz }}" style="border-radius: .5rem .5rem 0 0;">
+                                <img src="/static/img/movie/w400/nomovie.jpg" alt="{{ movie.titlecz }}" style="border-radius: .5rem .5rem 0 0;">
                                 {% else %}
                                 <img src="https://www.themoviedb.org/t/p/w400{{ movie.img }}" alt="{{ movie.titlecz }}" style="border-radius: .5rem .5rem 0 0;">
                             {% endif %}
@@ -112,7 +112,9 @@
                                 </div>
                             </div>
                             
-                            <h4 class="card-title"><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></h4>
+                            <h4 class="card-title">
+                                <a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a>
+                            </h4>
                             <p class="card-text">{{ movie.description }}</p>
                         </div>
                     </div>
@@ -122,6 +124,7 @@
 
         <!-- Pravá strana -->
         <div class="right-side">
+            <!-- ŽÁNRY -->
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title after-h3">Žánry</h3>
@@ -149,6 +152,7 @@
                 </div>
             </div>
 
+            <!-- ROKY -->
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title after-h3">Roky</h3>

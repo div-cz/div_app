@@ -134,13 +134,11 @@
                 <div class="creator-movie-list">
                     {% for movie, roles in filmography %}
                         <div class="creator-movie-info sudy">
-                            <div>
-                                {% if movie.img == "noimg.png" %}
-                                    <img src="https://div.cz/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}">
-                                    {% else %}
-                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.imgposter }}" alt="{{ movie.titlecz }}">
-                                {% endif %}
-                            </div>
+                            {% if movie.img == "noimg.png" %}
+                                <img src="https://div.cz/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}">
+                                {% else %}
+                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.imgposter }}" alt="{{ movie.titlecz }}">
+                            {% endif %}
 
                             <div class="creator-movie-detail">
                                 <div class="creator-movie-name">
@@ -150,6 +148,7 @@
                                     </p>
                                     <p>{{ roles|join:", " }}</p>
                                 </div>
+
                                 <div class="creator-movie-rating">
                                     {% if user.is_authenticated %}
                                         <div class="movie-rating">
@@ -161,15 +160,22 @@
                                                 <i class="fas fa-eye" title="viděno"></i>
                                             {% endif %}
 
-                                            <span> <!-- hodnocení uživatele -->
-                                                {% for _ in "12345" %}
-                                                    {% if forloop.counter <= rating.score %}
-                                                    <span>★</span>
+                                            <div class="stars">
+                                                {% if serie.AverageRating %}
+                                                    <span> <!-- hodnocení uživatele -->
+                                                        {% for _ in "12345" %}
+                                                            {% if forloop.counter <= rating.score %}
+                                                            <span>★</span>
+                                                            {% else %}
+                                                            ☆
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </span>
+
                                                     {% else %}
-                                                    ☆
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </span>
+                                                    <span>Nehodnoceno</span>
+                                                {% endif %}
+                                            </div>
                                         </div>
                                     {% endif %}
                                 </div>
@@ -184,13 +190,11 @@
                 <div class="creator-movie-list">
                     {% for tvshow, roles in tvshows %}
                         <div class="creator-movie-info sudy">
-                            <div>
-                                {% if tvshow.img == "noimg.png" %}
-                                    <img src="https://div.cz/static/img/movie/w200/nomovie.jpg" alt="{{ tvshow.titlecz }}">
-                                    {% else %}
-                                    <img src="https://www.themoviedb.org/t/p/w400{{ tvshow.imgposter }}" alt="{{ tvshow.titlecz }}">
-                                {% endif %}
-                            </div>
+                            {% if tvshow.img == "noimg.png" %}
+                                <img src="https://div.cz/static/img/movie/w200/nomovie.jpg" alt="{{ tvshow.titlecz }}">
+                                {% else %}
+                                <img src="https://www.themoviedb.org/t/p/w400{{ tvshow.imgposter }}" alt="{{ tvshow.titlecz }}">
+                            {% endif %}
 
                             <div class="creator-movie-detail">
                                 <div class="creator-movie-name">
@@ -212,15 +216,22 @@
                                                 <i class="fas fa-eye" title="viděno"></i>
                                             {% endif %}
 
-                                            <span> <!-- hodnocení uživatele -->
-                                                {% for _ in "12345" %}
-                                                    {% if forloop.counter <= rating.score %}
-                                                    <span>★</span>
+                                            <div class="stars">
+                                                {% if serie.AverageRating %}
+                                                    <span> <!-- hodnocení uživatele -->
+                                                        {% for _ in "12345" %}
+                                                            {% if forloop.counter <= rating.score %}
+                                                            <span>★</span>
+                                                            {% else %}
+                                                            ☆
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </span>
+
                                                     {% else %}
-                                                    ☆
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </span>
+                                                    <span>Nehodnoceno</span>
+                                                {% endif %}
+                                            </div>
                                         </div>
                                     {% endif %}
                                 </div>
@@ -268,25 +279,25 @@
         <!-- SDÍLET NA SÍTÍCH -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">{{  }}</h3>
+                <h3 class="card-title after-h3"></h3>
                 <p style="width: 100%;">Sdílet na:</p>
                 <!-- Facebook Share Button -->
-                <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/film/{{  }}" class="btn btn-facebook" target="_blank" title="Facebook">
+                <a href="" class="btn btn-facebook" target="_blank" title="Facebook">
                     <i class="fab fa-facebook-f"></i>
                 </a>
 
                 <!-- Twitter Share Button -->
-                <a href="https://twitter.com/intent/tweet?url=https://div.cz/film/{{  }}&text={{  }}" class="btn btn-twitter" target="_blank" title="Twitter">
+                <a href="" class="btn btn-twitter" target="_blank" title="Twitter">
                     <i class="fab fa-twitter"></i>
                 </a>
 
                 <!-- E-mail Share Button -->
-                <a href="mailto:?subject={{  }}&body=Podívej se na https://div.cz/film/{{  }}" class="btn btn-email" title="E-mail">
+                <a href="" class="btn btn-email" title="E-mail">
                     <i class="fas fa-envelope"></i>
                 </a>
 
                 <!-- WhatsApp Share Button -->
-                <a href="https://wa.me/?text={{  }} - https://div.cz/film/{{  }}" class="btn btn-whatsapp" target="_blank" title="WhatsApp">
+                <a href="" class="btn btn-whatsapp" target="_blank" title="WhatsApp">
                     <i class="fab fa-whatsapp"></i>
                 </a>
             </div>

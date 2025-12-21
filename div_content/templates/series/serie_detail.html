@@ -261,9 +261,9 @@
                         {% for season in content_season_page.object_list %}
                             <div style="margin-bottom:10px">
                                 {% if season.img == "noimg.png" %}
-                                        <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ season.titlecz }}" class="img-fluid" style="object-fit:cover; max-width:50px; float:left; margin:0 15px 5px 0">
+                                    <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ season.titlecz }}" class="img-fluid" style="object-fit:cover; max-width:50px; float:left; margin:0 15px 5px 0">
                                     {% else %}
-                                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ season.img }}" alt="{{ season.titlecz }}" class="img-fluid" style="object-fit:cover; max-width:50px;float:left; margin:0 15px 5px 0">
+                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ season.img }}" alt="{{ season.titlecz }}" class="img-fluid" style="object-fit:cover; max-width:50px;float:left; margin:0 15px 5px 0">
                                 {% endif %}
                         
                                 <a href="{% url 'serie_season' tv_url=tvshow.url seasonurl=season.seasonurl %}">{{ season.seasonnumber }}. {{ season.titlecz }}</a>
@@ -272,26 +272,10 @@
                                 <p>Premiéra: {{ season.premieredate|date:"j. n. Y" }}</p>
                             </div>
                         {% endfor %}
+
                         {% else %}
                         <p>Žádné sezóny nejsou dostupné.</p>
                     {% endif %}
-
-                {% for season in seasons %}
-                    <div style="margin-bottom:10px">
-                        {% if season.img == "noimg.png" %}
-                            <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ season.titlecz }}" class="img-fluid" style="object-fit:cover; max-width:50px;float:left; margin:0 15px 5px 0">
-                            {% else %}
-                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ season.img }}" alt="{{ season.titlecz }}" class="img-fluid" style="object-fit: cover;max-width: 50px;float:left;margin:0 15px 5px 0">
-                        {% endif %}
-                        
-                        <a href="{% url 'serie_season' tv_url=tvshow.url seasonurl=season.seasonurl %}">{{ season.seasonnumber }}. {{ season.titlecz }}</a>
-
-                        <p>Počet epizod: {{ season.seasonepisode }}</p>
-                        <p>Premiéra: {{ season.premieredate|date:"j. n. Y" }}</p>
-                    </div>
-                    {% empty %}
-                    <p>Žádné sezóny nejsou dostupné.</p>
-                {% endfor %}
                 </div>
 
                 <hr> 
@@ -329,61 +313,59 @@
             </ul>
     
             <!-- RECENZE -->
-            <div id="tab1" class="tab-list active">
-                <div class="">    
-                    <h3 class="card-title after-h3">Recenze</h3> 
-                    {% if user.is_authenticated %}
-                        <h4>Přidat novou recenzi</h4>
-                        <form method="post" action="">
-                            {% csrf_token %}
-                            {{ comment_form.comment }}
-                            <button type="submit" class="btn add-movie">Vložit recenzi</button>
-                        </form>
+            <div id="tab1" class="tab-list active"> 
+                <h3 class="card-title after-h3">Recenze</h3> 
+                {% if user.is_authenticated %}
+                    <h4>Přidat novou recenzi</h4>
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        {{ comment_form.comment }}
+                        <button type="submit" class="btn add-movie">Vložit recenzi</button>
+                    </form>
 
-                        {% else %}
-                        <p>Pro komentování je nutné být <a href="/prihlaseni/">přihlášený</a>.<br>
-                        Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
-                    {% endif %}
+                    {% else %}
+                    <p>Pro komentování je nutné být <a href="/prihlaseni/">přihlášený</a>.<br>
+                    Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
+                {% endif %}
 
-                    <!-- Výpis recenzí -->
-                    <ul class="list-unstyled komentar">
-                        {% for comment in comments %}
-                        <li class="card-body">
-                            <p class="after">{{ comment.comment }}</p>
-                            <div class="user">
-                                <p>{{ comment.dateadded }}</p>
-                                <p>Přidal:
-                                    <a href="{% url 'user_profile_with_profil' comment.user.pk %}">
-                                        {{ comment.user }}
-                                    </a>
-                                </p>
-                            </div>
+                <!-- Výpis recenzí -->
+                <ul class="list-unstyled komentar">
+                    {% for comment in comments %}
+                    <li class="card-body">
+                        <p class="after">{{ comment.comment }}</p>
+                        <div class="user">
+                            <p>{{ comment.dateadded }}</p>
+                            <p>Přidal:
+                                <a href="{% url 'user_profile_with_profil' comment.user.pk %}">
+                                    {{ comment.user }}
+                                </a>
+                            </p>
+                        </div>
 
-                            <!-- drobečky -->
-                            <div style="margin-top: .25rem; padding: 0 10px;">
-                            {% if comment.tvepisode %}
-                                <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">
-                                {{ comment.tvshowkid.titlecz|default:comment.tvshowkid.title }}
-                                </a>
-                                &raquo; <a href="{% url 'serie_season' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl %}">
-                                    {{ comment.tvseason.seasonnumber }}. {{ comment.tvseason.titlecz|default:comment.tvseason.title|default:"Sezóna " }}
-                                </a>
-                                &raquo; <a href="{% url 'serie_episode' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl episodeurl=comment.tvepisode.episodeurl %}">
-                                    {{ comment.tvepisode.titlecz|default:comment.tvepisode.title }}
-                                </a>
-                                {% elif comment.tvseason %}
-                                <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">{{ comment.tvshowkid.title }}</a>
-                                &raquo; <a href="{% url 'serie_season' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl %}">
-                                    {{ comment.tvseason.seasonnumber }}. {{ comment.tvseason.titlecz|default:comment.tvseason.title|default:"Sezóna " }}
-                                </a>
-                                {% else %}
-                                <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">{{ comment.tvshowkid.titlecz }}</a>
-                            {% endif %}
-                            </div>
-                        </li>
-                    {% endfor %}
-                    </ul>
-                </div>
+                        <!-- drobečky -->
+                        <div style="margin-top: .25rem; padding: 0 10px;">
+                        {% if comment.tvepisode %}
+                            <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">
+                            {{ comment.tvshowkid.titlecz|default:comment.tvshowkid.title }}
+                            </a>
+                            &raquo; <a href="{% url 'serie_season' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl %}">
+                                {{ comment.tvseason.seasonnumber }}. {{ comment.tvseason.titlecz|default:comment.tvseason.title|default:"Sezóna " }}
+                            </a>
+                            &raquo; <a href="{% url 'serie_episode' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl episodeurl=comment.tvepisode.episodeurl %}">
+                                {{ comment.tvepisode.titlecz|default:comment.tvepisode.title }}
+                            </a>
+                            {% elif comment.tvseason %}
+                            <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">{{ comment.tvshowkid.title }}</a>
+                            &raquo; <a href="{% url 'serie_season' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl %}">
+                                {{ comment.tvseason.seasonnumber }}. {{ comment.tvseason.titlecz|default:comment.tvseason.title|default:"Sezóna " }}
+                            </a>
+                            {% else %}
+                            <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">{{ comment.tvshowkid.titlecz }}</a>
+                        {% endif %}
+                        </div>
+                    </li>
+                {% endfor %}
+                </ul>
             </div>
 
             <!-- HRAJÍ -->
@@ -652,17 +634,17 @@
 
         <!-- Přidat na hlavní stranu -->
         {% if request.user.is_superuser %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title">Přidat na hlavní stranu</h3>
-                <form method="post">
-                    {% csrf_token %}
-                    <button type="submit" name="add_to_metaindex" class="btn add-movie">
-                    Přidat na hlavní stránku
-                    </button>
-                </form>
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Přidat na hlavní stranu</h3>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" name="add_to_metaindex" class="btn add-movie">
+                        Přidat na hlavní stránku
+                        </button>
+                    </form>
+                </div>
             </div>
-        </div>
         {% endif %}
 
         <!-- Upravit DIV Rating -->
@@ -680,7 +662,7 @@
         {% endif %}
 
         <!-- SEZÓNY -->
-        <div class="card">
+        <!-- <div class="card">
             <div class="card-body">
                 <h3 class="card-title after-h3">Sezóny</h3>
                 <div class="flex flex-wrap">
@@ -692,18 +674,18 @@
                         {% endfor %}
                     {% else %}
                         <p>Žádné sezóny nejsou dostupné.</p>
-                    {% endif %}
+                    {% endif %} -->
                 <!-- {% for season in seasons %}
                     <a href="{% url 'serie_season' tv_url=tvshow.url seasonurl=season.seasonurl %}" style="width: 100%">{{ season.seasonnumber }}. {{ season.titlecz }}</a>
                 {% empty %}
                     <p>Žádné sezóny nejsou dostupné.</p>
                 {% endfor %} -->
-                </div>
+                <!-- </div>
 
-                <hr> 
+                <hr>  -->
 
                 <!-- PAGINÁTOR -->
-                <div class="pagination">
+                <!-- <div class="pagination">
                     <span class="step-links">
                     {% if serie_page.has_previous %}
                         <a class="first-page" href="?page=1">&laquo; První</a>
@@ -721,7 +703,7 @@
                     </span>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- SDÍLET NA SÍTÍCH -->
         <div class="card">
@@ -764,8 +746,6 @@
         </div>
     </div>
 </div>
-
-
 
 
 {% endblock %}

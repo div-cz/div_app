@@ -27,63 +27,82 @@
 {% block content %}
 
 <div class="container">
-    <h2 class="mb-4">Vyhledávání: {% if request.GET.q %} {{ request.GET.q }} {% endif %}</h2>
-    <div class="row mb-3 w-full">
-        {% if movies %}
-        <div class="table">
-            <div class="grid search-grid bg-[#c0c0c0]">
-                <div class="text-center font-bold p-1">Miniatura</div>
-                <div class="font-bold p-1">Název</div>
-                <div class="text-center font-bold p-1">Rok</div>
-                <div class="text-center font-bold p-1">Hodnocení</div>
+    <h2 class="page-title">
+        Vyhledávání: 
+        {% if request.GET.q %} 
+            <span class="movies">{{ request.GET.q }}</span> 
+        {% endif %}
+    </h2>
+
+    {% if movies %}
+        <div class="search-table">
+
+            <!-- Hlavička -->
+            <div class="search-grid search-header">
+                <div style="text-align: center;">Miniatura</div>
+                <div>Název</div>
+                <div style="text-align: center;">Rok</div>
+                <div style="text-align: center;">Hodnocení</div>
             </div>
-            <div>
-                {% for movie in movies %}
-                <div class="grid items-center border search-grid sudy">
-                    <div>
-                        <a href="/film/{{ movie.URL }}">
-                            {% if movie.IMG == "noimg.png" %}
-                            <img src="/static/img/movie/w400/noimg.png" alt="{{ movie.TitleCZ }}" style="max-width: 100px; object-fit: cover;">
+
+            <!-- Řádky -->
+            {% for movie in movies %}
+                <div class="search-grid search-row">
+                    <a href="/film/{{ movie.URL }}">
+                        {% if movie.IMG == "noimg.png" %}
+                            <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ movie.TitleCZ }}">
                             {% else %}
-                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.IMG }}" alt="{{ movie.TitleCZ }}"  style="max-width: 100px; object-fit: cover;">
-                            {% endif %}
-                        </a>
-                    </div>
-                    <div class="p-1">
+                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.IMG }}" alt="{{ movie.TitleCZ }}">
+                        {% endif %}
+                    </a>
+
+                    <div class="title">
                         <a href="/film/{{ movie.URL }}">{{ movie.TitleCZ }}</a>
                     </div>
-                    <div class="text-center p-1">
+
+                    <div class="year">
                         <a href="/filmy/{{ movie.ReleaseYear }}">{{ movie.ReleaseYear }}</a>
                     </div>
-                    <div class="text-center p-1 stars">
-                        {% if movie.AverageRating %}
-                        {% with score=movie.AverageRating|floatformat:0 %}
-                        <span class="text-warning h4">
-                            {% if score == "1" %}
-                            &#9733;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;
-                            {% elif score == "2" %}
-                            &#9733;&nbsp;&#9733;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;
-                            {% elif score == "3" %}
-                            &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9734;&nbsp;&#9734;
-                            {% elif score == "4" %}
-                            &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9734;
-                            {% elif score == "5" %}
-                            &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;
-                            {% endif %}
-                        </span>
-                        {% endwith %}
-                        {% else %}
-                        <span class="text-sm stars">Nehodnoceno</span>
+
+                    <div class="search-rating">
+                        {% if user.is_authenticated %}
+                            <div class="movie-rating">
+                                100 % <!-- celkové hodnocení filmu -->
+                            </div>
+
+                            <div class="search-stars">
+                                {% if movie.is_watched %}
+                                    <i class="fas fa-eye" title="viděno"></i>
+                                {% endif %}
+
+                                <div class="stars">
+                                    {% if movie.AverageRating %}
+                                        <span> <!-- hodnocení uživatele -->
+                                            {% for _ in "12345" %}
+                                                {% if forloop.counter <= rating.score %}
+                                                <span>★</span>
+                                                {% else %}
+                                                ☆
+                                                {% endif %}
+                                            {% endfor %}
+                                        </span>
+
+                                        {% else %}
+                                        <span><small>Nehodnoceno</small></span>
+                                    {% endif %}
+                                </div>
+                            </div>
                         {% endif %}
                     </div>
+
                 </div>
-                {% endfor %}
-            </div>
+            {% endfor %}
+
         </div>
+
         {% else %}
         <p>Žádné filmy nenalezeny.</p>
-        {% endif %}
-    </div>
+    {% endif %}
 </div>
 
 {% endblock %}
