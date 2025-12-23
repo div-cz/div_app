@@ -519,6 +519,52 @@ class FavoriteSum(models.Model):
         return f"FavoriteSum for {self.content_object} (Count: {self.favorite_count})"
 
 
+class FinancialTransaction(models.Model):
+
+    DIRECTION_CHOICES = (
+        ('IN', 'Příjem'),
+        ('OUT', 'Výdaj'),
+    )
+
+    SOURCE_CHOICES = (
+        ('USER', 'Uživatel'),
+        ('PLATFORM', 'Platforma'),
+        ('EXTERNAL', 'Externí partner'),
+        ('SYSTEM', 'Systémová operace'),
+    )
+
+    PLATFORM_CHOICES = (
+        ('DIV', 'DIV.cz'),
+        ('DIVKVARIAT', 'DIVkvariát'),
+    )
+
+    transactionid = models.AutoField(db_column='TransactionID', primary_key=True)
+
+    amount = models.DecimalField(db_column='Amount', max_digits=10, decimal_places=2)
+    currency = models.CharField(db_column='Currency', max_length=3, default='CZK')
+
+    direction = models.CharField(db_column='Direction', max_length=3, choices=DIRECTION_CHOICES, db_index=True)
+    sourcetype = models.CharField(db_column='SourceType', max_length=10, choices=SOURCE_CHOICES, db_index=True)
+
+    sourceid = models.IntegerField(db_column='SourceID', null=True, blank=True)
+    sourceref = models.CharField(db_column='SourceRef', max_length=64, null=True, blank=True)
+
+    platform = models.CharField(db_column='Platform', max_length=12, choices=PLATFORM_CHOICES, null=True, blank=True)
+
+    note = models.CharField(db_column='Note', max_length=255, null=True, blank=True)
+
+    createdat = models.DateTimeField(db_column='CreatedAt', auto_now_add=True)
+
+    class Meta:
+        db_table = 'FinancialTransaction'
+        indexes = [
+            models.Index(fields=['direction']),
+            models.Index(fields=['sourcetype']),
+            models.Index(fields=['platform']),
+            models.Index(fields=['createdat']),
+        ]
+
+
 class Food(models.Model):
     foodid = models.AutoField(db_column='FoodID', primary_key=True)
     foodname = models.CharField(db_column='FoodName', max_length=255)

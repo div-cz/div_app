@@ -280,28 +280,40 @@
 
 
 <p>
-    {% for opt in listing.shippingoptions|div_split:"," %}
-        {% with price=opt|div_split:":"|div_get:1 %}
-            {% if price != "0" and forloop.first %}
-                <strong>Poštovné</strong> od {{ price }} Kč<br>
-            {% endif %}
-        {% endwith %}
-    {% endfor %}
+{% if listing.shippingoptions %}
+    <div class="mt-2 text-sm text-gray-700">
 
-    {% for opt in listing.shippingoptions|div_split:"," %}
-        {% if opt|div_split:":"|first == "OSOBNI" %}
-            Osobní převzetí zdarma
-        {% endif %}
-    {% endfor %}
-{% if request.user == listing.user %}
-    <span class="text-sm text-gray-400 mt-2">
+        {# --- Poštovné od (vezmeme nejnižší > 0) --- #}
+        {% with prices="" %}
+            {% for opt in listing.shippingoptions|div_split:"," %}
+                {% with p=opt|div_split:":"|div_get:1 %}
+                    {% if p != "0" %}
+                        {% if forloop.first %}
+                            <strong>Poštovné od {{ p }} Kč</strong><br>
+                        {% endif %}
+                    {% endif %}
+                {% endwith %}
+            {% endfor %}
+        {% endwith %}
+
+        {# --- Jednotlivé možnosti lidsky --- #}
         {% for opt in listing.shippingoptions|div_split:"," %}
-            {{ opt }}<br>
+            {% with key=opt|div_split:":"|first price=opt|div_split:":"|div_get:1 %}
+                {% if key == "ZASILKOVNA" %}
+                    Zásilkovna: {{ price }} Kč<br>
+                {% elif key == "BALIKOVNA" %}
+                    Balíkovna: {{ price }} Kč<br>
+                {% elif key == "POSTA" %}
+                    Česká pošta: {{ price }} Kč<br>
+                {% elif key == "OSOBNI" %}
+                    Osobní převzetí zdarma<br>
+                {% endif %}
+            {% endwith %}
         {% endfor %}
-    </span>
+
+    </div>
 {% endif %}
 </p>
-
 
 
 

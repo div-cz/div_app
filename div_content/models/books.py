@@ -117,6 +117,25 @@ class Booklistingimage(models.Model):
 	class Meta:
 		db_table = "BookListingImage"
 
+class BookListingLog(models.Model):
+    BookListingLogID = models.AutoField(primary_key=True, db_column="BookListingLogID")
+    BookListing = models.ForeignKey('Booklisting', on_delete=models.CASCADE, db_column="BookListingID", db_index=True)
+    Actor = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, db_column="ActorUserID", db_index=True)
+
+    Action = models.CharField(max_length=32, db_column="Action", db_index=True)
+    OldStatus = models.CharField(max_length=16, null=True, blank=True, db_column="OldStatus", db_index=True)
+    NewStatus = models.CharField(max_length=16, null=True, blank=True, db_column="NewStatus", db_index=True)
+
+    OldPrice = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, db_column="OldPrice")
+    NewPrice = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, db_column="NewPrice")
+
+    Source = models.CharField(max_length=12, db_column="Source", db_index=True)  # DIV / DIVKVARIAT
+    Note = models.CharField(max_length=255, null=True, blank=True, db_column="Note")
+    CreateDat = models.DateTimeField(auto_now_add=True, db_column="CreateDat", db_index=True)
+
+    class Meta:
+        db_table = "BookListingLog"
+        ordering = ["-CreateDat"]
 
 
 class Bookauthor(models.Model):
