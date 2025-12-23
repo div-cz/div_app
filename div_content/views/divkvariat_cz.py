@@ -2164,6 +2164,8 @@ def search_view(request):
     })
 
 
+
+
 # -------------------------------------------------------------------
 #                    KONEC
 #           Catalog DIV.cz by eKultura

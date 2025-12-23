@@ -1,0 +1,71 @@
+{% extends "divkvariat/base.html" %}
+{% load humanize %}
+
+{% block title %}Finanční operace | DIVkvariát{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-10">
+
+<h1 class="text-3xl font-bold mb-6">Finanční operace</h1>
+
+<a href="{% url 'admin_financial_add' %}"
+   class="inline-block mb-4 px-4 py-2 bg-green-600 text-white rounded-lg">
+   + Přidat záznam
+</a>
+
+<table class="w-full border bg-white text-sm">
+<thead>
+<tr class="bg-gray-100">
+    <th class="p-2">Datum</th>
+    <th class="p-2">Směr</th>
+    <th class="p-2">Částka</th>
+    <th class="p-2">Platforma</th>
+    <th class="p-2">Zdroj</th>
+    <th class="p-2">Poznámka</th>
+    <th class="p-2"></th>
+</tr>
+</thead>
+
+<tbody>
+{% for tx in page_obj %}
+<tr class="border-t">
+    <td class="p-2">{{ tx.createdat|date:"j.n.Y H:i" }}</td>
+    <td class="p-2">{{ tx.get_direction_display }}</td>
+    <td class="p-2 font-semibold">
+        {{ tx.amount|floatformat:2 }} {{ tx.currency }}
+    </td>
+    <td class="p-2">{{ tx.platform }}</td>
+    <td class="p-2">{{ tx.get_sourcetype_display }}</td>
+    <td class="p-2">{{ tx.note|default:"" }}</td>
+    <td class="p-2 text-right">
+        <a href="{% url 'admin_financial_edit' tx.transactionid %}"
+           class="text-green-700 hover:underline">
+           Upravit
+        </a>
+    </td>
+</tr>
+{% empty %}
+<tr><td colspan="7" class="p-4 text-center text-gray-500">
+    Žádné záznamy
+</td></tr>
+{% endfor %}
+</tbody>
+</table>
+
+<!-- PAGINACE -->
+<div class="flex justify-center mt-6 gap-2">
+{% if page_obj.has_previous %}
+<a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 border">‹</a>
+{% endif %}
+
+<span class="px-3 py-1 bg-gray-100">
+    {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+</span>
+
+{% if page_obj.has_next %}
+<a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 border">›</a>
+{% endif %}
+</div>
+
+</div>
+{% endblock %}

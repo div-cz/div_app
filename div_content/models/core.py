@@ -519,7 +519,7 @@ class FavoriteSum(models.Model):
         return f"FavoriteSum for {self.content_object} (Count: {self.favorite_count})"
 
 
-class FinancialTransaction(models.Model):
+class Financialtransaction(models.Model):
 
     DIRECTION_CHOICES = (
         ('IN', 'Příjem'),

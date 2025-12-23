@@ -4,8 +4,6 @@
 
 from allauth.account.views import confirm_email, LoginView, LogoutView, SignupView, email_verification_sent
 
-
-
 from div_content.views.divkvariat_cz import (
     account_edit, account_view, antikvariat_home, author_detail_cz, 
     blog_list, blog_detail, book_detail_cz, book_listings, 
@@ -22,7 +20,7 @@ from div_content.views.divkvariat_cz import (
 
 )
 
-
+from div_content.views.financial import admin_financial_add, admin_financial_edit, admin_financial_list
 
 from django.conf import settings
 
@@ -32,8 +30,6 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path, include
 
 from django.views.generic import TemplateView
-
-
 
 import debug_toolbar
 
@@ -100,8 +96,22 @@ urlpatterns = [
     path("zrusit/<int:listing_id>/", cancel_listing_reservation, name="cancel_listing_reservation"),
     path("potvrdit/<int:purchase_id>/", confirm_sale, name="confirm_sale"),
     path("smazat/<int:listing_id>/", cancel_sell, name="cancel_sell"),
-]
 
+# -------------------------------------------------------------------
+#                    URLS – ADMIN FINANCIAL
+# -------------------------------------------------------------------
+
+    path("spravce/finance/", admin_financial_list, name="admin_financial_list"),
+    path("spravce/finance/pridat/", admin_financial_add, name="admin_financial_add"),
+    path("spravce/finance/upravit/<int:transaction_id>/", admin_financial_edit, name="admin_financial_edit"),
+
+
+# 404
+    path("<path:unused>/", TemplateView.as_view(
+        template_name="divkvariat/404.html"
+    ), name="catch_all_404"),
+
+]
 
 
 if settings.DEBUG:
