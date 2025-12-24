@@ -3,112 +3,98 @@
 {% block title %}{{ title }} | DIVkvariát{% endblock %}
 
 {% block content %}
-<div class="max-w-xl mx-auto py-10">
+<div class="max-w-4xl mx-auto py-10">
 
-    <h1 class="text-2xl font-bold mb-6">{{ title }}</h1>
+<h1 class="text-3xl font-bold mb-8">{{ title }}</h1>
 
-    {% if form.non_field_errors %}
-    <div class="mb-5 p-4 rounded-lg bg-red-50 border border-red-200 text-red-800">
-        {{ form.non_field_errors }}
+<form method="post" class="space-y-8">
+    {% csrf_token %}
+
+    <!-- ================= FINANCE ================= -->
+    <div class="bg-white border rounded-2xl p-6 shadow-sm">
+        <h2 class="text-xl font-semibold mb-4">Finance</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label class="block text-sm font-medium mb-1">Částka</label>
+                {{ form.amount }}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Měna</label>
+                {{ form.currency }}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Směr</label>
+                {{ form.direction }}
+            </div>
+        </div>
     </div>
-    {% endif %}
 
-    <form method="post" class="space-y-6">
-        {% csrf_token %}
+    <!-- ================= ZDROJ ================= -->
+    <div class="bg-white border rounded-2xl p-6 shadow-sm">
+        <h2 class="text-xl font-semibold mb-4">Zdroj</h2>
 
-        <!-- FINANCE -->
-        <div class="p-4 border rounded-xl bg-white shadow-sm">
-            <h2 class="font-semibold text-gray-800 mb-4">Finance</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label class="block text-sm font-medium mb-1">Typ</label>
+                {{ form.sourcetype }}
+            </div>
 
-            <div class="grid grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-sm text-gray-600 mb-1">Částka</label>
-                    {{ form.amount }}
-                    {% if form.amount.errors %}<div class="text-sm text-red-600 mt-1">{{ form.amount.errors }}</div>{% endif %}
-                </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">SourceID</label>
+                {{ form.sourceid }}
+            </div>
 
-                <div>
-                    <label class="block text-sm text-gray-600 mb-1">Měna</label>
-                    {{ form.currency }}
-                    {% if form.currency.errors %}<div class="text-sm text-red-600 mt-1">{{ form.currency.errors }}</div>{% endif %}
-                </div>
-
-                <div>
-                    <label class="block text-sm text-gray-600 mb-1">Směr</label>
-                    {{ form.direction }}
-                    {% if form.direction.errors %}<div class="text-sm text-red-600 mt-1">{{ form.direction.errors }}</div>{% endif %}
-                </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">SourceRef</label>
+                {{ form.sourceref }}
             </div>
         </div>
 
-        <!-- ZDROJ -->
-        <div class="p-4 border rounded-xl bg-white shadow-sm">
-            <h2 class="font-semibold text-gray-800 mb-4">Zdroj</h2>
+        <p class="text-sm text-gray-500 mt-3">
+            Tip: SourceID je obvykle ID objektu (např. BookListingID),  
+            SourceRef je lidský popis (např. <code>BookListing#193</code>).
+        </p>
+    </div>
 
-            <div class="grid grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-sm text-gray-600 mb-1">Typ</label>
-                    {{ form.sourcetype }}
-                    {% if form.sourcetype.errors %}<div class="text-sm text-red-600 mt-1">{{ form.sourcetype.errors }}</div>{% endif %}
-                </div>
+    <!-- ================= ZAŘAZENÍ ================= -->
+    <div class="bg-white border rounded-2xl p-6 shadow-sm">
+        <h2 class="text-xl font-semibold mb-4">Zařazení</h2>
 
-                <div>
-                    <label class="block text-sm text-gray-600 mb-1">SourceID</label>
-                    {{ form.sourceid }}
-                    {% if form.sourceid.errors %}<div class="text-sm text-red-600 mt-1">{{ form.sourceid.errors }}</div>{% endif %}
-                </div>
-
-                <div>
-                    <label class="block text-sm text-gray-600 mb-1">SourceRef</label>
-                    {{ form.sourceref }}
-                    {% if form.sourceref.errors %}<div class="text-sm text-red-600 mt-1">{{ form.sourceref.errors }}</div>{% endif %}
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium mb-1">Platforma</label>
+                {{ form.platform }}
             </div>
 
-            <p class="text-xs text-gray-500 mt-3">
-                Tip: SourceID je obvykle číslo (např. BookListingID), SourceRef je popisek pro lidi (např. BookListing#193).
-            </p>
-        </div>
-
-        <!-- PLATFORM + DATUM + POZNÁMKA -->
-        <div class="p-4 border rounded-xl bg-white shadow-sm">
-            <h2 class="font-semibold text-gray-800 mb-4">Zařazení</h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm text-gray-600 mb-1">Platforma</label>
-                    {{ form.platform }}
-                    {% if form.platform.errors %}<div class="text-sm text-red-600 mt-1">{{ form.platform.errors }}</div>{% endif %}
-                </div>
-
-
-                <div>
-                    <label class="block text-sm text-gray-600 mb-1">Datum</label>
-                    {{ form.createdat }}
-                    {% if form.createdat.errors %}<div class="text-sm text-red-600 mt-1">{{ form.createdat.errors }}</div>{% endif %}
-                </div>
-            </div>
-
-            <div class="mt-4">
-                <label class="block text-sm text-gray-600 mb-1">Poznámka</label>
-                {{ form.note }}
-                {% if form.note.errors %}<div class="text-sm text-red-600 mt-1">{{ form.note.errors }}</div>{% endif %}
+            <div>
+                <label class="block text-sm font-medium mb-1">Datum události</label>
+                {{ form.eventdate }}
             </div>
         </div>
 
-        <!-- AKCE -->
-        <div class="flex items-center gap-4">
-            <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                Uložit
-            </button>
-
-            <a href="{% url 'admin_financial_list' %}"
-               class="text-gray-600 hover:underline">
-               Zpět
-            </a>
+        <div class="mt-6">
+            <label class="block text-sm font-medium mb-1">Poznámka</label>
+            {{ form.note }}
         </div>
+    </div>
 
-    </form>
+    <!-- ================= AKCE ================= -->
+    <div class="flex items-center gap-4">
+        <button type="submit"
+                class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            Uložit
+        </button>
+
+        <a href="{% url 'admin_financial_list' %}"
+           class="text-gray-600 hover:underline">
+            Zpět
+        </a>
+    </div>
+
+</form>
 
 </div>
 {% endblock %}

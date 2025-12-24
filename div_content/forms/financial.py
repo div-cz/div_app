@@ -7,8 +7,8 @@ from div_content.models import Financialtransaction
 
 class FinancialTransactionForm(forms.ModelForm):
 
-    createdat = forms.DateField(
-        label="Datum",
+    eventdate = forms.DateField(
+        label="Datum události",
         required=True,
         widget=forms.DateInput(
             attrs={
@@ -21,6 +21,7 @@ class FinancialTransactionForm(forms.ModelForm):
     class Meta:
         model = Financialtransaction
         fields = [
+            'eventdate',
             'amount',
             'currency',
             'direction',
@@ -29,7 +30,6 @@ class FinancialTransactionForm(forms.ModelForm):
             'sourceref',
             'platform',
             'note',
-            'createdat',
         ]
 
         widgets = {

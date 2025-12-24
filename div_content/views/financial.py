@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------
-#                    ADMIN – FINANCIAL
+#                    VIEWS - ADMIN – FINANCIAL
 # -------------------------------------------------------------------
 
 from django.contrib.auth.decorators import login_required
@@ -53,6 +53,7 @@ def admin_financial_add(request):
     })
 
 
+
 @login_required
 def admin_financial_edit(request, transaction_id):
 
@@ -72,24 +73,15 @@ def admin_financial_edit(request, transaction_id):
         )
 
         if form.is_valid():
-            obj = form.save(commit=False)
-
-            # ručně přepíšeme datum (není účetní, ale přehledové)
-            obj.createdat = form.cleaned_data['createdat']
-            obj.save()
-
+            form.save()
             messages.success(request, "Finanční záznam byl uložen.")
             return redirect('admin_financial_list')
 
     else:
-        form = FinancialTransactionForm(
-            instance=transaction,
-            initial={
-                'createdat': transaction.createdat.date()
-            }
-        )
+        form = FinancialTransactionForm(instance=transaction)
 
     return render(request, 'divkvariat/admin_financial_form.html', {
         'form': form,
         'title': 'Upravit finanční záznam',
     })
+
