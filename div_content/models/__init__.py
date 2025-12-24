@@ -1,7 +1,9 @@
 # New MODELS
 
-from .core import *
 from .books import *
-from .movies import *
+from .core import *
+from .divkvariat import *
 from .games import *
 from .meta import *
+from .movies import *
+
