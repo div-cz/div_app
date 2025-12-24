@@ -60,13 +60,34 @@ def admin_financial_edit(request, transaction_id):
         messages.error(request, "Nemáte oprávnění.")
         return redirect('admin_financial_list')
 
-    tx = get_object_or_404(Financialtransaction, transactionid=transaction_id)
-    form = FinancialTransactionForm(request.POST or None, instance=tx)
+    transaction = get_object_or_404(
+        Financialtransaction,
+        transactionid=transaction_id
+    )
 
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        messages.success(request, "Finanční záznam byl uložen.")
-        return redirect('admin_financial_list')
+    if request.method == 'POST':
+        form = FinancialTransactionForm(
+            request.POST,
+            instance=transaction
+        )
+
+        if form.is_valid():
+            obj = form.save(commit=False)
+
+            # ručně přepíšeme datum (není účetní, ale přehledové)
+            obj.createdat = form.cleaned_data['createdat']
+            obj.save()
+
+            messages.success(request, "Finanční záznam byl uložen.")
+            return redirect('admin_financial_list')
+
+    else:
+        form = FinancialTransactionForm(
+            instance=transaction,
+            initial={
+                'createdat': transaction.createdat.date()
+            }
+        )
 
     return render(request, 'divkvariat/admin_financial_form.html', {
         'form': form,

@@ -553,6 +553,7 @@ class Financialtransaction(models.Model):
 
     note = models.CharField(db_column='Note', max_length=255, null=True, blank=True)
 
+    eventdate = models.DateField(db_column="EventDate", db_index=True, null=True, blank=True)
     createdat = models.DateTimeField(db_column='CreatedAt', auto_now_add=True)
 
     class Meta:

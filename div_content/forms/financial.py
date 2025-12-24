@@ -5,8 +5,18 @@
 from django import forms
 from div_content.models import Financialtransaction
 
-
 class FinancialTransactionForm(forms.ModelForm):
+
+    createdat = forms.DateField(
+        label="Datum",
+        required=True,
+        widget=forms.DateInput(
+            attrs={
+                'type': 'date',
+                'class': 'form-control',
+            }
+        )
+    )
 
     class Meta:
         model = Financialtransaction
@@ -19,6 +29,7 @@ class FinancialTransactionForm(forms.ModelForm):
             'sourceref',
             'platform',
             'note',
+            'createdat',
         ]
 
         widgets = {
