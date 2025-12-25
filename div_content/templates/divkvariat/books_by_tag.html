@@ -1,0 +1,43 @@
+{% extends "divkvariat/base.html" %}
+
+{% block title %}
+{{ tag.label }} – DIVkvariát
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto py-10">
+
+    <h1 class="text-3xl font-bold mb-2">
+        {{ tag.label }}
+    </h1>
+
+    {% if tagtype == 'WHEN' %}
+        <p class="text-gray-600 mb-6">
+            Knihy vhodné ke čtení v této chvíli.
+        </p>
+    {% else %}
+        <p class="text-gray-600 mb-6">
+            Knihy, které nejsou pro každého.
+        </p>
+    {% endif %}
+
+    {% if books %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for book in books %}
+                <a href="{% url 'book_detail_cz' book.url %}"
+                   class="block bg-white border rounded-xl p-4 hover:shadow transition">
+                    <div class="font-semibold text-lg">
+                        {{ book.titlecz|default:book.title }}
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        {{ book.authorid.name|default:"Neznámý autor" }}
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-500">Zatím žádné knihy.</p>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "divkvariat/base.html" %}
+
+{% block title %}Správa DIVkvariát tagů{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-10">
+
+    <div class="mb-6 border border-yellow-300 bg-yellow-50 rounded-lg p-4">
+        <strong>⚠️ Administrace DIVkvariát</strong><br>
+        Vidí pouze superadmin / skupina <strong>divkvariat</strong>.
+    </div>
+
+    <h1 class="text-2xl font-bold mb-4">Tagy</h1>
+
+    <table class="w-full border bg-white text-sm mb-8">
+        <tr class="bg-gray-100">
+            <th class="p-2">Typ</th>
+            <th class="p-2">Label</th>
+            <th class="p-2">Slug</th>
+            <th class="p-2">Aktivní</th>
+        </tr>
+        {% for t in tags %}
+        <tr class="border-t">
+            <td class="p-2">{{ t.tagtype }}</td>
+            <td class="p-2">{{ t.label }}</td>
+            <td class="p-2">{{ t.slug }}</td>
+            <td class="p-2">{{ t.active|yesno:"ano,ne" }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2 class="text-xl font-semibold mb-3">Přidat nový tag</h2>
+
+    <form method="post" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {% csrf_token %}
+        <input name="label" placeholder="Label" class="border p-2 rounded">
+        <input name="slug" placeholder="slug" class="border p-2 rounded">
+        <select name="tagtype" class="border p-2 rounded">
+            <option value="WHEN">Kdy číst</option>
+            <option value="NOT_FOR">Pro koho není</option>
+        </select>
+        <button class="bg-green-600 text-white rounded px-4 py-2">
+            Přidat
+        </button>
+    </form>
+
+</div>
+{% endblock %}

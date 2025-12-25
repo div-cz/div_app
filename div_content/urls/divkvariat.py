@@ -12,7 +12,7 @@ from div_content.views.divkvariat_cz import (
     CustomLoginView, CustomSignupView, CustomLogoutView, 
     chatbot_api,
     
-    divkvariat_book_curation_edit, 
+    divkvariat_book_curation_edit, divkvariat_books_by_tag, divkvariat_tag_admin, 
     
     listing_add_book, listing_detail, listing_detail_edit, listing_search_books,
     listing_upload_image, listing_delete_image, 
@@ -99,6 +99,20 @@ urlpatterns = [
     path("potvrdit/<int:purchase_id>/", confirm_sale, name="confirm_sale"),
     path("smazat/<int:listing_id>/", cancel_sell, name="cancel_sell"),
 
+    # TAGY
+    path(
+        'kdy-tuto-knihu-cist/<slug:slug>/',
+        divkvariat_books_by_tag,
+        {'tagtype': 'WHEN'},
+        name='divkvariat_when_tag'
+    ),
+    
+    path(
+        'pro-koho-tato-kniha-neni/<slug:slug>/',
+        divkvariat_books_by_tag,
+        {'tagtype': 'NOT_FOR'},
+        name='divkvariat_not_for_tag'
+    ),
 # -------------------------------------------------------------------
 #                    URLS – ADMIN FINANCIAL
 # -------------------------------------------------------------------
@@ -108,6 +122,7 @@ urlpatterns = [
     path("spravce/finance/upravit/<int:transaction_id>/", admin_financial_edit, name="admin_financial_edit"),
 
     path("kniha/<slug:book_url>/divkvariat/", divkvariat_book_curation_edit, name="divkvariat_book_curation_edit"),
+    path('spravce/divkvariat/tagy/', divkvariat_tag_admin, name='divkvariat_tag_admin'),
 
 
 # 404

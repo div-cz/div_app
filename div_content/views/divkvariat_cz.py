@@ -334,6 +334,63 @@ def divkvariat_book_curation_edit(request, book_url):
         "mood_form": mood_form,
         "text_form": text_form,
     })
+
+
+def divkvariat_books_by_tag(request, tagtype, slug):
+    tag = get_object_or_404(
+        Divkvariatbookmoodtag,
+        slug=slug,
+        tagtype=tagtype,
+        active=True,
+    )
+
+    book_ids = (
+        Divkvariatbookmood.objects
+        .filter(tag=tag)
+        .values_list('book_id', flat=True)
+        .distinct()
+    )
+
+    books = (
+        Book.objects
+        .filter(bookid__in=book_ids)
+        .order_by('titlecz', 'title')
+    )
+
+    return render(request, 'divkvariat/books_by_tag.html', {
+        'tag': tag,
+        'books': books,
+        'tagtype': tagtype,
+    })
+
+
+@login_required
+def divkvariat_tag_admin(request):
+    if not is_divkvariat(request.user):
+        messages.error(request, "Nemáte oprávnění.")
+        return redirect('antikvariat_home')
+
+    if request.method == 'POST':
+        label = request.POST.get('label', '').strip()
+        tagtype = request.POST.get('tagtype')
+        slug = request.POST.get('slug', '').strip()
+
+        if label and tagtype and slug:
+            Divkvariatbookmoodtag.objects.create(
+                label=label,
+                tagtype=tagtype,
+                slug=slug,
+                active=True,
+            )
+            messages.success(request, "Tag přidán.")
+
+        return redirect('divkvariat_tag_admin')
+
+    tags = Divkvariatbookmoodtag.objects.all().order_by('tagtype', 'order', 'label')
+
+    return render(request, 'divkvariat/admin_tag_list.html', {
+        'tags': tags,
+    })
 # -------------------------------------------------------------------
 #                    BOOK DETAIL
 # -------------------------------------------------------------------

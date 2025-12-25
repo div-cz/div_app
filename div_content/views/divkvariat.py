@@ -788,7 +788,11 @@ def listing_detail(request, book_url, listing_id):
         listing.shippingoptions = ",".join(sorted_options)
 
 
-    return render(request, 'books/listing_detail.html', {
+    template = "books/listing_detail.html"
+    if listing.listingtype == "BUY":
+        template = "books/listing_detail_buy.html"
+
+    return render(request, template, {
         'book': book,
         'listing': listing,
         'payment_info': payment_info,

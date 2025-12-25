@@ -1,0 +1,107 @@
+{% extends "books/base.html" %}
+{% load humanize %}
+
+{% block title %}
+Poptávka – {{ book.titlecz|default:book.title }} | DIV.cz
+{% endblock %}
+
+{% block content %}
+<div class="row container my-5">
+
+    <!-- LEVÝ SLOUPEC – OBÁLKA -->
+    <div class="col-md-4 col-lg-3 mb-4">
+
+        {% if book.img == "noimg.png" %}
+            <img src="/static/img/book/book.png"
+                 class="img-fluid rounded shadow"
+                 alt="Obálka knihy">
+        {% elif book.img == "GoogleID" %}
+            <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1"
+                 class="img-fluid rounded shadow"
+                 alt="Obálka knihy">
+        {% else %}
+            <img src="https://media.div.cz/knihy/{{ book.img }}"
+                 class="img-fluid rounded shadow"
+                 alt="Obálka knihy">
+        {% endif %}
+
+    </div>
+
+    <!-- PRAVÝ SLOUPEC – OBSAH -->
+    <div class="col-md-8 col-lg-9">
+
+        <!-- TITULEK -->
+        <h1 class="mb-1">
+            {{ book.titlecz|default:book.title }}
+        </h1>
+
+        <p class="text-muted mb-3">
+            {{ book.author }}
+            {% if listing.editionyear %} · {{ listing.editionyear }}{% endif %}
+        </p>
+
+        <!-- INFO O POPTÁVCE -->
+        <div class="alert alert-info">
+            <strong>📖 Tato kniha je právě sháněná</strong><br>
+            {% if user == listing.user %}
+                Toto je vaše poptávka.
+            {% else %}
+                Poptává: <strong>{{ listing.user.username }}</strong>
+                · vloženo {{ listing.createdat|date:"j. n. Y" }}
+            {% endif %}
+        </div>
+
+        <!-- CENA -->
+        {% if listing.price %}
+            <p class="mt-3">
+                <strong>Maximální cena:</strong>
+                {{ listing.price|floatformat:0 }} Kč
+            </p>
+        {% endif %}
+
+        <!-- POZNÁMKA -->
+        {% if listing.description %}
+            <hr>
+            <h2 class="h5 mb-2">Poznámka k poptávce</h2>
+            <div class="text-body">
+                {{ listing.description|linebreaks }}
+            </div>
+        {% endif %}
+
+        <hr>
+
+        <!-- AKCE -->
+        {% if user.is_authenticated %}
+            {% if user != listing.user %}
+                <div class="p-3 bg-light border rounded">
+                    <p class="mb-2">
+                        <strong>Máte tuto knihu doma?</strong><br>
+                        Vytvořte nabídku a poptávající dostane upozornění.
+                    </p>
+                    <a href="/antikvariat/pridat-knihu/?book_id={{ book.bookid }}"
+                       class="btn btn-success">
+                        Mám tuto knihu – vytvořit nabídku
+                    </a>
+                </div>
+            {% else %}
+                <p class="text-muted">
+                    Toto je vaše poptávka. Pokud už knihu nehledáte,
+                    můžete ji ukončit ve svém přehledu poptávek.
+                </p>
+            {% endif %}
+        {% else %}
+            <div class="p-3 bg-light border rounded">
+                <p class="mb-2">
+                    <strong>Máte tuto knihu?</strong><br>
+                    Pro reakci na poptávku se prosím přihlaste.
+                </p>
+                <a href="/prihlaseni/" class="btn btn-primary">
+                    Přihlásit se
+                </a>
+            </div>
+        {% endif %}
+
+    </div>
+
+</div>
+{% endblock %}
