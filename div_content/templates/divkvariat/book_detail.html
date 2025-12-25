@@ -51,6 +51,95 @@
         </div>
     </div>
 
+
+
+
+
+
+{# =========================
+   ADMIN BOX – jen superadmin / divkvariat
+   ========================= #}
+{% if can_edit_divkvariat %}
+<div class="mt-10 border border-yellow-300 bg-yellow-50 rounded-lg p-4 shadow-sm">
+    <p class="text-sm text-gray-800">
+        <strong>⚠️ Administrace DIVkvariát</strong><br>
+        Tento blok vidí pouze <strong>superadmin</strong> nebo členové skupiny <strong>divkvariat</strong>.
+    </p>
+
+    {% if has_divkvariat_content %}
+        <a href="{% url 'divkvariat_book_curation_edit' book.url %}"
+           class="inline-block mt-2 text-green-700 font-medium hover:underline">
+            ✏️ Upravit kurátorský obsah →
+        </a>
+    {% else %}
+        <p class="mt-2 text-sm text-gray-700">
+            Zatím nejsou vyplněny žádné kurátorské informace.
+        </p>
+        <a href="{% url 'divkvariat_book_curation_edit' book.url %}"
+           class="inline-block mt-2 text-green-700 font-medium hover:underline">
+            ➕ Přidat kurátorský obsah →
+        </a>
+    {% endif %}
+</div>
+{% endif %}
+
+
+{# =========================
+   VEŘEJNÝ BLOK – jen pokud existuje obsah
+   ========================= #}
+{% if has_divkvariat_content %}
+<div class="mt-8 bg-white border rounded-2xl p-6 shadow-sm">
+    <h2 class="text-xl font-semibold mb-4">DIVkvariát výběr</h2>
+
+    {% if divkvariat_when_tags %}
+    <div class="mb-4">
+        <div class="text-sm font-semibold text-gray-700 mb-2">Kdy tuto knihu číst</div>
+        <div class="flex flex-wrap gap-2">
+            {% for t in divkvariat_when_tags %}
+                <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm">{{ t.label }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if divkvariat_oneliner %}
+    <div class="mb-4">
+        <div class="text-sm font-semibold text-gray-700 mb-2">Jedna věta, která zůstane</div>
+        <div class="text-gray-900 text-lg italic">„{{ divkvariat_oneliner }}“</div>
+    </div>
+    {% endif %}
+
+    {% if divkvariat_notes.EDITOR_NOTE or divkvariat_notes.KNOWN_FOR or divkvariat_notes.ADAPTATION %}
+    <div class="space-y-2 text-gray-700">
+        {% if divkvariat_notes.EDITOR_NOTE %}
+            <div><strong>Poznámka:</strong> {{ divkvariat_notes.EDITOR_NOTE }}</div>
+        {% endif %}
+        {% if divkvariat_notes.KNOWN_FOR %}
+            <div><strong>Známá tím, že:</strong> {{ divkvariat_notes.KNOWN_FOR }}</div>
+        {% endif %}
+        {% if divkvariat_notes.ADAPTATION %}
+            <div><strong>Adaptace:</strong> {{ divkvariat_notes.ADAPTATION }}</div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if divkvariat_not_for_tags %}
+    <div class="mt-4">
+        <div class="text-sm font-semibold text-gray-700 mb-2">Pro koho tato kniha není</div>
+        <div class="flex flex-wrap gap-2">
+            {% for t in divkvariat_not_for_tags %}
+                <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm">{{ t.label }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+
+
+
+
     <!-- AKTUÁLNÍ NABÍDKY -->
     <div class="mt-12">
         <h2 class="text-2xl font-bold text-gray-900 mb-4">Aktuální nabídky</h2>

@@ -1,0 +1,80 @@
+{% extends "divkvariat/base.html" %}
+
+{% block title %}Administrace DIVkvariát – {{ book.titlecz|default:book.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-10">
+
+    <div class="mb-8 border border-yellow-300 bg-yellow-50 rounded-lg p-4 shadow-sm">
+        <p class="text-sm text-gray-800">
+            <strong>⚠️ Administrace DIVkvariát</strong><br>
+            Tuto stránku vidí pouze <strong>superadmin</strong> nebo členové skupiny <strong>divkvariat</strong>.
+        </p>
+        <p class="text-sm text-gray-700 mt-2">
+            Kniha: <strong>{{ book.titlecz|default:book.title }}</strong>
+        </p>
+        <a href="{% url 'book_detail_cz' book.url %}" class="inline-block mt-2 text-green-700 hover:underline">
+            ← zpět na detail knihy
+        </a>
+    </div>
+
+    <form method="post" class="space-y-8">
+        {% csrf_token %}
+
+        <div class="bg-white border rounded-2xl p-6 shadow-sm">
+            <h2 class="text-xl font-semibold mb-4">Tagy</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <div class="text-sm font-semibold mb-2">{{ mood_form.when_tags.label }}</div>
+                    {{ mood_form.when_tags }}
+                    {% if mood_form.when_tags.errors %}
+                        <div class="text-red-600 text-sm mt-2">{{ mood_form.when_tags.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <div class="text-sm font-semibold mb-2">{{ mood_form.not_for_tags.label }}</div>
+                    {{ mood_form.not_for_tags }}
+                    {% if mood_form.not_for_tags.errors %}
+                        <div class="text-red-600 text-sm mt-2">{{ mood_form.not_for_tags.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white border rounded-2xl p-6 shadow-sm">
+            <h2 class="text-xl font-semibold mb-4">Texty</h2>
+
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">{{ text_form.oneliner.label }}</label>
+                    {{ text_form.oneliner }}
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">{{ text_form.editor_note.label }}</label>
+                    {{ text_form.editor_note }}
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">{{ text_form.known_for.label }}</label>
+                    {{ text_form.known_for }}
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">{{ text_form.adaptation.label }}</label>
+                    {{ text_form.adaptation }}
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <button class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold">
+                Uložit
+            </button>
+            <a href="{% url 'book_detail_cz' book.url %}" class="text-gray-600 hover:underline">
+                Zrušit
+            </a>
+        </div>
+    </form>
+
+</div>
+{% endblock %}

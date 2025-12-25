@@ -6,6 +6,14 @@ from django import forms
 from div_content.models import Booklisting
 
 
+from div_content.models.divkvariat import (
+    Divkvariatbookmood,
+    Divkvariatbookmoodtag,
+    Divkvariatbookannotation,
+)
+
+
+
 DEFAULT_SHIPPING = {
     "ZASILKOVNA": 89,
     "BALIKOVNA": 99,
@@ -208,3 +216,37 @@ class BookListingForm(forms.ModelForm):
                     profile.phone = self.cleaned_data["phone"]
                     profile.save()
         return instance
+
+
+
+
+class DivkvariatBookAnnotationForm(forms.ModelForm):
+    class Meta:
+        model = Divkvariatbookannotation
+        fields = ["annotationtype", "text", "active"]
+
+        widgets = {
+            "annotationtype": forms.Select(attrs={"class": "form-control"}),
+            "text": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        }
+
+class DivkvariatBookAnnotationTextForm(forms.Form):
+    oneliner = forms.CharField(required=False, label="Jedna věta, která zůstane", widget=forms.Textarea(attrs={"rows": 2}))
+    editor_note = forms.CharField(required=False, label="Poznámka divkvariátu", widget=forms.Textarea(attrs={"rows": 2}))
+    known_for = forms.CharField(required=False, label="Známá tím, že…", widget=forms.Textarea(attrs={"rows": 2}))
+    adaptation = forms.CharField(required=False, label="Adaptace / zpracování", widget=forms.Textarea(attrs={"rows": 2}))
+
+
+class DivkvariatBookMoodForm(forms.Form):
+    when_tags = forms.ModelMultipleChoiceField(
+        queryset=Divkvariatbookmoodtag.objects.filter(tagtype="WHEN", active=True).order_by("order", "label"),
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        label="Kdy tuto knihu číst (max 3)"
+    )
+    not_for_tags = forms.ModelMultipleChoiceField(
+        queryset=Divkvariatbookmoodtag.objects.filter(tagtype="NOT_FOR", active=True).order_by("order", "label"),
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        label="Pro koho tato kniha není"
+    )

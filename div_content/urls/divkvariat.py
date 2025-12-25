@@ -12,6 +12,8 @@ from div_content.views.divkvariat_cz import (
     CustomLoginView, CustomSignupView, CustomLogoutView, 
     chatbot_api,
     
+    divkvariat_book_curation_edit, 
+    
     listing_add_book, listing_detail, listing_detail_edit, listing_search_books,
     listing_upload_image, listing_delete_image, 
     
@@ -104,6 +106,8 @@ urlpatterns = [
     path("spravce/finance/", admin_financial_list, name="admin_financial_list"),
     path("spravce/finance/pridat/", admin_financial_add, name="admin_financial_add"),
     path("spravce/finance/upravit/<int:transaction_id>/", admin_financial_edit, name="admin_financial_edit"),
+
+    path("kniha/<slug:book_url>/divkvariat/", divkvariat_book_curation_edit, name="divkvariat_book_curation_edit"),
 
 
 # 404

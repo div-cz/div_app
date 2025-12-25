@@ -69,10 +69,15 @@ from allauth.account.views import LoginView, SignupView, LogoutView
 
 from datetime import timedelta
 
-from div_content.forms.divkvariat import BookListingForm
+from div_content.forms.divkvariat import BookListingForm, DivkvariatBookMoodForm, DivkvariatBookAnnotationForm, DivkvariatBookAnnotationTextForm
 from div_content.utils.divkvariat import compress_image
 
 from div_content.models import Article, Book, Bookauthor, Bookgenre, Bookwriters, Booklisting, Booklistingimage, Metagenre, Userdivcoins, Userprofile
+from div_content.models.divkvariat import (
+    Divkvariatbookmood,
+    Divkvariatbookmoodtag,
+    Divkvariatbookannotation,
+)
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -94,7 +99,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods, require_POST
 from django.views.decorators.csrf import csrf_exempt
 
 from dotenv import load_dotenv
@@ -113,6 +118,17 @@ VŽDY formátuj výstup pomocí čistého HTML (pouze <p>, <ul>, <li>, <strong>,
 Nikdy nepoužívej <div>, <span>, <style>, <script> ani žádné nebezpečné tagy.
 """
 
+
+def user_in_group(user, group_name):
+    return user.is_superuser or user.groups.filter(name=group_name).exists()
+
+# nepoužíváme - jen ve views.financial.py
+def is_accounting(user):
+    return user_in_group(user, 'accounting')
+
+
+def is_divkvariat(user):
+    return user_in_group(user, 'divkvariat')
 
 
 # =========================================================
@@ -231,6 +247,93 @@ def chatbot_api(request):
         return JsonResponse({"reply": "❗ Omlouvám se, ale došlo k chybě při spojení."})
 
 
+
+# -------------------------------------------------------------------
+#                    DIVKVARIAT MOOD
+# -------------------------------------------------------------------
+@require_http_methods(["GET", "POST"])
+@login_required
+def divkvariat_book_curation_edit(request, book_url):
+    if not is_divkvariat(request.user):
+        messages.error(request, "Nemáte oprávnění.")
+        return redirect("book_detail_cz", book_url=book_url)
+
+    book = get_object_or_404(Book, url=book_url)
+
+    # --- INITIAL: tagy ---
+    current_when = Divkvariatbookmood.objects.filter(book=book, tag__tagtype="WHEN").values_list("tag_id", flat=True)
+    current_not_for = Divkvariatbookmood.objects.filter(book=book, tag__tagtype="NOT_FOR").values_list("tag_id", flat=True)
+
+    # --- INITIAL: anotace ---
+    ann_map = {
+        a.annotationtype: a
+        for a in Divkvariatbookannotation.objects.filter(book=book, active=True)
+    }
+
+    initial_text = {
+        "oneliner": ann_map["ONELINER"].text if "ONELINER" in ann_map else "",
+        "editor_note": ann_map["EDITOR_NOTE"].text if "EDITOR_NOTE" in ann_map else "",
+        "known_for": ann_map["KNOWN_FOR"].text if "KNOWN_FOR" in ann_map else "",
+        "adaptation": ann_map["ADAPTATION"].text if "ADAPTATION" in ann_map else "",
+    }
+
+    mood_form = DivkvariatBookMoodForm(
+        request.POST or None,
+        initial={"when_tags": list(current_when), "not_for_tags": list(current_not_for)}
+    )
+    text_form = DivkvariatBookAnnotationTextForm(request.POST or None, initial=initial_text)
+
+    if request.method == "POST":
+        ok = True
+
+        if mood_form.is_valid():
+            when_tags = mood_form.cleaned_data["when_tags"]
+            not_for_tags = mood_form.cleaned_data["not_for_tags"]
+            if len(when_tags) > 3:
+                mood_form.add_error("when_tags", "Maximálně 3 tagy.")
+                ok = False
+            if len(not_for_tags) > 2:
+                mood_form.add_error("not_for_tags", "Maximálně 2 tagy.")
+                ok = False
+        else:
+            ok = False
+
+        if not text_form.is_valid():
+            ok = False
+
+        if ok:
+            # --- uložit tagy: nejjednodušší je reset ---
+            Divkvariatbookmood.objects.filter(book=book).delete()
+            Divkvariatbookmood.objects.bulk_create(
+                [Divkvariatbookmood(book=book, tag=t) for t in when_tags] +
+                [Divkvariatbookmood(book=book, tag=t) for t in not_for_tags]
+            )
+
+            # --- uložit anotace: prázdné = smazat ---
+            def upsert(atype: str, value: str):
+                value = (value or "").strip()
+                qs = Divkvariatbookannotation.objects.filter(book=book, annotationtype=atype)
+                if value:
+                    obj = qs.first() or Divkvariatbookannotation(book=book, annotationtype=atype)
+                    obj.text = value
+                    obj.active = True
+                    obj.save()
+                else:
+                    qs.delete()
+
+            upsert("ONELINER", text_form.cleaned_data["oneliner"])
+            upsert("EDITOR_NOTE", text_form.cleaned_data["editor_note"])
+            upsert("KNOWN_FOR", text_form.cleaned_data["known_for"])
+            upsert("ADAPTATION", text_form.cleaned_data["adaptation"])
+
+            messages.success(request, "DIVkvariát nastavení uloženo.")
+            return redirect("book_detail_cz", book_url=book.url)
+
+    return render(request, "divkvariat/admin_book_curation_edit.html", {
+        "book": book,
+        "mood_form": mood_form,
+        "text_form": text_form,
+    })
 # -------------------------------------------------------------------
 #                    BOOK DETAIL
 # -------------------------------------------------------------------
@@ -264,6 +367,47 @@ def book_detail_cz(request, book_url):
     total_active_offers = sell_listings.count()
     total_active_wants = buy_listings.count()
 
+
+    # --- DIVKVARIAT: pilíře + anotace ---
+    can_edit_divkvariat = is_divkvariat(request.user)
+
+    moods_qs = (
+        Divkvariatbookmood.objects
+        .filter(book=book)
+        .select_related("tag")
+        .order_by("tag__order", "tag__label")
+    )
+
+    divkvariat_when_tags = [m.tag for m in moods_qs if m.tag.tagtype == "WHEN" and m.tag.active]
+    divkvariat_not_for_tags = [m.tag for m in moods_qs if m.tag.tagtype == "NOT_FOR" and m.tag.active]
+
+    ann_qs = (
+        Divkvariatbookannotation.objects
+        .filter(book=book, active=True)
+        .order_by("annotationtype", "-updatedat")
+    )
+
+    # vytáhneme max 1 na typ (unique_together to hlídá, ale tady je to bezpečné)
+    ann_map = {a.annotationtype: a for a in ann_qs}
+
+    divkvariat_oneliner = ann_map.get("ONELINER").text if ann_map.get("ONELINER") else None
+
+    divkvariat_notes = {
+        "EDITOR_NOTE": ann_map.get("EDITOR_NOTE").text if ann_map.get("EDITOR_NOTE") else None,
+        "KNOWN_FOR": ann_map.get("KNOWN_FOR").text if ann_map.get("KNOWN_FOR") else None,
+        "ADAPTATION": ann_map.get("ADAPTATION").text if ann_map.get("ADAPTATION") else None,
+    }
+    
+    has_divkvariat_content = (
+        bool(divkvariat_when_tags)
+        or bool(divkvariat_oneliner)
+        or bool(divkvariat_not_for_tags)
+        or any(divkvariat_notes.values())
+    )
+    
+    can_edit_divkvariat = is_divkvariat(request.user)
+
+
     context = {
         "book": book,
         "sell_listings": sell_listings,
@@ -271,6 +415,15 @@ def book_detail_cz(request, book_url):
         "sold_count": sold_count,
         "total_active_offers": total_active_offers,
         "total_active_wants": total_active_wants,
+
+        "can_edit_divkvariat": can_edit_divkvariat,
+        "divkvariat_when_tags": divkvariat_when_tags,
+        "divkvariat_not_for_tags": divkvariat_not_for_tags,
+        "divkvariat_oneliner": divkvariat_oneliner,
+        "divkvariat_notes": divkvariat_notes,
+        "has_divkvariat_content": has_divkvariat_content,
+        "can_edit_divkvariat": can_edit_divkvariat,
+
     }
 
     return render(request, "divkvariat/book_detail.html", context)
@@ -694,6 +847,7 @@ def cancel_sell(request, listing_id):
 
     # návrat tam, odkud přišel
     return redirect(request.META.get("HTTP_REFERER", "antikvariat_home"))
+
 
 # -------------------------------------------------------------------
 #                    GET BOOK PRICE
