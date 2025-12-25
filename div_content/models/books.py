@@ -89,8 +89,8 @@ class Booklisting(models.Model):
     shippingaddress = models.CharField(db_column='ShippingAddress', max_length=1024, blank=True, null=True)
 
     # PLATFORM
-    platform_seller = models.CharField(max_length=16, choices=[("DIV", "DIV.cz"), ("DIVKVARIAT", "DIVkvariat.cz")], null=True, blank=True, db_column="PlatformSeller" )  
-    platform_buyer = models.CharField( max_length=16, choices=[("DIV", "DIV.cz"), ("DIVKVARIAT", "DIVkvariat.cz")], null=True, blank=True, db_column="PlatformBuyer" )
+    platformseller = models.CharField(max_length=16, choices=[("DIV", "DIV.cz"), ("DIVKVARIAT", "DIVkvariat.cz")], null=True, blank=True, db_column="PlatformSeller" )  
+    platformbuyer = models.CharField( max_length=16, choices=[("DIV", "DIV.cz"), ("DIVKVARIAT", "DIVkvariat.cz")], null=True, blank=True, db_column="PlatformBuyer" )
     
     # Hodnocení transakce
     sellerrating = models.IntegerField(db_column='SellerRating', null=True, blank=True)
