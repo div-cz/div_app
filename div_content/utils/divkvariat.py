@@ -79,9 +79,36 @@ def compress_image(image_file, max_kb=400, max_width=1600):
     return ContentFile(buffer.getvalue(), name=image_file.name)
 
 
+# ------------------------------------------------------
+# DIVKVARIAT – PLATFORM
+# ------------------------------------------------------
+
+PLATFORM_MAP = {
+    "DIV": {
+        "name": "DIV.cz",
+        "domain": "https://div.cz",
+        "antikvariat": "https://div.cz/antikvariat",
+    },
+    "DIVKVARIAT": {
+        "name": "DIVkvariat.cz",
+        "domain": "https://divkvariat.cz",
+        "antikvariat": "https://divkvariat.cz",
+    },
+}
+
+DEFAULT_PLATFORM = "DIVKVARIAT"
 
 
+def get_platform(platform_code: str | None):
+    return PLATFORM_MAP.get(platform_code, PLATFORM_MAP[DEFAULT_PLATFORM])
 
+
+def get_antikvariat_url(platform_code: str | None):
+    return get_platform(platform_code)["antikvariat"]
+
+
+def get_domain(platform_code: str | None):
+    return get_platform(platform_code)["domain"]
 
 
 

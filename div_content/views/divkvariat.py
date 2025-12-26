@@ -65,7 +65,7 @@ import unicodedata
 from datetime import timedelta
 
 from div_content.forms.divkvariat import BookListingForm
-from div_content.utils.divkvariat import compress_image
+from div_content.utils.divkvariat import compress_image, get_platform, get_antikvariat_url, get_domain
 from div_content.models import Book, Booklisting, Booklistingimage, Userprofile
 
 from django.contrib.auth.decorators import login_required
@@ -373,6 +373,8 @@ def cancel_listing_reservation(request, listing_id):
             listing.status = "ACTIVE"
             listing.cancelreason = reason 
             listing.buyer = None 
+            listing.platformbuyer = None
+            
             listing.save()
 
             messages.success(request, f'Rezervace knihy "{book_obj.titlecz}" byla zrušena.')
@@ -516,6 +518,8 @@ def listing_add_book(request):
                     listing.book = book
                     listing.paidtoseller = False
                     listing.requestpayout = False
+                    listing.platformseller = "DIV"
+                                        
                     listing.save()
                     
                     title = book.title or book.titlecz
@@ -657,6 +661,8 @@ def listing_detail(request, book_url, listing_id):
                 listing.status = 'RESERVED'
                 listing.buyer = request.user
                 listing.shippingaddress = shippingaddress
+                listing.platformbuyer = "DIV"
+                
                 listing.save()
     
                 try:
@@ -977,6 +983,15 @@ def send_listing_auto_completed_email_seller(listing):
             'book_title': book.titlecz,
             'book_url': book.url,
             'listing_id': listing.booklistingid,
+            # BUYER
+            'market_url': get_antikvariat_url(listing.platformbuyer),
+            'market_domain': get_domain(listing.platformbuyer),
+            'market_name': get_platform(listing.platformbuyer)["name"],
+        
+            # SELLER
+            'seller_market_url': get_antikvariat_url(listing.platformseller),
+            'seller_market_domain': get_domain(listing.platformseller),
+            'seller_market_name': get_platform(listing.platformseller)["name"],
         }
 
         html_email = render_to_string('emails/listing_auto_completed_seller.html', context)
@@ -1115,6 +1130,15 @@ def send_listing_paid_expired_email_seller(listing):
     context = {
         'seller_name': seller.first_name or seller.username,
         'book_title': book.titlecz or book.title,
+        # BUYER
+        'market_url': get_antikvariat_url(listing.platformbuyer),
+        'market_domain': get_domain(listing.platformbuyer),
+        'market_name': get_platform(listing.platformbuyer)["name"],
+    
+        # SELLER
+        'seller_market_url': get_antikvariat_url(listing.platformseller),
+        'seller_market_domain': get_domain(listing.platformseller),
+        'seller_market_name': get_platform(listing.platformseller)["name"],
     }
 
     recipient = seller.email
@@ -1155,6 +1179,16 @@ def send_listing_payment_confirmation_email(listing):
             'amount': amount,
             'shipping': shipping,
             'seller_name': listing.user.first_name or listing.user.username if listing.user else "",
+
+            # BUYER
+            'market_url': get_antikvariat_url(listing.platformbuyer),
+            'market_domain': get_domain(listing.platformbuyer),
+            'market_name': get_platform(listing.platformbuyer)["name"],
+        
+            # SELLER
+            'seller_market_url': get_antikvariat_url(listing.platformseller),
+            'seller_market_domain': get_domain(listing.platformseller),
+            'seller_market_name': get_platform(listing.platformseller)["name"],
         }
 
         recipient = user.email
@@ -1233,6 +1267,16 @@ def send_listing_payment_email(listing):
             'shipping': shipping,
             'shippingaddress': listing.shippingaddress,
             'user_name': seller.first_name or seller.username if seller else "",
+
+            # BUYER
+            'market_url': get_antikvariat_url(listing.platformbuyer),
+            'market_domain': get_domain(listing.platformbuyer),
+            'market_name': get_platform(listing.platformbuyer)["name"],
+        
+            # SELLER
+            'seller_market_url': get_antikvariat_url(listing.platformseller),
+            'seller_market_domain': get_domain(listing.platformseller),
+            'seller_market_name': get_platform(listing.platformseller)["name"],
         }
 
         html_email = render_to_string('emails/listing_paid_confirmation_seller.html', context)
@@ -1324,6 +1368,15 @@ def send_listing_reservation_email(request, listing_id):
                 'amount': total_amount,
                 'payment_info': payment_info,
                 'shippingaddress': listing.shippingaddress,
+                # BUYER
+                'market_url': get_antikvariat_url(listing.platformbuyer),
+                'market_domain': get_domain(listing.platformbuyer),
+                'market_name': get_platform(listing.platformbuyer)["name"],
+            
+                # SELLER
+                'seller_market_url': get_antikvariat_url(listing.platformseller),
+                'seller_market_domain': get_domain(listing.platformseller),
+                'seller_market_name': get_platform(listing.platformseller)["name"],
             }
 
             recipient = buyer.email
@@ -1366,6 +1419,16 @@ def send_listing_shipped_email(listing):
             'book_title': book.titlecz,
             'listing_id': listing.booklistingid,
             'book_url': book.url,
+            # BUYER
+            'market_url': get_antikvariat_url(listing.platformbuyer),
+            'market_domain': get_domain(listing.platformbuyer),
+            'market_name': get_platform(listing.platformbuyer)["name"],
+        
+            # SELLER
+            'seller_market_url': get_antikvariat_url(listing.platformseller),
+            'seller_market_domain': get_domain(listing.platformseller),
+            'seller_market_name': get_platform(listing.platformseller)["name"],
+                
         }
         html_email = render_to_string('emails/listing_shipped_information_buyer.html', context)
         msg = PyEmailMessage()
@@ -1400,6 +1463,15 @@ def send_listing_completed_email_buyer(listing):
             'book_title': book.titlecz,
             'book_url': book.url,
             'listing_id': listing.booklistingid,
+            # BUYER
+            'market_url': get_antikvariat_url(listing.platformbuyer),
+            'market_domain': get_domain(listing.platformbuyer),
+            'market_name': get_platform(listing.platformbuyer)["name"],
+        
+            # SELLER
+            'seller_market_url': get_antikvariat_url(listing.platformseller),
+            'seller_market_domain': get_domain(listing.platformseller),
+            'seller_market_name': get_platform(listing.platformseller)["name"],
         }
 
         html_email = render_to_string('emails/listing_completed_confirmation_buyer.html', context)
@@ -1438,6 +1510,15 @@ def send_listing_completed_email_seller(listing):
             'book_title': book.titlecz,
             'book_url': book.url,
             'listing_id': listing.booklistingid,
+            # BUYER
+            'market_url': get_antikvariat_url(listing.platformbuyer),
+            'market_domain': get_domain(listing.platformbuyer),
+            'market_name': get_platform(listing.platformbuyer)["name"],
+        
+            # SELLER
+            'seller_market_url': get_antikvariat_url(listing.platformseller),
+            'seller_market_domain': get_domain(listing.platformseller),
+            'seller_market_name': get_platform(listing.platformseller)["name"],
         }
 
         html_email = render_to_string('emails/listing_completed_confirmation_seller.html', context)

@@ -1,37 +1,78 @@
-{% extends "emails/base_emails.html" %}
-
+{% extends "emails/base_email.html" %}
 
 {% block content %}
-<p style="margin-bottom: 10px;">Dobrý den <strong>{{ user_name }}</strong>,</p>
-<p>Vaše kniha: <strong>{{ book_title }}</strong> byla zakoupena uživatelem 
-   {% if buyer_id %}
-      <a href="https://div.cz/{% url 'myuser_detail' buyer_id %}">{{ buyer_name }}</a>
-   {% else %}
-      {{ buyer_name }}
-   {% endif %}
+
+<p style="margin-bottom: 10px;">
+Dobrý den <strong>{{ user_name }}</strong>,
 </p>
-<p>Zaplacená částka: <strong>{{ amount }} Kč</strong> 
-{% if shipping > 0 %}+ poštovné {{ shipping }} Kč{% else %}(osobní odběr){% endif %}</p>
+
+<p style="margin-bottom: 10px;">
+Vaše kniha: <strong>{{ book_title }}</strong> byla zakoupena uživatelem
+{% if buyer_id %}
+    <a href="{{ seller_market_url }}/{% url 'myuser_detail' buyer_id %}">{{ buyer_name }}</a>
+{% else %}
+    {{ buyer_name }}
+{% endif %}
+</p>
+
+<p style="margin-bottom: 10px;">
+Zaplacená částka: <strong>{{ amount }} Kč</strong>
+{% if shipping > 0 %}
+    + poštovné {{ shipping }} Kč
+{% else %}
+    (osobní odběr)
+{% endif %}
+</p>
 
 {% if shipping > 0 %}
-<p>Adresa kupujícího: <strong>{{ shippingaddress }}</strong></p>
-<p>E-mail: <strong>{{ buyer_email }}</strong></p>
+<p style="margin-bottom: 10px;">
+Adresa kupujícího: <strong>{{ shippingaddress }}</strong>
+</p>
+
+<p style="margin-bottom: 10px;">
+E-mail: <strong>{{ buyer_email }}</strong>
+</p>
+
 {% if buyer_phone %}
-<p>Telefon: <strong>{{ buyer_phone }}</strong></p>
+<p style="margin-bottom: 10px;">
+Telefon: <strong>{{ buyer_phone }}</strong>
+</p>
 {% endif %}
-<p><strong>Prosím co nejdříve kupujícímu zašlete knihu.</strong></p>
+
+<p style="margin-bottom: 10px;">
+<strong>Prosím co nejdříve kupujícímu zašlete knihu.</strong>
+</p>
 {% else %}
-<p><strong>POZOR: Osobní odběr!</strong> Neposílejte knihu poštou.</p>
-<p>Kontakt na kupujícího pro domluvu předání:</p>
-<p>E-mail: <strong>{{ buyer_email }}</strong></p>
+<p style="margin-bottom: 10px;">
+<strong>POZOR: Osobní odběr!</strong> Neposílejte knihu poštou.
+</p>
+
+<p style="margin-bottom: 10px;">
+Kontakt na kupujícího pro domluvu předání:
+</p>
+
+<p style="margin-bottom: 10px;">
+E-mail: <strong>{{ buyer_email }}</strong>
+</p>
+
 {% if buyer_phone %}
-<p>Telefon: <strong>{{ buyer_phone }}</strong></p>
-{% endif %}
-<p><strong>Domluvte se s kupujícím na místě a čase předání knihy.</strong></p>
+<p style="margin-bottom: 10px;">
+Telefon: <strong>{{ buyer_phone }}</strong>
+</p>
 {% endif %}
 
+<p style="margin-bottom: 10px;">
+<strong>Domluvte se s kupujícím na místě a čase předání knihy.</strong>
+</p>
+{% endif %}
 
-<p>V případě dotazů nás neváhejte kontaktovat na info@div.cz.</p>
-<p style="margin-top: 10px;">S pozdravem,</p>
-<p>Váš Divkvariát</p>
+<p style="margin-bottom: 10px;">
+V případě dotazů nás neváhejte kontaktovat na info@div.cz.
+</p>
+
+<p style="margin-top: 14px;">
+S pozdravem,<br>
+<strong>Tým {{ market_name }}</strong>
+</p>
+
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends "emails/base_emails.html" %}
+{% extends "emails/base_email.html" %}
 
 {% block content %}
 
@@ -10,24 +10,30 @@
 
 <div>
     <h4 class="font-medium mb-2">Bankovní převod</h4>
-    <ul class="space-y-2 ">
+    <ul class="space-y-2">
         <li>Částka: {{ amount }} Kč</li>
-        <li><span class="font-medium">Číslo účtu:</span> 2602912559/2010</li>
-        <li><span class="font-medium">Variabilní symbol:</span> {{ payment_info.variable_symbol }}</li>
-        <li><span class="font-medium">Poznámka:</span> {{ payment_info.note }}</li>
+        <li><strong>Číslo účtu:</strong> 2602912559/2010</li>
+        <li><strong>Variabilní symbol:</strong> {{ payment_info.variable_symbol }}</li>
+        <li><strong>Poznámka:</strong> {{ payment_info.note }}</li>
     </ul>
 </div>
 
-<div class="flex justify-center">
-    <img src="data:image/png;base64,{{ payment_info.qr_code }}" alt="QR Platba" class="max-w-[200px]">
+<div style="text-align:center; margin:15px 0;">
+    <img src="data:image/png;base64,{{ payment_info.qr_code }}" alt="QR Platba" style="max-width:200px;">
 </div>
-<p>QR kód najdete také na této stránce:
-    <a href="https://div.cz/antikvariat/{{ book.url }}/prodej/{{ listing.booklistingid }}/">Detail nabídky</a>
+
+<p>
+QR kód i detail nabídky najdete zde:
+<a href="{{ market_url }}/{{ book.url }}/prodej/{{ listing.booklistingid }}/">
+    Zobrazit detail nabídky
+</a>
 </p>
 
 <p style="margin-top: 10px;">V případě dotazů nás neváhejte kontaktovat.</p>
-<p>S pozdravem,</p>
-<p>Váš Divkvariát</p>
 
+<p style="margin-top: 14px;">
+S pozdravem,<br>
+<strong>Tým {{ market_name }}</strong>
+</p>
 
 {% endblock %}
