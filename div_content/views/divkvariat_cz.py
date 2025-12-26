@@ -463,6 +463,7 @@ def book_detail_cz(request, book_url):
     )
     
     can_edit_divkvariat = is_divkvariat(request.user)
+    writers = Bookwriters.objects.filter(book=book).select_related("author")
 
 
     context = {
@@ -480,6 +481,7 @@ def book_detail_cz(request, book_url):
         "divkvariat_notes": divkvariat_notes,
         "has_divkvariat_content": has_divkvariat_content,
         "can_edit_divkvariat": can_edit_divkvariat,
+        "writers": writers,
 
     }
 

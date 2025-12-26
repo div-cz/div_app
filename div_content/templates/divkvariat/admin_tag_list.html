@@ -3,14 +3,25 @@
 {% block title %}Správa DIVkvariát tagů{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto py-10">
+<div class="max-w-5xl mx-auto px-4 py-8">
+
+    <!-- NAVIGACE -->
+    <div class="mt-2 mb-3 text-sm text-gray-500">
+        <a href="/" 
+           class="text-green-700 hover:underline">DIVkvariát</a>
+        <span class="mx-2">/</span>
+        Admin
+        <span class="mx-2">/</span>
+        <span class="text-gray-600">Editace tagů</span>
+    </div>
+
 
     <div class="mb-6 border border-yellow-300 bg-yellow-50 rounded-lg p-4">
         <strong>⚠️ Administrace DIVkvariát</strong><br>
         Vidí pouze superadmin / skupina <strong>divkvariat</strong>.
     </div>
 
-    <h1 class="text-2xl font-bold mb-4">Tagy</h1>
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Tagy</h1>
 
     <table class="w-full border bg-white text-sm mb-8">
         <tr class="bg-gray-100">
@@ -33,16 +44,20 @@
 
     <form method="post" class="grid grid-cols-1 md:grid-cols-4 gap-4">
         {% csrf_token %}
+        <select name="tagtype" class="border p-2 rounded">
+            <option value="WHEN">Kdy číst (WHEN)</option>
+            <option value="NOT_FOR">Pro koho není (NOT_FOR)</option>
+        </select>
+        
         <input name="label" placeholder="Label" class="border p-2 rounded">
         <input name="slug" placeholder="slug" class="border p-2 rounded">
-        <select name="tagtype" class="border p-2 rounded">
-            <option value="WHEN">Kdy číst</option>
-            <option value="NOT_FOR">Pro koho není</option>
-        </select>
+
         <button class="bg-green-600 text-white rounded px-4 py-2">
             Přidat
         </button>
     </form>
+
+
 
 </div>
 {% endblock %}

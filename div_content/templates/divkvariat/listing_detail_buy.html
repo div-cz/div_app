@@ -7,10 +7,25 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
+<div class="mx-auto max-w-4xl px-4 py-10"">
+
+
+    <!-- NAVIGACE -->
+    <div class="mt-2 mb-3 text-sm text-gray-500">
+        <a href="/" 
+           class="text-green-700 hover:underline">DIVkvariát</a>
+        <span class="mx-2">/</span>
+        <a href="{% if listing.listingtype == 'SELL' %}/nabidky/{% else %}/poptavky/{% endif %}"
+           class="text-green-700 hover:underline">
+            {% if listing.listingtype == 'SELL' %}Nabídky{% else %}Poptávky{% endif %}
+        </a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-600">{{ listing.book.titlecz|default:listing.book.title }}</span>
+    </div>
+
 
     <!-- TITULEK -->
-    <h1 class="text-3xl font-bold mb-1">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">
         {{ listing.book.titlecz|default:listing.book.title }}
     </h1>
 

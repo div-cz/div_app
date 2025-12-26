@@ -4,9 +4,33 @@
 {% block title %}Hledání | DIVkvariát{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-10 max-w-6xl">
+<div class="mx-auto max-w-7xl px-4 py-10">
 
-    <h1 class="text-3xl font-bold mb-6">🔍 Hledat v nabídkách</h1>
+<!-- NAVIGACE / BREADCRUMB -->
+<div class="mt-2 mb-3 text-sm text-gray-500">
+    <a href="/"
+       class="text-green-700 hover:underline">DIVkvariát</a>
+
+    <span class="mx-2">/</span>
+
+    <!-- SEKCE -->
+    <span class="text-gray-600">Hledání</span>
+
+
+
+    <!-- AKTUÁLNÍ STRÁNKA -->
+
+    {% if query %}
+    <span class="mx-2">/</span>
+    <span class="text-gray-600">
+        Výsledky pro <strong>"{{ query }}"</strong>
+    </span>
+    {% endif %}
+
+</div>
+
+
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">🔍 Hledat v nabídkách</h1>
 
     <!-- Hledací pole -->
     <form method="get" action="/hledat/" class="mb-10">

@@ -147,7 +147,9 @@ class Metapublisher(models.Model):
     publisherid = models.AutoField(db_column='PublisherID', primary_key=True)
     publisher = models.CharField(db_column='Publisher', max_length=255)
     publisherurl = models.CharField(db_column='PublisherURL', max_length=255, unique=True)
+    publishertype = models.CharField(db_column='PublisherType', max_length=6, null=True, blank=True)
     rawgid = models.IntegerField(db_column='RawgID', null=True, blank=True)
+    divrating = models.IntegerField(db_column='DIVRating', default="0", db_index=True, blank=True, null=True)
 
     class Meta:
         db_table = 'MetaPublisher'

@@ -89,11 +89,91 @@
 </script>
 {% endblock %}
 
+{% block VZOR %}
+<!-- =========================================================
+KONTEJNERY – KANONICKÝ STANDARD DIVkvariátu
+
+
+SEZNAMY (nabídky, poptávky, vyhledávání):
+<div class="mx-auto max-w-7xl px-4 py-10">
+
+DETAILOVÉ STRÁNKY (kniha, autor, detail nabídky/poptávky):
+<div class="mx-auto max-w-4xl px-4 py-10">
+
+BLOG:
+<div class="mx-auto max-w-4xl px-4 py-10">
+(nebo max-w-3xl u textově těžkých článků)
+
+ADMIN / FORMULÁŘE / ÚČET:
+<div class="max-w-5xl mx-auto px-4 py-8">
+
+========================================================= -->
+<!-- =========================================================
+BREADCRUMB – STANDARD DIVkvariátu
+
+PRAVIDLA:
+- Zobrazuje se na všech podstránkách (NE na homepage)
+- První položka vždy "DIVkvariát" (odkaz)
+- Poslední položka bez odkazu
+- Neuvádět "Detail", ale konkrétní název entity
+
+========================================================= -->
+
+<!-- NAVIGACE / BREADCRUMB -->
+<div class="mt-2 mb-3 text-sm text-gray-500">
+    <a href="/"
+       class="text-green-700 hover:underline">DIVkvariát</a>
+
+    <span class="mx-2">/</span>
+
+    <!-- SEKCE -->
+    <span class="text-gray-600">Knihy</span>
+
+    <!-- SEKCE LINK -->
+            <a href="{{ breadcrumb_section_url }}"
+               class="text-green-700 hover:underline">
+                {{ breadcrumb_section }}
+            </a>
+    <span class="mx-2">/</span>
+
+    <!-- AKTUÁLNÍ STRÁNKA -->
+    <span class="text-gray-600">
+        {{ book.titlecz|default:book.title }}
+    </span>
+</div>
+<!-- 
+STANDARD LAYOUT DIVKVARIÁT
+
+Detailové stránky (kniha, autor, nabídka, poptávka, blog detail):
+<div class="mx-auto max-w-4xl px-4 py-10">
+
+Seznamové stránky (nabídky, poptávky, blog list, search):
+<div class="mx-auto max-w-7xl px-4 py-10">
+
+Admin / formuláře:
+<div class="mx-auto max-w-5xl px-4 py-8">
+-->
+
+<!--<h1 class="text-3xl font-bold text-gray-900 mb-2">-->
+{% endblock %}
 
 
 {% block content %}
+<div class="mx-auto max-w-7xl px-4 py-10">
 
-<h1 class="text-3xl font-bold mt-8 text-gray-800">DIVkvariát</h1>
+<!-- HERO / MOTTO -->
+<div class="mt-2 mb-3 text-sm text-gray-500">
+    <span class="font-medium text-gray-700">
+        DIVkvariát
+    </span>
+    <span class="mx-2">–</span>
+    <span class="italic text-gray-600">
+        kniha vás najde
+    </span>
+</div>
+
+
+<h1 class="text-3xl font-bold text-gray-900 mb-2">DIVkvariát</h1>
 <p class="mb-8 text-lg text-gray-600">
     Burza knih mezi čtenáři – přehledné nabídky a poptávky z druhé ruky.<br>
     Nabídku můžete zadat z detailu knihy nebo 
@@ -243,4 +323,6 @@
 </div>
 {% endif %}
 
+
+</div>
 {% endblock %}

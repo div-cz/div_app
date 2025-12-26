@@ -4,7 +4,23 @@
 
 {% block content %}
 
-<div class="container mx-auto max-w-4xl py-10">
+<div class="mx-auto max-w-4xl px-4 py-10">
+<!-- === === === -->
+<!-- detail- <div class="container mx-auto max-w-4xl py-10"> -->
+<!-- seznam- <div class="max-w-7xl mx-auto px-4 py-10"> -->
+<!-- admin/form- <div class="max-w-5xl mx-auto px-4 py-8"> -->
+
+<!-- === === === -->
+    <!-- NAVIGACE -->
+    <div class="mt-2 mb-3 text-sm text-gray-500">
+        <a href="/" 
+           class="text-green-700 hover:underline">DIVkvariát</a>
+        <span class="mx-2">/</span>
+        Kniha
+        <span class="mx-2">/</span>
+        <span class="text-gray-600">{{ book.titlecz|default:book.title }}</span>
+    </div>
+
 
     <!-- HLAVNÍ INFO O KNIZE -->
     <div class="flex flex-col sm:flex-row gap-8 bg-white rounded-xl shadow p-6">
@@ -28,15 +44,46 @@
                 {{ book.titlecz|default:book.title }}
             </h1>
 
-            <p class="text-green-700 font-medium text-lg mb-1">
-{% if book.authorid and book.authorid.url %}
-    <a href="{% url 'author_detail_cz' book.authorid.url %}" class="hover:underline">
-        {{ book.authorid.name }}
-    </a>
-{% else %}
-    <span>{{ book.authorid.name|default:"Neznámý autor" }}</span>
-{% endif %}
-            </p>
+
+<!-- Author -->
+<p class="text-green-700 font-medium text-lg mb-1">
+
+    {% if writers %}
+        {# 1️⃣ BookWriters – víc autorů #}
+        {% for w in writers %}
+            {% if w.author.url %}
+                <a href="{% url 'author_detail_cz' w.author.url %}" class="hover:underline">
+                    {{ w.author.firstname }} {{ w.author.lastname }}
+                </a>
+            {% else %}
+                {{ w.author.firstname }} {{ w.author.lastname }}
+            {% endif %}
+            {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+
+    {% elif book.authorid %}
+        {# 2️⃣ FK authorid #}
+        {% if book.authorid.url %}
+            <a href="{% url 'author_detail_cz' book.authorid.url %}" class="hover:underline">
+                {{ book.authorid.firstname }} {{ book.authorid.lastname }}
+            </a>
+        {% else %}
+            {{ book.authorid.firstname }} {{ book.authorid.lastname }}
+        {% endif %}
+
+    {% elif book.author %}
+        {# 3️⃣ Textový autor #}
+        {{ book.author }}
+
+    {% else %}
+        {# 4️⃣ Fallback #}
+        <span class="text-gray-500">Autor neuveden</span>
+
+    {% endif %}
+
+</p>
+
+
 
             {% if book.year %}
             <p class="text-gray-500 text-sm mb-4">Rok vydání: {{ book.year }}</p>
@@ -47,11 +94,52 @@
                 <p><strong>Aktivní nabídky:</strong> {{ total_active_offers }}</p>
                 <p><strong>Lidé shání:</strong> {{ total_active_wants }}</p>
             </div>
-
         </div>
     </div>
 
 
+
+{% if book.description %}
+<div class="mt-4 text-gray-700 leading-relaxed">
+
+    <div id="book-desc-short">
+        {{ book.description|truncatewords:42|linebreaks }}
+    </div>
+
+    {% if book.description|wordcount > 42 %}
+        <div id="book-desc-full" class="hidden">
+            {{ book.description|linebreaks }}
+        </div>
+
+        <button
+            onclick="toggleDescription()"
+            class="mt-2 text-green-700 font-medium hover:underline"
+            id="desc-toggle"
+        >
+            Zobrazit celý popis
+        </button>
+    {% endif %}
+
+</div>
+<script>
+function toggleDescription() {
+    const shortDesc = document.getElementById("book-desc-short");
+    const fullDesc = document.getElementById("book-desc-full");
+    const toggleBtn = document.getElementById("desc-toggle");
+
+    if (fullDesc.classList.contains("hidden")) {
+        shortDesc.classList.add("hidden");
+        fullDesc.classList.remove("hidden");
+        toggleBtn.textContent = "Skrýt popis";
+    } else {
+        fullDesc.classList.add("hidden");
+        shortDesc.classList.remove("hidden");
+        toggleBtn.textContent = "Zobrazit celý popis";
+    }
+}
+</script>
+
+{% endif %}
 
 
 
@@ -89,7 +177,7 @@
    ========================= -->
 {% if has_divkvariat_content %}
 <div class="mt-8 bg-white border rounded-2xl p-6 shadow-sm">
-    <h2 class="text-xl font-semibold mb-4">DIVkvariát výběr</h2>
+    <h2 class="text-xl font-semibold mb-4">Doporučení k této knize</h2>
 
     {% if divkvariat_when_tags %}
     <div class="mb-4">
@@ -111,7 +199,7 @@
 
     {% if divkvariat_oneliner %}
     <div class="mb-4">
-        <div class="text-sm font-semibold text-gray-700 mb-2">Jedna věta, která zůstane</div>
+        <div class="text-sm font-semibold text-gray-700 mb-2">Citát / myšlenka knihy</div>
         <div class="text-gray-900 text-lg italic">„{{ divkvariat_oneliner }}“</div>
     </div>
     {% endif %}

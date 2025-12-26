@@ -163,15 +163,24 @@
 
 
 {% block content %}
-<div class="container mx-auto px-4 py-10 max-w-4xl">
+<div class="mx-auto max-w-4xl px-4 py-10">
 
-    <!-- Breadcrumb -->
-    <div class="mb-6 text-sm text-gray-500">
-        <a href="/blog/" class="text-green-700 hover:underline">← Zpět na blog</a>
+
+    <!-- NAVIGACE -->
+    <div class="mt-2 mb-3 text-sm text-gray-500">
+        <a href="/" 
+           class="text-green-700 hover:underline">DIVkvariát</a>
+        <span class="mx-2">/</span>
+        <a href="/blog/"
+           class="text-green-700 hover:underline">
+            Blog
+        </a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-600">{{ article.h1|default:article.title }}</span>
     </div>
 
     <!-- Titulek -->
-    <h1 class="text-4xl font-extrabold text-gray-900 mb-4 leading-tight">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">
         {{ article.h1|default:article.title }}
     </h1>
 
@@ -182,10 +191,13 @@
 
     <!-- Obrázek -->
     {% if article.img1600 %}
-    <img src="{{ article.img1600 }}"
-         alt="{{ article.alt }}"
-         class="w-full rounded-xl shadow mb-10">
+    <div class="mb-8">
+        <img src="{{ article.img1600 }}"
+             alt="{{ article.alt }}"
+             class="w-full max-h-[420px] object-cover rounded-xl shadow">
+    </div>
     {% endif %}
+
 
     <!-- Perex -->
     {% if article.perex %}
