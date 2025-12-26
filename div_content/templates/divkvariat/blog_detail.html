@@ -4,238 +4,65 @@
 {% block title %}{{ article.title }} | Blog DIVkvariátu{% endblock %}
 
 {% block meta %}
-<meta name="description" content="{{ article.perex|default:article.title|truncatechars:160 }}">
 
-<link rel="canonical" href="https://divkvariat.cz/blog/{{ article.url }}/">
+    <meta name="description" content="{{ article.perex|default:article.title|truncatechars:160 }}">
+    <link rel="canonical" href="https://divkvariat.cz/blog/{{ article.url }}/">
 
-<!-- OpenGraph -->
-<meta property="og:title" content="{{ article.title }}">
-<meta property="og:description" content="{{ article.perex|default:article.title|truncatechars:200 }}">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://divkvariat.cz/blog/{{ article.url }}/">
-{% if article.img1600 %}
-<meta property="og:image" content="{{ article.img1600 }}">
-{% endif %}
-<meta property="og:site_name" content="DIVkvariát">
-
-<!-- Twitter -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{{ article.title }}">
-<meta name="twitter:description" content="{{ article.perex|default:article.title|truncatechars:200 }}">
-{% if article.img1600 %}
-<meta name="twitter:image" content="{{ article.img1600 }}">
-{% endif %}
-
-<!-- JSON-LD -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Article",
-  "headline": "{{ article.title|escape }}",
-  "description": "{{ article.perex|default:article.title|escape }}",
-  "author": {
-    "@type": "Person",
-    "name": "{{ article.autor|escape }}"
-  },
-  "datePublished": "{{ article.created|date:'Y-m-d' }}",
-  "dateModified": "{{ article.updated|default:article.created|date:'Y-m-d' }}",
-  "image": "{% if article.img1600 %}{{ article.img1600 }}{% else %}https://divkvariat.cz/static/img/default.jpg{% endif %}",
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "https://divkvariat.cz/blog/{{ article.url }}/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "DIVkvariát",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://divkvariat.cz/static/img/logo.png"
-    }
-  }
-}
-</script>
 {% endblock %}
-
-
-{% block head_extra %}
-<style>
-/* Kontejner blogu */
-.blog-content {
-    line-height: 1.8;
-    font-size: 1.14rem;
-    color: #222; /* tmavý text */
-}
-
-/* Odstavce */
-.blog-content p {
-    margin-bottom: 1.25rem;
-    color: #333;
-}
-
-/* Nadpisy */
-.blog-content h2 {
-    margin-top: 2.8rem;
-    margin-bottom: 1rem;
-    font-size: 2rem;
-    font-weight: 800;
-    color: #111; /* černý */
-}
-
-.blog-content h3 {
-    margin-top: 2.2rem;
-    margin-bottom: 0.75rem;
-    font-size: 1.45rem;
-    font-weight: 700;
-    color: #222;
-}
-
-.blog-content h4 {
-    margin-top: 1.8rem;
-    margin-bottom: 0.5rem;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #333;
-}
-
-/* Seznamy */
-.blog-content ul,
-.blog-content ol {
-    margin-left: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.blog-content ul li {
-    list-style-type: disc;
-    margin-bottom: 0.45rem;
-    color: #333;
-}
-
-.blog-content ol li {
-    list-style-type: decimal;
-    margin-bottom: 0.45rem;
-    color: #333;
-}
-
-/* Zvýraznění */
-.blog-content strong {
-    color: #111;
-    font-weight: 700;
-}
-
-.blog-content em {
-    color: #444;
-}
-
-/* Odkazy */
-.blog-content a {
-    color: #80AE2E;
-    text-decoration: underline;
-}
-
-.blog-content a:hover {
-    color: #6a991f;
-}
-
-/* Tabulky (pro jistotu) */
-.blog-content table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 1.5rem;
-}
-
-.blog-content table th,
-.blog-content table td {
-    border: 1px solid #ddd;
-    padding: 0.6rem;
-}
-
-.blog-content table th {
-    background: #f6f6f6;
-    font-weight: 600;
-}
-
-/* Poslední odstavec bez mezery */
-.blog-content :last-child {
-    margin-bottom: 0 !important;
-}
-</style>
-{% endblock %}
-
 
 {% block content %}
-<div class="container mx-auto px-4 py-10 max-w-4xl">
 
-    <!-- Breadcrumb -->
-    <div class="mb-6 text-sm text-gray-500">
-        <a href="/blog/" class="text-green-700 hover:underline">← Zpět na blog</a>
+<div class="blog-page">
+
+    <div class="blog-breadcrumb">
+        <a href="/blog/">← Zpět na blog</a>
     </div>
 
-    <!-- Titulek -->
-    <h1 class="text-4xl font-extrabold text-gray-900 mb-4 leading-tight">
+    <h1 class="blog-title">
         {{ article.h1|default:article.title }}
     </h1>
 
-    <!-- Meta -->
-    <div class="text-gray-500 text-sm mb-6">
+    <div class="blog-meta">
         {{ article.autor }} • {{ article.created|date:"j. n. Y" }}
     </div>
 
-    <!-- Obrázek -->
     {% if article.img1600 %}
-    <img src="{{ article.img1600 }}"
-         alt="{{ article.alt }}"
-         class="w-full rounded-xl shadow mb-10">
+        <img src="{{ article.img1600 }}"
+             alt="{{ article.alt }}"
+             class="blog-image">
     {% endif %}
 
-    <!-- Perex -->
     {% if article.perex %}
-    <p class="text-xl text-gray-700 mb-8 leading-relaxed">
-        {{ article.perex }}
-    </p>
+        <p class="blog-perex">
+            {{ article.perex }}
+        </p>
     {% endif %}
 
-    <!-- Obsah článku -->
-    <div class="blog-content prose prose-lg prose-green max-w-none">
-
+    <div class="blog-content">
         {{ article.content|safe }}
-
     </div>
 
-    <!-- Autor box -->
-    <div class="bg-gray-100 border border-gray-200 p-6 rounded-xl mt-12">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">
-            O autorovi
-        </h3>
-        <p class="text-gray-600">
+    <div class="blog-author">
+        <h3>O autorovi</h3>
+        <p>
             {{ article.autor }} je členem komunity DIVkvariátu a přispívá
             svými zkušenostmi z nákupu a prodeje knih.
         </p>
     </div>
 
-    <!-- Další články -->
     {% if more_articles %}
-    <div class="mt-14">
+        <div class="blog-more">
+            <h2>Další články</h2>
 
-        <h2 class="text-2xl font-bold text-gray-900 mb-4">Další články</h2>
-
-        <div class="space-y-4">
             {% for a in more_articles %}
-            <a href="{% url 'dk_blog_detail' a.url %}"
-               class="block p-4 bg-white border rounded-lg shadow hover:shadow-md transition">
-
-                <div class="text-lg font-semibold text-green-700">
-                    {{ a.title }}
-                </div>
-                <div class="text-sm text-gray-500">
-                    {{ a.created|date:"j. n. Y" }}
-                </div>
-
-            </a>
+                <a href="{% url 'dk_blog_detail' a.url %}" class="blog-more-item">
+                    <div class="blog-more-title">{{ a.title }}</div>
+                    <div class="blog-more-date">{{ a.created|date:"j. n. Y" }}</div>
+                </a>
             {% endfor %}
         </div>
-
-    </div>
     {% endif %}
 
 </div>
+
 {% endblock %}

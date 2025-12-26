@@ -5,46 +5,106 @@
 
 {% block title %}Vydavatelé her | DIV.cz{% endblock %}
 
+{% block meta %}
+    <style>
+        .publisher-page {
+            margin-top: 1.5rem;
+            padding: 0 1rem;
+        }
+
+        .page-title {
+            margin-bottom: 1.5rem;
+        }
+
+        .publisher-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .publisher-item a {
+            text-decoration: underline;
+        }
+
+        .pagination {
+            margin-top: 1.5rem;
+        }
+
+        .pagination-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .pagination-current {
+            font-weight: bold;
+        }
+        
+        @media (max-width: 992px) {
+            .publisher-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .publisher-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+{% endblock %}
+
 {% block content %}
 
 <div class="container">
-    <div class="mb-3 px-4 w-full">
-        <div class="mt-5">
-            <h2 class="w-full">Seznam vydavatelů</h2>
-            <ul class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 ml-6 mt-6">
+    <div class="publisher-page">
+
+        <h2 class="page-title">Seznam vydavatelů</h2>
+
+        <ul class="publisher-list">
             {% for publisher in publishers %}
-                <li>
+                <li class="publisher-item">
                     <a href="{% url 'games_by_publisher' publisher_url=publisher.publisherurl %}">
                         {{ publisher.publisher }}
                     </a>
                 </li>
             {% endfor %}
-            </ul>
+        </ul>
 
-            <hr> 
+        <hr>
 
-            <!-- PAGINÁTOR -->
-            {% if publishers.has_other_pages %}
-            <div class="pagination">
-                <span class="step-links">
+        <!-- PAGINÁTOR -->
+        {% if publishers.has_other_pages %}
+        <div class="pagination">
+            <div class="pagination-links">
                 {% if publishers.has_previous %}
-                    <a class="first-page" href="?page=1">&laquo; První</a>
-                    <a href="?page={{ publishers.previous_page_number }}">Předchozí</a>
+                    <a class="pagination-first" href="?page=1">
+                        &laquo; První
+                    </a>
+                    <a href="?page={{ publishers.previous_page_number }}">
+                        Předchozí
+                    </a>
                 {% endif %}
 
-                    <span class="current-page">
-                        {{ publishers.number }} / {{ publishers.paginator.num_pages }}
-                    </span>
+                <span class="pagination-current">
+                    {{ publishers.number }} / {{ publishers.paginator.num_pages }}
+                </span>
 
                 {% if publishers.has_next %}
-                    <a href="?page={{ publishers.next_page_number }}">Další</a>
-                    <a class="last-page" href="?page={{ publishers.paginator.num_pages }}">Poslední &raquo;</a>
+                    <a href="?page={{ publishers.next_page_number }}">
+                        Další
+                    </a>
+                    <a class="pagination-last" href="?page={{ publishers.paginator.num_pages }}">
+                        Poslední &raquo;
+                    </a>
                 {% endif %}
-                </span>
             </div>
-            {% endif %}
         </div>
+        {% endif %}
+
     </div>
 </div>
-
 {% endblock %}

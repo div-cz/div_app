@@ -6,62 +6,68 @@ Nabídky knihy {{ book.titlecz|default:book.title }} | DIVkvariát
 {% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto py-10">
 
-    <h1 class="text-3xl font-bold mb-4 text-gray-800">
+<div class="book-offers-page">
+
+    <h1 class="book-offers-title">
         Nabídky – {{ book.titlecz|default:book.title }}
     </h1>
-    <p class="text-gray-600 mb-8">Autor: {{ book.author }}</p>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <p class="book-offers-author">
+        Autor: {{ book.author }}
+    </p>
+
+    <div class="book-offers-grid">
 
         {% for listing in listings %}
-        <div class="book-card border bg-white rounded-lg p-4 shadow">
+            <div class="card">
 
-            <div class="flex gap-4">
-
-                <a href="{% url 'listing_detail_sell' book.url listing.booklistingid %}">
-                    {% if book.img == "noimg.png" %}
-                        <img src="/static/img/book/book.png"
-                             class="w-20 h-28 object-cover rounded shadow">
-                    {% elif book.img == "GoogleID" %}
-                        <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1"
-                             class="w-20 h-28 object-cover rounded shadow">
-                    {% else %}
-                        <img src="https://media.div.cz/knihy/{{ book.img }}"
-                             class="w-20 h-28 object-cover rounded shadow">
-                    {% endif %}
-                </a>
-
-                <div class="flex-1">
-
-                    <p class="text-green-700 font-semibold mb-1">
-                        {% if listing.listingtype == "GIVE" %}
-                            Daruji
-                        {% else %}
-                            {{ listing.price|intcomma }} Kč
-                        {% endif %}
-                    </p>
-
-                    <p class="text-sm text-gray-500 mb-2">
-                        Vloženo: {{ listing.createdat|date:"j. n. Y" }}
-                    </p>
+                <div class="card-inner">
 
                     <a href="{% url 'listing_detail_sell' book.url listing.booklistingid %}"
-                       class="text-sm text-green-700 hover:underline">
-                        Detail nabídky →
+                    class="offer-cover">
+                        {% if book.img == "noimg.png" %}
+                            <img src="/static/img/book/book.png" alt="">
+                        {% elif book.img == "GoogleID" %}
+                            <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1" alt="">
+                        {% else %}
+                            <img src="https://media.div.cz/knihy/{{ book.img }}" alt="">
+                        {% endif %}
                     </a>
+
+                    <div class="offer-info">
+
+                        <div class="offer-price">
+                            {% if listing.listingtype == "GIVE" %}
+                                Daruji
+                            {% else %}
+                                {{ listing.price|intcomma }} Kč
+                            {% endif %}
+                        </div>
+
+                        <div class="offer-date">
+                            Vloženo: {{ listing.createdat|date:"j. n. Y" }}
+                        </div>
+
+                        <a href="{% url 'listing_detail_sell' book.url listing.booklistingid %}"
+                        class="offer-link">
+                            Detail nabídky →
+                        </a>
+
+                    </div>
 
                 </div>
 
             </div>
-
-        </div>
-        {% empty %}
-        <p class="text-gray-600">Žádné aktivní nabídky pro tuto knihu.</p>
+            
+            {% empty %}
+            <p class="offers-empty">
+                Žádné aktivní nabídky pro tuto knihu.
+            </p>
         {% endfor %}
 
     </div>
 
 </div>
+
 {% endblock %}

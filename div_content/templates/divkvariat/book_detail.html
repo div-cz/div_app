@@ -1,48 +1,53 @@
 {% extends "divkvariat/base.html" %}
 
-{% block title %}{{ book.titlecz|default:book.title }} – DIVkvariát{% endblock %}
+{% block title %}
+    {{ book.titlecz|default:book.title }} – DIVkvariát
+{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'css/book-detail.css' %}">
+{% endblock %}
 
 {% block content %}
 
-<div class="container mx-auto max-w-4xl py-10">
+<div class="book-detail-page">
 
     <!-- HLAVNÍ INFO O KNIZE -->
-    <div class="flex flex-col sm:flex-row gap-8 bg-white rounded-xl shadow p-6">
+    <div class="book-header">
 
         <!-- Obrázek -->
-        <div class="flex-shrink-0">
+        <div class="book-cover">
             {% if book.img == "noimg.png" %}
-                <img src="https://div.cz/static/img/book/book.png" class="w-40 rounded shadow">
+                <img src="https://div.cz/static/img/book/book.png" alt="">
             {% elif book.img == "GoogleID" %}
-                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1"
-                     class="w-40 rounded shadow">
+                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1" alt="">
             {% else %}
-                <img src="https://media.div.cz/knihy/{{ book.img }}" class="w-40 rounded shadow">
+                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="">
             {% endif %}
         </div>
 
         <!-- Text -->
-        <div class="flex-1">
+        <div class="book-info">
 
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+            <h1 class="book-title">
                 {{ book.titlecz|default:book.title }}
             </h1>
 
-            <p class="text-green-700 font-medium text-lg mb-1">
-{% if book.authorid and book.authorid.url %}
-    <a href="{% url 'author_detail_cz' book.authorid.url %}" class="hover:underline">
-        {{ book.authorid.name }}
-    </a>
-{% else %}
-    <span>{{ book.authorid.name|default:"Neznámý autor" }}</span>
-{% endif %}
+            <p class="book-author">
+                {% if book.authorid and book.authorid.url %}
+                    <a href="{% url 'author_detail_cz' book.authorid.url %}">
+                        {{ book.authorid.name }}
+                    </a>
+                {% else %}
+                    {{ book.authorid.name|default:"Neznámý autor" }}
+                {% endif %}
             </p>
 
             {% if book.year %}
-            <p class="text-gray-500 text-sm mb-4">Rok vydání: {{ book.year }}</p>
+                <p class="book-year">Rok vydání: {{ book.year }}</p>
             {% endif %}
 
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div class="book-stats">
                 <p><strong>Prodáno celkem:</strong> {{ sold_count }}</p>
                 <p><strong>Aktivní nabídky:</strong> {{ total_active_offers }}</p>
                 <p><strong>Lidé shání:</strong> {{ total_active_wants }}</p>
@@ -51,63 +56,56 @@
         </div>
     </div>
 
-    <!-- AKTUÁLNÍ NABÍDKY -->
-    <div class="mt-12">
-        <h2 class="text-2xl font-bold text-gray-900 mb-4">Aktuální nabídky</h2>
+    <!-- NABÍDKY -->
+    <section class="book-section">
+        <h2 class="section-title">Aktuální nabídky</h2>
 
         {% for listing in sell_listings %}
-        <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm mb-4">
+        <div class="listing-row">
 
-            <div class="flex justify-between items-center">
-
-                <div>
-                    <p class="text-xl font-semibold text-green-700">
-                        {% if listing.listingtype == 'GIVE' %}
-                            Daruji
-                        {% else %}
-                            {{ listing.price|floatformat:0 }} Kč
-                        {% endif %}
-                    </p>
-
-                    {% if listing.location %}
-                    <p class="text-gray-500 text-sm">{{ listing.location }}</p>
-                    {% endif %}
-                </div>
-
-                <a href="{% url 'listing_detail_sell' book.url listing.booklistingid %}"
-                   class="text-green-700 font-medium hover:underline">
-                    Detail →
-                </a>
-
+            <div class="listing-price">
+                {% if listing.listingtype == 'GIVE' %}
+                    Daruji
+                {% else %}
+                    {{ listing.price|floatformat:0 }} Kč
+                {% endif %}
+                {% if listing.location %}
+                    <span class="listing-location">{{ listing.location }}</span>
+                {% endif %}
             </div>
+
+            <a href="{% url 'listing_detail_sell' book.url listing.booklistingid %}"
+               class="listing-link">
+                Detail →
+            </a>
 
         </div>
         {% empty %}
-            <p class="text-gray-500">Žádné aktivní nabídky.</p>
+            <p class="empty-text">Žádné aktivní nabídky.</p>
         {% endfor %}
-    </div>
+    </section>
 
-    <!-- AKTUÁLNÍ POPTÁVKY -->
-    <div class="mt-12">
-        <h2 class="text-2xl font-bold text-gray-900 mb-4">Aktuální poptávky</h2>
+    <!-- POPTÁVKY -->
+    <section class="book-section">
+        <h2 class="section-title">Aktuální poptávky</h2>
 
         {% for listing in buy_listings %}
-        <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm mb-4">
+        <div class="listing-row">
 
-            <div class="flex justify-between items-center">
-                <p class="text-xl font-semibold">{{ listing.price|floatformat:0 }} Kč</p>
-
-                <a href="{% url 'listing_detail_buy' book.url listing.booklistingid %}"
-                   class="text-green-700 font-medium hover:underline">
-                    Detail →
-                </a>
+            <div class="listing-price">
+                {{ listing.price|floatformat:0 }} Kč
             </div>
+
+            <a href="{% url 'listing_detail_buy' book.url listing.booklistingid %}"
+               class="listing-link">
+                Detail →
+            </a>
 
         </div>
         {% empty %}
-            <p class="text-gray-500">Nikdo aktuálně nehledá.</p>
+            <p class="empty-text">Nikdo aktuálně nehledá.</p>
         {% endfor %}
-    </div>
+    </section>
 
 </div>
 

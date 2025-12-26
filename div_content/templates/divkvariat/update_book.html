@@ -3,133 +3,131 @@
 {% load ratings %}
 {% load static %}
 
-{% block title %} {{ book.title }} | DIV.cz{% endblock %}
+{% block title %}{{ book.title }} | DIV.cz{% endblock %}
 
 {% block content %}
 
-<link rel="stylesheet" href="https://media.div.cz/css/add_book.css">
+<div class="page page-narrow">
+    <h1 class="page-title">Úprava knihy</h1>
+    <div class="card">
+        <form method="post" action="#" id="update-form" class="form">
+            {% csrf_token %}
+            <div id="update-details">
+                <div class="form-group">
+                    <label for="update-title">Název knihy</label>
+                    <input type="text" id="update-title" name="title" readonly>
+                    <input type="hidden" id="original-title" name="original-title">
+                </div>
 
-<div class="container">
-    <h1 class="w-full mb-8">Úprava knihy</h1>
-    <form class="w-4/5 flex-col" style="margin: 0 auto;" method="post" action="#" id="update-form">
-        {% csrf_token %}
-        <div id="update-details" style="display: none;">
-            <div class="form-group">
-                <label class="mb-0" for="update-title">Název knihy: </label>
-                <input type="text" id="update-title" name="title" readonly>
-                <input type="hidden" id="original-title" name="original-title" readonly>
-            </div>
-            <div class="form-group">
-                <label class="mb-0" for="update-author">Autor: </label>
-                <input type="text" id="update-author" name="author" readonly>
-                <ul id="update-author-results" class="list-group" readonly></ul> <!-- Výsledky pro hlavního autora -->
-            </div>
-            <!-- ROZBALOVACÍ MENU? POKUD TO MÁ SÉRIE -->
-            <!-- <div class="form-group">
-                <label for="manual-author">Série: </label>
-                <input type="text" id="manual-author" name="author">
-                <ul id="manual-author-results" class="list-group"></ul>
-            </div> -->  
-            <div class="form-group">
-                <label class="mb-0" for="update-year">Rok: </label>
-                <input type="number" id="update-year" name="year">
-            </div>
-            <div class="form-group">
-                <label class="mb-0" for="update-pages">Počet stránek: </label>
-                <input type="number" id="update-pages" name="pages">
-            </div>
-            <div class="form-group">
-                <label class="mb-0" for="update-subtitle">Podtitul: </label>
-                <input type="text" id="update-subtitle" name="subtitle">
-            </div>
-            <div class="form-group">
-                <label class="mb-0" for="update-description">Popis knihy: ( max 1800 znaků )</label>
-                <textarea id="update-description" name="description" class="readonly"></textarea>
-            </div>
-            <div class="form-group">
-                <label class="mb-0" for="update-language">Jazyk: ( 2 znaky -> cs:čestina, en:angličtina, jp:japonština .. )
-                </label>
-                <input type="text" id="update-language" name="language">
-            </div>
-            <div class="form-group">
-                <label>Vyberte způsob přidání obrázku:</label>
-                <div class="radio-group mt-3">
-                    <div class="flex">
-                        <input type="radio" id="update-google-id-option" name="update-img-option" value="google-id">
-                        <label class="ml-2 mb-0" for="update-google-id-option">Použít Google ID</label>
-                    </div>
-                    <div class="flex">
-                        <input type="radio" id="update-no-img-option" name="update-img-option" value="no-img" checked>
-                        <label class="ml-2 mb-0" for="update-no-img-option">Použít výchozí obrázek (noimg.png)</label>
-                    </div>
-                    <div class="flex">
-                        <input type="radio" id="update-upload-img-option" name="update-img-option" value="upload-img">
-                        <label class="ml-2 mb-0" for="update-upload-img-option">Nahrát vlastní obrázek</label>
+                <div class="form-group">
+                    <label for="update-author">Autor</label>
+                    <input type="text" id="update-author" name="author" readonly>
+                    <ul id="update-author-results" class="list-group"></ul>
+                </div>
+
+                <div class="form-group">
+                    <label for="update-year">Rok</label>
+                    <input type="number" id="update-year" name="year">
+                </div>
+
+                <div class="form-group">
+                    <label for="update-pages">Počet stránek</label>
+                    <input type="number" id="update-pages" name="pages">
+                </div>
+
+                <div class="form-group">
+                    <label for="update-subtitle">Podtitul</label>
+                    <input type="text" id="update-subtitle" name="subtitle">
+                </div>
+
+                <div class="form-group">
+                    <label for="update-description">Popis knihy (max 1800 znaků)</label>
+                    <textarea id="update-description" name="description"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="update-language">Jazyk</label>
+                    <input type="text" id="update-language" name="language">
+                </div>
+
+                <div class="form-group">
+                    <label>Způsob přidání obrázku</label>
+
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="update-img-option" value="google-id">
+                            Použít Google ID
+                        </label>
+
+                        <label>
+                            <input type="radio" name="update-img-option" value="no-img" checked>
+                            Použít výchozí obrázek
+                        </label>
+
+                        <label>
+                            <input type="radio" name="update-img-option" value="upload-img">
+                            Nahrát vlastní obrázek
+                        </label>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Kontejner pro nahrávání obrázku -->
-            <div class="form-group" id="update-img-file-container" style="display: ;">
-                <label class="mb-0" for="update-img-file">Vyberte obrázek:</label>
-                <input type="file" id="update-img-file" name="img-file" accept="image/*">
-                <input type="text" id="update-img" readonly>
-            </div>
-            
-            <!-- Kontejner pro Google ID -->
-            <div class="form-group" id="update-googleid-container">
-                <label class="mb-0" for="update-googleid">Google ID:</label>
-                <input type="text" id="update-googleid" name="googleid">
-            </div>
-            <div class="form-group">
-                <label class="mb-0" for="update-genre-search">Žánry: ( zadejte 3 znaky pro nápovědu ) lze přidat více žánrů</label>
-                <input type="text" id="update-genre-search">
-                <ul id="update-genre-results" class="list-group"></ul>
-                <ul id="update-selected-genres" class="list-group"></ul>
-            </div>
-            
-            <!-- Pole pro zadání ISBN a typu ISBN -->
-            <div id="update-isbn-fields-container">
-            <!-- Dynamicky generovaná pole pro ISBN a typ ISBN budou vložena sem -->
-            </div>
-            <div class="form-group">
-                <button type="button" class="add-isbn-btn btn add-book" data-tab="update">Přidat ISBN</button>
-            </div>
 
-            <div id="update-publisher-section" class="form-group" style="display: none;">
-                <label class="mb-0" for="update-publisher-search">Vydavatel: ( zadejte 3 znaky pro nápovědu ) - pouze jeden vydavatel pro všechna ISBN</label>
-                <input type="text" id="update-publisher-search">
-                <ul id="update-publisher-results" class="list-group"></ul>
-                <input type="hidden" id="update-publisherid" name="publisherid" class="readonly">
-                <ul id="update-selected-publisher" class="list-group"></ul>
-            </div>
+                <div class="form-group" id="update-img-file-container">
+                    <label for="update-img-file">Vyberte obrázek</label>
+                    <input type="file" id="update-img-file" name="img-file" accept="image/*">
+                    <input type="text" id="update-img" readonly>
+                </div>
 
-            <div class="form-group">
-                <label class="mb-0" for="update-author-search">Další autoři knihy:</label>
-                <input type="text" id="update-author-search" autocomplete="off">
-                <ul id="update-author-search-results" class="list-group"></ul> <!-- Výsledky pro další autory -->
-                <ul id="update-authors" class="list-group"></ul>
+                <div class="form-group" id="update-googleid-container">
+                    <label for="update-googleid">Google ID</label>
+                    <input type="text" id="update-googleid" name="googleid">
+                </div>
+
+                <div class="form-group">
+                    <label for="update-genre-search">Žánry</label>
+                    <input type="text" id="update-genre-search">
+                    <ul id="update-genre-results" class="list-group"></ul>
+                    <ul id="update-selected-genres" class="list-group"></ul>
+                </div>
+
+                <div id="update-isbn-fields-container"></div>
+
+                <div class="form-group">
+                    <button type="button" class="btn add-book add-isbn-btn" data-tab="update">
+                        Přidat ISBN
+                    </button>
+                </div>
+
+                <div class="form-group" id="update-publisher-section">
+                    <label for="update-publisher-search">Vydavatel</label>
+                    <input type="text" id="update-publisher-search">
+                    <ul id="update-publisher-results" class="list-group"></ul>
+                    <input type="hidden" id="update-publisherid" name="publisherid">
+                    <ul id="update-selected-publisher" class="list-group"></ul>
+                </div>
+
+                <div class="form-group">
+                    <label for="update-author-search">Další autoři</label>
+                    <input type="text" id="update-author-search">
+                    <ul id="update-author-search-results" class="list-group"></ul>
+                    <ul id="update-authors" class="list-group"></ul>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn add-book" id="update-form-submit">
+                        Upravit knihu
+                    </button>
+                </div>
+
             </div>
-            <div class="form-group">
-                <button type="submit" class="btn add-book" id="update-form-submit">Upravit knihu</button>
-            </div>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
 
-
-    <!-- Ziskani dat a ulozeni dat-->
-    <script src="{% static 'js/add_book/get_book_details.js' %}"></script>
-    <script src="{% static 'js/add_book/update_book.js' %}"></script>
-
-    <!-- Prace s autory -->
-    <script src="{% static 'js/add_book/authors.js' %}"></script>
-    <script src="{% static 'js/add_book/metadata.js' %}"></script>
-    <script src="{% static 'js/add_book/utils.js' %}"></script>
-
-    <!-- Ulozeni obrazku -->
-    <script src="{% static 'js/add_book/add_image.js' %}"></script>
-
-
+<script src="{% static 'js/add_book/get_book_details.js' %}"></script>
+<script src="{% static 'js/add_book/update_book.js' %}"></script>
+<script src="{% static 'js/add_book/authors.js' %}"></script>
+<script src="{% static 'js/add_book/metadata.js' %}"></script>
+<script src="{% static 'js/add_book/utils.js' %}"></script>
+<script src="{% static 'js/add_book/add_image.js' %}"></script>
 
 {% endblock %}

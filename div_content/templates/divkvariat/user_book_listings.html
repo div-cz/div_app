@@ -6,234 +6,186 @@
 {% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto py-10">
 
-    <!-- HLAVIČKA -->
-    <h1 class="text-3xl font-bold text-gray-800 mb-2">
+<div class="page page-wide">
+    <h1 class="page-title">
         {{ profile_user.username }} – Moje nabídky
     </h1>
-    <p class="text-gray-600 mb-8">
+
+    <p class="page-description">
         Přehled všech vašich prodejů, poptávek a archivovaných nabídek.
     </p>
 
     <!-- TABS -->
-    <div class="flex flex-wrap gap-3 mb-6">
+    <div class="tabs">
         {% for key,label in tabs %}
-        <a href="?type={{ key }}"
-           class="px-4 py-2 rounded-lg border shadow-sm
-           {% if filter_type == key %}
-               bg-green-100 border-green-300 text-green-800
-           {% else %}
-               bg-white text-gray-700 hover:bg-gray-50
-           {% endif %}">
-            {{ label }}
-        </a>
+            <a href="?type={{ key }}"
+            class="tab {% if filter_type == key %}tab-active{% endif %}">
+                {{ label }}
+            </a>
         {% endfor %}
     </div>
 
     <!-- ŘAZENÍ -->
-    <form method="get" class="flex flex-wrap items-center gap-4 mb-6 text-sm text-gray-700">
+    <form method="get" class="filter-bar">
         <input type="hidden" name="type" value="{{ filter_type }}">
-        <span class="font-semibold">Řadit:</span>
 
-        <label class="flex items-center gap-1">
-            <input type="radio" name="order" value="date" {% if order == "date" %}checked{% endif %}>
+        <span class="filter-label">Řadit:</span>
+        <label class="filter-option">
+            <input type="radio" name="order" value="date"
+                   {% if order == "date" %}checked{% endif %}>
             podle data
         </label>
 
-        <label class="flex items-center gap-1">
+        <label class="filter-option">
             <input type="radio" name="order" value="alpha" {% if order == "alpha" %}checked{% endif %}>
             A–Z
         </label>
 
-        <button class="ml-2 px-3 py-1 border rounded-lg bg-white hover:bg-gray-50">
+        <button type="submit" class="btn-secondary">
             Použít
         </button>
     </form>
 
     <!-- ABECEDA -->
-    <div class="flex flex-wrap gap-1 mb-8 text-sm">
-        <a href="?type={{ filter_type }}&order={{ order }}"
-           class="px-2 py-1 rounded
-           {% if not active_letter %}
-               bg-green-600 text-white
-           {% else %}
-               bg-gray-100 hover:bg-gray-200
-           {% endif %}">
+    <div class="alphabet-filter">
+        <a href="?type={{ filter_type }}&order={{ order }}" class="alphabet-item {% if not active_letter %}alphabet-active{% endif %}">
             Vše
         </a>
+
         {% for letter in alphabet %}
-        <a href="?type={{ filter_type }}&order={{ order }}&letter={{ letter }}"
-           class="px-2 py-1 rounded
-           {% if active_letter == letter %}
-               bg-green-600 text-white
-           {% else %}
-               bg-gray-100 hover:bg-gray-200
-           {% endif %}">
-            {{ letter }}
-        </a>
+            <a href="?type={{ filter_type }}&order={{ order }}&letter={{ letter }}" class="alphabet-item {% if active_letter == letter %}alphabet-active{% endif %}">
+                {{ letter }}
+            </a>
         {% endfor %}
     </div>
 
     <!-- FORMULÁŘ -->
     <form method="post">
         {% csrf_token %}
-
         {% if listings %}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="listing-grid">
+                {% for listing in listings %}
+                    <div class="listing-card">
 
-            {% for listing in listings %}
-            <div class="bg-white border rounded-xl shadow-sm hover:shadow-md transition p-4">
-
-                <!-- CHECKBOX -->
-                {% if listing.status == "ACTIVE" %}
-                <div class="mb-2">
-                    <label class="text-sm text-gray-600 flex items-center gap-2">
-                        <input type="checkbox" name="selected_ids" value="{{ listing.booklistingid }}"
-                               class="rounded">
-                        vybrat
-                    </label>
-                </div>
-                {% endif %}
-
-                <!-- OBSAH -->
-                <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}"
-                   class="font-semibold text-gray-800 hover:underline block mb-1">
-                    {{ listing.book.titlecz|default:listing.book.title }}
-                </a>
-
-                <p class="text-sm text-gray-500 mb-2">
-                    {{ listing.book.author }}
-                </p>
-
-                <!-- CENA - EDITOVATELNÁ -->
-                {% if listing.status == "ACTIVE" and listing.listingtype != "GIVE" %}
-                <div class="mb-2">
-                    <label class="text-xs text-gray-500">Cena:</label>
-                    <div class="flex items-center gap-1">
-                        <input type="number" 
-                               name="price_{{ listing.booklistingid }}" 
-                               value="{{ listing.price|floatformat:0 }}"
-                               class="w-24 px-2 py-1 border rounded text-sm"
-                               min="0">
-                        <span class="text-sm text-gray-600">Kč</span>
-                    </div>
-                </div>
-                {% else %}
-                <p class="text-lg font-bold mb-1
-                    {% if listing.listingtype == 'GIVE' %}
-                        text-blue-600
-                    {% else %}
-                        text-green-600
-                    {% endif %}">
-                    {% if listing.listingtype == "GIVE" %}
-                        Daruji
-                    {% else %}
-                        {{ listing.price|intcomma }} Kč
-                    {% endif %}
-                </p>
-                {% endif %}
-
-                <p class="text-xs text-gray-500 mb-3">
-                    <span class="font-semibold">{{ listing.get_listingtype_display }}</span> ·
-                    <span class="
-                        {% if listing.status == 'ACTIVE' %}text-green-600
-                        {% elif listing.status == 'RESERVED' %}text-blue-600
-                        {% elif listing.status == 'PAID' %}text-yellow-600
-                        {% elif listing.status == 'SHIPPED' %}text-purple-600
-                        {% elif listing.status == 'COMPLETED' %}text-gray-600
-                        {% else %}text-red-600
-                        {% endif %}">
-                        {{ listing.get_status_display }}
-                    </span>
-                    <br>
-                    {{ listing.createdat|date:"j. n. Y" }}
-                </p>
-
-                <!-- AKCE -->
-                <div class="flex gap-3 text-sm">
                     {% if listing.status == "ACTIVE" %}
-                    <a href="{% url 'listing_detail_edit' listing.book.url listing.booklistingid %}"
-                       class="text-green-700 hover:underline">
-                        Upravit
-                    </a>
+                        <label class="listing-select">
+                            <input type="checkbox" name="selected_ids"
+                                value="{{ listing.booklistingid }}">
+                            vybrat
+                        </label>
                     {% endif %}
 
                     <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}"
-                       class="text-gray-700 hover:underline">
-                        Detail
+                    class="listing-title">
+                        {{ listing.book.titlecz|default:listing.book.title }}
                     </a>
 
-                    {% if listing.status == "ACTIVE" %}
-                    <a href="{% url 'cancel_sell' listing.booklistingid %}"
-                       class="text-red-600 hover:underline"
-                       onclick="return confirm('Opravdu chcete zrušit tuto nabídku?')">
-                        Zrušit
-                    </a>
+                    <p class="listing-author">
+                        {{ listing.book.author }}
+                    </p>
+
+                    {% if listing.status == "ACTIVE" and listing.listingtype != "GIVE" %}
+                        <div class="listing-price-edit">
+                            <label>Cena:</label>
+                            <input type="number"
+                                name="price_{{ listing.booklistingid }}"
+                                value="{{ listing.price|floatformat:0 }}"
+                                min="0">
+                            <span>Kč</span>
+                        </div>
+                        {% else %}
+                        <p class="listing-price
+                            {% if listing.listingtype == 'GIVE' %}listing-price-give{% endif %}">
+                            {% if listing.listingtype == "GIVE" %}
+                                Daruji
+                            {% else %}
+                                {{ listing.price|intcomma }} Kč
+                            {% endif %}
+                        </p>
                     {% endif %}
-                </div>
 
-            </div>
+                    <p class="listing-meta">
+                        <strong>{{ listing.get_listingtype_display }}</strong> ·
+                        <span class="listing-status listing-status-{{ listing.status|lower }}">
+                            {{ listing.get_status_display }}
+                        </span><br>
+                        {{ listing.createdat|date:"j. n. Y" }}
+                    </p>
+
+                    <div class="listing-actions">
+                        {% if listing.status == "ACTIVE" %}
+                            <a href="{% url 'listing_detail_edit' listing.book.url listing.booklistingid %}">
+                                Upravit
+                            </a>
+                        {% endif %}
+
+                        <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+                            Detail
+                        </a>
+
+                        {% if listing.status == "ACTIVE" %}
+                            <a href="{% url 'cancel_sell' listing.booklistingid %}"
+                            class="action-danger"
+                            onclick="return confirm('Opravdu chcete zrušit tuto nabídku?')">
+                                Zrušit
+                            </a>
+                        {% endif %}
+                    </div>
+
+                </div>
             {% endfor %}
         </div>
 
         <!-- HROMADNÉ AKCE -->
-        <div class="mt-8 p-4 bg-gray-50 border rounded-xl flex flex-wrap gap-4 items-center">
+        <div class="bulk-actions">
             <button type="submit" name="action" value="update_prices"
-                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    class="btn-primary">
                 💾 Uložit změny cen
             </button>
 
             <button type="submit" name="action" value="cancel"
-                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    class="btn-danger"
                     onclick="return confirm('Opravdu chcete zrušit vybrané nabídky?')">
                 🗑️ Zrušit vybrané
             </button>
 
-            <span class="text-sm text-gray-600 ml-auto">
+            <span class="bulk-info">
                 Celkem: {{ listings.paginator.count }} nabídek
             </span>
         </div>
 
         {% else %}
-        <div class="text-center py-16">
-            <p class="text-gray-500 text-lg mb-4">
-                Zatím zde nemáte žádné nabídky.
-            </p>
-            <a href="{% url 'listing_add_book' %}" 
-               class="inline-block px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                + Přidat první nabídku
-            </a>
-        </div>
+            <div class="empty-state">
+                <p>Zatím zde nemáte žádné nabídky.</p>
+                <a href="{% url 'listing_add_book' %}" class="btn-primary">
+                    + Přidat první nabídku
+                </a>
+            </div>
         {% endif %}
     </form>
 
     <!-- PAGINACE -->
     {% if listings.has_other_pages %}
-    <div class="flex justify-center mt-10">
-        <nav class="flex items-center gap-2 text-sm">
-
+        <div class="pagination">
             {% if listings.has_previous %}
-            <a href="?page={{ listings.previous_page_number }}&type={{ filter_type }}&order={{ order }}{% if active_letter %}&letter={{ active_letter }}{% endif %}"
-               class="px-3 py-2 bg-white border rounded-lg hover:bg-gray-50">
-                ‹ Předchozí
-            </a>
+                <a href="?page={{ listings.previous_page_number }}&type={{ filter_type }}&order={{ order }}{% if active_letter %}&letter={{ active_letter }}{% endif %}">
+                    ‹ Předchozí
+                </a>
+                {% endif %}
+
+                <span>
+                    {{ listings.number }} / {{ listings.paginator.num_pages }}
+                </span>
+
+                {% if listings.has_next %}
+                <a href="?page={{ listings.next_page_number }}&type={{ filter_type }}&order={{ order }}{% if active_letter %}&letter={{ active_letter }}{% endif %}">
+                    Další ›
+                </a>
             {% endif %}
-
-            <span class="px-4 py-2 bg-gray-100 border rounded-lg">
-                {{ listings.number }} / {{ listings.paginator.num_pages }}
-            </span>
-
-            {% if listings.has_next %}
-            <a href="?page={{ listings.next_page_number }}&type={{ filter_type }}&order={{ order }}{% if active_letter %}&letter={{ active_letter }}{% endif %}"
-               class="px-3 py-2 bg-white border rounded-lg hover:bg-gray-50">
-                Další ›
-            </a>
-            {% endif %}
-
-        </nav>
-    </div>
+        </div>
     {% endif %}
 
 </div>
+
 {% endblock %}

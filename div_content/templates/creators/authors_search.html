@@ -1,0 +1,26 @@
+{% extends 'inc/base.html' %}
+
+{% block content %}
+<h1>Vyhledávání autorů</h1>
+<form method="get" action="{% url 'authors_search' %}">
+    {{ form.q }}
+    <button type="submit">Hledat</button>
+</form>
+
+{% if authors %}
+    <ul>
+        {% for author in authors %}
+            <li>
+                <a href="{{ author.url }}">
+                    <img src="{{ author.img }}" alt="{{ author.firstname }} {{ author.lastname }}">
+                    {{ author.firstname }} {{ author.lastname }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% else %}
+    <p>Žádné výsledky nebyly nalezeny.</p>
+{% endif %}
+
+{% endblock %}

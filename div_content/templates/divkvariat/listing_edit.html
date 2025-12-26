@@ -1,247 +1,160 @@
 {% extends "divkvariat/base.html" %}
-{% load humanize %}
 {% load custom_filters %}
 {% load static %}
 
 {% block title %}
-    Upravit nabídku – {{ book.titlecz|default:book.title }} | DIVkvariát
+Upravit nabídku – {{ book.titlecz|default:book.title }} | DIVkvariát
 {% endblock %}
 
 {% block content %}
 
-<div class="max-w-5xl mx-auto py-10">
-
-    <!-- Navigace -->
-    <div class="mb-6">
-        <a href="/antikvariat/" class="text-green-700 hover:underline">DIVkvariát</a>
-        <span class="mx-2">/</span>
-        <a href="{% url 'listing_detail_sell' book_url=book.url listing_id=listing.booklistingid %}" 
-           class="text-green-700 hover:underline">
-           Zpět na nabídku
+<div class="page">
+    <nav class="breadcrumb">
+        <a href="/">DIVkvariát</a>
+        <span>/</span>
+        <a href="{% url 'listing_detail_sell' book_url=book.url listing_id=listing.booklistingid %}">
+            Zpět na nabídku
         </a>
-    </div>
+    </nav>
 
+    <div class="layout">
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- HLAVNÍ OBSAH -->
+        <main class="layout-main">
 
-        <!-- LEVÁ a STŘEDNÍ ČÁST -->
-        <div class="lg:col-span-2">
-
-            <div class="bg-white shadow rounded-lg p-6 mb-8">
-                <h1 class="text-3xl font-bold mb-6">Upravit nabídku</h1>
-
-                <!-- Informace o knize -->
-                <div class="flex gap-4 mb-8">
-
-                    <a href="/kniha/{{ book.url }}">
+            <!-- HLAVIČKA -->
+            <section class="card">
+                <h1 class="page-title">Upravit nabídku</h1>
+                <div class="book-header">
+                    <a href="/kniha/{{ book.url }}" class="book-cover">
                         {% if book.img == "noimg.png" %}
-                        <img src="/static/img/book/book.png" class="w-32 rounded shadow">
+                            <img src="/static/img/book/book.png">
                         {% elif book.img == "GoogleID" %}
-                        <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1"
-                             class="w-32 rounded shadow">
+                            <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1">
                         {% else %}
-                        <img src="https://media.div.cz/knihy/{{ book.img }}" class="w-32 rounded shadow">
+                            <img src="https://media.div.cz/knihy/{{ book.img }}">
                         {% endif %}
                     </a>
 
-                    <div>
-                        <h2 class="text-2xl font-semibold">
-                            <a href="/kniha/{{ book.url }}" class="hover:underline">
+                    <div class="book-info">
+                        <h2>
+                            <a href="/kniha/{{ book.url }}">
                                 {{ book.titlecz|default:book.title }}
                             </a>
                         </h2>
-                        <p class="text-gray-600">{{ book.author }}</p>
+                        <p class="book-author">{{ book.author }}</p>
                     </div>
-
                 </div>
+            </section>
 
+            <!-- FOTOGRAFIE -->
+            <section class="card">
+                <h2 class="section-title">Fotografie</h2>
 
+                {% if listing.images.all %}
+                    <div class="gallery">
+                        {% for img in listing.images.all %}
+                            <div class="gallery-item">
+                                <img src="{{ img.image.url }}"
+                                    onclick="openImageModal('{{ img.image.url }}')">
 
-<!-- FOTOGALERIE + UPLOAD -->
-<div class="mb-10">
-    <h3 class="text-xl font-semibold mb-3">Fotografie</h3>
+                                <a href="{% url 'listing_delete_image' img.id %}"
+                                class="gallery-delete"
+                                onclick="return confirm('Smazat fotografii?');">
+                                    ×
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-    {% if listing.images.all %}
-    <div class="flex flex-wrap gap-4 mb-4">
-        {% for img in listing.images.all %}
-        <div class="relative group">
-            <img 
-                src="{{ img.image.url }}" 
-                class="w-32 h-auto rounded shadow cursor-pointer"
-                onclick="openImageModal('{{ img.image.url }}')"
-            >
+                <form method="post" enctype="multipart/form-data"
+                      action="{% url 'listing_upload_image' listing.booklistingid %}">
+                    {% csrf_token %}
+                    <input type="file" name="images" multiple>
+                    <button class="btn-primary">Nahrát nové fotografie</button>
+                </form>
+            </section>
 
-            <a href="{% url 'listing_delete_image' img.id %}"
-               onclick="return confirm('Smazat fotografii?');"
-               class="absolute top-1 right-1 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
-               ×
-            </a>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
+            <!-- FORMULÁŘ -->
+            <section class="card">
+                <h2 class="section-title">Detaily nabídky</h2>
 
-    <form method="post" enctype="multipart/form-data"
-          action="{% url 'listing_upload_image' listing.booklistingid %}">
-
-        {% csrf_token %}
-        <input type="file" name="images" multiple
-               class="border rounded px-3 py-2 w-full">
-
-        <button type="submit" class="add-book mt-3">
-            Nahrát nové fotografie
-        </button>
-    </form>
-</div>
-
-
-
-
-                <!-- FORMULÁŘ -->
-                <form method="post" class="space-y-6">
+                <form method="post" class="form">
                     {% csrf_token %}
 
-                    <!-- Cena -->
-                    <div>
-                        <label for="id_new_price" class="font-semibold">Cena (Kč): *</label>
-                        <input 
-                            type="number"
-                            id="id_new_price"
-                            name="new_price"
-                            value="{{ listing.price|floatformat:0 }}"
-                            min="0"
-                            required
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1"
-                        >
-                    </div>
+                    <label>
+                        Cena (Kč)
+                        <input type="number" name="new_price"
+                               value="{{ listing.price|floatformat:0 }}" min="0" required>
+                    </label>
 
-                    <!-- Doprava -->
-                    <div>
-                        <label class="font-semibold">Možnosti dopravy</label>
-                        <p class="text-sm text-gray-600 mb-2">Nastavte cenu nebo 0 Kč pro zdarma.</p>
+                    <fieldset>
+                        <legend>Doprava</legend>
+                        <input type="number" name="shipping_zasilkovna"
+                               value="{{ current_shipping.zasilkovna }}" placeholder="Zásilkovna">
+                        <input type="number" name="shipping_balikovna"
+                               value="{{ current_shipping.balikovna }}" placeholder="Balíkovna">
+                        <input type="number" name="shipping_osobni"
+                               value="{{ current_shipping.osobni }}" placeholder="Osobní odběr">
+                    </fieldset>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <label>
+                        Popis
+                        <textarea name="new_description" rows="5">{{ listing.description }}</textarea>
+                    </label>
 
-                            <div>
-                                <label for="shipping_zasilkovna">Zásilkovna (Kč):</label>
-                                <input type="number"
-                                       id="shipping_zasilkovna"
-                                       name="shipping_zasilkovna"
-                                       value="{{ current_shipping.zasilkovna }}"
-                                       min="0"
-                                       class="w-full border border-gray-300 rounded px-3 py-2">
-                            </div>
-
-                            <div>
-                                <label for="shipping_balikovna">Balíkovna (Kč):</label>
-                                <input type="number"
-                                       id="shipping_balikovna"
-                                       name="shipping_balikovna"
-                                       value="{{ current_shipping.balikovna }}"
-                                       min="0"
-                                       class="w-full border border-gray-300 rounded px-3 py-2">
-                            </div>
-
-                            <div>
-                                <label for="shipping_osobni">Osobní odběr (Kč):</label>
-                                <input type="number"
-                                       id="shipping_osobni"
-                                       name="shipping_osobni"
-                                       value="{{ current_shipping.osobni }}"
-                                       min="0"
-                                       class="w-full border border-gray-300 rounded px-3 py-2">
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <!-- Popis -->
-                    <div>
-                        <label for="id_new_description" class="font-semibold">Popis</label>
-                        <textarea
-                            id="id_new_description"
-                            name="new_description"
-                            rows="5"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1"
-                        >{{ listing.description }}</textarea>
-                        <p class="text-sm text-gray-600">Popište stav knihy, případné nedostatky apod.</p>
-                    </div>
-
-                    <!-- Stav a lokalita -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-
-                        <div>
-                            <label for="id_new_condition" class="font-semibold">Stav knihy</label>
-                            <select id="id_new_condition"
-                                    name="new_condition"
-                                    class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
-                                <option value="">-- Vyberte --</option>
-                                <option value="NEW" {% if listing.condition == "NEW" %}selected{% endif %}>Nová</option>
-                                <option value="LIKE_NEW" {% if listing.condition == "LIKE_NEW" %}selected{% endif %}>Jako nová</option>
-                                <option value="VERY_GOOD" {% if listing.condition == "VERY_GOOD" %}selected{% endif %}>Velmi dobrá</option>
-                                <option value="GOOD" {% if listing.condition == "GOOD" %}selected{% endif %}>Dobrá</option>
-                                <option value="ACCEPTABLE" {% if listing.condition == "ACCEPTABLE" %}selected{% endif %}>Přijatelná</option>
+                    <div class="form-row">
+                        <label>
+                            Stav knihy
+                            <select name="new_condition">
+                                <option value="">– vyberte –</option>
+                                {% for key, label in listing.CONDITION_CHOICES %}
+                                    <option value="{{ key }}" {% if listing.condition == key %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
                             </select>
-                        </div>
+                        </label>
 
-                        <div>
-                            <label for="id_new_location" class="font-semibold">Lokalita</label>
-                            <input
-                                type="text"
-                                id="id_new_location"
-                                name="new_location"
-                                value="{{ listing.location|default:'' }}"
-                                placeholder="např. Praha, Brno…"
-                                class="w-full border border-gray-300 rounded px-3 py-2 mt-1"
-                            >
-                        </div>
-
-                    </div>
-
-                    <!-- Osobní převzetí -->
-                    <div class="flex items-center gap-2">
-                        <input 
-                            type="checkbox"
-                            id="id_new_personal_pickup"
-                            name="new_personal_pickup"
-                            {% if listing.personal_pickup %}checked{% endif %}
-                            class="w-5 h-5 border-gray-300 rounded"
-                        >
-                        <label for="id_new_personal_pickup" class="text-gray-700">
-                            Umožnit osobní převzetí
+                        <label>
+                            Lokalita
+                            <input type="text" name="new_location"
+                                   value="{{ listing.location|default:'' }}">
                         </label>
                     </div>
 
-                    <!-- Tlačítka -->
-                    <div class="flex gap-4 pt-4">
-                        <button type="submit" class="add-book">
-                            Uložit změny
-                        </button>
+                    <label class="checkbox">
+                        <input type="checkbox" name="new_personal_pickup"
+                               {% if listing.personal_pickup %}checked{% endif %}>
+                        Umožnit osobní převzetí
+                    </label>
 
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Uložit změny</button>
                         <a href="{% url 'listing_detail_sell' book_url=book.url listing_id=listing.booklistingid %}"
-                           class="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100">
+                           class="btn-secondary">
                             Zrušit
                         </a>
                     </div>
 
                 </form>
+            </section>
 
-            </div>
-        </div>
+        </main>
 
-        <!-- PRAVÝ PANELY (Nápověda) -->
-        <div>
-            <div class="bg-white shadow rounded-lg p-6">
-                <h3 class="text-xl font-semibold mb-4">Nápověda k editaci</h3>
-
-                <ul class="space-y-2 text-gray-700">
-                    <li>📘 Upravit lze pouze aktivní nabídky.</li>
-                    <li>💡 Cena by měla odpovídat stavu knihy.</li>
-                    <li>📦 Nabídněte více způsobů dopravy — zvyšuje to úspěšnost.</li>
-                    <li>📝 Detailní popis zvyšuje šanci na prodej.</li>
+        <!-- SIDEBAR -->
+        <aside class="layout-sidebar">
+            <section class="card">
+                <h2 class="section-title">Nápověda</h2>
+                <ul>
+                    <li>Upravit lze pouze aktivní nabídky</li>
+                    <li>Reálná cena zvyšuje šanci na prodej</li>
+                    <li>Více dopravy = více zájemců</li>
+                    <li>Detailní popis zvyšuje důvěru</li>
                 </ul>
-            </div>
-        </div>
+            </section>
+        </aside>
 
     </div>
 

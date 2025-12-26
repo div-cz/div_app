@@ -3,48 +3,37 @@
 {% load custom_filters %}
 
 {% block title %}
-    Potvrzení prodeje | DIVkvariát
+Potvrzení prodeje | DIVkvariát
 {% endblock %}
 
 {% block content %}
 
-<div class="max-w-2xl mx-auto py-10">
-
-    <!-- HLAVIČKA -->
-    <h1 class="text-3xl font-bold mb-6">Potvrzení prodeje</h1>
-
-    <!-- KARTA -->
-    <div class="bg-white shadow rounded-lg p-6">
-
-        <p class="text-lg mb-4">
+<div class="page page-narrow">
+    <h1 class="page-title">Potvrzení prodeje</h1>
+    <div class="card">
+        <p>
             Opravdu chcete potvrdit, že tato kniha byla úspěšně prodána?
         </p>
 
-        <div class="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-            <p class="font-semibold text-gray-800">
+        <div class="card">
+            <strong>
                 {{ purchase.book.titlecz|default:purchase.book.title }}
-            </p>
+            </strong>
         </div>
 
-        <form method="POST" class="space-y-4">
+        <form method="post" class="form">
             {% csrf_token %}
-
-            <div class="flex items-center gap-4 pt-4">
-
-                <button type="submit" class="add-book">
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
                     Potvrdit prodej
                 </button>
 
-                <a href="{% url 'index' %}"
-                   class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700">
+                <a href="{% url 'index' %}" class="btn-secondary">
                     Zrušit
                 </a>
             </div>
-
         </form>
-
     </div>
-
 </div>
 
 {% endblock %}

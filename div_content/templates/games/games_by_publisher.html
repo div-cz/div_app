@@ -7,51 +7,123 @@
 
 {% block meta %}
 
-<meta property="og:url" content="https://div.cz/hra/{{ publisher.publisherurl }}">
+    <meta property="og:url" content="https://div.cz/hra/{{ publisher.publisherurl }}">
+
+    <style>
+        .publisher-games-page {
+            margin-top: 1.5rem;
+            padding: 0 1rem;
+        }
+
+        .page-title {
+            margin-bottom: 1.5rem;
+        }
+
+        .game-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .game-item a {
+            text-decoration: underline;
+        }
+
+        .game-item-empty {
+            font-style: italic;
+            color: #666;
+        }
+
+        .pagination {
+            margin-top: 1.5rem;
+        }
+
+        .pagination-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .pagination-current {
+            font-weight: bold;
+        }
+
+        @media (max-width: 992px) {
+            .game-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .game-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
 
 {% endblock %}
 
 {% block content %}
 
 <div class="container">
-    <div class="mb-3 px-4 w-full">
-        <div class="mt-5">
-            <h2 class="w-full">Hry od vydavatele: {{ publisher.publisher }}</h2>
-            <div class="row mt-5">
-                <ul class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 ml-6 mt-6">
-                    {% for game in games %}
-                        <li>
-                            <a href="{% url 'game_detail' game_url=game.url %}">{{ game.title }}</a> ({{ game.year }})
-                        </li>
-                    {% empty %}
-                        <li>Žádné hry nenalezeny.</li>
-                    {% endfor %}
-                </ul>
+    <div class="publisher-games-page">
 
-                <hr> 
+        <h2 class="page-title">
+            Hry od vydavatele: {{ publisher.publisher }}
+        </h2>
 
-                <!-- PAGINÁTOR -->
-                {% if games.has_other_pages %}
-                <div class="pagination">
-                    <span class="step-links">
+        <ul class="game-list">
+            {% for game in games %}
+                <li class="game-item">
+                    <a href="{% url 'game_detail' game_url=game.url %}">
+                        {{ game.title }}
+                    </a>
+                    ({{ game.year }})
+                </li>
+
+                {% empty %}
+                <li class="game-item-empty">
+                    Žádné hry nenalezeny.
+                </li>
+            {% endfor %}
+        </ul>
+
+        <hr>
+
+        <!-- PAGINÁTOR -->
+        {% if games.has_other_pages %}
+            <div class="pagination">
+                <div class="pagination-links">
+
                     {% if games.has_previous %}
-                        <a class="first-page" href="?page=1">&laquo; První</a>
-                        <a href="?page={{ games.previous_page_number }}">Předchozí</a>
+                        <a class="pagination-first" href="?page=1">
+                            &laquo; První
+                        </a>
+                        <a href="?page={{ games.previous_page_number }}">
+                            Předchozí
+                        </a>
                     {% endif %}
 
-                    <span class="current-page">
-                        {{ games.number }} / {{ games.paginator.num_pages }}.
+                    <span class="pagination-current">
+                        {{ games.number }} / {{ games.paginator.num_pages }}
                     </span>
 
                     {% if games.has_next %}
-                        <a href="?page={{ games.next_page_number }}">Další</a>
-                        <a class="last-page" href="?page={{ games.paginator.num_pages }}">Poslední &raquo;</a>
+                        <a href="?page={{ games.next_page_number }}">
+                            Další
+                        </a>
+                        <a class="pagination-last" href="?page={{ games.paginator.num_pages }}">
+                            Poslední &raquo;
+                        </a>
                     {% endif %}
-                    </span>
+
                 </div>
-                {% endif %}
             </div>
-        </div>
+        {% endif %}
+
     </div>
 </div>
 

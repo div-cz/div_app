@@ -104,7 +104,16 @@
 
         <!-- BIOGRAFIE -->
         {% if creatorbiography.verificationstatus == "Verified" %}
-            <p></p>
+            <div style="width: 100%; margin-bottom: 1rem;">
+                <p id="biography-text">
+                    {% if creator.description %}
+                        {{ creator.description|safe }} 
+                        <p><a id="toggle-biography">Více...</a></p>   
+                    {% else %}
+                        Zatím žádný popis    
+                    {% endif %}
+                </p>
+            </div>
 
         {% else %}
             <div class="author-bio">
@@ -359,5 +368,32 @@
     </div>
 
 </div>
+
+<!-- více, méně - zobrazit celý bio -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const bioElement = document.getElementById("biography-text");
+        const toggleButton = document.getElementById("toggle-biography");
+
+        const fullText = bioElement.innerText; 
+        const truncatedText = fullText.substring(0, 500);
+
+        if (fullText.length > 500) {
+            bioElement.innerText = truncatedText + "...";
+        } else {
+            toggleButton.style.display = "none";
+        }
+
+        toggleButton.addEventListener("click", function () {
+            if (bioElement.innerText === truncatedText + "...") {
+                bioElement.innerText = fullText; 
+                toggleButton.innerText = "...Méně"; 
+            } else {
+                bioElement.innerText = truncatedText + "...";
+                toggleButton.innerText = "Více..."; 
+            }
+        });
+    });
+</script>
 
 {% endblock %}

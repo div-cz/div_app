@@ -7,21 +7,21 @@
 
 {% block meta %}
 
-<meta property="og:url" content="https://div.cz/hra/{{ game.url }}">
+    <meta property="og:url" content="https://div.cz/hra/{{ game.url }}">
+        
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <style>
+        
+    </style>
 
 {% endblock %}
 
 {% block content %}
 
-<style>
-    
-</style>
-
 <div class="container">
-    <!-- Levá strana -->
+    <!-- LEVÁ STRANA -->
     <div class="left-side">
         <h2>
             {{ game.title }} 
@@ -46,20 +46,19 @@
         <div class="info-bar">
             <!-- Kontrola, zda je k dispozici rok -->
             {% if game.year %}
-            <span><a href="/hry/rok/{{ game.year }}">{{ game.year }}</a></span>
+                <span><a href="/hry/rok/{{ game.year }}">{{ game.year }}</a></span>
                 &nbsp;|&nbsp;
             {% endif %}
 
             <!-- Kontrola, zda existuje seznam žánrů a není prázdný -->
             {% if genres %}
-            <span>
-                {% for game_genre in genres %}
-                    <a href="/hry/zanr/{{ game_genre.genreid.url }}">{{ game_genre.genreid.genrenamecz }}</a>{% if not forloop.last %}, {% endif %}
-                {% endfor %}
-            </span>
-            &nbsp;|&nbsp;
+                <span>
+                    {% for game_genre in genres %}
+                        <a href="/hry/zanr/{{ game_genre.genreid.url }}">{{ game_genre.genreid.genrenamecz }}</a>{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </span>
+                &nbsp;|&nbsp;
             {% endif %}
-
         </div>
 
         <div class="box-info">
@@ -96,10 +95,10 @@
                             </div>
                         </div>
 
-                        <button class=" btn add-game" style="margin: 0 auto;">Hodnocení hry</button>
+                        <button class="rating-popup-btn btn add-game" style="margin: 0 auto;">Hodnocení hry</button>
                     </div>
 
-                    <!-- POPUP – VÝPIS HODNOCENÍ PRO HRU -->
+                    <!-- POPUP – VÝPIS HODNOCENÍ PRO HRU na mobilu -->
                     <div id="ratingPopup" class="popup-overlay">
                         <div class="popup-window">
                             <span class="popup-close">&times;</span>
@@ -107,7 +106,7 @@
                             {% if ratings %}
                                 <ul class="sm-rating-users">
                                     {% for rating in ratings %}
-                                        <li>
+                                        <li class="after">
                                             <small>
                                                 <p style="text-align:center; padding:.25rem;">
                                                     Hodnoceno: {{ rating.modified|date:"j. n. Y" }}
@@ -176,9 +175,9 @@
                         </li>-->
                         <li><strong>Výrobce (vývojáři):</strong>
                             {% for developer in developers %}
-                                        <a href="{% url 'games_by_developer' developer_url=developer.developerid.developerurl %}">
-                                        {{ developer.developerid.developer }}
-                                        </a>
+                                <a href="{% url 'games_by_developer' developer_url=developer.developerid.developerurl %}">
+                                {{ developer.developerid.developer }}
+                                </a>
                                 {% if not forloop.last %}, {% endif %}
                             {% endfor %}
                         </li>
@@ -271,8 +270,8 @@
             <p id="biography-text">
                 {% if game.descriptioncz %}
                     {{ game.descriptioncz|safe }}   
-                    <p><a id="toggle-biography">Více...</a></p>  
-                {% else %}
+                        <p><a id="toggle-biography">Více...</a></p>  
+                    {% else %}
                     Zatím žádný popis    
                 {% endif %}
             </p>
@@ -300,24 +299,28 @@
                         {{ comment_form.comment }}
                         <button type="submit" class="btn add-game">Vložit recenzi</button>
                     </form>
-                {% else %}
-                    <p>Pro komentování je nutné být <a href="/prihlaseni/">přihlášený</a>.<br>
-                    Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
+
+                    {% else %}
+                    <p>Pro komentování je nutné být 
+                        <a href="/prihlaseni/">přihlášený</a>.<br>
+                        Nemáš účet? Nevadí, 
+                        <a href="/registrace/">rychlá registrace!</a>
+                    </p>
                 {% endif %}
 
                 <!-- výpis recenzí -->
                 <ul class="list-unstyled komentar">
-                {% for comment in comments %}
-                    <li class="card-body">
-                        <p class="after">{{ comment.comment }}</p>
-                        <div class="user">
-                            <p>{{ comment.dateadded }}</p>
-                            <p>Přidal: 
-                                <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a>
-                            </p>
-                        </div>
-                    </li>
-                {% endfor %}
+                    {% for comment in comments %}
+                        <li class="card-body">
+                            <p class="after">{{ comment.comment }}</p>
+                            <div class="user">
+                                <p>{{ comment.dateadded }}</p>
+                                <p>Přidal: 
+                                    <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a>
+                                </p>
+                            </div>
+                        </li>
+                    {% endfor %}
                 </ul>
             </div>
 
@@ -346,6 +349,7 @@
                         {{ gamelisting_form.as_p }}
                         <button type="submit" class="btn add-game">Vložit nabídku</button>
                     </form>
+
                     {% else %}
                     <p>Pro přidání nabídky se <a href="/prihlaseni/">přihlaste</a>.</p>
                 {% endif %}
@@ -353,19 +357,19 @@
                 <h4 style="margin-top: 1rem;">Aktivní nabídky</h4>
                 {% if sell_listings %}
                     <ul class="list-unstyled card ">
-                    {% for listing in sell_listings %}
-                        <li class="card-body">
-                            <strong>{{ listing.user.username }}</strong> –
-                            {% if listing.price %}
-                                {{ listing.price|floatformat:0 }} Kč
-                            {% else %}
-                                Daruji
-                            {% endif %}
-                            <br>
-                            <small>{{ listing.condition }}</small><br>
-                            <a href="{% url 'game_listing_detail' game.url listing.gamelistingid %}" class="text-success">Detail</a>
-                        </li>
-                    {% endfor %}
+                        {% for listing in sell_listings %}
+                            <li class="card-body">
+                                <strong>{{ listing.user.username }}</strong> –
+                                {% if listing.price %}
+                                    {{ listing.price|floatformat:0 }} Kč
+                                    {% else %}
+                                    Daruji
+                                {% endif %}
+                                <br>
+                                <small>{{ listing.condition }}</small><br>
+                                <a href="{% url 'game_listing_detail' game.url listing.gamelistingid %}" class="text-success">Detail</a>
+                            </li>
+                        {% endfor %}
                     </ul>
                     {% else %}
                     <p>Zatím žádné nabídky.</p>
@@ -373,25 +377,25 @@
 
                 <h4 style="margin-top: 1rem;">Poptávky</h4>
                 {% if buy_listings %}
-                <ul class="list-unstyled card ">
-                    {% for listing in buy_listings %}
-                    <li class="card-body">
-                        <strong>{{ listing.user.username }}</strong> chce koupit
-                        {% if listing.price %}
-                            za {{ listing.price|floatformat:0 }} Kč
-                        {% endif %}
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p>Zatím žádné poptávky.</p>
-            {% endif %}
+                    <ul class="list-unstyled card ">
+                        {% for listing in buy_listings %}
+                            <li class="card-body">
+                                <strong>{{ listing.user.username }}</strong> chce koupit
+                                {% if listing.price %}
+                                    za {{ listing.price|floatformat:0 }} Kč
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>Zatím žádné poptávky.</p>
+                {% endif %}
             </div>
 
         </div>
     </div>
 
-    <!-- Pravá strana -->
+    <!-- PRAVÁ STRANA -->
     <div class="right-side">
 
         <!-- Hodnocení na desktop -->
@@ -452,30 +456,30 @@
         </div>
 
         {% if request.user.is_superuser %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title">Přidat na hlavní stranu</h3>
-                <form method="post">
-                    {% csrf_token %}
-                    <button type="submit" name="add_to_metaindex" class="btn add-game">
-                    Přidat na hlavní stránku
-                    </button>
-                </form>
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Přidat na hlavní stranu</h3>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" name="add_to_metaindex" class="btn add-game">
+                        Přidat na hlavní stránku
+                        </button>
+                    </form>
+                </div>
             </div>
-        </div>
         {% endif %}
         
         {% if request.user.is_superuser %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title">Upravit DIV Rating</h3>
-                <form method="post">
-                    {% csrf_token %}
-                    {{ game_div_rating_form.as_p }} 
-                    <button type="submit" name="update_divrating" class="btn add-game">Uložit</button>
-                </form>
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Upravit DIV Rating</h3>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ game_div_rating_form.as_p }} 
+                        <button type="submit" name="update_divrating" class="btn add-game">Uložit</button>
+                    </form>
+                </div>
             </div>
-        </div>
         {% endif %}
 
         <!-- SDÍLET NA SÍTÍCH -->

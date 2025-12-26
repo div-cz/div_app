@@ -31,69 +31,69 @@
         <meta property="og:url" content="https://div.cz/eknihy/placene/">
     {% endif %}
 
-<style>
-    a.btn.books {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 12px 24px;
-        font-weight: 600;
-        font-size: 16px;
-        border-radius: 6px;
-        margin: 8px 0;
-        text-align: center;
-        transition: all 0.2s ease-in-out;
-        box-sizing: border-box;
-    }
-
-    a.btn.books.add-book {
-        background-color: #61872B !important;
-        color: #fff !important;
-        border: 1px solid #61872B !important;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        position: relative;
-    }
-
-    a.btn.books.btn-outline-secondary {
-        background-color: #fff !important;
-        border: 1px solid #61872B !important;
-        color: #61872B !important;
-    }
-
-    @media (min-width: 769px) {
-        .buttons-row {
+    <style>
+        a.btn.books {
             display: flex;
-            gap: 10px;
-            justify-content: flex-start;
-            margin-bottom: 1rem;
-        }
-
-        .buttons-row .btn.books {
-            margin: 0; /* jen vodorovná mezera, protože flex */
-        }
-
-        a.btn.books.add-book {
-            top: 0px;  /* ✅ posunutí jen na PC */
-        }
-    }
-
-    @media (max-width: 768px) {
-        .buttons-row {
-            display: block;
-        }
-
-        .buttons-row .btn.books {
-            display: block;
-            width: 100%;
-            margin: 10px 0; /* krásně stejné rozestupy */
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 16px;
+            border-radius: 6px;
+            margin: 8px 0;
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+            box-sizing: border-box;
         }
 
         a.btn.books.add-book {
-            top: 0; /* ✅ žádný posun na mobilu */
+            background-color: #61872B !important;
+            color: #fff !important;
+            border: 1px solid #61872B !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            position: relative;
         }
-    }
 
-</style>
+        a.btn.books.btn-outline-secondary {
+            background-color: #fff !important;
+            border: 1px solid #61872B !important;
+            color: #61872B !important;
+        }
+
+        @media (min-width: 769px) {
+            .buttons-row {
+                display: flex;
+                gap: 10px;
+                justify-content: flex-start;
+                margin-bottom: 1rem;
+            }
+
+            .buttons-row .btn.books {
+                margin: 0; /* jen vodorovná mezera, protože flex */
+            }
+
+            a.btn.books.add-book {
+                top: 0px;  /* ✅ posunutí jen na PC */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .buttons-row {
+                display: block;
+            }
+
+            .buttons-row .btn.books {
+                display: block;
+                width: 100%;
+                margin: 10px 0; /* krásně stejné rozestupy */
+            }
+
+            a.btn.books.add-book {
+                top: 0; /* ✅ žádný posun na mobilu */
+            }
+        }
+
+    </style>
 
 {% endblock %}
 
@@ -112,7 +112,7 @@
     <div class="books-grid">
         {% for book in page_obj %}
             <div class="book-card2">
-                <a href="/kniha/{{ book.url }}" class="flex-shrink-0" style="width:100px;">
+                <a href="/kniha/{{ book.url }}" style="width:100px; flex-shrink: 0">
                     {% if book.img == "noimg.png" %}
                         <img src="/static/img/book/book.png" alt="{{ book.titlecz|default:book.title }}">
                     {% elif book.img == "GoogleID" %}
@@ -147,13 +147,12 @@
                         {% endif %}
                     </p>
                 </div>
-
             </div>
-        {% empty %}
+
+            {% empty %}
             <p>Žádné knihy k dispozici.</p>
         {% endfor %}
     </div>
-
 
     <!-- PAGINÁTOR -->
     <div class="pagination">

@@ -6,57 +6,73 @@
 {% block content %}
 
 <div class="container">
-    <h2 class="mb-4">Vyhledávání: {% if request.GET.q %} {{ request.GET.q }} {% endif %}</h2>
-    <div class="row mb-3 w-full">
- 
-        <div class="table">
-            <div class="grid search-grid bg-[#c0c0c0]">
-                <div class="text-center font-bold p-1">Miniatura</div>
-                <div class="font-bold p-1">Název</div>
-                <div class="text-center font-bold p-1">Rok</div>
-                <div class="text-center font-bold p-1">Hodnocení</div>
+    <h2 class="page-title">
+        Vyhledávání: 
+        {% if request.GET.q %} 
+            <span class="movies">{{ request.GET.q }}</span>
+        {% endif %}
+    </h2>
+
+    <div class="search-table">
+        <!-- Hlavička -->
+        <div class="search-grid search-header">
+            <div style="text-align: center;">Miniatura</div>
+            <div>Název</div>
+            <div style="text-align: center;">Rok</div>
+            <div style="text-align: center;">Hodnocení</div>
+        </div>
+
+        <div class="search-grid search-row">
+            <a href="{{ game.url }}">
+            
+                <img src="/static/img/game/game.png" alt="hra {{ game.title }}">
+            
+                <img src="https://games.google.com/games/content?id={{ game.googleid }}&printsec=frontcover&img=1&zoom=3&edge=curl&source=gbs_api" alt="{{ game.title }}">
+            
+            </a>
+
+            <div class="title">
+                <a href="/hra/{{ game.url }}">{{ game.title }}</a> 
+                <a href="/autor/{{ game.authorid__url }}">
+                    {{ game.authorid__firstname }} {{ game.authorid__lastname }}
+                </a>
             </div>
-            <div>
 
-                <div class="grid items-center border search-grid sudy">
-                        <div>
-                            <a href="{{ game.url }}">
-                           
-                                <img src="/static/img/game/game.png" alt="hra {{ game.title }}" style="max-width: 100px; object-fit: cover;">
-                          
-                                <img src="https://games.google.com/games/content?id={{ game.googleid }}&printsec=frontcover&img=1&zoom=3&edge=curl&source=gbs_api" alt="{{ game.title }}" style="max-width: 100px; object-fit: cover;">
-                           
-                            </a>
-                        </div>
-                        <div class="flex flex-wrap ml-2">
-                            <a class="w-full" href="/hra/{{ game.url }}">{{ game.title }}</a> 
-                            <a href="/autor/{{ game.authorid__url }}">{{ game.authorid__firstname }} {{ game.authorid__lastname }}</a>
-                        </div>
-                        <div>
-                            <a href="https://div.cz/hry/{{ game.year }}">{{ game.year }}</a>
-                        </div>
-                        <div class="text-center p-1 stars">
+            <div class="year">
+                <a href="https://div.cz/hry/{{ game.year }}">{{ game.year }}</a>
+            </div>
 
-                            <span class="text-warning h4">
-                                {% if score == "1" %}
-                                &#9733;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;
-                                {% elif score == "2" %}
-                                &#9733;&nbsp;&#9733;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;
-                                {% elif score == "3" %}
-                                &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9734;&nbsp;&#9734;
-                                {% elif score == "4" %}
-                                &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9734;
-                                {% elif score == "5" %}
-                                &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;
-                                {% endif %}
-                            </span>
-
-                            <span class="text-sm stars">Nehodnoceno</span>
-
-                        </div>
+            <div class="search-rating">
+                {% if user.is_authenticated %}
+                    <div class="movie-rating">
+                        100 % <!-- celkové hodnocení filmu -->
                     </div>
 
+                    <div class="search-stars">
+                        
+                            <i class="fas fa-gamepad" title="odehráno"></i>
+                        
+
+                        <div class="stars">
+                            
+                                <span> <!-- hodnocení uživatele -->
+                                    {% for _ in "12345" %}
+                                        {% if forloop.counter <= rating.score %}
+                                            <span>★</span>
+                                        {% else %}
+                                            ☆
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+
+                                
+                                <span><small>Nehodnoceno</small></span>
+                            
+                        </div>
+
+                    </div>
             </div>
+
         </div>
 
         <p>Žádné hry nenalezeny.</p>

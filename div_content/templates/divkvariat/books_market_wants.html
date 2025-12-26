@@ -3,202 +3,148 @@
 
 {% block title %}Poptávky knih | DIVkvariát{% endblock %}
 
-{% block meta %}
-<meta name="description" content="Poptávky knih od čtenářů na DIVkvariátu. Zjistěte, jaké knihy lidé aktuálně shánějí.">
-<link rel="canonical" href="https://divkvariat.cz/poptavky/">
-
-<meta property="og:title" content="Poptávky knih | DIVkvariát">
-<meta property="og:description" content="Seznam poptávek knih od čtenářů. Máte knihu? Nabídněte ji.">
-<meta property="og:image" content="https://media.div.cz/hero/divkvariat.webp">
-<meta property="og:url" content="https://divkvariat.cz/poptavky/">
-
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Poptávky knih | DIVkvariát">
-<meta name="twitter:description" content="Knihy, které uživatelé aktivně shánějí.">
-<meta name="twitter:image" content="https://media.div.cz/hero/divkvariat.webp">
-{% endblock %}
-
 {% block content %}
 
-<div class="max-w-7xl mx-auto py-10">
+<div class="listings-page">
 
-    <h1 class="text-3xl font-bold text-gray-800 mb-3">📘 Poptávky knih</h1>
-    <p class="text-gray-600 mb-10">
-        Uživatelé zde poptávají knihy, které shánějí.  
+    <h1 class="section-title">📘 Poptávky knih</h1>
+
+    <p class="listings-intro">
+        Uživatelé zde poptávají knihy, které shánějí.
         Pokud některou máte, vytvořte nabídku.
     </p>
 
+    <!-- KATEGORIE -->
+    {% if categories %}
+        <div class="listings-filters">
 
-<!-- 🔹 ŽÁNRY / KATEGORIE -->
-{% if categories %}
-<div class="mb-10">
-    <h2 class="text-xl font-semibold mb-3">Kategorie</h2>
+            <h2 class="section-subtitle">Kategorie</h2>
 
-    <div class="flex flex-wrap gap-3">
+            <div class="filter-list">
+                {% for g in categories %}
+                    <a href="?zanr={{ g.url }}"
+                    class="filter-pill
+                    {% if selected_genre == g.url %}active{% endif %}
+                    {% if forloop.counter > 2 %}hidden-mobile{% endif %}">
+                        {{ g.genrenamecz }}
+                    </a>
+                {% endfor %}
+            </div>
 
-        {% for g in categories %}
-            <a href="?zanr={{ g.url }}"
-               class="
-                    px-4 py-2 rounded-lg border shadow-sm hover:bg-gray-50
-                    {% if selected_genre == g.url %}
-                        bg-green-100 border-green-300 text-green-800
-                    {% else %}
-                        bg-white text-gray-700
-                    {% endif %}
-                    
-                    {% if forloop.counter > 2 %}
-                        hidden md:inline-flex
-                    {% endif %}
-               ">
-                {{ g.genrenamecz }}
+            <a href="#"
+            onclick="showHidden(this)"
+            class="filter-more">
+                Zobrazit všechny
             </a>
-        {% endfor %}
+        </div>
+    {% endif %}
 
-    </div>
+    <!-- TOP KUPUJÍCÍ -->
+    {% if top_buyers %}
+        <div class="listings-filters">
 
-    <!-- Tlačítko pro odhalení všech (jen mobil) -->
-    <a href="#"
-       onclick="this.previousElementSibling
-                    .querySelectorAll('.hidden')
-                    .forEach(x => x.classList.remove('hidden')); 
-                this.remove();"
-       class="md:hidden mt-3 inline-block text-green-700 underline">
-        Zobrazit všechny
-    </a>
+            <h2 class="section-subtitle">Top kupující</h2>
 
-</div>
-{% endif %}
+            <div class="filter-list">
+                {% for buyer in top_buyers %}
+                    <a href="/uzivatel/{{ buyer.id }}/koupim-knihy/"
+                    class="filter-pill {% if forloop.counter > 2 %}hidden-mobile{% endif %}">
+                        🛒 {{ buyer.username }}
+                        <span class="filter-meta">({{ buyer.total_buys }})</span>
+                    </a>
+                {% endfor %}
+            </div>
 
+            <a href="#"
+            onclick="showHidden(this)"
+            class="filter-more">
+                Zobrazit všechny
+            </a>
+        </div>
+    {% endif %}
 
-
-<!-- 🔹 TOP KUPUJÍCÍ -->
-{% if top_buyers %}
-<div class="mb-12">
-    <h2 class="text-xl font-semibold mb-3">Top kupující</h2>
-
-    <div class="flex flex-wrap gap-4">
-
-        {% for buyer in top_buyers %}
-        <a href="/uzivatel/{{ buyer.id }}/koupim-knihy/"
-           class="px-4 py-3 rounded-lg border bg-white text-gray-800 shadow-sm hover:shadow-md
-                  {% if forloop.counter > 2 %} hidden md:inline-flex {% endif %}">
-            🛒 {{ buyer.username }}
-            <span class="text-sm text-gray-500 ml-1">
-                ({{ buyer.total_buys }} poptávek)
-            </span>
-        </a>
-        {% endfor %}
-
-    </div>
-
-    <a href="#"
-       onclick="this.previousElementSibling.querySelectorAll('.hidden').forEach(x => x.classList.remove('hidden')); this.remove();"
-       class="md:hidden mt-3 inline-block text-green-700 underline">
-        Zobrazit všechny
-    </a>
-</div>
-{% endif %}
-
-
-
-    <!-- 🔹 LIST POPTÁVEK -->
+    <!-- LIST POPTÁVEK -->
     {% if listings %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="listing-grid">
 
-        {% for listing in listings %}
-        <div class="bg-white border rounded-xl shadow-sm hover:shadow-lg p-4 transition flex flex-col h-full">
+            {% for listing in listings %}
+            <div class="listing-card">
 
-            <!-- Obrázek knihy -->
-            <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">
-                {% if listing.book.img == "noimg.png" %}
-                    <img src="/static/img/book/book.png"
-                         class="w-full h-64 object-cover rounded-md mb-4">
-                {% elif listing.book.img == "GoogleID" %}
-                    <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1"
-                         class="w-full h-64 object-cover rounded-md mb-4">
-                {% else %}
-                    <img src="https://media.div.cz/knihy/{{ listing.book.img }}"
-                         class="w-full h-64 object-cover rounded-md mb-4">
-                {% endif %}
-            </a>
+                <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}"
+                class="listing-image">
+                    {% if listing.book.img == "noimg.png" %}
+                        <img src="/static/img/book/book.png" alt="">
+                    {% elif listing.book.img == "GoogleID" %}
+                        <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1" alt="">
+                    {% else %}
+                        <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="">
+                    {% endif %}
+                </a>
 
-            <!-- Název knihy -->
-            <h3 class="text-lg font-semibold text-gray-800">
-                {{ listing.book.titlecz|default:listing.book.title }}
-            </h3>
+                <h3 class="listing-title">
+                    {{ listing.book.titlecz|default:listing.book.title }}
+                </h3>
 
-            <!-- Autor -->
-            <p class="text-gray-500 mb-3">{{ listing.book.author }}</p>
+                <p class="listing-author">
+                    {{ listing.book.author }}
+                </p>
 
-            <!-- Cena -->
-            <p class="text-xl font-bold text-blue-600 mb-4">
-                Sháním za {{ listing.price|floatformat:0 }} Kč
-            </p>
+                <div class="listing-price want">
+                    Sháním za {{ listing.price|floatformat:0 }} Kč
+                </div>
 
-            <!-- Tlačítko -->
-            <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}"
-               class="mt-auto block w-full text-center py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold">
-                Zobrazit poptávku
-            </a>
+                <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}"
+                class="listing-button">
+                    Zobrazit poptávku
+                </a>
 
-            <!-- Meta -->
-            <p class="text-xs text-gray-500 mt-3">
-                Poptává: 
-                <a class="text-green-700 hover:underline"
-                   href="/uzivatel/{{ listing.user.id }}/koupim-knihy/">
-                    {{ listing.user.username }}
-                </a><br>
-                {{ listing.createdat|date:"j. n. Y" }}
-            </p>
+                <div class="listing-meta">
+                    Poptává:
+                    <a href="/uzivatel/{{ listing.user.id }}/koupim-knihy/">
+                        {{ listing.user.username }}
+                    </a><br>
+                    {{ listing.createdat|date:"j. n. Y" }}
+                </div>
+
+            </div>
+            {% endfor %}
 
         </div>
-        {% endfor %}
 
-    </div>
-
-    <!-- 🔹 PAGINACE -->
-    <div class="flex justify-center mt-10">
-
-        <nav class="flex items-center space-x-2">
+        <!-- PAGINACE -->
+        <div class="pagination">
 
             {% if listings.has_previous %}
-                <a href="?page=1{% if selected_genre %}&zanr={{ selected_genre }}{% endif %}"
-                   class="px-3 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50">
-                    « První
-                </a>
-
-                <a href="?page={{ listings.previous_page_number }}{% if selected_genre %}&zanr={{ selected_genre }}{% endif %}"
-                   class="px-3 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50">
-                    ‹
-                </a>
+                <a href="?page=1{% if selected_genre %}&zanr={{ selected_genre }}{% endif %}">« První</a>
+                <a href="?page={{ listings.previous_page_number }}{% if selected_genre %}&zanr={{ selected_genre }}{% endif %}">‹</a>
             {% endif %}
 
-            <span class="px-4 py-2 bg-gray-100 border rounded-lg">
+            <span class="pagination-current">
                 Stránka {{ listings.number }} / {{ listings.paginator.num_pages }}
             </span>
 
             {% if listings.has_next %}
-                <a href="?page={{ listings.next_page_number }}{% if selected_genre %}&zanr={{ selected_genre }}{% endif %}"
-                   class="px-3 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50">
-                    ›
-                </a>
-
-                <a href="?page={{ listings.paginator.num_pages }}{% if selected_genre %}&zanr={{ selected_genre }}{% endif %}"
-                   class="px-3 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50">
-                    Poslední »
-                </a>
+                <a href="?page={{ listings.next_page_number }}{% if selected_genre %}&zanr={{ selected_genre }}{% endif %}">›</a>
+                <a href="?page={{ listings.paginator.num_pages }}{% if selected_genre %}&zanr={{ selected_genre }}{% endif %}">Poslední »</a>
             {% endif %}
 
-        </nav>
+        </div>
 
-    </div>
-
-    {% else %}
-    <p class="text-center text-gray-500 mt-14">
-        Momentálně zde nejsou žádné poptávky.
-    </p>
+        {% else %}
+        <p class="listings-empty">
+            Momentálně zde nejsou žádné poptávky.
+        </p>
     {% endif %}
 
 </div>
+
+<script>
+    function showHidden(el) {
+        el.previousElementSibling
+        .querySelectorAll('.hidden-mobile')
+        .forEach(x => x.classList.remove('hidden-mobile'));
+        el.remove();
+    }
+</script>
 
 {% endblock %}

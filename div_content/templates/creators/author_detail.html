@@ -83,7 +83,16 @@
 
         <!-- BIOGRAFIE -->
         {% if author.description %}
-            <p>{{ author.description|safe }}</p>
+            <div style="width: 100%; margin-bottom: 1rem;">
+                <p id="biography-text">
+                    {% if author.description %}
+                        {{ author.description|safe }} 
+                        <p><a id="toggle-biography">Více...</a></p>   
+                    {% else %}
+                        Zatím žádný popis    
+                    {% endif %}
+                </p>
+            </div>
 
             {% else %}
             <div class="author-bio">
@@ -226,25 +235,25 @@
         <!-- SDÍLET NA SÍTÍCH -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">{{  }}</h3>
+                <h3 class="card-title after-h3"></h3>
                 <p class="card-text">Sdílet na:</p>
                 <!-- Facebook Share Button -->
-                <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/film/{{  }}" class="btn btn-facebook" style="color: white;" target="_blank" title="Facebook">
+                <a href="" class="btn btn-facebook" style="color: white;" target="_blank" title="Facebook">
                     <i class="fab fa-facebook-f"></i>
                 </a>
 
                 <!-- Twitter Share Button -->
-                <a href="https://twitter.com/intent/tweet?url=https://div.cz/film/{{  }}&text={{  }}" class="btn btn-twitter" style="color: white;" target="_blank" title="Twitter">
+                <a href="" class="btn btn-twitter" style="color: white;" target="_blank" title="Twitter">
                     <i class="fab fa-twitter"></i>
                 </a>
 
                 <!-- E-mail Share Button -->
-                <a href="mailto:?subject={{  }}&body=Podívej se na https://div.cz/film/{{  }}" class="btn btn-email" style="color: white;" title="E-mail">
+                <a href="" class="btn btn-email" style="color: white;" title="E-mail">
                     <i class="fas fa-envelope"></i>
                 </a>
 
                 <!-- WhatsApp Share Button -->
-                <a href="https://wa.me/?text={{  }} - https://div.cz/film/{{  }}" class="btn btn-whatsapp" target="_blank" style="color: white;" title="WhatsApp">
+                <a href="" class="btn btn-whatsapp" target="_blank" style="color: white;" title="WhatsApp">
                     <i class="fab fa-whatsapp"></i>
                 </a>
             </div>
@@ -280,6 +289,33 @@
 
     </div>
 </div>
+
+<!-- více, méně - zobrazit celý bio -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const bioElement = document.getElementById("biography-text");
+        const toggleButton = document.getElementById("toggle-biography");
+
+        const fullText = bioElement.innerText; 
+        const truncatedText = fullText.substring(0, 500);
+
+        if (fullText.length > 500) {
+            bioElement.innerText = truncatedText + "...";
+        } else {
+            toggleButton.style.display = "none";
+        }
+
+        toggleButton.addEventListener("click", function () {
+            if (bioElement.innerText === truncatedText + "...") {
+                bioElement.innerText = fullText; 
+                toggleButton.innerText = "...Méně"; 
+            } else {
+                bioElement.innerText = truncatedText + "...";
+                toggleButton.innerText = "Více..."; 
+            }
+        });
+    });
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

@@ -271,7 +271,7 @@
                             {% if pending_payouts_list and user.is_superuser and user.username == "Martin" %}
                                 <div class="card">
                                     <div class="card-body">
-                                        <h3>Výplata pro prodejcee (přehled pro superuser)</h3>
+                                        <h3>Výplata pro prodejce (přehled pro superuser)</h3>
                                         <div class="payment">
                                             {% for user_request in pending_payouts_list%}
                                                 <div class="payment-body">
@@ -810,7 +810,7 @@
                             </div>
                         </div>
                         
-                        <!-- burza knih -->
+                        <!-- BURZA KNIH -->
                         <div class="card">
                             <div class="card-body">
                                 <div class="card-title after-h3">
@@ -840,10 +840,30 @@
                                             </a>
 
                                             <div class="book-market-text">
-                                                <p>{{ listing.book.titlecz }}</p>
+                                                <p>
+                                                   <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+                                                        {{ listing.book.titlecz }}
+                                                    </a>
+                                                </p>
                                                 <p>{{ listing.book.author }}</p>
-                                                <p>{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
-                                                <p class="book-market-user"><small>Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</small></p>
+                                                <p>
+                                                    {% if listing.price %}
+                                                        {{ listing.price|floatformat:0 }} 
+                                                        Kč
+                                                        {% else %}
+                                                        Daruji
+                                                    {% endif %}
+                                                </p>
+                                                <p class="book-market-user">
+                                                    <small>
+                                                        Přidal: 
+                                                        <a href="{% url 'user_sell_listings' listing.user.id %}">
+                                                            {{ listing.user.username }}
+                                                        </a>
+                                                        <span> | </span>
+                                                        {{ listing.createdat|date:"j.n.Y" }}
+                                                    </small>
+                                                </p>
                                             </div>
                                         </div>
                                     {% endfor %}
@@ -874,10 +894,30 @@
                                             </a>
 
                                             <div class="book-market-text">
-                                                <p>{{ listing.book.titlecz }}</p>
+                                                <p>
+                                                    <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">
+                                                        {{ listing.book.titlecz }}
+                                                    </a>
+                                                </p>
                                                 <p>{{ listing.book.author }}</p>
-                                                <p>{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
-                                                <p class="book-market-user"><small>Přidal: {{ listing.user.username }} | {{ listing.createdat|date:"j.n.Y" }}</small></p>
+                                                <p>
+                                                    {% if listing.price %}
+                                                        {{ listing.price|floatformat:0 }} 
+                                                        Kč
+                                                        {% else %}
+                                                        Daruji
+                                                    {% endif %}
+                                                </p>
+                                                <p class="book-market-user">
+                                                    <small>
+                                                        Přidal: 
+                                                        <a href="{% url 'user_buy_listings' listing.user.id %}">
+                                                            {{ listing.user.username }}
+                                                        </a>
+                                                        <span> | </span>
+                                                        {{ listing.createdat|date:"j.n.Y" }}
+                                                    </small>
+                                                </p>
                                             </div>
                                         </div>
                                     {% endfor %}

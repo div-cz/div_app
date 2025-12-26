@@ -1,48 +1,117 @@
 {% extends "inc/base.html" %}
-
 {% load i18n %}
 
-{% block title %}Přidat novou hru{% if user.is_authenticated %}
+{% block title %}
+Přidat novou hru
+{% if user.is_authenticated %}
     {{ user.username }}
-    {% else %}
-    {% endif %}
+{% endif %}
 {% endblock title %}
 
-{% block h1 %}{% if user.is_authenticated %}
+{% block h1 %}
+{% if user.is_authenticated %}
     {{ user.username }}
-    {% else %}
+{% else %}
     Neznámý
-    {% endif %}{% endblock h1 %}
+{% endif %}
+{% endblock h1 %}
 
 {% block text_muted %} na DIV.cz{% endblock text_muted %}
 
-{% block content %}
-<div class="container">
-  <div class="row">
+{% block meta %}
+    <style>
+        .page-layout {
+            margin-top: 1.5rem;
+        }
 
-    {% if user.is_authenticated %}
-    <div class="w-100"></div>
-    <div class="tab-content mt-3 mb-3">
-        <form method="post" class="form">
-            {% csrf_token %}
-            {% for field in form %}
-                <div class="form-group">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.help_text %}
-                        <small class="form-text text-muted">{{ field.help_text }}</small>
-                    {% endif %}
-                    {% for error in field.errors %}
-                        <div class="invalid-feedback">{{ error }}</div>
+        .form-wrapper {
+            margin: 1.5rem 0;
+        }
+
+        .game-form {
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .form-help {
+            display: block;
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .form-error {
+            font-size: 0.85rem;
+            color: #c0392b;
+            margin-top: 0.25rem;
+        }
+
+        .add-game {
+            margin-top: 1rem;
+        }
+
+        .login-required {
+            margin-top: 2rem;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="page-layout">
+
+        {% if user.is_authenticated %}
+            <div class="form-wrapper">
+                <form method="post" class="game-form">
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+
+                            {{ field }}
+
+                            {% if field.help_text %}
+                                <small class="form-help">
+                                    {{ field.help_text }}
+                                </small>
+                            {% endif %}
+
+                            {% for error in field.errors %}
+                                <div class="form-error">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
                     {% endfor %}
-                </div>
-            {% endfor %}
-            <button type="submit" class="btn mt-3 add">Přidat hru</button>
-        </form>
+
+                    <button type="submit" class="btn add-game">
+                        Přidat hru
+                    </button>
+                </form>
+            </div>
+
+            {% else %}
+            <p class="login-required">
+                <a href="{% url 'account_login' %}">Přihlásit</a>.
+                Nemáte účet?
+                <a href="{% url 'signup' %}">Registrace</a>.
+            </p>
+        {% endif %}
+
     </div>
-    {% else %}
-    <p><a href="{% url 'account_login' %}">Přihlásit</a>. Nemáte účet? <a href="{% url 'signup' %}">Registrace</a>.</p>
-    {% endif %}
-  </div>
 </div>
+
 {% endblock content %}

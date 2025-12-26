@@ -3,61 +3,159 @@
 
 {% block title %}Přidat inzerát knihy{% endblock %}
 
+{% block meta %}
+
+    <style>
+        .container-margin {
+            margin-top: 20px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-spacing {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            margin-bottom: 1rem;
+        }
+
+        .search-wrapper {
+            position: relative;
+        }
+
+        .search-results {
+            position: relative;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-top: 5px;
+            max-height: 240px;
+            overflow-y: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,.1);
+            z-index: 50;
+        }
+
+        .search-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .search-item:hover {
+            background: #f5f5f5;
+        }
+
+        .search-item-img {
+            width: 48px;
+            margin-right: 15px;
+        }
+
+        .selected-book {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .book-cover {
+            width: 100px;
+            margin-right: 20px;
+        }
+
+        .book-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .book-year {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .change-book {
+            font-size: 0.85rem;
+            text-decoration: underline;
+        }
+
+        .search-spacer {
+            height: 300px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+    </style>
+
+{% endblock %}
+
 {% block content %}
-<div class="container" style="margin-top:20px">
-    <h1 class="text-3xl font-bold mb-6">Přidat inzerát knihy</h1>
-    
+
+<div class="container container-margin">
+    <h1 class="page-title">Přidat inzerát knihy</h1>
+
     <!-- KROK 1: Vyhledání knihy -->
     {% if not selected_book %}
-    <div class="card" style="margin-bottom:20px">
-        <div class="card-body">
-            <h3 class="text-xl mb-4">1. Vyberte knihu</h3>
-            
-            <div class="relative">
-                <input type="text" id="book-search" class="form-control w-full" placeholder="Začněte psát název knihy nebo jméno autora..." autocomplete="off">
-                <div id="search-results" class="relative z-50 w-full bg-white dark:bg-[#1A161F] border border-gray-300 dark:border-gray-700 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-lg hidden"></div>
+        <div class="card card-spacing">
+            <div class="card-body">
+                <h3 class="section-title">1. Vyberte knihu</h3>
+
+                <div class="search-wrapper">
+                    <input type="text" id="book-search" class="form-control" placeholder="Začněte psát název knihy nebo jméno autora..." autocomplete="off">
+
+                    <div id="search-results" class="search-results hidden"></div>
+                </div>
+
+                <div id="search-spacer" class="search-spacer hidden"></div>
             </div>
-            <div id="search-spacer" class="h-96 hidden"></div>
         </div>
-    </div>
     {% endif %}
-    
+
     <!-- KROK 2: Vybraná kniha + formulář -->
     {% if selected_book %}
-    <div class="card">
-        <div class="card-body">
-            <h3 class="text-xl mb-4">Vybraná kniha</h3>
-            
-            <div class="flex items-start mb-6">
-                {% if selected_book.img == "noimg.png" %}
-                <img src="{% static 'img/book/book.png' %}" alt="{{ selected_book.titlecz|default:selected_book.title }}" class="w-24 h-auto mr-4" style="max-width:200px">
-                {% elif selected_book.img == "GoogleID" %}
-                <img src="https://books.google.com/books/content?id={{ selected_book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ selected_book.titlecz|default:selected_book.title }}" class="w-24 h-auto mr-4"  style="max-width:200px">
-                {% else %}
-                <img src="https://media.div.cz/knihy/{{ selected_book.img }}" alt="{{ selected_book.titlecz|default:selected_book.title }}" class="w-24 h-auto mr-4" style="max-width:200px">
-                {% endif %}
-                
-                <div>
-                    <h4 class="font-bold text-lg">{{ selected_book.titlecz|default:selected_book.title }}</h4>
-                    <p>{{ selected_book.author }}</p>
-                    {% if selected_book.year %}
-                        <p class="text-sm">{{ selected_book.year }}</p>
+        <div class="card">
+            <div class="card-body">
+                <h3 class="section-title">Vybraná kniha</h3>
+
+                <div class="selected-book">
+                    {% if selected_book.img == "noimg.png" %}
+                        <img src="{% static 'img/book/book.png' %}" alt="{{ selected_book.titlecz|default:selected_book.title }}" class="book-cover">
+                        {% elif selected_book.img == "GoogleID" %}
+                        <img src="https://books.google.com/books/content?id={{ selected_book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ selected_book.titlecz|default:selected_book.title }}" class="book-cover">
+                        {% else %}
+                        <img src="https://media.div.cz/knihy/{{ selected_book.img }}" alt="{{ selected_book.titlecz|default:selected_book.title }}" class="book-cover">
                     {% endif %}
-                    <a href="?book_id=" class="text-sm hover:underline">Změnit knihu</a>
+
+                    <div class="book-info">
+                        <h4 class="book-title">{{ selected_book.titlecz|default:selected_book.title }}</h4>
+                        <p>{{ selected_book.author }}</p>
+                        {% if selected_book.year %}
+                            <p class="book-year">{{ selected_book.year }}</p>
+                        {% endif %}
+                        <a href="?book_id=" class="change-book">Změnit knihu</a>
+                    </div>
                 </div>
+
+                <h3 class="section-title">2. Vyplňte detaily nabídky</h3>
+
+                <form method="post" class="listing-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="booklisting">
+                    <input type="hidden" name="book_id" value="{{ selected_book.bookid }}">
+                    {{ booklisting_form.as_p }}
+
+                    <button type="submit" class="btn add-book">
+                        Vytvořit nabídku
+                    </button>
+                </form>
             </div>
-            
-            <h3 class="text-xl mb-4">2. Vyplňte detaily nabídky</h3>
-            
-            <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="form_type" value="booklisting">
-                <input type="hidden" name="book_id" value="{{ selected_book.bookid }}">
-                {{ booklisting_form.as_p }}
-                <button type="submit" class="btn add-book mt-4">Vytvořit nabídku</button>
-            </form>
         </div>
-    </div>
     {% endif %}
 </div>
 
@@ -65,44 +163,40 @@
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('book-search');
         const searchResults = document.getElementById('search-results');
-        
+        const spacer = document.getElementById('search-spacer');
+
         if (!searchInput) return;
-        
+
         let searchTimeout;
-        
+
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
             const query = this.value.trim();
-            
+
             if (query.length < 2) {
                 searchResults.classList.add('hidden');
+                if (spacer) spacer.classList.add('hidden');
                 return;
             }
-            
+
             searchTimeout = setTimeout(() => {
                 fetch(`{% url 'listing_search_books' %}?q=${encodeURIComponent(query)}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    displayResults(data.results);
-                })
-                .catch(error => console.error('Error:', error));
+                .then(res => res.json())
+                .then(data => displayResults(data.results))
+                .catch(err => console.error(err));
             }, 300);
         });
-        
-        function displayResults(results) {
-        const spacer = document.getElementById('search-spacer');
 
+        function displayResults(results) {
             if (results.length === 0) {
-                searchResults.innerHTML = '<div class="p-4">Žádné výsledky</div>';
+                searchResults.innerHTML = '<div class="search-empty">Žádné výsledky</div>';
                 searchResults.classList.remove('hidden');
-                if (spacer) spacer.classList.remove('hidden');
+                spacer.classList.remove('hidden');
                 return;
             }
-            
+
             let html = '';
             results.forEach(book => {
                 let imgSrc;
@@ -113,24 +207,25 @@
                 } else {
                     imgSrc = `https://media.div.cz/knihy/${book.img}`;
                 }
-                
+
                 html += `
-                    <div class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-[#2A2630] cursor-pointer border-b last:border-b-0" onclick="selectBook(${book.bookid})">
-                        <img src="${imgSrc}" alt="${book.title}" class="w-12 h-auto mr-3" style="max-width:200px;margin-right:20px">
+                    <div class="search-item" onclick="selectBook(${book.bookid})">
+                        <img src="${imgSrc}" class="search-item-img">
                         <div>
-                            <div class="font-semibold">${book.title}</div>
-                            <div class="text-sm text-gray-600">${book.author}${book.year ? ' (' + book.year + ')' : ''}</div>
+                            <div class="search-item-title">${book.title}</div>
+                            <div class="search-item-meta">
+                                ${book.author}${book.year ? ' (' + book.year + ')' : ''}
+                            </div>
                         </div>
                     </div>
                 `;
             });
-            
+
             searchResults.innerHTML = html;
             searchResults.classList.remove('hidden');
-            if (spacer) spacer.classList.remove('hidden');
+            spacer.classList.remove('hidden');
         }
-        
-        // Zavření výsledků při kliknutí mimo
+
         document.addEventListener('click', function(e) {
             if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
                 searchResults.classList.add('hidden');
@@ -143,6 +238,4 @@
         window.location.href = `?book_id=${bookId}`;
     }
 </script>
-
-
 {% endblock %}

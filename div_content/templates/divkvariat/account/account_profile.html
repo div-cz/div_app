@@ -4,139 +4,153 @@
 {% block title %}Můj účet | DIVkvariát{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto py-10 space-y-8">
 
-  <!-- HLAVIČKA -->
-  <div class="bg-white shadow rounded-lg p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-    <div>
-      <h1 class="text-3xl font-bold mb-1">Můj účet</h1>
-      <p class="text-gray-600">
-        Přihlášen jako <strong>{{ user.username }}</strong>
-        {% if user.first_name or user.last_name %}
-          ({{ user.first_name }} {{ user.last_name }})
-        {% endif %}
-      </p>
-    </div>
-    <div>
-      <a href="{% url 'user_book_listings' user.id %}" class="inline-block px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">
-        📦 Spravovat moje nabídky
-      </a>
-      <a href="{% url 'account_edit' %}" class="inline-block px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">
-        Upravit údaje
-      </a>
+<div class="page page-wide">
+    <!-- HLAVIČKA -->
+    <div class="content-box content-box-flex">
+        <div>
+            <h1 class="page-title">Můj účet</h1>
+            <p class="text-muted">
+                Přihlášen jako <strong>{{ user.username }}</strong>
+                {% if user.first_name or user.last_name %}
+                    ({{ user.first_name }} {{ user.last_name }})
+                {% endif %}
+            </p>
+        </div>
 
-    </div>
-  </div>
+        <div class="button-group">
+            <a href="{% url 'user_book_listings' user.id %}" class="btn-primary">
+                📦 Spravovat moje nabídky
+            </a>
+            <a href="{% url 'account_edit' %}" class="btn-primary">
+                Upravit údaje
+            </a>
+        </div>
 
-  <!-- DIVCOINY BLOK -->
-  <div class="bg-white shadow rounded-lg p-6">
-    <h2 class="text-2xl font-semibold mb-4">💰 DIVcoiny</h2>
-    <p class="text-gray-600 mb-4">
-      DIVcoiny získáváš hlavně za <strong>prodej a nákup knih</strong> na DIVkvariátu.
-      Ale můžeš je získavat i za <strong>hodnocení knih na DIV.cz</strong> a další aktivity.
-    </p>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="border rounded-lg p-3 text-center">
-        <div class="text-xs uppercase text-gray-500 mb-1">Tento týden</div>
-        <div class="text-xl font-bold">{{ coins.weeklydivcoins|default:0 }}</div>
-        <div class="text-xs text-gray-500">DIVcoiny</div>
-      </div>
-      <div class="border rounded-lg p-3 text-center">
-        <div class="text-xs uppercase text-gray-500 mb-1">Tento měsíc</div>
-        <div class="text-xl font-bold">{{ coins.monthlydivcoins|default:0 }}</div>
-        <div class="text-xs text-gray-500">DIVcoiny</div>
-      </div>
-      <div class="border rounded-lg p-3 text-center">
-        <div class="text-xs uppercase text-gray-500 mb-1">Tento rok</div>
-        <div class="text-xl font-bold">{{ coins.yearlydivcoins|default:0 }}</div>
-        <div class="text-xs text-gray-500">DIVcoiny</div>
-      </div>
-      <div class="border rounded-lg p-3 text-center bg-green-50">
-        <div class="text-xs uppercase text-gray-500 mb-1">Celkem</div>
-        <div class="text-2xl font-extrabold text-green-700">{{ coins.totaldivcoins|default:0 }}</div>
-        <div class="text-xs text-gray-500">DIVcoiny</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- STATISTIKY KNIH -->
-  <div class="bg-white shadow rounded-lg p-6">
-    <h2 class="text-2xl font-semibold mb-4">📚 Přehled aktivit</h2>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="border rounded-lg p-3 text-center">
-        <div class="text-xs uppercase text-gray-500 mb-1">Prodané knihy</div>
-        <div class="text-xl font-bold">{{ sold_books }}</div>
-      </div>
-      <div class="border rounded-lg p-3 text-center">
-        <div class="text-xs uppercase text-gray-500 mb-1">Zakoupené knihy</div>
-        <div class="text-xl font-bold">{{ bought_books }}</div>
-      </div>
-      <div class="border rounded-lg p-3 text-center">
-        <div class="text-xs uppercase text-gray-500 mb-1">Aktivní nabídky</div>
-        <div class="text-xl font-bold">{{ active_sell_count }}</div>
-      </div>
-      <div class="border rounded-lg p-3 text-center">
-        <div class="text-xs uppercase text-gray-500 mb-1">Aktivní poptávky</div>
-        <div class="text-xl font-bold">{{ active_buy_count }}</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- POSLEDNÍ NABÍDKY / POPTÁVKY -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-    <div class="bg-white shadow rounded-lg p-6">
-      <h3 class="text-xl font-semibold mb-3">📦 Moje aktivní nabídky</h3>
-      {% if active_sell_list %}
-        <ul class="space-y-2">
-          {% for listing in active_sell_list %}
-            <li class="flex justify-between text-sm border-b pb-1">
-              <span>
-                {{ listing.book.titlecz|default:listing.book.title }}
-                <span class="text-gray-500">({{ listing.book.author }})</span>
-              </span>
-              <span class="font-semibold">{{ listing.price }} Kč</span>
-            </li>
-          {% endfor %}
-
-      <a href="{% url 'user_book_listings' user.id %}" class="inline-block px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">
-        📦 Všechny moje nabídky
-      </a>
-      
-        </ul>
-      {% else %}
-        <p class="text-sm text-gray-500">Nemáš žádné aktivní nabídky.</p>
-      {% endif %}
     </div>
 
-    <div class="bg-white shadow rounded-lg p-6">
-      <h3 class="text-xl font-semibold mb-3">🔍 Moje aktivní poptávky</h3>
-      {% if active_buy_list %}
-        <ul class="space-y-2">
-          {% for listing in active_buy_list %}
-            <li class="flex justify-between text-sm border-b pb-1">
-              <span>
-                {{ listing.book.titlecz|default:listing.book.title }}
-                <span class="text-gray-500">({{ listing.book.author }})</span>
-              </span>
-              <span class="font-semibold">{{ listing.price }} Kč</span>
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p class="text-sm text-gray-500">Nemáš žádné aktivní poptávky.</p>
-      {% endif %}
-    </div>
+    <!-- DIVCOINY -->
+    <div class="content-box">
+        <h2 class="section-title">💰 DIVcoiny</h2>
+        <p class="text-muted">
+            DIVcoiny získáváš hlavně za <strong>prodej a nákup knih</strong> na DIVkvariátu,
+            ale také za <strong>hodnocení knih na DIV.cz</strong> a další aktivity.
+        </p>
 
-  </div>
-            {% if request.user.is_authenticated %}
-            <div style="margin-top:20px;text-align:center">
-                <a href="/odhlaseni/" class="text-red-600 hover:text-red-700 text-sm font-medium">
-                    Odhlásit se
-                </a>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <span class="stat-label">Tento týden</span>
+                <span class="stat-value">{{ coins.weeklydivcoins|default:0 }}</span>
+                <span class="stat-unit">DIVcoiny</span>
             </div>
+
+            <div class="stat-box">
+                <span class="stat-label">Tento měsíc</span>
+                <span class="stat-value">{{ coins.monthlydivcoins|default:0 }}</span>
+                <span class="stat-unit">DIVcoiny</span>
+            </div>
+
+            <div class="stat-box">
+                <span class="stat-label">Tento rok</span>
+                <span class="stat-value">{{ coins.yearlydivcoins|default:0 }}</span>
+                <span class="stat-unit">DIVcoiny</span>
+            </div>
+
+            <div class="stat-box stat-box-highlight">
+                <span class="stat-label">Celkem</span>
+                <span class="stat-value-big">{{ coins.totaldivcoins|default:0 }}</span>
+                <span class="stat-unit">DIVcoiny</span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- STATISTIKY -->
+    <div class="content-box">
+        <h2 class="section-title">📚 Přehled aktivit</h2>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <span class="stat-label">Prodané knihy</span>
+                <span class="stat-value">{{ sold_books }}</span>
+            </div>
+
+            <div class="stat-box">
+                <span class="stat-label">Zakoupené knihy</span>
+                <span class="stat-value">{{ bought_books }}</span>
+            </div>
+
+            <div class="stat-box">
+                <span class="stat-label">Aktivní nabídky</span>
+                <span class="stat-value">{{ active_sell_count }}</span>
+            </div>
+
+            <div class="stat-box">
+                <span class="stat-label">Aktivní poptávky</span>
+                <span class="stat-value">{{ active_buy_count }}</span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- POSLEDNÍ NABÍDKY / POPTÁVKY -->
+    <div class="content-grid-2">
+        <div class="content-box">
+            <h3 class="section-subtitle">📦 Moje aktivní nabídky</h3>
+
+            {% if active_sell_list %}
+                <ul class="simple-list">
+                    {% for listing in active_sell_list %}
+                        <li>
+                            <span>
+                                {{ listing.book.titlecz|default:listing.book.title }}
+                                <span class="text-muted">({{ listing.book.author }})</span>
+                            </span>
+                            <strong>{{ listing.price }} Kč</strong>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <a href="{% url 'user_book_listings' user.id %}" class="btn-primary">
+                    📦 Všechny moje nabídky
+                </a>
+
+                {% else %}
+                <p class="text-muted">Nemáš žádné aktivní nabídky.</p>
             {% endif %}
+        </div>
+
+        <div class="content-box">
+            <h3 class="section-subtitle">🔍 Moje aktivní poptávky</h3>
+
+            {% if active_buy_list %}
+                <ul class="simple-list">
+                    {% for listing in active_buy_list %}
+                        <li>
+                            <span>
+                                {{ listing.book.titlecz|default:listing.book.title }}
+                                <span class="text-muted">({{ listing.book.author }})</span>
+                            </span>
+                            <strong>{{ listing.price }} Kč</strong>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                {% else %}
+                <p class="text-muted">Nemáš žádné aktivní poptávky.</p>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- ODHLAŠENÍ -->
+    {% if request.user.is_authenticated %}
+        <div class="centered mt-lg">
+            <a href="/odhlaseni/" class="link-danger">
+                Odhlásit se
+            </a>
+        </div>
+    {% endif %}
+
 </div>
+
 {% endblock %}

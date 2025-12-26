@@ -1,26 +1,30 @@
 {% extends "divkvariat/base.html" %}
+
 {% block title %}Odhlášení | DIVkvariát{% endblock %}
 
 {% block content %}
 
-<div class="max-w-md mx-auto mt-16 bg-[#1A161F] text-white p-8 rounded-2xl shadow-lg text-center">
+<div class="page page-narrow">
+    <div class="content-box content-box-dark centered">
+        <h1 class="page-title">Odhlášení</h1>
+        <p class="text-muted mb-lg">
+            Opravdu se chcete odhlásit?
+        </p>
 
-    <h1 class="text-3xl font-bold mb-6">Odhlášení</h1>
+        <form method="post" action="{% url 'account_logout' %}">
+            {% csrf_token %}
 
-    <p class="mb-6 text-gray-300">Opravdu se chcete odhlásit?</p>
+            <button type="submit" class="btn-danger ">
+                Odhlásit se
+            </button>
+        </form>
 
-    <form method="post" action="{% url 'account_logout' %}">
-        {% csrf_token %}
-        <button type="submit"
-                class="w-full py-3 bg-red-600 hover:bg-red-700 rounded-lg text-white font-semibold">
-            Odhlásit se
-        </button>
-    </form>
-
-    <p class="text-sm mt-4">
-        <a href="/" class="text-green-400 hover:underline">Zpět na hlavní stránku</a>
-    </p>
-
+        <p class="text-small mt-md">
+            <a href="/" class="link-primary">
+                Zpět na hlavní stránku
+            </a>
+        </p>
+    </div>
 </div>
 
 {% endblock %}

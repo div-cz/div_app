@@ -4,245 +4,244 @@
 
 {% block content %}
 
-    <div class="row">
-        <div class="side">
-            <h1 style="margin-bottom: 1rem; width: 100%;">{{ page_title }}</h1>
+<div class="row">
+    <div class="side">
+        <h1 style="margin-bottom: 1rem; width: 100%;">{{ page_title }}</h1>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
             
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <div class="card">
+                <div class="card-header">
+                    <h5 style="margin-bottom: 0;">Základní informace</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="side">
+                            <div style="margin-bottom: .75rem;">
+                                <label for="{{ form.title.id_for_label }}" class="form-label">
+                                    {{ form.title.label }}
+                                </label>
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                    <div>
+                                        {% for error in form.title.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="side">
+                            <div style="margin-bottom: .75rem;">
+                                <label for="{{ form.titlecz.id_for_label }}" class="form-label">
+                                    {{ form.titlecz.label }}
+                                </label>
+                                {{ form.titlecz }}
+                                {% if form.titlecz.errors %}
+                                    <div>
+                                        {% for error in form.titlecz.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
-                {% endfor %}
-            {% endif %}
+                    
+                    <div style="margin-bottom: .75rem;">
+                        <label for="{{ form.subtitle.id_for_label }}" class="form-label">
+                            {{ form.subtitle.label }}
+                        </label>
+                        {{ form.subtitle }}
+                        {% if form.subtitle.errors %}
+                            <div>
+                                {% for error in form.subtitle.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="side">
+                            <div style="margin-bottom: .75rem;">
+                                <label for="{{ form.author.id_for_label }}" class="form-label">
+                                    {{ form.author.label }}
+                                </label>
+                                {{ form.author }}
+                                {% if form.author.errors %}
+                                    <div>
+                                        {% for error in form.author.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="side">
+                            <div style="margin-bottom: .75rem;">
+                                <label for="{{ form.authorid.id_for_label }}" class="form-label">
+                                    {{ form.authorid.label }}
+                                </label>
+                                {{ form.authorid }}
+                                {% if form.authorid.errors %}
+                                    <div>
+                                        {% for error in form.authorid.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="side">
+                            <div style="margin-bottom: .75rem;">
+                                <label for="{{ form.year.id_for_label }}" class="form-label">
+                                    {{ form.year.label }}
+                                </label>
+                                {{ form.year }}
+                                {% if form.year.errors %}
+                                    <div>
+                                        {% for error in form.year.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="side">
+                            <div style="margin-bottom: .75rem;">
+                                <label for="{{ form.pages.id_for_label }}" class="form-label">
+                                    {{ form.pages.label }}
+                                </label>
+                                {{ form.pages }}
+                                {% if form.pages.errors %}
+                                    <div>
+                                        {% for error in form.pages.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="side">
+                            <div style="margin-bottom: .75rem;">
+                                <label for="{{ form.language.id_for_label }}" class="form-label">
+                                    {{ form.language.label }}
+                                </label>
+                                {{ form.language }}
+                                {% if form.language.errors %}
+                                    <div>
+                                        {% for error in form.language.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: .75rem;">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">
+                            {{ form.description.label }}
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div>
+                                {% for error in form.description.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
             
-            <form method="post" enctype="multipart/form-data" novalidate>
-                {% csrf_token %}
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h5 style="margin-bottom: 0;">Základní informace</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="side">
-                                <div style="margin-bottom: .75rem;">
-                                    <label for="{{ form.title.id_for_label }}" class="form-label">
-                                        {{ form.title.label }}
-                                    </label>
-                                    {{ form.title }}
-                                    {% if form.title.errors %}
-                                        <div>
-                                            {% for error in form.title.errors %}{{ error }}{% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="side">
-                                <div style="margin-bottom: .75rem;">
-                                    <label for="{{ form.titlecz.id_for_label }}" class="form-label">
-                                        {{ form.titlecz.label }}
-                                    </label>
-                                    {{ form.titlecz }}
-                                    {% if form.titlecz.errors %}
-                                        <div>
-                                            {% for error in form.titlecz.errors %}{{ error }}{% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-bottom: .75rem;">
-                            <label for="{{ form.subtitle.id_for_label }}" class="form-label">
-                                {{ form.subtitle.label }}
-                            </label>
-                            {{ form.subtitle }}
-                            {% if form.subtitle.errors %}
-                                <div>
-                                    {% for error in form.subtitle.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="row">
-                            <div class="side">
-                                <div style="margin-bottom: .75rem;">
-                                    <label for="{{ form.author.id_for_label }}" class="form-label">
-                                        {{ form.author.label }}
-                                    </label>
-                                    {{ form.author }}
-                                    {% if form.author.errors %}
-                                        <div>
-                                            {% for error in form.author.errors %}
-                                                {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="side">
-                                <div style="margin-bottom: .75rem;">
-                                    <label for="{{ form.authorid.id_for_label }}" class="form-label">
-                                        {{ form.authorid.label }}
-                                    </label>
-                                    {{ form.authorid }}
-                                    {% if form.authorid.errors %}
-                                        <div>
-                                            {% for error in form.authorid.errors %}{{ error }}{% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="side">
-                                <div style="margin-bottom: .75rem;">
-                                    <label for="{{ form.year.id_for_label }}" class="form-label">
-                                        {{ form.year.label }}
-                                    </label>
-                                    {{ form.year }}
-                                    {% if form.year.errors %}
-                                        <div>
-                                            {% for error in form.year.errors %}
-                                                {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="side">
-                                <div style="margin-bottom: .75rem;">
-                                    <label for="{{ form.pages.id_for_label }}" class="form-label">
-                                        {{ form.pages.label }}
-                                    </label>
-                                    {{ form.pages }}
-                                    {% if form.pages.errors %}
-                                        <div>
-                                            {% for error in form.pages.errors %}
-                                                {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="side">
-                                <div style="margin-bottom: .75rem;">
-                                    <label for="{{ form.language.id_for_label }}" class="form-label">
-                                        {{ form.language.label }}
-                                    </label>
-                                    {{ form.language }}
-                                    {% if form.language.errors %}
-                                        <div>
-                                            {% for error in form.language.errors %}
-                                                {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-bottom: .75rem;">
-                            <label for="{{ form.description.id_for_label }}" class="form-label">
-                                {{ form.description.label }}
-                            </label>
-                            {{ form.description }}
-                            {% if form.description.errors %}
-                                <div>
-                                    {% for error in form.description.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
+            <div class="card">
+                <div class="card-header">
+                    <h5 style="margin-bottom: 0;">Kategorizace</h5>
                 </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h5 style="margin-bottom: 0;">Kategorizace</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="side">
-                                <div style="margin-bottom: .75rem;">
-                                    <label for="{{ form.genres.id_for_label }}" class="form-label">
-                                        {{ form.genres.label }}
-                                    </label>
-                                    {{ form.genres }}
-                                    <small class="text-muted">
-                                        Držte Ctrl (Cmd) pro výběr více žánrů
-                                    </small>
-                                    {% if form.genres.errors %}
-                                        <div>
-                                            {% for error in form.genres.errors %}
-                                                {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="side">
+                            <div style="margin-bottom: .75rem;">
+                                <label for="{{ form.genres.id_for_label }}" class="form-label">
+                                    {{ form.genres.label }}
+                                </label>
+                                {{ form.genres }}
+                                <small class="text-muted">
+                                    Držte Ctrl (Cmd) pro výběr více žánrů
+                                </small>
+                                {% if form.genres.errors %}
+                                    <div>
+                                        {% for error in form.genres.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
                             </div>
-                            <div class="side">
-                                <div style="margin-bottom: .75rem;">
-                                    <label for="{{ form.publisher.id_for_label }}" class="form-label">
-                                        {{ form.publisher.label }}
-                                    </label>
-                                    {{ form.publisher }}
-                                    {% if form.publisher.errors %}
-                                        <div>
-                                            {% for error in form.publisher.errors %}
-                                                {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
+                        </div>
+                        <div class="side">
+                            <div style="margin-bottom: .75rem;">
+                                <label for="{{ form.publisher.id_for_label }}" class="form-label">
+                                    {{ form.publisher.label }}
+                                </label>
+                                {{ form.publisher }}
+                                {% if form.publisher.errors %}
+                                    <div>
+                                        {% for error in form.publisher.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h5 style="margin-bottom: 0;">Obrázek obálky</h5>
-                    </div>
-                    <div class="card-body">
-                        <div style="margin-bottom: .75rem;">
-                            <label for="{{ form.cover_image.id_for_label }}" class="form-label">
-                                {{ form.cover_image.label }}
-                            </label>
-                            {{ form.cover_image }}
-                            <small class="text-muted">
-                                Maximální velikost: 10MB. Formáty: JPG, PNG
-                            </small>
-                            {% if form.cover_image.errors %}
-                                <div>
-                                    {% for error in form.cover_image.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 style="margin-bottom: 0;">Obrázek obálky</h5>
+                </div>
+                <div class="card-body">
+                    <div style="margin-bottom: .75rem;">
+                        <label for="{{ form.cover_image.id_for_label }}" class="form-label">
+                            {{ form.cover_image.label }}
+                        </label>
+                        {{ form.cover_image }}
+                        <small class="text-muted">
+                            Maximální velikost: 10MB. Formáty: JPG, PNG
+                        </small>
+
+                        {% if form.cover_image.errors %}
+                            <div>
+                                {% for error in form.cover_image.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
-                
-                <div class="text-center">
-                    <button type="submit" class="btn add-book">
-                        <i class="fas fa-save"></i> Uložit knihu
-                    </button>
-                    <a href="{% url 'admin:index' %}" class="btn add-other">
-                        <i class="fas fa-times"></i> Zrušit
-                    </a>
-                </div>
-            </form>
-        </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <button type="submit" class="btn add-book">
+                    <i class="fas fa-save"></i> Uložit knihu
+                </button>
+                <a href="{% url 'admin:index' %}" class="btn add-other">
+                    <i class="fas fa-times"></i> Zrušit
+                </a>
+            </div>
+        </form>
     </div>
 </div>
-
 
 <script>
     // Initialize Select2 for better UX (optional)

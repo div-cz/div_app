@@ -24,7 +24,6 @@
             transition: transform 0.3s ease; 
             height: 25px;
             text-align: center;
-            margin-left: 5px;
             font-size: 1.25rem;
             line-height: 1.75rem;
             cursor: pointer;
@@ -40,7 +39,7 @@
             transition: max-height 0.3s ease-in-out;  
             max-height: 0; 
             border: 1px solid #495057;
-            padding: 10px;
+            padding: 0;
         }
 
         .collapse.open {
@@ -78,10 +77,6 @@
             top: 25%;
             transition: all .3s cubic-bezier(0.645, 0.045, 0.355, 1);
         }
-
-        /* .more:hover {
-            letter-spacing: 2px;
-        } */
 
         .more:hover ~.second {
             opacity: .66;
@@ -145,7 +140,7 @@
 {% block content %}
 
 <div class="container">
-    <!-- Levá strana -->
+    <!-- LEVÁ STRANA -->
     <div class="left-side">
         <h2>
             {% if book.titlecz %}
@@ -157,11 +152,11 @@
 
         {% if messages %}
             <div style="margin-top: .75rem;">
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}" role="alert">
-                    {{ message|safe }}
-                </div>
-            {% endfor %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" role="alert">
+                        {{ message|safe }}
+                    </div>
+                {% endfor %}
             </div>
         {% endif %}
 
@@ -170,39 +165,39 @@
             <!-- Kontrola, zda je k dispozici rok -->
             <div>
                 {% if book.year %}
-                <span><a href="">{{ book.year }}</a></span>
-                &nbsp;|&nbsp;
+                    <span><a href="">{{ book.year }}</a></span>
+                    &nbsp;|&nbsp;
                 {% endif %}
 
                 <!-- Kontrola, zda existuje seznam žánrů a není prázdný -->
                 {% if genres %}
-                <span>
-                    {% for book_genre in genres %}
-                        <!--<a href="https://div.cz/knihy/{{ book_genre.genreid.url }}">-->{{ book_genre.genreid.genrenamecz }}<!--</a>-->{% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                </span>
-                &nbsp;|&nbsp;
+                    <span>
+                        {% for book_genre in genres %}
+                            <!--<a href="https://div.cz/knihy/{{ book_genre.genreid.url }}">-->{{ book_genre.genreid.genrenamecz }}<!--</a>-->{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </span>
+                    &nbsp;|&nbsp;
                 {% endif %}
                 
                 <!-- Kontrola, zda je k dispozici počet stran -->
                 {% if book.pages %}
-                <span> {{ book.pages }} stran</span>
+                    <span> {{ book.pages }} stran</span>
                 {% endif %}
             </div>
 
             {% if user.is_superuser or user.is_staff %}
-            <!--<div>
-                <a id="editBookButton" data-book-id="{{ book.bookid }}" >Upravit knihu</a>
-            <br><strong>Pouze na <a href="https://magic.div.cz/kniha/{{ book.url }}">MAGIC.DIV.cz</a> <br>pak se to přenese</strong>
-            </div>-->
+                <!--<div>
+                    <a id="editBookButton" data-book-id="{{ book.bookid }}" >Upravit knihu</a>
+                <br><strong>Pouze na <a href="https://magic.div.cz/kniha/{{ book.url }}">MAGIC.DIV.cz</a> <br>pak se to přenese</strong>
+                </div>-->
 
-            <script>
-                document.getElementById('editBookButton').addEventListener('click', function() {
-                    const bookId = this.getAttribute('data-book-id'); // Získání BOOKID z data atributu
-                    console.log(bookId.value)
-                    window.location.href = `/scripts/update_book?book_id=${bookId}`; // Přesměrování na URL s BOOKID
-                });
-            </script>
+                <script>
+                    document.getElementById('editBookButton').addEventListener('click', function() {
+                        const bookId = this.getAttribute('data-book-id'); // Získání BOOKID z data atributu
+                        console.log(bookId.value)
+                        window.location.href = `/scripts/update_book?book_id=${bookId}`; // Přesměrování na URL s BOOKID
+                    });
+                </script>
             {% endif %}
 
         </div>
@@ -239,7 +234,7 @@
                         <button class="rating-popup-btn btn add-book" style="margin: 0 auto;">Hodnocení knihy</button>
                     </div>
 
-                    <!-- POPUP – VÝPIS HODNOCENÍ PRO KNIHU -->
+                    <!-- POPUP – VÝPIS HODNOCENÍ PRO KNIHU na mobilu -->
                     <div id="ratingPopup" class="popup-overlay">
                         <div class="popup-window">
                             <span class="popup-close">&times;</span>
@@ -247,7 +242,7 @@
                             {% if ratings %}
                                 <ul class="sm-rating-users">
                                     {% for rating in ratings %}
-                                        <li>
+                                        <li class="after">
                                             <small>
                                                 <p style="text-align:center; padding:.25rem;">
                                                     Hodnoceno: {{ rating.modified|date:"j. n. Y" }}
@@ -305,52 +300,52 @@
 
                         <!-- AUTOR -->
                         {% if authors %}
-                        <li><strong>Autor:</strong>
-                        {% for author in authors %}
-                            <a href="/autor/{{ author.url }}">{{ author.firstname }} {{ author.lastname }}</a>
-                            {% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                        </li>
-                        {% elif book.author %}
-                        <li><strong>Autor:</strong> {{ book.author }}</li>
+                            <li><strong>Autor:</strong>
+                                {% for author in authors %}
+                                    <a href="/autor/{{ author.url }}">{{ author.firstname }} {{ author.lastname }}</a>
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </li>
+                            {% elif book.author %}
+                            <li><strong>Autor:</strong> {{ book.author }}</li>
                         {% endif %}
 
                         <!-- ŽÁNR -->
                         {% if genres %}
-                        <li><strong>Žánr:</strong>
-                            {% for book_genre in genres %}
-                            <!--<a href="/knihy/{{ book_genre.genreid.url }}">-->{{ book_genre.genreid.genrenamecz }}<!--</a>-->
-                            {% if not forloop.last %},{% endif %}
-                            {% endfor %}
-                        </li>
+                            <li><strong>Žánr:</strong>
+                                {% for book_genre in genres %}
+                                <!--<a href="/knihy/{{ book_genre.genreid.url }}">-->{{ book_genre.genreid.genrenamecz }}<!--</a>-->
+                                {% if not forloop.last %},{% endif %}
+                                {% endfor %}
+                            </li>
                         {% endif %}
                 
                         <!-- SÉRIE -->
                         {% if series %}
-                        <li><strong>Série:</strong>  
-                            <a href="/svet/{{ series.universumurl }}">
-                            {% if series.universumnamecz %}
-                            {{ series.universumnamecz }}
+                            <li><strong>Série:</strong>  
+                                <a href="/svet/{{ series.universumurl }}">
+                                {% if series.universumnamecz %}
+                                {{ series.universumnamecz }}
+                                {% else %}
+                                {{ series.universumname }}
+                                {% endif %}
+                                </a>
+                            </li>
                             {% else %}
-                            {{ series.universumname }}
-                            {% endif %}
-                            </a>
-                        </li>
-                        {% else %}
-                        <li><strong>Série:</strong> -</li>
+                            <li><strong>Série:</strong> -</li>
                         {% endif %}
 
                         <!-- JAZYK -->
                         {% if book.language %}
-                        <li><strong>Jazyk:</strong> 
-                        {% if book.language == 'cs' %}
-                            čeština
-                        {% elif book.language == 'aj' %}  
-                            angličtina
-                        {% else %}
-                            {{ book.language }}
-                        {% endif %}
-                        </li>
+                            <li><strong>Jazyk:</strong> 
+                                {% if book.language == 'cs' %}
+                                    čeština
+                                    {% elif book.language == 'aj' %}  
+                                        angličtina
+                                    {% else %}
+                                    {{ book.language }}
+                                {% endif %}
+                            </li>
                         {% endif %}
 
                         <li><strong>Nakladatelství:</strong>
@@ -379,34 +374,34 @@
 
                         <!-- POSTAVY -->
                         {% if characters_with_roles %}
-                        <li><strong>Postavy:</strong>
-                        {% for character_with_role in characters_with_roles %}
-                            {% with character=character_with_role.characterid %}
-                                {% if character.characterbio %}
-                                    <a href="/postava/{{ character.characterurl }}">
-                                        {% if character.characternamecz %}
-                                            {{ character.characternamecz }},
+                            <li><strong>Postavy:</strong>
+                                {% for character_with_role in characters_with_roles %}
+                                    {% with character=character_with_role.characterid %}
+                                        {% if character.characterbio %}
+                                            <a href="/postava/{{ character.characterurl }}">
+                                                {% if character.characternamecz %}
+                                                    {{ character.characternamecz }},
+                                                {% else %}
+                                                    {{ character.charactername }},
+                                                {% endif %}
+                                            </a>
                                         {% else %}
-                                            {{ character.charactername }},
+                                            {% if character.characternamecz %}
+                                                {{ character.characternamecz }},
+                                            {% else %}
+                                                {{ character.charactername }},
+                                            {% endif %}
                                         {% endif %}
-                                    </a>
-                                {% else %}
-                                    {% if character.characternamecz %}
-                                        {{ character.characternamecz }},
-                                    {% else %}
-                                        {{ character.charactername }},
-                                    {% endif %}
-                                {% endif %}
-                                {% if character_with_role.characterrole %}
-                                    - {{ character_with_role.characterrole }}
-                                {% endif %}
-                            {% endwith %}
-                            {% if not forloop.last %}
+                                        {% if character_with_role.characterrole %}
+                                            - {{ character_with_role.characterrole }}
+                                        {% endif %}
+                                    {% endwith %}
+                                    {% if not forloop.last %}
 
-                            {% endif %}
-                        {% endfor %}
-                        </li>
-                    {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
@@ -471,31 +466,13 @@
         </div>
 
         <!-- KOUPIT -->
-        <div class="flex flex-wrap items-center" style="margin: 20px 0;">
-            <h3 class="mb-3 sm:w-full">KOUPIT</h3>
-            <!-- ICONY -->
-            <!-- <div style="width:100%; margin-top:1rem;">
-                <div class="flex items-center">
-                    
-                    <img src="/static/img/book/book_icon.png" alt="kniha" title="kniha" class="ml-2" style="width: 20px; height: 20px;">
-                    <img src="/static/img/book/e-book_icon.png" alt="e-kniha" title="e-kniha" class="ml-2" style="width: 20px; height: 20px;">
-                    <img src="/static/img/book/cd_icon.png" alt="audiokniha" title="audiokniha" class="ml-2" style="width: 20px; height: 20px;">
-                </div>
-            </div> -->
-
-            <div class="flex flex-wrap">
+        <div class="btn-buy">
+            <h3 style="width: 100%;">KOUPIT</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
                 <!-- Tlačítko E-kniha -->
-                <button type="button"
-                    class="btn add-book ml-3 mt-0 mb-2"
-                    id="e-book-btn"
-                    {% if not has_ebook %}
-                        disabled
-                        style="width:140px; padding:0.5em 0; background:#e5e5e5; color:#444; border:1px solid #bbb; cursor:not-allowed; box-shadow:none; opacity:1;"
-                    {% else %}
-                        style="width:140px; padding:0.5em 0;"
-                    {% endif %}>
+                <button type="button" class="btn add-book" id="e-book-btn" {% if not has_ebook %} disabled {% endif %}>
                     <img src="/static/img/book/e-book_icon.png" alt="e-kniha" class="mr-2" style="width:35px;">
-                    <div class="flex flex-col">
+                    <div style="display: flex; flex-direction: column;">
                         <p style="margin-bottom:0;">E-kniha</p>
                         <p style="font-size:80%;margin:0;">
                             {% if cena_od %}
@@ -509,85 +486,74 @@
                     </div>
                 </button>
 
-                {% if ebook_formats %}
                 <!-- Overlay a Modal -->
-                <div class="overlay hidden" id="ebook-overlay"></div>
-                <div class="popup hidden" id="ebook-popup">
-                    <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closePopup">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                    <div>
-                        <h3>Vyberte formát e-knihy</h3>
-                        <form id="ebook-form" method="post" action="">
-                            {% csrf_token %}
-                            <div style="margin-bottom: 12px;">
-                                {% for fmt, data in ebook_formats.items %}
-                                <label style="margin-right:10px;opacity:{% if not data.available %}0.5{% else %}1{% endif %};">
-                                    <input type="radio" name="format"
-                                            value="{{ fmt }}"
-                                            data-isbn="{{ data.isbn }}"
-                                            {% if forloop.first and data.available %}{% endif %}
-                                            {% if not data.available %}disabled{% endif %}>
-                                    {{ fmt|upper }}
-                                    {% if data.price is not None and data.price > 0 %}
-                                        ({{ data.price|floatformat:0 }} Kč)
-                                    {% elif data.free %}
-                                        Zdarma
-                                    {% else %}
-                                        Zdarma
-                                    {% endif %}
-                                </label>
-                                {% endfor %}
-                            </div>
+                {% if ebook_formats %}
+                    <div class="overlay hidden" id="ebook-overlay"></div>
+                    <div class="popup hidden" id="ebook-popup">
+                        <button style="display: flex; color: #000000; margin: 0 0 30px auto; font-size: 25px;" id="closePopup">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                        <div>
+                            <h3>Vyberte formát e-knihy</h3>
+                            <form id="ebook-form" method="post" action="">
+                                {% csrf_token %}
+                                <div style="margin-bottom: 12px;">
+                                    {% for fmt, data in ebook_formats.items %}
+                                        <label style="margin-right:10px;opacity:{% if not data.available %}0.5{% else %}1{% endif %};">
+                                            <input type="radio" name="format" value="{{ fmt }}" data-isbn="{{ data.isbn }}"
+                                                {% if forloop.first and data.available %}{% endif %}
+                                                {% if not data.available %}disabled{% endif %}>
+                                            {{ fmt|upper }}
+                                            {% if data.price is not None and data.price > 0 %}
+                                                ({{ data.price|floatformat:0 }} Kč)
+                                                {% elif data.free %}
+                                                Zdarma
+                                                {% else %}
+                                                Zdarma
+                                            {% endif %}
+                                        </label>
+                                    {% endfor %}
+                                </div>
 
-                            {% if primary_source != "MLP" %}
-                            <!-- Email pouze jednou! -->
-                            <div id="kindle-block" style="margin-top: 12px; display: none;">
-                                <div style="margin-top: 12px;">
-                                    {{ format_kindlemails|json_script:"formatKindlemailsData" }}
-                                    <label for="kindlemail">E-mail čtečky:</label>
-                                    <input type="email" name="kindlemail" id="kindlemail" value="{{ kindlemail }}" placeholder="vasectecka@kindle.com" style="width:220px;" {% if readonly %}readonly{% endif %}>
-                                    <div class="kindleinfo text-muted mt-2" style="display:none;font-size:90%">
-                                        Tento e-mail je napevno spojen s objednávkou.<br>
-                                        V případě dotazů kontaktujte podporu info@div.cz.
+                                <!-- Email pouze jednou! -->
+                                {% if primary_source != "MLP" %}
+                                    <div id="kindle-block" style="margin-top: 12px; display: none;">
+                                        <div style="margin-top: 12px;">
+                                            {{ format_kindlemails|json_script:"formatKindlemailsData" }}
+                                            <label for="kindlemail">E-mail čtečky:</label>
+                                            <input type="email" name="kindlemail" id="kindlemail" value="{{ kindlemail }}" placeholder="vasectecka@kindle.com" style="width:220px;" {% if readonly %}readonly{% endif %}>
+                                            <div class="kindleinfo text-muted">
+                                                Tento e-mail je napevno spojen s objednávkou.<br>
+                                                V případě dotazů kontaktujte podporu info@div.cz.
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            {% endif %}
+                                {% endif %}
 
-                            {% if user.is_authenticated %}
-                                <input type="hidden" id="js-bookid" value="{{ book.bookid }}">
-                                <!-- Blok akcí pro vybraný formát -->
-                                <div id="ebook-action-block"></div>
-                                {% else %}
-                                <div class="my-2">
-                                    <a href="/prihlaseni/" class="btn add-book">Přihlaš se</a>
-                                    nebo
-                                    <a href="/registrace/" class="btn add-book">Registruj se</a>
-                                    <br>
-                                    <span class="text-muted">Pro nákup a stažení e-knihy je nutné mít účet.</span>
-                                </div>
-                            {% endif %}
-                        </form>
+                                {% if user.is_authenticated %}
+                                    <input type="hidden" id="js-bookid" value="{{ book.bookid }}">
+                                    <div id="ebook-action-block"></div>
+                                    {% else %}
+                                    <div style="margin: .5rem 0;">
+                                        <a href="/prihlaseni/" class="btn add-book">Přihlaš se</a>
+                                        nebo
+                                        <a href="/registrace/" class="btn add-book">Registruj se</a>
+                                        <br>
+                                        <span class="text-muted">Pro nákup a stažení e-knihy je nutné mít účet.</span>
+                                    </div>
+                                {% endif %}
+                            </form>
+                        </div>
                     </div>
-                </div>
                 {% endif %}
             
                 <!-- AUDIO - PRIPRAVENO -->
                 <!-- Tlačítko AUDIO -->
-                <button type="button"
-                    class="btn add-book ml-3 mt-0 mb-2"
-                    id="audio-btn"
-                    {% if not has_audio %}
-                        disabled
-                        style="width:140px; padding:0.5em 0; background:#e5e5e5; color:#444; border:1px solid #bbb; cursor:not-allowed; box-shadow:none; opacity:1;"
-                    {% else %}
-                        style="width:140px; padding:0.5em 0;"
-                    {% endif %}>
-                    <img src="/static/img/book/cd_icon.png" alt="audiokniha" class="mr-2" style="width:35px;">
-                    <div class="flex flex-col">
+                <button type="button" class="btn add-book" id="audio-btn" {% if not has_audio %} disabled {% endif %}>
+                    <img src="/static/img/book/cd_icon.png" alt="audiokniha" style="width:35px;">
+                    <div style="display: flex; flex-direction: column;">
                         <p style="margin-bottom:0;">Audio</p>
-                        <p style="font-size:80%;margin:0;">
+                        <p style="font-size:80%; margin:0;">
                             {% if has_audio %}
                                 od {{ audio_price|default:"" }} Kč
                             {% else %}
@@ -596,13 +562,13 @@
                         </p>
                     </div>
                 </button>
-                
+
+                <!-- náhled poslechu -->
                 {% if user.is_authenticated %}
-                    <!-- náhled poslechu -->
                     <div class="overlay hidden" id="audio-overlay"></div>
                     <div class="popup hidden" id="audio-popup">
                         <p>{{ audio.description }}</p>
-                        <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closeAudioPopup">
+                        <button style="display: flex; color: #000000; margin: 0 0 30px auto; font-size: 25px;" id="closeAudioPopup">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                         <div>
@@ -614,11 +580,12 @@
                             <a href="audiokniha.mp3">Nahrávku</a> si stáhněte.
                         </audio>-->
                     </div>
-                {% else %}
+
+                    {% else %}
                     <div class="overlay hidden" id="audio-overlay"></div>
                     <div class="popup hidden" id="audio-popup">
                         <p>Audio kniha pouze pro <a href="/prihlaseni/">přihlášené</a> a <a href="https://div.cz/registrace/">registrované</a>.</p>
-                        <button class="flex text-black" style="margin: 0 0 30px auto; font-size: 25px;" id="closeAudioPopup">
+                        <button style="display: flex; color: #000000; margin: 0 0 30px auto; font-size: 25px;" id="closeAudioPopup">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                         <div>
@@ -632,13 +599,14 @@
                     </div>
                 {% endif %}
 
+                <!-- Tlačítko BAZAR-->
                 {% with total_listings=sell_listings.count|add:buy_listings.count %}
-                    <button type="submit" href="#tab5" id="go-to-market" class="btn add-book ml-3 mt-0 mb-2" style="width: 122px; padding: 0.5em 0;">
-                        <img src="/static/img/book/book_icon.png" alt="kniha" title="kniha" class="mr-2" style="width: 35px;">
-                        <div class="flex flex-col">
-                            <p>Bazar</p>
-                            <p style="font-size: 80%;">
-                            {% with c=sell_listings.count %}
+                    <button type="submit" href="#tab5" id="go-to-market" class="btn add-book" style="margin: 0; display: flex; align-items: center;">
+                        <img src="/static/img/book/book_icon.png" alt="kniha" title="kniha" class="add-book-icon">
+                        <div class="add-book-text">
+                            <p class="add-book-title">Bazar</p>
+                            <p class="add-book-subtitle">
+                                {% with c=sell_listings.count %}
                                     {{ c }}
                                     {% if c == 1 %}
                                         inzerát
@@ -647,7 +615,7 @@
                                     {% else %}
                                         inzerátů
                                     {% endif %}
-                            {% endwith %}
+                                {% endwith %}
                             </p>
                         </div>
                     </button>
@@ -709,17 +677,17 @@
 
                 <!-- výpis recenzí -->
                 <ul class="list-unstyled komentar">
-                {% for comment in comments %}
-                    <li class="card-body">
-                        <p class="after">{{ comment.comment }}</p>
-                        <div class="user">
-                            <p>{{ comment.dateadded }}</p>
-                            <p>Přidal: 
-                                <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a>
-                            </p>
-                        </div>
-                    </li>
-                {% endfor %}
+                    {% for comment in comments %}
+                        <li class="card-body">
+                            <p class="after">{{ comment.comment }}</p>
+                            <div class="user">
+                                <p>{{ comment.dateadded }}</p>
+                                <p>Přidal: 
+                                    <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a>
+                                </p>
+                            </div>
+                        </li>
+                    {% endfor %}
                 </ul>
             </div>
 
@@ -784,33 +752,6 @@
                         </div>
                     {% endfor %}
 
-                    <script>
-                        document.getElementById('character_query').addEventListener('input', function () {
-                            const query = this.value;
-                            const resultsList = document.getElementById('character_results');
-
-                            if (query.length > 2) {
-                                fetch(`/kniha/ajax/postava/?q=${query}`)
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        resultsList.innerHTML = '';
-                                        data.results.forEach(character => {
-                                            const li = document.createElement('li');
-                                            li.textContent = character.charactername;
-                                            li.dataset.id = character.characterid;
-                                            li.addEventListener('click', function () {
-                                                document.getElementById('selected_character_id').value = this.dataset.id;
-                                                document.getElementById('character_query').value = this.textContent;
-                                                resultsList.innerHTML = '';
-                                            });
-                                            resultsList.appendChild(li);
-                                        });
-                                    });
-                            } else {
-                                resultsList.innerHTML = '';
-                            }
-                        });
-                    </script>
                 {% endif %}
             </div>
 
@@ -820,52 +761,55 @@
 
                 <!-- přidat citát -->
                 {% if user.is_authenticated %}
-                <h4>Přidat nový citát</h4>
-                <form method="post" class="">
-                    {% csrf_token %}
-                    {{ quote_form.as_p }}
+                    <h4>Přidat nový citát</h4>
+                    <form method="post" class="">
+                        {% csrf_token %}
+                        {{ quote_form.as_p }}
 
-                    {% if user.is_staff %}
-                    <button type="submit" class="btn add-book">Přidat citát</button>
-                    {% else %}
-                    <p style="color: #6c757d; font-size: 0.875rem; line-height: 1.25rem;">
-                        Chcete přidávat citáty? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
-                    </p>
-                    {% endif %}   
-                </form>
+                        {% if user.is_staff %}
+                            <button type="submit" class="btn add-book">Přidat citát</button>
+                            {% else %}
+                            <p style="color: #6c757d; font-size: 0.875rem; line-height: 1.25rem;">
+                                Chcete přidávat citáty? <a href="https://div.cz/forum/obecne/editori" target="_blank">Požádejte o oprávnění</a>.
+                            </p>
+                        {% endif %}   
+                    </form>
                 {% endif %}
 
                 <!-- výpis citátů -->
                 <ul class="list-unstyled komentar">
-                {% for quote in quotes %}
-                    <li class="card-body" id="quote-{{ quote.quoteid }}">
-                        <p class="after">{{ quote.quote }}</p>
-                        {% comment %}{% if quote.chapter %}
-                            <br><small>Kapitola: {{ quote.chapter }}</small>
-                        {% endif %}
-                        {% if quote.characterid %}
-                            <br><small>Postava: {{ quote.characterid.charactername }}</small>
-                        {% endif %}{% endcomment %}
-                        <div class="user">
-                            <p>Přidal: 
-                                <a href="/uzivatel/{{ quote.user.id }}/">{{ quote.user.username }}</a>
-                            </p>
+                    {% for quote in quotes %}
+                        <li class="card-body" id="quote-{{ quote.quoteid }}">
+                            <p class="after">{{ quote.quote }}</p>
+                            
+                            {% comment %}{% if quote.chapter %}
+                                <br><small>Kapitola: {{ quote.chapter }}</small>
+                            {% endif %}
 
-                            <!-- Hodnocení -->
-                            <div id="quote-{{ quote.quoteid }}">
-                                <span class="thumbsup" data-quote-id="{{ quote.quoteid }}">
-                                    &#x1F44D; <span class="count">{{ quote.thumbsup }}</span>
-                                </span>
-                                <span class="thumbsdown" data-quote-id="{{ quote.quoteid }}">
-                                    &#x1F44E; <span class="count">{{ quote.thumbsdown }}</span>
-                                </span>
-                                <span class="divrating">
-                                    &#x2B50; <span class="count">{{ quote.divrating }}</span>
-                                </span>
-                           </div>
-                        </div>
-                    </li>
-                {% endfor %}
+                            {% if quote.characterid %}
+                                <br><small>Postava: {{ quote.characterid.charactername }}</small>
+                            {% endif %}{% endcomment %}
+
+                            <div class="user">
+                                <p>Přidal: 
+                                    <a href="/uzivatel/{{ quote.user.id }}/">{{ quote.user.username }}</a>
+                                </p>
+
+                                <!-- Hodnocení -->
+                                <div id="quote-{{ quote.quoteid }}">
+                                    <span class="thumbsup" data-quote-id="{{ quote.quoteid }}">
+                                        &#x1F44D; <span class="count">{{ quote.thumbsup }}</span>
+                                    </span>
+                                    <span class="thumbsdown" data-quote-id="{{ quote.quoteid }}">
+                                        &#x1F44E; <span class="count">{{ quote.thumbsdown }}</span>
+                                    </span>
+                                    <span class="divrating">
+                                        &#x2B50; <span class="count">{{ quote.divrating }}</span>
+                                    </span>
+                            </div>
+                            </div>
+                        </li>
+                    {% endfor %}
                 </ul>
 
             </div>
@@ -942,178 +886,259 @@
                         </div>
                     </details>
 
-                    <div class="w-full flex flex-wrap justify-between sm:p-0">  
-                        <!-- VÝPIS NABÍDEK -->                
-                        {% if sell_listings %}
-                        <div class="w-full pr-4 mb-5">
-                            <h4 class="after-h3 ml-4">Prodává <span><small>({{ sell_listings.count }} {% if sell_listings.count == 1 %}uživatel{% elif sell_listings.count < 5 %}uživatelé{% else %}uživatelů{% endif %})</small></span></h4>
-
-                            {% for listing in sell_listings %}
-                            <div class="flex sudy w-full">
-                                <div class="flex w-full items-center">
-                                    <span class="arrow" data-ask-id="{{ listing.booklistingid }}">&#129083;</span>
-                                    <div class="sell-listing">
-                                        <a href="{% url 'user_sell_listings' listing.user.id %}">{{ listing.user.username }}</a>
-
-                                        <span class="listing-status">
-                                            {% if listing.status == 'RESERVED' %}
-                                                <strong class="" style="color: #ccc">Rezervováno</strong>
-                                                {% elif listing.status == 'ACTIVE' %}
-                                                <span class="">Aktivní</span>
-                                                {% elif listing.status == 'SHIPPED' %}
-                                                <span class="">Posláno</span>
-                                                {% elif listing.status == 'COMPLETED' %}
-                                                <span class="">Prodáno</span>
-                                                {% elif listing.status == 'PAID' %}
-                                                <span class="">Zaplaceno</span>
-                                                {% else %}
-                                                <span >{{ listing.status }}</span>  {# fallback pro debugging #}
-                                            {% endif %}
-                                        </span>
-
-                                        <p>
-                                            {% if listing.listingtype == 'GIVE' %}
-                                                Daruji
+                    <!-- NABÍDKA -->
+                    <div class="card card-body">
+                        <div class="listings-wrapper">
+                            {% if sell_listings %}
+                                <h4 class="section-title">
+                                    Prodává
+                                    <span>
+                                        <small>
+                                            ({{ sell_listings.count }}
+                                            {% if sell_listings.count == 1 %}
+                                                uživatel
+                                            {% elif sell_listings.count < 5 %}
+                                                uživatelé
                                             {% else %}
-                                                {{ listing.price|floatformat:0 }} Kč
-                                            {% endif %}<br><a href="{% url 'listing_detail_sell' book.url listing.booklistingid %}" >Detail</a>
-                                        </p>
-                                    </div>
-                                </div>
+                                                uživatelů
+                                            {% endif %})
+                                        </small>
+                                    </span>
+                                </h4>
 
-                                <div id="ask-details-{{ listing.booklistingid }}" class="collapse flex-wrap p-2">
-                                    <div class="flex w-full sm:flex-wrap items-start">
-                                    {% with book=listing.book %}
-                                        {% if book.img == "noimg.png" %}
-                                        <img src="/static/img/book/book.png" alt="{{ book.titlecz|default:book.title }}" class="pr-2" style="width:90px;height:auto">
-                                        {% elif book.img == "GoogleID" %}
-                                        <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}" class="pr-2" style="width:90px;height:auto;">
-                                        {% else %}
-                                        <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="pr-2" style="width:90px;height:auto;">
-                                        {% endif %}
-                                    {% endwith %}
+                                {% for listing in sell_listings %}
+                                    <div class="listing-row after">
+                                        <div class="listing-header">
+                                            <div class="sell-listing">
+                                                <div style="display: flex; align-items: center;">
+                                                    <span class="arrow" data-ask-id="{{ listing.booklistingid }}">&#129083;</span>
 
-                                        <div class="flex flex-wrap">
-                                            {% if listing.location %}
-                                            <p class="flex justify-between w-full">
-                                                <strong>Lokalita: </strong>
-                                                <span>{{ listing.location }}</span>
-                                            </p>
-                                            {% endif %}
+                                                    <a class="username"
+                                                    href="{% url 'user_sell_listings' listing.user.id %}">
+                                                        {{ listing.user.username }}
+                                                    </a>
+                                                </div>
 
-                                            {% if listing.condition %}
-                                            <p class="flex justify-between w-full">
-                                                <strong>Stav knihy: </strong>
-                                                <span>{{ listing.condition }}</span>
-                                            </p>
-                                            {% endif %}
+                                                <span class="listing-status">
+                                                    {% if listing.status == 'RESERVED' %}
+                                                        <strong class="status-reserved">Rezervováno</strong>
+                                                    {% elif listing.status == 'ACTIVE' %}
+                                                        <span class="status-active">Aktivní</span>
+                                                    {% elif listing.status == 'SHIPPED' %}
+                                                        <span class="status-shipped">Posláno</span>
+                                                    {% elif listing.status == 'COMPLETED' %}
+                                                        <span class="status-completed">Prodáno</span>
+                                                    {% elif listing.status == 'PAID' %}
+                                                        <span class="status-paid">Zaplaceno</span>
+                                                    {% else %}
+                                                        <span>{{ listing.status }}</span>
+                                                    {% endif %}
+                                                </span>
 
-                                            {% if listing.listingtype != 'GIVE' %}
-                                            <p class="flex justify-between w-full">
-                                                <strong>Cena knihy: </strong>
-                                                <span>{{ listing.price|floatformat:0 }} Kč</span>
-                                            </p>
-                                            {% endif %}
+                                                <div style="width: 100px; text-align: end;">
+                                                    <p class="price">
+                                                        {% if listing.listingtype == 'GIVE' %}
+                                                            Daruji
+                                                        {% else %}
+                                                            {{ listing.price|floatformat:0 }} Kč
+                                                        {% endif %}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                            {% if listing.shipping %}
-                                            <p class="flex justify-between w-full">
-                                                <strong>Poštovné: </strong>
-                                                <span>{{ listing.shipping|floatformat:0 }} Kč</span>
-                                            </p>
-                                            {% endif %}
+                                        <!-- DETAIL NABÍDKY -->
+                                        <div id="ask-details-{{ listing.booklistingid }}" class="listing-details collapse">
+                                            <div class="details-content">
+                                                {% with book=listing.book %}
+                                                    {% if book.img == "noimg.png" %}
+                                                        <img class="book-image" src="/static/img/book/book.png" alt="{{ book.titlecz|default:book.title }}">
+                                                    {% elif book.img == "GoogleID" %}
+                                                        <img class="book-image" src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1" alt="{{ book.titlecz|default:book.title }}">
+                                                    {% else %}
+                                                        <img class="book-image" src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}">
+                                                    {% endif %}
+                                                {% endwith %}
 
-                                            {% if listing.personal_pickup %}
-                                            <p class="flex justify-between w-full">
-                                                <strong>Osobní převzetí: </strong>
-                                                <span>0 Kč</span>
-                                            </p>
-                                            {% endif %}
+                                                <div class="details-text">
+                                                    {% if listing.location %}
+                                                        <p>
+                                                            <strong>Lokalita:</strong>
+                                                            <span>{{ listing.location }}</span>
+                                                        </p>
+                                                    {% endif %}
 
-                                            {% if listing.listingtype != 'GIVE' and listing.shipping %}
-                                            <p class="flex justify-between w-full">
-                                                <strong>Cena celkem: </strong>
-                                                <span>{{ listing.price|add:listing.shipping|floatformat:0 }} Kč</span>
-                                            </p>
-                                            {% endif %}
+                                                    {% if listing.condition %}
+                                                        <p>
+                                                            <strong>Stav knihy:</strong>
+                                                            <span>{{ listing.condition }}</span>
+                                                        </p>
+                                                    {% endif %}
 
-                                            {% if listing.description %}
-                                            <p class="flex flex-wrap justify-between w-full">
-                                                <strong>Poznámka: </strong>
-                                                <span>{{ listing.description }}</span>
-                                            </p>
-                                            {% endif %}
+                                                    {% if listing.listingtype != 'GIVE' %}
+                                                        <p>
+                                                            <strong>Cena knihy:</strong>
+                                                            <span>{{ listing.price|floatformat:0 }} Kč</span>
+                                                        </p>
+                                                    {% endif %}
+
+                                                    {% if listing.shipping %}
+                                                        <p>
+                                                            <strong>Poštovné:</strong>
+                                                            <span>{{ listing.shipping|floatformat:0 }} Kč</span>
+                                                        </p>
+                                                    {% endif %}
+
+                                                    {% if listing.personal_pickup %}
+                                                        <p>
+                                                            <strong>Osobní převzetí:</strong>
+                                                            <span>0 Kč</span>
+                                                        </p>
+                                                    {% endif %}
+
+                                                    {% if listing.listingtype != 'GIVE' and listing.shipping %}
+                                                        <p>
+                                                            <strong>Cena celkem:</strong>
+                                                            <span>
+                                                                {{ listing.price|add:listing.shipping|floatformat:0 }} Kč
+                                                            </span>
+                                                        </p>
+                                                    {% endif %}
+
+                                                    {% if listing.description %}
+                                                        <p class="listing-note">
+                                                            <strong>Poznámka:</strong>
+                                                            <span>{{ listing.description }}</span>
+                                                        </p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+
+                                            <div class="details-footer">
+                                                <a class="more"
+                                                href="{% url 'listing_detail_sell' book.url listing.booklistingid %}">
+                                                    Detail nabídky
+                                                </a>
+                                                <span class="more-arrow first">
+                                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                                        <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
+                                                    </svg>
+                                                </span>
+                                                <span class="more-arrow second">
+                                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                                        <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
+                                                    </svg>
+                                                </span>
+                                                <span class="more-arrow third">
+                                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                                        <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
+                                                    </svg>
+                                                </span>
+                                            </div>
+
                                         </div>
                                     </div>
-
-                                    <div class="w-full flex justify-end mr-10">
-                                        <div class="relative flex">
-                                            <a href="{% url 'listing_detail_sell' book.url listing.booklistingid %}" 
-                                            class="more">Detail nabídky</a>
-                                            <span class="more-arrow first">
-                                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                                                    <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
-                                                </svg>
-                                            </span>
-                                            <span class="more-arrow second">
-                                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                                                    <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
-                                                </svg>
-                                            </span>
-                                            <span class="more-arrow third">
-                                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                                                    <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
-                                                </svg>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
+                                {% endfor %}
+                            {% endif %}
                         </div>
-                        {% endif %}
+                    </div>
 
-                        <!-- VÝPIS POPTÁVEK -->
+                    <!-- POPTÁVKA -->
+                    <div class="card card-body">
                         {% if buy_listings %}
-                        <div class="w-full pr-4 mb-5">
-                            <h4 class="after-h3 ml-4">Poptává 
-                                <span><small>({{ buy_listings.count }} {% if buy_listings.count == 1 %}uživatel{% elif buy_listings.count < 5 %}uživatelé{% else %}uživatelů{% endif %})</small></span>
+                            <h4 class="section-title">
+                                Poptává
+                                <span>
+                                    <small>
+                                        ({{ buy_listings.count }}
+                                        {% if buy_listings.count == 1 %}
+                                            uživatel
+                                            {% elif buy_listings.count < 5 %}
+                                            uživatelé
+                                            {% else %}
+                                            uživatelů
+                                        {% endif %})
+                                    </small>
+                                </span>
                             </h4>
 
                             {% for listing in buy_listings %}
-                            <div class="flex sudy w-full">
-                                <div class="flex w-full items-center">
-                                    <span class="arrow" data-ask-id="{{ listing.booklistingid }}">&#129083;</span>
-                                    <div class="flex justify-between w-full p-2">
-                                        <a href="{% url 'user_buy_listings' listing.user.id %}">{{ listing.user.username }}</a>
-                                        <p>{{ listing.price|floatformat:0 }} Kč</p>
-                                    </div>
-                                </div>
+                                <div class="listing-row after">
+                                    <div class="listing-header">
+                                        <div class="buy-listing">
+                                            <div style="display: flex; align-items: center;">
+                                                <span class="arrow" data-ask-id="{{ listing.booklistingid }}">&#129083;</span>
 
-                                <div id="ask-details-{{ listing.booklistingid }}" class="collapse flex-wrap p-2">
-                                    <div class="flex w-full sm:flex-wrap items-start">
-                                        <div class="flex flex-wrap w-full">
-                                            {% if listing.location %}
-                                            <p class="flex justify-between w-full">
-                                                <strong>Lokalita: </strong>
-                                                <span>{{ listing.location }}</span>
-                                            </p>
-                                            {% endif %}
+                                                <a class="username"
+                                                href="{% url 'user_buy_listings' listing.user.id %}">
+                                                    {{ listing.user.username }}
+                                                </a>
+                                            </div>
+                                            
+                                            <span class="listing-status">
+                                                {% if listing.status == 'RESERVED' %}
+                                                    <strong class="status-reserved">Rezervováno</strong>
+                                                {% elif listing.status == 'ACTIVE' %}
+                                                    <span class="status-active">Aktivní</span>
+                                                {% elif listing.status == 'SHIPPED' %}
+                                                    <span class="status-shipped">Posláno</span>
+                                                {% elif listing.status == 'COMPLETED' %}
+                                                    <span class="status-completed">Prodáno</span>
+                                                {% elif listing.status == 'PAID' %}
+                                                    <span class="status-paid">Zaplaceno</span>
+                                                {% else %}
+                                                    <span>{{ listing.status }}</span>
+                                                {% endif %}
+                                            </span>
 
-                                            <p class="flex justify-between w-full">
-                                                <strong>Nabízená cena: </strong>
-                                                <span>{{ listing.price|floatformat:0 }} Kč</span>
-                                            </p>
-
-                                            {% if listing.description %}
-                                            <p class="w-full mt-2">{{ listing.description }}</p>
-                                            {% endif %}
+                                            <div style="width: 100px; text-align: end;">
+                                                <span class="price">
+                                                    {{ listing.price|floatformat:0 }} Kč
+                                                </span>
+                                            </div>
+                                            
                                         </div>
                                     </div>
 
-                                    <div class="w-full flex justify-end mr-10">
-                                        <div class="relative flex">
-                                            <a href="{% url 'listing_detail_buy' book.url listing.booklistingid %}" 
-                                            class="more">Detail poptávky</a>
+                                    <!-- DETAIL POPTÁVKY -->
+                                    <div id="ask-details-{{ listing.booklistingid }}" class="listing-details collapse">
+                                        <div class="details-content">
+                                            {% with book=listing.book %}
+                                                {% if book.img == "noimg.png" %}
+                                                    <img class="book-image" src="/static/img/book/book.png" alt="{{ book.titlecz|default:book.title }}">
+                                                {% elif book.img == "GoogleID" %}
+                                                    <img class="book-image" src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1" alt="{{ book.titlecz|default:book.title }}">
+                                                {% else %}
+                                                    <img class="book-image" src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}">
+                                                {% endif %}
+                                            {% endwith %}
+                                        
+                                            <div class="details-text">
+                                                {% if listing.location %}
+                                                    <p>
+                                                        <strong>Lokalita:</strong>
+                                                        <span>{{ listing.location }}</span>
+                                                    </p>
+                                                {% endif %}
+
+                                                <p>
+                                                    <strong>Nabízená cena:</strong>
+                                                    <span>{{ listing.price|floatformat:0 }} Kč</span>
+                                                </p>
+
+                                                {% if listing.description %}
+                                                    <p class="listing-note">
+                                                        {{ listing.description }}
+                                                    </p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="details-footer">
+                                            <a class="more"
+                                            href="{% url 'listing_detail_buy' book.url listing.booklistingid %}">
+                                                Detail poptávky
+                                            </a>
                                             <span class="more-arrow first">
                                                 <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                                                     <text x="12" y="16" text-anchor="middle" font-size="16" fill="currentColor">❯</text>
@@ -1130,16 +1155,18 @@
                                                 </svg>
                                             </span>
                                         </div>
+
                                     </div>
                                 </div>
-                            </div>
                             {% endfor %}
-                        </div>
                         {% endif %}
 
                         {% if not sell_listings and not buy_listings %}
-                        <p class="text-center text-gray-600 py-4">Pro tuto knihu zatím nejsou žádné nabídky ani poptávky.</p>
+                            <p class="no-listings">
+                                Pro tuto knihu zatím nejsou žádné nabídky ani poptávky.
+                            </p>
                         {% endif %}
+
                     </div>
 
                 </div>
@@ -1148,7 +1175,7 @@
         </div>
     </div>
 
-    <!-- Pravá strana -->
+    <!-- PRAVÁ STRANA -->
     <div class="right-side">
 
         <!-- Hodnocení na desktop -->
@@ -1222,9 +1249,9 @@
                             {% endif %}                    
                         </a>
                     </h3>
-                    <div class="flex flex-wrap">
+                    <div style="display: flex; flex-wrap: wrap;">
                         {% for book in series_books %}
-                            <a href="/kniha/{{ book.url }}" class="w-full">{{ book.titlecz|default:book.title }}</a>
+                            <a href="/kniha/{{ book.url }}" style="width: 100%;">{{ book.titlecz|default:book.title }}</a>
                         {% endfor %}
                     </div>
                 </div>
@@ -1233,7 +1260,7 @@
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title after-h3">Další díla</h3>
-                    <div class="flex flex-wrap">
+                    <div style="display: flex; flex-wrap: wrap;">
                         Ke knize neevidujeme pokračování
                     </div>
                 </div>
@@ -1246,7 +1273,7 @@
                     <h3 class="card-title">Přidat na hlavní stranu</h3>
                     <form method="post">
                     {% csrf_token %}
-                        <button type="submit" name="add_to_metaindex" class="btn add-book mt-2">
+                        <button type="submit" name="add_to_metaindex" class="btn add-book">
                             Přidat na hlavní stránku
                         </button>
                     </form>
@@ -1315,6 +1342,15 @@
 </div>
 
 
+<script>
+    document.querySelectorAll('.arrow').forEach(arrow => {
+        arrow.addEventListener('click', () => {
+            const row = arrow.closest('.listing-row');
+            row.classList.toggle('open');
+        });
+    });
+</script>
+
 <!-- hlasování pro citáty -->
 <script>
     //  Funkce pro získání CSRF tokenu z cookies
@@ -1377,24 +1413,22 @@
         const bioElement = document.getElementById("biography-text");
         const toggleButton = document.getElementById("toggle-biography");
 
-        const fullText = bioElement.innerText; // Store the full biography text
-        const truncatedText = fullText.substring(0, 500); // First 500 characters
+        const fullText = bioElement.innerText; 
+        const truncatedText = fullText.substring(0, 500);
 
-        // Check if text needs truncation
         if (fullText.length > 500) {
             bioElement.innerText = truncatedText + "...";
         } else {
-            toggleButton.style.display = "none"; // Hide button if no truncation needed
+            toggleButton.style.display = "none";
         }
 
-        // Toggle functionality
         toggleButton.addEventListener("click", function () {
             if (bioElement.innerText === truncatedText + "...") {
-                bioElement.innerText = fullText; // Show full text
-                toggleButton.innerText = "...Méně"; // Update button text
+                bioElement.innerText = fullText; 
+                toggleButton.innerText = "...Méně"; 
             } else {
-                bioElement.innerText = truncatedText + "..."; // Show truncated text
-                toggleButton.innerText = "Více..."; // Update button text
+                bioElement.innerText = truncatedText + "...";
+                toggleButton.innerText = "Více..."; 
             }
         });
     });
@@ -1483,27 +1517,25 @@
     });
 </script>
 
-
 <!-- 2 – QR zobrazení a polling platby -->
 <script>
     // Globálně dostupná funkce
-function showQr(fmt) {
-    const wrap = document.getElementById("qr-wrap");
-    if (!wrap) return;
+    function showQr(fmt) {
+        const wrap = document.getElementById("qr-wrap");
+        if (!wrap) return;
 
-    let found = false;
-    document.querySelectorAll("[id^='qr-']").forEach(el => {
-        el.style.display = 'none';
-        if (el.id === 'qr-' + fmt) {
-            el.style.display = 'block';
-            found = true;
-        }
-    });
+        let found = false;
+        document.querySelectorAll("[id^='qr-']").forEach(el => {
+            el.style.display = 'none';
+            if (el.id === 'qr-' + fmt) {
+                el.style.display = 'block';
+                found = true;
+            }
+        });
 
-    // když se aspoň jeden QR ukazuje, ukaž wrap
-    wrap.style.display = found ? 'block' : 'none';
-}
-
+        // když se aspoň jeden QR ukazuje, ukaž wrap
+        wrap.style.display = found ? 'block' : 'none';
+    }
 
     document.addEventListener("DOMContentLoaded", function () {
         const formatRadios = document.querySelectorAll("input[name='format']");
@@ -1586,138 +1618,161 @@ function showQr(fmt) {
 
 <!-- dynamické přepínání bloků podle vybraného formátu -->
 <script>
-function renderEbookActions() {
-    const formats = {{ ebook_formats_json|safe }};
-    const radios = document.querySelectorAll("#ebook-popup input[name='format']");
-    const block = document.getElementById("ebook-action-block");
-    let selected = Array.from(radios).find(r => r.checked);
-    if (!selected) return;
-    let fmt = selected.value;
-    let data = formats[fmt];
-    let html = '';
+    function renderEbookActions() {
+        const formats = {{ ebook_formats_json|safe }};
+        const radios = document.querySelectorAll("#ebook-popup input[name='format']");
+        const block = document.getElementById("ebook-action-block");
+        let selected = Array.from(radios).find(r => r.checked);
+        if (!selected) return;
+        let fmt = selected.value;
+        let data = formats[fmt];
+        let html = '';
 
-    if (data.show_qr) {
-        html += `
-            <div style="margin-top:15px;">
-                <button class="btn add-other" disabled>Poslat do čtečky</button>
-                <button class="btn add-other" disabled>Stáhnout</button>
-            </div>
-            <div id="qr-wrap" style="margin-top:20px;">
-                <img src="/generate-qr/{{ book.bookid }}/${fmt}" alt="QR ${fmt}" style="width:160px;">
-                <p><b>Zaplaťte přes QR kód...</b></p>
-                <p style="margin-top:8px;color:#888;">Po zaplacení QR kódem stránku po minutě obnovte.<br>Tlačítka se aktivují a e-knihu stáhnete.</p>
-                <p style="margin-top:8px;color:#888;">Podpora v případě potíží: info@div.cz.</p>
+        if (data.show_qr) {
+            html += `
+                <div style="margin-top:15px;">
+                    <button class="btn add-other" disabled>Poslat do čtečky</button>
+                    <button class="btn add-other" disabled>Stáhnout</button>
+                </div>
+                <div id="qr-wrap" style="margin-top:20px;">
+                    <img src="/generate-qr/{{ book.bookid }}/${fmt}" alt="QR ${fmt}" style="width:160px;">
+                    <p><b>Zaplaťte přes QR kód...</b></p>
+                    <p style="margin-top:8px;color:#888;">Po zaplacení QR kódem stránku po minutě obnovte.<br>Tlačítka se aktivují a e-knihu stáhnete.</p>
+                    <p style="margin-top:8px;color:#888;">Podpora v případě potíží: info@div.cz.</p>
 
-            </div>
-        `;
-    } else if (data.is_paid || data.is_free_div || data.is_external_free) {
-        html += `
-            <div style="margin-top:15px;">
-            	{% if primary_source != "MLP" %}
-                <button type="submit" class="btn add-book" id="send-to-reader-btn">Poslat do čtečky</button>
-                {% endif %}
-                <a id="download-link" href="/stahnout-eknihu/${data.isbn}/${fmt}/" class="btn btn-success">Stáhnout</a>
-            </div>
-        `;
-    } else {
-        html += `<span class="text-danger">Formát není dostupný.</span>`;
+                </div>
+            `;
+        } else if (data.is_paid || data.is_free_div || data.is_external_free) {
+            html += `
+                <div style="margin-top:15px;">
+                    {% if primary_source != "MLP" %}
+                    <button type="submit" class="btn add-book" id="send-to-reader-btn">Poslat do čtečky</button>
+                    {% endif %}
+                    <a id="download-link" href="/stahnout-eknihu/${data.isbn}/${fmt}/" class="btn btn-success">Stáhnout</a>
+                </div>
+            `;
+        } else {
+            html += `<span class="text-danger">Formát není dostupný.</span>`;
+        }
+        block.innerHTML = html;
     }
-    block.innerHTML = html;
-}
-
 </script>
 
 <script>
-// DOPLŇ DO KÓDU:
-document.addEventListener("DOMContentLoaded", function () {
-    renderEbookActions();
+    // DOPLŇ DO KÓDU:
+    document.addEventListener("DOMContentLoaded", function () {
+        renderEbookActions();
 
-    document.querySelectorAll("#ebook-popup input[name='format']").forEach(radio => {
-        radio.addEventListener("change", renderEbookActions);
+        document.querySelectorAll("#ebook-popup input[name='format']").forEach(radio => {
+            radio.addEventListener("change", renderEbookActions);
+        });
     });
-});
-
 </script>
-
 
 <!-- NAČTENÍ DO POPUP -->
 <script>
-// načtení do popup
-document.addEventListener("DOMContentLoaded", function() {
-    const form = document.getElementById("ebook-form");
-    const radios = document.querySelectorAll("#ebook-popup input[name='format']");
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById("ebook-form");
+        const radios = document.querySelectorAll("#ebook-popup input[name='format']");
 
-    function updateFormAction() {
-        let selected = Array.from(radios).find(r => r.checked);
-        if (!selected) return;
-        // získáš data-isbn a value (tj. format)
-        const isbn = selected.getAttribute("data-isbn");
-        const fmt = selected.value;
-        form.action = `/poslat-do-ctecky2/${isbn}/${fmt}/`;
-    }
-
-    radios.forEach(radio => {
-        radio.addEventListener("change", updateFormAction);
-    });
-    updateFormAction(); // hned při načtení
-});
-
-document.addEventListener("DOMContentLoaded", function() {
-    const radios = document.querySelectorAll("#ebook-popup input[name='format']");
-    const kindleBlock = document.getElementById("kindle-block");
-
-    function toggleKindleBlock() {
-        let selected = Array.from(radios).find(r => r.checked);
-        if (selected) {
-            kindleBlock.style.display = "block";
-        } else {
-            kindleBlock.style.display = "none";
+        function updateFormAction() {
+            let selected = Array.from(radios).find(r => r.checked);
+            if (!selected) return;
+            // získáš data-isbn a value (tj. format)
+            const isbn = selected.getAttribute("data-isbn");
+            const fmt = selected.value;
+            form.action = `/poslat-do-ctecky2/${isbn}/${fmt}/`;
         }
-    }
 
-    radios.forEach(radio => {
-        radio.addEventListener("change", toggleKindleBlock);
+        radios.forEach(radio => {
+            radio.addEventListener("change", updateFormAction);
+        });
+        updateFormAction(); // hned při načtení
     });
-    toggleKindleBlock(); // při načtení
-});
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const radios = document.querySelectorAll("#ebook-popup input[name='format']");
+        const kindleBlock = document.getElementById("kindle-block");
+
+        function toggleKindleBlock() {
+            let selected = Array.from(radios).find(r => r.checked);
+            if (selected) {
+                kindleBlock.style.display = "block";
+            } else {
+                kindleBlock.style.display = "none";
+            }
+        }
+
+        radios.forEach(radio => {
+            radio.addEventListener("change", toggleKindleBlock);
+        });
+        toggleKindleBlock(); // při načtení
+    });
 </script>
 
-
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const formatKindlemails = JSON.parse(document.getElementById('formatKindlemailsData').textContent);
+    document.addEventListener("DOMContentLoaded", function () {
+        const formatKindlemails = JSON.parse(document.getElementById('formatKindlemailsData').textContent);
 
-    const radios = document.querySelectorAll("#ebook-popup input[name='format']");
-    const kindlemailInput = document.getElementById('kindlemail');
-    const kindleInfoDiv = document.querySelector('.kindleinfo'); // pokud nějakou máš, jinak ignoruj
+        const radios = document.querySelectorAll("#ebook-popup input[name='format']");
+        const kindlemailInput = document.getElementById('kindlemail');
+        const kindleInfoDiv = document.querySelector('.kindleinfo'); // pokud nějakou máš, jinak ignoruj
 
-    function setKindlemailFromRadio() {
-        const checked = Array.from(radios).find(r => r.checked);
-        if (checked) {
-            const val = formatKindlemails[checked.value];
-            if (val) {
-                kindlemailInput.value = val.kindlemail || "";
-                kindlemailInput.readOnly = !!val.readonly;
-                if (kindleInfoDiv) kindleInfoDiv.style.display = val.readonly ? "block" : "none";
+        function setKindlemailFromRadio() {
+            const checked = Array.from(radios).find(r => r.checked);
+            if (checked) {
+                const val = formatKindlemails[checked.value];
+                if (val) {
+                    kindlemailInput.value = val.kindlemail || "";
+                    kindlemailInput.readOnly = !!val.readonly;
+                    if (kindleInfoDiv) kindleInfoDiv.style.display = val.readonly ? "block" : "none";
+                } else {
+                    kindlemailInput.value = "";
+                    kindlemailInput.readOnly = false;
+                    if (kindleInfoDiv) kindleInfoDiv.style.display = "none";
+                }
             } else {
                 kindlemailInput.value = "";
                 kindlemailInput.readOnly = false;
                 if (kindleInfoDiv) kindleInfoDiv.style.display = "none";
             }
-        } else {
-            kindlemailInput.value = "";
-            kindlemailInput.readOnly = false;
-            if (kindleInfoDiv) kindleInfoDiv.style.display = "none";
         }
-    }
 
-    radios.forEach(function(radio){
-        radio.addEventListener("change", setKindlemailFromRadio);
+        radios.forEach(function(radio){
+            radio.addEventListener("change", setKindlemailFromRadio);
+        });
+
+        setKindlemailFromRadio(); // nastavit hned při načtení popupu
     });
-
-    setKindlemailFromRadio(); // nastavit hned při načtení popupu
-});
 </script>
 
+<!-- výpis postav -->
+<script>
+    document.getElementById('character_query').addEventListener('input', function () {
+        const query = this.value;
+        const resultsList = document.getElementById('character_results');
+
+        if (query.length > 2) {
+            fetch(`/kniha/ajax/postava/?q=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    resultsList.innerHTML = '';
+                    data.results.forEach(character => {
+                        const li = document.createElement('li');
+                        li.textContent = character.charactername;
+                        li.dataset.id = character.characterid;
+                        li.addEventListener('click', function () {
+                            document.getElementById('selected_character_id').value = this.dataset.id;
+                            document.getElementById('character_query').value = this.textContent;
+                            resultsList.innerHTML = '';
+                        });
+                        resultsList.appendChild(li);
+                    });
+                });
+        } else {
+            resultsList.innerHTML = '';
+        }
+    });
+</script>
 
 {% endblock %}

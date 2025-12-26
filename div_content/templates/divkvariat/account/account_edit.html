@@ -3,64 +3,54 @@
 {% block title %}Úprava účtu | DIVkvariát{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto py-10">
 
-    <h1 class="text-3xl font-bold mb-6">Úprava účtu</h1>
+<div class="page page-narrow">
+    <div class="content-box">
+        <h1 class="page-title">Úprava účtu</h1>
+        <form method="post" class="form">
+            {% csrf_token %}
 
+            <!-- Jméno -->
+            <div class="form-group">
+                <label>Jméno</label>
+                <input type="text" name="first_name" value="{{ request.user.first_name }}">
+            </div>
 
+            <!-- Příjmení -->
+            <div class="form-group">
+                <label>Příjmení</label>
+                <input type="text" name="last_name" value="{{ request.user.last_name }}">
+            </div>
 
-    <form method="post" class="space-y-6 bg-white p-6 rounded-xl shadow">
-        {% csrf_token %}
+            <!-- Email -->
+            <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" name="email" value="{{ request.user.email }}">
+            </div>
 
-        <!-- Jméno -->
-        <div>
-            <label class="block font-semibold mb-1">Jméno</label>
-            <input type="text" name="first_name" value="{{ request.user.first_name }}"
-                   class="w-full border px-4 py-2 rounded-lg">
-        </div>
+            <!-- Telefon -->
+            <div class="form-group">
+                <label>Telefon</label>
+                <input type="text" name="phone" value="{{ profile.phone|default:'' }}" placeholder="+420 000 000 000">
+            </div>
 
-        <!-- Příjmení -->
-        <div>
-            <label class="block font-semibold mb-1">Příjmení</label>
-            <input type="text" name="last_name" value="{{ request.user.last_name }}"
-                   class="w-full border px-4 py-2 rounded-lg">
-        </div>
+            <!-- Adresa -->
+            <div class="form-group">
+                <label>Adresa pro doručení</label>
+                <textarea name="shippingaddress" rows="3">{{ profile.shippingaddress|default:'' }}</textarea>
+            </div>
 
-        <!-- Email -->
-        <div>
-            <label class="block font-semibold mb-1">E-mail</label>
-            <input type="email" name="email" value="{{ request.user.email }}"
-                   class="w-full border px-4 py-2 rounded-lg">
-        </div>
+            <!-- Bankovní účet -->
+            <div class="form-group">
+                <label>Bankovní účet (IBAN / číslo účtu)</label>
+                <input type="text" name="bankaccount" value="{{ profile.bankaccount|default:'' }}" placeholder="123456789/0100 nebo IBAN">
+            </div>
 
-        <!-- Telefon -->
-        <div>
-            <label class="block font-semibold mb-1">Telefon</label>
-            <input type="text" name="phone" value="{{ profile.phone|default:"" }}"
-                   class="w-full border px-4 py-2 rounded-lg"
-                   placeholder="+420 000 000 000">
-        </div>
-
-        <!-- Adresa -->
-        <div>
-            <label class="block font-semibold mb-1">Adresa pro doručení</label>
-            <textarea name="shippingaddress" rows="3"
-                      class="w-full border px-4 py-2 rounded-lg">{{ profile.shippingaddress|default:"" }}</textarea>
-        </div>
-
-        <!-- Účet -->
-        <div>
-            <label class="block font-semibold mb-1">Bankovní účet (IBAN / číslo účtu)</label>
-            <input type="text" name="bankaccount" value="{{ profile.bankaccount|default:"" }}"
-                   class="w-full border px-4 py-2 rounded-lg"
-                   placeholder="123456789/0100 nebo IBAN">
-        </div>
-
-        <button type="submit"
-                class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold">
-            Uložit změny
-        </button>
-    </form>
-
+            <button type="submit" class="add-book">
+                Uložit změny
+            </button>
+        </form>
+    </div>
 </div>
+
 {% endblock %}

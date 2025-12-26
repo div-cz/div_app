@@ -3,90 +3,110 @@
 {% block content %}
 
 <div class="container">
-    <h1 class="w-full">Abecední filtr</h1>
-    <h2 class="mb-4">Knihy začínající na písmeno "{{ letter }}"</h2>
+    <h1 class="page-title">Abecední filtr</h1>
+    <h2 class="page-subtitle">
+        Knihy začínající na písmeno "<span class="letter">{{ letter }}</span>"
+    </h2>
 
-    <section id="" class="mb-3 w-full">
-        <h3 class="flex flex-wrap justify-between">
-        <a href="">0-9</a>
+    <section id="" class="alphabet-section">
+        <h3 class="alphabet-filter">
+            <a href="" class="alphabet-item">0-9</a>
             {% for letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
-                <a href="">{{ letter }}</a>
+                <a href="" class="alphabet-item">{{ letter }}</a>
             {% endfor %}
         </h3>
 
-        <hr> 
+        <hr style="margin: 1rem 0"> 
 
         {% if page_obj %}
-        <div class="table">
-            <div class="grid search-grid bg-[#c0c0c0]">
-                <div></div>
-                <div class="font-bold p-1">Název</div>
-                <div class="text-center font-bold p-1">Rok</div>
-                <div class="text-center font-bold p-1">Hodnocení</div>
-            </div>
-            <div>
+            <div class="search-table">
+                <!-- Hlavička -->
+                <div class="search-grid search-header">
+                    <div style="text-align: center;">Miniatura</div>
+                    <div>Název</div>
+                    <div style="text-align: center;">Rok</div>
+                    <div style="text-align: center;">Hodnocení</div>
+                </div>
+
+                <!-- Řádky -->
                 {% for book in page_obj %}
-                    <div class="grid items-center border search-grid sudy">
-                        <div>
-                        {% if book.img == "noimg.png" %}
-                            <img src="https://media.div.cz/knihy/{{ book.img }}" alt="Kniha {{ book.title }}" class="img-fluid" style="object-fit: cover;max-width: 200px;">
-                            {% else %}
-                            <img src="/static/img/book/book.png" alt="{{ book.title }}" class="img-fluid" style="object-fit: cover;max-width: 200px;">
-                        {% endif %}
+                    <div class="search-grid search-row">
+                        <a href="{% url 'book_detail' book.url %}">
+                            {% if book.img == "noimg.png" %}
+                                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="Kniha {{ book.title }}" class="img-fluid" style="object-fit: cover;max-width: 200px;">
+                                {% else %}
+                                <img src="/static/img/book/book.png" alt="{{ book.title }}" class="img-fluid" style="object-fit: cover;max-width: 200px;">
+                            {% endif %}
+                        </a>
+
+                        <div class="title">
+                            <a href="{% url 'book_detail' book.url %}">
+                                {{ book.titlecz }}
+                            </a>
                         </div>
-                        <div class="p-1">
-                            <a href="{% url 'book_detail' book.url %}">{{ book.titlecz }}</a>
-                        </div>
-                        <div class="text-center p-1">
+
+                        <div class="year">
                             {{ book.releaseyear }}
                         </div>
-                        <div class="text-center p-1">
-                            {% if book.AverageRating %}
-                                {% with score=book.AverageRating|floatformat:0 %}
-                                    <span class="text-warning h4">
-                                        {% if score == "1" %}
-                                            &#9733;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;
-                                        {% elif score == "2" %}
-                                            &#9733;&nbsp;&#9733;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;
-                                        {% elif score == "3" %}
-                                            &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9734;&nbsp;&#9734;
-                                        {% elif score == "4" %}
-                                            &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9734;
-                                        {% elif score == "5" %}
-                                            &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;
+
+                        <div class="search-rating">
+                            {% if user.is_authenticated %}
+                                <div class="users-rating">
+                                    100 % <!-- celkové hodnocení knihy -->
+                                </div>
+
+                                <div class="search-stars">
+                                    {% if book.is_read %}
+                                        <i class="fas fa-book" title="přečteno"></i>
+                                    {% endif %}
+
+                                    <div class="stars">
+                                        {% if book.AverageRating %}
+                                            <span> <!-- hodnocení uživatele -->
+                                                {% for _ in "12345" %}
+                                                    {% if forloop.counter <= rating.score %}
+                                                        <span>★</span>
+                                                    {% else %}
+                                                        ☆
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </span>
+
+                                            {% else %}
+                                            <span><small>Nehodnoceno</small></span>
                                         {% endif %}
-                                    </span>
-                                {% endwith %}
-                            {% else %}
-                                <span class="text-sm">Nehodnoceno</span>
+                                    </div>
+                                </div>
                             {% endif %}
                         </div>
+
                     </div>
                 {% endfor %}
             </div>
-        </div>
-        {% else %}
+
+            {% else %}
             <p>Nenašli jsme žádné knihy začínající na "{{ letter }}".</p>
         {% endif %}
 
         <!-- PAGINÁTOR -->
         <div class="pagination">
             <span class="step-links">
-            {% if page_obj.has_previous %}
-                <a class="first-page" href="?page=1">&laquo; První</a>
-                <a href="?page={{ page_obj.previous_page_number }}">Předchozí</a>
-            {% endif %}
+                {% if page_obj.has_previous %}
+                    <a class="first-page" href="?page=1">&laquo; První</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">Předchozí</a>
+                {% endif %}
 
-            <span class="current-page">
-                {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
-            </span>
+                <span class="current-page">
+                    {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                </span>
 
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">Další</a>
-                <a class="last-page" href="?page={{ page_obj.paginator.num_pages }}">Poslední &raquo;</a>
-            {% endif %}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Další</a>
+                    <a class="last-page" href="?page={{ page_obj.paginator.num_pages }}">Poslední &raquo;</a>
+                {% endif %}
             </span>
         </div>
+
     </section>
 </div>
 

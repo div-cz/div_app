@@ -3,245 +3,206 @@
 {% load custom_filters %}
 
 {% block title %}
-    Přidat inzerát knihy | DIVkvariát
+Přidat inzerát knihy | DIVkvariát
 {% endblock %}
 
 {% block content %}
 
-<div class="max-w-4xl mx-auto py-10">
-
-    <h1 class="text-3xl font-bold mb-8">Přidat inzerát knihy</h1>
-
+<div class="form-page">
+    <h1 class="section-title">Přidat inzerát knihy</h1>
 
     <!-- KROK 1 – VYHLEDÁNÍ KNIHY -->
     {% if not selected_book %}
-    <div class="bg-white shadow rounded-lg p-6 mb-10">
+        <div class="form-card">
 
-        <h2 class="text-2xl font-semibold mb-4">1. Vyberte knihu</h2>
+            <h2 class="form-step-title">1. Vyberte knihu</h2>
 
-        <div class="relative">
-            <input 
-                id="book-search"
-                type="text"
-                placeholder="Začněte psát název knihy nebo jméno autora..."
-                autocomplete="off"
-                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none"
-            >
+            <div class="search-box">
+                <input id="book-search" type="text" placeholder="Začněte psát název knihy nebo jméno autora…" autocomplete="off" class="form-input">
 
-            <div id="search-results"
-                 class="absolute mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-72 overflow-y-auto hidden z-50">
+                <div id="search-results" class="search-results hidden"></div>
             </div>
-        </div>
 
-    </div>
+        </div>
     {% endif %}
 
-
-    <!-- KROK 2 – ZOBRAZENÍ VYBRANÉ KNIHY + FORM -->
+    <!-- KROK 2 – VYBRANÁ KNIHA + FORM -->
     {% if selected_book %}
-    <div class="bg-white shadow rounded-lg p-6">
+        <div class="form-card">
 
-        <h2 class="text-2xl font-semibold mb-6">Vybraná kniha</h2>
+            <h2 class="form-step-title">Vybraná kniha</h2>
 
-        <div class="flex gap-4 mb-6">
-            {% if selected_book.img == "noimg.png" %}
-            <img src="https://div.cz/static/img/book/book.png" class="w-28 rounded shadow">
-            {% elif selected_book.img == "GoogleID" %}
-            <img src="https://books.google.com/books/content?id={{ selected_book.googleid }}&printsec=frontcover&img=1&zoom=1"
-                 class="w-28 rounded shadow">
-            {% else %}
-            <img src="https://media.div.cz/knihy/{{ selected_book.img }}" class="w-28 rounded shadow">
-            {% endif %}
+            <div class="selected-book">
 
-            <div>
-                <h3 class="text-xl font-bold">{{ selected_book.titlecz|default:selected_book.title }}</h3>
-                <p class="text-gray-600">{{ selected_book.author }}</p>
-                {% if selected_book.year %}
-                <p class="text-gray-500">{{ selected_book.year }}</p>
+                {% if selected_book.img == "noimg.png" %}
+                    <img src="https://div.cz/static/img/book/book.png">
+                    {% elif selected_book.img == "GoogleID" %}
+                    <img src="https://books.google.com/books/content?id={{ selected_book.googleid }}&printsec=frontcover&img=1&zoom=1">
+                    {% else %}
+                    <img src="https://media.div.cz/knihy/{{ selected_book.img }}">
                 {% endif %}
-                <a href="?book_id=" class="text-green-600 hover:underline text-sm">Změnit knihu</a>
-            </div>
-        </div>
 
-        <h2 class="text-2xl font-semibold mb-4">2. Vyplňte detaily nabídky</h2>
-
-        <form method="post" class="space-y-4">
-            {% csrf_token %}
-            <input type="hidden" name="form_type" value="booklisting">
-            <input type="hidden" name="book_id" value="{{ selected_book.bookid }}">
-
-            <div class="space-y-4">
-
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-    <!-- Typ nabídky -->
-    <div>
-        <label class="font-medium block mb-1">Typ nabídky</label>
-        {{ booklisting_form.listingtype|add_class:"w-full border rounded-lg px-3 py-2" }}
-    </div>
-
-    <!-- Cena -->
-    <div>
-        <label class="font-medium block mb-1">Cena</label>
-        {{ booklisting_form.price|add_class:"w-full border rounded-lg px-3 py-2" }}
-    </div>
-
-    <!-- Popis -->
-    <div class="md:col-span-2">
-        <label class="font-medium block mb-1">Popis</label>
-        {{ booklisting_form.description|add_class:"w-full border rounded-lg px-3 py-2 h-28" }}
-    </div>
-
-    <!-- Stav -->
-    <div>
-        <label class="font-medium block mb-1">Stav knihy</label>
-        {{ booklisting_form.condition|add_class:"w-full border rounded-lg px-3 py-2" }}
-    </div>
-
-    <!-- Místo -->
-    <div>
-        <label class="font-medium block mb-1">Místo</label>
-        {{ booklisting_form.location|add_class:"w-full border rounded-lg px-3 py-2" }}
-    </div>
-
-    <!-- Osobní převzetí -->
-    <div class="flex gap-2 items-center mt-6">
-        {{ booklisting_form.personal_pickup }}
-        <label class="font-medium">Osobní převzetí</label>
-    </div>
-
-    <!-- Telefon -->
-    <div>
-        <label class="font-medium block mb-1">Telefon (volitelně)</label>
-        {{ booklisting_form.phone|add_class:"w-full border rounded-lg px-3 py-2" }}
-    </div>
-
-</div>
-
-<hr class="my-6">
-
-<h3 class="text-xl font-semibold mb-4">Poštovné</h3>
-
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-    <div>
-        <label class="flex items-center gap-2 font-medium">
-            {{ booklisting_form.shipping_zasilkovna }}
-            Zásilkovna
-        </label>
-        {{ booklisting_form.shipping_zasilkovna_price|add_class:"w-full border rounded-lg px-3 py-2 mt-1" }}
-    </div>
-
-    <div>
-        <label class="flex items-center gap-2 font-medium">
-            {{ booklisting_form.shipping_balikovna }}
-            Balíkovna
-        </label>
-        {{ booklisting_form.shipping_balikovna_price|add_class:"w-full border rounded-lg px-3 py-2 mt-1" }}
-    </div>
-
-    <div>
-        <label class="flex items-center gap-2 font-medium">
-            {{ booklisting_form.shipping_posta }}
-            Česká pošta
-        </label>
-        {{ booklisting_form.shipping_posta_price|add_class:"w-full border rounded-lg px-3 py-2 mt-1" }}
-    </div>
-
-</div>
-
+                <div class="selected-book-info">
+                    <h3>{{ selected_book.titlecz|default:selected_book.title }}</h3>
+                    <p>{{ selected_book.author }}</p>
+                    {% if selected_book.year %}
+                        <p class="muted">{{ selected_book.year }}</p>
+                    {% endif %}
+                    <a href="?book_id=" class="text-link">Změnit knihu</a>
+                </div>
 
             </div>
 
-            <button type="submit"
-                    class="add-book mt-4">
-                Vytvořit nabídku
-            </button>
-        </form>
+            <h2 class="form-step-title">2. Vyplňte detaily nabídky</h2>
 
-    </div>
-    {% endif %}
+            <form method="post" class="form-layout">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="booklisting">
+                <input type="hidden" name="book_id" value="{{ selected_book.bookid }}">
 
-</div>
+                <div class="form-grid">
 
-
-<!-- SCRIPT – AJAX VYHLEDÁVÁNÍ -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('book-search');
-    const resultsBox = document.getElementById('search-results');
-
-    if (!searchInput) return;
-
-    let timeout;
-
-    searchInput.addEventListener('input', function () {
-
-        clearTimeout(timeout);
-        const q = this.value.trim();
-
-        if (q.length < 2) {
-            resultsBox.classList.add('hidden');
-            return;
-        }
-
-        timeout = setTimeout(() => {
-            fetch(`{% url 'listing_search_books' %}?q=` + encodeURIComponent(q), {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
-            .then(res => res.json())
-            .then(data => renderResults(data.results));
-        }, 300);
-    });
-
-    function renderResults(results) {
-
-        if (!results.length) {
-            resultsBox.innerHTML = `
-                <div class="p-3 text-gray-500">Žádné výsledky.</div>
-            `;
-            resultsBox.classList.remove('hidden');
-            return;
-        }
-
-        let html = "";
-
-        results.forEach(book => {
-            let imgSrc =
-                book.img === "noimg.png" ? "https://div.cz/static/img/book/book.png" :
-                book.img === "GoogleID"
-                    ? `https://books.google.com/books/content?id=${book.googleid}&printsec=frontcover&img=1&zoom=1`
-                    : `https://media.div.cz/knihy/${book.img}`;
-
-            html += `
-                <div onclick="selectBook(${book.bookid})"
-                     class="flex items-center gap-4 px-3 py-2 cursor-pointer hover:bg-gray-100 border-b">
-                     
-                    <img src="${imgSrc}" class="w-12 rounded">
-                    
                     <div>
-                        <div class="font-semibold">${book.title}</div>
-                        <div class="text-sm text-gray-600">${book.author}${book.year ? ' (' + book.year + ')' : ''}</div>
+                        <label>Typ nabídky</label>
+                        {{ booklisting_form.listingtype|add_class:"form-input" }}
+                    </div>
+
+                    <div>
+                        <label>Cena</label>
+                        {{ booklisting_form.price|add_class:"form-input" }}
+                    </div>
+
+                    <div class="full">
+                        <label>Popis</label>
+                        {{ booklisting_form.description|add_class:"form-input textarea" }}
+                    </div>
+
+                    <div>
+                        <label>Stav knihy</label>
+                        {{ booklisting_form.condition|add_class:"form-input" }}
+                    </div>
+
+                    <div>
+                        <label>Místo</label>
+                        {{ booklisting_form.location|add_class:"form-input" }}
+                    </div>
+
+                    <div class="checkbox-row">
+                        {{ booklisting_form.personal_pickup }}
+                        <label>Osobní převzetí</label>
+                    </div>
+
+                    <div>
+                        <label>Telefon (volitelně)</label>
+                        {{ booklisting_form.phone|add_class:"form-input" }}
                     </div>
 
                 </div>
-            `;
+
+                <hr>
+
+                <h3 class="form-subtitle">Poštovné</h3>
+
+                <div class="form-grid shipping">
+
+                    <div>
+                        <label class="checkbox-label">
+                            {{ booklisting_form.shipping_zasilkovna }} Zásilkovna
+                        </label>
+                        {{ booklisting_form.shipping_zasilkovna_price|add_class:"form-input" }}
+                    </div>
+
+                    <div>
+                        <label class="checkbox-label">
+                            {{ booklisting_form.shipping_balikovna }} Balíkovna
+                        </label>
+                        {{ booklisting_form.shipping_balikovna_price|add_class:"form-input" }}
+                    </div>
+
+                    <div>
+                        <label class="checkbox-label">
+                            {{ booklisting_form.shipping_posta }} Česká pošta
+                        </label>
+                        {{ booklisting_form.shipping_posta_price|add_class:"form-input" }}
+                    </div>
+
+                </div>
+
+                <button type="submit" class="add-book">
+                    Vytvořit nabídku
+                </button>
+
+            </form>
+
+        </div>
+    {% endif %}
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('book-search');
+        const resultsBox = document.getElementById('search-results');
+        if (!searchInput) return;
+
+        let timeout;
+
+        searchInput.addEventListener('input', function () {
+            clearTimeout(timeout);
+            const q = this.value.trim();
+            if (q.length < 2) {
+                resultsBox.classList.add('hidden');
+                return;
+            }
+
+            timeout = setTimeout(() => {
+                fetch(`{% url 'listing_search_books' %}?q=` + encodeURIComponent(q), {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => res.json())
+                .then(data => renderResults(data.results));
+            }, 300);
         });
 
-        resultsBox.innerHTML = html;
-        resultsBox.classList.remove('hidden');
-    }
+        function renderResults(results) {
+            if (!results.length) {
+                resultsBox.innerHTML = '<div class="search-empty">Žádné výsledky.</div>';
+                resultsBox.classList.remove('hidden');
+                return;
+            }
 
-    document.addEventListener("click", function (e) {
-        if (!searchInput.contains(e.target) && !resultsBox.contains(e.target)) {
-            resultsBox.classList.add("hidden");
+            resultsBox.innerHTML = results.map(book => {
+                const img =
+                    book.img === "noimg.png"
+                        ? "https://div.cz/static/img/book/book.png"
+                        : book.img === "GoogleID"
+                            ? `https://books.google.com/books/content?id=${book.googleid}&printsec=frontcover&img=1&zoom=1`
+                            : `https://media.div.cz/knihy/${book.img}`;
+
+                return `
+                    <div class="search-item" onclick="selectBook(${book.bookid})">
+                        <img src="${img}">
+                        <div>
+                            <strong>${book.title}</strong>
+                            <div class="muted">${book.author}${book.year ? ' (' + book.year + ')' : ''}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            resultsBox.classList.remove('hidden');
         }
-    });
-});
 
-function selectBook(id) {
-    window.location.href = "?book_id=" + id;
-}
+        document.addEventListener("click", function (e) {
+            if (!searchInput.contains(e.target) && !resultsBox.contains(e.target)) {
+                resultsBox.classList.add("hidden");
+            }
+        });
+    });
+
+    function selectBook(id) {
+        window.location.href = "?book_id=" + id;
+    }
 </script>
 
 {% endblock %}

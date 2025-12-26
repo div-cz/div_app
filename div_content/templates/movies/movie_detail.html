@@ -110,10 +110,10 @@
                             </div>
                         </div>
 
-                        <button class="btn add-movie" style="margin: 0 auto;">Hodnocení filmu</button>
+                        <button class="rating-popup-btn btn add-movie" style="margin: 0 auto;">Hodnocení filmu</button>
                     </div>
 
-                    <!-- POPUP – VÝPIS HODNOCENÍ PRO FILM -->
+                    <!-- POPUP – VÝPIS HODNOCENÍ PRO FILM na mobilu -->
                     <div id="ratingPopup" class="popup-overlay">
                         <div class="popup-window">
                             <span class="popup-close">&times;</span>
@@ -121,7 +121,7 @@
                             {% if ratings %}
                                 <ul class="sm-rating-users">
                                     {% for rating in ratings %}
-                                        <li>
+                                        <li class="after">
                                             <small>
                                                 <p style="text-align:center; padding:.25rem;">
                                                     Hodnoceno: {{ rating.modified|date:"j. n. Y" }}
@@ -321,17 +321,16 @@
                     <button type="submit" name="add_distributor" class="add-movie">Přidat do kina</button>
                 </form>
             </details>
-        {% endif %}
 
-        <hr>
+            <hr>
+        {% endif %}
 
         <!-- POPIS FILMU -->
         <div style="width: 100%; margin-bottom: 1rem;">
             <p id="biography-text">
                 {% if movie.description %}
                     {{ movie.description|safe }} 
-                    <p><a id="toggle-biography">Více...</a></p>  
-
+                        <p><a id="toggle-biography">Více...</a></p>  
                     {% else %}
                     Zatím žádný popis    
                 {% endif %}

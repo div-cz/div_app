@@ -5,179 +5,253 @@
 {% block title %}{{ listing.get_listingtype_display }} {{ game.title }} | DIV.cz{% endblock %}
 
 {% block meta %}
+    <style>
+        .reserve-form {
+            width: 100%;
+            clear: both;
+            margin-top: 1rem;
+        }
 
-<style>
-    .flex.flex-wrap > form.reserve-form {
-        width: 100%;
-        clear: both;
-        order: 999; 
-    }
-</style>
+        .listing-layout {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 2rem;
+        }
 
+        .listing-main {}
+
+        .listing-sidebar {}
+
+        .alert-box {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f5f5f5;
+        }
+
+        .listing-image {
+            float: left;
+            width: 200px;
+            margin: 0 16px 8px 0;
+            border-radius: 6px;
+        }
+
+        .listing-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .shipping-box {
+            background: #cfefcf;
+            padding: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .listing-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .qr-box img {
+            max-width: 200px;
+        }
+
+        .sidebar-section {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+        }
+    </style>
 {% endblock %}
-
 
 {% block content %}
 
-<div class="container">
-    <!-- Levá strana -->
-    <div class="left-side">
-        <h1 class="mt-8">DIVkvariát / <a href=""></a></h1>
+<div class="container listing-layout">
+
+    <!-- LEVÁ STRANA -->
+    <div class="listing-main">
+
+        <h2 class="breadcrumb">DIVkvariát / <a href=""></a></h2>
         <hr>
 
-        <div class="mt-3">
-            <div class="alert" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
-                Zpráva
-            </div>
+        <div class="alert-box">
+            Zpráva
         </div>
 
-        <div style="overflow:hidden; margin-bottom:16px;">
+        <div class="listing-preview">
             <a href="">
-                <img src="" alt="" style="float:left; width:200px; height:auto; margin:0 16px 8px 0; border-radius:6px;">
-                <img src="" alt="" style="float:left; width:200px; height:auto; margin:0 16px 8px 0; border-radius:6px;">
-                <img src="" alt="" style="float:left; width:200px; height:auto; margin:0 16px 8px 0; border-radius:6px;">
+                <img src="" alt="" class="listing-image">
+                <img src="" alt="" class="listing-image">
+                <img src="" alt="" class="listing-image">
             </a>
 
-            <h2><a href="" style="text-decoration:none;"></a></h2>
-            <p style="margin:0 0 10px; color:#666;"></p>
+            <h2 class="listing-title">
+                <a href=""></a>
+            </h2>
 
-            <p><strong>Cena:</strong> <span></span></p>
+            <p class="listing-subtitle"></p>
+
+            <p class="listing-price-line">
+                <strong>Cena:</strong> <span></span>
+            </p>
         </div>
 
         <div class="card">
             <div class="card-body">
-                <div class="flex flex-wrap justify-between items-start mb-6 after">
+
+                <div class="listing-header">
                     <div>
-                        <p>Cena: </p>
-                        <span class="text-2xl font-semibold"></span>
-                        <span class="ml-2">(+ Kč poštovné)</span>
+                        <p>Cena:</p>
+                        <span class="listing-price"></span>
+                        <span class="listing-shipping">(+ Kč poštovné)</span>
                     </div>
-                    <div class="text-right">
+
+                    <div class="listing-date-box">
                         <span>Datum vložení</span>
-                        <div class="mt-1 font-semibold">
-                            <span class="px-3 py-1 rounded-full text-sm"></span>
-                        </div>
+                        <div class="listing-date"></div>
                     </div>
                 </div>
 
-                <div class="my-5 p-4 rounded-3xl bg-[#cfefcf] dark:bg-[#4FB021]" style="box-shadow: 0 0 20px 0px #4FB021;">
-                    <p class="font-medium">Hru zašlete na adresu:</p>
+                <div class="shipping-box">
+                    <p><strong>Hru zašlete na adresu:</strong></p>
                     <p></p>
                 </div>
 
-                <div class="mb-6 after">
-                    <span>Popis: </span>
+                <div class="listing-description">
+                    <span>Popis:</span>
                 </div>
 
-                <div class="grid sm:grid-cols-2 grid-cols-1 gap-4 mb-6">
-                    <div><span>Stav: </span><span class="ml-2"></span></div>
-                    <div><span>Lokalita: </span><span class="ml-2"></span></div>
-                    <div><span>Osobní převzetí: </span><span class="ml-2"></span></div>
-                    <div><span>Pošta: </span><span class="ml-2">+ Kč</span></div>
+                <div class="listing-info-grid">
+                    <div><strong>Stav:</strong> <span></span></div>
+                    <div><strong>Lokalita:</strong> <span></span></div>
+                    <div><strong>Osobní převzetí:</strong> <span></span></div>
+                    <div><strong>Pošta:</strong> <span>+ Kč</span></div>
                     <div>
-                        <span>Prodávající: </span>
-                        <a href="" class="ml-2"></a>
+                        <strong>Prodávající:</strong>
+                        <a href=""></a>
                         <a href=""><i class="fa-solid fa-envelope"></i></a>
                     </div>
                 </div>
+
             </div>
         </div>
 
-        <form method="post">
+        <!-- REZERVACE -->
+        <form method="post" class="reserve-form">
             <input type="hidden" name="reserve_listing" value="1">
-            <label for="shippingaddress">Kam si přejete hru zaslat?</label><br>
-            <textarea name="shippingaddress" rows="4" style="min-width:400px" class="form-control" required placeholder="Jméno, ulice, město, PSČ (volitelně telefon)"></textarea>
 
-            <div class="form-group mt-2">
+            <div class="form-group">
+                <label for="shippingaddress">Kam si přejete hru zaslat?</label>
+                <textarea name="shippingaddress" rows="4" class="form-control" required
+                    placeholder="Jméno, ulice, město, PSČ (volitelně telefon)"></textarea>
+            </div>
+
+            <div class="form-group">
                 <label for="phone">Telefon (pro zásilkovnu):</label>
                 <input type="tel" name="phone" class="form-control" required>
             </div>
 
             <div class="form-group">
                 <label for="commission">Příspěvek na chod webu (volitelný):</label>
-                <input type="number" name="commission" min="0" value="10" class="form-control" />
+                <input type="number" name="commission" min="0" value="10" class="form-control">
             </div>
 
-            <div class="form-group mt-3">
-              <label>
-                <input type="checkbox" name="agree_terms" required>
-                Souhlasím s předáním údajů (jméno, adresa, telefon) prodejci za účelem zaslání knihy 
-                a se <a href="/podminky-pouziti" target="_blank">Podmínkami používání</a> 
-                a <a href="/ochrana-osobnich-udaju" target="_blank">Ochranou osobních údajů</a>.
-              </label>
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" name="agree_terms" required>
+                    Souhlasím s předáním údajů a s
+                    <a href="/podminky-pouziti" target="_blank">Podmínkami používání</a>
+                    a <a href="/ochrana-osobnich-udaju" target="_blank">Ochranou osobních údajů</a>.
+                </label>
             </div>
 
-            <button type="submit" class="btn add-game mt-2">Rezervovat knihu</button>
+            <button type="submit" class="btn add-game">
+                Rezervovat knihu
+            </button>
         </form>
 
+        <!-- PLATBA -->
         <div class="card">
             <div class="card-body">
-                <h3 class="text-xl font-semibold mb-4">Platební údaje</h3>
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <p class="font-medium">Cena knihy:</p>
+
+                <h3 class="section-title">Platební údaje</h3>
+
+                <div class="payment-grid">
+                    <div><strong>Cena knihy:</strong><p> Kč</p></div>
+                    <div><strong>Poštovné:</strong><p> Kč</p></div>
+                    <div><strong>Provozní poplatek:</strong><p> Kč</p></div>
+                    <div class="payment-total">
+                        <strong>Celkem k úhradě:</strong>
                         <p> Kč</p>
-                    </div>
-                    <div>
-                        <p class="font-medium">Poštovné:</p>
-                        <p> Kč</p>
-                    </div>
-                    <div>
-                        <p class="font-medium">Provozní poplatek:</p>
-                        <p> Kč</p>
-                    </div>
-                    <div>
-                        <p class="font-medium">Celkem k úhradě:</p>
-                        <p class="text-xl font-semibold text-blue-600"> Kč</p>
                     </div>
                 </div>
 
-                <div class="grid md:grid-cols-2 gap-6 pt-4">
+                <div class="payment-methods">
                     <div>
-                        <h4 class="font-medium mb-2">Bankovní převod</h4>
-                        <ul class="space-y-2">
-                            <li><span class="font-medium">Číslo účtu:</span> 2602912559/2010</li>
-                            <li><span class="font-medium">IBAN:</span> CZ5620100000002602912559</li>
-                            <li><span class="font-medium">SWIFT:</span> FIOBCZPPXXX</li>
-                            <li><span class="font-medium">Variabilní symbol:</span> 123456</li>
-                            <li><span class="font-medium">Poznámka:</span> Platba za knihu</li>
+                        <h4>Bankovní převod</h4>
+                        <ul>
+                            <li>Číslo účtu: 2602912559/2010</li>
+                            <li>IBAN: CZ5620100000002602912559</li>
+                            <li>SWIFT: FIOBCZPPXXX</li>
+                            <li>Variabilní symbol: 123456</li>
+                            <li>Poznámka: Platba za knihu</li>
                         </ul>
                     </div>
-                    <div class="flex justify-center">
-                        <img src="qr.png" alt="QR Platba" class="max-w-[200px]">
+
+                    <div class="qr-box">
+                        <img src="qr.png" alt="QR Platba">
                     </div>
                 </div>
+
             </div>
         </div>
 
-        <p class="mt-6">Pro rezervaci nebo nákup knihy se musíš <a href="/prihlaseni/">přihlásit</a> nebo <a href="/registrace/">registrovat</a>.</p>
+        <p class="login-note">
+            Pro rezervaci nebo nákup knihy se musíš
+            <a href="/prihlaseni/">přihlásit</a> nebo
+            <a href="/registrace/">registrovat</a>.
+        </p>
+
     </div>
 
-    <!-- Pravá strana -->
-    <div class="right-side">
+    <!-- PRAVÁ STRANA -->
+    <div class="listing-sidebar">
         <div class="card">
             <div class="card-body">
-                <div class="flex flex-wrap card-title after-h3">
-                    <h3 class="font-bold">Burza her</h3>
-                </div>
+
+                <h3 class="sidebar-title">Burza her</h3>
                 <p>Nabídek: 0 | Poptávek: 0</p>
 
-                <div class="flex flex-wrap">
-                    <div class="flex flex-wrap justify-between w-full">
-                        <h4>Prodej - </h4><a href="#"><small>Zobrazit vše</small></a>
-                    </div>
+                <div class="sidebar-section">
+                    <h4>Prodej</h4>
+                    <a href="#">Zobrazit vše</a>
                 </div>
 
                 <hr>
 
-                <div class="flex flex-wrap">
-                    <div class="flex flex-wrap justify-between w-full">
-                        <h4>Poptávka</h4><a href="#"><small>Zobrazit vše</small></a>
-                    </div>
+                <div class="sidebar-section">
+                    <h4>Poptávka</h4>
+                    <a href="#">Zobrazit vše</a>
                 </div>
+
             </div>
         </div>
     </div>
+
 </div>
 
 {% endblock %}

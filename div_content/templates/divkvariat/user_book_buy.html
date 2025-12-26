@@ -1,70 +1,76 @@
 {% extends "divkvariat/base.html" %}
 {% load humanize %}
 
-{% block title %}{{ profile_user.username }} – Poptávky knih | DIVkvariát{% endblock %}
+{% block title %}
+{{ profile_user.username }} – Poptávky knih | DIVkvariát
+{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4">
 
-    <h1 class="text-3xl font-bold mb-2 text-gray-800">
+<div class="page page-wide">
+    <h1 class="page-title">
         {{ profile_user.username }} – Poptávky knih
     </h1>
 
     {% if avg_rating %}
-    <div class="mb-6 text-gray-700">
-        <span class="font-semibold">{{ avg_rating|floatformat:1 }}/5</span>
-        <span class="ml-2">
-            {% for i in "12345"|make_list %}
-                {% if forloop.counter <= avg_rating %}★{% else %}☆{% endif %}
-            {% endfor %}
-        </span>
-        <span class="ml-2 text-sm text-gray-600">({{ total_ratings }} hodnocení)</span>
-    </div>
+        <div class="user-rating">
+            <strong>{{ avg_rating|floatformat:1 }}/5</strong>
+            <span class="user-rating-stars">
+                {% for i in "12345"|make_list %}
+                    {% if forloop.counter <= avg_rating %}★{% else %}☆{% endif %}
+                {% endfor %}
+            </span>
+            <span class="user-rating-count">
+                ({{ total_ratings }} hodnocení)
+            </span>
+        </div>
     {% endif %}
 
-    <a href="/poptavky/" class="text-green-700 hover:underline mb-6 block">
+    <a href="/poptavky/" class="back-link">
         ← Všechny poptávky
     </a>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="listing-grid">
 
         {% for listing in listings %}
-        <div class="bg-white border rounded-xl shadow-sm hover:shadow-lg p-4 transition flex flex-col h-full">
-        
-          <h3 class="text-base font-semibold text-gray-800 line-clamp-2">
-            {{ listing.book.titlecz|default:listing.book.title }}
-          </h3>
-        
-          <p class="text-sm text-gray-500 mb-2">
-            {{ listing.book.author }}
-          </p>
-        
-          <p class="text-green-700 font-semibold mb-2">
-            Nabízím {{ listing.price|intcomma }} Kč
-          </p>
-        
-          {% if listing.location %}
-          <p class="text-sm text-gray-600">
-            Lokalita: {{ listing.location }}
-          </p>
-          {% endif %}
-        
-          <p class="text-xs text-gray-500 mt-auto mb-3">
-            {{ listing.createdat|naturaltime }}
-          </p>
-        
-          <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}"
-             class="block w-full text-center py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold">
-             Detail poptávky
-          </a>
-        
-        </div>
+            <div class="listing-card">
 
-        {% empty %}
-        <p class="text-gray-600">Žádné aktivní poptávky.</p>
+                <h3 class="listing-title">
+                    {{ listing.book.titlecz|default:listing.book.title }}
+                </h3>
+
+                <p class="listing-author">
+                    {{ listing.book.author }}
+                </p>
+
+                <p class="listing-price">
+                    Nabízím {{ listing.price|intcomma }} Kč
+                </p>
+
+                {% if listing.location %}
+                    <p class="listing-location">
+                        Lokalita: {{ listing.location }}
+                    </p>
+                {% endif %}
+
+                <p class="listing-date">
+                    {{ listing.createdat|naturaltime }}
+                </p>
+
+                <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}"
+                class="btn-primary btn-block">
+                    Detail poptávky
+                </a>
+
+            </div>
+
+            {% empty %}
+            <p class="empty-state">
+                Žádné aktivní poptávky.
+            </p>
         {% endfor %}
 
     </div>
-
 </div>
+
 {% endblock %}

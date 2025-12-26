@@ -1,85 +1,85 @@
 {% extends "divkvariat/base.html" %}
 {% load humanize %}
 
-{% block title %}{{ profile_user.username }} – Nabídky k prodeji | DIVkvariát{% endblock %}
+{% block title %}
+{{ profile_user.username }} – Nabídky k prodeji | DIVkvariát
+{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4">
 
-    <h1 class="text-3xl font-bold mb-2 text-gray-800">
+<div class="page page-wide">
+    <h1 class="page-title">
         {{ profile_user.username }} – Nabídky k prodeji
     </h1>
 
     {% if avg_rating %}
-    <div class="mb-6 text-gray-700">
-        <span class="font-semibold">{{ avg_rating|floatformat:1 }}/5</span>
-        <span class="ml-2">
-            {% for i in "12345"|make_list %}
-                {% if forloop.counter <= avg_rating %}★{% else %}☆{% endif %}
-            {% endfor %}
-        </span>
-        <span class="ml-2 text-sm text-gray-600">({{ total_ratings }} hodnocení)</span>
-    </div>
+        <div class="rating-box">
+            <strong>{{ avg_rating|floatformat:1 }}/5</strong>
+            <span class="rating-stars">
+                {% for i in "12345"|make_list %}
+                    {% if forloop.counter <= avg_rating %}★{% else %}☆{% endif %}
+                {% endfor %}
+            </span>
+            <span class="rating-count">
+                ({{ total_ratings }} hodnocení)
+            </span>
+        </div>
     {% endif %}
 
-    <a href="/nabidky/" class="text-green-700 hover:underline mb-6 block">
+    <a href="/nabidky/" class="back-link">
         ← Všechny nabídky
     </a>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-
+    <div class="listing-grid">
         {% for listing in listings %}
-<div class="bg-white border rounded-xl shadow-sm hover:shadow-lg p-4 transition flex flex-col h-full">
+            <div class="listing-card">
 
-    <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
-        {% if listing.book.img == "noimg.png" %}
-            <img src="https://media.div.cz/img/book/book.png"
-                 class="w-full h-40 object-cover rounded-md mb-3 bg-gray-100">
-        {% elif listing.book.img == "GoogleID" %}
-            <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1"
-                 class="w-full h-40 object-cover rounded-md mb-3 bg-gray-100">
-        {% else %}
-            <img src="https://media.div.cz/knihy/{{ listing.book.img }}"
-                 class="w-full h-40 object-cover rounded-md mb-3 bg-gray-100">
-        {% endif %}
-    </a>
+                <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+                    {% if listing.book.img == "noimg.png" %}
+                        <img src="https://media.div.cz/img/book/book.png"
+                            class="listing-image">
+                    {% elif listing.book.img == "GoogleID" %}
+                        <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1"
+                            class="listing-image">
+                    {% else %}
+                        <img src="https://media.div.cz/knihy/{{ listing.book.img }}"
+                            class="listing-image">
+                    {% endif %}
+                </a>
 
-    <div class="flex-1">
-        <h3 class="text-base font-semibold text-gray-800 line-clamp-2">
-            {{ listing.book.titlecz|default:listing.book.title }}
-        </h3>
+                <h3 class="listing-title">
+                    {{ listing.book.titlecz|default:listing.book.title }}
+                </h3>
 
-        <p class="text-sm text-gray-500 mb-2">
-            {{ listing.book.author }}
-        </p>
-    </div>
+                <p class="listing-author">
+                    {{ listing.book.author }}
+                </p>
 
-    <div class="mt-4">
-        <p class="text-lg font-bold text-green-600 mb-1">
-            {% if listing.listingtype == "GIVE" %}
-                Daruji
-            {% else %}
-                {{ listing.price|intcomma }} Kč
-            {% endif %}
-        </p>
+                <p class="listing-price">
+                    {% if listing.listingtype == "GIVE" %}
+                        Daruji
+                        {% else %}
+                        {{ listing.price|intcomma }} Kč
+                    {% endif %}
+                </p>
 
-        <p class="text-xs text-gray-500 mb-3">
-            Přidáno {{ listing.createdat|naturaltime }}
-        </p>
+                <p class="listing-meta">
+                    Přidáno {{ listing.createdat|naturaltime }}
+                </p>
 
-        <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}"
-           class="block w-full text-center py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold">
-            Detail nabídky
-        </a>
-    </div>
+                <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}"
+                class="btn-primary btn-block">
+                    Detail nabídky
+                </a>
 
-</div>
-
-        {% empty %}
-        <p class="text-gray-600">Žádné aktivní nabídky.</p>
+            </div>
+            
+            {% empty %}
+            <p class="empty-state">
+                Žádné aktivní nabídky.
+            </p>
         {% endfor %}
-
     </div>
-
 </div>
+
 {% endblock %}

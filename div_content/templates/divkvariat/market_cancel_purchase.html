@@ -3,60 +3,43 @@
 {% load custom_filters %}
 
 {% block title %}
-    Zrušení nákupu | DIVkvariát
+Zrušení nákupu | DIVkvariát
 {% endblock %}
 
 {% block content %}
 
-<div class="max-w-2xl mx-auto py-10">
-
-    <!-- HLAVIČKA -->
-    <h1 class="text-3xl font-bold mb-6">Zrušení nákupu</h1>
-
-    <!-- KARTA -->
-    <div class="bg-white shadow rounded-lg p-6">
-
-        <p class="text-lg mb-4">
+<div class="page page-narrow">
+    <h1 class="page-title">Zrušení nákupu</h1>
+    <div class="card">
+        <p>
             Opravdu chcete stornovat tento nákup?
         </p>
 
-        <div class="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-            <p class="font-semibold text-gray-800">
+        <div class="card">
+            <strong>
                 {{ purchase.book.titlecz|default:purchase.book.title }}
-            </p>
+            </strong>
         </div>
 
-        <form method="POST" class="space-y-4">
+        <form method="post" class="form">
             {% csrf_token %}
 
-            <div>
-                <label for="cancel_reason" class="font-medium text-gray-700">Důvod storna</label>
-                <input 
-                    type="text"
-                    id="cancel_reason"
-                    name="cancel_reason"
-                    required
-                    placeholder="Např. kniha již není dostupná"
-                    class="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1"
-                >
-            </div>
+            <label>
+                Důvod storna
+                <input type="text" name="cancel_reason" required placeholder="Např. kniha již není dostupná">
+            </label>
 
-            <div class="flex items-center gap-4 pt-4">
-
-                <button type="submit" class="add-book">
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
                     Potvrdit storno
                 </button>
 
-                <a href="{% url 'index' %}"
-                   class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700">
+                <a href="{% url 'index' %}" class="btn-secondary">
                     Zrušit
                 </a>
             </div>
-
         </form>
-
     </div>
-
 </div>
 
 {% endblock %}

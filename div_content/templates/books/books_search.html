@@ -6,77 +6,98 @@
 {% block content %}
 
 <div class="container">
-    <h2 class="mb-4">Vyhledávání: {% if request.GET.q %} {{ request.GET.q }} {% endif %}</h2>
-    <div class="row mb-3 w-full">
-        {% if books %}
-        <div class="table">
-            <div class="grid search-grid bg-[#c0c0c0]">
-                <div class="text-center font-bold p-1">Miniatura</div>
-                <div class="font-bold p-1">Název</div>
-                <div class="text-center font-bold p-1">Rok</div>
-                <div class="text-center font-bold p-1">Hodnocení</div>
+    <h2 class="page-title">
+        Vyhledávání: 
+        {% if request.GET.q %} 
+            <span class="movies">{{ request.GET.q }}</span>
+        {% endif %}
+    </h2>
+
+    {% if books %}
+        <div class="search-table">
+            
+            <!-- Hlavička -->
+            <div class="search-grid search-header">
+                <div style="text-align: center;">Miniatura</div>
+                <div>Název</div>
+                <div style="text-align: center;">Rok</div>
+                <div style="text-align: center;">Hodnocení</div>
             </div>
-            <div>
-                {% for book in books %}
-                <div class="grid items-center border search-grid sudy">
-                        <div>
-                            <a href="/kniha/{{ book.url }}">
-                            {% if book.img == "noimg.png" %}
-                                <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
-                                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz|default:book.title }}" class="w-full rounded" style="max-width: 100px; object-fit: cover;">
-                                {% elif book.img == "GoogleID" %}
-                                <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
-                                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="img-fluid" style="max-width: 100px; object-fit: cover;">
-                                {% else %}
-                                <!-- Jinak zobraz vlastní nahraný obrázek -->
-                                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="w-full rounded" style="max-width: 100px; object-fit: cover;">
-                            {% endif %}
+
+            <!-- Řádky -->
+            {% for book in books %}
+                <div class="search-grid search-row">
+                    <a href="/kniha/{{ book.url }}">
+                        {% if book.img == "noimg.png" %}
+                            <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
+                            <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz|default:book.title }}" class="img-fluid">
+                            {% elif book.img == "GoogleID" %}
+                            <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
+                            <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz }}" class="img-fluid">
+                            {% else %}
+                            <!-- Jinak zobraz vlastní nahraný obrázek -->
+                            <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="img-fluid">
+                        {% endif %}
+                    </a>
+
+                    <div class="title">                       
+                        <a href="/kniha/{{ book.url }}">
+                            {{ book.titlecz|default:book.title }}
+                        </a> 
+
+                        {% if book.authorurl %}
+                            <a href="/autor/{{ book.authorurl }}">
+                                {{ book.author }}
                             </a>
-                        </div>
-                        <div class="flex flex-wrap ml-2">                        
-                            <a class="w-full" href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a> 
 
-                            {% if book.authorurl %}
-                              <a href="/autor/{{ book.authorurl }}">{{ book.author }}</a>
                             {% else %}
-                              {{ book.author }}
-                            {% endif %}
-                            <!--<a href="/autor/{{ book.authorid__url }}">{{ book.authorid__firstname }} {{ book.authorid__lastname }}</a>-->
-
-                        </div>
-                        <div>
-                            <a href="https://div.cz/knihy/{{ book.year }}">{{ book.year|default:"" }}</a>
-                        </div>
-                        <div class="text-center p-1 stars">
-                            {% if book.ratingaverage %}
-                            {% with score=book.ratingaverage|floatformat:0 %}
-                            <span class="text-warning h4">
-                                {% if score == "1" %}
-                                &#9733;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;
-                                {% elif score == "2" %}
-                                &#9733;&nbsp;&#9733;&nbsp;&#9734;&nbsp;&#9734;&nbsp;&#9734;
-                                {% elif score == "3" %}
-                                &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9734;&nbsp;&#9734;
-                                {% elif score == "4" %}
-                                &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9734;
-                                {% elif score == "5" %}
-                                &#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;&nbsp;&#9733;
-                                {% endif %}
-                            </span>
-                            {% endwith %}
-                            {% else %}
-                            <span class="text-sm stars">Nehodnoceno</span>
-                            {% endif %}
-                        </div>
+                            {{ book.author }}
+                        {% endif %}
+                        <!--<a href="/autor/{{ book.authorid__url }}">{{ book.authorid__firstname }} {{ book.authorid__lastname }}</a>-->
                     </div>
-                {% endfor %}
-            </div>
+
+                    <div class="year">
+                        <a href="https://div.cz/knihy/{{ book.year }}">{{ book.year|default:"" }}</a>
+                    </div>
+
+                    <div class="search-rating">
+                        {% if user.is_authenticated %}
+                            <div class="movie-rating">
+                                100 % <!-- celkové hodnocení filmu -->
+                            </div>
+
+                            <div class="search-stars">
+                                {% if book.is_read %}
+                                    <i class="fas fa-book" title="přečteno" style="margin-right: 1rem;"></i>
+                                {% endif %}
+
+                                <div class="stars">
+                                    {% if book.ratingaverage %}
+                                        <span>
+                                            {% for _ in "12345" %}
+                                                {% if forloop.counter <= rating.score %}
+                                                    <span>★</span>
+                                                {% else %}
+                                                    ☆
+                                                {% endif %}
+                                            {% endfor %}
+                                        </span>
+
+                                        {% else %}
+                                        <span><small>Nehodnoceno</small></span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            {% endfor %}
         </div>
-    {% else %}
+
+        {% else %}
         <p>Žádné knihy nenalezeny.</p>
     {% endif %}
-    </div>
 </div>
-
 
 {% endblock %}

@@ -4,131 +4,127 @@
 {% block title %}Hledání | DIVkvariát{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-10 max-w-5xl">
 
-    <h1 class="text-3xl font-bold mb-6">🔍 Hledat knihu</h1>
-
-    <!-- Hledací pole -->
-    <form method="get" action="/hledat/" class="mb-10">
-        <input 
-            type="text"
-            name="q"
-            value="{{ query }}"
-            placeholder="Zadejte název knihy, autora…"
-            class="w-full px-4 py-3 border rounded-lg shadow focus:ring-2 focus:ring-green-600 outline-none"
-        >
+<div class="page">
+    <h1 class="page-title">Hledat knihu</h1>
+    <!-- HLEDÁNÍ -->
+    <form method="get" action="/hledat/" class="form">
+        <label>
+            <input
+                type="text"
+                name="q"
+                value="{{ query }}"
+                placeholder="Zadejte název knihy, autora…"
+            >
+        </label>
     </form>
 
     {% if query %}
-    <p class="text-gray-500 mb-8">
-        Výsledky pro <strong>"{{ query }}"</strong>
-    </p>
+        <p>
+            Výsledky pro <strong>„{{ query }}“</strong>
+        </p>
     {% endif %}
 
-    <!-- Výsledky: KNIHY -->
+    <!-- KNIHY -->
     {% if books %}
-    <h2 class="text-2xl font-semibold mb-4">📚 Knihy</h2>
+        <section class="section">
+            <h2 class="section-title">Knihy</h2>
+            <div class="listing-list">
+                {% for b in books %}
+                    <a href="/kniha/{{ b.url }}/" class="card listing-row">
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                        {% if b.img == "noimg.png" %}
+                            <img src="/static/img/book/book.png">
+                            {% elif b.img == "GoogleID" %}
+                            <img src="https://books.google.com/books/content?id={{ b.googleid }}&printsec=frontcover&img=1&zoom=1">
+                            {% else %}
+                            <img src="https://media.div.cz/knihy/{{ b.img }}">
+                        {% endif %}
 
-        {% for b in books %}
-        <a href="/kniha/{{ b.url }}/"
-           class="bg-[#1A161F] p-4 rounded-xl shadow hover:shadow-xl transition block">
+                        <div>
+                            <strong>{{ b.titlecz|default:b.title }}</strong><br>
+                            {{ b.author }}
+                        </div>
 
-            {% if b.img == "noimg.png" %}
-                <img src="/static/img/book/book.png"
-                     class="w-full h-56 object-cover rounded mb-4">
-            {% elif b.img == "GoogleID" %}
-                <img src="https://books.google.com/books/content?id={{ b.googleid }}&printsec=frontcover&img=1&zoom=1"
-                     class="w-full h-56 object-cover rounded mb-4">
-            {% else %}
-                <img src="https://media.div.cz/knihy/{{ b.img }}"
-                     class="w-full h-56 object-cover rounded mb-4">
-            {% endif %}
-
-            <h3 class="text-lg font-semibold text-white">{{ b.titlecz|default:b.title }}</h3>
-            <p class="text-gray-400">{{ b.author }}</p>
-        </a>
-        {% endfor %}
-
-    </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
     {% endif %}
 
-    <!-- Výsledky: NABÍDKY / POPTÁVKY -->
-    <h2 class="text-2xl font-semibold mb-4">📦 Nabídky a poptávky</h2>
-
+    <!-- NABÍDKY / POPTÁVKY -->
     {% if listings %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <section class="section">
+            <h2 class="section-title">Nabídky a poptávky</h2>
+            <div class="listing-list">
+                {% for listing in listings %}
+                    <article class="card listing-row">
+                        <a href="{% if listing.listingtype == 'BUY' %}
+                                    {% url 'listing_detail_buy' listing.book.url listing.booklistingid %}
+                                {% else %}
+                                    {% url 'listing_detail_sell' listing.book.url listing.booklistingid %}
+                                {% endif %}">
 
-        {% for listing in listings %}
-        <div class="bg-[#1A161F] p-5 rounded-xl shadow hover:shadow-xl transition">
+                            {% if listing.book.img == "noimg.png" %}
+                                <img src="/static/img/book/book.png">
+                                {% elif listing.book.img == "GoogleID" %}
+                                <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1">
+                                {% else %}
+                                <img src="https://media.div.cz/knihy/{{ listing.book.img }}">
+                            {% endif %}
+                        </a>
 
-            <a href="{% if listing.listingtype == 'BUY' %}
-                        {% url 'listing_detail_buy' listing.book.url listing.booklistingid %}
-                     {% else %}
-                        {% url 'listing_detail_sell' listing.book.url listing.booklistingid %}
-                     {% endif %}">
+                        <div>
+                            <strong>
+                                {{ listing.book.titlecz|default:listing.book.title }}
+                            </strong><br>
+                            {{ listing.book.author }}
+                        </div>
 
-                {% if listing.book.img == "noimg.png" %}
-                    <img src="/static/img/book/book.png"
-                         class="w-full h-56 object-cover rounded mb-4">
-                {% elif listing.book.img == "GoogleID" %}
-                    <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1"
-                         class="w-full h-56 object-cover rounded mb-4">
-                {% else %}
-                    <img src="https://media.div.cz/knihy/{{ listing.book.img }}"
-                         class="w-full h-56 object-cover rounded mb-4">
+                        <div class="listing-price">
+                            {% if listing.listingtype == 'BUY' %}
+                                Koupím za {{ listing.price|floatformat:0 }} Kč
+                                {% elif listing.listingtype == 'GIVE' %}
+                                Daruji
+                                {% else %}
+                                {{ listing.price|floatformat:0 }} Kč
+                            {% endif %}
+                        </div>
+
+                        <div class="listing-meta">
+                            Přidal {{ listing.user.username }} •
+                            {{ listing.createdat|date:"j. n. Y" }}
+                        </div>
+
+                    </article>
+                {% endfor %}
+            </div>
+
+            <!-- PAGINACE -->
+            <div class="pagination">
+                {% if listings.has_previous %}
+                    <a href="?q={{ query }}&page=1">« První</a>
+                    <a href="?q={{ query }}&page={{ listings.previous_page_number }}">‹</a>
                 {% endif %}
-            </a>
 
-            <h3 class="text-lg font-bold text-white">
-                {{ listing.book.titlecz|default:listing.book.title }}
-            </h3>
+                <span>
+                    Stránka {{ listings.number }} / {{ listings.paginator.num_pages }}
+                </span>
 
-            <p class="text-gray-400">
-                {{ listing.book.author }}
-            </p>
-
-            <p class="text-green-400 text-xl font-semibold mt-3">
-                {% if listing.listingtype == 'BUY' %}
-                    Koupím za {{ listing.price|floatformat:0 }} Kč
-                {% elif listing.listingtype == 'GIVE' %}
-                    Daruji
-                {% else %}
-                    {{ listing.price|floatformat:0 }} Kč
+                {% if listings.has_next %}
+                    <a href="?q={{ query }}&page={{ listings.next_page_number }}">›</a>
+                    <a href="?q={{ query }}&page={{ listings.paginator.num_pages }}">Poslední »</a>
                 {% endif %}
-            </p>
+            </div>
 
-            <p class="text-xs text-gray-500 mt-3">
-                Přidal: <span class="text-green-400">{{ listing.user.username }}</span><br>
-                {{ listing.createdat|date:"j. n. Y" }}
-            </p>
-
-        </div>
-        {% endfor %}
-
-    </div>
-
-    <!-- Paginační navigace -->
-    <div class="flex justify-center mt-10 text-white">
-        {% if listings.has_previous %}
-            <a href="?q={{ query }}&page=1" class="px-3 py-2 bg-gray-700 rounded-l-lg">« První</a>
-            <a href="?q={{ query }}&page={{ listings.previous_page_number }}" class="px-3 py-2 bg-gray-700">‹</a>
-        {% endif %}
-
-        <span class="px-6 py-2 bg-gray-800">
-            Stránka {{ listings.number }} / {{ listings.paginator.num_pages }}
-        </span>
-
-        {% if listings.has_next %}
-            <a href="?q={{ query }}&page={{ listings.next_page_number }}" class="px-3 py-2 bg-gray-700">›</a>
-            <a href="?q={{ query }}&page={{ listings.paginator.num_pages }}" class="px-3 py-2 bg-gray-700 rounded-r-lg">Poslední »</a>
-        {% endif %}
-    </div>
-
-    {% else %}
-        <p class="text-gray-400 mt-10">Pro tento výraz jsme nic nenašli.</p>
+        </section>
     {% endif %}
 
+    {% if query and not books and not listings %}
+        <p>
+            Pro tento výraz jsme nic nenašli.
+        </p>
+    {% endif %}
 </div>
+
 {% endblock %}

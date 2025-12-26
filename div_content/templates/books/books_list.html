@@ -128,7 +128,7 @@
 <div class="container">
     <!-- LEVÁ STRANA -->
     <div class="left-side">
-        <!-- carousel -->
+        <!-- CAROUSEL -->
         <div class="book-slider">
             {% for book in top_books %}
                 <div class="book-item"> 
@@ -262,69 +262,77 @@
             {% if user.is_authenticated %}
                 {% if reading_goal %}
                     <div class="card-body">
-                        <h3 class="card-title after-h3">Cíl čtení pro rok {{ reading_goal.goalyear }}</h3>
-                        <div class="flex flex-wrap items-center mb-4">
-                            <span class="w-full my-4">
+                        <h3 class="card-title after-h3">
+                            Cíl čtení pro rok {{ reading_goal.goalyear }}
+                        </h3>
+
+                        <div class="reading-goal">
+                            <span class="reading-goal-text">
                                 Přečtených {{ reading_goal.booksread }} / {{ reading_goal.goal }} knih
                             </span>
-                            <div class="bar-container w-full flex justify-content-start">
-                                <div style="width: {% if reading_goal.progress > 100 %}100{% else %}{{ reading_goal.progress }}{% endif %}%" class="shadow-none flex flex-col text-center whitespace-nowrap justify-center 
-                                    {% if reading_goal.progress < 50 %}
-                                    {% elif reading_goal.progress < 75 %}
-                                    {% elif reading_goal.progress < 100 %}
-                                    {% endif %}">
-                                    <span class="bar-book inline-block px-2">
-                                    {{ reading_goal.progress|floatformat:1 }}%
+
+                            <div class="progress-bar">
+                                <div
+                                    class="progress-bar-fill"
+                                    style="width: {% if reading_goal.progress > 100 %}100{% else %}{{ reading_goal.progress }}{% endif %}%">
+                                    <span class="progress-bar-label">
+                                        {{ reading_goal.progress|floatformat:1 }}%
                                     </span>
                                 </div>
 
                                 {% if reading_goal.progress == 0 %}
-                                    <span class="text-xs">0%</span>
+                                    <span class="progress-zero">0%</span>
                                 {% endif %}
                             </div>
                         </div>
 
                         {% if reading_goal.progress >= 100 %}
-                        <div class="mt-2 text-center">
-                            Gratulujeme! Splnili jste svuj ctenarsky cil!
-                        </div>
+                            <div class="goal-complete">
+                                Gratulujeme! Splnili jste svůj čtenářský cíl!
+                            </div>
                         {% endif %}
 
                         <hr>
 
-                        <form id="goalForm" class="flex flex-wrap justify-center text-center" method="POST" action="{% url 'set_reading_goal' %}">
+                        <form id="goalForm" class="goal-form" method="POST" action="{% url 'set_reading_goal' %}">
                             {% csrf_token %}
-                            <div class="flex-1 w-full">
-                                <label for="goal" class="w-full mt-0 mb-1">Upravit cil pro rok {{ reading_goal.goalyear }}</label>
-                                <div class="relative">
-                                    <input type="number" name="goal" id="goal" min="1" value="{{ reading_goal.goal }}" class="mt-1 w-full pl-3 pr-12">
-                                </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="goal">
+                                    Upravit cíl pro rok {{ reading_goal.goalyear }}
+                                </label>
+                                <input style="width: 100%;" type="number" name="goal" id="goal" min="1" value="{{ reading_goal.goal }}" >
                             </div>
-                            <button type="submit" class="btn add-book mb-0"><i class="fa fa-save" style="margin-right:.5rem;"></i> Uložit</button>
+
+                            <button type="submit" class="btn add-book">
+                                <i class="fa fa-save"></i> Uložit
+                            </button>
                         </form>
                     </div>
 
-                    {% else %}
-                    <div class="text-center py-4">
-                        <p style="margin-bottom: 1rem;">Nastavte si svuj prvni ctenarsky cil!</p>
-                        <form id="goalForm" class="max-w-sm mx-auto" method="POST" action="{% url 'set_reading_goal' %}">
+                {% else %}
+                    <div class="goal-empty">
+                        <p>Nastavte si svůj první čtenářský cíl!</p>
+                        <form id="goalForm" class="goal-form-start" method="POST" action="{% url 'set_reading_goal' %}">
                             {% csrf_token %}
-                            <div class="flex gap-4">
-                                <div class="relative flex-1">
-                                    <input type="number" name="goal" placeholder="Napr. 12"min="1" class="w-full pl-3 pr-12">
-                                    <div class="absolute flex items-center pr-3">
-                                    knih
-                                    </div>
+                            <div class="form-row">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <input style="width: 100%;" type="number" name="goal" placeholder="Např. 12" min="1">
+                                    <span class="input-suffix">knih</span>
                                 </div>
-                                <button type="submit" class="btn add-book mb-0">Začít</button>
+
+                                <button type="submit" class="btn add-book">
+                                    Začít
+                                </button>
                             </div>
                         </form>
                     </div>
                 {% endif %}
 
                 {% else %}
-
-                <p class="card-body">Pro nastavení vlastního čtenářského cíle se prosím <a href="/prihlaseni/">přihlašte</a>.</p>
+                <p class="card-body">
+                    Pro nastavení vlastního čtenářského cíle se prosím
+                    <a href="/prihlaseni/">přihlašte</a>.
+                </p>
             {% endif %}
         </div>
 
@@ -334,37 +342,57 @@
                 <h3 class="card-title after-h3">Burza knih</h3>
 
                 <!-- prodej -->
-                <div class="flex flex-wrap">
-                    <div class="flex flex-wrap justify-between w-full">
+                <div class="book-market">
+                    <div class="book-market-title">
                         <h4>Prodej</h4>
                         <div>
-                            <a href="{% url 'books_market_offers' %}"><small>Zobrazit vše</small></a>
+                            <a href="{% url 'books_market_offers' %}">
+                                <small>Zobrazit vše</small>
+                            </a>
                             {% if user.is_authenticated %}
-                                | <a href="{% url 'user_sell_listings' user.id %}"><small>Zobrazit moje</small></a>
+                                <span> | </span>
+                                <a href="{% url 'user_sell_listings' user.id %}">
+                                    <small>Zobrazit moje</small>
+                                </a>
                             {% endif %}
                         </div>
                     </div>
 
                     {% for listing in recent_sell_listings %}
-                        <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                        <div class="book-market-body">
                             <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
                                 {% if listing.book.img == "noimg.png" %}
-                                    <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz|default:listing.book.title }}" class="rounded-l" style="width: 80px;">
+                                    <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz|default:listing.book.title }}">
                                     {% elif listing.book.img == "GoogleID" %}
-                                    <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz|default:listing.book.title }}" class="rounded-l" style="width: 80px;">
+                                    <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz|default:listing.book.title }}">
                                     {% else %}
-                                    <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;">
+                                    <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}">
                                 {% endif %}
                             </a>
 
-                            <div class="flex flex-wrap content-between h-full p-2" style="flex: 2;">
-                                <p style="width: 100%;"><a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">{{ listing.book.titlecz|default:listing.book.title }}</a></p>
-                                <p style="width: 100%;">{{ listing.book.author }}</p>
-                                <p style="width: 100%;">{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
-                                <p class="text-sm text-end w-full">
+                            <div class="book-market-text">
+                                <p>
+                                    <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+                                        {{ listing.book.titlecz|default:listing.book.title }}
+                                    </a>
+                                </p>
+                                <p>{{ listing.book.author }}</p>
+                                <p>
+                                    {% if listing.price %}
+                                        {{ listing.price|floatformat:0 }} 
+                                        Kč
+                                        {% else %}
+                                        Daruji
+                                    {% endif %}
+                                </p>
+                                <p class="book-market-user">
                                     <small>
                                         Přidal: 
-                                        <a href="{% url 'user_sell_listings' listing.user.id %}">{{ listing.user.username }}</a> | {{ listing.createdat|date:"j.n.Y" }}
+                                        <a href="{% url 'user_sell_listings' listing.user.id %}">
+                                            {{ listing.user.username }}
+                                        </a>
+                                        <span> | </span>
+                                        {{ listing.createdat|date:"j.n.Y" }}
                                     </small>
                                 </p>
                             </div>
@@ -375,37 +403,57 @@
                 <hr>
 
                 <!-- poptávka -->
-                <div class="flex flex-wrap">
-                    <div class="flex flex-wrap justify-between w-full">
+                <div class="book-market">
+                    <div class="book-market-title">
                         <h4>Poptávka</h4>
                         <div>
-                            <a href="{% url 'books_market_wants' %}"><small>Zobrazit vše</small></a>
+                            <a href="{% url 'books_market_wants' %}">
+                                <small>Zobrazit vše</small>
+                            </a>
                             {% if user.is_authenticated %}
-                                | <a href="{% url 'user_buy_listings' user.id %}"><small>Zobrazit moje</small></a>
+                                <span> | </span>
+                                <a href="{% url 'user_buy_listings' user.id %}">
+                                    <small>Zobrazit moje</small>
+                                </a>
                             {% endif %}
                         </div>
                     </div>
 
                     {% for listing in recent_buy_listings %}
-                        <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
+                        <div class="book-market-body">
                             <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">
-                            {% if listing.book.img == "noimg.png" %}
-                                <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz|default:listing.book.title }}" class="rounded-l" style="width: 80px;">
-                                {% elif listing.book.img == "GoogleID" %}
-                                <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz|default:listing.book.title }}" class="rounded-l" style="width: 80px;">
-                                {% else %}
-                                <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;">
-                            {% endif %}
+                                {% if listing.book.img == "noimg.png" %}
+                                    <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz|default:listing.book.title }}">
+                                    {% elif listing.book.img == "GoogleID" %}
+                                    <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz|default:listing.book.title }}">
+                                    {% else %}
+                                    <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}">
+                                {% endif %}
                             </a>
 
-                            <div class="flex flex-wrap content-between h-full p-2" style="flex: 2;">
-                                <p style="width: 100%;"><a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">{{ listing.book.titlecz|default:listing.book.title }}</a></p>
-                                <p style="width: 100%;">{{ listing.book.author }}</p>
-                                <p style="width: 100%;">{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
-                                <p class="text-sm text-end w-full">
+                            <div class="book-market-text">
+                                <p>
+                                    <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">
+                                        {{ listing.book.titlecz|default:listing.book.title }}
+                                    </a>
+                                </p>
+                                <p>{{ listing.book.author }}</p>
+                                <p>
+                                    {% if listing.price %}
+                                        {{ listing.price|floatformat:0 }} 
+                                        Kč
+                                        {% else %}
+                                        Daruji
+                                    {% endif %}
+                                </p>
+                                <p class="book-market-user">
                                     <small>
                                         Přidal: 
-                                        <a href="{% url 'user_buy_listings' listing.user.id %}">{{ listing.user.username }}</a> | {{ listing.createdat|date:"j.n.Y" }}
+                                        <a href="{% url 'user_buy_listings' listing.user.id %}">
+                                            {{ listing.user.username }}
+                                        </a>
+                                        <span> | </span>
+                                        {{ listing.createdat|date:"j.n.Y" }}
                                     </small>
                                 </p>
                             </div>
@@ -420,7 +468,7 @@
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title after-h3">Právě vyšlo</h3>
-                <ul style="width: 100%;" style="list-style-type:none">
+                <ul style="list-style-type:none">
                     <li><a href="https://test.div.cz/kniha/sikmy-kostel-3">Šikmý kostel 3</a></li>
                     <li><a href="https://div.cz/kniha/ctvrte-kridlo">Čtvrté křídlo</a></li>
                     <li><a href="https://div.cz/kniha/murtagh">Murtagh</a></li>
@@ -445,7 +493,7 @@
                     <a href="/odhaleni-kouzla-slova-nobelova-cena-za-literaturu">Nobelova cena za literaturu</a>
                     <a href="https://div.cz/pridej-svou-knihu">Přidej svou e-knihu</a>
                 </div>
-                <div class="text-right">
+                <div style="text-align: right;">
                     {% if user.is_superuser %}
                         <a href="{% url 'article_new' category=category_key %}"><i class="fa-solid fa-plus"></i> Přidat nový článek</a>
                     {% endif %}
