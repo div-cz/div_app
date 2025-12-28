@@ -956,13 +956,13 @@ def send_listing_request_seller_payment(listing,total_user_payment):
 
     msg = PyEmailMessage()
     msg['Subject'] = os.getenv("EMAIL_SUBJECT_REQUEST")
-    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+    msg['From'] = os.getenv("DIVKVARIAT_ADDRESS")
     msg['To'] = recipient
     msg.set_content(html_email, subtype='html')
 
     try:
         with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+            smtp.login(os.getenv("DIVKVARIAT_ADDRESS"), os.getenv("DIVKVARIAT_PASSWORD"))
             smtp.send_message(msg)
         print(f"[✔] Superuser dostal e-mail ohledně žádosti o vyplácení odeslán na {recipient}")
     except Exception as e:
@@ -1433,7 +1433,9 @@ def listing_search_books(request):
         books = Book.objects.filter(
             Q(title__icontains=query) | 
             Q(titlecz__icontains=query) |
-            Q(author__icontains=query)
+            Q(author__icontains=query), 
+            parentid__isnull=True,
+            special__isnull=True
         ).order_by('-divrating')[:20]
         
         results = []
@@ -1475,13 +1477,13 @@ def send_listing_auto_completed_email_buyer(listing):
 
         msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_AUTO_COMPLETED_BUYER").format(title=book.titlecz)
-        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['From'] = os.getenv("DIVKVARIAT_ADDRESS")
         msg['To'] = recipient
         msg.set_content(html_email, subtype='html')
 
         try:
             with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.login(os.getenv("DIVKVARIAT_ADDRESS"), os.getenv("DIVKVARIAT_PASSWORD"))
                 smtp.send_message(msg)
             print(f"[✔] Automatický e-mail o dokončení (kupující) odeslán na {recipient}")
         except Exception as e:
@@ -1522,13 +1524,13 @@ def send_listing_auto_completed_email_seller(listing):
 
         msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_AUTO_COMPLETED_SELLER").format(title=book.titlecz)
-        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['From'] = os.getenv("DIVKVARIAT_ADDRESS")
         msg['To'] = recipient
         msg.set_content(html_email, subtype='html')
 
         try:
             with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.login(os.getenv("DIVKVARIAT_ADDRESS"), os.getenv("DIVKVARIAT_PASSWORD"))
                 smtp.send_message(msg)
             print(f"[✔] Automatický e-mail o dokončení (prodávající) odeslán na {recipient}")
         except Exception as e:
@@ -1556,13 +1558,13 @@ def send_listing_cancel_email(request_or_user, listing):
 
         msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_ACTIVE").format(title=book.title)
-        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['From'] = os.getenv("DIVKVARIAT_ADDRESS")
         msg['To'] = recipient
         msg.set_content(html_email, subtype='html')
 
         try:
             with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.login(os.getenv("DIVKVARIAT_ADDRESS"), os.getenv("DIVKVARIAT_PASSWORD"))
                 smtp.send_message(msg)
             print(f"[✔] E-mail o zrušení rezervace odeslán na {recipient}")
         except Exception as e:
@@ -1599,13 +1601,13 @@ def send_listing_expired_email_buyer(listing):
 
     msg = PyEmailMessage()
     msg['Subject'] = f"Rezervace knihy {book_title} vypršela"
-    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+    msg['From'] = os.getenv("DIVKVARIAT_ADDRESS")
     msg['To'] = buyer.email
     msg.set_content(html_email, subtype='html')
 
     try:
         with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+            smtp.login(os.getenv("DIVKVARIAT_ADDRESS"), os.getenv("DIVKVARIAT_PASSWORD"))
             smtp.send_message(msg)
         print(f"[✔] Automatický e-mail o vypršení rezervace odeslán na {buyer.email}")
     except Exception as e:
@@ -1630,13 +1632,13 @@ def send_listing_paid_expired_email_buyer(listing):
 
     msg = PyEmailMessage()
     msg['Subject'] = f"Objednávka knihy {book.titlecz or book.title} – zrušena"
-    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+    msg['From'] = os.getenv("DIVKVARIAT_ADDRESS")
     msg['To'] = recipient
     msg.set_content(html_email, subtype='html')
 
     try:
         with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+            smtp.login(os.getenv("DIVKVARIAT_ADDRESS"), os.getenv("DIVKVARIAT_PASSWORD"))
             smtp.send_message(msg)
         print(f"[✔] E-mail kupujícímu {recipient} o expirované objednávce byl odeslán.")
     except Exception as e:
@@ -1670,13 +1672,13 @@ def send_listing_paid_expired_email_seller(listing):
 
     msg = PyEmailMessage()
     msg['Subject'] = f"Nabídka knihy {book.titlecz or book.title} – zrušena"
-    msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+    msg['From'] = os.getenv("DIVKVARIAT_ADDRESS")
     msg['To'] = recipient
     msg.set_content(html_email, subtype='html')
 
     try:
         with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-            smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+            smtp.login(os.getenv("DIVKVARIAT_ADDRESS"), os.getenv("DIVKVARIAT_PASSWORD"))
             smtp.send_message(msg)
         print(f"[✔] E-mail prodejci {recipient} o expirované nabídce byl odeslán.")
     except Exception as e:
@@ -1721,13 +1723,13 @@ def send_listing_payment_confirmation_email(listing):
 
         msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_PAID").format(title=book.titlecz)
-        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['From'] = os.getenv("DIVKVARIAT_ADDRESS")
         msg['To'] = recipient
         msg.set_content(html_email, subtype='html')
 
         try:
             with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.login(os.getenv("DIVKVARIAT_ADDRESS"), os.getenv("DIVKVARIAT_PASSWORD"))
                 smtp.send_message(msg)
             print(f"[✔] Potvrzení platby odesláno kupujícímu na {recipient}")
         except Exception as e:
@@ -1779,13 +1781,13 @@ def send_listing_payment_email(listing):
 
         msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_PAID").format(title=book.titlecz)
-        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['From'] = os.getenv("DIVKVARIAT_ADDRESS")
         msg['To'] = recipient
         msg.set_content(html_email, subtype='html')
 
         try:
             with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.login(os.getenv("DIVKVARIAT_ADDRESS"), os.getenv("DIVKVARIAT_PASSWORD"))
                 smtp.send_message(msg)
             print(f"[✔] E-mail o zaplacení odeslán prodávajícímu na {recipient}")
         except Exception as e:
@@ -1817,13 +1819,13 @@ def send_listing_payment_request_confirmed(listing, amount_to_seller):
 
         msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_REQUEST_CONFIRMED")
-        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['From'] = os.getenv("DIVKVARIAT_ADDRESS")
         msg['To'] = recipient
         msg.set_content(html_email, subtype='html')
 
         try:
             with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.login(os.getenv("DIVKVARIAT_ADDRESS"), os.getenv("DIVKVARIAT_PASSWORD"))
                 smtp.send_message(msg)
             print(f"[✔] Uživatel dostal e-mail ohledně potvrzení o vyplácení odeslán na {recipient}")
         except Exception as e:
@@ -1882,13 +1884,13 @@ def send_listing_reservation_email(request, listing_id):
 
             msg = PyEmailMessage()
             msg['Subject'] = os.getenv("EMAIL_SUBJECT_RESERVED").format(title=book.titlecz)
-            msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+            msg['From'] = os.getenv("DIVKVARIAT_ADDRESS")
             msg['To'] = recipient
             msg.set_content(html_email, subtype='html')
 
             try:
                 with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-                    smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                    smtp.login(os.getenv("DIVKVARIAT_ADDRESS"), os.getenv("DIVKVARIAT_PASSWORD"))
                     smtp.send_message(msg)
                 print(f"[✔] Rezervační e-mail odeslán na {recipient}")
             except Exception as e:
@@ -1931,12 +1933,12 @@ def send_listing_shipped_email(listing):
         html_email = render_to_string('emails/listing_shipped_information_buyer.html', context)
         msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_SHIPPED").format(title=book.titlecz)
-        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['From'] = os.getenv("DIVKVARIAT_ADDRESS")
         msg['To'] = buyer.email
         msg.set_content(html_email, subtype='html')
         try:
             with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.login(os.getenv("DIVKVARIAT_ADDRESS"), os.getenv("DIVKVARIAT_PASSWORD"))
                 smtp.send_message(msg)
         except Exception as e:
             print(f"[✖] Chyba při odesílání e-mailu: {e}")
@@ -1977,13 +1979,13 @@ def send_listing_completed_email_buyer(listing):
 
         msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_COMPLETED_BUYER").format(title=book.titlecz)
-        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['From'] = os.getenv("DIVKVARIAT_ADDRESS")
         msg['To'] = recipient
         msg.set_content(html_email, subtype='html')
 
         try:
             with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.login(os.getenv("DIVKVARIAT_ADDRESS"), os.getenv("DIVKVARIAT_PASSWORD"))
                 smtp.send_message(msg)
             print(f"[✔] E-mail o dokončení obchodu (kupující) odeslán na {recipient}")
         except Exception as e:
@@ -2025,13 +2027,13 @@ def send_listing_completed_email_seller(listing):
 
         msg = PyEmailMessage()
         msg['Subject'] = os.getenv("EMAIL_SUBJECT_COMPLETED_SELLER").format(title=book.titlecz)
-        msg['From'] = os.getenv("ANTIKVARIAT_ADDRESS")
+        msg['From'] = os.getenv("DIVKVARIAT_ADDRESS")
         msg['To'] = recipient
         msg.set_content(html_email, subtype='html')
 
         try:
             with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-                smtp.login(os.getenv("ANTIKVARIAT_ADDRESS"), os.getenv("ANTIKVARIAT_PASSWORD"))
+                smtp.login(os.getenv("DIVKVARIAT_ADDRESS"), os.getenv("DIVKVARIAT_PASSWORD"))
                 smtp.send_message(msg)
             print(f"[✔] E-mail o dokončení obchodu (prodávající) odeslán na {recipient}")
         except Exception as e:

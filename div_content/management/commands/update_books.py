@@ -51,7 +51,13 @@ class Command(BaseCommand):
             action='store_true',
             help='Test s jednou knihou'
         )
-    
+        parser.add_argument(
+            "--start-page",
+            type=int,
+            default=1,
+            help="Start page for Dobrovsky pagination"
+        )
+
     def handle(self, *args, **options):
         """Hlavná metóda management commandu"""
         
@@ -69,6 +75,8 @@ class Command(BaseCommand):
         verbose = options['verbose']
         force_update = options['force_update']
         limit = options['limit']
+        start_page = options['start_page']
+
         
         # Test mode
         if options['test_single']:
@@ -82,7 +90,9 @@ class Command(BaseCommand):
                 f"🚀 Spúšťam aktualizáciu kníh z Dobrovský ({mode})"
             )
         )
-        self.stdout.write(f"📋 Parametre: limit={limit}, force_update={force_update}")
+        self.stdout.write(
+            f"📋 Parametre: limit={limit}, force_update={force_update}, start_page={start_page}"
+        )
         
         try:
             # Vytvor service
@@ -96,7 +106,8 @@ class Command(BaseCommand):
                 
                 result = update_service.update_books_from_dobrovsky(
                     limit=limit,
-                    force_update=force_update
+                    force_update=force_update,
+                    start_page=start_page
                 )
             
             # Výsledný report

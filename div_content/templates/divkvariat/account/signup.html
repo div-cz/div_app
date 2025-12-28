@@ -25,23 +25,46 @@
         Účet je univerzální a propojený.
     </p>
 
+    <!-- JEN JEDEN FORMULÁŘ -->
     <form method="post" action="{% url 'account_signup' %}">
         {% csrf_token %}
-        {{ form.non_field_errors }}
-
-        {% for field in form %}
+        
+        <!-- Username -->
         <div class="mb-4">
-            <label class="block text-sm mb-2">{{ field.label }}</label>
-            <input type="{{ field.field.widget.input_type }}"
-                   name="{{ field.name }}"
-                   value="{{ field.value|default_if_none:'' }}"
-                   class="auth-input">
-            <div class="text-red-400 text-sm">{{ field.errors }}</div>
+            <label class="block text-sm mb-2">Uživatelské jméno *</label>
+            <input type="text" name="username" value="{{ form.username.value|default_if_none:'' }}" class="auth-input" required>
+            <div class="text-red-400 text-sm">{{ form.username.errors }}</div>
         </div>
-        {% endfor %}
-
-        <button type="submit"
-                class="w-full py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold">
+        
+        <!-- Email - FIX: přepsat label -->
+        <div class="mb-4">
+            <label class="block text-sm mb-2">E-mail *</label>
+            <input type="email" name="email" value="{{ form.email.value|default_if_none:'' }}" class="auth-input" required>
+            <div class="text-red-400 text-sm">{{ form.email.errors }}</div>
+        </div>
+        
+        <!-- Password 1 -->
+        <div class="mb-4">
+            <label class="block text-sm mb-2">Heslo *</label>
+            <input type="password" name="password1" class="auth-input" required>
+            <div class="text-red-400 text-sm">{{ form.password1.errors }}</div>
+        </div>
+        
+        <!-- Password 2 -->
+        <div class="mb-4">
+            <label class="block text-sm mb-2">Heslo znovu *</label>
+            <input type="password" name="password2" class="auth-input" required>
+            <div class="text-red-400 text-sm">{{ form.password2.errors }}</div>
+        </div>
+        
+        <!-- Honeypot pokud existuje -->
+        {% if form.honeypot %}
+        <div style="display:none;">
+            {{ form.honeypot }}
+        </div>
+        {% endif %}
+        
+        <button type="submit" class="w-full py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold">
             Zaregistrovat se
         </button>
     </form>
