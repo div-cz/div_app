@@ -7,8 +7,8 @@
 
         <title>Chat</title>
 
-        <link href="/static/css/chat.css" rel="stylesheet">
-        <link href="/static/css/navbar_other.css" rel="stylesheet">
+        <link href="/web/css/chat.css" rel="stylesheet">
+        <link href="/web/css/navbar_other.css" rel="stylesheet">
 
     </head>
 
@@ -44,55 +44,55 @@
                             <ul id="chatSearchResults" class="list-group"></ul>
 
                             <ul class="users">
-                            {% for chat_session in all_chat_sessions %}
-                                {% if chat_session.messages.last %}
-                                    {% if chat_session.user1 == request.user %}
-                                    <a 
-                                    class="person {% if chat_session.user2.id == receiver.id %}active-user{% endif %}" 
-                                    href="{% url 'chat_message' user_id=chat_session.user2.id %}">
-                                        <li data-chat="person1">
-                                            <div class="msg-user">
-                                                <img src="/static/img/avatar/{{ chat_session.user2.userprofile.avatar.imagepath}}" alt="Avatar">
-                                            </div>
-                                            <div class="name-time">
-                                                <div class="name">
-                                                    <p>{{ chat_session.user2.username }}</p>
-                                                    {% if not chat_session.messages.last.isread and request.user != chat_session.messages.last.sender  %}
-                                                    <i class="fa-regular fa-envelope" style="color: red; font-size: 20px; margin: 0;"></i>
-                                                    {% endif %}
+                                {% for chat_session in all_chat_sessions %}
+                                    {% if chat_session.messages.last %}
+                                        {% if chat_session.user1 == request.user %}
+                                        <a 
+                                        class="person {% if chat_session.user2.id == receiver.id %}active-user{% endif %}" 
+                                        href="{% url 'chat_message' user_id=chat_session.user2.id %}">
+                                            <li data-chat="person1">
+                                                <div class="msg-user">
+                                                    <img src="/static/img/avatar/{{ chat_session.user2.userprofile.avatar.imagepath}}" alt="Avatar">
                                                 </div>
-                                                <div class="date">
-                                                    <p>{{ chat_session.messages.last.sentat|date:"j. F Y" }}</p>
-                                                    <p class="time">{{ chat_session.messages.last.sentat | time:"H:i" }}</p>
+                                                <div class="name-time">
+                                                    <div class="name">
+                                                        <p>{{ chat_session.user2.username }}</p>
+                                                        {% if not chat_session.messages.last.isread and request.user != chat_session.messages.last.sender  %}
+                                                        <i class="fa-regular fa-envelope" style="color: red; font-size: 20px; margin: 0;"></i>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="date">
+                                                        <p>{{ chat_session.messages.last.sentat|date:"j. F Y" }}</p>
+                                                        <p class="time">{{ chat_session.messages.last.sentat | time:"H:i" }}</p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </li>
-                                    </a>
-                                    {% else %}
-                                    <a 
-                                    class="person {% if chat_session.user2.id == receiver.id %}active-user{% endif %}" 
-                                    href="{% url 'chat_message' user_id=chat_session.user1.id %}">
-                                        <li data-chat="person1">
-                                            <div class="msg-user">
-                                                <img src="/static/img/avatar/{{ chat_session.user1.userprofile.avatar.imagepath}}" alt="Avatar">
-                                            </div>
-                                            <div class="name-time">
-                                                <div class="name">
-                                                    <p>{{ chat_session.user1.username }}</p>
-                                                    {% if not chat_session.messages.last.isread and request.user != chat_session.messages.last.sender  %}
-                                                    <i class="fa-regular fa-envelope" style="color: red; font-size: 20px; margin: 0;"></i>
-                                                    {% endif %}
+                                            </li>
+                                        </a>
+
+                                        {% else %}
+                                        <a class="person {% if chat_session.user2.id == receiver.id %}active-user{% endif %}" 
+                                        href="{% url 'chat_message' user_id=chat_session.user1.id %}">
+                                            <li data-chat="person1">
+                                                <div class="msg-user">
+                                                    <img src="/static/img/avatar/{{ chat_session.user1.userprofile.avatar.imagepath}}" alt="Avatar">
                                                 </div>
-                                                <div class="date">
-                                                    <p>{{ chat_session.messages.last.sentat|date:"j. F Y" }}</p>
-                                                    <p class="time">{{ chat_session.messages.last.sentat | time:"H:i" }}</p>
+                                                <div class="name-time">
+                                                    <div class="name">
+                                                        <p>{{ chat_session.user1.username }}</p>
+                                                        {% if not chat_session.messages.last.isread and request.user != chat_session.messages.last.sender  %}
+                                                            <i class="fa-regular fa-envelope" style="color: red; font-size: 20px; margin: 0;"></i>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="date">
+                                                        <p>{{ chat_session.messages.last.sentat|date:"j. F Y" }}</p>
+                                                        <p class="time">{{ chat_session.messages.last.sentat | time:"H:i" }}</p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </li>
-                                    </a>    
-                                    {% endif %}
-                                {% endif %}                    
-                            {% endfor %}
+                                            </li>
+                                        </a>    
+                                        {% endif %}
+                                    {% endif %}                    
+                                {% endfor %}
                             </ul>
                         </div>
                     </div>
@@ -107,16 +107,13 @@
                         <span class="name"></span>
                     </div>
                     <div class="chat-container">
-                        <img src="/static/img/chat/bg-chat.webp" alt="logo div" style="height: 100%; margin: 0 auto; filter: blur(2px);">
+                        <!-- <img src="/static/img/chat/bg-chat.webp" alt="logo div" style="height: 100%; margin: 0 auto; filter: blur(2px);"> -->
                     </div>
                 </div>
             </div>
         </main>
     
         {% include "inc/footer.html" %}
-    
-        <script src="/static/js/script.js"></script>
-        <script src="/static/js/searchUserForChat.js"></script>
     
         <script>
             document.addEventListener('DOMContentLoaded', function () {
