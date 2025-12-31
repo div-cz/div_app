@@ -37,23 +37,20 @@
     {% endfor %}
 </div>
 
-
 <!-- Poslední příspěvky -->
-<div>
-    <h3 style="margin-top:2.5rem; margin-bottom:.75rem; width:100%;">📌 Poslední příspěvky</h3>
-
-    <div class="">
-        {% if latest_comments %}
-            {% for comment in latest_comments %}
-                <ul class="card-body" style="margin-bottom:.5rem; border: 1px solid #dee2e6;">
-                    <!-- Titulek vlákna -->
-                    <li class="last-post">
-                        <a class="{% if comment.topic.section.slug == 'filmy' %}movies
+<div class="latest-posts">
+    <h3 class="latest-title">&#128204; Poslední příspěvky</h3>
+    {% if latest_comments %}
+        {% for comment in latest_comments %}
+            <div class="last-post-card">
+                <div>
+                    <div class="lp-header">
+                        <a class="lp-title
+                            {% if comment.topic.section.slug == 'filmy' %}movies
                             {% elif comment.topic.section.slug == 'knihy' %}books
                             {% elif comment.topic.section.slug == 'hry' %}games
                             {% endif %}"
-                            style="font-weight:600;"
-                            href="{% url 'forum_topic_detail' slug=comment.topic.section.slug topicurl=comment.topic.topicurl %}">
+                        href="{% url 'forum_topic_detail' slug=comment.topic.section.slug topicurl=comment.topic.topicurl %}">
                             {{ comment.topic.title }}
                         </a>
 
@@ -66,25 +63,26 @@
                             {% elif comment.topic.section.slug == "obecne" %}
                             <p class="">&#128172; Ostatní</p>
                         {% endif %}
-                    </li>
+                    </div>
 
-                    <hr>
+                    <div class="lp-body">
+                        {{ comment.body|striptags|truncatechars:120 }}
+                    </div>
+                </div>
 
-                    <!-- Info o komentáři -->
-                    <li class="last-comment">
-                        <p>
-                            {{ comment.body|striptags|truncatechars:120 }}
-                        </p>
-                        <small style="white-space: nowrap;">
-                            <a style="margin-right: .5rem;" href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">{{ comment.user.username|default:"Smazaný uživatel" }}</a> 
-                            {{ comment.createdat|date:"d.m.Y H:i" }}
-                        </small>
-                    </li>
-                </ul>
-            {% endfor %}
-        {% endif %}
-    </div>
+                <div class="lp-footer">
+                    <a href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">
+                        {{ comment.user.username|default:"Smazaný uživatel" }}
+                    </a>
+                    <span class="dot">•</span>
+                    {{ comment.createdat|date:"d.m.Y H:i" }}
+                </div>
+
+            </div>
+        {% endfor %}
+    {% endif %}
 </div>
+
 {% endblock content %}
 
 {% block script %}

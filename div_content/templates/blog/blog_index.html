@@ -62,55 +62,49 @@
 </div>
 
 <!-- Poslední příspěvky -->
-<div>
-    <h3 style="margin-top:2.5rem; margin-bottom:.75rem; width:100%;">📌 Poslední příspěvky</h3>
-
-    <div class="">
+<div class="latest-posts">
+    <h3 class="latest-title">&#128204; Poslední příspěvky</h3>
     {% if latest_posts %}
         {% for post in latest_posts %}
-        <ol class="card-body" style="margin-bottom: .5rem; border: 1px solid #dee2e6;">
-            <!-- Titulek příspěvku -->
-            <li class="last-post">
-                <a class="{% if post.articleblog.blog_type == 'movie' %}movies
-                        {% elif post.articleblog.blog_type == 'book' %}books
-                        {% elif post.articleblog.blog_type == 'game' %}games
-                        {% endif %}"
-                    style="font-weight:600;"
-                    href="{% url 'blog_post_detail' blog_slug=post.articleblog.slug post_slug=post.slug %}">
-                    {{ post.title }}
-                </a>
+            <div class="last-post-card">
+                <div>
+                    <div class="lp-header">
+                        <a class="lp-title
+                            {% if post.articleblog.blog_type == 'movie' %}movies
+                            {% elif post.articleblog.blog_type == 'book' %}books
+                            {% elif post.articleblog.blog_type == 'game' %}games
+                            {% endif %}"
+                        href="{% url 'blog_post_detail' blog_slug=post.articleblog.slug post_slug=post.slug %}">
+                            {{ post.title }}
+                        </a>
 
-                {% if post.articleblog.blog_type == "movie" %}
-                    <p class="movies">&#127916; Filmy</p>
-                    {% elif post.articleblog.blog_type == "book" %}
-                    <p class="books">&#128214; Knihy</p>
-                    {% elif post.articleblog.blog_type == "game" %}
-                    <p class="games">&#127918; Hry</p>
-                    {% else %}
-                    <p class="">&#128172; Obecné</p>
-                {% endif %}
-            </li>
+                        {% if post.articleblog.blog_type == "movie" %}
+                            <p class="movies">&#127916; Filmy</p>
+                            {% elif post.articleblog.blog_type == "book" %}
+                            <p class="books">&#128214; Knihy</p>
+                            {% elif post.articleblog.blog_type == "game" %}
+                            <p class="games">&#127918; Hry</p>
+                            {% else %}
+                            <p class="">&#128172; Obecné</p>
+                        {% endif %}
+                    </div>
 
-            <hr>
+                    <div class="lp-body">
+                        {{ post.content|striptags|truncatechars:120 }}
+                    </div>
+                </div>
 
-            <!-- Info o komentáři -->
-            <li class="last-comment">
-                <p>
-                    {{ post.content|striptags|truncatechars:120 }}
-                </p>
-                <small style="white-space: nowrap;">
-                    <a style="margin-right: .5rem;" href="">{{ post.user.username|default:"Smazaný uživatel" }}</a>
+                <div class="lp-footer">
+                    <a href="">
+                        {{ post.user.username|default:"Smazaný uživatel" }}
+                    </a>
+                    <span class="dot">•</span>
                     {{ post.published_at|date:"d.m.Y H:i" }}
-                </small>
-            </li>
-        </ol>
-        {% endfor %}
-        
-        {% else %}
-        <p>Zatím žádné příspěvky.</p>
-    {% endif %}
-    </div>
-</div>
+                </div>
 
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
 
 {% endblock content %}

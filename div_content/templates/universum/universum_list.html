@@ -19,27 +19,38 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h1 style="width: 100%;">Seznam světů</h1>
-        <ul class="list-group">
-            {% for universum in universa %}
-                <li class="list-group-item">
-                    {% if universum.universumurl %}
-                        <a href="{% url 'universum_detail' universum_url=universum.universumurl %}">
-                            {% if universum.universumnamecz %}
-                            {{ universum.universumnamecz }}
-                            {% else %}
-                            {{ universum.universumname }}
-                            {% endif %}
-                        </a>
-                        
-                        {% else %}
-                        <span>
-                            {{ universum.universumname }} ({{ universum.universumnamecz }})
+
+<div class="container universa">
+    <h1 class="page-title">&#129680; Ze světa...</h1>
+    <div class="universa-grid">
+        {% for universum in universa %}
+            <div class="universum-card">
+                {% if universum.universumurl %}
+                    <a class="universum-link"
+                       href="{% url 'universum_detail' universum_url=universum.universumurl %}">
+                        <span class="universum-name">
+                            {{ universum.universumnamecz|default:universum.universumname }}
                         </span>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
+                        {% if universum.universumnamecz %}
+                            <span class="universum-original">
+                                {{ universum.universumname }}
+                            </span>
+                        {% endif %}
+                    </a>
+
+                    {% else %}
+                    <div class="universum-link disabled">
+                        <span class="universum-name">
+                            {{ universum.universumname }}
+                        </span>
+                        <span class="universum-original">
+                            {{ universum.universumnamecz }}
+                        </span>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
     </div>
+</div>
+
 {% endblock %}

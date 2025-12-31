@@ -156,10 +156,10 @@
 
                         <li><strong>Premiéra:</strong> {{ tvshow.premieredate|date:"d.m.Y"|default:"Datum premiéry není dostupné" }}</li>
                         <li><strong>Konec vysílání:</strong> 
-                                {% if tvshow.status == "Returning Series" %} Stále se natáčí 
-                                {% else %} 
-                                {{ tvshow.enddate|date:"d.m.Y"|default:"Datum konce vysílání není dostupné" }}
-                                {% endif %}
+                            {% if tvshow.status == "Returning Series" %} Stále se natáčí 
+                            {% else %} 
+                            {{ tvshow.enddate|date:"d.m.Y"|default:"Datum konce vysílání není dostupné" }}
+                            {% endif %}
                         </li>
                         
                         {% if directors %}
@@ -635,7 +635,7 @@
         {% if request.user.is_superuser %}
             <div class="card">
                 <div class="card-body">
-                    <h3 class="card-title">Přidat na hlavní stranu</h3>
+                    <h3 class="card-title after-h3">Přidat na hlavní stranu</h3>
                     <form method="post">
                         {% csrf_token %}
                         <button type="submit" name="add_to_metaindex" class="btn add-movie">
@@ -650,7 +650,7 @@
         {% if request.user.is_superuser or request.user.is_staff %}
             <div class="card">
                 <div class="card-body">
-                    <h3 class="card-title">Upravit DIV Rating</h3>
+                    <h3 class="card-title after-h3">Upravit DIV Rating</h3>
                     <form method="post">
                         {% csrf_token %}
                         {{ tvshow_div_rating_form.as_p }}
@@ -707,9 +707,7 @@
         <!-- SDÍLET NA SÍTÍCH -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">{{ tvshow.titlecz }}</h3>
-                <p style="width: 100%;">Sdílet na:</p>
-
+                <h3 class="card-title after-h3">Sdílet na</h3>
                 <!-- Facebook Share Button -->
                 <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/film/{{ tvshow.url }}" class="btn btn-facebook" style="color: white;" target="_blank" title="Facebook">
                     <i class="fab fa-facebook-f"></i>

@@ -8,7 +8,7 @@
 
 {% block meta %}
     <style>
-        .rating {
+        .rating-list {
             position: relative;
             width: 50px;
             height: 50px;
@@ -19,7 +19,7 @@
             box-shadow: 0px 8px 16px rgb(147 147 147);
         }
 
-        .rating::before {
+        .rating-list::before {
             content: '';
             position: absolute;
             top: 3px;
@@ -32,7 +32,7 @@
             margin: 0;
         }
 
-        .rating::after {
+        .rating-list::after {
             content: '';
             position: absolute;
             top: 0;
@@ -49,7 +49,7 @@
             margin: 0;
         }
 
-        .rating-inner {
+        .rating-list-inner {
             position: relative;
             z-index: 3;
             width: 100%;
@@ -64,17 +64,17 @@
             margin-right: -10px; */
         }
 
-        .rating-inner span {
+        .rating-list-inner span {
             font-size: 10px;
             margin-left: 2px;
             color: #ffd700;
         }
 
-        .rating:is(.dark *) {
+        .rating-list:is(.dark *) {
             box-shadow: none;
         }
         
-        .title-rating {
+        .title-rating-list {
             display: flex; 
             justify-content: end; 
             width: 100%; 
@@ -115,15 +115,17 @@
                     
                     <div class="card-body" style="border-radius: 0 0 .5rem .5rem !important;">
                         <!-- hodnocení -->
-                        <div class="title-rating">
-                            <div class="rating" data-rating="{{ movie.average_rating }}">
-                                <div class="rating-inner">
+                        <div class="title-rating-list">
+                            <div class="rating-list" data-rating="{{ movie.average_rating }}">
+                                <div class="rating-list-inner">
                                     {{ movie.average_rating }}%
                                 </div>
                             </div>
                         </div>
                         
-                        <h4 class="card-title"><a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a></h4>
+                        <h4 class="card-title">
+                            <a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a>
+                        </h4>
                         <p class="card-text">{{ movie.description }}</p>
                     </div>
                 </div>
