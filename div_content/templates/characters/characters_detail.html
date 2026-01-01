@@ -42,6 +42,11 @@
     .game a.active {
         background-color: #0A76A9;
     }
+
+    .info-bar {
+        justify-content: space-between;
+    }
+
 </style>
 
 {% endblock %}
@@ -52,7 +57,7 @@
     <!-- LEVÁ STRANA -->
     <div class="left-side">
         <div class="info-bar">
-            <h2 style="width:100%; margin-bottom:0;">
+            <h2>
                 {{ character.charactername }} 
                     {% if character.characterborn %}
                     <small class="text-muted">({{ character.characterborn|date:"Y" }})</small>
@@ -64,10 +69,10 @@
                 <div class="heart">
                     {% if not is_favorite %}
                     <a href="{% url 'add_character_to_favorites' character.characterid %}" class="flex relative">
-                        <i class="far fa-regular fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} #ffffff {% endif %}" title="přidat do oblíbených"></i>
+                        <i class="far fa-regular fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} unset {% endif %}" title="přidat do oblíbených"></i>
                     {% else %}
                     <a href="{% url 'remove_character_from_favorites' character.characterid %}" class="flex relative">
-                        <i class="fas fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} #ffffff {% endif %}" title="odebrat z oblíbených"></i>
+                        <i class="fas fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} unset {% endif %}" title="odebrat z oblíbených"></i>
                     {% endif %}
                     </a>
                 </div>
@@ -101,7 +106,7 @@
 
         <!-- BIOGRAFIE -->
         {% if characterbiography.verificationstatus == "Verified" %}
-            <div class="character-biography w-full">
+            <div class="character-biography">
                 {% if characterbiography.charactersource %}
                     <p>{{ characterbiography.charactersource }}</p>
                 {% endif %}
@@ -280,6 +285,26 @@
                             </div>
                         </div>
                     {% endif %}
+
+                    <!-- PAGINÁTOR -->
+                    <div class="pagination">
+                        <span class="step-links">
+                        
+                            <a class="first-page" href="">&laquo; První</a>
+                            <a href="">Předchozí</a>
+                        
+
+                        <span class="current-page">
+                            1 / 1
+                        </span>
+
+                        
+                            <a href="">Další</a>
+                            <a class="last-page" href="">Poslední &raquo;</a>
+                        
+                        </span>
+                    </div>
+
                 </div>
             </div>
 
@@ -351,6 +376,26 @@
                             </div>
                         </div>
                     {% endif %}
+
+                    <!-- PAGINÁTOR -->
+                    <div class="pagination">
+                        <span class="step-links">
+                        
+                            <a class="first-page" href="">&laquo; První</a>
+                            <a href="">Předchozí</a>
+                        
+
+                        <span class="current-page">
+                            1 / 1
+                        </span>
+
+                        
+                            <a href="">Další</a>
+                            <a class="last-page" href="">Poslední &raquo;</a>
+                        
+                        </span>
+                    </div>
+
                 </div>
             </div>
 
@@ -421,6 +466,26 @@
                             </div>
                         </div>
                     {% endif %}
+
+                    <!-- PAGINÁTOR -->
+                    <div class="pagination">
+                        <span class="step-links">
+                        
+                            <a class="first-page" href="">&laquo; První</a>
+                            <a href="">Předchozí</a>
+                        
+
+                        <span class="current-page">
+                            1 / 1
+                        </span>
+
+                        
+                            <a href="">Další</a>
+                            <a class="last-page" href="">Poslední &raquo;</a>
+                        
+                        </span>
+                    </div>
+
                 </div>
             </div>
 
@@ -433,7 +498,7 @@
         <!-- FANOUŠCI -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">Fanoušci</h3>
+                <h3 class="card-title after-h3">&#10084;&#65039; Fanoušci</h3>
                 <div class="fans">
                     {% if fans %}
                         {% for fan in fans %}
@@ -444,33 +509,6 @@
                         <p>Zatím žádní fanoušci.</p>
                     {% endif %}
                 </div>
-            </div>
-        </div>
-
-        <!-- SDÍLET NA SÍTÍCH -->
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title after-h3"></h3>
-                <p class="card-text">Sdílet na:</p>
-                <!-- Facebook Share Button -->
-                <a href="" class="btn btn-facebook" style="color: white;" target="_blank" title="Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-
-                <!-- Twitter Share Button -->
-                <a href="" class="btn btn-twitter" style="color: white;" target="_blank" title="Twitter">
-                    <i class="fab fa-twitter"></i>
-                </a>
-
-                <!-- E-mail Share Button -->
-                <a href="" class="btn btn-email" style="color: white;" title="E-mail">
-                    <i class="fas fa-envelope"></i>
-                </a>
-
-                <!-- WhatsApp Share Button -->
-                <a href="" class="btn btn-whatsapp" target="_blank" style="color: white;" title="WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                </a>
             </div>
         </div>
 
@@ -498,10 +536,36 @@
             </div>
         </div>
 
+        <!-- SDÍLET NA SÍTÍCH -->
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title after-h3">&#128279; Sdílet na</h3>
+                <!-- Facebook Share Button -->
+                <a href="" class="btn btn-facebook" style="color: white;" target="_blank" title="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+
+                <!-- Twitter Share Button -->
+                <a href="" class="btn btn-twitter" style="color: white;" target="_blank" title="Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+
+                <!-- E-mail Share Button -->
+                <a href="" class="btn btn-email" style="color: white;" title="E-mail">
+                    <i class="fas fa-envelope"></i>
+                </a>
+
+                <!-- WhatsApp Share Button -->
+                <a href="" class="btn btn-whatsapp" target="_blank" style="color: white;" title="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+
         <!-- TAGS -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">Tagy</h3>
+                <h3 class="card-title after-h3">&#127991;&#65039; Tagy</h3>
                 <div class="tags">
 
                 <span class="tag-detail label">

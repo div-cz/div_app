@@ -743,7 +743,8 @@
                             <div class="card-body">
                                 <h3 class="card-title after-h3">&#127874; Narozeniny slaví</h3>
 
-                               
+                                {% load cache %}
+                                {% cache 28800 creators_list_birth %}
                                     <div class="birthday-list">
                                         {% for creator in creators_list_8 %}
                                             <div class="birthday-item">
@@ -778,7 +779,7 @@
                                             </div>
                                         {% endfor %}
                                     </div>
-                                
+                                {% endcache %}
 
                                 <a href="#" class="birthday-more">
                                     <small>Zobrazit další</small>
@@ -813,9 +814,7 @@
                         <!-- BURZA KNIH -->
                         <div class="card">
                             <div class="card-body">
-                                <div class="card-title after-h3">
-                                    <h3>Burza knih</h3>
-                                </div>
+                                <h3 class="card-title after-h3">&#128717; Burza knih</h3>
 
                                 <!-- prodej -->
                                 <div class="book-market">
@@ -857,10 +856,10 @@
                                                 <p class="book-market-user">
                                                     <small>
                                                         Přidal: 
-                                                        <a href="{% url 'user_sell_listings' listing.user.id %}">
+                                                        <a href="{% url 'user_sell_listings' listing.user.id %}" class="books">
                                                             {{ listing.user.username }}
                                                         </a>
-                                                        <span> | </span>
+                                                        <span> • </span>
                                                         {{ listing.createdat|date:"j.n.Y" }}
                                                     </small>
                                                 </p>
@@ -912,10 +911,10 @@
                                                 <p class="book-market-user">
                                                     <small>
                                                         Přidal: 
-                                                        <a href="{% url 'user_buy_listings' listing.user.id %}">
+                                                        <a href="{% url 'user_buy_listings' listing.user.id %}" class="books">
                                                             {{ listing.user.username }}
                                                         </a>
-                                                        <span> | </span>
+                                                        <span> • </span>
                                                         {{ listing.createdat|date:"j.n.Y" }}
                                                     </small>
                                                 </p>
@@ -929,7 +928,7 @@
                         <!-- licence her -->
                         <div class="card">
                             <div class="card-body">
-                                <h3 class="card-title after-h3">Licence her</h3>
+                                <h3 class="card-title after-h3">&#128274; Licence her</h3>
                                 <ul>
                                     <li>Playstation Store<!--, kredit 500,--></li>
                                     <li>xBox Store<!--, kredit 1000,--></li>

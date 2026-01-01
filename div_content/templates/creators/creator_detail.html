@@ -23,7 +23,11 @@
 {% endcomment %}
 
 {% block meta %}
-
+    <style>
+        .info-bar {
+            justify-content: space-between;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -32,7 +36,7 @@
     <!-- LEVÁ STRANA -->
     <div class="left-side">
         <div class="info-bar">
-            <h2 style="width:100%; margin-bottom:0;"> 
+            <h2> 
                 {{ creator.firstname }} {{ creator.lastname }} 
                 {% if creator.birthdate %}
                     <small class="text-muted">({{ creator.birthdate|date:"Y" }})</small>
@@ -44,10 +48,10 @@
                 <div class="heart">
                     {% if not is_favorite %}
                     <a href="{% url 'add_creator_to_favourites' creatorid=creator.creatorid %}">
-                        <i class="far fa-regular fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} #ffffff {% endif %};" title="přidat do oblíbených"></i>
+                        <i class="far fa-regular fa-heart" style="color: {% if is_favorite %} #ED3F2F {% else %} unset {% endif %};" title="přidat do oblíbených"></i>
                     {% else %}
                     <a href="{% url 'remove_creator_from_favourites' creatorid=creator.creatorid %}">
-                        <i class="fas fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} #ffffff {% endif %}" title="odebrat z oblíbených"></i>
+                        <i class="fas fa-heart" style="color: {% if is_favorite %} #ED3F2F {% else %} unset {% endif %}" title="odebrat z oblíbených"></i>
                     {% endif %}
                     </a>
                 </div>
@@ -191,6 +195,25 @@
                             </div>
                         </div>
                     {% endfor %}
+
+                    <!-- PAGINÁTOR -->
+                    <div class="pagination">
+                        <span class="step-links">
+                        
+                            <a class="first-page" href="">&laquo; První</a>
+                            <a href="">Předchozí</a>
+                        
+
+                        <span class="current-page">
+                            1 / 1
+                        </span>
+
+                        
+                            <a href="">Další</a>
+                            <a class="last-page" href="">Poslední &raquo;</a>
+                        
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -247,6 +270,25 @@
                             </div>
                         </div>
                     {% endfor %}
+
+                    <!-- PAGINÁTOR -->
+                    <div class="pagination">
+                        <span class="step-links">
+                        
+                            <a class="first-page" href="">&laquo; První</a>
+                            <a href="">Předchozí</a>
+                        
+
+                        <span class="current-page">
+                            1 / 1
+                        </span>
+
+                        
+                            <a href="">Další</a>
+                            <a class="last-page" href="">Poslední &raquo;</a>
+                        
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -258,7 +300,7 @@
         <!-- FANOUŠCI -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">Fanoušci</h3>
+                <h3 class="card-title after-h3">&#10084;&#65039; Fanoušci</h3>
                 <div class="fans">
                     {% if fans %}
                         {% for fan in fans %}
@@ -285,36 +327,10 @@
             </div>
         {% endif %}
 
-        <!-- SDÍLET NA SÍTÍCH -->
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title after-h3">Sdílet na</h3>
-                <!-- Facebook Share Button -->
-                <a href="" class="btn btn-facebook" target="_blank" title="Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-
-                <!-- Twitter Share Button -->
-                <a href="" class="btn btn-twitter" target="_blank" title="Twitter">
-                    <i class="fab fa-twitter"></i>
-                </a>
-
-                <!-- E-mail Share Button -->
-                <a href="" class="btn btn-email" title="E-mail">
-                    <i class="fas fa-envelope"></i>
-                </a>
-
-                <!-- WhatsApp Share Button -->
-                <a href="" class="btn btn-whatsapp" target="_blank" title="WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                </a>
-            </div>
-        </div>
-
         <!-- DALŠÍ OSOBNOSTI -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">Další osobnosti</h3>
+                <h3 class="card-title after-h3">&#129489; Další osobnosti</h3>
                 <ul>
                     <li>
                     <a href="https://div.cz/tvurce/libuse-safrankova">Libuše Šafránková</a>
@@ -349,11 +365,37 @@
                 </ul>
             </div>
         </div>
-    
+
+        <!-- SDÍLET NA SÍTÍCH -->
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title after-h3">&#128279; Sdílet na</h3>
+                <!-- Facebook Share Button -->
+                <a href="" class="btn btn-facebook" target="_blank" title="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+
+                <!-- Twitter Share Button -->
+                <a href="" class="btn btn-twitter" target="_blank" title="Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+
+                <!-- E-mail Share Button -->
+                <a href="" class="btn btn-email" title="E-mail">
+                    <i class="fas fa-envelope"></i>
+                </a>
+
+                <!-- WhatsApp Share Button -->
+                <a href="" class="btn btn-whatsapp" target="_blank" title="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+
         <!-- TAGS -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">Tagy</h3>
+                <h3 class="card-title after-h3">&#127991;&#65039; Tagy</h3>
                 <div class="tags">
 
                 <span class="tag-detail label">
