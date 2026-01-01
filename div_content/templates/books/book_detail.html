@@ -471,7 +471,7 @@
             <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
                 <!-- Tlačítko E-kniha -->
                 <button type="button" class="btn add-book" id="e-book-btn" {% if not has_ebook %} disabled {% endif %}>
-                    <img src="/static/img/book/e-book_icon.png" alt="e-kniha" class="mr-2" style="width:35px;">
+                    <img src="/static/img/book/e-book_icon.png" alt="e-kniha" title="e-kniha" class="add-book-icon">
                     <div style="display: flex; flex-direction: column;">
                         <p style="margin-bottom:0;">E-kniha</p>
                         <p style="font-size:80%;margin:0;">
@@ -550,7 +550,7 @@
                 <!-- AUDIO - PRIPRAVENO -->
                 <!-- Tlačítko AUDIO -->
                 <button type="button" class="btn add-book" id="audio-btn" {% if not has_audio %} disabled {% endif %}>
-                    <img src="/static/img/book/cd_icon.png" alt="audiokniha" style="width:35px;">
+                    <img src="/static/img/book/cd_icon.png" alt="audiokniha" title="audiokniha" class="add-book-icon">
                     <div style="display: flex; flex-direction: column;">
                         <p style="margin-bottom:0;">Audio</p>
                         <p style="font-size:80%; margin:0;">
@@ -653,6 +653,7 @@
                 <li class="karta"><a href="#tab3">Citáty</a></li>
                 <!--<li class="karta"><a href="#tab4">Zajímavosti</a></li>-->
                 <li class="karta"><a href="#tab5">DIVkvariát</a></li>
+                <li class="karta"><a href="#tab6">ISBN</a></li>
             </ul>
     
             <!-- RECENZE -->
@@ -692,7 +693,7 @@
             </div>
 
             <!-- POSTAVY -->
-            <div id="tab2" class="tab-list ">
+            <div id="tab2" class="tab-list">
                 <h3 class="card-title after-h3">Seznam postav v knize</h3>
     
                 {% if user.is_authenticated %}
@@ -756,7 +757,7 @@
             </div>
 
             <!-- CICÁTY -->
-            <div id="tab3" class="tab-list ">
+            <div id="tab3" class="tab-list">
                 <h3 class="card-title after-h3">Citáty z knihy {{ book.titlecz|default:book.title }}</h3>
 
                 <!-- přidat citát -->
@@ -814,8 +815,8 @@
 
             </div>
 
-            <!-- ZAJÍMAVOSTI
-            <div id="tab4" class="tab-list ">
+            <!-- ZAJÍMAVOSTI -->
+            <!-- <div id="tab4" class="tab-list ">
                 <h3 class="card-title after-h3">Informace o zajímavostech filmu</h3>
                 <h4>Přidat novou zajímavost</h4>
                 <form method="post" action="">
@@ -1172,6 +1173,81 @@
                 </div>
             </div>
 
+            <!-- ISBN -->
+            <div id="tab6" class="tab-list">
+                <h3 class="card-title after-h3">ISBN</h3>
+                <!-- seznam ISBN -->
+                <div class="isbn-list">
+
+                    <!-- přidání ISBN -->
+                    <details class="isbn-add">
+                        <summary>&#10133; Přidat nové ISBN</summary>
+                        <form method="post" action="" class="isbn-form">
+                            <input type="text" name="isbn" placeholder="ISBN" required>
+                            <input type="text" name="publisher" placeholder="Vydavatel">
+                            <input type="number" name="year" placeholder="Rok vydání">
+                            <input type="number" name="pages" placeholder="Počet stran">
+
+                            <select name="type">
+                                <option value="kniha">Kniha</option>
+                                <option value="ekniha">E-kniha</option>
+                                <option value="audio">Audio</option>
+                            </select>
+
+                            <button type="submit" class="add-book">Uložit ISBN</button>
+                        </form>
+                    </details>
+
+                    <div class="isbn-card">
+                        <div class="isbn-header">
+                            <strong>978-80-000-0000-0</strong>
+                            <span class="badge badge-book">
+                                <img src="/static/img/book/book_icon.png" alt="kniha" title="kniha" class="bagde-book-icon">
+                                Kniha
+                            </span>
+                        </div>
+
+                        <div class="isbn-meta">
+                            <span>📖 Albatros</span>
+                            <span>📅 2023</span>
+                            <span>📄 320 stran</span>
+                        </div>
+                    </div>
+
+                    <div class="isbn-card">
+                        <div class="isbn-header">
+                            <strong>978-80-000-0000-0</strong>
+                            <span class="badge badge-ekniha">
+                                <img src="/static/img/book/e-book_icon.png" alt="e-kniha" title="e-kniha" class="bagde-book-icon">
+                                E-kniha
+                            </span>
+                        </div>
+
+                        <div class="isbn-meta">
+                            <span>📖 Albatros</span>
+                            <span>📅 2023</span>
+                            <span>📄 320 stran</span>
+                        </div>
+                    </div>
+
+                    <div class="isbn-card">
+                        <div class="isbn-header">
+                            <strong>978-80-000-0000-0</strong>
+                            <span class="badge badge-audio">
+                                <img src="/static/img/book/cd_icon.png" alt="audiokniha" title="audiokniha" class="bagde-book-icon">
+                                Audio
+                            </span>
+                        </div>
+
+                        <div class="isbn-meta">
+                            <span>📖 Albatros</span>
+                            <span>📅 2023</span>
+                            <span>📄 320 stran</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 
