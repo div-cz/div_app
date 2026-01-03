@@ -158,3 +158,16 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+
+// UPRAVIT KOMENTÁŘ
+function toggleEditForm(id) {
+    const text = document.getElementById('comment-text-' + id);
+    const form = document.getElementById('comment-form-' + id);
+
+    if (!text || !form) return;
+
+    const isHidden = form.style.display === 'none' || form.style.display === '';
+
+    form.style.display = isHidden ? 'block' : 'none';
+    text.style.display = isHidden ? 'none' : 'block';
+}

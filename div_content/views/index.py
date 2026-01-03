@@ -17,7 +17,7 @@ from div_content.models import (
 
     AATask, Article, Articlenews, Book, Bookcomments, Booklisting, Bookpurchase, Creator, Creatorbiography, Game, Gamecomments, 
     Metacharts, Metagenre, Metaindex, Metalocation,  Metastats, Movie, Moviecinema, Moviedistributor, Moviecomments, Moviecrew, Moviegenre, Movierating, 
-    Tvgenre, Tvshow, User, Userprofile
+    Tvgenre, Tvshow, Tvshowcomments, User, Userprofile
 
 )
 from div_content.utils.books import get_market_listings
@@ -242,9 +242,23 @@ def index(request): # hlavní strana
     movies_comments = Moviecomments.objects.select_related('movieid', 'user').order_by('-dateadded')[:10]
     books_comments = Bookcomments.objects.select_related('bookid', 'user').order_by('-dateadded')[:10]
     games_comments = Gamecomments.objects.select_related('gameid', 'user').order_by('-dateadded')[:10]
+    tvshow_comments = Tvshowcomments.objects.select_related(
+        'tvshowkid',
+        'user'
+    ).filter(
+        tvshowkid__isnull=False,
+        tvseason__isnull=True,
+        tvepisode__isnull=True
+    ).order_by('-dateadded')[:10]
+
     latest_comments = sorted(
-        chain(movies_comments, books_comments),
-        key=attrgetter('dateadded'), 
+        chain(
+            movies_comments,
+            books_comments,
+            games_comments,
+            tvshow_comments
+        ),
+        key=attrgetter('dateadded'),
         reverse=True
     )[:10]
 

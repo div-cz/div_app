@@ -295,7 +295,7 @@
                         </div>
                     </div>
 
-                    <ul class="list-unstyled">
+                    <ul class="list-unstyled" style="margin-top: 0;">
                         <li><strong>Originální název: </strong>{{ book.title|default:"" }}</li>
 
                         <!-- AUTOR -->
@@ -657,39 +657,86 @@
             </ul>
     
             <!-- RECENZE -->
-            <div id="tab1" class="tab-list active">   
-                <h3 class="card-title after-h3" id="recenze">Recenze</h3> 
-                    
-                <!-- přidat recenzi -->       
-                {% if user.is_authenticated %}
-                    <h4>Přidat novou recenzi</h4>
-                    <form method="post" action="{% url 'book_detail' book_url=book.url %}">
-                        {% csrf_token %}
-                        {{ comment_form.comment|safe }}
-                        <button type="submit" class="btn add-book">Vložit recenzi</button>
-                    </form>
-                    {% else %}
-                    <p>Pro komentování je nutné být 
-                        <a href="/prihlaseni/">přihlášený</a>.
-                        <br>Nemáš účet? Nevadí, 
+            <div id="tab1" class="tab-list active">
+                <h3 class="card-title after-h3" id="recenze">Recenze</h3>
+
+                {% if not user.is_authenticated %}
+                    <p>
+                        Pro komentování je nutné být
+                        <a href="/prihlaseni/">přihlášený</a>.<br>
+                        Nemáš účet?
                         <a href="/registrace/">rychlá registrace!</a>
                     </p>
                 {% endif %}
 
-                <!-- výpis recenzí -->
-                <ul class="list-unstyled komentar">
+                <!-- VÝPIS RECENZÍ -->
+                <ul class="list-unstyled komentar" style="margin-top: 20px;">
                     {% for comment in comments %}
                         <li class="card-body">
-                            <p class="after">{{ comment.comment }}</p>
+                            <!-- TEXT RECENZE -->
+                            <div class="after my-komentar" id="comment-text-{{ comment.commentid }}">
+                                <p style="width: 80%;">{{ comment.comment }}</p>
+
+                                {% if user.is_authenticated and comment.user == user %}
+                                    <button type="button" onclick="toggleEditForm({{ comment.commentid }})">
+                                        Upravit
+                                    </button>
+                                {% endif %}
+                            </div>
+
+                            <!-- EDITAČNÍ FORMULÁŘ (jen autor) -->
+                            {% if user.is_authenticated and comment.user == user %}
+                                <div id="comment-form-{{ comment.commentid }}" style="display: none; margin-top: 10px; width: 100%;">
+                                    <form method="post" action="{% url 'book_detail' book_url=book.url %}">
+                                        {% csrf_token %}
+
+                                        <textarea name="comment" rows="4" class="form-control" style="height: 100%;">{{ comment.comment }}</textarea>
+
+                                        <div style="margin-top: 10px;">
+                                            <button type="submit" class="btn add-book">
+                                                Uložit změny
+                                            </button>
+
+                                            <button type="button" class="btn add-book" onclick="toggleEditForm({{ comment.commentid }})">
+                                                Zrušit
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            {% endif %}
+
+                            <!-- INFO O UŽIVATELI -->
                             <div class="user">
-                                <p>{{ comment.dateadded }}</p>
-                                <p>Přidal: 
-                                    <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a>
+                                <p>{{ comment.dateadded|date:"j. F Y H:i" }}</p>
+                                <p>Přidal:
+                                    <a href="{% url 'user_profile_with_profil' comment.user.pk %}">
+                                        {{ comment.user }}
+                                    </a>
                                 </p>
                             </div>
                         </li>
+
+                        {% empty %}
+                        {% if user.is_authenticated %}
+                            <p>Zatím žádná recenze. Buď první 🙂</p>
+                        {% endif %}
                     {% endfor %}
                 </ul>
+
+                <!-- FORMULÁŘ PRO NOVOU RECENZI (jen pokud uživatel JEŠTĚ NEMÁ) -->
+                {% if user.is_authenticated and not user_comment %}
+                    <div style="margin-top: 25px;">
+                        <h4>Přidat recenzi</h4>
+
+                        <form method="post" action="{% url 'book_detail' book_url=book.url %}">
+                            {% csrf_token %}
+                            {{ comment_form.comment }}
+                            <button type="submit" class="btn add-book">
+                                Vložit recenzi
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
             </div>
 
             <!-- POSTAVY -->
@@ -1208,9 +1255,9 @@
                         </div>
 
                         <div class="isbn-meta">
-                            <span>📖 Albatros</span>
-                            <span>📅 2023</span>
-                            <span>📄 320 stran</span>
+                            <span>&#127979; Albatros</span>
+                            <span>&#128467;&#65039; 2023</span>
+                            <span>&#128196; 320 stran</span>
                         </div>
                     </div>
 
@@ -1224,9 +1271,9 @@
                         </div>
 
                         <div class="isbn-meta">
-                            <span>📖 Albatros</span>
-                            <span>📅 2023</span>
-                            <span>📄 320 stran</span>
+                            <span>&#127979; Fobos</span>
+                            <span>&#128467;&#65039; 2021</span>
+                            <span>&#128196; 1010 stran</span>
                         </div>
                     </div>
 
@@ -1240,9 +1287,9 @@
                         </div>
 
                         <div class="isbn-meta">
-                            <span>📖 Albatros</span>
-                            <span>📅 2023</span>
-                            <span>📄 320 stran</span>
+                            <span>&#127979; Ikar</span>
+                            <span>&#128467;&#65039; 2000</span>
+                            <span>&#128196; 666 stran</span>
                         </div>
                     </div>
                 </div>

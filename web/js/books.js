@@ -62,3 +62,19 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+
+// UPRAVIT KOMENTÁŘ
+function toggleEditForm(id) {
+    const text = document.getElementById('comment-text-' + id);
+    const form = document.getElementById('comment-form-' + id);
+
+    if (!text || !form) return;
+
+    if (form.style.display === 'none') {
+        form.style.display = 'block';
+        text.style.display = 'none';
+    } else {
+        form.style.display = 'none';
+        text.style.display = 'block';
+    }
+}

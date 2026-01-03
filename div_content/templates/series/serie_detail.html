@@ -135,7 +135,7 @@
                         </div>
                     </div>
 
-                    <ul class="list-unstyled">
+                    <ul class="list-unstyled" style="margin-top: 0;">
                         <li><strong>Originální název:</strong> {{ tvshow.title }}</li>
                         {% if genres %}
                         <li><strong>Žánr:</strong>
@@ -247,7 +247,8 @@
                 {% if tvshow.description %}
                     {{ tvshow.description|safe }} 
                     <p><a id="toggle-biography">Více...</a></p>   
-                {% else %}
+
+                    {% else %}
                     Zatím žádný popis    
                 {% endif %}
             </p>
@@ -309,63 +310,124 @@
                 <li class="karta"><a href="#tab3">Zajímavosti</a></li>
                 <li class="karta"><a href="#tab4">Trailer</a></li>
                 <li class="karta"><a href="#tab5">Hlášky</a></li>
-                <!--<li class="karta"><a href="#tab6">Lokality</a></li>-->
+                <li class="karta"><a href="#tab6">Chyby</a></li>
+                <!--<li class="karta"><a href="#tab7">Lokality</a></li>-->
             </ul>
     
             <!-- RECENZE -->
-            <div id="tab1" class="tab-list active"> 
-                <h3 class="card-title after-h3">Recenze</h3> 
-                {% if user.is_authenticated %}
-                    <h4>Přidat novou recenzi</h4>
-                    <form method="post" action="">
-                        {% csrf_token %}
-                        {{ comment_form.comment }}
-                        <button type="submit" class="btn add-movie">Vložit recenzi</button>
-                    </form>
+            <div id="tab1" class="tab-list active">
+                <h3 class="card-title after-h3">Recenze</h3>
 
-                    {% else %}
-                    <p>Pro komentování je nutné být <a href="/prihlaseni/">přihlášený</a>.<br>
-                    Nemáš účet? Nevadí, <a href="/registrace/">rychlá registrace!</a></p>
+                {% if not user.is_authenticated %}
+                    <p>
+                        Pro komentování je nutné být
+                        <a href="/prihlaseni/">přihlášený</a>.<br>
+                        Nemáš účet? <a href="/registrace/">rychlá registrace!</a>
+                    </p>
                 {% endif %}
 
-                <!-- Výpis recenzí -->
-                <ul class="list-unstyled komentar">
+                <!-- VÝPIS RECENZÍ -->
+                <ul class="list-unstyled komentar" style="margin-top: 20px;">
                     {% for comment in comments %}
-                    <li class="card-body">
-                        <p class="after">{{ comment.comment }}</p>
-                        <div class="user">
-                            <p>{{ comment.dateadded }}</p>
-                            <p>Přidal:
-                                <a href="{% url 'user_profile_with_profil' comment.user.pk %}">
-                                    {{ comment.user }}
-                                </a>
-                            </p>
-                        </div>
+                        <li class="card-body">
+                            <div class="after my-komentar" id="comment-text-{{ comment.commentid }}">
+                                <p style="width: 80%;">{{ comment.comment }}</p>
 
-                        <!-- drobečky -->
-                        <div style="margin-top: .25rem; padding: 0 10px;">
-                        {% if comment.tvepisode %}
-                            <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">
-                            {{ comment.tvshowkid.titlecz|default:comment.tvshowkid.title }}
-                            </a>
-                            &raquo; <a href="{% url 'serie_season' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl %}">
-                                {{ comment.tvseason.seasonnumber }}. {{ comment.tvseason.titlecz|default:comment.tvseason.title|default:"Sezóna " }}
-                            </a>
-                            &raquo; <a href="{% url 'serie_episode' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl episodeurl=comment.tvepisode.episodeurl %}">
-                                {{ comment.tvepisode.titlecz|default:comment.tvepisode.title }}
-                            </a>
-                            {% elif comment.tvseason %}
-                            <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">{{ comment.tvshowkid.title }}</a>
-                            &raquo; <a href="{% url 'serie_season' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl %}">
-                                {{ comment.tvseason.seasonnumber }}. {{ comment.tvseason.titlecz|default:comment.tvseason.title|default:"Sezóna " }}
-                            </a>
-                            {% else %}
-                            <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">{{ comment.tvshowkid.titlecz }}</a>
+                                {% if user.is_authenticated and comment.user == user %}
+                                    <button type="button" onclick="toggleEditForm({{ comment.commentid }})">
+                                        Upravit
+                                    </button>
+                                {% endif %}
+                            </div>
+
+                            <!-- EDITAČNÍ FORMULÁŘ (SKRYTÝ) -->
+                            {% if user.is_authenticated and comment.user == user %}
+                                <div id="comment-form-{{ comment.commentid }}" style="display: none; margin-top: 10px; width: 100%;">
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="comment_action" value="save">
+
+                                        <textarea name="comment" rows="4" style="height: 100%;" class="form-control">{{ comment.comment }}</textarea>
+
+                                        <div style="margin-top: 10px;">
+                                            <button type="submit" class="btn add-movie">
+                                                Uložit změny
+                                            </button>
+
+                                            <button type="button" class="btn add-movie" onclick="toggleEditForm({{ comment.commentid }})">
+                                                Zrušit
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            {% endif %}
+
+                            <!-- INFO O UŽIVATELI -->
+                            <div class="user">
+                                <p>{{ comment.dateadded }}</p>
+                                <p>
+                                    Přidal:
+                                    <a href="{% url 'user_profile_with_profil' comment.user.pk %}">
+                                        {{ comment.user }}
+                                    </a>
+                                </p>
+                            </div>
+
+                            <!-- DROBEČKY (SERIÁL / SEZÓNA / EPIZODA) -->
+                            <div style="margin-top: .25rem; padding: 0 10px;">
+                                {% if comment.tvepisode %}
+                                    <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">
+                                        {{ comment.tvshowkid.titlecz|default:comment.tvshowkid.title }}
+                                    </a>
+                                    &raquo;
+                                    <a href="{% url 'serie_season' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl %}">
+                                        {{ comment.tvseason.seasonnumber }}.
+                                        {{ comment.tvseason.titlecz|default:comment.tvseason.title|default:"Sezóna" }}
+                                    </a>
+                                    &raquo;
+                                    <a href="{% url 'serie_episode' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl episodeurl=comment.tvepisode.episodeurl %}">
+                                        {{ comment.tvepisode.titlecz|default:comment.tvepisode.title }}
+                                    </a>
+
+                                {% elif comment.tvseason %}
+                                    <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">
+                                        {{ comment.tvshowkid.titlecz|default:comment.tvshowkid.title }}
+                                    </a>
+                                    &raquo;
+                                    <a href="{% url 'serie_season' tv_url=comment.tvshowkid.url seasonurl=comment.tvseason.seasonurl %}">
+                                        {{ comment.tvseason.seasonnumber }}.
+                                        {{ comment.tvseason.titlecz|default:comment.tvseason.title|default:"Sezóna" }}
+                                    </a>
+
+                                {% else %}
+                                    <a href="{% url 'serie_detail' tv_url=comment.tvshowkid.url %}">
+                                        {{ comment.tvshowkid.titlecz|default:comment.tvshowkid.title }}
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </li>
+
+                        {% empty %}
+                        {% if user.is_authenticated %}
+                            <p>Zatím žádná recenze. Buď první 🙂</p>
                         {% endif %}
-                        </div>
-                    </li>
-                {% endfor %}
+                    {% endfor %}
                 </ul>
+
+                <!-- FORMULÁŘ PRO NOVOU RECENZI (jen pokud uživatel JEŠTĚ NEMÁ) -->
+                {% if user.is_authenticated and not user_comment %}
+                    <div style="margin-top: 25px;">
+                        <h4>Přidat recenzi</h4>
+
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ comment_form.comment }}
+                            <button type="submit" class="btn add-movie">
+                                Vložit recenzi
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
             </div>
 
             <!-- HRAJÍ -->
@@ -537,7 +599,41 @@
 
             </div>
 
-            <!--<div id="tab6" class="tab-list">
+            <!-- CHYBY -->
+            <div id="tab6" class="tab-list">
+                <h3 class="card-title after-h3">Chyby v seriálu</h3>   
+
+                <!-- Přidat chybu -->
+                {% if user.is_authenticated %}
+                    <h4>Přidat novou chybu</h4>
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        <textarea name="error_text" rows="3" required></textarea>
+                        <button type="submit" class="btn add-movie">Vložit chybu</button>
+                    </form>
+                {% endif %}
+
+                <!-- Výpis chyb -->
+                <ul class="list-unstyled komentar">
+                    {% for error in errors %}
+                        <li class="card-body">
+                            <p class="after">{{ error.error }}</p>
+                            <div class="user" style="justify-content: end;">
+                                <p>Přidal: 
+                                    {% if error.userid %}
+                                        <a href="{% url 'user_profile_with_profil' user_id=error.userid.id %}">{{ error.userid.username }}</a>
+                                        {% else %}
+                                        Anonym
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+                
+            </div>
+
+            <!--<div id="tab7" class="tab-list">
                 <h3>Lokality</h3>
                 <p>Informace o natáčecích lokalitách.</p>
             </div>-->
@@ -743,7 +839,6 @@
         </div>
     </div>
 </div>
-
 
 {% endblock %}
 

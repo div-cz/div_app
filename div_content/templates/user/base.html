@@ -74,6 +74,10 @@
                         <!-- STATISTIKA DIVCOINŮ -->
                         <div class="profile-stats-section">
                             <div class="card card-body">
+                                <a href="https://marwen.div.cz/ucet/historie-divcoinu/">
+                                    <i class="fa-regular fa-clock history-icon" title="Historie DIVcoinů"></i>
+                                </a>
+
                                 <h3 class="stats-title">
                                     <img src="/static/img/site/DIVcoin.png" class="divcoin-icon" alt="DIVcoin">
                                     Statistiky DIVcoinů
@@ -95,9 +99,10 @@
                         </div>
                     </div>
 
+                    <!-- TLAČÍTKA ZPRÁVA A OBLÍBENÝ-->
                     {% if user.is_authenticated and user.id != profile_user.id %}
                     <div class="action-buttons-group">
-                        
+                        <!-- ZPRÁVA -->
                         <a style="text-decoration: none; font-weight: normal;" href="{% url 'chat_message' profile_user.id %}">
                             <button class="add">
                                 <svg class="svg-icon" fill="none" height="20" viewBox="0 0 20 20" width="20">
@@ -111,6 +116,7 @@
                             </button>
                         </a>
                         
+                        <!-- OBLÍBENÝ -->
                         {% if is_favorite %}
                             <a style="text-decoration: none; font-weight: normal;" href="{% url 'remove_from_favorite_users' user_profile.userprofileid %}">
                             {% else %}
@@ -135,7 +141,7 @@
                 </div>
             </div>
 
-            <!-- POPUP OKNO -->
+            <!-- POPUP OKNO DIVCOINY -->
             <div class="modal-overlay hidden-popup" id="divcoinOverlay"></div>
             <div class="modal-popup hidden-popup" id="divcoinPopup">
                 <button class="modal-close-btn" id="closePopup">

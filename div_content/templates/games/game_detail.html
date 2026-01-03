@@ -159,17 +159,17 @@
                         </div>
                     </div>
 
-                    <ul class="list-unstyled">
-                    {% if genreid %}
-                        <li><strong>Žánr:</strong>
-                            {% for game_genre in genres %}
-                                <a href="{% url 'games_by_genre' genre_url=game_genre.genreid.genreurl %}">
-                                    {{ game_genre.genreid.genrenamecz }}
-                                </a>
-                                {% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        </li>
-                    {% endif %}
+                    <ul class="list-unstyled" style="margin-top: 0;">
+                        {% if genreid %}
+                            <li><strong>Žánr:</strong>
+                                {% for game_genre in genres %}
+                                    <a href="{% url 'games_by_genre' genre_url=game_genre.genreid.genreurl %}">
+                                        {{ game_genre.genreid.genrenamecz }}
+                                    </a>
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </li>
+                        {% endif %}
                         <!--<li><strong>Země</strong>: 
 
                         </li>-->
@@ -356,7 +356,7 @@
 
                 <h4 style="margin-top: 1rem;">Aktivní nabídky</h4>
                 {% if sell_listings %}
-                    <ul class="list-unstyled card ">
+                    <ul class="list-unstyled card">
                         {% for listing in sell_listings %}
                             <li class="card-body">
                                 <strong>{{ listing.user.username }}</strong> –
@@ -377,7 +377,7 @@
 
                 <h4 style="margin-top: 1rem;">Poptávky</h4>
                 {% if buy_listings %}
-                    <ul class="list-unstyled card ">
+                    <ul class="list-unstyled card">
                         {% for listing in buy_listings %}
                             <li class="card-body">
                                 <strong>{{ listing.user.username }}</strong> chce koupit

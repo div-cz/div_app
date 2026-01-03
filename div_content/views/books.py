@@ -449,7 +449,7 @@ def get_book_price(book_id, format):
 def book_detail(request, book_url):
     book = get_object_or_404(Book, url=book_url)
     user = request.user
-    comment_form = None
+    comment_form = CommentFormBook()
     series = None
     series_books = []
 
@@ -525,19 +525,29 @@ def book_detail(request, book_url):
     else:
         is_in_book_library = False
     
-    if user.is_authenticated:
-        if 'comment' in request.POST:
-                comment_form = CommentFormBook(request.POST)
-                if comment_form.is_valid():
-                    comment = comment_form.cleaned_data['comment']
-                    Bookcomments.objects.create(comment=comment, bookid=book, user=request.user)
-                    return redirect('book_detail', book_url=book_url)
-                else:
-                    print(comment_form.errors)
-        else:
-            comment_form = CommentFormBook(request=request)
+    if user.is_authenticated and 'comment' in request.POST:
+        comment_form = CommentFormBook(request.POST)
+        if comment_form.is_valid():
+            Bookcomments.objects.update_or_create(
+                bookid=book,
+                user=request.user,
+                defaults={
+                    'comment': comment_form.cleaned_data['comment'],
+                    'dateadded': timezone.now()
+                }
+            )
+            return redirect('book_detail', book_url=book_url)
+
 
     comments = Bookcomments.objects.filter(bookid=book).order_by('-commentid')
+
+    user_comment = None
+    if request.user.is_authenticated:
+        user_comment = Bookcomments.objects.filter(
+            bookid=book,
+            user=request.user
+        ).first()
+
 
     # Fetch book ratings
     # Calculate average rating
@@ -789,6 +799,7 @@ def book_detail(request, book_url):
         'genres': genres, 
         "comment_form": comment_form,
         "comments": comments,
+        "user_comment": user_comment,
         'characters_with_roles': characters_with_roles,
         'quotes': quotes,
         'quote_form': quote_form,

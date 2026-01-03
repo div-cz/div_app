@@ -174,7 +174,7 @@
                         </div>
                     </div>
 
-                    <ul class="list-unstyled">
+                    <ul class="list-unstyled" style="margin-top: 0;">
                         <li><strong>Originální název:</strong> {{ movie.title }}</li>
                         {% if genres %}
                             <li><strong>Žánr:</strong>
@@ -332,7 +332,8 @@
             <p id="biography-text">
                 {% if movie.description %}
                     {{ movie.description|safe }} 
-                        <p><a id="toggle-biography">Více...</a></p>  
+                        <p><a id="toggle-biography">Více...</a></p> 
+
                     {% else %}
                     Zatím žádný popis    
                 {% endif %}
@@ -353,39 +354,100 @@
     
             <!-- RECENZE -->
             <div id="tab1" class="tab-list active">
-                <h3 class="card-title after-h3" id="recenze">Recenze</h3>   
-                
-                <!-- přidat recenzi --> 
-                {% if user.is_authenticated %}
-                    <h4>Přidat novou recenzi</h4>
-                    <form method="post" action="">
-                        {% csrf_token %}
-                        {{ comment_form.comment }}
-                        <button type="submit" class="btn add-movie">Vložit recenzi</button>
-                    </form>
-                    {% else %}
-                    <p>Pro komentování je nutné být 
-                        <a href="/prihlaseni/">přihlášený</a>.
-                        <br>Nemáš účet? Nevadí, 
-                        <a href="/registrace/">rychlá registrace!</a>
+                <h3 class="card-title after-h3" id="recenze">Recenze</h3>
+
+                {% if not user.is_authenticated %}
+                    <p>
+                        Pro komentování je nutné být
+                        <a href="/prihlaseni/">přihlášený</a>.<br>
+                        Nemáš účet?
+                        <a href="/registrace/">Rychlá registrace!</a>
                     </p>
                 {% endif %}
 
-                <!-- Výpis recenzí -->
-                <ul class="list-unstyled komentar">
+                <!-- VÝPIS RECENZÍ -->
+                <ul class="list-unstyled komentar" style="margin-top: 20px;">
                     {% for comment in comments %}
                         <li class="card-body">
-                            <p class="after">{{ comment.comment }}</p>
+
+                            <!-- TEXT RECENZE -->
+                            <div class="after my-komentar" id="comment-text-{{ comment.commentid }}">
+                                <p style="width: 80%;">{{ comment.comment }}</p>
+
+                                {% if user.is_authenticated and comment.user == user %}
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-secondary"
+                                        onclick="toggleEditForm({{ comment.commentid }})">
+                                        Upravit
+                                    </button>
+                                {% endif %}
+                            </div>
+
+                            <!-- EDITAČNÍ FORMULÁŘ -->
+                            {% if user.is_authenticated and comment.user == user %}
+                                <div
+                                    id="comment-form-{{ comment.commentid }}"
+                                    style="display: none; margin-top: 10px;">
+
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <textarea
+                                            name="comment"
+                                            rows="4"
+                                            class="form-control">{{ comment.comment }}</textarea>
+
+                                        <div style="margin-top: 10px;">
+                                            <button type="submit" class="btn add-movie">
+                                                Uložit změny
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-secondary"
+                                                onclick="toggleEditForm({{ comment.commentid }})">
+                                                Zrušit
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            {% endif %}
+
+                            <!-- INFO -->
                             <div class="user">
                                 <p>{{ comment.dateadded }}</p>
-                                <p>Přidal: 
-                                    <a href="{% url 'user_profile_with_profil' comment.user.pk %}">{{ comment.user }}</a>
+                                <p>
+                                    Přidal:
+                                    <a href="{% url 'user_profile_with_profil' comment.user.pk %}">
+                                        {{ comment.user }}
+                                    </a>
                                 </p>
                             </div>
                         </li>
+
+                        {% empty %}
+                        {% if user.is_authenticated %}
+                            <p>Zatím žádná recenze. Buď první 🙂</p>
+                        {% endif %}
                     {% endfor %}
                 </ul>
+
+                <!-- FORMULÁŘ PRO NOVOU RECENZI (jen pokud uživatel JEŠTĚ NEMÁ) -->
+                {% if user.is_authenticated and not user_comment %}
+                    <div style="margin-top: 25px;">
+                        <h4>Přidat recenzi</h4>
+
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ comment_form.comment }}
+                            <button type="submit" class="btn add-movie">
+                                Vložit recenzi
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
             </div>
+
 
             <!-- HRAJÍ -->
             <div id="tab2" class="tab-list">
@@ -693,7 +755,7 @@
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title after-h3">
-                        Filmy ze světa <a href="/svet/{{ universum.universumurl }}">{{ universum.universumnamecz|default:universum.universumname }}</a>
+                        &#129680; Filmy ze světa <a href="/svet/{{ universum.universumurl }}">{{ universum.universumnamecz|default:universum.universumname }}</a>
                     </h3>
                     <ul class="list-group">
                         {% for movie in same_universe_movies %}
@@ -711,9 +773,18 @@
         <!-- PREMIÉRA -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">Premiéra</h3>
+                <h3 class="card-title after-h3">&#127916; Premiéra</h3>
                 <div class="after last-line">
-                    <p>datum a distributor</p>
+                    {% if premiere %}
+                        <p>
+                            {{ premiere.releasedate|date:"j. n. Y" }}
+                            {% if premiere.distributorid %}
+                                – {{ premiere.distributorid.name }}
+                            {% endif %}
+                        </p>
+                    {% else %}
+                        <p>Datum premiéry není známo</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

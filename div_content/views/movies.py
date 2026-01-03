@@ -100,7 +100,8 @@ def movie_detail(request, movie_url):
 
     user = request.user
     user_rating = None
-    comment_form = None  # Default value
+    comment_form = CommentForm()
+    user_comment = None
 
     if user.is_authenticated:
         try:
@@ -180,19 +181,30 @@ def movie_detail(request, movie_url):
     else:
         ratings = base_ratings.order_by('-created')
 
-
-
     if user.is_authenticated:
-        if 'comment' in request.POST:
+        user_comment = Moviecomments.objects.filter(
+            movieid=movie,
+            user=request.user
+        ).first()
+
+        if request.method == "POST" and "comment" in request.POST:
             comment_form = CommentForm(request.POST)
             if comment_form.is_valid():
-                comment = comment_form.cleaned_data['comment']
-                Moviecomments.objects.create(comment=comment, movieid=movie, user=request.user)
-                return redirect('movie_detail', movie_url=movie_url)
-            else:
-                print(comment_form.errors)
+                Moviecomments.objects.update_or_create(
+                    movieid=movie,
+                    user=request.user,
+                    defaults={
+                        "comment": comment_form.cleaned_data["comment"]
+                    }
+                )
+                return redirect("movie_detail", movie_url=movie.url)
         else:
-            comment_form = CommentForm(request=request)
+            if user_comment:
+                comment_form = CommentForm(
+                    initial={"comment": user_comment.comment}
+                )
+    else:
+        comment_form = None
 
 
     # Výpočet průměrného hodnocení
@@ -204,7 +216,7 @@ def movie_detail(request, movie_url):
     #    average_rating = 0  # nebo jakoukoliv defaultní hodnotu, kterou chcete nastavit
 
     comments = Moviecomments.objects.filter(movieid=movie).order_by('-commentid')
-    
+
 
     actors_and_characters = Moviecrew.objects.filter(movieid=movie.movieid, roleid='378').select_related('peopleid', 'characterid')
     
@@ -276,7 +288,15 @@ def movie_detail(request, movie_url):
     keywordsEN = [keyword.keywordid.keyword for keyword in keywords if keyword.keywordid.keyword]
     keywordsCZ = [keyword.keywordid.keywordcz for keyword in keywords if keyword.keywordid.keywordcz]
 
-    distributors = Moviedistributor.objects.all()
+    distributors = Moviedistributor.objects.all().order_by('name')
+
+    premiere = (
+        Moviecinema.objects
+        .filter(movieid=movie)
+        .select_related("distributorid")
+        .order_by("releasedate")
+        .first()
+    )
 
     # Přidávání nové hlášky
     if request.method == 'POST' and 'quote_text' in request.POST:
@@ -355,6 +375,7 @@ def movie_detail(request, movie_url):
         'writers': writers,
         'user_rating': user_rating,
         'comments': comments,
+        'user_comment': user_comment,
         'comment_form': comment_form,
         'ratings': ratings, 
         'average_rating': average_rating,
@@ -367,6 +388,7 @@ def movie_detail(request, movie_url):
         "is_in_movie_library": is_in_movie_library,
         'movie_trailer': movie_trailer,
         'distributors': distributors,
+        'premiere': premiere,
         'trailer_form': trailer_form, 
         'same_universe_movies': same_universe_movies,
         'universum': universum,

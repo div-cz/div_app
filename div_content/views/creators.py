@@ -84,29 +84,44 @@ ZODIAC = [
 ]
 
 def filter_creators(request, qs_creators, **kwargs):
-    """
-    Jednotná funkce: filtruje tvůrce i spisovatele,
-    seřadí podle divrating a stránkuje po 30 výsledcích.
-    """
+    people = []
 
     # --- CREATORS ---
-    creators = qs_creators.filter(**kwargs).order_by("-divrating", "lastname")
+    creators = qs_creators.filter(**kwargs)
 
-    creators_paginator = Paginator(creators, 30)
-    creators_page = request.GET.get("page_creators")
-    creators_page_obj = creators_paginator.get_page(creators_page)
+    for c in creators:
+        people.append({
+            "type": "creator",
+            "obj": c,
+            "rating": c.divrating or 0,
+            "lastname": c.lastname or "",
+        })
 
     # --- AUTHORS ---
-    authors = Bookauthor.objects.filter(**kwargs).order_by("lastname")
+    authors = Bookauthor.objects.all()
 
-    authors_paginator = Paginator(authors, 30)
-    authors_page = request.GET.get("page_authors")
-    authors_page_obj = authors_paginator.get_page(authors_page)
+    for a in authors:
+        people.append({
+            "type": "author",
+            "obj": a,
+            "rating": getattr(a, "divrating", 0) or 0,
+            "lastname": a.lastname or "",
+        })
+
+    # --- ŘAZENÍ ---
+    people.sort(key=lambda x: (-x["rating"], x["lastname"]))
+
+    # --- PAGINACE ---
+    paginator = Paginator(people, 30)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
 
     return {
-        "creators": creators_page_obj,
-        "authors": authors_page_obj,
+        "people": page_obj,
+        "creators": [],
+        "authors": [],
     }
+
 
 # ----------------------------------------------------
 # creators
@@ -243,6 +258,13 @@ def creator_detail(request, creator_url):
         form = CreatorBiographyForm(initial={"creator": creator})
 
 
+    age = None
+    if creator.birthdate:
+        today = date.today()
+        age = today.year - creator.birthdate.year - (
+            (today.month, today.day) < (creator.birthdate.month, creator.birthdate.day)
+        )
+
 
     return render(request, 'creators/creator_detail.html', 
                 {'creator': creator, 
@@ -254,6 +276,7 @@ def creator_detail(request, creator_url):
                 'fans': fans,
                 'creator_div_rating_form': creator_div_rating_form,
                 'form': form,
+                'age': age,
 })
                 
 def creators_search(request):

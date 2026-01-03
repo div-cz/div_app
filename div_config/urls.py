@@ -127,7 +127,7 @@ from div_content.views.universum import universum_detail, universum_list
 #                    USERS
 # -------------------------------------------------------------------
 from div_content.views.users import (
-    contact_form, myuser_detail, rate_movie, add_to_list, ratings_profile, favorites_profile, iwantsee_profile, 
+    contact_form, myuser_detail, rate_movie, add_to_list, ratings_profile, favorites_profile, history_of_divcoin, iwantsee_profile, 
     watched_profile, favorite_movies, rated_media, rated_movies, rated_books, rated_games, favorite_media, 
     favorite_actors, favorite_books, favorite_drinks, favorite_foods, favorite_games, favorite_items, favorite_locations, 
     profile_books_section, profile_community_section, profile_eshop_section, profile_games_section, profile_movies_section, profile_series_section, profile_stats_section, profile_show_case, user_lists, 
@@ -500,6 +500,8 @@ urlpatterns = [
     path('ucet/seznamy/oblibene/', favorites_profile, name='favorites_media'),
     path('ucet/seznamy/chci-videt/', iwantsee_profile, name='iwantsee_profile'),
     path('ucet/seznamy/shlednuto/', watched_profile, name='watched_profile'),
+    
+    path('ucet/historie-divcoinu/', history_of_divcoin, name='history_of_divcoin'),
 
     path('ucet/recenze/', review_profile, name='review_profile'),
     path('ucet/zpravy/', chat, name='chat'),

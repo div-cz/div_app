@@ -3,87 +3,172 @@
 
 {% block title %}{{ title }} | DIV.cz{% endblock %}
 
+{% block meta %}
+    <style>
+        .birthday-list {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            width: 100%;
+        }
+
+        .birthday-item {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 14px;
+            border: 1px solid #ccc;
+            border-radius: .5rem;
+            background: rgba(255,255,255,0.04);
+            transition: background 0.25s ease, transform 0.25s ease;
+        }
+
+        .birthday-item:is(.dark *) {
+            background-color: #0d0c0f;
+        }
+
+        .birthday-avatar {
+            width: 90px;
+            /* height: 56px;
+            border-radius: 50%; */
+            object-fit: cover;
+            flex-shrink: 0;
+            background: #222;
+            border-radius: .5rem 0 0 .5rem;
+        }
+
+        .birthday-info {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .birthday-info h4 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .birthday-info a {
+            color: #000000;
+            text-decoration: none;
+        }
+
+        .birthday-info a:is(.dark *) {
+            color: #ffffff
+        }
+
+        .birthday-info a:hover {
+            text-decoration: underline;
+        }
+
+        .birthday-role {
+            color: #ab7ef0;
+            width: 100%;
+            font-weight: 500;
+        }
+
+        .birthday-role:is(.dark *) {
+            color: #ddc7ff;
+        }
+
+        @media (max-width: 1223.98px) {
+            .birthday-list {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .birthday-list {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .birthday-list {
+                display: flex;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
 <div class="container">
-    <h2 class="page-title">{{ title }}</h2>
-    <div class="section">
-        <h3 class="section-title">Tvůrci</h3>
+    <h2 class="page-title">&#127874; {{ title }} slaví</h2>
 
-        {% if creators %}
-            <div class="grid-creators">
-                {% for c in creators %}
-                    <div class="card">
-                        <a href="/tvurce/{{ c.url }}">
-                            {% if not c.img or c.img == 'noimg.png' %}
-                                <img src="/static/img/creator/noperson.svg" class="img-rounded-top">
+    <div style="margin-left: 1rem;">
+        {% if people %}
+            <div class="birthday-list">
+                {% for item in people %}
+                    {% with p=item.obj %}
+                        <div class="birthday-item">
+                            {% if not p.img or p.img == 'noimg.png' %}
+                                <img src="/static/img/creator/noperson.svg" class="birthday-avatar">
                             {% else %}
-                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ c.img }}" class="img-rounded-top">
+                                {% if item.type == "creator" %}
+                                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ p.img }}" class="birthday-avatar">
+                                {% else %}
+                                    <img src="{{ p.img }}" class="birthday-avatar">
+                                {% endif %}
                             {% endif %}
-                        </a>
 
-                        <h4 class="card-title">{{ c.firstname }} {{ c.lastname }}</h4>
-                        <p class="card-rating">⭐ {{ c.divrating }}</p>
-                    </div>
-                {% endfor %}
-            </div>
+                            <div class="birthday-info">
+                                <h4>
+                                    {% if item.type == "creator" %}
+                                        <a href="/tvurce/{{ p.url }}">{{ p.firstname }} {{ p.lastname }}</a>
+                                    {% else %}
+                                        <a href="/autor/{{ p.url }}">{{ p.firstname }} {{ p.lastname }}</a>
+                                    {% endif %}
+                                </h4>
 
-            {% if creators.paginator.num_pages > 1 %}
-                <div class="pagination">
-                    {% if creators.has_previous %}
-                        <a href="?page_creators={{ creators.previous_page_number }}">← předchozí</a>
-                    {% endif %}
+                                <span class="birthday-role">
+                                    {% if item.type == "author" %}
+                                        Spisovatel
+                                    {% else %}
+                                        {% if p.knownfordepartment == "Acting" %}
+                                            Herec
+                                        {% elif p.knownfordepartment == "Directing" %}
+                                            Režisér
+                                        {% elif p.knownfordepartment == "Production" %}
+                                            Producent
+                                        {% elif p.knownfordepartment == "Writing" %}
+                                            Scénárista
+                                        {% else %}
+                                            Tvůrce
+                                        {% endif %}
+                                    {% endif %}
+                                </span>
 
-                    Stránka {{ creators.number }} / {{ creators.paginator.num_pages }}
-
-                    {% if creators.has_next %}
-                        <a href="?page_creators={{ creators.next_page_number }}">další →</a>
-                    {% endif %}
-                </div>
-            {% endif %}
-        {% endif %}
-    </div>
-
-    <div class="section">
-        <h3 class="section-title">Spisovatelé</h3>
-
-        {% if authors %}
-            <div class="grid-creators">
-                {% for a in authors %}
-                    <div class="card">
-                        <a href="/autor/{{ a.url }}">
-                            {% if not a.img %}
-                                <img src="/static/img/creator/noperson.svg" class="img-rounded-top">
-                            {% else %}
-                                <img src="{{ a.img }}" class="img-rounded-top">
-                            {% endif %}
-                        </a>
-                        <h4 class="card-title">{{ a.firstname }} {{ a.lastname }}</h4>
-                    </div>
+                                <p class="card-rating">&#11088; {{ p.divrating }}</p>
+                            </div>
+                        </div>
+                    {% endwith %}
                 {% endfor %}
             </div>
 
             <!-- PAGINÁTOR -->
-            {% if authors.paginator.num_pages > 1 %}
+            {% if people.paginator.num_pages > 1 %}
                 <div class="pagination">
                     <span class="step-links">
-                        {% if authors.has_previous %}
+                        {% if people.has_previous %}
                             <a class="first-page" href="?page=1">&laquo; První</a>
-                            <a href="?page_authors={{ authors.previous_page_number }}">předchozí</a>
+                            <a href="?page={{ people.previous_page_number }}">Předchozí</a>
                         {% endif %}
 
                         <span class="current-page">
-                            {{ authors.number }} / {{ authors.paginator.num_pages }}
+                            {{ people.number }} / {{ people.paginator.num_pages }}
                         </span>
 
-                        {% if authors.has_next %}
-                            <a href="">Další</a>
-                            <a class="last-page" href="?page_authors={{ authors.next_page_number }}">Poslední &raquo;</a>
+                        {% if people.has_next %}
+                            <a href="?page={{ people.next_page_number }}">Další</a>
+                            <a class="last-page" href="?page={{ people.paginator.num_pages }}">Poslední &raquo;</a>
                         {% endif %}
                     </span>
                 </div>
             {% endif %}
+
         {% endif %}
     </div>
-
 </div>
+
 {% endblock %}
