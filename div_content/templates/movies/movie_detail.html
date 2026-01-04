@@ -356,12 +356,19 @@
             <div id="tab1" class="tab-list active">
                 <h3 class="card-title after-h3" id="recenze">Recenze</h3>
 
-                {% if not user.is_authenticated %}
-                    <p>
-                        Pro komentování je nutné být
-                        <a href="/prihlaseni/">přihlášený</a>.<br>
-                        Nemáš účet?
-                        <a href="/registrace/">Rychlá registrace!</a>
+                <!-- přidat recenzi --> 
+                {% if user.is_authenticated %}
+                    <h4>Přidat novou recenzi</h4>
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        {{ comment_form.comment }}
+                        <button type="submit" class="btn add-movie">Vložit recenzi</button>
+                    </form>
+                    {% else %}
+                    <p>Pro komentování je nutné být 
+                        <a href="/prihlaseni/">přihlášený</a>.
+                        <br>Nemáš účet? Nevadí, 
+                        <a href="/registrace/">rychlá registrace!</a>
                     </p>
                 {% endif %}
 
