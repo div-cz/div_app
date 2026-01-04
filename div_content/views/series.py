@@ -484,7 +484,7 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
         'average_rating': average_rating,
         'comments': comments,
         'comment_form': comment_form,
-        'user_comment': user_comment,
+        #'user_comment': user_comment,
         'trivia': trivia,
     })
 
@@ -710,7 +710,7 @@ def serie_detail(request, tv_url):
         'quotes': quotes,
         'comments': comments,
         'comment_form': comment_form,
-        'user_comment': user_comment,
+        #'user_comment': user_comment,
         'tvshow_trailer': tvshow_trailer,
         'trivia': trivia,
         'trailer_form': trailer_form,

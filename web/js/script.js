@@ -129,6 +129,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+// RATING-LIST -> ...list.html
+document.addEventListener('DOMContentLoaded', () => {
+    // Najdeme všechny elementy s třídou .rating
+    const ratingElements = document.querySelectorAll('.rating-list');
+
+    ratingElements.forEach(ratingElement => {
+        // Získáme hodnotu hodnocení z datového atributu nebo DOM
+        const ratingValue = parseInt(ratingElement.getAttribute('data-rating')) || 0;
+
+        // Dynamický výběr barvy podle hodnocení
+        let gradientColor;
+
+        if (ratingValue >= 80) {
+            gradientColor = '#0a0'; // Zelená
+        } else if (ratingValue >= 60) {
+            gradientColor = '#FFD700'; // Žlutá
+        } else if (ratingValue >= 40) {
+            gradientColor = '#1E90FF'; // Světle modrá
+        } else if (ratingValue >= 10) {
+            gradientColor = '#FF4500'; // Červená
+        } else {
+            gradientColor = '#555'; // Šedá
+        }
+
+        const gradientValue = `${ratingValue}%`;
+
+        // Nastavení vlastností CSS proměnných pro každý element
+        ratingElement.style.setProperty('--gradient-color', gradientColor);
+        ratingElement.style.setProperty('--gradient-value', gradientValue);
+
+        // Nastavení textu hodnocení uvnitř elementu
+        const ratingInner = ratingElement.querySelector('.rating-list-inner');
+        if (ratingInner) {
+            ratingInner.innerHTML = `${ratingValue}<span>%</span>`;
+        }
+    });
+});
+
+
 const bellBtn = document.getElementById('bellBtn');
 const dropbox = document.getElementById('dropbox');
 

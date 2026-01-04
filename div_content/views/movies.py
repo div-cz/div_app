@@ -57,7 +57,7 @@ from div_content.forms.movies import CommentForm, MovieCinemaForm, MovieDivRatin
 from div_content.models import (
     Article, Book, Creator, Creatorbiography, FavoriteSum, Game, 
     Metalocation, Metagenre, Movie, Moviecinema, Moviecomments, Moviecountries, Moviecrew, Moviedistributor, Movieerror, Moviegenre, Movielocation, Moviequotes, Movierating, Movietrailer, Movietrivia, Moviekeywords,
-    User, Userlist, Userlistitem, Userlisttype, Userlistmovie, Userprofile
+    User, Userlist, Userlistitem, Userlisttype, Userlistmovie, Userprofile, Userdivcoins
 
 )
 from div_content.utils.metaindex import add_to_metaindex
@@ -180,6 +180,7 @@ def movie_detail(request, movie_url):
             ratings.insert(0, user_rating)
     else:
         ratings = base_ratings.order_by('-created')
+
 
     if user.is_authenticated:
         user_comment = Moviecomments.objects.filter(
