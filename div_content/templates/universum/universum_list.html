@@ -3,42 +3,54 @@
 {% block title %}Seznam světů | DIV.cz{% endblock %}
 
 {% block meta %}
-<meta name="description" content="Objevujte fantastické světy na DIV.cz - rozsáhlé univerza knih, filmů a her. Kompletní databáze literárních a filmových světů, fikčních univerzí a herních sérií.">
-<meta name="keywords" content="světy, univerza, série, knižní série, filmové série, herní série, fikční světy, fantasy světy, sci-fi světy, databáze světů">
-<meta name="author" content="eKultura.eu">
+    <meta name="description" content="Objevujte fantastické světy na DIV.cz - rozsáhlé univerza knih, filmů a her. Kompletní databáze literárních a filmových světů, fikčních univerzí a herních sérií.">
+    <meta name="keywords" content="světy, univerza, série, knižní série, filmové série, herní série, fikční světy, fantasy světy, sci-fi světy, databáze světů">
+    <meta name="author" content="eKultura.eu">
 
-<meta property="og:title" content="Seznam světů a sérií | Databáze DIV.cz">
-<meta property="og:description" content="Prozkoumejte rozsáhlá univerza knih, filmů a her na DIV.cz. Kompletní přehled literárních, filmových a herních světů v jedné databázi.">
-<meta property="og:image" content="https://div.cz/img/movie/filmovy-div.webp">
-<meta property="og:url" content="https://div.cz/svety/">
+    <meta property="og:title" content="Seznam světů a sérií | Databáze DIV.cz">
+    <meta property="og:description" content="Prozkoumejte rozsáhlá univerza knih, filmů a her na DIV.cz. Kompletní přehled literárních, filmových a herních světů v jedné databázi.">
+    <meta property="og:image" content="https://div.cz/img/movie/filmovy-div.webp">
+    <meta property="og:url" content="https://div.cz/svety/">
 
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Seznam světů a sérií | Databáze DIV.cz">
-<meta name="twitter:description" content="Objevujte fantastické světy na DIV.cz - kompletní databáze literárních, filmových a herních světů a sérií.">
-<meta name="twitter:image" content="https://div.cz/img/movie/filmovy-div.webp">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Seznam světů a sérií | Databáze DIV.cz">
+    <meta name="twitter:description" content="Objevujte fantastické světy na DIV.cz - kompletní databáze literárních, filmových a herních světů a sérií.">
+    <meta name="twitter:image" content="https://div.cz/img/movie/filmovy-div.webp">
 {% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <h1>Seznam světů</h1>
-    <ul class="list-group">
+
+<div class="container universa">
+    <h1 class="page-title">&#129680; Ze světa...</h1>
+    <div class="universa-grid">
         {% for universum in universa %}
-        <li class="list-group-item">
-            {% if universum.universumurl %}
-            <a href="{% url 'universum_detail' universum_url=universum.universumurl %}">
-                {% if universum.universumnamecz %}
-                {{ universum.universumnamecz }}
-                {% else %}
-                {{ universum.universumname }}
+            <div class="universum-card">
+                {% if universum.universumurl %}
+                    <a class="universum-link"
+                       href="{% url 'universum_detail' universum_url=universum.universumurl %}">
+                        <span class="universum-name">
+                            {{ universum.universumnamecz|default:universum.universumname }}
+                        </span>
+                        {% if universum.universumnamecz %}
+                            <span class="universum-original">
+                                {{ universum.universumname }}
+                            </span>
+                        {% endif %}
+                    </a>
+
+                    {% else %}
+                    <div class="universum-link disabled">
+                        <span class="universum-name">
+                            {{ universum.universumname }}
+                        </span>
+                        <span class="universum-original">
+                            {{ universum.universumnamecz }}
+                        </span>
+                    </div>
                 {% endif %}
-            </a>
-            {% else %}
-            <span>
-                {{ universum.universumname }} ({{ universum.universumnamecz }})
-            </span>
-            {% endif %}
-        </li>
+            </div>
         {% endfor %}
-    </ul>
+    </div>
 </div>
+
 {% endblock %}

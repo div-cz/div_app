@@ -4,38 +4,34 @@
 
     <head>
 
-        {% include "../inc/head.html" %}
+        {% include "../inc/head_new.html" %}
 
         <title>{% block title %}{% endblock %}</title>
 
-        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css"/>
-        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"/>
-
-        <script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
-
         <!-- xsilence8x meta tags -->
         {% if keywordsCZ %}
-        <meta name="keywords" content="{% for keyword in keywordsCZ %}{{ keyword }}, {% endfor %}">
-        {% elif keywordsEN %}
-        <meta name="keywords" content="{% for keyword in keywordsEN %}{{ keyword }}, {% endfor %}">
+            <meta name="keywords" content="{% for keyword in keywordsCZ %}{{ keyword }}, {% endfor %}">
+            {% elif keywordsEN %}
+            <meta name="keywords" content="{% for keyword in keywordsEN %}{{ keyword }}, {% endfor %}">
         {% endif %}
         
-        <link href="https://media.div.cz/css/navbar.css" rel="stylesheet">
-        <link href="https://media.div.cz/css/navbar_together.css" rel="stylesheet">
+        <link href="/web/css/universum.css" rel="stylesheet">
+        <link href="/web/css/navbar.css" rel="stylesheet">
+        <link href="/web/css/navbar_together.css" rel="stylesheet">
 
-{% block meta %}
-{% endblock %}
-
+        {% block meta %}
+        {% endblock %}
+        
     </head>
 
-    <body class="bg-[#FFFFFF] text-[#0d0c0f] dark:bg-[#0d0c0f] dark:text-[#F9F9F9] d-flex flex-column min-vh-100">
+    <body>
 
-        {% include "../inc/navbar_movies.html" %}
+        {% include "../inc/navbar_movies_new.html" %}
 
-        <main class="flex-grow-1 max-w-[1440px] lg:mx-auto">
-            <section class="text-[#0d0c0f] dark:text-[#F9F9F9] max-w-[1440px] flex flex-col lg:flex-row">
+        <main>
+            <section>
                 
-                {% include "inc/sidebar.html" %}
+                {% include "inc/sidebar_new.html" %}
 
                 {% block content %}
 
@@ -44,9 +40,9 @@
             </section>
         </main>
 
-        {% include "../inc/footer_movies.html" %}
+        {% include "../inc/footer_new.html" %}
 
-        <script src="/static/js/script.js"></script>
+        <script src="/web/js/script.js"></script>
 
     </body>
 </html>

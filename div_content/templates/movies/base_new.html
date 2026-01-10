@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="cs">
+
+    <head>
+
+        {% include "../inc/head_new.html" %}
+
+        <title>{% block title %}Filmy | DIV.cz{% endblock %}</title>
+
+        <link rel="stylesheet" href="/web/star-ratings/css/star-ratings.css">
+        <script type="text/javascript" src="/web/star-ratings/js/dist/star-ratings.min.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css"/>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"/>
+
+        <script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
+
+        <link href="/web/css/movies.css" rel="stylesheet">
+
+        {% block meta %}
+        {% endblock %}
+
+    </head>
+
+    <body>
+
+        {% include "../inc/navbar_movies_new.html" %}
+
+        <main>
+            <section>
+                <aside>
+                    <!-- Menu -->
+                    <div class="menu-section">
+                        <div style="width: 100%;">
+                            <form class="searching" action="/hledam/" method="get">
+                                <input type="search" placeholder="Vyhledávání filmů" aria-label="Vyhledávání" name="q">
+                                <button type="submit" class="search-button">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </form>
+
+                            <div class="menu after">
+                                <h3>Menu</h3>
+                                <div class="mode">
+                                    <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="sun">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z">
+                                    </svg>
+                                    <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="moon">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z">
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="menu-list">
+                                <div class="menu-list-body">
+                                    <ul class="sidebar-list">
+                                        <li>&#128172;&#65039; <a href="/forum/">Fórum</a></li>
+                                        <li>&#128209; <a href="{% url 'blog_section_detail' section='filmove' %}">Blogy</a></li>
+                                        <li>&#128240; <a href="{% url 'articles_list' category='filmy' %}">Články</a></li>
+                                        <li>&#128200; <a href="{% url 'charts_movies' %}">Žebříčky</a></li>
+                                        <li>&#127942; <a href="{% url 'awards_movies' %}">Ocenění</a></li>
+
+                                        <li>&#129333; <a href="{% url 'creators_list' %}">Osobnosti</a></li>
+                                        <li>&#129497; <a href="{% url 'character_list' %}">Postavy</a></li>
+                                        <li>&#128506; <a href="{% url 'locations_index' %}">Lokality</a></li>
+                                        <li>&#129680; <a href="/svety/">Ze světa...</a></li>
+                                        <hr class="hr-hidden">
+                                        <li>&#128722; <a href="/eshop/filmy/">E-shop</a></li>
+                                    </ul>
+                                    <hr class="hr-hidden">
+                                    
+                                    <!-- JAZYK --><!--
+                                    <div class="language-switcher sm:searching">
+                                        <a href="" class="flag">
+                                            <img src="/static/img/flag/eng.png" alt="English">
+                                        </a>
+                                        <a href="" class="flag">
+                                            <img src="/static/img/flag/cs.png" alt="Čeština">
+                                        </a>
+                                    </div>-->
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                {% block content %}
+
+                {% endblock %}
+
+            </section>
+        </main>
+
+        {% include "../inc/footer_movies_new.html" %}
+
+        <script src="/web/js/script.js"></script>
+        <script src="/web/js/movies.js"></script>
+
+    </body>
+</html>

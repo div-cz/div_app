@@ -241,6 +241,19 @@ class Movieversions(models.Model):
     class Meta:
         db_table = 'MovieVersions'
 
+class Moviesource(models.Model):
+    moviesourceid = models.AutoField(db_column='MovieSourceID', primary_key=True)
+    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID', null=True, blank=True)
+    sourcetype = models.CharField(db_column='SourceType', max_length=20)
+    externalid = models.CharField(db_column='ExternalID', max_length=100)
+    externaltitle = models.CharField(db_column='ExternalTitle', max_length=2048, null=True, blank=True)
+    releaseyear = models.CharField(db_column='ReleaseYear', max_length=4, null=True, blank=True)
+    externalurl = models.CharField(db_column='ExternalURL', max_length=1024)
+    createdat = models.DateTimeField(db_column='CreatedAt', auto_now_add=True)
+
+    class Meta:
+        db_table = 'MovieSource'
+        unique_together = (('sourcetype', 'externalid'),)
 
 
 class Tvcrew(models.Model):

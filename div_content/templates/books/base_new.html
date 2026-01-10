@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="cs">
+
+    <head>
+
+        {% include "../inc/head_new.html" %}
+
+        <title>{% block title %}Div.cz{% endblock %} | Databáze DIV.cz</title>
+
+        <link rel="stylesheet" href="/web/star-ratings/css/star-ratings.css">
+        <script src="/web/star-ratings/js/dist/star-ratings.min.js"></script>
+
+        <link href="/web/css/books.css" rel="stylesheet">
+
+        {% block meta %}
+        {% endblock %}
+
+    </head>
+
+    <body>
+
+        {% include "../inc/navbar_books_new.html" %}
+
+        <main>
+            <section>
+                <aside>
+                    <!-- Menu -->
+                    <div class="menu-section">
+                        <div style="width: 100%;">
+                            <!-- vyhledávání -->
+                            <form class="searching" action="/hledani-knih/" method="get">
+                                <input type="search" placeholder="Vyhledávání knih" aria-label="Vyhledávání" name="q">
+                                <button type="submit" class="search-button">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </form>
+
+                            <div class="menu after">
+                                <h3>Menu</h3>
+                                <!-- mode -->
+                                <div class="mode">
+                                    <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                        class="sun">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z">
+                                    </svg>
+                                    <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                        class="moon">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z">
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div class="menu-list">
+                                <div class="menu-list-body">
+                                    <ul class="sidebar-list">
+                                        <li>&#128172;&#65039; <a href="/forum/knihy">Fórum</a></li>
+                                        <li>&#128209; <a href="{% url 'blog_section_detail' section='knizni' %}">Blogy</a></li>
+                                        <li>&#128240; <a href="{% url 'articles_list' category='knihy' %}">Články</a></li>
+                                        <li>&#128200; <a href="{% url 'charts_books' %}">Žebříčky</a></li>
+                                        <li>&#127942; <a href="{% url 'awards_books' %}">Ocenění</a></li>
+                                        <!--<li>&#9997; <a href="{% url 'authors_list' %}">Spisovatelé</a></li>-->
+                                        <!--<li>&#127979; <a href="/nakladatelstvi/">Nakladatelství</a></li>-->
+                                        <li>&#129497; <a href="/postavy/">Postavy</a></li>
+                                        <li>&#129680; <a href="/svety/">Ze světa...</a></li>
+                                        <hr class="hr-hidden">
+                                        <li>&#128212; <a href="/antikvariat/">DIVkvariát</a></li>
+                                        <li>&#128215; <a href="/antikvariat/pridat-knihu/">Prodat knihu</a></li>
+                                        <li>&#128229; <a href="{% url 'books_market_wants' %}">Poptávka knih</a></li>
+                                        <li>&#128218; <a href="/eknihy/">E-Knihy</a></li>
+                                        <li>&#128184; <a href="/eknihy/zdarma/">E-Knihy zdarma</a></li>
+                                        <hr class="hr-hidden">
+                                        <li>&#128722; <a href="/eshop/knihy/">E-shop</a></li>
+                                    </ul>
+                                    
+                                    <hr class="hr-hidden">
+
+                                    <!-- JAZYK --><!--
+                                    <div class="language-switcher sm:searching">
+                                        <a href="" class="flag">
+                                            <img src="https://div.cz/static/img/site/ico/flag/en.svg" alt="English">
+                                        </a>
+                                        <a href="" class="flag">
+                                            <img src="https://div.cz/static/img/site/ico/flag/cz.svg" alt="Čeština">
+                                        </a>
+                                    </div>-->
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                {% block content %}
+
+                {% endblock %}
+
+            </section>
+        </main>
+
+        {% include "../inc/footer_new.html" %}
+
+        <script src="/web/js/script.js"></script>
+        <script src="/web/js/books.js"></script>
+
+    </body>
+
+</html>

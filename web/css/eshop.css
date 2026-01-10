@@ -1,0 +1,292 @@
+
+.border-book,
+.border-movie,
+.border-game {
+    border: 1px solid #252525;
+}
+
+.border-book:hover {
+    border: 1px solid #61872B;
+}
+
+.border-movie:hover {
+    border: 1px solid #A52B21;
+}
+
+.border-game:hover {
+    border: 1px solid #0A76A9;
+}
+
+.dark\:border-book:is(.dark *),
+.dark\:border-movie:is(.dark *),
+.dark\:border-game:is(.dark *) {
+    border: 1px solid #d0d0d0;
+}
+
+.dark\:border-book:is(.dark *):hover {
+    border: 1px solid #4FB021;
+}
+
+.dark\:border-movie:is(.dark *):hover {
+    border: 1px solid #ED3F2F;
+}
+
+.dark\:border-game:is(.dark *):hover {
+    border: 1px solid #14ACF5;
+}
+
+
+
+
+
+
+.flip-card {
+    background-color: transparent;
+    width: 150px;
+    height: 212px;
+    perspective: 1000px;
+    font-family: sans-serif;
+}
+
+.title {
+    font-weight: 900;
+    text-align: center;
+    margin: 0;
+}
+
+.flip-card img {
+    width: 100%;
+    border-radius: .5rem;
+}
+
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+.flip-card-front {
+    box-shadow: 0 8px 14px 0 rgba(0,0,0,0.2);
+    position: absolute;
+    display: flex;
+    width: 100%;
+    height: fit-content;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border: 1px solid coral;
+    border-radius: .5rem;
+}
+
+.flip-card-back {
+    box-shadow: 0 8px 14px 0 rgba(0,0,0,0.2);
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    height: 212px;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border: 1px solid coral;
+    border-radius: .5rem;
+}
+
+.flip-card-back {
+    background: linear-gradient(120deg, rgb(255, 174, 145) 30%, coral 88%);
+    color: white;
+    transform: rotateY(180deg);
+    justify-content: space-around;
+}
+
+.card-footer {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+}
+
+.text-title {
+    font-weight: 900;
+    font-size: 1.2em;
+    line-height: 1.5;
+}
+
+.card-button {
+    display: flex;
+    padding: .3em;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: .3s ease-in-out;
+    width: 100%;
+    justify-content: space-evenly;
+    align-items: center;
+}
+/* 
+svg {
+    width: 20px;
+    height: 20px;
+} */
+
+
+
+.book-text {
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+
+/* CAROUSEL */
+.card-wrapper {
+    max-width: 1100px;
+    margin: 0 40px 35px;
+    overflow: hidden;
+}
+
+/* knihy */
+.book a {
+    color: #61872B;
+}
+
+.dark\:book a:is(.dark *) {
+    color: #4FB021;
+}
+
+/* filmy */
+.movie a {
+    color: #A52B21;
+}
+
+.dark\:movie a:is(.dark *) {
+    color: #ED3F2F;
+}
+
+/* hry */
+.game a {
+    color: #00A0E3;
+}
+
+.dark\:game a:is(.dark *) {
+    color: #14ACF5;
+}
+
+.card-list .card-item {
+    list-style: none;
+    /* flex: 0 0 25%; */
+    box-sizing: border-box;
+}
+
+.card-list .card-item .card-link {
+    user-select: none;
+    display: block;
+    border-radius: .5rem;
+    text-decoration: none;
+    border: 2px solid transparent;
+    /* box-shadow: 0 10px 10px rgba(0, 0, 0, 30%); */
+    transition: .2s ease;
+}
+
+.card-list .card-item .card-link:active {
+    cursor: grabbing;
+}
+
+.card-list .card-item .card-link .card-image {
+    max-width: 100px; 
+    height: 150px;
+    object-fit: cover;
+    border-radius: .5rem;
+}
+
+.swiper-pagination-bullet {
+    height: 13px;
+    width: 13px;
+    opacity: .5;
+    background: #607d8b;
+}
+
+.swiper-pagination-bullet-active {
+    opacity: 1;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+    z-index: 10;
+}
+
+/* Vylepšení zobrazení pagination */
+.swiper-pagination {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.swiper-slide {
+    display: flex;
+}
+
+.swiper-button-next:after, .swiper-button-prev:after {
+    font-family: swiper-icons;
+    font-size: 20px;
+    text-transform: none !important;
+    letter-spacing: 0;
+    font-variant: initial;
+    line-height: 1;
+    color: #607d8b;
+}
+
+.swiper-button-prev {
+    height: 100%;
+    top: 0;
+    box-shadow: 10px 0px 20px 0px #f8f8f8;
+}
+
+.swiper-button-prev:is(.dark *) {
+    box-shadow: 10px 0px 20px 0px #1a161f;
+}
+
+.swiper-button-next {
+    height: 100%;
+    top: 0;
+    box-shadow: -10px 0px 20px 0px #f8f8f8;
+}
+
+.swiper-button-next:is(.dark *) {
+    box-shadow: -10px 0px 20px 0px #1a161f;
+}
+
+
+@media screen and (max-width: 1024px) {
+    .card-list .card-item {
+        flex: 1 0 33%; /* Pro obrazovky menší než 1024px bude zobrazeno 3 karty */
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .card-list .card-item {
+        flex: 1 0 50%;  /* Pro obrazovky menší než 768px (mobilní zařízení) budou zobrazeny 2 karty */
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .card-list .card-item {
+        flex: 1 0 100%; /* Pro obrazovky menší než 500px (mobilní zařízení) budou zobrazeny 1 karty */
+    }
+}
+
+
+
+
+
+
+

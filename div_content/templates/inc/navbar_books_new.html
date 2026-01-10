@@ -1,0 +1,78 @@
+<nav>
+    <div class="navbar">
+        <div class="part1">
+            <div class="part2">
+                <div class="logo">
+                    <a href="/">
+                        <img src="/static/img/site/microsoft/div_310x150-movies.png">
+                    </a>
+                </div>
+                <ul id="menu" class="hidden">
+                    <li><a class="nav-link" href="/filmy/">Filmy</a></li>
+                    <li><a class="nav-link" href="/serialy/">Seriály</a></li>
+                    <li><a class="nav-link" href="/knihy/">Knihy</a></li>
+                    <li><a class="nav-link" href="/hry/">Hry</a></li>
+                </ul>
+            </div>
+
+            <!-- HAMBURGER -->
+            <div class="toggle">
+                <div id="menu-icon">
+                    <svg id="menu-open" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5">
+                    </svg>
+                    <svg id="menu-close" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="hidden">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12">
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div id="menu-section" class="nav-menu hidden">
+            <!-- VYHLEDÁVAČ -->
+            <form class="searching" action="/hledani-knih/" method="get">
+                <input type="search" placeholder="Vyhledávání knih" aria-label="Vyhledávání" name="q">
+                <button type="submit" class="search-button">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </form>
+
+            <div class="account">
+                <div class="login">
+                    <!-- FORUM -->
+
+                    
+                    <!-- POŠTA -->
+                    {% if user.is_authenticated %}
+                    <div class="icon">
+                        <div class="notBtn">
+                            {% if has_unread_messages %}
+                            <div class="number"><i class="fas fa-bell"></i></div>
+                            {% endif %}
+                            <a href="/ucet/zpravy/">
+                                <i class="far fa-regular fa-envelope" title="zprávy"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- PROFIL -->
+                    <div class="user">
+                        <img src="{{ avatar_imgpath }}" alt="avatar">
+                        <a class="nav-link" href="/uzivatel/">{{ user.username }}</a> 
+                    </div>
+                    <div style="display: flex;">
+                        <form id="logout-form" method="post" action="{% url 'account_logout' %}">
+                            {% csrf_token %}
+                            <a id="logout-btn" class="nav-link" style="font-size:80%; background: none; border: none; color: #007bff; cursor: pointer;">Odhlásit</a>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div>
+                        <a class="nav-link" href="/prihlaseni/">Přihlásit</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>

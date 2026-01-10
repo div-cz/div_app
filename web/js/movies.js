@@ -136,6 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+// KARTY 
 $(document).ready(function () {
     // Kód pro kliknutí na záložky
     $('.tab-links a').on('click', function (e) {
@@ -177,3 +178,49 @@ $(document).ready(function () {
     });
 });
 
+
+
+
+
+// více, méně - zobrazit celý bio
+document.addEventListener("DOMContentLoaded", function () {
+    const bioElement = document.getElementById("biography-text");
+    const toggleButton = document.getElementById("toggle-biography");
+
+    const fullText = bioElement.innerText; // Store the full biography text
+    const truncatedText = fullText.substring(0, 500); // First 500 characters
+
+    // Check if text needs truncation
+    if (fullText.length > 500) {
+        bioElement.innerText = truncatedText + "...";
+    } else {
+        toggleButton.style.display = "none"; // Hide button if no truncation needed
+    }
+
+    // Toggle functionality
+    toggleButton.addEventListener("click", function () {
+        if (bioElement.innerText === truncatedText + "...") {
+            bioElement.innerText = fullText; // Show full text
+            toggleButton.innerText = "...Méně"; // Update button text
+        } else {
+            bioElement.innerText = truncatedText + "..."; // Show truncated text
+            toggleButton.innerText = "Více..."; // Update button text
+        }
+    });
+});
+
+
+
+
+// UPRAVIT KOMENTÁŘ
+function toggleEditForm(id) {
+    const text = document.getElementById('comment-text-' + id);
+    const form = document.getElementById('comment-form-' + id);
+
+    if (!text || !form) return;
+
+    const isHidden = form.style.display === 'none' || form.style.display === '';
+
+    form.style.display = isHidden ? 'block' : 'none';
+    text.style.display = isHidden ? 'none' : 'block';
+}

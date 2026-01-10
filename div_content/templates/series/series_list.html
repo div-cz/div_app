@@ -1,5 +1,4 @@
-<!-- TEST -->
-{% extends "series/base.html" %}
+{% extends "series/base_new.html" %}
 {% load humanize %}
 {% load i18n %}
 {% load ratings %}
@@ -7,141 +6,222 @@
 
 {% block title %}Seznam seriálů TEST| DIV.cz{% endblock %}
 
+{% block meta %}
+    <style>
+        .rating-list {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-top: 0;
+            margin-right: 0;
+            padding: 0;
+            box-shadow: 0px 8px 16px rgb(147 147 147);
+        }
+
+        .rating-list::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 44px;
+            height: 44px;
+            background: #444444;
+            border-radius: 50%;
+            z-index: 2;
+            margin: 0;
+        }
+
+        .rating-list::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50px;
+            height: 50px;
+            background: conic-gradient(
+                var(--gradient-color, #0a0) 0%,
+                var(--gradient-color, #0a0) var(--gradient-value, 50%),
+                #777777 var(--gradient-value, 50%)
+            );
+            border-radius: 50%;
+            z-index: 1;
+            margin: 0;
+        }
+
+        .rating-list-inner {
+            position: relative;
+            z-index: 3;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            /* margin-top: 10px;
+            margin-right: -10px; */
+        }
+
+        .rating-list-inner span {
+            font-size: 10px;
+            margin-left: 2px;
+            color: #ffd700;
+        }
+
+        .rating-list:is(.dark *) {
+            box-shadow: none;
+        }
+        
+        .title-rating-list {
+            display: flex; 
+            justify-content: end; 
+            width: 100%; 
+            margin-top: -50px;
+        }
+
+    </style>
+{% endblock %}
+
 {% block content %}
-               
-<div class="row container my-4">
+
+<div class="container">
     <!-- LEVÁ STRANA -->
-    <div class="col-lg-8">
+    <div class="left-side">
         <!-- carousel - nejlépe hodnocené -->
         <div id="image-slider" class="carousel box-shadow">
+            
             <div class="carousel-slide">
                 <a href="/serialy/">
                     <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2/ogmhmHVMRdZ4kRmdm0XiHY7OkIK.jpg" alt="Serialy">
                 </a>
                 <div class="overlay">
-                    <h2>Seriály </h2>
+                    <h2>Seriály</h2>
                 </div>
             </div>
+                
         </div>
 
         <!-- generování seriálů -->
-        <div class="mb-4">
-            <div class="grid grid-cols-3 gap-2">
-                {% for tvshow in tvshows_list %}
-                <div class="card card2 box-shadow w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                    
-                    <img src="{% if tvshow.img != 'noimg.png' %}https://www.themoviedb.org/t/p/w533_and_h300_bestv2{{ tvshow.img }}{% else %}/static/img/nomovie_400.jpg{% endif %}" alt="{{ tvshow.titlecz }}" class="card-img-top rounded-t-lg">
+        <div class="genre-list" style="margin-bottom: 1rem;">
+            {% for tvshow in tvshows_list %}
+                <div class="card">
+                    <img src="{% if tvshow.img != 'noimg.png' %}https://www.themoviedb.org/t/p/w533_and_h300_bestv2{{ tvshow.img }}{% else %}/static/img/nomovie_400.jpg{% endif %}" alt="{{ tvshow.titlecz }}" style="border-radius: .5rem .5rem 0 0;">
 
-                    <div class="card-body">
+                    <div class="card-body" style="border-radius: 0 0 .5rem .5rem !important;">
                         <!-- hodnocení -->
-                        <div class="flex justify-end w-full" style="margin-top: -40px;">
-                            <div class="rating rating-shadow" data-rating="{{ tvshow.average_rating }}">
-                                <div class="rating-inner">{{ tvshow.average_rating }}%
+                        <div class="title-rating-list">
+                            <div class="rating-list" data-rating="{{ tvshow.average_rating }}">
+                                <div class="rating-list-inner">
+                                    {{ tvshow.average_rating }}%
                                 </div>
                             </div>
                         </div>
-                        <h4 class="card-title"><a href="/serial/{{ tvshow.url }}">{{ tvshow.titlecz }}</a></h4>
-                        <p class="card-text">{{ tvshow.description|safe|truncatewords:40 }}</p>
+                        
+                        <h4 class="card-title">
+                            <a href="/serial/{{ tvshow.url }}">{{ tvshow.titlecz }}</a>
+                        </h4>
+                        <p class="card-text">{{ tvshow.description }}</p>
                     </div>
                 </div>
-                {% endfor %}
-            </div>
+            {% endfor %}
         </div>
 
         <!-- Poslední seriálové recenze -->
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <div class="flex flex-wrap justify-between card-title after-h3">
-                    <h3 class="font-bold">Poslední seriálové recenze</h3>
-                    <a href=""><small>Zobrazit vše</small></a> 
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title after-h3">
+                    <h3>&#128221;&#65039; Poslední seriálové recenze</h3>
                 </div>
-                <div>
+
                 {% if latest_comments %}
                     {% for comment in latest_comments %}  
-                    <div class="flex mb-3"> 
-                        <div class="mr-4 flex" style="width:100px; max-width:100px; flex-shrink:0;"> 
+                        <div class="last-review"> 
                             {% if comment.tvshowkid.imgposter == "noimg.png" %}
-                            <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ comment.tvshowkid.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px; height: fit-content;">
-                            {% else %}
-                            <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ comment.tvshowkid.imgposter }}" alt="{{ comment.tvshowkid.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px; height: fit-content;">
+                                <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ comment.tvshowkid.titlecz }}" class="img-fluid" style="object-fit: cover; max-width: 100px; margin-right: .5rem;">
+                                {% else %}
+                                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ comment.tvshowkid.imgposter }}" alt="{{ comment.tvshowkid.titlecz }}" class="img-fluid" style="object-fit: cover; max-width: 100px; margin-right: .5rem;">
                             {% endif %}
-                        </div>
-            
-                        <div class="flex flex-wrap content-between ml-2" style="flex: 2;">
-                            <div class="flex flex-wrap">
-                                <a class="w-full font-semibold" href="{% url 'serie_detail'  comment.tvshowkid.url  %}">{{ comment.tvshowkid.titlecz  }}</a>
-                                <p class="w-full text-sm">{{ comment.comment|truncatewords:30  }}</p>
-                            </div>
-                            
-                            <div class="w-full flex justify-end" style="font-size: small;"> 
-                                <p>Uživatel:
-                                {% if comment.user %}
-                                    <a href="/uzivatel/{{ comment.user.id }}/">{{ comment.user.username }}</a>
-                                </p>
-                                {% endif %}    
-                                <span class="ml-1">| {{ comment.dateadded|date:"d.m.Y H:i" }}</span>
-                            </div>
+                
+                            <div class="last-review-body">
+                                <div class="last-review-title">
+                                    <a href="{% url 'serie_detail'  comment.tvshowkid.url  %}">{{ comment.tvshowkid.titlecz }}</a>
+                                    <p class="last-review-text">{{ comment.comment|truncatewords:30 }}</p>
+                                </div>
+                                
+                                <div class="last-review-user"> 
+                                    <p>Uživatel:
+                                        {% if comment.user %}
+                                            <a href="/uzivatel/{{ comment.user.id }}/">{{ comment.user.username }}</a>
+                                        {% endif %}  
+                                    </p>
+                                    <span style="margin-left: .25rem;">{{ comment.dateadded|date:"d.m.Y H:i" }}</span>
+                                </div>
+                            </div>  
                         </div>  
-                    </div>  
-                    {% if not forloop.last %}
-                    <hr class="my-3">
-                    {% endif %}
+
+                        {% if not forloop.last %}
+                            <hr style="margin: .75rem 0;">
+                        {% endif %}
                     {% endfor %}
+
                     {% else %}
                     <p>Zatím žádné recenze od komunity.</p>
                 {% endif %}
-                </div>
             </div>
         </div>    
     </div>
 
     <!-- PRAVÁ STRANA -->
-    <div class="col-lg-4 article-section">
+    <div class="right-side">
 
         <!-- Nejnovější sezóny -->
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <h3 class="card-title font-bold after-h3">Nové sezóny</h3>
-                <ul class="w-full" style="list-style-type:none">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title after-h3">Nové sezóny</h3>
+                <ul style="list-style-type:none; width: 100%;">
                     {% for season in latest_seasons %}
-                    <li class="after last-line">
-                        <a href="{% url 'serie_season' tv_url=season.tvshowid.url seasonurl=season.seasonurl %}">
-                            {{ season.tvshowid.titlecz }}: S{{ season.seasonnumber|stringformat:"02d" }}
-                        </a>
-                        <p><small>(premiéra {{ season.premieredate|date:"j.n.Y" }})</small></p>
-                    </li>
-                    {% empty %}
-                    <li>Žádné nové sezóny k dispozici</li>
+                        <li class="after last-line">
+                            <a href="{% url 'serie_season' tv_url=season.tvshowid.url seasonurl=season.seasonurl %}">
+                                {{ season.tvshowid.titlecz }}: S{{ season.seasonnumber|stringformat:"02d" }}
+                            </a>
+                            <p><small>(premiéra {{ season.premieredate|date:"j.n.Y" }})</small></p>
+                        </li>
+                        {% empty %}
+                        <li>Žádné nové sezóny k dispozici</li>
                     {% endfor %}
                 </ul>
             </div>
         </div>
 
         <!-- ČLÁNKY -->
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <div class="flex flex-wrap justify-between card-title after-h3">
-                    <h3 class="font-bold">Články</h3><!--<a href="{% url 'articles_list' category='serialy' %}"><small>Zobrazit vše</small></a>-->
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title after-h3">
+                    <h3>&#128240;&#65039; Články</h3>
+                    <a href="{% url 'articles_list' category='serialy' %}"><small>Zobrazit vše</small></a>
                 </div>
-                <div class="flex flex-wrap after">
-                    <a href="https://div.cz/serialy/2025" class="w-full">Seriály roku 2025</a> <!-- stačí název ne?-->
-                    <a href="https://div.cz/serialy/2024" class="w-full">Seriály roku 2024</a>
-                    <a href="https://div.cz/serialy/2023" class="w-full">Seriály roku 2023</a>
-                    <a href="https://div.cz/duna-proroctvi-novy-tv-spin-off" class="w-full">Duna: Proroctví</a>
-                    <a href="https://div.cz/rod-draka-2-serialova-recenze" class="w-full">Rok draka 2: recenze</a>
+                <div class="article-head-title after">
+                    <a href="https://div.cz/serialy/2026">Seriály roku 2026</a>
+                    <a href="https://div.cz/serialy/2025">Seriály roku 2025</a>
+                    <a href="https://div.cz/serialy/2024">Seriály roku 2024</a>
+                    <a href="https://div.cz/serialy/2023">Seriály roku 2023</a>
+                    <a href="https://div.cz/duna-proroctvi-novy-tv-spin-off">Duna: Proroctví</a>
+                    <a href="https://div.cz/rod-draka-2-serialova-recenze">Rok draka 2: recenze</a>
                 </div>
                 <div class="text-right">
                     {% if user.is_superuser %}
-                    <a href="{% url 'article_new' category=category_key %}"><i class="fa-solid fa-plus"></i> Přidat nový článek</a>
+                        <a href="{% url 'article_new' category=category_key %}"><i class="fa-solid fa-plus"></i> Přidat nový článek</a>
                     {% endif %}
                 </div>
             </div>
         </div>
 
         <!-- ŽÁNRY -->
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <h3 class="card-title font-bold after-h3">Žánry</h3>
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title after-h3">&#127917; Žánry</h3>
                 <div>
                     <a href="/serialy/akcni">Akční</a> |
                     <a href="/serialy/animovany">Animovaný</a> |
@@ -166,9 +246,9 @@
         </div>
 
         <!-- ROKY -->
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <h3 class="card-title font-bold after-h3">Roky</h3>
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title after-h3">&#128467;&#65039; Roky</h3>
                 <div>
                     <a href="/serialy/2024">2024</a> |
                     <a href="/serialy/2023">2023</a> |
@@ -276,23 +356,17 @@
             </div>
         </div>
 
-<!-- META STATS -->
-<div class="card box-shadow mb-4">
-    <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-        
-        <h3 class="card-title font-bold after-h3">Seriálové statistiky DIV</h3>
-
-        <ul class="list-unstyled mt-2" style="line-height: 1.6; font-size: 14px;">
-
-<li>📺 Seriály: {{ metastats.TVShowsCount|intcomma }}</li>
-<li>🎞️ Sezóny: {{ metastats.TVSeasonsCount|intcomma }}</li>
-<li>🎬 Epizody: {{ metastats.TVEpisodesCount|intcomma }}</li>
-
-        </ul>
-    </div>
-</div>
-
-
+        <!-- STATISTIKY -->
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title after-h3">&#128202;&#65039; Seriálové statistiky DIV</h3>
+                <ul>
+                    <li>{{ stats_tvshows.value|intcomma }} seriálů</li>
+                    <li>{{ metastats.TVSeasonsCount|intcomma }} sezón</li>
+                    <li>{{ metastats.TVEpisodesCount|intcomma }} dílů</li>
+                </ul>
+            </div>
+        </div>
 
     </div>
 </div>

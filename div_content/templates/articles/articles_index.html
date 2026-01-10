@@ -5,146 +5,106 @@
 
 {% block title %}Články | Databáze DIV{% endblock title %}
 
+{% block meta %}
+
+    <link href="/web/css/navbar_together.css" rel="stylesheet">
+
+{% endblock %}
+
 {% block content %}
 
-<link href="https://media.div.cz/css/navbar_together.css" rel="stylesheet">
+<div class="big-search">
+    <h2>Články</h2>
+    <form role="search" action="{% url 'forum_search' %}" method="get">
+        <input class="search-field" type="type" placeholder="Hledat článek" aria-label="Search" name="q" id="search-input">
+        <button class="btn-search" type="submit">Hledat</button>
+    </form>
+</div>
 
-<style>
-    .articles {
-        display: grid;
-        padding-left: 0;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0px 0px 5px #c0c0c0;
-    }
-
-    .custom-select {
-        position: relative;
-        display: flex;
-        justify-content: flex-end;
-        margin: 10px;
-        text-align: center;
-        min-width: 175px;
-    }
-
-    .select-options {
-        flex-wrap: wrap;
-        position: absolute;
-        background-color: #f9f9f9;
-        box-shadow: 0px 0px 10px 0px #9E9E9E;
-        border-radius: 10px;
-        z-index: 1;
-        right: 0;
-        margin-top: 35px;
-        text-align: left;
-        font-size: small;
-    }
-
-    .select-options a {
-        color: black;
-        padding: 12px 16px;
-        display: block;
-        cursor: pointer;
-        width: 100%;
-    }
-
-    .select-options a:hover {
-        background-color: #f1f1f1;
-        text-decoration: none;
-    }
-
-</style>
-
-<h2 class="w-full">Články</h2>
-
-<div class="grid gap-5 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 mt-5">
-    <div class="card-body w-full items-center text-center" style="background-image: url(/static/img/articles/article.webp);
-    background-size: 100% 100%;">
-        <a href="/clanky/filmy/">
-            <img src="/static/img/forum/movie.webp">
+<div class="articles">
+    <div class="talk-img" style="background-image: url(/static/img/articles/article.webp); background-size: 100% 100%;">
+        <a href="/clanky/filmy/" class="movies">
+            <img src="/static/img/forum/movie.webp" alt="Filmové články">
             <h3 class="movies">Filmové články</h3>
         </a>
     </div>
 
-    <div class="card-body w-full items-center text-center" style="background-image: url(/static/img/articles/article.webp);
+    <div class="talk-img" style="background-image: url(/static/img/articles/article.webp);
     background-size: 100% 100%;">
-        <a href="/clanky/serialy/">
-            <img src="/static/img/forum/serie.webp">
+        <a href="/clanky/serialy/" class="movies">
+            <img src="/static/img/forum/serie.webp" alt="Seriálové články">
             <h3 class="movies">Seriálové články</h3>
         </a>
     </div>
 
-    <div class="card-body w-full items-center text-center" style="background-image: url(/static/img/articles/article.webp);
+    <div class="talk-img" style="background-image: url(/static/img/articles/article.webp);
     background-size: 100% 100%;">
-        <a href="/clanky/knihy/">
-            <img src="/static/img/forum/book.webp">
+        <a href="/clanky/knihy/" class="books">
+            <img src="/static/img/forum/book.webp" alt="Knižní články">
             <h3 class="books">Knižní články</h3>
         </a>
     </div>
 
-    <div class="card-body w-full items-center text-center" style="background-image: url(/static/img/articles/article.webp);
+    <div class="talk-img" style="background-image: url(/static/img/articles/article.webp);
     background-size: 100% 100%;">
-        <a href="/clanky/hry/">
-            <img src="/static/img/forum/game.webp">
+        <a href="/clanky/hry/" class="games">
+            <img src="/static/img/forum/game.webp" alt="Herní články">
             <h3 class="games">Herní články</h3>
         </a>
     </div>
 </div>
 
 
-<h3 class="mt-10 mb-3">📌 Poslední články</h3>
+<!-- Poslední články -->
+<div class="latest-posts">
+    <h3 class="latest-title">&#128204; Poslední články</h3>
 
-<section class="my-4 w-3/4">
     {% if latest_articles %}
         {% for art in latest_articles %}
-        <ol class="border mb-2">
+            <div class="last-post-card">
 
-            <!-- Titulek + typ -->
-            <li class="flex justify-between">
-                <a class="hover:underline font-semibold" href="/{{ art.url }}">
-                    {{ art.title }}
-                </a>
+                <div class="lp-header">
+                    <a class="lp-title" href="/{{ art.url }}">
+                        {{ art.title }}
+                    </a>
 
-                <span class="flex items-center gap-1">
                     {% if art.typ == "Movie" %}
-                        <span class="text-red-600">&#127916; Filmy</span>
+                        <span class="movies">&#127916; Filmy</span>
                     {% elif art.typ == "Book" %}
-                        <span class="text-green-700">&#128214; Knihy</span>
+                        <span class="books">&#128214; Knihy</span>
                     {% elif art.typ == "Game" %}
-                        <span class="text-blue-700">&#127918; Hry</span>
+                        <span class="games">&#127918; Hry</span>
                     {% elif art.typ == "Series" %}
-                        <span class="text-purple-700">&#128253; Seriály</span>
+                        <span class="series">&#128253; Seriály</span>
                     {% else %}
-                        <span class="text-gray-600">&#128172; Ostatní</span>
+                        <span class="general">&#128172; Ostatní</span>
                     {% endif %}
-                </span>
-            </li>
-
-            <hr style="width: 98%; margin: 0 auto;">
-
-            <!-- Info -->
-            <li>
-                <small>
-                    {{ art.created|date:"d.m.Y" }}
-                </small>
-
-                {% if art.img400x250 %}
-                <div class="mt-2">
-                    <img src="{{ art.img400x250 }}" alt="{{ art.alt }}" class="w-48 rounded shadow">
                 </div>
-                {% endif %}
 
-                <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                    {{ art.perex|default:art.content|striptags|truncatechars:140 }}
-                </p>
-            </li>
+                <div class="lp-body">
+                    {% if art.img400x250 %}
+                        <img
+                            src="{{ art.img400x250 }}"
+                            alt="{{ art.alt }}"
+                            class="lp-image"
+                        >
+                    {% endif %}
 
-        </ol>
+                    <p class="lp-perex">
+                        {{ art.perex|default:art.content|striptags|truncatechars:140 }}
+                    </p>
+                </div>
+
+                <div class="lp-footer">
+                    <span>{{ art.created|date:"d.m.Y" }}</span>
+                </div>
+
+            </div>
         {% endfor %}
     {% else %}
         <p>Zatím žádné články.</p>
     {% endif %}
-</section>
+</div>
 
 
 <script>

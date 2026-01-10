@@ -1,4 +1,4 @@
-{% extends "books/base.html" %}
+{% extends "books/base_new.html" %}
 {% load humanize %}
 {% load i18n %}
 {% load ratings %}
@@ -7,341 +7,463 @@
 {% block title %}Knihy | DIV.cz{% endblock %}
 
 {% block meta %}
-<meta name="description" content="Databáze knih na DIV.cz. Objevte novinky, recenze, žebříčky, autory a další informace o vašich oblíbených knihách.">
-<link rel="canonical" href="https://div.cz/knihy/">
+    <meta name="description" content="Databáze knih na DIV.cz. Objevte novinky, recenze, žebříčky, autory a další informace o vašich oblíbených knihách.">
+    <link rel="canonical" href="https://div.cz/knihy/">
 
-<meta name="keywords" content="knihy, literatura, databáze knih, recenze, novinky, žebříčky, autoři, knižní novinky">
-<meta name="author" content="DIV.cz">
+    <meta name="keywords" content="knihy, literatura, databáze knih, recenze, novinky, žebříčky, autoři, knižní novinky">
+    <meta name="author" content="DIV.cz">
 
-<meta property="og:title" content="Knihy | Databáze knih na DIV.cz">
-<meta property="og:description" content="Prozkoumejte nejnovější knihy na DIV.cz. Aktuální recenze, novinky a žebříčky.">
-<meta property="og:image" content="https://div.cz/img/book/knizni-div.webp">
-<meta property="og:url" content="https://div.cz/knihy/">
+    <meta property="og:title" content="Knihy | Databáze knih na DIV.cz">
+    <meta property="og:description" content="Prozkoumejte nejnovější knihy na DIV.cz. Aktuální recenze, novinky a žebříčky.">
+    <meta property="og:image" content="https://div.cz/img/book/knizni-div.webp">
+    <meta property="og:url" content="https://div.cz/knihy/">
 
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Knihy | Databáze DIV.cz">
-<meta name="twitter:description" content="Aktuální databáze knih na DIV.cz. Recenze, novinky, a více.">
-<meta name="twitter:image" content="https://div.cz/img/book/knizni-div.webp">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Knihy | Databáze DIV.cz">
+    <meta name="twitter:description" content="Aktuální databáze knih na DIV.cz. Recenze, novinky, a více.">
+    <meta name="twitter:image" content="https://div.cz/img/book/knizni-div.webp">
 
-<style>
-    .bar-container {
-        flex-grow: 1;
-        background-color: #d3d3d3; 
-        border-radius: 5px;
-    }
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css">
 
-    .bar-book {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 20px;
-        background-color: #61872B;
-        border-radius: 5px;
-    }
+    <script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
 
-    .slick-dots {
-        margin-bottom: 20px;
-    }
-</style>
+    <style>
+        .rating {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-top: 0;
+            margin-right: 0;
+            padding: 0;
+            box-shadow: 0px 8px 16px rgb(147 147 147);
+        }
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css">
+        .rating::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 44px;
+            height: 44px;
+            background: #444444;
+            border-radius: 50%;
+            z-index: 2;
+            margin: 0;
+        }
 
-<script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
+        .rating::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50px;
+            height: 50px;
+            background: conic-gradient(
+                var(--gradient-color, #0a0) 0%,
+                var(--gradient-color, #0a0) var(--gradient-value, 50%),
+                #777777 var(--gradient-value, 50%)
+            );
+            border-radius: 50%;
+            z-index: 1;
+            margin: 0;
+        }
+
+        .rating-inner {
+            position: relative;
+            z-index: 3;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            /* margin-top: 10px;
+            margin-right: -10px; */
+        }
+
+        .rating-inner span {
+            font-size: 10px;
+            margin-left: 2px;
+            color: #ffd700;
+        }
+
+        .rating:is(.dark *) {
+            box-shadow: none;
+        }
+
+        .bar-container {
+            flex-grow: 1;
+            background-color: #d3d3d3; 
+            border-radius: 5px;
+        }
+
+        .bar-book {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 20px;
+            background-color: #61872B;
+            border-radius: 5px;
+        }
+
+        .slick-dots {
+            margin-bottom: 20px;
+        }
+
+        :is(.dark) .slick-dots li button:before {
+            color: #ffffff;
+        }
+
+    </style>
 
 {% endblock %}
 
 
 {% block content %}
 
-<div class="row container my-4">
+<div class="container">
     <!-- LEVÁ STRANA -->
-    <div class="col-lg-8">
-        <!-- carousel -->
+    <div class="left-side">
+        <!-- CAROUSEL -->
         <div class="book-slider">
             {% for book in top_books %}
-            <div class="book-item flex-wrap justify-center" style="display: flex; text-align: center; margin: 10px;"> 
-                <a href="/kniha/{{ book.url }}">
-                    <img class="box-shadow" style="max-width: 140px; height: 205px;" src="{% if book.img == 'noimg.png' %}https://div.cz/static/img/book/book.png {% elif book.img == 'GoogleID' %}https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api {% else %}https://media.div.cz/knihy/{{ book.img }}{% endif %}" alt="{{ book.titlecz|default:book.title }}">
-                </a>
-                <a class="w-full" style="min-height: 46px;" href="/kniha/{{ book.url }}">
-                    <h3 class="card-text">
-                        {{ book.titlecz|default:book.title }}
-                    </h3>
-                </a>
-                <p class="w-full" style="min-height: 46px;">{{ book.author }}</p>
-            </div>
+                <div class="book-item"> 
+                    <a href="/kniha/{{ book.url }}">
+                        <img src="{% if book.img == 'noimg.png' %}https://div.cz/static/img/book/book.png {% elif book.img == 'GoogleID' %}https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api {% else %}https://media.div.cz/knihy/{{ book.img }}{% endif %}" alt="{{ book.titlecz|default:book.title }}">
+                    </a>
+                    <a style="width: 100%; min-height: 46px;" href="/kniha/{{ book.url }}">
+                        <h3 class="card-text">
+                            {{ book.titlecz|default:book.title }}
+                        </h3>
+                    </a>
+                    <p style="width: 100%; min-height: 46px;">{{ book.author }}</p>
+                </div>
             {% endfor %}
         </div>
 
         {% if messages %}
-        <div class="mt-3">
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;margin:30px 10px;padding:10px">
-                {{ message|safe }}
+            <div style="margin-top: .75rem;">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" role="alert">
+                        {{ message|safe }}
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
-        </div>
         {% endif %}
 
- 
-
         <!-- generování knih -->
-        <div class="row my-4">
-            <div class="flex flex-wrap gap-2">
+        <div style="margin-bottom: 1rem;">
+            <div class="generating-books">
                 {% for book in book_list_15 %} 
-                <div class="w-full flex box-shadow bg-[#F9F9F9] dark:bg-[#1A161F] border rounded-1xl">
-                    <a href="/kniha/{{ book.url }}" style="width: 130px;">
-                    {% if book.img == "noimg.png" %}
-                        <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
-                        <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz|default:book.title }}" class="card-img-top rounded-l-lg">
-                        {% elif book.img == "GoogleID" %}
-                        <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
-                        <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}" class="card-img-top rounded-l-lg">
-                        {% else %}
-                        <!-- Jinak zobraz vlastní nahraný obrázek -->
-                        <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" class="card-img-top rounded-l-lg">
-                    {% endif %}   
-                    </a>
+                    <div class="book-card">
+                        <a href="/kniha/{{ book.url }}" style="width: 130px;">
+                            {% if book.img == "noimg.png" %}
+                                <!-- Pokud je book.img "noimg.png", zobraz výchozí obrázek -->
+                                <img src="/static/img/book/book.png" alt="Kniha {{ book.titlecz|default:book.title }}" style="height: 100%;">
+                                {% elif book.img == "GoogleID" %}
+                                <!-- Pokud je book.img "GoogleID", zobraz náhled z Google Books -->
+                                <img src="https://books.google.com/books/content?id={{ book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ book.titlecz|default:book.title }}" style="height: 100%;">
+                                {% else %}
+                                <!-- Jinak zobraz vlastní nahraný obrázek -->
+                                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz|default:book.title }}" style="height: 100%;">
+                            {% endif %}   
+                        </a>
 
-                    <div class="card-body w-min">
-                        <div class="flex justify-between">
-                            <div>
-                                <h4 class="card-title">
-                                    <a href="/kniha/{{ book.url }}">
-                                    {{ book.titlecz|default:book.title }}
-                                    </a>
-                                </h4>
-                                <h5 class="card-title">
-                                    {% if book.authorid and book.authorid.url %}
-                                        <a href="{% url 'author_detail' author_url=book.authorid.url %}">{{ book.author }}</a>
-                                    {% else %}
-                                        {{ book.author }}
-                                    {% endif %}
-                                </h5>
-                            </div>
+                        <div class="card-body" style="width: min-content;">
+                            <div class="card-header">
+                                <div>
+                                    <h4>
+                                        <a href="/kniha/{{ book.url }}">
+                                        {{ book.titlecz|default:book.title }}
+                                        </a>
+                                    </h4>
+                                    <h4>
+                                        {% if book.authorid and book.authorid.url %}
+                                            <a href="{% url 'author_detail' author_url=book.authorid.url %}">{{ book.author }}</a>
+                                        {% else %}
+                                            {{ book.author }}
+                                        {% endif %}
+                                    </h4>
+                                </div>
 
-                            <!-- hodnocení -->
-                            <div class="flex" style="width: 50px;">
-                                <div class="rating box-shadow" data-rating="{{ book.average_rating }}">
-                                    <div class="rating-inner">{{ book.average_rating }}%
+                                <!-- hodnocení -->
+                                <div style="display: flex; width: 50px;">
+                                    <div class="rating" data-rating="{{ book.average_rating }}">
+                                        <div class="rating-inner">
+                                            {{ book.average_rating }}%
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            <p class="card-text">{{ book.description|default_if_none:""|safe|truncatewords:40 }}</p>
+                            
                         </div>
-                        <p class="card-text">{{ book.description|default_if_none:""|safe|truncatewords:40 }}</p>
-                        
                     </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
             </div>
         </div>
 
         <!-- Poslední knižní recenze -->
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <div class="flex flex-wrap justify-between card-title after-h3">
-                    <h3 class="font-bold">Poslední knižní recenze</h3><a href="/knihy/"><small>Zobrazit vše</small></a>
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title after-h3">
+                    <h3>&#128221;&#65039; Poslední knižní recenze</h3><a href="/knihy/"><small>Zobrazit vše</small></a>
                 </div>
-                <div class="after last-line">   
+  
                 {% if latest_comments %} 
                     {% for comment in latest_comments %}  
-                    <div class="flex mb-3"> 
-                        <div class="mr-4 flex" style="width:100px; max-width:100px; flex-shrink:0;"> 
+                        <div class="last-review">  
                             {% if comment.bookid.img == "noimg.png" %} 
-                                <img src="/static/img/book/book.png" alt="Kniha {{ comment.bookid.titlecz }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
-                            {% elif comment.bookid.img == "GoogleID" %}
-                                <img src="https://books.google.com/books/content?id={{ comment.bookid.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ comment.bookid.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px;">
-                            {% else %}
-                                <img src="https://media.div.cz/knihy/{{ comment.bookid.img }}" alt="{{ comment.bookid.titlecz }}" class="w-full rounded" style="object-fit: cover; max-width: 200px;">
-                            {% endif %}
-                        </div>         
-            
-                        <div class="flex flex-wrap content-between ml-2" style="flex: 2;">
-                            <div class="flex flex-wrap">
-                                <a class="w-full font-semibold" href="{% url 'book_detail' comment.bookid.url %}#recenze">{{ comment.bookid.titlecz|default:comment.bookid.title }}</a>
-                                <p class="w-full text-sm">{{ comment.comment|truncatewords:30 }}</p>
-                            </div>
-                            
-                            <div class="w-full flex justify-end" style="font-size: small;">
-                                <p>Uživatel:
-                                {% if comment.user %}
-                                    <a href="/uzivatel/{{ comment.user.id }}/">{{ comment.user.username }}</a>
-                                </p> 
-                                {% endif %}
-                                <span class="ml-1">| {{ comment.dateadded|date:"d.m.Y H:i" }}</span>
-                            </div>
-                        </div> 
-                    </div>
+                                <img src="/static/img/book/book.png" alt="Kniha {{ comment.bookid.titlecz }}" class="img-fluid" style="object-fit: cover; max-width: 100px; margin-right: .5rem;">
+                                {% elif comment.bookid.img == "GoogleID" %}
+                                <img src="https://books.google.com/books/content?id={{ comment.bookid.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ comment.bookid.titlecz }}" class="img-fluid" style="object-fit: cover; max-width: 100px; margin-right: .5rem;">
+                                {% else %}
+                                <img src="https://media.div.cz/knihy/{{ comment.bookid.img }}" alt="{{ comment.bookid.titlecz }}" class="img-fluid" style="object-fit: cover; max-width: 100px; margin-right: .5rem;">
+                            {% endif %}        
+                
+                            <div class="last-review-body">
+                                <div class="last-review-title">
+                                    <a href="{% url 'book_detail' comment.bookid.url %}#recenze">{{ comment.bookid.titlecz|default:comment.bookid.title }}</a>
+                                    <p class="last-review-text">{{ comment.comment|truncatewords:30 }}</p>
+                                </div>
+                                
+                                <div class="last-review-user">
+                                    <p>Uživatel:
+                                        {% if comment.user %}
+                                            <a href="/uzivatel/{{ comment.user.id }}/">{{ comment.user.username }}</a>
+                                        {% endif %}
+                                    </p> 
+                                    <span>{{ comment.dateadded|date:"d.m.Y H:i" }}</span>
+                                </div>
+                            </div> 
+                        </div>
 
-                    {% if not forloop.last %}
-                    <hr class="my-3">
-                    {% endif %}
+                        {% if not forloop.last %}
+                            <hr style="margin: .75rem 0;">
+                        {% endif %}
                     {% endfor %} 
+                    
                     {% else %}
                     <p>Zatím žádné recenze od komunity.</p>
                 {% endif %}
-                </div>
             </div>
         </div>
     </div>
    
     <!-- PRAVÁ STRANA -->
-    <div class="col-lg-4 article-section ">
+    <div class="right-side ">
 
-        <!-- Čtenářský cíl přečtených knih -->
-        <!-- by Martin -->
-        <div class="card box-shadow mb-4">
-        {% if user.is_authenticated %}
-            {% if reading_goal %}
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <h3 class="after-h3 mb-0 font-bold">Cíl čtení pro rok {{ reading_goal.goalyear }}</h3>
-                <div class="flex flex-wrap items-center mb-4">
-                    <span class="w-full my-4">
-                        Přečtených {{ reading_goal.booksread }} / {{ reading_goal.goal }} knih
-                    </span>
-                    <div class="bar-container w-full flex justify-content-start">
-                        <div style="width: {% if reading_goal.progress > 100 %}100{% else %}{{ reading_goal.progress }}{% endif %}%" class="shadow-none flex flex-col text-center whitespace-nowrap justify-center 
-                            {% if reading_goal.progress < 50 %}
-                            {% elif reading_goal.progress < 75 %}
-                            {% elif reading_goal.progress < 100 %}
-                            {% endif %}">
-                            <span class="bar-book inline-block px-2">
-                            {{ reading_goal.progress|floatformat:1 }}%
+        <!-- Čtenářský cíl přečtených knih by Martin -->
+        <div class="card">
+            {% if user.is_authenticated %}
+                {% if reading_goal %}
+                    <div class="card-body">
+                        <h3 class="card-title after-h3">
+                            Cíl čtení pro rok {{ reading_goal.goalyear }}
+                        </h3>
+
+                        <div class="reading-goal">
+                            <span class="reading-goal-text">
+                                Přečtených {{ reading_goal.booksread }} / {{ reading_goal.goal }} knih
                             </span>
-                        </div>
-                        {% if reading_goal.progress == 0 %}
-                        <span class="text-xs">0%</span>
-                        {% endif %}
-                    </div>
-                </div>
 
-                {% if reading_goal.progress >= 100 %}
-                <div class="mt-2 text-center">
-                    Gratulujeme! Splnili jste svuj ctenarsky cil!
-                </div>
-                {% endif %}
+                            <div class="progress-bar">
+                                <div
+                                    class="progress-bar-fill"
+                                    style="width: {% if reading_goal.progress > 100 %}100{% else %}{{ reading_goal.progress }}{% endif %}%">
+                                    <span class="progress-bar-label">
+                                        {{ reading_goal.progress|floatformat:1 }}%
+                                    </span>
+                                </div>
 
-                <hr>
-
-                <form id="goalForm" class="flex flex-wrap justify-center text-center" method="POST" action="{% url 'set_reading_goal' %}">
-                    {% csrf_token %}
-                    <div class="flex-1 w-full">
-                        <label for="goal" class="w-full mt-0 mb-1">Upravit cil pro rok {{ reading_goal.goalyear }}</label>
-                        <div class="relative">
-                            <input type="number" name="goal" id="goal" min="1" value="{{ reading_goal.goal }}" class="mt-1 w-full pl-3 pr-12">
-                        </div>
-                    </div>
-                    <button type="submit" class="add-book mb-0"><i class="fa fa-save mr-2"></i> Uložit</button>
-                </form>
-            </div>
-
-            {% else %}
-            <div class="text-center py-4">
-                <p class="mb-4">Nastavte si svuj prvni ctenarsky cil!</p>
-                <form id="goalForm" class="max-w-sm mx-auto" method="POST" action="{% url 'set_reading_goal' %}">
-                    {% csrf_token %}
-                    <div class="flex gap-4">
-                        <div class="relative flex-1">
-                            <input type="number" name="goal" placeholder="Napr. 12"min="1" class="w-full pl-3 pr-12">
-                            <div class="absolute flex items-center pr-3">
-                            knih
+                                {% if reading_goal.progress == 0 %}
+                                    <span class="progress-zero">0%</span>
+                                {% endif %}
                             </div>
                         </div>
-                        <button type="submit" class="add-book mb-0">Začít</button>
+
+                        {% if reading_goal.progress >= 100 %}
+                            <div class="goal-complete">
+                                Gratulujeme! Splnili jste svůj čtenářský cíl!
+                            </div>
+                        {% endif %}
+
+                        <hr>
+
+                        <form id="goalForm" class="goal-form" method="POST" action="{% url 'set_reading_goal' %}">
+                            {% csrf_token %}
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="goal">
+                                    Upravit cíl pro rok {{ reading_goal.goalyear }}
+                                </label>
+                                <input style="width: 100%;" type="number" name="goal" id="goal" min="1" value="{{ reading_goal.goal }}" >
+                            </div>
+
+                            <button type="submit" class="btn add-book">
+                                <i class="fa fa-save"></i> Uložit
+                            </button>
+                        </form>
                     </div>
-                </form>
-            </div>
+
+                    {% else %}
+                    <div class="goal-empty">
+                        <p>Nastavte si svůj první čtenářský cíl!</p>
+                        <form id="goalForm" class="goal-form-start" method="POST" action="{% url 'set_reading_goal' %}">
+                            {% csrf_token %}
+                            <div class="form-row">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <input style="width: 100%;" type="number" name="goal" placeholder="Např. 12" min="1">
+                                    <span class="input-suffix">knih</span>
+                                </div>
+
+                                <button type="submit" class="btn add-book">
+                                    Začít
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                {% endif %}
+
+                {% else %}
+                <p class="card-body">
+                    Pro nastavení vlastního čtenářského cíle se prosím
+                    <a href="/prihlaseni/">přihlašte</a>.
+                </p>
             {% endif %}
-
-            {% else %}
-
-            <p class="card-body">Pro nastavení vlastního čtenářského cíle se prosím <a href="/prihlaseni/">přihlašte</a>.</p>
-        {% endif %}
         </div>
 
         <!-- BURZA KNIH -->
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-                <div class="flex flex-wrap card-title after-h3">
-                    <h3 class="font-bold">Burza knih</h3>
-                </div>
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title after-h3">&#128717; Burza knih</h3>
 
                 <!-- prodej -->
-                <div class="flex flex-wrap">
-                    <div class="flex flex-wrap justify-between w-full">
+                <div class="book-market">
+                    <div class="book-market-title">
                         <h4>Prodej</h4>
                         <div>
-                            <a href="{% url 'books_market_offers' %}"><small>Zobrazit vše</small></a>
+                            <a href="{% url 'books_market_offers' %}">
+                                <small>Zobrazit vše</small>
+                            </a>
                             {% if user.is_authenticated %}
-                                | <a href="{% url 'user_sell_listings' user.id %}"><small>Zobrazit moje</small></a>
+                                <span> | </span>
+                                <a href="{% url 'user_sell_listings' user.id %}">
+                                    <small>Zobrazit moje</small>
+                                </a>
                             {% endif %}
                         </div>
                     </div>
-                    {% for listing in recent_sell_listings %}
-                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
-                        <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
-                        {% if listing.book.img == "noimg.png" %}
-                            <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz|default:listing.book.title }}" class="rounded-l" style="width: 80px;">
-                        {% elif listing.book.img == "GoogleID" %}
-                            <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz|default:listing.book.title }}" class="rounded-l" style="width: 80px;">
-                        {% else %}
-                            <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;">
-                        {% endif %}
-                        </a>
 
-                        <div class="flex flex-wrap content-between h-full p-2" style="flex: 2;">
-                            <p class="w-full"><a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">{{ listing.book.titlecz|default:listing.book.title }}</a></p>
-                            <p class="w-full">{{ listing.book.author }}</p>
-                            <p class="w-full">{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
-                            <p class="text-sm text-end w-full">
-                                <small>
-                                    Přidal: 
-                                    <a href="{% url 'user_sell_listings' listing.user.id %}">{{ listing.user.username }}</a> | {{ listing.createdat|date:"j.n.Y" }}
-                                </small>
-                            </p>
+                    {% for listing in recent_sell_listings %}
+                        <div class="book-market-body">
+                            <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+                                {% if listing.book.img == "noimg.png" %}
+                                    <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz|default:listing.book.title }}">
+                                    {% elif listing.book.img == "GoogleID" %}
+                                    <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz|default:listing.book.title }}">
+                                    {% else %}
+                                    <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}">
+                                {% endif %}
+                            </a>
+
+                            <div class="book-market-text">
+                                <p>
+                                    <a href="{% url 'listing_detail_sell' listing.book.url listing.booklistingid %}">
+                                        {{ listing.book.titlecz|default:listing.book.title|truncatewords:4 }}
+                                    </a>
+                                </p>
+
+                                <p>{{ listing.book.author|truncatewords:2 }}</p>
+
+                                <p class="book-market-price books">
+                                    {% if listing.price %}
+                                        {{ listing.price|floatformat:0 }} 
+                                        Kč
+                                        {% else %}
+                                        Daruji
+                                    {% endif %}
+                                </p>
+
+                                <p class="book-market-user">
+                                    <small>
+                                        Přidal: 
+                                        <a href="{% url 'user_sell_listings' listing.user.id %}">
+                                            {{ listing.user.username }}
+                                        </a>
+                                        <span> | </span>
+                                        {{ listing.createdat|date:"j.n.Y" }}
+                                    </small>
+                                </p>
+                            </div>
                         </div>
-                    </div>
                     {% endfor %}
                 </div>
 
                 <hr>
 
                 <!-- poptávka -->
-                <div class="flex flex-wrap">
-                    <div class="flex flex-wrap justify-between w-full">
+                <div class="book-market">
+                    <div class="book-market-title">
                         <h4>Poptávka</h4>
                         <div>
-                            <a href="{% url 'books_market_wants' %}"><small>Zobrazit vše</small></a>
+                            <a href="{% url 'books_market_wants' %}">
+                                <small>Zobrazit vše</small>
+                            </a>
                             {% if user.is_authenticated %}
-                                | <a href="{% url 'user_buy_listings' user.id %}"><small>Zobrazit moje</small></a>
+                                <span> | </span>
+                                <a href="{% url 'user_buy_listings' user.id %}">
+                                    <small>Zobrazit moje</small>
+                                </a>
                             {% endif %}
                         </div>
                     </div>
-                    {% for listing in recent_buy_listings %}
-                    <div class="flex items-center w-full border bg-[#FFFFFF] dark:bg-[#0d0c0f] rounded mt-2">
-                        <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">
-                        {% if listing.book.img == "noimg.png" %}
-                            <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz|default:listing.book.title }}" class="rounded-l" style="width: 80px;">
-                        {% elif listing.book.img == "GoogleID" %}
-                            <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz|default:listing.book.title }}" class="rounded-l" style="width: 80px;">
-                        {% else %}
-                            <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}" class="rounded-l" style="width: 80px;">
-                        {% endif %}
-                        </a>
 
-                        <div class="flex flex-wrap content-between h-full p-2" style="flex: 2;">
-                            <p class="w-full"><a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">{{ listing.book.titlecz|default:listing.book.title }}</a></p>
-                            <p class="w-full">{{ listing.book.author }}</p>
-                            <p class="w-full">{% if listing.price %}{{ listing.price|floatformat:0 }} Kč{% else %}Daruji{% endif %}</p>
-                            <p class="text-sm text-end w-full">
-                                <small>
-                                    Přidal: 
-                                    <a href="{% url 'user_buy_listings' listing.user.id %}">{{ listing.user.username }}</a> | {{ listing.createdat|date:"j.n.Y" }}
-                                </small>
-                            </p>
+                    {% for listing in recent_buy_listings %}
+                        <div class="book-market-body">
+                            <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">
+                                {% if listing.book.img == "noimg.png" %}
+                                    <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz|default:listing.book.title }}">
+                                    {% elif listing.book.img == "GoogleID" %}
+                                    <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz|default:listing.book.title }}">
+                                    {% else %}
+                                    <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}">
+                                {% endif %}
+                            </a>
+
+                            <div class="book-market-text">
+                                <p>
+                                    <a href="{% url 'listing_detail_buy' listing.book.url listing.booklistingid %}">
+                                        {{ listing.book.titlecz|default:listing.book.title }}
+                                    </a>
+                                </p>
+
+                                <p>{{ listing.book.author }}</p>
+
+                                <p class="book-market-price books">
+                                    {% if listing.price %}
+                                        {{ listing.price|floatformat:0 }} 
+                                        Kč
+                                        {% else %}
+                                        Daruji
+                                    {% endif %}
+                                </p>
+                                
+                                <p class="book-market-user">
+                                    <small>
+                                        Přidal: 
+                                        <a href="{% url 'user_buy_listings' listing.user.id %}">
+                                            {{ listing.user.username }}
+                                        </a>
+                                        <span> | </span>
+                                        {{ listing.createdat|date:"j.n.Y" }}
+                                    </small>
+                                </p>
+                            </div>
                         </div>
-                    </div>
                     {% endfor %}
                 </div>
 
@@ -349,10 +471,10 @@
         </div>
 
         <!-- PRÁVĚ VYŠLO -->
-        <!-- <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <h3 class="card-title after-h3 font-bold">Právě vyšlo</h3>
-                <ul class="w-full" style="list-style-type:none">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title after-h3">&#127381; Právě vyšlo</h3>
+                <ul style="list-style-type:none">
                     <li><a href="https://test.div.cz/kniha/sikmy-kostel-3">Šikmý kostel 3</a></li>
                     <li><a href="https://div.cz/kniha/ctvrte-kridlo">Čtvrté křídlo</a></li>
                     <li><a href="https://div.cz/kniha/murtagh">Murtagh</a></li>
@@ -362,33 +484,33 @@
                     <li>Duna - retro vydání</li>
                 </ul>
             </div>
-        </div> -->
+        </div>
 
         <!-- ČLÁNKY -->
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <div class="flex flex-wrap justify-between card-title after-h3">
-                    <h3 class="font-bold">Články</h3><!--<a href="{% url 'articles_list' category='knihy' %}"><small>Zobrazit vše</small></a>-->
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title after-h3">
+                    <h3>&#128240;&#65039; Články</h3>
+                    <a href="{% url 'articles_list' category='knihy' %}"><small>Zobrazit vše</small></a>
                 </div>
-                <div class="flex flex-wrap after">
-                    <a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury" class="w-full">Magnesia Litera 2024</a>
-                    <a href="https://div.cz/literarni-cena-skleneny-klic-glasnyckeln" class="w-full">Skleněný klíč</a>
-                    <a href="/odhaleni-kouzla-slova-nobelova-cena-za-literaturu" class="w-full">Nobelova cena za literaturu</a>
-                    
-                    <a href="https://div.cz/pridej-svou-knihu" class="w-full">Přidej svou e-knihu</a>
+                <div class="article-head-title after">
+                    <a href="https://div.cz/magnesia-litera-2024-svatek-ceske-literatury">Magnesia Litera 2024</a>
+                    <a href="https://div.cz/literarni-cena-skleneny-klic-glasnyckeln">Skleněný klíč</a>
+                    <a href="/odhaleni-kouzla-slova-nobelova-cena-za-literaturu">Nobelova cena za literaturu</a>
+                    <a href="https://div.cz/pridej-svou-knihu">Přidej svou e-knihu</a>
                 </div>
-                <div class="text-right">
+                <div style="text-align: right;">
                     {% if user.is_superuser %}
-                    <a href="{% url 'article_new' category=category_key %}"><i class="fa-solid fa-plus"></i> Přidat nový článek</a>
+                        <a href="{% url 'article_new' category=category_key %}"><i class="fa-solid fa-plus"></i> Přidat nový článek</a>
                     {% endif %}
                 </div>
             </div>
         </div>
 
         <!-- AUTOŘI -->
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <h3 class="card-title font-bold after-h3">Autoři měsíce</h3>
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title after-h3">&#129333; Autoři měsíce</h3>
                 <ul>
                     <li><a href="https://div.cz/autor/karin-lednicka">Karin Lednická</a></li>
                     <li><a href="https://div.cz/autor/christopher-paolini">Christopher Paolini</a></li>
@@ -400,16 +522,15 @@
             </div>
         </div>
 
-        <!-- ŽÁNRY --><!--
-        <div class="card box-shadow mb-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <h3 class="card-title font-bold after-h3">Žánry</h3>
+        <!-- ŽÁNRY -->
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title after-h3">&#127917; Žánry</h3>
                 <div>
                     <a href="/knihy/biografie-a-autobiografie">Biografie a autobiografie</a> |
                     <a href="/knihy/cestopisy">Cestopisy</a> |
                     <a href="/knihy/krimi">Detektivní</a> |
                     <a href="/knihy/dobrodruzne">Dobrodružné</a> |
-
                     <a href="/knihy/detske">Dětské</a> |
                     <a href="/knihy/eroticke">Erotické</a> |
                     <a href="/knihy/fantasy">Fantasy</a> | 
@@ -418,16 +539,13 @@
                     <a href="/knihy/humor-a-zabava">Humorné</a> |
                     <a href="/knihy/komiksy-a-graficke-romany">Komiks</a> |
                     <a href="/knihy/literatura-faktu">Literatura faktu</a> |
-
                     <a href="/knihy/odborna">Odborná</a> |
                     <a href="/knihy/poezie">Poezie</a> |
                     <a href="/knihy/pohadky">Pohádky</a> |
                     <a href="/knihy/popularne-naucne">Populárně-naučné</a> |
                     <a href="/knihy/povidky">Povídky</a> |
                     <a href="/knihy/pro-mladez">Pro mládež</a> |
-
                     <a href="/knihy/romanticky">Romantický</a> |
-
                     <a href="/knihy/sci-fi">Sci-fi</a> |
                     <a href="/knihy/sportovni">Sportovní</a> |
                     <a href="/knihy/thriller">Thriller</a> |
@@ -437,40 +555,29 @@
                     <a href="/knihy/young-adult">Young adult</a>
                 </div>
             </div>
-        </div>-->
-
-
-<!-- META STATS -->
-<div class="card box-shadow mb-4">
-    <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl self-start">
-        
-        <h3 class="card-title font-bold after-h3">Knižní statistiky DIV</h3>
-
-        <ul class="list-unstyled mt-2" style="line-height: 1.6; font-size: 14px;">
+        </div>
 
 
 
-<li>📚 Knihy: {{ metastats.BooksCount|intcomma }}</li>
+						<!-- META STATS -->
+						<div class="card">
+							<div class="card-body">
+								<h3 class="card-title after-h3">Statistiky DIV</h3>
 
-<hr>
-
-<li>📚 Hodnocení knih: {{ metastats.BookRatingsCount|intcomma }}</li>
-
-<hr>
-
-<li>💬 Knižní komentáře: {{ metastats.BookCommentsCount|intcomma }}</li>
-<li>🗯️ Knižní hlášky: {{ metastats.BookQuotesCount|intcomma }}</li>
-
-<hr>
-
-<li>✍️ Spisovatelé: {{ metastats.BookWritersCount|intcomma }}</li>
-<li>🧙‍♂️ Postavy: {{ metastats.CharactersCount|intcomma }}</li>
+                                <div>
+                                    <h4>Knihy</h4>
+                                    <ul class="list-unstyled" style="line-height: 1.6; font-size: 14px; margin-left: 1rem;">
+                                        <li>&#128214;&#65039; Knihy: {{ metastats.BooksCount|intcomma }}</li>
+                                        <li>&#11088; Hodnocení knih: {{ metastats.BookRatingsCount|intcomma }}</li>
+                                        <li>&#128172;&#65039; Knižní komentáře: {{ metastats.BookCommentsCount|intcomma }}</li>
+                                        <li>&#128495;&#65039; Knižní citáty: {{ metastats.BookQuotesCount|intcomma }}</li>
+                                        <li>&#9997; Spisovatelé: {{ metastats.BookWritersCount|intcomma }}</li>
+                                    </ul>
+                                </div>
 
 
-        </ul>
-    </div>
-</div>
-
+                            </div>
+                        </div>
 
 
     </div>
@@ -505,3 +612,8 @@
 </script>
 
 {% endblock %}
+
+
+
+
+

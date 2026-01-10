@@ -250,7 +250,7 @@ def index(request): # hlavní strana
 
     # Filmy v kinech
     movies_in_cinema = Moviecinema.objects.select_related('movieid', 'distributorid').order_by('-releasedate').values(
-        'movieid__title', 'movieid__titlecz', 'movieid__img', 'releasedate', 'distributorid__name', 'movieid__url')[:10]
+        'movieid__title', 'movieid__titlecz', 'movieid__img', 'movieid__imgposter', 'releasedate', 'distributorid__name', 'movieid__url')[:10]
         
     # Statistiky
     stats_book = Metastats.objects.filter(tablemodel='Book').first()
@@ -542,7 +542,7 @@ def movies(request, year=None, genre_url=None, movie_url=None):
 
         # Filmy v kinech
         movies_in_cinema = Moviecinema.objects.select_related('movieid', 'distributorid').order_by('-releasedate').values(
-        'movieid__title', 'movieid__titlecz', 'movieid__img', 'releasedate', 'movieid__url')[:10]
+        'movieid__title', 'movieid__titlecz', 'movieid__img', 'movieid__imgposter', 'releasedate', 'movieid__url')[:10]
 
         # Filmy v kinech (Carousel Cinema)
         carousel_cinema = Moviecinema.objects.filter(movieid__img__isnull=False).exclude(movieid__img='noimg.png').select_related('movieid').order_by('-releasedate').values(
