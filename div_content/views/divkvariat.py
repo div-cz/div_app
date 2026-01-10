@@ -1172,6 +1172,9 @@ def send_listing_payment_confirmation_email(listing):
 
         amount = int(float(listing.price or 0) + float(listing.commission or 0))
         shipping = int(float(listing.shipping or 0))
+        
+        listing_url = f"https://div.cz/antikvariat/{listing.book.url}/{listing.booklistingid}/"
+
         context = {
             'book_title': book.titlecz,
             'buyer_name': user.first_name or user.username,
@@ -1179,6 +1182,7 @@ def send_listing_payment_confirmation_email(listing):
             'amount': amount,
             'shipping': shipping,
             'seller_name': listing.user.first_name or listing.user.username if listing.user else "",
+            'listing_url': listing_url,
 
             # BUYER
             'market_url': get_antikvariat_url(listing.platformbuyer),
@@ -1247,6 +1251,8 @@ def send_listing_payment_email(listing):
         book = listing.book
         buyer = listing.buyer
         seller = listing.user
+        listing_url = f"https://div.cz/antikvariat/{listing.book.url}/{listing.booklistingid}/"
+
         recipient = seller.email if seller else None
         if not recipient:
             print("[✖] Prodávající nemá e-mail – e-mail neodeslán.")
@@ -1267,6 +1273,7 @@ def send_listing_payment_email(listing):
             'shipping': shipping,
             'shippingaddress': listing.shippingaddress,
             'user_name': seller.first_name or seller.username if seller else "",
+            'listing_url': listing_url,
 
             # BUYER
             'market_url': get_antikvariat_url(listing.platformbuyer),
@@ -1453,6 +1460,7 @@ def send_listing_completed_email_buyer(listing):
     def _send(listing):
         book = listing.book
         buyer = listing.buyer
+
         recipient = buyer.email if buyer else None
         if not recipient:
             print("[✖] Kupující nemá e-mail – e-mail neodeslán.")
@@ -1463,6 +1471,7 @@ def send_listing_completed_email_buyer(listing):
             'book_title': book.titlecz,
             'book_url': book.url,
             'listing_id': listing.booklistingid,
+
             # BUYER
             'market_url': get_antikvariat_url(listing.platformbuyer),
             'market_domain': get_domain(listing.platformbuyer),
@@ -1500,6 +1509,7 @@ def send_listing_completed_email_seller(listing):
     def _send(listing):
         book = listing.book
         seller = listing.user
+
         recipient = seller.email if seller else None
         if not recipient:
             print("[✖] Prodávající nemá e-mail – e-mail neodeslán.")
@@ -1510,6 +1520,7 @@ def send_listing_completed_email_seller(listing):
             'book_title': book.titlecz,
             'book_url': book.url,
             'listing_id': listing.booklistingid,
+
             # BUYER
             'market_url': get_antikvariat_url(listing.platformbuyer),
             'market_domain': get_domain(listing.platformbuyer),
