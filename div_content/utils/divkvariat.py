@@ -7,12 +7,14 @@
 # ------------------------------------------------------
 
 import time
+from io import BytesIO
+
 from PIL import Image, ExifTags
 from django.core.files.base import ContentFile
+
+#nepoužíva se
 from django.shortcuts import render
 
-from io import BytesIO
-import time
 
 
 
@@ -100,7 +102,8 @@ DEFAULT_PLATFORM = "DIVKVARIAT"
 
 
 def get_platform(platform_code: str | None):
-    return PLATFORM_MAP.get(platform_code, PLATFORM_MAP[DEFAULT_PLATFORM])
+    code = (platform_code or DEFAULT_PLATFORM).upper()
+    return PLATFORM_MAP.get(code, PLATFORM_MAP[DEFAULT_PLATFORM])
 
 
 def get_antikvariat_url(platform_code: str | None):
@@ -109,6 +112,25 @@ def get_antikvariat_url(platform_code: str | None):
 
 def get_domain(platform_code: str | None):
     return get_platform(platform_code)["domain"]
+
+def get_listing_path(platform_code: str | None, book_url: str, listing_id: int, listing_type: str = "SELL") -> str:
+    listing_type = (listing_type or "SELL").upper()
+    book_url = (book_url or "").strip("/")
+    action = "poptavka" if listing_type == "BUY" else "prodej"
+    return f"/{book_url}/{action}/{listing_id}/"
+
+
+
+
+def get_listing_url(platform_code: str | None, book_url: str, listing_id: int, listing_type: str = "SELL") -> str:
+    base = get_antikvariat_url(platform_code).rstrip("/")
+    return f"{base}{get_listing_path(platform_code, book_url, listing_id, listing_type)}"
+
+
+def get_book_url(platform_code: str | None, book_url: str) -> str:
+    base = get_antikvariat_url(platform_code).rstrip("/")
+    book_url = (book_url or "").strip("/")
+    return f"{base}/{book_url}/"
 
 
 

@@ -70,7 +70,7 @@ from allauth.account.views import LoginView, SignupView, LogoutView
 from datetime import timedelta
 
 from div_content.forms.divkvariat import BookListingForm, DivkvariatBookMoodForm, DivkvariatBookAnnotationForm, DivkvariatBookAnnotationTextForm
-from div_content.utils.divkvariat import compress_image, get_platform, get_antikvariat_url, get_domain
+from div_content.utils.divkvariat import compress_image, get_platform, get_antikvariat_url, get_domain, get_listing_url
 
 from div_content.models import Article, Book, Bookauthor, Bookgenre, Bookwriters, Booklisting, Booklistingimage, Metagenre, Userdivcoins, Userprofile
 from div_content.models.divkvariat import (
@@ -635,7 +635,7 @@ def antikvariat_home(request):
         total_user_pending = pending_to_user['pending_price'] or 0
         user_paid_amount = Booklisting.objects.filter(
             user=user,
-            status='completed',
+            status='COMPLETED',
             paidtoseller= True,
         )
         paid_to_user= user_paid_amount.aggregate(total_price=Sum(F('price') + F('shipping')))
@@ -872,7 +872,7 @@ def cancel_listing_reservation(request, listing_id):
 def confirm_sale(request, purchase_id):
     purchase = get_object_or_404(Bookpurchase, id=purchase_id, seller=request.user)
     if request.method == "POST":
-        purchase.status = "completed"
+        purchase.status = "COMPLETED"
         purchase.completedat = timezone.now()
         purchase.save()
         return redirect("antikvariat_home")
@@ -1099,7 +1099,7 @@ def listing_detail(request, book_url, listing_id):
 
         user_paid_amount = Booklisting.objects.filter(
             user=user,
-            status='completed',
+            status='COMPLETED',
             paidtoseller=True,
         )
         paid_to_user = user_paid_amount.aggregate(
@@ -1394,15 +1394,17 @@ def listing_detail_edit(request, book_url, listing_id):
 def listing_upload_image(request, listing_id):
     listing = get_object_or_404(Booklisting, booklistingid=listing_id, user=request.user)
 
-    files = request.FILES.getlist("images") or request.FILES.getlist("image")
 
+    files = request.FILES.getlist("images") or request.FILES.getlist("image")
+    
     if request.method == "POST" and files:
-        for img in request.FILES.getlist("images"):
+        for img in files:
             compressed = compress_image(img)
             Booklistingimage.objects.create(listing=listing, image=compressed)
-
+    
         messages.success(request, "Fotografie byly nahrány.")
         return redirect("listing_detail_sell", book_url=listing.book.url, listing_id=listing.booklistingid)
+
 
     return JsonResponse({"error": "No image uploaded"}, status=400)
 
@@ -1699,7 +1701,12 @@ def send_listing_payment_confirmation_email(listing):
         amount = int(float(listing.price or 0) + float(listing.commission or 0))
         shipping = int(float(listing.shipping or 0))
         
-        listing_url = f"https://divkvariat.cz/{listing.book.url}/prodej/{listing.booklistingid}/"
+        listing_url = get_listing_url(
+            listing.platformseller,   # link na nabídku = platforma nabídky
+            listing.book.url,
+            listing.booklistingid,
+            listing.listingtype,
+        )
 
         context = {
             'book_title': book.titlecz,
@@ -1749,8 +1756,14 @@ def send_listing_payment_email(listing):
         book = listing.book
         buyer = listing.buyer
         seller = listing.user
-        listing_url = f"https://divkvariat.cz/{listing.book.url}/prodej/{listing.booklistingid}/"
-        
+
+        listing_url = get_listing_url(
+            listing.platformseller,   # link na nabídku = platforma nabídky
+            listing.book.url,
+            listing.booklistingid,
+            listing.listingtype,
+        )
+
         recipient = seller.email if seller else None
         if not recipient:
             print("[✖] Prodávající nemá e-mail – e-mail neodeslán.")
@@ -1954,7 +1967,7 @@ def send_listing_shipped_email(listing):
 
 
 # -------------------------------------------------------------------
-#                   SEND LISTING COMPLETED EMAIL - BUYER
+#                   SEND LISTING COMPLETED EMAIL - BUYER 
 # -------------------------------------------------------------------
 def send_listing_completed_email_buyer(listing):
     def _send(listing):
@@ -1962,41 +1975,66 @@ def send_listing_completed_email_buyer(listing):
         buyer = listing.buyer
         recipient = buyer.email if buyer else None
         if not recipient:
-            print("[✖] Kupující nemá e-mail – e-mail neodeslán.")
+            print("[✖] Kupující nemá e-mail.")
             return
+
+        # PODLE PLATFORMBUYER Z DATABÁZE (kde nakoupil)
+        if listing.platformbuyer == "DIVKVARIAT":
+            BUYER_DOMAIN = "divkvariat.cz"
+            BUYER_SITE_NAME = "DIVkvariát"
+            BUYER_EMAIL_FROM = os.getenv("DIVKVARIAT_CZ_EMAIL", "antikvariat@divkvariat.cz")
+        else:  # "DIV" nebo null/blank
+            BUYER_DOMAIN = "div.cz"
+            BUYER_SITE_NAME = "DIV.cz Antikvariát"
+            BUYER_EMAIL_FROM = os.getenv("DIVKVARIAT_EMAIL", "antikvariat@div.cz")
+
+        # PODLE PLATFORMSELLER Z DATABÁZE (kde prodává)
+        if listing.platformseller == "DIVKVARIAT":
+            SELLER_DOMAIN = "divkvariat.cz"
+            SELLER_SITE_NAME = "DIVkvariát"
+        else:  # "DIV" nebo null/blank
+            SELLER_DOMAIN = "div.cz"
+            SELLER_SITE_NAME = "DIV.cz Antikvariát"
 
         context = {
             'buyer_name': buyer.first_name or buyer.username,
             'book_title': book.titlecz,
             'book_url': book.url,
             'listing_id': listing.booklistingid,
-            # BUYER
-            'market_url': get_antikvariat_url(listing.platformbuyer),
-            'market_domain': get_domain(listing.platformbuyer),
-            'market_name': get_platform(listing.platformbuyer)["name"],
-        
-            # SELLER
-            'seller_market_url': get_antikvariat_url(listing.platformseller),
-            'seller_market_domain': get_domain(listing.platformseller),
-            'seller_market_name': get_platform(listing.platformseller)["name"],
-
+            
+            # PRO KUPUJÍCÍHO (kde nakoupil - JEHO platforma)
+            'market_url': f"https://{BUYER_DOMAIN}",
+            'market_domain': BUYER_DOMAIN,
+            'market_name': BUYER_SITE_NAME,
+            
+            # PRO PRODAVAJÍCÍHO (kde prodal - JEHO platforma)
+            'seller_market_url': f"https://{SELLER_DOMAIN}",
+            'seller_market_domain': SELLER_DOMAIN,
+            'seller_market_name': SELLER_SITE_NAME,
+            
+            # ODKAZ PŘÍMO NA NABÍDKU (na platformě PRODAVAJÍCÍHO - tam byla nabídka)
+            'listing_url': get_listing_url(listing.platformseller, book.url, listing.booklistingid, listing.listingtype),
         }
 
         html_email = render_to_string('emails/listing_completed_confirmation_buyer.html', context)
 
         msg = PyEmailMessage()
-        msg['Subject'] = os.getenv("EMAIL_SUBJECT_COMPLETED_BUYER").format(title=book.titlecz)
-        msg['From'] = os.getenv("DIVKVARIAT_ADDRESS")
+        msg['Subject'] = f"Nákup knihy {book.titlecz} dokončen | {BUYER_SITE_NAME}"
+        msg['From'] = BUYER_EMAIL_FROM  # Z platformy kde nakoupil
         msg['To'] = recipient
         msg.set_content(html_email, subtype='html')
 
         try:
             with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-                smtp.login(os.getenv("DIVKVARIAT_ADDRESS"), os.getenv("DIVKVARIAT_PASSWORD"))
+                # Použij příslušné heslo podle platformy
+                if listing.platformbuyer == "DIVKVARIAT":
+                    smtp.login(BUYER_EMAIL_FROM, os.getenv("DIVKVARIAT_CZ_PASSWORD", os.getenv("DIVKVARIAT_PASSWORD")))
+                else:
+                    smtp.login(BUYER_EMAIL_FROM, os.getenv("DIVKVARIAT_PASSWORD"))
                 smtp.send_message(msg)
-            print(f"[✔] E-mail o dokončení obchodu (kupující) odeslán na {recipient}")
+            print(f"[✔] Email kupujícímu {recipient} z {BUYER_DOMAIN}")
         except Exception as e:
-            print(f"[✖] Chyba při odesílání e-mailu kupujícímu: {e}")
+            print(f"[✖] Chyba: {e}")
 
     threading.Thread(target=_send, args=(listing,)).start()
 
@@ -2010,44 +2048,64 @@ def send_listing_completed_email_seller(listing):
         seller = listing.user
         recipient = seller.email if seller else None
         if not recipient:
-            print("[✖] Prodávající nemá e-mail – e-mail neodeslán.")
+            print("[✖] Prodávající nemá e-mail.")
             return
+
+        # PODLE PLATFORMSELLER Z DATABÁZE
+        if listing.platformseller == "DIVKVARIAT":
+            SELLER_DOMAIN = "divkvariat.cz"
+            SELLER_SITE_NAME = "DIVkvariát"
+            SELLER_EMAIL = os.getenv("DIVKVARIAT_CZ_EMAIL", "antikvariat@divkvariat.cz")
+        else:  # "DIV" nebo null/blank
+            SELLER_DOMAIN = "div.cz"
+            SELLER_SITE_NAME = "DIV.cz Antikvariát"
+            SELLER_EMAIL = os.getenv("DIVKVARIAT_EMAIL", "antikvariat@div.cz")
+
+        # PODLE PLATFORMBUYER Z DATABÁZE
+        if listing.platformbuyer == "DIVKVARIAT":
+            BUYER_DOMAIN = "divkvariat.cz"
+            BUYER_SITE_NAME = "DIVkvariát"
+        else:  # "DIV" nebo null/blank
+            BUYER_DOMAIN = "div.cz"
+            BUYER_SITE_NAME = "DIV.cz Antikvariát"
 
         context = {
             'seller_name': seller.first_name or seller.username,
             'book_title': book.titlecz,
             'book_url': book.url,
             'listing_id': listing.booklistingid,
-            # BUYER
-            'market_url': get_antikvariat_url(listing.platformbuyer),
-            'market_domain': get_domain(listing.platformbuyer),
-            'market_name': get_platform(listing.platformbuyer)["name"],
-        
-            # SELLER
-            'seller_market_url': get_antikvariat_url(listing.platformseller),
-            'seller_market_domain': get_domain(listing.platformseller),
-            'seller_market_name': get_platform(listing.platformseller)["name"],
-
+            
+            # PRO KUPUJÍCÍHO (kde koupil)
+            'market_url': f"https://{BUYER_DOMAIN}",
+            'market_domain': BUYER_DOMAIN,
+            'market_name': BUYER_SITE_NAME,
+            
+            # PRO PRODAVAJÍCÍHO (kde prodal)
+            'seller_market_url': f"https://{SELLER_DOMAIN}",
+            'seller_market_domain': SELLER_DOMAIN,
+            'seller_market_name': SELLER_SITE_NAME,
+            
+            # ODKAZ PŘÍMO NA NABÍDKU (na platformě prodávajícího)
+            'listing_url': get_listing_url(listing.platformseller, book.url, listing.booklistingid, listing.listingtype),
         }
 
         html_email = render_to_string('emails/listing_completed_confirmation_seller.html', context)
 
         msg = PyEmailMessage()
-        msg['Subject'] = os.getenv("EMAIL_SUBJECT_COMPLETED_SELLER").format(title=book.titlecz)
-        msg['From'] = os.getenv("DIVKVARIAT_ADDRESS")
+        msg['Subject'] = f"Prodej knihy {book.titlecz} dokončen | {SELLER_SITE_NAME}"
+        msg['From'] = SELLER_EMAIL
         msg['To'] = recipient
         msg.set_content(html_email, subtype='html')
 
         try:
             with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
-                smtp.login(os.getenv("DIVKVARIAT_ADDRESS"), os.getenv("DIVKVARIAT_PASSWORD"))
+                smtp.login(SELLER_EMAIL, os.getenv("DIVKVARIAT_PASSWORD"))  # stejné heslo pro obě?
                 smtp.send_message(msg)
-            print(f"[✔] E-mail o dokončení obchodu (prodávající) odeslán na {recipient}")
+            print(f"[✔] Email prodávajícímu {recipient} z {SELLER_DOMAIN}")
         except Exception as e:
-            print(f"[✖] Chyba při odesílání e-mailu prodávajícímu: {e}")
+            print(f"[✖] Chyba: {e}")
 
     threading.Thread(target=_send, args=(listing,)).start()
-
 
 
 # -------------------------------------------------------------------
@@ -2101,44 +2159,135 @@ class CustomLogoutView(LogoutView):
         return context
 
 # -------------------------------------------------------------------
-# F:                 USER PROFILE
+# F:                 PUBLIC USER PROFILE (VEŘEJNÝ)
 # -------------------------------------------------------------------
 def user_profile(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)
-
-    # Aktivní nabídky (SELL a GIVE)
-    active_sell = Booklisting.objects.filter(
+    
+    
+    # 1️⃣ AKCE ČEKAJÍCÍ NA VYŘÍZENÍ (pouze pro přihlášeného uživatele na svůj profil)
+    user_actions_required = []
+    if request.user.id == user_id:
+        # A) Jako PRODAVAJÍCÍ čeká na moji akci
+        actions_as_seller = Booklisting.objects.filter(
+            user=profile_user,
+            status__in=['PAID', 'SHIPPED', 'RESERVED']  # čeká na odeslání/potvrzení
+        ).select_related('book').order_by('-updatedat')
+        
+        # B) Jako KUPUJÍCÍ čeká na moji akci  
+        actions_as_buyer = Booklisting.objects.filter(
+            buyer=profile_user,
+            status__in=['RESERVED', 'SHIPPED']  # čeká na zaplacení/potvrzení přijetí
+        ).select_related('book').order_by('-updatedat')
+        
+        user_actions_required = list(actions_as_seller) + list(actions_as_buyer)
+    
+    # 2️⃣ AKTIVNÍ NABÍDKY K PRODEJI (S PAGINACÍ)
+    active_sell_qs = Booklisting.objects.filter(
         user=profile_user,
         listingtype__in=["SELL", "GIVE"],
         status="ACTIVE"
-    ).order_by("-createdat")
-
-    # Aktivní poptávky (BUY)
-    active_buy = Booklisting.objects.filter(
+    ).select_related('book').order_by("-createdat")
+    
+    paginator_sell = Paginator(active_sell_qs, 12)
+    page_sell = request.GET.get('page_sell', 1)
+    active_sell = paginator_sell.get_page(page_sell)
+    
+    # 3️⃣ AKTIVNÍ POPTÁVKY K NÁKUPU (S PAGINACÍ)
+    active_buy_qs = Booklisting.objects.filter(
         user=profile_user,
         listingtype="BUY",
         status="ACTIVE"
-    ).order_by("-createdat")
-
-    # Historie — prodeje, které už skončily
-    sold_history = Booklisting.objects.filter(
+    ).select_related('book').order_by("-createdat")
+    
+    paginator_buy = Paginator(active_buy_qs, 12)
+    page_buy = request.GET.get('page_buy', 1)
+    active_buy = paginator_buy.get_page(page_buy)
+    
+    # 4️⃣ PRODANÉ KNIHY (S PAGINACÍ)
+    sold_books_qs = Booklisting.objects.filter(
         user=profile_user,
-        status="COMPLETED"
-    ).order_by("-completedat")
-
-    # Historie — nákupy
-    bought_history = Booklisting.objects.filter(
+        status="COMPLETED",
+        listingtype__in=['SELL', 'GIVE']
+    ).select_related('book').order_by("-completedat")
+    
+    paginator_sold = Paginator(sold_books_qs, 10)
+    page_sold = request.GET.get('page_sold', 1)
+    sold_books = paginator_sold.get_page(page_sold)
+    
+    # 5️⃣ ZAKOUPENÉ KNIHY (S PAGINACÍ)
+    bought_books_qs = Booklisting.objects.filter(
         buyer=profile_user,
-        status="COMPLETED"
-    ).order_by("-completedat")
-
-    return render(request, "divkvariat/user_profile.html", {
-        "profile_user": profile_user,
-        "active_sell": active_sell,
-        "active_buy": active_buy,
-        "sold_history": sold_history,
-        "bought_history": bought_history,
-    })
+        status="COMPLETED",
+        listingtype__in=['SELL', 'GIVE']
+    ).select_related('book', 'user').order_by("-completedat")
+    
+    paginator_bought = Paginator(bought_books_qs, 10)
+    page_bought = request.GET.get('page_bought', 1)
+    bought_books = paginator_bought.get_page(page_bought)
+    
+    # 6️⃣ HODNOCENÍ
+    seller_ratings = Booklisting.objects.filter(
+        user=profile_user,
+        status='COMPLETED',
+        sellerrating__isnull=False
+    )
+    avg_seller_rating = seller_ratings.aggregate(Avg('sellerrating'))['sellerrating__avg'] or 0
+    seller_ratings_count = seller_ratings.count()
+    
+    buyer_ratings = Booklisting.objects.filter(
+        buyer=profile_user,
+        status='COMPLETED',
+        buyerrating__isnull=False
+    )
+    avg_buyer_rating = buyer_ratings.aggregate(Avg('buyerrating'))['buyerrating__avg'] or 0
+    buyer_ratings_count = buyer_ratings.count()
+    
+    # 7️⃣ STATISTIKY
+    stats = {
+        'total_sold': Booklisting.objects.filter(
+            user=profile_user,
+            status="COMPLETED",
+            listingtype__in=['SELL', 'GIVE']
+        ).count(),
+        'total_bought': Booklisting.objects.filter(
+            buyer=profile_user,
+            status="COMPLETED",
+            listingtype__in=['SELL', 'GIVE']
+        ).count(),
+        'active_offers': active_sell_qs.count(),
+        'active_requests': active_buy_qs.count(),
+        'pending_actions': len(user_actions_required),  # nové
+        'member_since': profile_user.date_joined.strftime("%d. %m. %Y"),
+    }
+    
+    context = {
+        'profile_user': profile_user,
+        
+        # AKCE ČEKAJÍCÍ NA VYŘÍZENÍ
+        'user_actions_required': user_actions_required,
+        'has_pending_actions': len(user_actions_required) > 0,
+        
+        # PAGINOVANÉ SEZNAMY
+        'active_sell': active_sell,
+        'active_buy': active_buy,
+        'sold_books': sold_books,
+        'bought_books': bought_books,
+        
+        # HODNOCENÍ
+        'avg_seller_rating': avg_seller_rating,
+        'seller_ratings_count': seller_ratings_count,
+        'avg_buyer_rating': avg_buyer_rating,
+        'buyer_ratings_count': buyer_ratings_count,
+        
+        # STATISTIKY
+        'stats': stats,
+        
+        # FLAGY
+        'is_own_profile': request.user.id == user_id,
+    }
+    
+    return render(request, "divkvariat/account/public_user_profile.html", context)
 # -------------------------------------------------------------------
 # F:                 USER EDIT
 # -------------------------------------------------------------------

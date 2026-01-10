@@ -411,7 +411,7 @@ def books(request):
     
     recent_listings = get_market_listings()
     
-    ebooks2 = get_palmknihy_ebooks(limit=6)
+    #ebooks2 = get_palmknihy_ebooks(limit=6)
     
     last_comment = Bookcomments.objects.select_related('user', 'bookid').order_by('-commentid').first()
     latest_comments = Bookcomments.objects.order_by('-dateadded')[:3]
@@ -426,7 +426,7 @@ def books(request):
         'reading_goal': reading_goal,
         'category_key': 'knihy',
         'recent_listings': recent_listings,
-        'ebooks2': ebooks2,
+        #'ebooks2': ebooks2,
         'last_comment': last_comment,
         'latest_comments': latest_comments,
         'recent_sell_listings': recent_sell_listings,
