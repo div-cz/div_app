@@ -151,7 +151,7 @@
                             <div class="last-review-body">
                                 <div class="last-review-title">
                                     <a href="{% url 'movie_detail' comment.movieid.url %}">{{ comment.movieid.titlecz }}</a>
-                                    <p class="last-review-text">{{ comment.comment|truncatewords:30 }}</p>
+                                    <p class="last-review-text">{{ comment.comment }}</p>
                                 </div>
                                 
                                 <div class="last-review-user">
@@ -183,22 +183,26 @@
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title after-h3">&#127871; V kinech</h3>
-                {% for movie in movies_in_cinema %}
-                    <div class="after last-line">
-                        <div style="display: flex; justify-items: center;">
-                            {% if movie.movieid__img == "noimg.png" %}
-                                <img src="/static/img/nomovie_400.jpg" alt="Bez obrázku - {{ movie.movieid__img }}" style="float:left; width:75px; margin-right:.5rem;">
+                <div class="v-kine">
+                    {% for movie in movies_in_cinema %}
+                        <div class="movie-card">
+                            <div class="movie-poster">
+                                {% if movie.movieid__imgposter == "noimg.png" %}
+                                    <img src="/static/img/nomovie_400.jpg" alt="Bez obrázku">
                                 {% else %}
-                                <img src="https://www.themoviedb.org/t/p/w1066_and_h600_bestv2{{ movie.movieid__img }}" alt="{{ movie.titlecz }}" style="float:left; width:75px; margin-right:.5rem;">
-                            {% endif %}
-                            <div style="flex: 2;">
-                                <a href="https://div.cz/film/{{ movie.movieid__url }}">{{ movie.movieid__titlecz }}</a> 
-                                <p><small>({{ movie.releasedate }})</small></p>
+                                    <img src="https://www.themoviedb.org/t/p/w300_and_h450_bestv2{{ movie.movieid__imgposter }}" alt="{{ movie.movieid__titlecz }}">
+                                {% endif %}
                             </div>
-                        </div> 
-                        <!-- <div>{{ movie.distributorid__name }}</div> -->
-                    </div>
-                {% endfor %}
+
+                            <div class="movie-info">
+                                <a href="https://div.cz/film/{{ movie.movieid__url }}" class="movie-link">
+                                    <h4>{{ movie.movieid__titlecz }}</h4>
+                                </a>
+                                <span class="movie-date">{{ movie.releasedate }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
 
@@ -414,8 +418,5 @@
             
     </div>
 </div>
-
-<script>
-
-            
+        
 {% endblock %}

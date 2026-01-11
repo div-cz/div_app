@@ -10,7 +10,7 @@ import time
 from PIL import Image, ExifTags
 from django.core.files.base import ContentFile
 from io import BytesIO
-import time
+
 
 
 

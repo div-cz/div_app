@@ -95,21 +95,6 @@
             box-shadow: none;
         }
 
-        .bar-container {
-            flex-grow: 1;
-            background-color: #d3d3d3; 
-            border-radius: 5px;
-        }
-
-        .bar-book {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 20px;
-            background-color: #61872B;
-            border-radius: 5px;
-        }
-
         .slick-dots {
             margin-bottom: 20px;
         }
@@ -199,7 +184,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="card-text">{{ book.description|default_if_none:""|safe|truncatewords:40 }}</p>
+                            <p class="card-text">{{ book.description|default_if_none:""|safe }}</p>
                             
                         </div>
                     </div>
@@ -228,7 +213,7 @@
                             <div class="last-review-body">
                                 <div class="last-review-title">
                                     <a href="{% url 'book_detail' comment.bookid.url %}#recenze">{{ comment.bookid.titlecz|default:comment.bookid.title }}</a>
-                                    <p class="last-review-text">{{ comment.comment|truncatewords:30 }}</p>
+                                    <p class="last-review-text">{{ comment.comment }}</p>
                                 </div>
                                 
                                 <div class="last-review-user">
@@ -272,10 +257,8 @@
                             </span>
 
                             <div class="progress-bar">
-                                <div
-                                    class="progress-bar-fill"
-                                    style="width: {% if reading_goal.progress > 100 %}100{% else %}{{ reading_goal.progress }}{% endif %}%">
-                                    <span class="progress-bar-label">
+                                <div class="progress-bar-fill" style="width: {% if reading_goal.progress > 100 %}100{% else %}{{ reading_goal.progress }}{% endif %}%">
+                                    <span class="bar-book">
                                         {{ reading_goal.progress|floatformat:1 }}%
                                     </span>
                                 </div>
@@ -570,6 +553,7 @@
     </div>
 </div>
 
+<!-- CAROUSEL -->
 <script>
     $(document).ready(function(){
         $('.book-slider').slick({

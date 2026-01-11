@@ -382,10 +382,7 @@
                                 <p style="width: 80%;">{{ comment.comment }}</p>
 
                                 {% if user.is_authenticated and comment.user == user %}
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-secondary"
-                                        onclick="toggleEditForm({{ comment.commentid }})">
+                                    <button type="button" onclick="toggleEditForm({{ comment.commentid }})">
                                         Upravit
                                     </button>
                                 {% endif %}
@@ -399,20 +396,16 @@
 
                                     <form method="post">
                                         {% csrf_token %}
-                                        <textarea
-                                            name="comment"
-                                            rows="4"
-                                            class="form-control">{{ comment.comment }}</textarea>
+                                        <textarea name="comment" rows="4" class="form-control">
+                                            {{ comment.comment }}
+                                        </textarea>
 
                                         <div style="margin-top: 10px;">
                                             <button type="submit" class="btn add-movie">
                                                 Uložit změny
                                             </button>
 
-                                            <button
-                                                type="button"
-                                                class="btn btn-secondary"
-                                                onclick="toggleEditForm({{ comment.commentid }})">
+                                            <button type="button" class="btn btn-secondary" onclick="toggleEditForm({{ comment.commentid }})">
                                                 Zrušit
                                             </button>
                                         </div>
@@ -422,7 +415,7 @@
 
                             <!-- INFO -->
                             <div class="user">
-                                <p>{{ comment.dateadded }}</p>
+                                <p><small>{{ comment.dateadded }}</small></p>
                                 <p>
                                     Přidal:
                                     <a href="{% url 'user_profile_with_profil' comment.user.pk %}">

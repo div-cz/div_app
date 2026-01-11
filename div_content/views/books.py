@@ -525,18 +525,17 @@ def book_detail(request, book_url):
     else:
         is_in_book_library = False
     
-    if user.is_authenticated and 'comment' in request.POST:
-        comment_form = CommentFormBook(request.POST)
-        if comment_form.is_valid():
-            Bookcomments.objects.update_or_create(
-                bookid=book,
-                user=request.user,
-                defaults={
-                    'comment': comment_form.cleaned_data['comment'],
-                    'dateadded': timezone.now()
-                }
-            )
-            return redirect('book_detail', book_url=book_url)
+    if user.is_authenticated:
+        if 'comment' in request.POST:
+                comment_form = CommentFormBook(request.POST)
+                if comment_form.is_valid():
+                    comment = comment_form.cleaned_data['comment']
+                    Bookcomments.objects.create(comment=comment, bookid=book, user=request.user)
+                    return redirect('book_detail', book_url=book_url)
+                else:
+                    print(comment_form.errors)
+        else:
+            comment_form = CommentFormBook(request=request)
 
 
     comments = Bookcomments.objects.filter(bookid=book).order_by('-commentid')

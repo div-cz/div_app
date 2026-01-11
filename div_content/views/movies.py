@@ -181,31 +181,17 @@ def movie_detail(request, movie_url):
     else:
         ratings = base_ratings.order_by('-created')
 
-
     if user.is_authenticated:
-        user_comment = Moviecomments.objects.filter(
-            movieid=movie,
-            user=request.user
-        ).first()
-
-        if request.method == "POST" and "comment" in request.POST:
+        if 'comment' in request.POST:
             comment_form = CommentForm(request.POST)
             if comment_form.is_valid():
-                Moviecomments.objects.update_or_create(
-                    movieid=movie,
-                    user=request.user,
-                    defaults={
-                        "comment": comment_form.cleaned_data["comment"]
-                    }
-                )
-                return redirect("movie_detail", movie_url=movie.url)
+                comment = comment_form.cleaned_data['comment']
+                Moviecomments.objects.create(comment=comment, movieid=movie, user=request.user)
+                return redirect('movie_detail', movie_url=movie_url)
+            else:
+                print(comment_form.errors)
         else:
-            if user_comment:
-                comment_form = CommentForm(
-                    initial={"comment": user_comment.comment}
-                )
-    else:
-        comment_form = None
+            comment_form = CommentForm(request=request)
 
 
     # Výpočet průměrného hodnocení
@@ -459,7 +445,7 @@ def search(request):
         if form.is_valid():
             query = form.cleaned_data['q']
             sql_query = """
-                SELECT Title, TitleCZ, URL, IMG, Description, ReleaseYear, Popularity, AverageRating
+                SELECT Title, TitleCZ, URL, IMG, IMGposter, Description, ReleaseYear, Popularity, AverageRating
                 FROM Movie
                 WHERE Adult = 0 AND MATCH(TitleCZ) AGAINST(%s IN NATURAL LANGUAGE MODE)
                 ORDER BY Popularity DESC

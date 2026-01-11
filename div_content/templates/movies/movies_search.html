@@ -48,13 +48,11 @@
             <!-- Řádky -->
             {% for movie in movies %}
                 <div class="search-grid search-row">
-                    <a href="/film/{{ movie.URL }}">
-                        {% if movie.IMG == "noimg.png" %}
-                            <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ movie.TitleCZ }}">
-                            {% else %}
-                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.IMG }}" alt="{{ movie.TitleCZ }}">
-                        {% endif %}
-                    </a>
+                    {% if movie.imgposter == "noimg.png" %}
+                        <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ movie.TitleCZ }}">
+                        {% else %}
+                        <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ movie.IMGposter }}" alt="{{ movie.TitleCZ }}">
+                    {% endif %}
 
                     <div class="title">
                         <a href="/film/{{ movie.URL }}">{{ movie.TitleCZ }}</a>
@@ -64,6 +62,9 @@
                         <a href="/filmy/{{ movie.ReleaseYear }}">{{ movie.ReleaseYear }}</a>
                     </div>
 
+                    <!--------------------> 
+                    <!-- NEFUNGUJEEEEEE -->
+                    <!--------------------> 
                     <div class="search-rating">
                         {% if user.is_authenticated %}
                             <div class="movie-rating">
@@ -77,7 +78,7 @@
 
                                 <div class="stars">
                                     {% if movie.AverageRating %}
-                                        <span> <!-- hodnocení uživatele -->
+                                        <span>
                                             {% for _ in "12345" %}
                                                 {% if forloop.counter <= rating.score %}
                                                 <span>★</span>
