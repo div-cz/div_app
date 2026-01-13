@@ -121,7 +121,7 @@ def get_listing_path(platform_code: str | None, book_url: str, listing_id: int, 
 
 
 
-
+# Nepoužíváme 
 def get_listing_url(platform_code: str | None, book_url: str, listing_id: int, listing_type: str = "SELL") -> str:
     base = get_antikvariat_url(platform_code).rstrip("/")
     return f"{base}{get_listing_path(platform_code, book_url, listing_id, listing_type)}"
