@@ -193,22 +193,21 @@ if (bellBtn && dropbox) {
   
 // HODNOCENÍ POPUP NA MOBIL
 document.addEventListener("DOMContentLoaded", () => {
-
-    const openBtn = document.querySelector(".rating-popup-btn");
     const popup = document.getElementById("ratingPopup");
-    const closeBtn = document.querySelector(".popup-close");
+    const closeBtn = popup.querySelector(".popup-close");
 
-    if (openBtn) {
-        openBtn.addEventListener("click", () => {
+    // Všechna tlačítka (mobil + desktop)
+    document.querySelectorAll(".rating-popup-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
             popup.style.display = "block";
         });
-    }
+    });
 
     closeBtn.addEventListener("click", () => {
         popup.style.display = "none";
     });
 
-    // Zavření kliknutím mimo okno
+    // klik mimo okno = zavřít
     popup.addEventListener("click", e => {
         if (e.target === popup) popup.style.display = "none";
     });

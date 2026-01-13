@@ -30,7 +30,7 @@
 # 3) third-part (třetí strana, django, auth) (abecedně)
 # -------------------------------------------------------------------
 
-from datetime import date
+from datetime import date, timedelta
 from django.db.models import Exists, OuterRef
 from django.contrib.contenttypes.models import ContentType
 from div_content.models import (
@@ -87,7 +87,14 @@ def filter_creators(request, qs_creators, **kwargs):
     people = []
 
     # --- CREATORS ---
-    creators = qs_creators.filter(**kwargs)
+    today = date.today()
+    max_birthdate = date(today.year - 110, today.month, today.day)
+
+    creators = qs_creators.filter(
+        **kwargs,
+        deathdate__isnull=True,
+        birthdate__gte=max_birthdate
+    )
 
     for c in creators:
         people.append({
@@ -98,7 +105,10 @@ def filter_creators(request, qs_creators, **kwargs):
         })
 
     # --- AUTHORS ---
-    authors = Bookauthor.objects.all()
+    authors = Bookauthor.objects.filter(
+        deathdate__isnull=True,
+        birthdate__gte=max_birthdate
+    )
 
     for a in authors:
         people.append({

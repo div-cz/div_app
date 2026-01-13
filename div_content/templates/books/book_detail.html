@@ -116,23 +116,29 @@
             width: 50%;
         }
 
-        .dark .popup {
+        .popup:is(.dark *) {
             background: #181222 !important;
             color: #f2f2f2 !important;
             border: 1px solid #222031;
         }
 
-        .dark .popup input,
-        .dark .popup textarea {
+        .popup input:is(.dark *),
+        .popup textarea:is(.dark *) {
             background: #222031;
             color: #f2f2f2;
             border: 1px solid #28243a;
         }
 
-        .dark .popup label {
+        .popup label:is(.dark *) {
             color: #f2f2f2;
         }
 
+        /* bordel */
+        .star-ratings-rating-average,
+        .star-ratings-rating-count,
+        .star-ratings-rating-user {
+            display: none;
+        }
     </style>
 
 {% endblock %}
@@ -242,7 +248,7 @@
                             {% if ratings %}
                                 <ul class="sm-rating-users">
                                     {% for rating in ratings %}
-                                        <li class="after">
+                                        <li>
                                             <small>
                                                 <p style="text-align:center; padding:.25rem;">
                                                     Hodnoceno: {{ rating.modified|date:"j. n. Y" }}
@@ -265,12 +271,12 @@
                                                 </span>
 
                                                 {% if rating.user == request.user %}
-                                                <form method="post" action="">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn">
-                                                        <i class="fa-solid fa-trash-can" title="smazat hodnocení" style="color:#61872B; margin-right:0;"></i>
-                                                    </button>
-                                                </form>
+                                                    <form method="post" action="">
+                                                        {% csrf_token %}
+                                                        <button type="submit" style="padding: .375rem .75rem;">
+                                                            <i class="fa-solid fa-trash-can" title="smazat hodnocení" style="color:#61872B; margin-right:0;"></i>
+                                                        </button>
+                                                    </form>
                                                 {% endif %}
                                             </div>
                                         </li>
@@ -289,10 +295,12 @@
                             </div>
                         </div>
 
-                        <div class="rating-stars" style="white-space: nowrap;">
+                        <div class="rating-stars" style="white-space: nowrap; text-align: center;">
                             <div class="smaller-stars">{% ratings book %}</div>
                             <div id="rating-thankyou" class="alert" style="display: none;">Děkujeme za hodnocení!</div>
+                            
                         </div>
+                        <button class="rating-popup-btn btn add-book" style="margin: 0 auto;">Hodnocení knihy</button>
                     </div>
 
                     <ul class="list-unstyled" style="margin-top: 0;">
@@ -854,7 +862,7 @@
                                     <span class="divrating">
                                         &#x2B50; <span class="count">{{ quote.divrating }}</span>
                                     </span>
-                            </div>
+                                </div>
                             </div>
                         </li>
                     {% endfor %}
@@ -1327,7 +1335,7 @@
                     {% if ratings %}
                         <ul class="list-unstyled rating-users">
                             {% for rating in ratings %}
-                                <li class="after">
+                                <li>
                                     <small><p style="text-align: center; padding: .25rem;">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
                                     <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a>
                                     <span>
