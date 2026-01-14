@@ -7,84 +7,85 @@
 
 {% block content %}
 
-<!-- <link href="/web/css/navbar_together.css" rel="stylesheet"> -->
+<div class="container">
+    <!-- <link href="/web/css/navbar_together.css" rel="stylesheet"> -->
 
-{% if category_key == "filmy" or category_key == "serialy" %}
-    <link href="/web/css/movies.css" rel="stylesheet">
-    <style>
-        nav, footer {
-            background: linear-gradient(90deg, #330000 10%, #A52B21 90%);
-        }
+    {% if category_key == "filmy" or category_key == "serialy" %}
+        <link href="/web/css/movies.css" rel="stylesheet">
+        <style>
+            nav, footer {
+                background: linear-gradient(90deg, #330000 10%, #A52B21 90%);
+            }
 
-        .cta:before {
-            background: #A52B21;
-        }
+            .cta:before {
+                background: #A52B21;
+            }
 
-        .cta:hover:before {
-            background: #b12a20;
-        }
-    </style>
+            .cta:hover:before {
+                background: #b12a20;
+            }
+        </style>
 
-{% elif category_key == "knihy" %}
-    <link href="/web/css/books.css" rel="stylesheet">
-    <style>
-        nav, footer {
-            background: linear-gradient(90deg, #003300 10%, #61872B 90%);
-        }
+    {% elif category_key == "knihy" %}
+        <link href="/web/css/books.css" rel="stylesheet">
+        <style>
+            nav, footer {
+                background: linear-gradient(90deg, #003300 10%, #61872B 90%);
+            }
 
-        .cta:before {
-            background: #61872B;
-        }
+            .cta:before {
+                background: #61872B;
+            }
 
-        .cta:hover:before {
-            background: #619618;
-        }
-    </style>
+            .cta:hover:before {
+                background: #619618;
+            }
+        </style>
 
-{% elif category_key == "hry" %}
-    <link href="/web/css/games.css" rel="stylesheet">
-    <style>
-        nav, .footer {
-            background: linear-gradient(90deg, #001933 10%, #0A76A9 90%);
-        }
+    {% elif category_key == "hry" %}
+        <link href="/web/css/games.css" rel="stylesheet">
+        <style>
+            nav, .footer {
+                background: linear-gradient(90deg, #001933 10%, #0A76A9 90%);
+            }
 
-        .cta:before {
-            background: #0A76A9;
-        }
+            .cta:before {
+                background: #0A76A9;
+            }
 
-        .cta:hover:before {
-            background: #2a8dbb;
-        }
-    </style>
+            .cta:hover:before {
+                background: #2a8dbb;
+            }
+        </style>
 
-{% else %}
-    <link href="/web/css/navbar_other.css" rel="stylesheet">
-{% endif %}
+    {% else %}
+        <link href="/web/css/navbar_other.css" rel="stylesheet">
+    {% endif %}
 
-<h2 style="width: 100%; margin-bottom: 1.5rem;">
-    <a class="hover:underline" href="{% url 'articles_index' %}">Články</a>
-    <span> / </span>
-    <a href="{% url 'articles_list' category=category_key %}">{{ category_name }}</a>
-</h2>
+    <h2 style="width: 100%; margin-bottom: 1.5rem;">
+        <a class="hover:underline" href="{% url 'articles_index' %}">Články</a>
+        <span> / </span>
+        <a href="{% url 'articles_list' category=category_key %}">{{ category_name }}</a>
+    </h2>
 
-<section style="width: 75%;">
-    <h2 style="width: 100%; margin-bottom: 1.5rem;">Nový článek</h2>
-    <form method="post" style="width: 100%;">
-        {% csrf_token %}
-        {{ form.errors }}
-        {{ form.as_p }}
+    <section style="width: 75%;">
+        <h2 style="width: 100%; margin-bottom: 1.5rem;">Nový článek</h2>
+        <form method="post" style="width: 100%;">
+            {% csrf_token %}
+            {{ form.errors }}
+            {{ form.as_p }}
 
-        <button 
-            class="btn 
-                {% if category_key == 'knihy' %}add-book{% endif %}
-                {% if category_key == 'hry' %}add-game{% endif %}
-                {% if category_key == 'filmy' or category_key == 'serialy' %}add-movie{% endif %}"
-            name="article_submit" type="submit">
-            Přidat
-        </button>
-    </form>
-</section>
-
+            <button 
+                class="btn 
+                    {% if category_key == 'knihy' %}add-book{% endif %}
+                    {% if category_key == 'hry' %}add-game{% endif %}
+                    {% if category_key == 'filmy' or category_key == 'serialy' %}add-movie{% endif %}"
+                name="article_submit" type="submit">
+                Přidat
+            </button>
+        </form>
+    </section>
+</div>
 
 {% endblock %}
 

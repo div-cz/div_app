@@ -5,42 +5,44 @@ Upravit {{ topic.title }}
 
 {% block content %}
 
-<h2>
-    <a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a>
-    <span> / </span>
-    <a class="hover:underline" href="{% url 'forum_section_detail' slug=topic.section.slug %}">{{ topic.section.title }}</a>
-    <span> / </span>
-    {{ topic.title }}
-</h2>
+<div class="container">
+    <h2>
+        <a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a>
+        <span> / </span>
+        <a class="hover:underline" href="{% url 'forum_section_detail' slug=topic.section.slug %}">{{ topic.section.title }}</a>
+        <span> / </span>
+        {{ topic.title }}
+    </h2>
 
-{% if user.is_authenticated %}
-    <section style="width: 75%;">
-        <h2>Upravit komentář</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button class="btn add" type="submit">Upravit</button> <!-- sem barvičky tlačítek -->
-        </form>
-    </section>
-{% endif %}
+    {% if user.is_authenticated %}
+        <section style="width: 75%;">
+            <h2>Upravit komentář</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button class="btn add" type="submit">Upravit</button> <!-- sem barvičky tlačítek -->
+            </form>
+        </section>
+    {% endif %}
 
-<!-- komentáře se načítají v šabloně níže -->
-{% include "forum/load_all_comments.html" %}
+    <!-- komentáře se načítají v šabloně níže -->
+    {% include "forum/load_all_comments.html" %}
 
-{% comment %}
-{% for comment in comments %}
-    <ol class="card card-body">
+    {% comment %}
+    {% for comment in comments %}
+        <ol class="card card-body">
 
-        <li class="after">{{ comment.body|safe }}</li>
-        <div style="display: flex; justify-content: space-between;">
-            <p><a href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">{{ comment.user }}</a> - {{ comment.createdat }} {% if comment.lasteditedat %}<i><small>(Upraveno {{ comment.lasteditedat }})</small></i>{% endif %}</p>
-            {% if user == comment.user or user.is_staff %}
-            <!-- <p><a href="#">Upravit</a> | <a href="">Smazat</a></p> -->
-        </div>
-        {% endif %}
-    </ol>
-{% endfor %}
-{% endcomment %}
+            <li class="after">{{ comment.body|safe }}</li>
+            <div style="display: flex; justify-content: space-between;">
+                <p><a href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">{{ comment.user }}</a> - {{ comment.createdat }} {% if comment.lasteditedat %}<i><small>(Upraveno {{ comment.lasteditedat }})</small></i>{% endif %}</p>
+                {% if user == comment.user or user.is_staff %}
+                <!-- <p><a href="#">Upravit</a> | <a href="">Smazat</a></p> -->
+            </div>
+            {% endif %}
+        </ol>
+    {% endfor %}
+    {% endcomment %}
+</div>
 
 {% endblock content %}
 

@@ -5,36 +5,39 @@ Smazat komentář
 
 {% block content %}
 
-<h2>
-    <a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a>
-    <span> / </span>
-    <a class="hover:underline" href="{% url 'forum_section_detail' slug=topic.section.slug %}">{{ topic.section.title }}</a>
-    <span> / </span>
-    {{ topic.title }}
-</h2>
+<div class="container">
+    <h2>
+        <a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a>
+        <span> / </span>
+        <a class="hover:underline" href="{% url 'forum_section_detail' slug=topic.section.slug %}">{{ topic.section.title }}</a>
+        <span> / </span>
+        {{ topic.title }}
+    </h2>
 
-{% if user.is_authenticated %}
-    <section style="width: 75%;">
-        <h2>Opravdu chceš smazat komentář?</h2>
-        <form method="post">
-            {% csrf_token %}
-            <p>{{ comment_to_delete.body|safe }}</p>
-            <button class="btn add" type="submit">Smazat</button><!-- sem barvičky tlačítek -->
-        </form>
-    </section>
-{% endif %}
-
-<!-- {% for comment in comments %}
-
-<ol class="card card-body">
-
-    <li class="after">{{ comment.body|safe }}</li>
-    <div class="flex justify-between">
-        <p><a href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">{{ comment.user }}</a> - {{ comment.createdat }}</p>
-        {% if user == comment.user %}
-        <p><a href="#">Upravit</a> | <a href="">Smazat</a></p>
-    </div>
+    {% if user.is_authenticated %}
+        <section style="width: 75%;">
+            <h2>Opravdu chceš smazat komentář?</h2>
+            <form method="post">
+                {% csrf_token %}
+                <p>{{ comment_to_delete.body|safe }}</p>
+                <button class="btn add" type="submit">Smazat</button><!-- sem barvičky tlačítek -->
+            </form>
+        </section>
     {% endif %}
-</ol>
-{% endfor %} -->
+
+    <!-- {% for comment in comments %}
+
+    <ol class="card card-body">
+
+        <li class="after">{{ comment.body|safe }}</li>
+        <div class="flex justify-between">
+            <p><a href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">{{ comment.user }}</a> - {{ comment.createdat }}</p>
+            {% if user == comment.user %}
+            <p><a href="#">Upravit</a> | <a href="">Smazat</a></p>
+        </div>
+        {% endif %}
+    </ol>
+    {% endfor %} -->
+</div>
+
 {% endblock content %}

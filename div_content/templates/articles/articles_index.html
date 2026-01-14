@@ -13,85 +13,87 @@
 
 {% block content %}
 
-<div class="big-search">
-    <h2>Články</h2>
-    <form role="search" action="{% url 'forum_search' %}" method="get">
-        <input class="search-field" type="type" placeholder="Hledat článek" aria-label="Search" name="q" id="search-input">
-        <button class="btn-search" type="submit">Hledat</button>
-    </form>
-</div>
-
-<div class="articles">
-    <div class="talk-img" style="background-image: url(/static/img/articles/article.webp); background-size: 100% 100%;">
-        <a href="/clanky/filmy/" class="movies">
-            <img src="/static/img/forum/movie.webp" alt="Filmové články">
-            <h3 class="movies">Filmové články</h3>
-        </a>
+<div class="container">
+    <div class="big-search">
+        <h2>Články</h2>
+        <form role="search" action="{% url 'forum_search' %}" method="get">
+            <input class="search-field" type="type" placeholder="Hledat článek" aria-label="Search" name="q" id="search-input">
+            <button class="btn-search" type="submit">Hledat</button>
+        </form>
     </div>
 
-    <div class="talk-img" style="background-image: url(/static/img/articles/article.webp);
-    background-size: 100% 100%;">
-        <a href="/clanky/serialy/" class="movies">
-            <img src="/static/img/forum/serie.webp" alt="Seriálové články">
-            <h3 class="movies">Seriálové články</h3>
-        </a>
+    <div class="articles">
+        <div class="talk-img" style="background-image: url(/static/img/articles/article.webp); background-size: 100% 100%;">
+            <a href="/clanky/filmy/" class="movies">
+                <img src="/static/img/forum/movie.webp" alt="Filmové články">
+                <h3 class="movies">Filmové články</h3>
+            </a>
+        </div>
+
+        <div class="talk-img" style="background-image: url(/static/img/articles/article.webp);
+        background-size: 100% 100%;">
+            <a href="/clanky/serialy/" class="movies">
+                <img src="/static/img/forum/serie.webp" alt="Seriálové články">
+                <h3 class="movies">Seriálové články</h3>
+            </a>
+        </div>
+
+        <div class="talk-img" style="background-image: url(/static/img/articles/article.webp);
+        background-size: 100% 100%;">
+            <a href="/clanky/knihy/" class="books">
+                <img src="/static/img/forum/book.webp" alt="Knižní články">
+                <h3 class="books">Knižní články</h3>
+            </a>
+        </div>
+
+        <div class="talk-img" style="background-image: url(/static/img/articles/article.webp);
+        background-size: 100% 100%;">
+            <a href="/clanky/hry/" class="games">
+                <img src="/static/img/forum/game.webp" alt="Herní články">
+                <h3 class="games">Herní články</h3>
+            </a>
+        </div>
     </div>
 
-    <div class="talk-img" style="background-image: url(/static/img/articles/article.webp);
-    background-size: 100% 100%;">
-        <a href="/clanky/knihy/" class="books">
-            <img src="/static/img/forum/book.webp" alt="Knižní články">
-            <h3 class="books">Knižní články</h3>
-        </a>
-    </div>
+    <!-- Poslední příspěvky -->
+    <div class="latest-posts">
+        <h3 class="latest-title">&#128204; Poslední příspěvky</h3>
 
-    <div class="talk-img" style="background-image: url(/static/img/articles/article.webp);
-    background-size: 100% 100%;">
-        <a href="/clanky/hry/" class="games">
-            <img src="/static/img/forum/game.webp" alt="Herní články">
-            <h3 class="games">Herní články</h3>
-        </a>
-    </div>
-</div>
+                <div class="last-post-card">
+                    <div>
+                        <div class="lp-header">
+                            <a class="lp-title" href="">
+                                
+                            </a>
 
-<!-- Poslední příspěvky -->
-<div class="latest-posts">
-    <h3 class="latest-title">&#128204; Poslední příspěvky</h3>
+                            
+                                <p class="movies">&#127916; Filmy</p>
+                                
+                                <p class="books">&#128214; Knihy</p>
+                                
+                                <p class="games">&#127918; Hry</p>
+                                
+                                <p class="">&#128172; Obecné</p>
+                            
+                        </div>
 
-            <div class="last-post-card">
-                <div>
-                    <div class="lp-header">
-                        <a class="lp-title" href="">
+                        <div class="lp-body">
+                            
+                        </div>
+                    </div>
+
+                    <div class="lp-footer">
+                        <a href="">
                             
                         </a>
-
-                        
-                            <p class="movies">&#127916; Filmy</p>
-                            
-                            <p class="books">&#128214; Knihy</p>
-                            
-                            <p class="games">&#127918; Hry</p>
-                            
-                            <p class="">&#128172; Obecné</p>
-                        
+                        <span class="dot">•</span>
+                        {{ post.published_at|date:"d.m.Y H:i" }}
                     </div>
 
-                    <div class="lp-body">
-                        
-                    </div>
                 </div>
 
-                <div class="lp-footer">
-                    <a href="">
-                        
-                    </a>
-                    <span class="dot">•</span>
-                    {{ post.published_at|date:"d.m.Y H:i" }}
-                </div>
 
-            </div>
-
-
+    </div>
 </div>
 
 <script>

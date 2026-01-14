@@ -5,40 +5,41 @@
 
 {% block content %}
 
-{% if slug == "filmy" %}
-    <link href="/web/css/movies.css" rel="stylesheet">
-        {% elif slug == "knihy" %}
-        <link href="/web/css/books.css" rel="stylesheet">
-        {% elif slug == "hry" %}
-        <link href="/web/css/games.css" rel="stylesheet">
-    {% else %}
-    <link href="/web/css/navbar_other.css" rel="stylesheet">
-{% endif %}
+<div class="container">
+    {% if slug == "filmy" %}
+        <link href="/web/css/movies.css" rel="stylesheet">
+            {% elif slug == "knihy" %}
+            <link href="/web/css/books.css" rel="stylesheet">
+            {% elif slug == "hry" %}
+            <link href="/web/css/games.css" rel="stylesheet">
+        {% else %}
+        <link href="/web/css/navbar_other.css" rel="stylesheet">
+    {% endif %}
 
-<h2>
-    <a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a>
-    <span> / </span>
-    <a class="hover:underline" href="{% url 'forum_section_detail' slug=topic.section.slug %}">{{ topic.section.title }}</a>
-    <span> / </span>
-    {{ topic.title }}
-</h2>
+    <h2>
+        <a class="hover:underline" href="{% url 'forum' %}">Diskuzní fórum</a>
+        <span> / </span>
+        <a class="hover:underline" href="{% url 'forum_section_detail' slug=topic.section.slug %}">{{ topic.section.title }}</a>
+        <span> / </span>
+        {{ topic.title }}
+    </h2>
 
-{% if user.is_authenticated %}
-    <section class="new-comment">
-        <h2 style="width: 100%;">Přidat komentář</h2>
-        <form method="post" style="margin-bottom: 20px;">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button class="btn add" type="submit">Přidat</button>
-        </form>
-    </section>
+    {% if user.is_authenticated %}
+        <section class="new-comment">
+            <h2 style="width: 100%;">Přidat komentář</h2>
+            <form method="post" style="margin-bottom: 20px;">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button class="btn add" type="submit">Přidat</button>
+            </form>
+        </section>
 
-    {% else %}
-    <p style="margin-bottom: 1rem; margin-top: 1rem;">Pro přidání komentáře se prosím <a href="{% url 'login' %}">přihlašte</a>.</p>
-{% endif %}
+        {% else %}
+        <p style="margin-bottom: 1rem; margin-top: 1rem;">Pro přidání komentáře se prosím <a href="{% url 'login' %}">přihlašte</a>.</p>
+    {% endif %}
 
-<!-- komentáře se načítají v šabloně níže -->
-{% include "forum/load_all_comments.html" %}
+    {% include "forum/load_all_comments.html" %}
+</div>
 
     <script src="/web/js/comment-summernote.js"></script>
 

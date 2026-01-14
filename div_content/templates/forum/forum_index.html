@@ -13,74 +13,76 @@
 
 {% block content %}
 
-<div class="big-search">
-    <h2>Diskuzní fórum</h2>
-    <form role="search" action="{% url 'forum_search' %}" method="get">
-        <input class="search-field" type="type" placeholder="Hledat na fóru" aria-label="Search" name="q" id="search-input">
-        <button class="btn-search" type="submit">Hledat</button>
-    </form>
-</div>
+<div class="container">
+    <div class="big-search">
+        <h2>Diskuzní fórum</h2>
+        <form role="search" action="{% url 'forum_search' %}" method="get">
+            <input class="search-field" type="type" placeholder="Hledat na fóru" aria-label="Search" name="q" id="search-input">
+            <button class="btn-search" type="submit">Hledat</button>
+        </form>
+    </div>
 
-<div class="forums">
-    {% for section in all_forum_sections %}
-        <div class="talk-img" style="background-image: url(/static/img/forum/bubble.webp); background-size: 100% 100%;">
-            <a href="{% url 'forum_section_detail' slug=section.slug %}"
-                class="
-                    {% if section.slug == 'filmy' %}movies
-                    {% elif section.slug == 'knihy' %}books
-                    {% elif section.slug == 'hry' %}games
-                    {% endif %}">
-                <img src="/static/img/forum/{{section.imageurl}}" alt="{{ section.title }}">
-                <h3>{{ section.title }}</h3>
-            </a>
-        </div>
-    {% endfor %}
-</div>
-
-<!-- Poslední příspěvky -->
-<div class="latest-posts">
-    <h3 class="latest-title">&#128204; Poslední příspěvky</h3>
-    {% if latest_comments %}
-        {% for comment in latest_comments %}
-            <div class="last-post-card">
-                <div>
-                    <div class="lp-header">
-                        <a class="lp-title
-                            {% if comment.topic.section.slug == 'filmy' %}movies
-                            {% elif comment.topic.section.slug == 'knihy' %}books
-                            {% elif comment.topic.section.slug == 'hry' %}games
-                            {% endif %}"
-                        href="{% url 'forum_topic_detail' slug=comment.topic.section.slug topicurl=comment.topic.topicurl %}">
-                            {{ comment.topic.title }}
-                        </a>
-
-                        {% if comment.topic.section.slug == "filmy" %}
-                            <p class="movies">&#127916; Filmy</p>
-                            {% elif comment.topic.section.slug == "knihy" %}
-                            <p class="books">&#128214; Knihy</p>
-                            {% elif comment.topic.section.slug == "hry" %}
-                            <p class="games">&#127918; Hry</p>
-                            {% elif comment.topic.section.slug == "obecne" %}
-                            <p class="">&#128172; Ostatní</p>
-                        {% endif %}
-                    </div>
-
-                    <div class="lp-body">
-                        {{ comment.body|striptags|truncatechars:120 }}
-                    </div>
-                </div>
-
-                <div class="lp-footer">
-                    <a href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">
-                        {{ comment.user.username|default:"Smazaný uživatel" }}
-                    </a>
-                    <span class="dot">•</span>
-                    {{ comment.createdat|date:"d.m.Y H:i" }}
-                </div>
-
+    <div class="forums">
+        {% for section in all_forum_sections %}
+            <div class="talk-img" style="background-image: url(/static/img/forum/bubble.webp); background-size: 100% 100%;">
+                <a href="{% url 'forum_section_detail' slug=section.slug %}"
+                    class="
+                        {% if section.slug == 'filmy' %}movies
+                        {% elif section.slug == 'knihy' %}books
+                        {% elif section.slug == 'hry' %}games
+                        {% endif %}">
+                    <img src="/static/img/forum/{{section.imageurl}}" alt="{{ section.title }}">
+                    <h3>{{ section.title }}</h3>
+                </a>
             </div>
         {% endfor %}
-    {% endif %}
+    </div>
+
+    <!-- Poslední příspěvky -->
+    <div class="latest-posts">
+        <h3 class="latest-title">&#128204; Poslední příspěvky</h3>
+        {% if latest_comments %}
+            {% for comment in latest_comments %}
+                <div class="last-post-card">
+                    <div>
+                        <div class="lp-header">
+                            <a class="lp-title
+                                {% if comment.topic.section.slug == 'filmy' %}movies
+                                {% elif comment.topic.section.slug == 'knihy' %}books
+                                {% elif comment.topic.section.slug == 'hry' %}games
+                                {% endif %}"
+                            href="{% url 'forum_topic_detail' slug=comment.topic.section.slug topicurl=comment.topic.topicurl %}">
+                                {{ comment.topic.title }}
+                            </a>
+
+                            {% if comment.topic.section.slug == "filmy" %}
+                                <p class="movies">&#127916; Filmy</p>
+                                {% elif comment.topic.section.slug == "knihy" %}
+                                <p class="books">&#128214; Knihy</p>
+                                {% elif comment.topic.section.slug == "hry" %}
+                                <p class="games">&#127918; Hry</p>
+                                {% elif comment.topic.section.slug == "obecne" %}
+                                <p class="">&#128172; Ostatní</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="lp-body">
+                            {{ comment.body|striptags|truncatechars:120 }}
+                        </div>
+                    </div>
+
+                    <div class="lp-footer">
+                        <a href="{% url 'user_profile_with_profil' user_id=comment.user.id %}">
+                            {{ comment.user.username|default:"Smazaný uživatel" }}
+                        </a>
+                        <span class="dot">•</span>
+                        {{ comment.createdat|date:"d.m.Y H:i" }}
+                    </div>
+
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 </div>
 
 {% endblock content %}

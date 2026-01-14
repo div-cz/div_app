@@ -15,96 +15,98 @@
 
 {% block content %}
 
-<div class="big-search">
-    <h2>Blogy
-        {% if user.is_authenticated %}
-            <small style="font-size:60%;">
-                <span> / </span>
-                <a href="">Můj blog</a>
-            </small>
-        {% endif %}
-    </h2>
+<div class="container">
+    <div class="big-search">
+        <h2>Blogy
+            {% if user.is_authenticated %}
+                <small style="font-size:60%;">
+                    <span> / </span>
+                    <a href="">Můj blog</a>
+                </small>
+            {% endif %}
+        </h2>
 
-    <form role="search" action="" method="get">
-        <input class="search-field" type="type" placeholder="Hledat v blogách" aria-label="Search" name="q" id="search-input">
-        <button class="btn-search" type="submit">Hledat</button>
-    </form>
-</div>
-
-<div class="blogs">
-    <div class="talk-img" style="background-image: url(/static/img/blogs/blogy.webp); background-size: 100% 100%;">
-        <a href="{% url 'blog_section_detail' section='filmove' %}" class="movies">
-            <img src="{% static 'img/forum/movie.webp' %}">
-            <h3 class="movies">Filmové blogy</h3>
-        </a>
+        <form role="search" action="" method="get">
+            <input class="search-field" type="type" placeholder="Hledat v blogách" aria-label="Search" name="q" id="search-input">
+            <button class="btn-search" type="submit">Hledat</button>
+        </form>
     </div>
 
-    <div class="talk-img" style="background-image: url(/static/img/blogs/blogy.webp); background-size: 100% 100%;">
-        <a href="{% url 'blog_section_detail' section='knizni' %}" class="books">
-            <img src="{% static 'img/forum/book.webp' %}">
-            <h3 class="books">Knižní blogy</h3>
-        </a>
+    <div class="blogs">
+        <div class="talk-img" style="background-image: url(/static/img/blogs/blogy.webp); background-size: 100% 100%;">
+            <a href="{% url 'blog_section_detail' section='filmove' %}" class="movies">
+                <img src="{% static 'img/forum/movie.webp' %}">
+                <h3 class="movies">Filmové blogy</h3>
+            </a>
+        </div>
+
+        <div class="talk-img" style="background-image: url(/static/img/blogs/blogy.webp); background-size: 100% 100%;">
+            <a href="{% url 'blog_section_detail' section='knizni' %}" class="books">
+                <img src="{% static 'img/forum/book.webp' %}">
+                <h3 class="books">Knižní blogy</h3>
+            </a>
+        </div>
+
+        <div class="talk-img" style="background-image: url(/static/img/blogs/blogy.webp); background-size: 100% 100%;">
+            <a href="{% url 'blog_section_detail' section='herni' %}" class="games">
+                <img src="{% static 'img/forum/game.webp' %}">
+                <h3 class="games">Herní blogy</h3>
+            </a>
+        </div>
+
+        <div class="talk-img" style="background-image: url(/static/img/blogs/blogy.webp); background-size: 100% 100%;">
+            <a href="{% url 'blog_section_detail' section='obecne' %}">
+                <img src="{% static 'img/forum/other.webp' %}">
+                <h3>Obecné blogy</h3>
+            </a>
+        </div>
     </div>
 
-    <div class="talk-img" style="background-image: url(/static/img/blogs/blogy.webp); background-size: 100% 100%;">
-        <a href="{% url 'blog_section_detail' section='herni' %}" class="games">
-            <img src="{% static 'img/forum/game.webp' %}">
-            <h3 class="games">Herní blogy</h3>
-        </a>
-    </div>
+    <!-- Poslední příspěvky -->
+    <div class="latest-posts">
+        <h3 class="latest-title">&#128204; Poslední příspěvky</h3>
+        {% if latest_posts %}
+            {% for post in latest_posts %}
+                <div class="last-post-card">
+                    <div>
+                        <div class="lp-header">
+                            <a class="lp-title
+                                {% if post.articleblog.blog_type == 'movie' %}movies
+                                {% elif post.articleblog.blog_type == 'book' %}books
+                                {% elif post.articleblog.blog_type == 'game' %}games
+                                {% endif %}"
+                            href="{% url 'blog_post_detail' blog_slug=post.articleblog.slug post_slug=post.slug %}">
+                                {{ post.title }}
+                            </a>
 
-    <div class="talk-img" style="background-image: url(/static/img/blogs/blogy.webp); background-size: 100% 100%;">
-        <a href="{% url 'blog_section_detail' section='obecne' %}">
-            <img src="{% static 'img/forum/other.webp' %}">
-            <h3>Obecné blogy</h3>
-        </a>
-    </div>
-</div>
+                            {% if post.articleblog.blog_type == "movie" %}
+                                <p class="movies">&#127916; Filmy</p>
+                                {% elif post.articleblog.blog_type == "book" %}
+                                <p class="books">&#128214; Knihy</p>
+                                {% elif post.articleblog.blog_type == "game" %}
+                                <p class="games">&#127918; Hry</p>
+                                {% else %}
+                                <p class="">&#128172; Obecné</p>
+                            {% endif %}
+                        </div>
 
-<!-- Poslední příspěvky -->
-<div class="latest-posts">
-    <h3 class="latest-title">&#128204; Poslední příspěvky</h3>
-    {% if latest_posts %}
-        {% for post in latest_posts %}
-            <div class="last-post-card">
-                <div>
-                    <div class="lp-header">
-                        <a class="lp-title
-                            {% if post.articleblog.blog_type == 'movie' %}movies
-                            {% elif post.articleblog.blog_type == 'book' %}books
-                            {% elif post.articleblog.blog_type == 'game' %}games
-                            {% endif %}"
-                        href="{% url 'blog_post_detail' blog_slug=post.articleblog.slug post_slug=post.slug %}">
-                            {{ post.title }}
+                        <div class="lp-body">
+                            {{ post.content|striptags|truncatechars:120 }}
+                        </div>
+                    </div>
+
+                    <div class="lp-footer">
+                        <a href="">
+                            {{ post.user.username|default:"Smazaný uživatel" }}
                         </a>
-
-                        {% if post.articleblog.blog_type == "movie" %}
-                            <p class="movies">&#127916; Filmy</p>
-                            {% elif post.articleblog.blog_type == "book" %}
-                            <p class="books">&#128214; Knihy</p>
-                            {% elif post.articleblog.blog_type == "game" %}
-                            <p class="games">&#127918; Hry</p>
-                            {% else %}
-                            <p class="">&#128172; Obecné</p>
-                        {% endif %}
+                        <span class="dot">•</span>
+                        {{ post.published_at|date:"d.m.Y H:i" }}
                     </div>
 
-                    <div class="lp-body">
-                        {{ post.content|striptags|truncatechars:120 }}
-                    </div>
                 </div>
-
-                <div class="lp-footer">
-                    <a href="">
-                        {{ post.user.username|default:"Smazaný uživatel" }}
-                    </a>
-                    <span class="dot">•</span>
-                    {{ post.published_at|date:"d.m.Y H:i" }}
-                </div>
-
-            </div>
-        {% endfor %}
-    {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
 </div>
 
 {% endblock content %}

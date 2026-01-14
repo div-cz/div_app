@@ -2,89 +2,67 @@
 
 {% block content %}
 
-{% if section == "filmove" %}
-    <link href="/web/css/movies.css" rel="stylesheet">
-    <style>
-        .cta:before {
-            background: #A52B21;
-        }
+<div class="container">
+    {% if section == "filmove" %}
+        <link href="/web/css/movies.css" rel="stylesheet">
+        <style>
+            .cta:before {
+                background: #A52B21;
+            }
 
-        .cta:hover:before {
-            background: #b12a20;
-        }
-    </style>
-{% elif section == "herni" %}
-    <link href="/web/css/games.css" rel="stylesheet">
-    <style>
-        .cta:before {
-            background: #0A76A9;
-        }
+            .cta:hover:before {
+                background: #b12a20;
+            }
+        </style>
+    {% elif section == "herni" %}
+        <link href="/web/css/games.css" rel="stylesheet">
+        <style>
+            .cta:before {
+                background: #0A76A9;
+            }
 
-        .cta:hover:before {
-            background: #2a8dbb;
-        }
-    </style>
-{% elif section == "knizni" %}
-    <link href="/web/css/books.css" rel="stylesheet">
-    <style>
-        .cta:before {
-            background: #61872B;
-        }
+            .cta:hover:before {
+                background: #2a8dbb;
+            }
+        </style>
+    {% elif section == "knizni" %}
+        <link href="/web/css/books.css" rel="stylesheet">
+        <style>
+            .cta:before {
+                background: #61872B;
+            }
 
-        .cta:hover:before {
-            background: #619618;
-        }
-    </style>
-{% elif section == "obecne" %}
-    <link href="/web/css/navbar_together.css" rel="stylesheet">
-{% endif %}
+            .cta:hover:before {
+                background: #619618;
+            }
+        </style>
+    {% elif section == "obecne" %}
+        <link href="/web/css/navbar_together.css" rel="stylesheet">
+    {% endif %}
 
 
-{% if user.is_authenticated %}
-    <!-- Autorizován -->
-    <h2 style="width: 100%;">
-        <a class="hover:underline" href="{% url 'blog_index' %}">Blogy</a>
-        <span> / </span>
-        Uživatelské blogy
-    </h2>
+    {% if user.is_authenticated %}
+        <!-- Autorizován -->
+        <h2 style="width: 100%;">
+            <a class="hover:underline" href="{% url 'blog_index' %}">Blogy</a>
+            <span> / </span>
+            Uživatelské blogy
+        </h2>
 
-    <a href="{% url 'blog_new' %}" class="cta">
-        <span>Založit nový blog</span>
-        <svg width="15px" height="10px" viewBox="0 0 13 10">
-            <path d="M1,5 L11,5"></path>
-            <polyline points="8 1 12 5 8 9"></polyline>
-        </svg>
-    </a>
-{% endif %}
+        <a href="{% url 'blog_new' %}" class="cta">
+            <span>Založit nový blog</span>
+            <svg width="15px" height="10px" viewBox="0 0 13 10">
+                <path d="M1,5 L11,5"></path>
+                <polyline points="8 1 12 5 8 9"></polyline>
+            </svg>
+        </a>
+    {% endif %}
 
-{% if book_blogs %}
-    <div class="admin-panel">
-        <h2 style="width: 100%;" class="after">&#128214; Knižní blogy</h2>
-        <div class="blog-panel">
-            {% for blog in book_blogs %}
-                <div class="blog-row">
-                    <a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a>
-                    <p>Založil: <a href="">uživatel</a></p>
-                    <div style="text-align: center;">
-                        <p>Odpovědí</p>
-                        <p>200</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <p>Poslední odpověď</p>
-                        <p>datuuuum</p>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-{% endif %}
-
-{% if movie_blogs %}
-    <div class="admin-panel">
-        <h2 style="width: 100%;" class="after">&#127909; Filmové blogy</h2>
-        <div class="blog-panel">
-            {% for blog in movie_blogs %}
-                {% if blog.blog_type == 'movie' %}
+    {% if book_blogs %}
+        <div class="admin-panel">
+            <h2 style="width: 100%;" class="after">&#128214; Knižní blogy</h2>
+            <div class="blog-panel">
+                {% for blog in book_blogs %}
                     <div class="blog-row">
                         <a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a>
                         <p>Založil: <a href="">uživatel</a></p>
@@ -97,58 +75,82 @@
                             <p>datuuuum</p>
                         </div>
                     </div>
-                {% endif %}
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
-    </div>
-{% endif %}
+    {% endif %}
 
-{% if game_blogs %}
-    <div class="admin-panel">
-        <h2 style="width: 100%;" class="after">&#127918; Herní blogy</h2>
-        <div class="blog-panel">
-            {% for blog in game_blogs %}
-                {% if blog.blog_type == 'game' %}
-                    <div class="blog-row">
-                        <a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a>
-                        <p>Založil: <a href="">uživatel</a></p>
-                        <div style="text-align: center;">
-                            <p>Odpovědí</p>
-                            <p>200</p>
+    {% if movie_blogs %}
+        <div class="admin-panel">
+            <h2 style="width: 100%;" class="after">&#127909; Filmové blogy</h2>
+            <div class="blog-panel">
+                {% for blog in movie_blogs %}
+                    {% if blog.blog_type == 'movie' %}
+                        <div class="blog-row">
+                            <a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a>
+                            <p>Založil: <a href="">uživatel</a></p>
+                            <div style="text-align: center;">
+                                <p>Odpovědí</p>
+                                <p>200</p>
+                            </div>
+                            <div style="text-align: center;">
+                                <p>Poslední odpověď</p>
+                                <p>datuuuum</p>
+                            </div>
                         </div>
-                        <div style="text-align: center;">
-                            <p>Poslední odpověď</p>
-                            <p>datuuuum</p>
-                        </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </div>
         </div>
-    </div>
-{% endif %}
+    {% endif %}
 
-{% if general_blogs %}
-    <div class="admin-panel">
-        <h2 style="width: 100%;" class="after">Obecné blogy</h2>
-        <div class="blog-panel">
-            {% for blog in general_blogs %}
-                {% if blog.blog_type == 'general' %}
-                    <div class="blog-row">
-                        <a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a>
-                        <p>Založil: <a href="">uživatel</a></p>
-                        <div style="text-align: center;">
-                            <p>Odpovědí</p>
-                            <p>200</p>
+    {% if game_blogs %}
+        <div class="admin-panel">
+            <h2 style="width: 100%;" class="after">&#127918; Herní blogy</h2>
+            <div class="blog-panel">
+                {% for blog in game_blogs %}
+                    {% if blog.blog_type == 'game' %}
+                        <div class="blog-row">
+                            <a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a>
+                            <p>Založil: <a href="">uživatel</a></p>
+                            <div style="text-align: center;">
+                                <p>Odpovědí</p>
+                                <p>200</p>
+                            </div>
+                            <div style="text-align: center;">
+                                <p>Poslední odpověď</p>
+                                <p>datuuuum</p>
+                            </div>
                         </div>
-                        <div style="text-align: center;">
-                            <p>Poslední odpověď</p>
-                            <p>datuuuum</p>
-                        </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </div>
         </div>
-    </div>
-{% endif %}
+    {% endif %}
+
+    {% if general_blogs %}
+        <div class="admin-panel">
+            <h2 style="width: 100%;" class="after">Obecné blogy</h2>
+            <div class="blog-panel">
+                {% for blog in general_blogs %}
+                    {% if blog.blog_type == 'general' %}
+                        <div class="blog-row">
+                            <a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.name }}</a>
+                            <p>Založil: <a href="">uživatel</a></p>
+                            <div style="text-align: center;">
+                                <p>Odpovědí</p>
+                                <p>200</p>
+                            </div>
+                            <div style="text-align: center;">
+                                <p>Poslední odpověď</p>
+                                <p>datuuuum</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
 
 {% endblock content %}

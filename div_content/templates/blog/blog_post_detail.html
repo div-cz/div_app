@@ -4,66 +4,68 @@
 
 {% block content %}
 
-<h2 style="width: 100%;">
-    <a class="hover:underline" href="{% url 'blog_index' %}">Blogy</a>
-    <span> / </span>
-    <a href="">zpět na moje blogy či co</a>
-    <span> / </span>
-    <a href="/blog/{{ post.articleblog.slug }}">{{ post.articleblog.name }}</a>
-</h2>
+<div class="container">
+    <h2 style="width: 100%;">
+        <a class="hover:underline" href="{% url 'blog_index' %}">Blogy</a>
+        <span> / </span>
+        <a href="">zpět na moje blogy či co</a>
+        <span> / </span>
+        <a href="/blog/{{ post.articleblog.slug }}">{{ post.articleblog.name }}</a>
+    </h2>
 
-<div class="admin-panel">
-    <div class="post-content">
-        <h3 class="after">
-            <div class="blog-header">
-                <span>{{ post.title }}</span>
-                <a href="/uzivatel/{{ post.articleblog.user.id }}">{{ post.articleblog.user.username }}</a> 
-            </div>
-        </h3>
-        <p>{{ post.content|safe }}</p>
-    </div>
-</div>
-
-<div class="comments">
-    <!-- Zobrazení komentářů -->
-    <div class="comment-panel">
-        <h3 class="after">Komentáře</h3>
-        <div>
-            {% for comment in comments %}
-            <div class="comment">
-                <div class="comment-head">
-                    <h4>
-                        <a href="">{{ comment.user.username }}</a>
-                    </h4> 
-                    <span>&nbsp;říká:</span>
+    <div class="admin-panel">
+        <div class="post-content">
+            <h3 class="after">
+                <div class="blog-header">
+                    <span>{{ post.title }}</span>
+                    <a href="/uzivatel/{{ post.articleblog.user.id }}">{{ post.articleblog.user.username }}</a> 
                 </div>
-                
-                <p>{{ comment.content }}</p>
-                <small>{{ comment.created_at }}</small>
-            </div>
-            {% empty %}
-            <p>Zatím žádné komentáře.</p>
-            {% endfor %}
+            </h3>
+            <p>{{ post.content|safe }}</p>
         </div>
     </div>
 
-    <!-- Formulář pro přidání nového komentáře -->
-    {% if user.is_authenticated %}
-        <form method="post" style="margin-top: 1rem;">
-            {% csrf_token %}
-            {{ comment_form.as_p }}
-            <button type="submit" class="btn add-other">Přidat komentář</button>
-        </form>
+    <div class="comments">
+        <!-- Zobrazení komentářů -->
+        <div class="comment-panel">
+            <h3 class="after">Komentáře</h3>
+            <div>
+                {% for comment in comments %}
+                <div class="comment">
+                    <div class="comment-head">
+                        <h4>
+                            <a href="">{{ comment.user.username }}</a>
+                        </h4> 
+                        <span>&nbsp;říká:</span>
+                    </div>
+                    
+                    <p>{{ comment.content }}</p>
+                    <small>{{ comment.created_at }}</small>
+                </div>
+                {% empty %}
+                <p>Zatím žádné komentáře.</p>
+                {% endfor %}
+            </div>
+        </div>
 
-        {% else %}
-        <p>
-            <a href="{% url 'login' %}">Přihlaste se</a>
-            , pokud chcete přidat komentář.
-        </p>
-    {% endif %}
+        <!-- Formulář pro přidání nového komentáře -->
+        {% if user.is_authenticated %}
+            <form method="post" style="margin-top: 1rem;">
+                {% csrf_token %}
+                {{ comment_form.as_p }}
+                <button type="submit" class="btn add-other">Přidat komentář</button>
+            </form>
 
+            {% else %}
+            <p>
+                <a href="{% url 'login' %}">Přihlaste se</a>
+                , pokud chcete přidat komentář.
+            </p>
+        {% endif %}
+
+    </div>
+
+    <a href="/forum/" class="btn add-other">Diskuzní fórum</a>
 </div>
-
-<a href="/forum/" class="btn add-other">Diskuzní fórum</a>
 
 {% endblock content %}

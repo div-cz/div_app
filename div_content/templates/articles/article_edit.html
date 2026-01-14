@@ -4,24 +4,26 @@
 
 {% block content %}
 
-<h2 style="width: 100%; margin-bottom: 1.5rem;">
-    <a class="hover:underline" href="{% url 'clanky' %}">Články</a>
-    <span> / </span>
-    <a class="hover:underline" href="">filmy, knihy, hry</a>
-    <span> / </span>
-    název článku
-</h2>
+<div class="container">
+    <h2 style="width: 100%; margin-bottom: 1.5rem;">
+        <a class="hover:underline" href="{% url 'clanky' %}">Články</a>
+        <span> / </span>
+        <a class="hover:underline" href="">filmy, knihy, hry</a>
+        <span> / </span>
+        název článku
+    </h2>
 
-{% if user.is_authenticated %}
-    <section style="width: 75%;">
-        <h2 style="width: 100%; margin-bottom: 1.5rem;">Upravit článek</h2>
-        <form method="post" style="width: 100%;">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button class="btn add" type="submit">Upravit</button>
-        </form>
-    </section>
-{% endif %}
+    {% if user.is_authenticated %}
+        <section style="width: 75%;">
+            <h2 style="width: 100%; margin-bottom: 1.5rem;">Upravit článek</h2>
+            <form method="post" style="width: 100%;">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button class="btn add" type="submit">Upravit</button>
+            </form>
+        </section>
+    {% endif %}
+</div>
 
 {% endblock content %}
 

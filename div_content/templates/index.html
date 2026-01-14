@@ -372,33 +372,70 @@
                                             <ul class="trade-list">
                                                 {% for listing in my_active_actions %}
                                                     <li class="trade-item">
-                                                        <div class="trade-card">
-                                                            <div class="trade-cover">
-                                                                {% if listing.book.img == "noimg.png" %}
-                                                                    <img src="/static/img/book/book.png">
-                                                                {% elif listing.book.img == "GoogleID" %}
-                                                                    <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1">
-                                                                {% else %}
-                                                                    <img src="https://media.div.cz/knihy/{{ listing.book.img }}">
+                                                        {% if listing.book.img == "noimg.png" %}
+                                                            <img src="/static/img/book/book.png">
+                                                        {% elif listing.book.img == "GoogleID" %}
+                                                            <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1">
+                                                        {% else %}
+                                                            <img src="https://media.div.cz/knihy/{{ listing.book.img }}">
+                                                        {% endif %}
+
+                                                        <div class="trade-info">
+                                                            <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}">
+                                                                {{ listing.book.titlecz|default:listing.book.title }}
+                                                            </a>
+
+                                                            <span class="trade-meta">
+                                                                Role: {% if listing.user == request.user %}Prodejce{% else %}Kupující{% endif %}<br>
+                                                                Datum: {{ listing.createdat|date:"j. n. Y" }}
+                                                            </span>
+
+                                                            <!-- Výzvy k akci -->
+                                                            <div class="trade-action">
+                                                                {% if listing.status == 'RESERVED' and listing.buyer == request.user %}
+                                                                    <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                                                                    class="movies">
+                                                                    Čeká se na zaplacení
+                                                                    </a>
+                                                                {% elif listing.status == 'PAID' and listing.user == request.user %}
+                                                                    <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                                                                    class="books">
+                                                                    Kupující zaplatil – odešlete knihu
+                                                                    </a>
+                                                                {% elif listing.status in 'PAID' and listing.buyer == request.user %}
+                                                                    <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                                                                    class="games">
+                                                                    Čekáme na doručení knihy
+                                                                    </a>
+                                                                {% elif listing.status in 'SHIPPED' and listing.buyer == request.user %}
+                                                                    <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                                                                    class="games">
+                                                                    Čekáme na doručení knihy
+                                                                    </a>
+                                                                {% elif listing.status in 'SHIPPED' and listing.user == request.user %}
+                                                                    <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                                                                    class="games">
+                                                                    Čekáme na potvrzení převzetí
+                                                                    </a>
+                                                                {% elif listing.status == 'COMPLETED' and listing.user == request.user and not listing.buyerrating %}
+                                                                    <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                                                                    class="badges">
+                                                                    Ohodnoťte kupujícího
+                                                                    </a>
+                                                                {% elif listing.status == 'COMPLETED' and listing.buyer == request.user and not listing.sellerrating %}
+                                                                    <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}"
+                                                                    class="badges">
+                                                                    Ohodnoťte prodejce
+                                                                    </a>
                                                                 {% endif %}
                                                             </div>
+                                                        </div>
 
-                                                            <div class="trade-info">
-                                                                <a href="{% url 'listing_detail_sell' book_url=listing.book.url listing_id=listing.booklistingid %}">
-                                                                    {{ listing.book.titlecz|default:listing.book.title }}
-                                                                </a>
-
-                                                                <div class="trade-meta">
-                                                                    Role: {% if listing.user == request.user %}Prodejce{% else %}Kupující{% endif %}<br>
-                                                                    Datum: {{ listing.createdat|date:"j. n. Y" }}<br>
-                                                                    Cena: {{ listing.price|default:0 }} Kč
-                                                                    {% if listing.shipping %}+ {{ listing.shipping }} Kč{% endif %}
-                                                                </div>
-
-                                                                <div class="trade-action">
-                                                                    <!-- tvé existující podmínky (beze změny) -->
-                                                                </div>
-                                                            </div>
+                                                        <!-- cena -->
+                                                        <div class="trade-price books">
+                                                            {{ listing.price|default:0 }} Kč<br>
+                                                            {% if listing.shipping %}+ <br>
+                                                            {{ listing.shipping }} Kč{% endif %}
                                                         </div>
                                                     </li>
                                                 {% endfor %}
@@ -427,19 +464,18 @@
 
                                 <!--Moje potávky v div kvariátu-->
                                 {% if user_wanted_purchases  %}
-                                    <ul class="my-market-list">
-                                        {% for listing in user_wanted_purchases %}
-                                            <li class="my-market-item">
-                                                <div class="my-market-card">
-                                                    <div class="my-market-cover">
-                                                        {% if listing.book.img == "noimg.png" %}
-                                                            <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz }}">
-                                                            {% elif listing.book.img == "GoogleID" %}
-                                                            <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz }}">
-                                                            {% else %}
-                                                            <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}">
-                                                        {% endif %}
-                                                    </div>
+                                    <div class="account-box">
+                                        <h3 class="account-title">Moje poptávky</h3>
+                                        <ul class="my-market-list">
+                                            {% for listing in user_wanted_purchases %}
+                                                <li class="my-market-item">
+                                                    {% if listing.book.img == "noimg.png" %}
+                                                        <img src="/static/img/book/book.png" alt="Kniha {{ listing.book.titlecz }}">
+                                                        {% elif listing.book.img == "GoogleID" %}
+                                                        <img src="https://books.google.com/books/content?id={{ listing.book.googleid }}&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" alt="{{ listing.book.titlecz }}">
+                                                        {% else %}
+                                                        <img src="https://media.div.cz/knihy/{{ listing.book.img }}" alt="{{ listing.book.titlecz }}">
+                                                    {% endif %}
 
                                                     <!-- info -->
                                                     <div class="my-market-info">
@@ -465,11 +501,10 @@
                                                     <div class="my-market-price books">
                                                         {{ listing.price }} Kč
                                                     </div>
-
-                                                </div>
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
                                 {% endif %}
                             </div>
 

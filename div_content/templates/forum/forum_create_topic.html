@@ -4,29 +4,31 @@
 
 {% block content %}
 
-{% if slug == "filmy" %}
-    <link href="/web/css/movies.css" rel="stylesheet">
-    {% elif slug == "knihy" %}
-        <link href="/web/css/books.css" rel="stylesheet">
-    {% elif slug == "hry" %}
-        <link href="/web/css/games.css" rel="stylesheet">
-    {% else %}
-    <link href="/web/css/navbar_other.css" rel="stylesheet">
-{% endif %}
+<div class="container">
+    {% if slug == "filmy" %}
+        <link href="/web/css/movies.css" rel="stylesheet">
+        {% elif slug == "knihy" %}
+            <link href="/web/css/books.css" rel="stylesheet">
+        {% elif slug == "hry" %}
+            <link href="/web/css/games.css" rel="stylesheet">
+        {% else %}
+        <link href="/web/css/navbar_other.css" rel="stylesheet">
+    {% endif %}
 
-<h2 style="width: 100%;">
-    <a href="{% url 'forum' %}">Diskuzní fórum</a>
-    <span> / </span>
-    <a href="{% url 'forum_section_detail' slug=section.slug %}">{{ section.title }}</a>
-</h2>
+    <h2 style="width: 100%;">
+        <a href="{% url 'forum' %}">Diskuzní fórum</a>
+        <span> / </span>
+        <a href="{% url 'forum_section_detail' slug=section.slug %}">{{ section.title }}</a>
+    </h2>
 
-<div class="admin-panel">
-    <h2>Nový příspěvek</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn add" type="submit">Přidat</button> <!-- sem barvičky tlačítek -->
-    </form>
+    <div class="admin-panel">
+        <h2>Nový příspěvek</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn add" type="submit">Přidat</button> <!-- sem barvičky tlačítek -->
+        </form>
+    </div>
 </div>
 
 {% endblock %}
