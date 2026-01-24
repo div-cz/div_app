@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpRequest
 from django.contrib.auth.decorators import login_required, user_passes_test
 from typing import Callable
-from div_content.models import Book, Bookauthor, Metagenre, Bookpublisher, Bookwriters, Bookisbn, Bookgenre
+from div_content.models import Book, Bookauthor, Metagenre, Bookwriters, Bookisbn, Bookgenre, Metapublisher
 from ..book_authors.author_verify import verify_or_create_author
 from ..others.helpers import get_unique_url,clean_character_name_sync
 from ..others.proces_image import process_image
@@ -75,7 +75,7 @@ def fetch_book_details(request: HttpRequest) -> JsonResponse:
                     publisher_name = book_info.get('publisher', '')
                     if publisher_name:
                         try:
-                            publisher_obj = Bookpublisher.objects.get(publishername=publisher_name)
+                            publisher_obj = Metapublisher.objects.get(publishername=publisher_name)
                             book_details['publisher'] = {
                                 'id': publisher_obj.publisherid,
                                 'name': publisher_obj.publishername

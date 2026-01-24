@@ -784,6 +784,45 @@ def books_market_offers(request):
 
 
 # -------------------------------------------------------------------
+#                    BOOKS MARKET NEWS
+# -------------------------------------------------------------------
+def books_market_new(request):
+    """
+    Nové knihy (stav NOVÁ).
+    Kurátorovaný výběr – logika výběru je zde, ne v šabloně.
+    """
+
+    # ⚠️ dočasně: ruční whitelist prodejců (ID uživatelů)
+    TRUSTED_SELLERS = [
+        # 12, 48, 73
+    ]
+
+    listings = (
+        Booklisting.objects
+        .filter(
+            listingtype__in=['SELL', 'GIVE'],
+            active=True,
+            status='ACTIVE',
+            condition='Nová',
+        )
+        .select_related('book', 'user')
+        .order_by('-createdat')
+    )
+
+    # 👉 pokud whitelist není prázdný, použijeme ho
+    if TRUSTED_SELLERS:
+        listings = listings.filter(user_id__in=TRUSTED_SELLERS)
+
+    paginator = Paginator(listings, 18)
+    page = request.GET.get("page")
+    listings_page = paginator.get_page(page)
+
+    return render(request, "divkvariat/books_market_new.html", {
+        "listings": listings_page,
+    })
+
+
+# -------------------------------------------------------------------
 #                    BOOK MARKET WANTS
 # -------------------------------------------------------------------
 def books_market_wants(request):
@@ -1760,7 +1799,7 @@ def send_listing_payment_email(listing):
         if listing.platformseller == "DIVKVARIAT":
             listing_url = f"https://divkvariat.cz/kniha/{listing.book.url}/prodej/{listing.booklistingid}/"
         else:
-            listing_url = f"https://div.cz/kniha/{listing.book.url}/prodej/{listing.booklistingid}/"
+            listing_url = f"https://div.cz/antikvariat/{listing.book.url}/prodej/{listing.booklistingid}/"
 
 
         recipient = seller.email if seller else None

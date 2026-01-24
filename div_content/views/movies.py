@@ -53,7 +53,7 @@ from django.views.decorators.http import require_POST
 
 from django.views.generic import DetailView
 
-from div_content.forms.movies import CommentForm, MovieCinemaForm, MovieDivRatingForm, MovieErrorForm, SearchForm, TrailerForm
+from div_content.forms.movies import CommentForm, MovieCinemaForm, MovieDivRatingForm, MovieErrorForm, MovieTitleDIVForm, SearchForm, TrailerForm
 from div_content.models import (
     Article, Book, Creator, Creatorbiography, FavoriteSum, Game, 
     Metalocation, Metagenre, Movie, Moviecinema, Moviecomments, Moviecountries, Moviecrew, Moviedistributor, Movieerror, Moviegenre, Movielocation, Moviequotes, Movierating, Movietrailer, Movietrivia, Moviekeywords,
@@ -101,6 +101,7 @@ def movie_detail(request, movie_url):
     user = request.user
     user_rating = None
     comment_form = None  # Default value
+    
 
     if user.is_authenticated:
         try:
@@ -270,6 +271,21 @@ def movie_detail(request, movie_url):
         else:
             div_rating_form = MovieDivRatingForm(instance=movie)
 
+    title_div_form = None
+    # Formulář pro úpravu TitleDIV
+    if request.user.is_superuser:
+        if request.method == 'POST' and 'update_titlediv' in request.POST:
+            title_div_form = MovieTitleDIVForm(request.POST, instance=movie)
+            if title_div_form.is_valid():
+                title_div_form.save()
+                messages.success(
+                    request,
+                    "DIV název uložen. Bude použit při dalším update (středa, neděle)."
+                )
+                return redirect('movie_detail', movie_url=movie_url)
+        else:
+            title_div_form = MovieTitleDIVForm(instance=movie)
+
 
 # xsilence8x keywords pro meta tags
     keywords = Moviekeywords.objects.filter(movieid=movie)
@@ -371,6 +387,7 @@ def movie_detail(request, movie_url):
         'same_universe_movies': same_universe_movies,
         'universum': universum,
         'div_rating_form': div_rating_form,
+        'title_div_form': title_div_form,
         'quotes': quotes,
         'trivia': trivia,
         'errors': errors,

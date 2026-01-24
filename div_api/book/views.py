@@ -1,5 +1,5 @@
 from django.db.models import Prefetch
-from div_content.models import Book, Bookauthor, Bookgenre, Bookwriters, Bookisbn, Bookpublisher
+from div_content.models import Book, Bookauthor, Bookgenre, Bookwriters, Bookisbn, Metapublisher
 from rest_framework import mixins
 from .serializers import BookSerializer, BookListSerializer, BookauthorSerializer, PublisherSerializer
 from ..views import BaseViewSet
@@ -41,6 +41,6 @@ class BookAuthorViewSet(BaseViewSet):
 
 
 class BookpublisherViewSet(BaseViewSet): # mixins.CreateModelMixin):
-    queryset = Bookpublisher.objects.all()
+    queryset = Metapublisher.objects.all()
     serializer_class = PublisherSerializer
     search_fields = ['publishername']

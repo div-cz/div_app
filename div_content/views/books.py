@@ -65,11 +65,11 @@ from django.views.decorators.http import require_POST
 
 from dotenv import load_dotenv
 
-from div_content.forms.books import BookAddForm, BookDivRatingForm, BookCharacterForm, BookListingForm, Bookquoteform, CommentFormBook, ManualBookForm, SearchFormBooks
+from div_content.forms.books import BookAddForm, BookAdminForm, BookDivRatingForm, BookCharacterForm, BookListingForm, Bookquoteform, CommentFormBook, ManualBookForm, SearchFormBooks
 from div_content.forms.divkvariat import BookListingForm
 from div_content.models import (
     Book, Bookauthor, Bookcharacter, Bookcomments, Bookcover, Bookgenre, Bookisbn, Booklisting, 
-    Bookpublisher, Bookpurchase, Bookquotes, Bookrating, Booksource, Bookwriters, Charactermeta, 
+    Bookpurchase, Bookquotes, Bookrating, Booksource, Bookwriters, Charactermeta, 
     Metagenre, Metaindex, Metastats, Metauniversum, 
     Userdivcoins, Userlist, Userlistbook, Userlisttype, FavoriteSum, Userbookgoal, Userlistitem
 )
@@ -375,6 +375,7 @@ def books(request):
 
     book_list_15 = (
         Book.objects
+        .exclude(special=0)
         .select_related("authorid")  # JOIN na autora
         .annotate(
             average_rating=models.Subquery(
@@ -399,7 +400,7 @@ def books(request):
     # Knihy podle popularity
     # book_list_15 = Metaindex.objects.filter(year__gt=2018).order_by("-popularity").values('title', 'url', 'img', 'description')[:15]
 
-    top_books = Book.objects.select_related("authorid").order_by('-divrating')[:10]
+    top_books = Book.objects.exclude(special=0).select_related("authorid").order_by('-divrating')[:10]
 
     stats_book = Metastats.objects.filter(tablemodel='Book').first()
     stats_writters = Metastats.objects.filter(tablemodel='BookAuthor').first()
@@ -626,7 +627,7 @@ def book_detail(request, book_url):
 
     if book.universumid:
         series = book.universumid
-        series_books = Book.objects.filter(universumid=book.universumid).exclude(bookid=book.bookid)[:10]
+        series_books = Book.objects.filter(universumid=book.universumid).exclude(special=0).exclude(bookid=book.bookid)[:10]
     
     # Načtení QR kódu pro eKnihu, pokud ji uživatel koupil a čeká na platbu
     user_ebook_purchases = []
@@ -785,6 +786,18 @@ def book_detail(request, book_url):
         return redirect('book_detail', book_url=book.url)
 
 
+    book_admin_form = None
+    if request.user.is_superuser:
+        if request.method == "POST" and "update_book_admin" in request.POST:
+            book_admin_form = BookAdminForm(request.POST, instance=book)
+            if book_admin_form.is_valid():
+                book_admin_form.save()
+                messages.success(request, "Nastavení knihy bylo uloženo.")
+                return redirect("book_detail", book_url=book.url)
+        else:
+            book_admin_form = BookAdminForm(instance=book)
+
+
     return render(request, 'books/book_detail.html', {
         'book': book,
         'authors': authors, 
@@ -826,6 +839,7 @@ def book_detail(request, book_url):
         'ebook_formats_json': json.dumps(ebook_formats, cls=DecimalEncoder),
         "format_kindlemails": format_kindlemails,
         #'books_with_series': books_with_series,
+        'book_admin_form': book_admin_form,
         })
 #    top_20_books = Book.objects.order_by('-bookrating').all()[:20]  # Define top_20_books here
     #'top_20_books': top_20_books
@@ -966,7 +980,10 @@ def books_search(request):
             books_hits = data["results"]
 
             book_ids = [int(hit["id"]) for hit in books_hits]
-            books_by_id = Book.objects.in_bulk(book_ids)
+            books_by_id = {
+                k: v for k, v in Book.objects.in_bulk(book_ids).items()
+                if v and v.special != 0
+            }
             author_ids = [h.get("authorid") for h in books_hits if h.get("authorid") is not None]
             authors_by_id = Bookauthor.objects.in_bulk(author_ids)
 
@@ -987,6 +1004,8 @@ def books_search(request):
             merged = []
             for hit in books_hits:
                 b = books_by_id.get(int(hit["id"])) if hit.get("id") is not None else None
+                if not b:
+                    continue
                 aid = hit.get("authorid")
                 author_obj = authors_by_id.get(aid) if aid is not None else None
 

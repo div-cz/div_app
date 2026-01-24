@@ -5,7 +5,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from div_content.models import Book, Bookauthor, Bookcomments, Bookcharacter, Booklisting, Bookpublisher, Bookquotes, Metagenre, Userprofile
+from div_content.models import Book, Bookauthor, Bookcomments, Bookcharacter, Booklisting, Bookquotes, Metagenre, Userprofile
 
 #    FORMULÁŘE
 # ManualBookForms
@@ -17,6 +17,8 @@ from div_content.models import Book, Bookauthor, Bookcomments, Bookcharacter, Bo
 # BookDivRatingForm
 # SearchFormBooks
 # BookAddForm
+# BookAdminForm 
+
 class ManualBookForm(forms.ModelForm):
     authorid = forms.ModelChoiceField(
         queryset=Bookauthor.objects.all().order_by('lastname', 'firstname'),
@@ -31,14 +33,6 @@ class ManualBookForm(forms.ModelForm):
         required=False,
         label="Žánry",
         widget=forms.SelectMultiple(attrs={'class': 'form-control select2'})
-    )
-    
-    publisher = forms.ModelChoiceField(
-        queryset=Bookpublisher.objects.all().order_by('publishername'),
-        required=False,
-        label="Nakladatelství",
-        empty_label="-- Vyberte nakladatelství --",
-        widget=forms.Select(attrs={'class': 'form-control select2'})
     )
     
     cover_image = forms.ImageField(
@@ -307,3 +301,40 @@ class Bookquoteform(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+
+
+class BookAdminForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ["language", "special"]
+        widgets = {
+            "language": forms.Select(
+                choices=[
+                    ("cs", "Čeština"),
+                    ("sk", "Slovenština"),
+                    ("en", "Angličtina"),
+                    ("de", "Němčina"),
+                    ("pl", "Polština"),
+                    ("fr", "Francouzština"),
+                    ("es", "Španělština"),
+                    ("it", "Italština"),
+                ],
+                attrs={"class": "form-control"}
+            ),
+            "special": forms.Select(
+                choices=[
+                    (1, "Zobrazovat"),
+                    (0, "Skrýt"),
+                ],
+                attrs={"class": "form-control"}
+            )
+        }
+        labels = {
+            "language": "Jazyk knihy",
+            "special": "Viditelnost (omalovanky, defekty)",
+        }
+
+
+
+

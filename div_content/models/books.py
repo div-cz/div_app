@@ -236,18 +236,6 @@ class Booklocation(models.Model):
         db_table = 'BookLocation'
 
 
-
-class Bookpublisher(models.Model):
-    publisherid = models.IntegerField(db_column='PublisherID', primary_key=True)
-    publishername = models.CharField(db_column='PublisherName', max_length=255, unique=True)
-    publisherurl = models.CharField(db_column='PublisherURL', max_length=255, null=True, blank=True)
-    publisherdescription = models.CharField(db_column='PublisherDescription', max_length=512, null=True, blank=True)
-    publisherwww = models.CharField(db_column='PublisherWWW', max_length=255, null=True, blank=True)
-
-    class Meta:
-        db_table = 'BookPublisher'
-
-
 class Bookpurchase(models.Model):
     STATUS_CHOICES = (
         ('PENDING', 'Čeká na platbu'),

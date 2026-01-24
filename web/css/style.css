@@ -1205,10 +1205,8 @@ button, [role="button"] {
     margin-bottom: .5rem;
     display: flex;
     align-items: center;
-    width: fit-content;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    align-content: flex-start;
+    width: 100%;
+    gap: 1rem;
 }
 
 .box-body {
@@ -1375,6 +1373,7 @@ button, [role="button"] {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    align-items: flex-start;
 }
 
 .komentar .card-body {
@@ -1576,6 +1575,18 @@ footer a:hover {
     text-align: center;
 }
 
+.rating-users li {
+    background: #ffffff;
+    border-radius: .5rem;
+    padding: .5rem 0;
+    margin-bottom: .5rem;
+    border: 1px solid #ccc;
+}
+
+.rating-users li:is(.dark *) {
+    background: #0d0c0f;
+}
+
 .rating-users li form {
     display: flex;
     justify-content: center;
@@ -1726,6 +1737,13 @@ footer a:hover {
     flex-wrap: wrap;
     width: 100%;
     margin-left: 1rem; /* 16px */
+}
+
+.author-book-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }
 
 .fans {
@@ -1953,6 +1971,11 @@ footer a:hover {
 }
 
 .last-review-text {
+    -webkit-line-clamp: 4;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 10px 0;
     font-size: .875rem; /* 14px */
     line-height: 1.25rem; /* 20px */
     width: 100%;
@@ -2001,71 +2024,15 @@ footer a:hover {
     width: 100%;
 }
 
-.search-grid {
-    display: grid;
-    grid-template-columns: 90px 1fr 80px 180px;
-    align-items: center;
-    gap: .5rem;
-    border: 1px solid #ccc;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-    background-color: #f9f9f9;
-}
 
-.search-header {
-    padding: .75rem;
-    font-weight: 600;
-    min-height: 1px;
-    width: 100%;
-    border-radius: .5rem !important;
-}
 
-.search-grid:is(.dark *) {
-    background: #252229;
-}
-
-.search-row {
-    margin-top: .6rem;
-    border-radius: .5rem;
-    padding: .5rem;
-    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.search-row img {
-    display: block;
-    width: 90px;
-    border-radius: .5rem;
-    object-fit: cover;
-}
-
-.search-rating {
-    display: flex;
-    align-items: center;
-    font-size: 15px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
 
 .users-rating {
     width: 80px;
     text-align: center;
 }
 
-.title a {
-    font-weight: 600;
-    font-size: 1rem;
-    text-decoration: none;
-}
 
-.year {
-    color: #6b7280;
-    text-align: center;
-}
-
-.stars {
-    letter-spacing: 1px;
-    text-align: center;
-    padding: .25rem;
-}
 
 
 /******************************/
@@ -2200,6 +2167,10 @@ hr {
     .celebrit-list {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
+    .last-review-text {
+        -webkit-line-clamp: 3;
+    }
 }
 
 @media (max-width: 575.98px) {
@@ -2232,6 +2203,7 @@ hr {
     .sm-rating-users {
         display: flex;
         flex-wrap: wrap;
+        gap: .5rem;
     }
  
     /*.sudy:nth-child(1) {
@@ -2352,7 +2324,7 @@ hr {
         padding-left: 0;
     }
 
-    .sm-rating-users {
+    .sm-rating-users li {
         position: relative;
         display: -ms-flexbox;
         display: flex;
@@ -2365,16 +2337,15 @@ hr {
         background-clip: border-box;
         border-radius: .5rem;
         border: 1px solid #ccc;
-        margin-bottom: 1rem;
         box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
         flex-wrap: wrap;
         -ms-flex: 1 1 auto;
         flex: 1 1 auto;
         min-height: 1px;
-        padding: 1.25rem;
+        padding: .5rem;
     }
 
-    .sm-rating-users:is(.dark *) {
+    .sm-rating-users li:is(.dark *) {
         background: #0d0c0f;
     }
 
@@ -2507,14 +2478,7 @@ hr {
     .sm-rating-users {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .sm-rating-users li:nth-child(2n+2) {
-        border-left: 1px solid #ccc;
-    }
-    
-    .sm-rating-users li:nth-last-child(-n + 2) {
-        border-bottom: none;
+        gap: .5rem;
     }
 
 }
@@ -2597,7 +2561,7 @@ hr {
     }
 
     .container {
-        width: 820px;
+        width: 800px;
     }
 
     .hvezdicky {
@@ -2656,3 +2620,8 @@ hr {
     }
 }
 
+@media (min-width: 1400px) {
+    .container {
+        width: 1040px;
+    }
+}

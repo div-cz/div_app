@@ -1,7 +1,7 @@
 from typing import Dict,List,Any
 from django.views.decorators.http import require_GET
 from django.db.models import QuerySet
-from div_content.models import Metagenre,Bookpublisher
+from div_content.models import Metagenre,Metapublisher
 from django.http import JsonResponse
 
 def search_genres(search: str) -> QuerySet[Metagenre]:
@@ -68,9 +68,9 @@ def ajax_search_genres(request) -> JsonResponse:
 
     return JsonResponse({'results': data}, status=200)
 
-def search_publisher(search: str) -> QuerySet[Bookpublisher]:
+def search_publisher(search: str) -> QuerySet[Metapublisher]:
     """
-    Vyhledává v Bookpublisher.
+    Vyhledává v Metapublisher.
 
     Args:
         query (str): Hledaný výraz.
@@ -81,9 +81,9 @@ def search_publisher(search: str) -> QuerySet[Bookpublisher]:
     search = search.strip()
 
     if search:
-        return Bookpublisher.objects.filter(publishername__icontains=search).order_by('publishername')
+        return Metapublisher.objects.filter(publishername__icontains=search).order_by('publishername')
     else:
-        return Bookpublisher.objects.none()  # Nebo můžete vyvolat výjimku
+        return Metapublisher.objects.none()  # Nebo můžete vyvolat výjimku
 
 @require_GET
 def ajax_search_publisher(request) -> JsonResponse:

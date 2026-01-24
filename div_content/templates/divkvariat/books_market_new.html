@@ -1,16 +1,16 @@
 {% extends "divkvariat/base.html" %}
 {% load humanize %}
 
-{% block title %}Nabídky knih | DIVkvariát{% endblock %}
+{% block title %}Nabídky nových knih | DIVkvariát{% endblock %}
 
 {% block meta %}
-<meta name="description" content="Aktuální nabídky knih od čtenářů na DIVkvariátu. Prodej, darování a výměny.">
-<link rel="canonical" href="https://divkvariat.cz/nabidky/">
+<meta name="description" content="Aktuální nabídky nových knih od čtenářů na DIVkvariátu. Prodej, darování a výměny.">
+<link rel="canonical" href="https://divkvariat.cz/nove-knihy/">
 
 <meta property="og:title" content="Nabídky knih | DIVkvariát">
 <meta property="og:description" content="Prodej knih z druhé ruky. Podívejte se na aktuální nabídky čtenářů.">
 <meta property="og:image" content="https://media.div.cz/hero/divkvariat.webp">
-<meta property="og:url" content="https://divkvariat.cz/nabidky/">
+<meta property="og:url" content="https://divkvariat.cz/nove-knihy/">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Nabídky knih | DIVkvariát">
@@ -27,60 +27,23 @@
     <a href="/"
        class="text-green-700 hover:underline">DIVkvariát</a>
 
-    <span class="mx-2">/</span>
-
+        <span class="mx-2">/</span>
+        <a href="/nabidky/"
+           class="text-green-700 hover:underline">
+            Nabídky
+        </a>
+        <span class="mx-2">/</span>
     <!-- SEKCE -->
-    <span class="text-gray-600">Nabídky</span>
+    <span class="text-gray-600">Nové knihy</span>
 
 </div>
 
-    <h1 class="text-3xl font-bold text-gray-900 mb-2">📚 Nabídky knih</h1>
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">📦 Nové knihy za cenu starých</h1>
     <p class="text-gray-600 mb-10">
-        Aktuální nabídky od čtenářů DIVkvariátu.  
-        Prodej, darování i sběratelské kousky.
+        Nevhodné dárky, vyprodej skladů, dvojité nákupy.<br> 
+        <strong>Stav NOVÉ, cena bazarová.</strong><br>
+        Ušetřete – a nikdo to nepozná.
     </p>
-
-<!-- 🔹 KATEGORIE -->
-{% if categories %}
-<div class="mb-10">
-    <h2 class="text-xl font-semibold mb-3">Kategorie</h2>
-
-    <div class="flex flex-wrap gap-3">
-
-            <a href="/nove-knihy/"
-               class="px-4 py-2 rounded-lg border border-green-400 bg-green-50 text-green-800 font-semibold shadow-sm">
-                   📦 Nové knihy
-            </a>
-            
-        {% for g in categories %}
-            <a href="?zanr={{ g.url }}"
-               class="
-                    px-4 py-2 rounded-lg border shadow-sm hover:bg-gray-50
-                    {% if selected_genre == g.url %}
-                        bg-green-100 border-green-300 text-green-800
-                    {% else %}
-                        bg-white text-gray-700
-                    {% endif %}
-                    
-                    {% if forloop.counter > 2 %}
-                        hidden md:inline-flex
-                    {% endif %}
-               ">
-                {{ g.genrenamecz }}
-            </a>
-        {% endfor %}
-
-    </div>
-
-    <!-- Tlačítko ukázat všechny na mobilu -->
-    <a href="#" 
-       onclick="this.previousElementSibling.querySelectorAll('.hidden').forEach(x => x.classList.remove('hidden')); this.remove();"
-       class="md:hidden mt-3 inline-block text-green-700 underline">
-        Zobrazit všechny
-    </a>
-</div>
-{% endif %}
-
 
 <!-- 🔹 TOP PRODEJCI -->
 {% if top_sellers %}
@@ -98,6 +61,7 @@
                 ({{ seller.total_sales }} nabídek)
             </span>
         </a>
+
         {% endfor %}
 
     </div>
@@ -147,6 +111,10 @@
             <!-- Autor -->
             <p class="text-gray-500 mb-3">{{ listing.book.author }}</p>
 
+<span class="inline-block text-xs px-2 py-1 rounded bg-green-100 text-green-800 mb-2">
+    Stav: NOVÁ
+</span>
+
             <!-- Cena -->
             <p class="text-xl font-bold mb-4
                 {% if listing.price %}
@@ -166,15 +134,6 @@
                class="mt-auto block w-full text-center py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold">
                 Detail nabídky
             </a>
-
-            <p class="text-xs text-gray-500 mt-3">
-                Přidal:
-                <a class="text-green-700 hover:underline"
-                   href="/uzivatel/{{ listing.user.id }}/prodam-knihy/">
-                    {{ listing.user.username }}
-                </a><br>
-                {{ listing.createdat|date:"j. n. Y" }}
-            </p>
 
         </div>
         {% endfor %}

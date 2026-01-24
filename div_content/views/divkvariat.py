@@ -1173,7 +1173,10 @@ def send_listing_payment_confirmation_email(listing):
         amount = int(float(listing.price or 0) + float(listing.commission or 0))
         shipping = int(float(listing.shipping or 0))
         
-        listing_url = f"https://div.cz/antikvariat/{listing.book.url}/{listing.booklistingid}/"
+        if listing.platformseller == "DIVKVARIAT":
+            listing_url = f"https://divkvariat.cz/kniha/{listing.book.url}/prodej/{listing.booklistingid}/"
+        else:
+            listing_url = f"https://div.cz/kniha/{listing.book.url}/prodej/{listing.booklistingid}/"
 
         context = {
             'book_title': book.titlecz,
@@ -1251,7 +1254,11 @@ def send_listing_payment_email(listing):
         book = listing.book
         buyer = listing.buyer
         seller = listing.user
-        listing_url = f"https://div.cz/antikvariat/{listing.book.url}/{listing.booklistingid}/"
+
+        if listing.platformseller == "DIVKVARIAT":
+            listing_url = f"https://divkvariat.cz/kniha/{listing.book.url}/prodej/{listing.booklistingid}/"
+        else:
+            listing_url = f"https://div.cz/kniha/{listing.book.url}/prodej/{listing.booklistingid}/"
 
         recipient = seller.email if seller else None
         if not recipient:

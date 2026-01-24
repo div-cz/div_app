@@ -42,6 +42,11 @@
     .game a.active {
         background-color: #0A76A9;
     }
+
+    .info-bar {
+        justify-content: space-between;
+    }
+
 </style>
 
 {% endblock %}
@@ -52,46 +57,46 @@
     <!-- LEVÁ STRANA -->
     <div class="left-side">
         <div class="info-bar">
-            <h2 style="width:100%; margin-bottom:0;">
+            <h2>
                 {{ character.charactername }} 
-                {% if character.characterborn %}
-                <small style="color:#6c757d;">({{ character.characterborn|date:"Y" }})</small>
+                    {% if character.characterborn %}
+                    <small class="text-muted">({{ character.characterborn|date:"Y" }})</small>
                 {% endif %}
             </h2>
 
             <!-- FAVORITE by xSilence8x -->
             {% if user.is_authenticated %}
-            <div class="heart">
-                {% if not is_favorite %}
-                <a href="{% url 'add_character_to_favorites' character.characterid %}" class="flex relative">
-                    <i class="far fa-regular fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} #ffffff {% endif %}" title="přidat do oblíbených"></i>
-                {% else %}
-                <a href="{% url 'remove_character_from_favorites' character.characterid %}" class="flex relative">
-                    <i class="fas fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} #ffffff {% endif %}" title="odebrat z oblíbených"></i>
-                {% endif %}
-                </a>
-            </div>
+                <div class="heart">
+                    {% if not is_favorite %}
+                    <a href="{% url 'add_character_to_favorites' character.characterid %}" class="flex relative">
+                        <i class="far fa-regular fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} unset {% endif %}" title="přidat do oblíbených"></i>
+                    {% else %}
+                    <a href="{% url 'remove_character_from_favorites' character.characterid %}" class="flex relative">
+                        <i class="fas fa-heart" style="color: {% if is_favorite %} #e91e63 {% else %} unset {% endif %}" title="odebrat z oblíbených"></i>
+                    {% endif %}
+                    </a>
+                </div>
             {% endif %}
         </div>
 
         <!-- INFO -->
         <div class="author-info">
             <div class="author-poster">
-            {% if not character.characterimg or character.characterimg == "" %}
-                <img src="/static/img/creator/noperson.svg" alt="{{ character.charactername }}" class="img-fluid img-size">
-                {% else %}
-                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ character.characterimg }}" alt="{{ character.charactername }}" class="img-fluid img-size">
-            {% endif %}
+                {% if not character.characterimg or character.characterimg == "" %}
+                    <img src="/static/img/creator/noperson.svg" alt="{{ character.charactername }}" class="img-fluid img-size">
+                    {% else %}
+                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2{{ character.characterimg }}" alt="{{ character.charactername }}" class="img-fluid img-size">
+                {% endif %}
             </div>
 
             <div class="author-info-detail">
                 <ul class="list-unstyled">
                     {% if characterbiography.characterborn %}
-                    <li><strong>Datum narození:</strong> {{ characterbiography.characterborn }}</li>
+                        <li><strong>Datum narození:</strong> {{ characterbiography.characterborn }}</li>
                     {% endif %}
 
                     {% if characterbiography.characterdeath %}
-                    <li><strong>Datum úmrtí:</strong> {{ characterbiography.characterdeath }}</li>
+                        <li><strong>Datum úmrtí:</strong> {{ characterbiography.characterdeath }}</li>
                     {% endif %}
                     <!--<li>ID: {{ creator.creatorid }}</li>-->
                     <!--<li>{{ creator.popularity }}</li>-->
@@ -100,60 +105,32 @@
         </div>
 
         <!-- BIOGRAFIE -->
-        <!-- BIOGRAFIE -->
-        {% if characterbiography %}
-        <div class="author-bio">
-            <h3>Životopis</h3>
+        {% if characterbiography.verificationstatus == "Verified" %}
+            <div class="character-biography">
+                {% if characterbiography.charactersource %}
+                    <p>{{ characterbiography.charactersource }}</p>
+                {% endif %}
+
+                {% if characterbiography.biographytextcz %}
+                    <p>{{ characterbiography.biographytextcz|safe }}</p>
+                {% endif %}
         
-            {% if characterbiography.biographytextcz %}
-                <p style="white-space: pre-line;">{{ characterbiography.biographytextcz|safe }}</p>
-            {% elif characterbiography.biographytext %}
-                <p style="white-space: pre-line;">{{ characterbiography.biographytext|safe }}</p>
-            {% endif %}
-        
-            <p style="font-size: 13px; color: #999;">
-                Naposledy upravil:
-                <strong>{{ characterbiography.author|default:"Neznámý" }}</strong>
-                dne {{ characterbiography.lastupdated }}
-            </p>
-        
-            {% if request.user.is_staff %}
-            <details>
-                <summary>✏ Upravit popis</summary>
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" name="edit_bio" class="add-movie">Uložit změny</button>
-                </form>
-            </details>
-            {% endif %}
-        </div>
-        
-        {% else %}
-        <div class="author-bio">
-            {% if user.is_authenticated %}
+                {% if characterbiography.externallink %}
+                    <a href="{{ characterbiography.externallink }}" target="_blank">Více informací</a>
+                {% endif %}
+            </div>
+
+            {% else %}
+            <div class="author-bio">
                 <details>
-                    <summary>Přidej vlastní popis</summary>
+                    <summary>Přidej vlastní popis, zatím tu žádný není!</summary>
                     <form method="post">
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <button type="submit" name="add_bio" class="add-movie">
-                            Přidat popis
-                        </button>
+                        <textarea id="w3review" name="w3review" rows="3" cols="50"></textarea>
+                        <input class="btn add-movie" type="submit" value="Přidat">
                     </form>
                 </details>
-            {% else %}
-                <details>
-                    <summary>Přidej vlastní popis</summary>
-                    <div style="margin-top:10px;">
-                        <p>Pro přidání popisu se prosím nejdříve přihlas.</p>
-                        <a href="/prihlaseni/" class="add-movie">Přihlásit se</a>
-                    </div>
-                </details>
-            {% endif %}
-        </div>
+            </div>
         {% endif %}
-
         
         <!-- Karty -->
         <div class="tab-container" style="font-size:16px">
@@ -172,320 +149,345 @@
                 </li>
             </ul>
 
-            <!-- FILMY -->
-            <div id="tab1" class="tab-content active" style="padding:0">
-                <div class="creator-movie-list">
-            
-                {% if filmography %}
-            
-                    {% for movie, actors in filmography.items %}
-                    <div class="creator-movie-info sudy">
-            
-                        <div>
-                        {% if movie.img == "noimg.png" %}
-                            <img src="https://div.cz/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}">
-                        {% else %}
-                            <img src="https://www.themoviedb.org/t/p/w400{{ movie.imgposter }}" alt="{{ movie.titlecz }}">
-                        {% endif %}
-                        </div>
-            
-                        <div class="creator-movie-detail">
-                            <div class="creator-movie-name">
-                                <p>
-                                    <a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a>
-                                    {{ movie.releaseyear }}
-                                </p>
-                                <p>{{ actors|join:", " }}</p>
-                            </div>
-            
-                            <div class="creator-movie-rating">
-                            {% if user.is_authenticated %}
-                                <div class="movie-rating">
-                                    100 %
-                                </div>
-            
-                                <div class="creator-movie-stars">
-                                    {% if movie.is_watched %}
-                                    <i class="fas fa-eye" title="viděno"></i>
-                                    {% endif %}
-            
-                                    <span>
-                                    {% for _ in "12345" %}
-                                        {% if forloop.counter <= rating.score %}
-                                            <span>★</span>
-                                        {% else %}
-                                            ☆
+			<!-- FILMY -->
+			<div id="tab1" class="tab-list active" style="padding:0">
+				<div class="creator-movie-list">
+                    {% if filmography %}
+                        {% for movie, actors in filmography.items %}
+                            <div class="creator-movie-info sudy">
+                                {% if movie.img == "noimg.png" %}
+                                    <img src="https://div.cz/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}">
+                                    {% else %}
+                                    <img src="https://www.themoviedb.org/t/p/w400{{ movie.imgposter }}" alt="{{ movie.titlecz }}">
+                                {% endif %}
+                    
+                                <div class="creator-movie-detail">
+                                    <div class="creator-movie-name">
+                                        <p>
+                                            <a href="/film/{{ movie.url }}" class="movies">{{ movie.titlecz }}</a>
+                                            {{ movie.releaseyear }}
+                                        </p>
+                                        <p>{{ actors|join:", " }}</p>
+                                    </div>
+									<!--  
+                                    <div class="creator-movie-rating">
+                                        {% if user.is_authenticated %}
+                                            <div class="movie-rating">
+                                                100 %
+                                            </div>
+                        
+                                            <div class="creator-movie-stars">
+                                                {% if movie.is_watched %}
+                                                    <i class="fas fa-eye" title="viděno"></i>
+                                                {% endif %}
+                        
+                                                <span>
+                                                    {% for _ in "12345" %}
+                                                        {% if forloop.counter <= rating.score %}
+                                                            <span>★</span>
+                                                        {% else %}
+                                                            ☆
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </span>
+                                            </div>
                                         {% endif %}
-                                    {% endfor %}
-                                    </span>
+                                    </div>-->
                                 </div>
-                            {% endif %}
+                            </div>
+                        {% endfor %}
+                
+                        {% else %}
+                        <div class="creator-movie-info sudy">
+                            <div>
+                                <img src="https://div.cz/static/img/movie/w200/nomovie.jpg" alt="No image">
+                            </div>
+                
+                            <div class="creator-movie-detail">
+                                <div class="creator-movie-name">
+                                    <p>
+                                        Žádné filmy.<br>
+                                        <a href="https://div.cz/forum/filmy/chybejici-postavy-ve-filmu" target="_blank">
+                                            Chybí vám? Nahlašte ve fóru.
+                                        </a>
+                                    </p>
+                                </div>
+                
+                                <div class="creator-movie-rating"></div> <!-- zachováno -->
                             </div>
                         </div>
-            
-                    </div>
-                    {% endfor %}
-            
-                {% else %}
-            
-                    <div class="creator-movie-info sudy">
-                        <div>
-                            <img src="https://div.cz/static/img/movie/w200/nomovie.jpg" alt="No image">
-                        </div>
-            
-                        <div class="creator-movie-detail">
-                            <div class="creator-movie-name">
-                                <p>
-                                    Žádné filmy.<br>
-                                    <a href="https://div.cz/forum/filmy/chybejici-postavy-ve-filmu" target="_blank">
-                                        Chybí vám? Nahlašte ve fóru.
-                                    </a>
-                                </p>
+                    {% endif %}
+				</div>
+			</div>
+			
+			<!-- SERIÁLY -->
+            <div id="tab2" class="tab-list" style="padding:0">
+                <div class="creator-movie-list">
+                    {% if tvshows %}
+                        {% for item in tvshows %}
+                            <div class="creator-movie-info sudy">
+                                {% if item.show.imgposter %}
+                                    <img src="https://www.themoviedb.org/t/p/w400{{ item.show.imgposter }}" alt="{{ item.show.titlecz }}">
+                                    {% else %}
+                                    <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ item.show.titlecz }}">
+                                {% endif %}
+
+                                <div class="creator-movie-detail">
+                                    <div class="creator-movie-name">
+                                        <p>
+                                            <a href="/serial/{{ item.show.url }}" class="movies">{{ item.show.titlecz }}</a>
+                                            {{ item.show.premieredate|date:"Y" }}
+                                        </p>
+                                        <p>{{ item.actor }}</p>
+                                    </div>
+									<!--
+                                    <div class="creator-movie-rating">
+                                        {% if user.is_authenticated %}
+                                            <div class="movie-rating">100 %</div>
+
+                                            <div class="creator-movie-stars">
+                                                {% if item.show.is_watched %}
+                                                    <i class="fas fa-eye" title="viděno"></i>
+                                                {% endif %}
+
+                                                <span>
+                                                    {% for _ in "12345" %}
+                                                        {% if forloop.counter <= rating.score %}
+                                                            <span>★</span>
+                                                        {% else %}
+                                                            ☆
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </span>
+                                            </div>
+                                        {% endif %}
+                                    </div>-->
+                                </div>
                             </div>
-            
-                            <div class="creator-movie-rating"></div> <!-- zachováno -->
+                        {% endfor %}
+
+                        {% else %}
+                        <div class="creator-movie-info sudy">
+                            <div>
+                                <img src="/static/img/movie/w200/nomovie.jpg" alt="">
+                            </div>
+
+                            <div class="creator-movie-detail">
+                                <div class="creator-movie-name">
+                                    <p>
+                                        Žádné seriály.<br>
+                                        <a href="https://div.cz/forum/obecne/chybejici-postavy-u-serialu" target="_blank">
+                                            Chybí vám? Nahlašte ve fóru.
+                                        </a>
+                                    </p>
+                                </div>
+                                <div class="creator-movie-rating"></div>
+                            </div>
                         </div>
-                    </div>
-            
-                {% endif %}
-            
-                </div>
-            </div>
-            
-            
-<div id="tab2" class="tab-content" style="padding:0">
-    <div class="creator-movie-list">
+                    {% endif %}
 
-    {% if tvshows %}
+                    <!-- PAGINÁTOR --><!--
+                    <div class="pagination">
+                        <span class="step-links">
+                        
+                            <a class="first-page" href="">&laquo; První</a>
+                            <a href="">Předchozí</a>
+                        
 
-        {% for item in tvshows %}
-        <div class="creator-movie-info sudy">
-
-            <div>
-            {% if item.show.imgposter %}
-                <img src="https://www.themoviedb.org/t/p/w400{{ item.show.imgposter }}" alt="{{ item.show.titlecz }}">
-            {% else %}
-                <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ item.show.titlecz }}">
-            {% endif %}
-            </div>
-
-            <div class="creator-movie-detail">
-                <div class="creator-movie-name">
-                    <p>
-                        <a href="/serial/{{ item.show.url }}">{{ item.show.titlecz }}</a>
-                        {{ item.show.premieredate|date:"Y" }}
-                    </p>
-                    <p>{{ item.actor }}</p>
-                </div>
-
-                <div class="creator-movie-rating">
-                {% if user.is_authenticated %}
-                    <div class="movie-rating">100 %</div>
-
-                    <div class="creator-movie-stars">
-                        {% if item.show.is_watched %}
-                        <i class="fas fa-eye" title="viděno"></i>
-                        {% endif %}
-
-                        <span>
-                        {% for _ in "12345" %}
-                            {% if forloop.counter <= rating.score %}
-                                <span>★</span>
-                            {% else %}
-                                ☆
-                            {% endif %}
-                        {% endfor %}
+                        <span class="current-page">
+                            1 / 1
                         </span>
-                    </div>
-                {% endif %}
-                </div>
-            </div>
 
-        </div>
-        {% endfor %}
-
-    {% else %}
-
-        <div class="creator-movie-info sudy">
-            <div>
-                <img src="/static/img/movie/w200/nomovie.jpg" alt="">
-            </div>
-
-            <div class="creator-movie-detail">
-                <div class="creator-movie-name">
-                    <p>
-                        Žádné seriály.<br>
-                        <a href="https://div.cz/forum/obecne/chybejici-postavy-u-serialu" target="_blank">
-                            Chybí vám? Nahlašte ve fóru.
-                        </a>
-                    </p>
-                </div>
-                <div class="creator-movie-rating"></div>
-            </div>
-        </div>
-
-    {% endif %}
-
-    </div>
-</div>
-
-
-
-<div id="tab3" class="tab-content" style="padding:0">
-    <div class="creator-movie-list">
-
-    {% if bibliography %}
-
-        {% for item in bibliography %}
-        {% with book=item.bookid %}
-        <div class="creator-movie-info sudy">
-
-            <div>
-            {% if book.img == "noimg.png" %}
-                <img src="https://div.cz/static/img/book/book.png" alt="{{ book.titlecz }}">
-            {% else %}
-                <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz }}">
-            {% endif %}
-            </div>
-
-            <div class="creator-movie-detail">
-                <div class="creator-movie-name">
-                    <p>
-                        <a href="/kniha/{{ book.url }}">{{ book.titlecz|default:book.title }}</a>
-                        {{ book.year }}
-                    </p>
-                    <p>{{ book.author }}</p>
-                </div>
-
-                <div class="creator-movie-rating">
-                {% if user.is_authenticated %}
-                    <div class="movie-rating">100 %</div>
-
-                    <div class="creator-movie-stars">
-                        {% if book.is_read %}
-                        <i class="fas fa-book" title="přečteno"></i>
-                        {% endif %}
-                        <span>
-                        {% for _ in "12345" %}
-                            {% if forloop.counter <= rating.score %}
-                                <span>★</span>
-                            {% else %}
-                                ☆
-                            {% endif %}
-                        {% endfor %}
+                        
+                            <a href="">Další</a>
+                            <a class="last-page" href="">Poslední &raquo;</a>
+                        
                         </span>
-                    </div>
-                {% endif %}
+                    </div>-->
+
                 </div>
             </div>
 
-        </div>
-        {% endwith %}
-        {% endfor %}
+            <!-- KNIHY -->
+            <div id="tab3" class="tab-list" style="padding:0">
+                <div class="creator-movie-list">
+                    {% if bibliography %}
+                        {% for item in bibliography %}
+                            {% with book=item.bookid %}
+                            <div class="creator-movie-info sudy">
+                                {% if book.img == "noimg.png" %}
+                                    <img src="https://div.cz/static/img/book/book.png" alt="{{ book.titlecz }}">
+                                    {% else %}
+                                    <img src="https://media.div.cz/knihy/{{ book.img }}" alt="{{ book.titlecz }}">
+                                {% endif %}
 
-    {% else %}
+                                <div class="creator-movie-detail">
+                                    <div class="creator-movie-name">
+                                        <p>
+                                            <a href="/kniha/{{ book.url }}" class="books">{{ book.titlecz|default:book.title }}</a>
+                                            {{ book.year }}
+                                        </p>
+                                        <p>{{ book.author }}</p>
+                                    </div>
+									<!--
+                                    <div class="creator-movie-rating">
+                                        {% if user.is_authenticated %}
+                                            <div class="movie-rating">100 %</div>
 
-        <div class="creator-movie-info sudy">
-            <div>
-                <img src="https://div.cz/static/img/book/book.png" alt="">
-            </div>
+                                            <div class="creator-movie-stars">
+                                                {% if book.is_read %}
+                                                    <i class="fas fa-book" title="přečteno"></i>
+                                                {% endif %}
 
-            <div class="creator-movie-detail">
-                <div class="creator-movie-name">
-                    <p>
-                        Žádné knihy.<br>
-                        <a href="https://div.cz/forum/knihy/chybejici-postavy-v-knize" target="_blank">
-                            Chybí vám? Nahlašte ve fóru.
-                        </a>
-                    </p>
-                </div>
-                <div class="creator-movie-rating"></div>
-            </div>
-        </div>
+                                                <span>
+                                                    {% for _ in "12345" %}
+                                                        {% if forloop.counter <= rating.score %}
+                                                            <span>★</span>
+                                                        {% else %}
+                                                            ☆
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </span>
+                                            </div>
+                                        {% endif %}
+                                    </div>-->
+                                </div>
 
-    {% endif %}
-
-    </div>
-</div>
-
-
-<div id="tab4" class="tab-content" style="padding:0">
-    <div class="creator-movie-list">
-
-    {% if games %}
-
-        {% for row in games %}
-        {% with game=row.gameid %}
-        <div class="creator-movie-info sudy">
-
-            <div>
-            {% if game.img %}
-                <img src="/static/img/game/{{ game.img }}" alt="{{ game.titlecz }}">
-            {% else %}
-                <img src="https://div.cz/static/img/game/game.png" alt="">
-            {% endif %}
-            </div>
-
-            <div class="creator-movie-detail">
-                <div class="creator-movie-name">
-                    <p>
-                        <a href="/hra/{{ game.url }}">{{ game.titlecz }}</a>
-                        {{ game.year }}
-                    </p>
-                </div>
-
-                <div class="creator-movie-rating">
-                {% if user.is_authenticated %}
-                    <div class="movie-rating">100 %</div>
-
-                    <div class="creator-movie-stars">
-                        {% if game.is_played %}
-                        <i class="fas fa-eye" title="hráno"></i>
-                        {% endif %}
-                        <span>
-                        {% for _ in "12345" %}
-                            {% if forloop.counter <= rating.score %}
-                                <span>★</span>
-                            {% else %}
-                                ☆
-                            {% endif %}
+                            </div>
+                            {% endwith %}
                         {% endfor %}
+
+                        {% else %}
+                        <div class="creator-movie-info sudy">
+                            <div>
+                                <img src="https://div.cz/static/img/book/book.png" alt="">
+                            </div>
+
+                            <div class="creator-movie-detail">
+                                <div class="creator-movie-name">
+                                    <p>
+                                        Žádné knihy.<br>
+                                        <a href="https://div.cz/forum/knihy/chybejici-postavy-v-knize" target="_blank">
+                                            Chybí vám? Nahlašte ve fóru.
+                                        </a>
+                                    </p>
+                                </div>
+                                <div class="creator-movie-rating"></div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- PAGINÁTOR --><!--
+                    <div class="pagination">
+                        <span class="step-links">
+                        
+                            <a class="first-page" href="">&laquo; První</a>
+                            <a href="">Předchozí</a>
+                        
+
+                        <span class="current-page">
+                            1 / 1
                         </span>
-                    </div>
-                {% endif %}
+
+                        
+                            <a href="">Další</a>
+                            <a class="last-page" href="">Poslední &raquo;</a>
+                        
+                        </span>
+                    </div>-->
+
                 </div>
             </div>
 
-        </div>
-        {% endwith %}
-        {% endfor %}
+            <!-- HRY -->
+            <div id="tab4" class="tab-list" style="padding:0">
+                <div class="creator-movie-list">
+                    {% if games %}
+                        {% for row in games %}
+                            {% with game=row.gameid %}
+                            <div class="creator-movie-info sudy">
+                                {% if game.img %}
+                                    <img src="/static/img/game/{{ game.img }}" alt="{{ game.titlecz }}">
+                                    {% else %}
+                                    <img src="https://div.cz/static/img/game/game.png" alt="">
+                                {% endif %}
 
-    {% else %}
+                                <div class="creator-movie-detail">
+                                    <div class="creator-movie-name">
+                                        <p>
+                                            <a href="/hra/{{ game.url }}" class="games">{{ game.titlecz }}</a>
+                                            {{ game.year }}
+                                        </p>
+                                    </div>
+									<!--
+                                    <div class="creator-movie-rating">
+                                        {% if user.is_authenticated %}
+                                            <div class="movie-rating">100 %</div>
 
-        <div class="creator-movie-info sudy">
-            <div>
-                <img src="https://div.cz/static/img/game/game.png" alt="">
-            </div>
+                                            <div class="creator-movie-stars">
+                                                {% if game.is_played %}
+                                                    <i class="fas fa-eye" title="hráno"></i>
+                                                {% endif %}
 
-            <div class="creator-movie-detail">
-                <div class="creator-movie-name">
-                    <p>
-                        Žádné hry.<br>
-                        <a href="https://div.cz/forum/hry/chybejici-postava-ve-hre" target="_blank">
-                            Chybí vám? Nahlašte ve fóru.
-                        </a>
-                    </p>
+                                                <span>
+                                                    {% for _ in "12345" %}
+                                                        {% if forloop.counter <= rating.score %}
+                                                            <span>★</span>
+                                                        {% else %}
+                                                            ☆
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </span>
+                                            </div>
+                                        {% endif %}
+                                    </div>-->
+                                </div>
+
+                            </div>
+                            {% endwith %}
+                        {% endfor %}
+
+                        {% else %}
+                        <div class="creator-movie-info sudy">
+                            <div>
+                                <img src="https://div.cz/static/img/game/game.png" alt="">
+                            </div>
+
+                            <div class="creator-movie-detail">
+                                <div class="creator-movie-name">
+                                    <p>
+                                        Žádné hry.<br>
+                                        <a href="https://div.cz/forum/hry/chybejici-postava-ve-hre" target="_blank">
+                                            Chybí vám? Nahlašte ve fóru.
+                                        </a>
+                                    </p>
+                                </div>
+                                <div class="creator-movie-rating"></div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- PAGINÁTOR --><!--
+                    <div class="pagination">
+                        <span class="step-links">
+                        
+                            <a class="first-page" href="">&laquo; První</a>
+                            <a href="">Předchozí</a>
+                        
+
+                        <span class="current-page">
+                            1 / 1
+                        </span>
+
+                        
+                            <a href="">Další</a>
+                            <a class="last-page" href="">Poslední &raquo;</a>
+                        
+                        </span>
+                    </div>-->
+
                 </div>
-                <div class="creator-movie-rating"></div>
             </div>
-        </div>
-
-    {% endif %}
-
-    </div>
-</div>
-
-
 
         </div>
     </div>
@@ -496,47 +498,21 @@
         <!-- FANOUŠCI -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">Fanoušci</h3>
-                <div class="flex flex-wrap">
+                <h3 class="card-title after-h3">&#10084;&#65039; Fanoušci</h3>
+                <div class="fans">
                     {% if fans %}
                         {% for fan in fans %}
-                            <a class="w-full" href="{% url 'myuser_detail' fan.userlist.user.id %}">{{ fan.userlist.user.username }}</a>
+                            <a style="width: 100%;" href="{% url 'myuser_detail' fan.userlist.user.id %}">{{ fan.userlist.user.username }}</a>
                         {% endfor %}
-                    {% else %}
+
+                        {% else %}
                         <p>Zatím žádní fanoušci.</p>
                     {% endif %}
                 </div>
             </div>
         </div>
 
-        {% comment %}
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title after-h3">{{  }}</h3>
-                <p class="card-text">Sdílet na:</p>
-                <!-- Facebook Share Button -->
-                <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/film/{{  }}" class="btn btn-primary" style="color: white;" target="_blank" title="Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-
-                <!-- Twitter Share Button -->
-                <a href="https://twitter.com/intent/tweet?url=https://div.cz/film/{{  }}&text={{  }}" class="btn btn-info" style="color: white;" target="_blank" title="Twitter">
-                    <i class="fab fa-twitter"></i>
-                </a>
-
-                <!-- E-mail Share Button -->
-                <a href="mailto:?subject={{  }}&body=Podívej se na https://div.cz/film/{{  }}" class="btn btn-dark" style="color: white;" title="E-mail">
-                    <i class="fas fa-envelope"></i>
-                </a>
-
-                <!-- WhatsApp Share Button -->
-                <a href="https://wa.me/?text={{  }} - https://div.cz/film/{{  }}" class="btn btn-success" target="_blank" style="color: white;" title="WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                </a>
-            </div>
-        </div>
-        {% endcomment %}
-
+        <!-- DALŠÍ POSTAVY -->
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title after-h3">Další postavy</h3>
@@ -560,13 +536,39 @@
             </div>
         </div>
 
-        <!-- Tags -->
+        <!-- SDÍLET NA SÍTÍCH -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">Tagy</h3>
-                <div class="flex flex-wrap gap-1">
+                <h3 class="card-title after-h3">&#128279; Sdílet na</h3>
+                <!-- Facebook Share Button -->
+                <a href="" class="btn btn-facebook" style="color: white;" target="_blank" title="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
 
-                <span class="rounded bg-secondary p-1">
+                <!-- Twitter Share Button -->
+                <a href="" class="btn btn-twitter" style="color: white;" target="_blank" title="Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+
+                <!-- E-mail Share Button -->
+                <a href="" class="btn btn-email" style="color: white;" title="E-mail">
+                    <i class="fas fa-envelope"></i>
+                </a>
+
+                <!-- WhatsApp Share Button -->
+                <a href="" class="btn btn-whatsapp" target="_blank" style="color: white;" title="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- TAGS -->
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title after-h3">&#127991;&#65039; Tagy</h3>
+                <div class="tags">
+
+                <span class="tag-detail label">
 
                 </span>
 
@@ -581,7 +583,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const tabLinks = document.querySelectorAll('.tab-links a');
-        const tabContents = document.querySelectorAll('.tab-content');
+        const tabContents = document.querySelectorAll('.tab-list');
 
         tabLinks.forEach(link => {
             link.addEventListener('click', function(e) {

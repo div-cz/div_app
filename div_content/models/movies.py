@@ -17,7 +17,8 @@ from star_ratings.models import AbstractBaseRating, Rating
 class Movie(models.Model):
     movieid = models.IntegerField(db_column='MovieID', primary_key=True) 
     title = models.CharField(db_column='Title', max_length=255)
-    titlecz = models.CharField(db_column='TitleCZ', max_length=255, default='', db_index=True)    
+    titlecz = models.CharField(db_column='TitleCZ', max_length=255, default='', db_index=True)  
+    titlediv = models.CharField(db_column='TitleDIV', max_length=255, null=False, blank=True, default='', db_index=True)    
     special = models.IntegerField(db_column='Special', db_index=True, blank=True, null=True)
     url = models.CharField(db_column='URL', max_length=255, unique=True)
     oldurl = models.CharField(db_column='OldURL', max_length=255, null=True)
@@ -30,7 +31,7 @@ class Movie(models.Model):
     language = models.CharField(db_column='Language', max_length=5, null=True, blank=True)  # Field
     budget = models.IntegerField(db_column='Budget', null=True)
     adult = models.CharField(db_column='Adult',  max_length=1)
-    divrating = models.IntegerField(db_column='DIVRating', default="0", db_index=True, blank=True, null=True)
+    divrating = models.IntegerField(db_column='DIVRating', default=0, db_index=True, blank=True, null=True)
     popularity = models.FloatField(db_column='Popularity', null=True, db_index=True)
     idcsfd = models.CharField(db_column='ID_Csfd', max_length=16, null=True)
     idimdb = models.CharField(db_column='ID_Imdb', max_length=16, null=True)
@@ -40,6 +41,9 @@ class Movie(models.Model):
     averagerating = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, db_column='AverageRating')
     lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
 
+    @property
+    def display_title(self):
+        return self.titlediv or self.titlecz or self.title
     class Meta:
         db_table = 'Movie'
 

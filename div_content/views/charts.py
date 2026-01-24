@@ -37,7 +37,7 @@ from django.db import models
 from django.db.models import Avg, Count, Q, F, OuterRef, Subquery, FloatField
 from django.shortcuts import get_object_or_404, render
 
-from div_content.models import Book, Bookauthor, Bookaward, Bookpublisher, Creator, Favorite, Game, Gameaward, Gamepublisher, Metagenre, Movie, Moviecrew, Moviegenre, Metaaward, Metacountry, Movieaward, Moviecountries, Tvcountries, Tvcrew, Tvshow, Userdivcoins
+from div_content.models import Book, Bookauthor, Bookaward, Creator, Favorite, Game, Gameaward, Gamepublisher, Metagenre, Movie, Moviecrew, Moviegenre, Metaaward, Metacountry, Movieaward, Moviecountries, Tvcountries, Tvcrew, Tvshow, Userdivcoins
 
 from star_ratings.models import Rating, UserRating
 

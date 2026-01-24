@@ -451,6 +451,7 @@ def movies(request, year=None, genre_url=None, movie_url=None):
         ).order_by('-divrating').values(
             'title',
             'titlecz',
+            'titlediv',
             'url',
             'img',
             'description',
@@ -487,6 +488,7 @@ def movies(request, year=None, genre_url=None, movie_url=None):
         ).order_by('-divrating').values(
             'title',
             'titlecz',
+            'titlecz',
             'url',
             'img',
             'description',
@@ -519,20 +521,13 @@ def movies(request, year=None, genre_url=None, movie_url=None):
                     object_id=models.OuterRef('movieid')
                 ).values('average')[:1]
             )
-        ).order_by('-divrating').values(
-            'title', 
-            'titlecz', 
-            'description', 
-            'url', 
-            'img',
-            'average_rating'
-        )[:15]
+        ).order_by('-divrating')[:15]
         # Zaokrouhlíme hodnoty na celá čísla a převedeme na procenta
         for movie in movies_list_15:
-            if movie['average_rating'] is not None:
-                movie['average_rating'] = round(float(movie['average_rating']) * 20)  # převod z 5 na 100%
+            if movie.average_rating is not None:
+                movie.average_rating = round(float(movie.average_rating) * 20)
             else:
-                movie['average_rating'] = 0
+                movie.average_rating = 0
 
         stats_movie = Metastats.objects.filter(tablemodel='Movie').first()
         stats_creator = Metastats.objects.filter(tablemodel="Creator").first()

@@ -5,6 +5,23 @@ from django.contrib.auth.models import User
 from div_content.models import Movie, Moviecinema, Moviecomments, Moviedistributor, Movieerror, Movietrailer, Userprofile
 
 
+
+
+class MovieTitleDIVForm(forms.ModelForm):
+    class Meta:
+        model = Movie
+        fields = ['titlediv']
+        widgets = {
+            'titlediv': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'DIV název (má přednost)'
+            }),
+        }
+        labels = {
+            'titlediv': 'DIV název',
+        }
+
+
 class MovieDivRatingForm(forms.ModelForm):
     class Meta:
         model = Movie

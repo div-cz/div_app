@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from div_content.models import Book, Bookauthor, Bookpublisher, Bookgenre, Bookisbn, Bookwriters
+from div_content.models import Book, Bookauthor, Bookgenre, Bookisbn, Bookwriters, Metapublisher
 from ..serializers import BaseSerializer
 from ..other.serializers import GenericGenreSerializer
 
@@ -64,7 +64,7 @@ class BookListSerializer(serializers.ModelSerializer):
 # Define Publisher Serializer
 class PublisherSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Bookpublisher
+        model = Metapublisher
         fields = ['publisherid','publishername']
 
 # Define Bookauthor Serializer

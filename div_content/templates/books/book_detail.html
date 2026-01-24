@@ -1251,16 +1251,51 @@ document.addEventListener('DOMContentLoaded', function() {
         {% endif %}
 
 
+{% if request.user.is_superuser %}
+<div class="card box-shadow mb-3">
+    <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+            <h3 class="card-title">ADMINISTRACE</h3>
+
+        <h3 class="card-title">Pouštět jen na <a href="https://magic.div.cz/kniha/{{ book.url }}">magic.div.cz</a></h3>
+    </div>
+</div>
+{% endif %}
+
+{% if request.user.is_superuser %}
+<div class="card box-shadow mb-3">
+    <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <h3 class="card-title">Administrace knihy</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ book_admin_form.as_p }}
+            <button type="submit"
+                    name="update_book_admin"
+                    class="add-book mt-2">
+                Uložit nastavení
+            </button>
+        </form>
+
+        {% if book.special == 0 %}
+            <p class="text-danger mt-2">
+                ⚠️ Tato kniha je skrytá pro běžné uživatele
+            </p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+
+{% if request.user.is_superuser %}
 <!-- V pravé straně v card -->
 <!-- DUPLICITY CARD - v book_detail.html -->
 <div class="card box-shadow mb-3">
     <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-        <h5 class="card-title font-bold after-h3">Duplicity knihy</h5>
+        <h5 class="card-title font-bold after-h3">Varianty knihy</h5>
         
         <div id="duplicity-section">
             {% if book.parentid %}
                 <!-- Kniha má parenta - přesměrování by mělo fungovat -->
-                <p class="text-muted" style="font-color:red">Tato kniha je duplicitou.
+                <p class="text-muted" style="font-color:red">Tato kniha je variantou/duplicitou.
     <a href="/kniha/{{ book.parentid.url }}" class="text-primary">
         Hlavní kniha: {{ book.parentid.titlecz|default:book.parentid.title }}
     </a>
@@ -1268,7 +1303,7 @@ document.addEventListener('DOMContentLoaded', function() {
             {% elif duplicate_editions %}
                 <!-- Hlavní kniha s duplicitami -->
                 <p class="text-success">✅ Toto je hlavní záznam</p>
-                <p>Duplicitní edice:</p>
+                <p>Varianty:</p>
                 <ul class="list-unstyled">
                 {% for edition in duplicate_editions %}
                     <li class="mb-1 d-flex align-items-center">
@@ -1514,7 +1549,7 @@ $(document).ready(function() {
     }
 });
 </script>
-
+{% endif %}
 
 
 

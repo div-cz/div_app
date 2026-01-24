@@ -3,7 +3,7 @@
 {% load ratings %}
 {% load static %}
 
-{% block title %}{{ movie.titlecz }} ({{ movie.releaseyear }}) | DIV.cz{% endblock %}
+{% block title %}{{ movie.display_title }} ({{ movie.releaseyear }}) | DIV.cz{% endblock %}
 
 {% block meta %}
     <meta name="description" content="{{ movie.description|striptags|truncatechars:200 }}">
@@ -16,7 +16,7 @@
 
     <meta property="og:type" content="movie">
     <meta property="og:site_name" content="Databáze DIV">
-    <meta property="og:title" content="{{ movie.titlecz }} ({{ movie.releaseyear }})">
+    <meta property="og:title" content="{{ movie.display_title }} ({{ movie.releaseyear }})">
     <meta property="og:description" content="{{ movie.description|striptags|truncatechars:180 }}">
     <meta property="og:image" content="
         {% if movie.img and movie.img != 'noimg.png' %}
@@ -31,7 +31,7 @@
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@DIV_cz">
-    <meta name="twitter:title" content="{{ movie.titlecz }} ({{ movie.releaseyear }})">
+    <meta name="twitter:title" content="{{ movie.display_title }} ({{ movie.releaseyear }})">
     <meta name="twitter:description" content="{{ movie.description|striptags|truncatechars:200 }}">
     <meta name="twitter:image" content="
         {% if movie.img and movie.img != 'noimg.png' %}
@@ -111,7 +111,7 @@
     <div class="row container my-5">
         <!-- Levá strana -->
         <div class="col-lg-8">
-            <h2>{{ movie.titlecz }}</h2>
+            <h2>{{ movie.display_title }}</h2>
             {% if messages %}
             <div class="mt-3">
                 {% for message in messages %}
@@ -145,12 +145,12 @@
             <div class="mr-4 flex" style="width:40%; max-width:200px">
             {% if movie.imgposter == "noimg.png" %}
                 {% if movie.img == "noimg.png" %}
-                <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px;">
+                <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ movie.display_title }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px;">
                 {% else %}
-                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.img }}" alt="{{ movie.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px;">
+                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.img }}" alt="{{ movie.display_title }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px;">
                 {% endif %}
                 {% else %}
-                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.imgposter }}" alt="{{ movie.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px;">
+                <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.imgposter }}" alt="{{ movie.display_title }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px;">
             {% endif %}
 
                 <div class="d-lg-none mb-2 sm:ml-5">
@@ -674,6 +674,32 @@ document.querySelectorAll('.thumb-btn').forEach(btn => {
             </div>
         </div>-->
 
+{% if request.user.is_superuser %}
+<div class="card box-shadow mb-3 d-none d-lg-block">
+    <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <h3 class="card-title">DIV název</h3>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ title_div_form.as_p }}
+
+            <small class="text-muted d-block mb-2">
+                Tento název má přednost před automatickým.<br>
+                Bude použit při dalším pravidelném update
+                <strong>(středa, neděle)</strong>.
+            </small>
+
+            <button type="submit"
+                    name="update_titlediv"
+                    class="add-movie mt-2">
+                Uložit DIV název
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+
         {% if request.user.is_superuser %}
         <div class="card box-shadow mb-3">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
@@ -712,7 +738,7 @@ document.querySelectorAll('.thumb-btn').forEach(btn => {
                         {% for movie in same_universe_movies %}
                         <li class="list-group-item">
                             <a href="{% url 'movie_detail' movie_url=movie.url %}">
-                                {{ movie.titlecz }} ({{ movie.releaseyear|default:"" }})
+                                {{ movie.display_title }} ({{ movie.releaseyear|default:"" }})
                             </a>
                         </li>
                         {% endfor %}
@@ -724,7 +750,7 @@ document.querySelectorAll('.thumb-btn').forEach(btn => {
 
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <h3 class="card-title font-bold after-h3">{{ movie.titlecz }}</h3>
+                <h3 class="card-title font-bold after-h3">{{ movie.display_title }}</h3>
                 <p class="card-text">Sdílet na:</p>
 
                 <!-- Facebook Share Button -->
@@ -733,17 +759,17 @@ document.querySelectorAll('.thumb-btn').forEach(btn => {
                 </a>
 
                 <!-- Twitter Share Button -->
-                <a href="https://twitter.com/intent/tweet?url=https://div.cz/film/{{ movie.url }}&text={{ movie.titlecz }}" class="btn btn-info mb-2 mr-1" style="color: white;" target="_blank" title="Twitter">
+                <a href="https://twitter.com/intent/tweet?url=https://div.cz/film/{{ movie.url }}&text={{ movie.display_title }}" class="btn btn-info mb-2 mr-1" style="color: white;" target="_blank" title="Twitter">
                     <i class="fab fa-twitter"></i>
                 </a>
 
                 <!-- E-mail Share Button -->
-                <a href="mailto:?subject={{ movie.titlecz }}&body=Podívej se na https://div.cz/film/{{ movie.url }}" class="btn btn-dark mb-2 mr-1" style="color: white;" title="E-mail">
+                <a href="mailto:?subject={{ movie.display_title }}&body=Podívej se na https://div.cz/film/{{ movie.url }}" class="btn btn-dark mb-2 mr-1" style="color: white;" title="E-mail">
                     <i class="fas fa-envelope"></i>
                 </a>
 
                 <!-- WhatsApp Share Button -->
-                <a href="https://wa.me/?text={{ movie.titlecz }} - https://div.cz/film/{{ movie.url }}" class="btn btn-success mb-2" target="_blank" style="color: white;" title="WhatsApp">
+                <a href="https://wa.me/?text={{ movie.display_title }} - https://div.cz/film/{{ movie.url }}" class="btn btn-success mb-2" target="_blank" style="color: white;" title="WhatsApp">
                     <i class="fab fa-whatsapp"></i>
                 </a>
             </div>

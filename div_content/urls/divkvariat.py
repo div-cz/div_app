@@ -7,7 +7,7 @@ from allauth.account.views import confirm_email, LoginView, LogoutView, SignupVi
 from div_content.views.divkvariat_cz import (
     account_edit, account_view, antikvariat_home, author_detail_cz, 
     blog_list, blog_detail, book_detail_cz, book_listings, 
-    books_market_offers, books_market_wants, 
+    books_market_new, books_market_offers, books_market_wants, 
     cancel_listing_reservation, cancel_sell, confirm_sale, 
     CustomLoginView, CustomSignupView, CustomLogoutView, 
     chatbot_api,
@@ -66,6 +66,7 @@ urlpatterns = [
     path("nabidky/", books_market_offers, name="books_market_offers"),
     path("poptavky/", books_market_wants, name="books_market_wants"),
     path("<str:book_url>/poptavka/<int:listing_id>/", listing_detail, name="listing_detail_buy"),
+    path("nove-knihy/", books_market_new, name="books_market_new",),
 
     # Uzivatel
     path("uzivatel/<int:user_id>/prodej-knihy/", user_sell_listings, name="user_sell_listings"),
