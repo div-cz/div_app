@@ -165,6 +165,12 @@ def movie_detail(request, movie_url):
     average_rating_result = base_ratings.aggregate(average=Avg('score'))
     average_rating = average_rating_result.get('average')
 
+    # uložíme průměr do MOVIE
+    if average_rating != movie.averagerating:
+        Movie.objects.filter(movieid=movie.movieid).update(
+            averagerating=average_rating
+        )
+
     if average_rating is not None:
         # přepočet z 0–5 hvězdiček na 0–100 %
         average_rating = round(average_rating * 20)
@@ -710,7 +716,10 @@ def remove_movie_rating(request, movie_url):
             rating_obj.average = agg["avg"] or 0
             rating_obj.count = agg["count"] or 0
             rating_obj.save()
-
+            # UPDATE MOVIES AVERAGERATING
+            Movie.objects.filter(movieid=movie.movieid).update(
+                averagerating=agg["avg"]
+            )
         # odečti DivCoiny (-0.01 ze všech metrik)
         coins, created = Userdivcoins.objects.get_or_create(user_id=request.user.id)
         coins.totaldivcoins   = F('totaldivcoins')   - Decimal("0.01")
