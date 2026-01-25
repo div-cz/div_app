@@ -1,3 +1,8 @@
+jen pro HTML do příkazového řádku:
+
+tree -P "*.html" --prune > html_struktura.txt
+
+
 .
 **|-- 404.html DEL**
 |-- div_content
@@ -120,9 +125,6 @@ http://div.cz/blog/
        |   |-- charts_games.html
        |   |-- charts_movies.html
        |   `-- charts_users.html
-
-!!! MŮŽEME SMAZAT - TO JE JEN PRO MĚ
-     **|-- compare.html ?**
        |-- contact.html
        |-- creators
        |   |-- author_add.html
@@ -133,6 +135,45 @@ http://div.cz/blog/
        |   |-- creator_detail.html
        |   |-- creators_list.html
        |   `-- creators_search.html
+       |-- divkvariat
+       |   |-- account
+       |   |   |-- account_edit.html
+       |   |   |-- account_profile.html
+       |   |   |-- email.html
+       |   |   |-- email_confirm.html
+       |   |   |-- login.html
+       |   |   |-- logout.html
+       |   |   |-- password_change.html
+       |   |   |-- password_reset.html
+       |   |   `-- signup.html
+       |   |-- antikvariat_home.html
+       |   |-- author_detail.html
+       |   |-- base.html
+       |   |-- blog_detail.html
+       |   |-- blog_list.html
+       |   |-- book_detail.html
+       |   |-- book_listings.html
+       |   |-- books_market_offers.html
+       |   |-- books_market_wants.html
+       |   |-- listing_add_book.html
+       |   |-- listing_detail.html
+       |   |-- listing_edit.html
+       |   |-- listings.html
+       |   |-- market_cancel_purchase.html
+       |   |-- market_confirm_sale.html
+       |   |-- search.html
+       |   |-- send_to_reader_email.html
+       |   |-- stranky
+       |   |   |-- kontakt.html
+       |   |   |-- o-nas.html
+       |   |   |-- ochrana-osobnich-udaju.html
+       |   |   `-- podminky.html
+       |   |-- update_book.html
+       |   |-- user_book_buy.html
+       |   |-- user_book_listings.html
+       |   |-- user_book_sell.html
+       |   |-- user_buy_listings.html
+       |   `-- user_sell_listings.html
        |-- emails
        |   |-- base_emails.html
        |   |-- chat_new_private_message.html
@@ -217,25 +258,9 @@ http://div.cz/blog/
      **|   |-- items_list.html**
      **|   |-- location_detail.html**
      **|   `-- locations_list.html**
-
-!!! 2 FA PŘIHLÁŠENÍ - SYSTÉMOVÉ OD DJANGO - MŮŽEME SMAZAT
-     **|-- mfa ?**
-     **|   |-- authenticate.html**
-     **|   |-- index.html**
-     **|   |-- recovery_codes**
-     **|   |   |-- base.html**
-     **|   |   |-- generate.html**
-     **|   |   `-- index.html**
-     **|   `-- totp**
-     **|       |-- activate_form.html**
-     **|       |-- base.html**
-     **|       `-- deactivate_form.html**
        |-- movies + css
        |   |-- base.html
        |   |-- movie_detail.html
-
-!!! ZÁLOHA - KLIDNĚ SMAZAT
-     **|   |-- movie_detail_backup_062024.html**
        |   |-- movies_alphabetical.html
        |   |-- movies_genre.html
        |   |-- movies_list.html
@@ -243,17 +268,6 @@ http://div.cz/blog/
        |   |-- movies_search_utf8.html
        |   `-- movies_year.html
        |-- nas_tym.html
-
-!!! SYSTEMOVÉ OD DJANGA, ALE MŮŽEME SMAZAT
-     **|-- openid ?**
-     **|   |-- base.html**
-     **|   `-- login.html**
-
-!!! MŮŽEME SMAZAT
-     **|-- registration ?**
-     **|   |-- login.html**
-     **|   |-- login333.html**
-     **|   `-- signup333.html**
        |-- series + css
        |   |-- base.html
        |   |-- serie_detail.html
@@ -264,29 +278,7 @@ http://div.cz/blog/
        |   |-- series_list.html
        |   |-- series_search.html
        |   `-- series_year.html
-
-!!! SYSTEMOVÉ OD DJANGA, ALE MŮŽEME SMAZAT VŠE
-     **|-- socialaccount ?**
-     **|   |-- authentication_error.html**
-     **|   |-- base.html**
-     **|   |-- connections.html**
-     **|   |-- login.html**
-     **|   |-- login_cancelled.html**
-     **|   |-- signup.html**
-     **|   `-- snippets**
-     **|       |-- login_extra.html**
-     **|       `-- provider_list.html**
-
-!!! SMAZAT, NECHCEME OBEZLIČKY (CELOU SLOŽKU)
-       |-- tags
-     **|   `-- film_top10.html ?**
        |-- template.html
-
-!!! SMAZAT, TESTY
-     **|-- test.html ?**
-     **|-- test_movies.html ?**
-     **|-- tests ?**
-     **|   `-- test_403_csrf.html**
      
 !!! PŮVODNÍ SERIÁLY - PRESUNUTO DO SERIES
 !!! ALE STÁLE FUNKČNÍ (TŘEBA SMAZAT I URLS,VIEWS)
@@ -313,6 +305,6 @@ http://div.cz/blog/
            `-- update_profile.html
 
 
-
+30 directories, 245 files
 
 

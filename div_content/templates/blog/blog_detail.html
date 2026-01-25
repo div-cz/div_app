@@ -62,25 +62,22 @@
             <div class="pagination">
                 <span class="step-links">
                     {% if page_obj.has_previous %}
-                        <a class="first-page" href="?page={{ page_obj.previous_page_number }}">předchozí</a>
+                        <a class="first-page" href="?page=1">&laquo; První</a>
+                        <a href="?page={{ page_obj.previous_page_number }}">Předchozí</a>
                     {% endif %}
 
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                        <span class="current-page">{{ num }}</span>
-                        {% else %}
-                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                        {% endif %}
-                    {% endfor %}
+                    <span class="current-page">
+                        {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                    </span>
 
                     {% if page_obj.has_next %}
-                    <a class="last-page" href="?page={{ page_obj.next_page_number }}">další</a>
+                        <a href="?page={{ page_obj.next_page_number }}">Další</a>
+                        <a class="last-page" href="?page={{ page_obj.paginator.num_pages }}">Poslední &raquo;</a>
                     {% endif %}
                 </span>
             </div>
 
             <a href="/forum/" class="btn add-other">Diskuzní fórum</a>
-
 
             {% else %}
                 <p>Zatím žádné příspěvky.</p>
