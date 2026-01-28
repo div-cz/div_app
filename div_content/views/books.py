@@ -70,7 +70,7 @@ from div_content.forms.divkvariat import BookListingForm
 from div_content.models import (
     Book, Bookauthor, Bookcharacter, Bookcomments, Bookcover, Bookgenre, Bookisbn, Booklisting, 
     Bookpurchase, Bookquotes, Bookrating, Booksource, Bookwriters, Charactermeta, 
-    Metagenre, Metaindex, Metastats, Metauniversum, 
+    Metagenre, Metaindex, Metapublisher, Metastats, Metauniversum, 
     Userdivcoins, Userlist, Userlistbook, Userlisttype, FavoriteSum, Userbookgoal, Userlistitem
 )
 
@@ -797,6 +797,18 @@ def book_detail(request, book_url):
         else:
             book_admin_form = BookAdminForm(instance=book)
 
+    # Nakladatelé (přes ISBN)
+    publishers = (
+        Bookisbn.objects
+        .filter(book=book, publisherid__isnull=False)
+        .select_related("publisherid")
+        .values(
+            "publisherid__publisherid",
+            "publisherid__publisher",
+            "publisherid__publisherurl",
+        )
+        .distinct()
+    )
 
     return render(request, 'books/book_detail.html', {
         'book': book,
@@ -840,16 +852,50 @@ def book_detail(request, book_url):
         "format_kindlemails": format_kindlemails,
         #'books_with_series': books_with_series,
         'book_admin_form': book_admin_form,
+        "publishers": publishers,
         })
 #    top_20_books = Book.objects.order_by('-bookrating').all()[:20]  # Define top_20_books here
     #'top_20_books': top_20_books
-
 
 
 def character_list_ajax(request):
     query = request.GET.get('q', '').strip()
     characters = Charactermeta.objects.filter(charactername__icontains=query).order_by('charactername').values('characterid', 'charactername')[:20]
     return JsonResponse({'results': list(characters)}, safe=False)
+
+
+def publisher_detail(request, publisherurl):
+    publisher = get_object_or_404(
+        Metapublisher,
+        publisherurl=publisherurl
+    )
+
+    books = (
+        Book.objects
+        .filter(bookisbn__publisherid=publisher)
+        .distinct()
+        .select_related("authorid")
+        .order_by("-year", "titlecz", "title")
+    )
+
+    return render(request, "books/publisher_detail.html", {
+        "publisher": publisher,
+        "books": books,
+    })
+
+
+
+def publisher_list(request):
+    publishers = (
+        Metapublisher.objects
+        .annotate(book_count=Count("bookisbn", distinct=True))
+        .filter(book_count__gt=0)
+        .order_by("publisher")
+    )
+
+    return render(request, "books/publisher_list.html", {
+        "publishers": publishers,
+    })
 
 
 @login_required

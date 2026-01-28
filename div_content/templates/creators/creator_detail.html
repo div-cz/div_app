@@ -178,17 +178,17 @@
         <div class="tab-container" style="font-size:16px">
             <ul class="tab-links">
                 <li class="karta">
-                    <a href="#tab1" class="active">Filmy</a>
+                    <a href="#filmy" class="active">Filmy</a>
                 </li>
                 <li class="karta">
-                    <a href="#tab2">Seriály</a>
+                    <a href="#serialy">Seriály</a>
                 </li>
             </ul>
 
             <!-- FILMY -->
-            <div id="tab1" class="tab-list active" style="padding:0">
+            <div id="filmy" class="tab-list active" style="padding:0">
                 <div class="creator-movie-list">
-                {% for movie, roles in filmography %}
+                {% for movie, roles in filmography_page %}
                     <div class="creator-movie-info sudy">
                         <div>
                         {% if movie.img == "noimg.png" %}
@@ -206,6 +206,7 @@
                                 </p>
                                 <p>{{ roles|join:", " }}</p>
                             </div>
+<!--
                             <div class="creator-movie-rating">
                             {% if user.is_authenticated %}
                                 <div class="movie-rating">
@@ -217,13 +218,13 @@
 {% endif %}
 
                                 </div>
-                                
+
                                 <div class="creator-movie-stars">
                                     {% if movie.is_watched %}
                                     <i class="fas fa-eye" title="viděno"></i>
                                     {% endif %}
 
-                                    <span> <!-- hodnocení uživatele -->
+                                    <span> 
 {% if movie.averagerating %}
     {% with stars=movie.averagerating|floatformat:0 %}
         {% for _ in "12345" %}
@@ -241,20 +242,55 @@
                                     </span>
                                 </div>
                             {% endif %}
-                            </div>
+                            </div>-->
                         </div>
                     </div>
                 {% endfor %}
+
+{% if filmography_page.paginator.num_pages > 1 %}
+<div class="pagination">
+    <span class="step-links">
+
+        {% if filmography_page.has_previous %}
+            <a class="first-page"
+               href="?stranka=1#filmy">&laquo; První</a>
+
+            <a href="?stranka={{ filmography_page.previous_page_number }}#filmy">
+                Předchozí
+            </a>
+        {% endif %}
+
+        <span class="current-page">
+            {{ filmography_page.number }} / {{ filmography_page.paginator.num_pages }}
+        </span>
+
+        {% if filmography_page.has_next %}
+            <a href="?stranka={{ filmography_page.next_page_number }}#filmy">
+                Další
+            </a>
+
+            <a class="last-page"
+               href="?stranka={{ filmography_page.paginator.num_pages }}#filmy">
+                Poslední &raquo;
+            </a>
+        {% endif %}
+
+    </span>
+</div>
+{% endif %}
+
+
+
                 </div>
             </div>
 
             <!-- SERIÁLY -->
-            <div id="tab2" class="tab-list" style="padding:0">
+            <div id="serialy" class="tab-list" style="padding:0">
                 <div class="creator-movie-list">
-                {% for tvshow, roles in tvshows %}
+                {% for tvshow, roles in tvshows_page %}
                     <div class="creator-movie-info sudy">
                         <div>
-                        {% if tvshow.img == "noimg.png" %}
+                        {% if tvshow.imgposter == "noimg.png" %}
                             <img src="https://div.cz/static/img/movie/w200/nomovie.jpg" alt="{{ tvshow.titlecz }}">
                         {% else %}
                             <img src="https://www.themoviedb.org/t/p/w400{{ tvshow.imgposter }}" alt="{{ tvshow.titlecz }}">
@@ -296,6 +332,38 @@
                         </div>
                     </div>
                 {% endfor %}
+{% if tvshows_page.paginator.num_pages > 1 %}
+<div class="pagination">
+    <span class="step-links">
+
+        {% if tvshows_page.has_previous %}
+            <a class="first-page"
+               href="?stranka=1#serialy">&laquo; První</a>
+
+            <a href="?stranka={{ tvshows_page.previous_page_number }}#serialy">
+                Předchozí
+            </a>
+        {% endif %}
+
+        <span class="current-page">
+            {{ tvshows_page.number }} / {{ tvshows_page.paginator.num_pages }}
+        </span>
+
+        {% if tvshows_page.has_next %}
+            <a href="?stranka={{ tvshows_page.next_page_number }}#serialy">
+                Další
+            </a>
+
+            <a class="last-page"
+               href="?stranka={{ tvshows_page.paginator.num_pages }}#serialy">
+                Poslední &raquo;
+            </a>
+        {% endif %}
+
+    </span>
+</div>
+{% endif %}
+
                 </div>
             </div>
         </div>
@@ -306,11 +374,11 @@
         <!-- FANOUŠCI -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">Fanoušci</h3>
-                <div class="flex flex-wrap">
+                <h3 class="card-title after-h3">&#10084;&#65039; Fanoušci</h3>
+                <div class="fans">
                 {% if fans %}
                     {% for fan in fans %}
-                        <a class="w-full" href="{% url 'myuser_detail' fan.userlist.user.id %}">{{ fan.userlist.user.username }}</a>
+                        <a style="width: 100%;"" href="{% url 'myuser_detail' fan.userlist.user.id %}">{{ fan.userlist.user.username }}</a>
                     {% endfor %}
                     {% else %}
                     <p>Zatím žádní fanoušci.</p>
@@ -332,37 +400,9 @@
         </div>
         {% endif %}
 
-        {% comment %}
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">{{  }}</h3>
-                <p style="width: 100%;">Sdílet na:</p>
-                <!-- Facebook Share Button -->
-                <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/film/{{  }}" class="btn btn-primary" target="_blank" title="Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-
-                <!-- Twitter Share Button -->
-                <a href="https://twitter.com/intent/tweet?url=https://div.cz/film/{{  }}&text={{  }}" class="btn btn-info" target="_blank" title="Twitter">
-                    <i class="fab fa-twitter"></i>
-                </a>
-
-                <!-- E-mail Share Button -->
-                <a href="mailto:?subject={{  }}&body=Podívej se na https://div.cz/film/{{  }}" class="btn btn-dark" title="E-mail">
-                    <i class="fas fa-envelope"></i>
-                </a>
-
-                <!-- WhatsApp Share Button -->
-                <a href="https://wa.me/?text={{  }} - https://div.cz/film/{{  }}" class="btn btn-success" target="_blank" title="WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                </a>
-            </div>
-        </div>
-        {% endcomment %}
-
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title after-h3">Další osobnosti</h3>
+                <h3 class="card-title after-h3">&#129489; Další osobnosti</h3>
                 <ul>
                 {% for bio in latest_biographies %}
                     <li>
@@ -378,10 +418,38 @@
             </div>
         </div>
     
-        <!-- Tags -->
+
+        
+        <!-- SDÍLET NA SÍTÍCH -->
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title after-h3">Tagy</h3>
+                <h3 class="card-title after-h3">&#128279; Sdílet na</h3>
+                <!-- Facebook Share Button -->
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/tvurce/{{ creator.url }}" class="btn btn-facebook" target="_blank" title="Facebook {{ creator.firstname }} {{ creator.lastname }}">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+
+                <!-- Twitter Share Button -->
+                <a href="https://twitter.com/intent/tweet?url=https://div.cz/tvurce/{{ creator.url }}" class="btn btn-twitter" target="_blank" title="Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+
+                <!-- E-mail Share Button -->
+                <a href="mailto:?subject=DIV.cz: {{ creator.firstname }} {{ creator.lastname }}&body=Podívej se na https://div.cz/tvurce/{{ creator.url }}" class="btn btn-email" title="E-mail">
+                    <i class="fas fa-envelope"></i>
+                </a>
+
+                <!-- WhatsApp Share Button -->
+                <a href="https://wa.me/?text={{ creator.firstname }} {{ creator.lastname }}  - https://div.cz/tvurce/{{ creator.url }}" class="btn btn-whatsapp" target="_blank" title="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- TAGS -->
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title after-h3">&#127991;&#65039; Tagy</h3>
                 <div class="tags">
 
                 <span class="tag-detail label">
@@ -395,5 +463,25 @@
     </div>
 
 </div>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    const tabLink = document.querySelector('.tab-links a[href="' + hash + '"]');
+    const tabContent = document.querySelector(hash);
+
+    if (tabLink && tabContent) {
+        document.querySelectorAll('.tab-links a').forEach(a => a.classList.remove('active'));
+        document.querySelectorAll('.tab-list').forEach(t => t.classList.remove('active'));
+
+        tabLink.classList.add('active');
+        tabContent.classList.add('active');
+    }
+});
+</script>
 
 {% endblock %}

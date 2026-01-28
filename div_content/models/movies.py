@@ -294,6 +294,17 @@ class Tvepisode(models.Model):
         unique_together = [['seasonid', 'episodeurl']]
         db_table = 'TVEpisode'
 
+class Tvepisodetranslation(models.Model):
+    tvepisodetranslationid = models.AutoField(db_column='TVEpisodeTranslationID', primary_key=True)
+    episodeid = models.ForeignKey('Tvepisode', on_delete=models.CASCADE, db_column='EpisodeID', related_name='translations')
+    userid = models.ForeignKey(User, on_delete=models.SET_NULL, db_column='UserID', null=True, blank=True)
+    language = models.CharField(db_column='Language', max_length=5)
+    title = models.CharField(db_column='Title', max_length=255, null=True, blank=True)
+    description = models.TextField(db_column='Description', null=True, blank=True)
+
+    class Meta: db_table = 'TVEpisodeTranslation'
+
+
 class Tvgenre(models.Model):
     tvgenreid = models.AutoField(db_column='TVGenreID', primary_key=True, unique=True) 
     tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID')
@@ -333,6 +344,16 @@ class Tvseason(models.Model):
     class Meta:
         unique_together = ('tvshowid', 'seasonurl')
         db_table = 'TVSeason'
+
+class Tvseasontranslation(models.Model):
+    tvseasontranslationid = models.AutoField(db_column='TVSeasonTranslationID', primary_key=True)
+    seasonid = models.ForeignKey('Tvseason', on_delete=models.CASCADE, db_column='SeasonID', related_name='translations')
+    userid = models.ForeignKey(User, on_delete=models.SET_NULL, db_column='UserID', null=True, blank=True)
+    language = models.CharField(db_column='Language', max_length=5)
+    title = models.CharField(db_column='Title', max_length=255, null=True, blank=True)
+    description = models.TextField(db_column='Description', null=True, blank=True)
+
+    class Meta: db_table = 'TVSeasonTranslation'
 
 class Tvshow(models.Model):
     tvshowid = models.AutoField(db_column='TVShowID', primary_key=True)
@@ -381,6 +402,17 @@ class Tvshowtrailer(models.Model):
 
     class Meta:
         db_table = 'TvshowTrailer'
+
+class Tvshowtranslation(models.Model):
+    tvshowtranslationid = models.AutoField(db_column='TVShowTranslationID', primary_key=True)
+    tvshowid = models.ForeignKey('Tvshow', on_delete=models.CASCADE, db_column='TVShowID', related_name='translations')
+    userid = models.ForeignKey(User, on_delete=models.SET_NULL, db_column='UserID', null=True, blank=True)
+    language = models.CharField(db_column='Language', max_length=5)
+    title = models.CharField(db_column='Title', max_length=255, null=True, blank=True)
+    description = models.TextField(db_column='Description', null=True, blank=True)
+
+    class Meta: 
+        db_table = 'TVShowTranslation'
 
 
 class Tvshowtrivia(models.Model):

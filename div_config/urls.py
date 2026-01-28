@@ -38,6 +38,7 @@ from div_content.views.blog import blog_add_post, blog_detail, blog_index, blog_
 from div_content.views.books import (
  add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, book_add, 
  book_detail, books, books_search, books_market_offers, books_market_wants, rate_book, 
+ publisher_detail, publisher_list, 
  ratequote, remove_book_rating, remove_from_favourites_books, remove_from_readlist, 
  remove_from_read_books, remove_from_book_library, character_list_ajax, set_reading_goal, 
  books_alphabetical, elastic_books, ajax_search_books_for_duplicates, report_book_duplicate, 
@@ -342,6 +343,9 @@ urlpatterns = [
     path('kniha/ajax/hledat-duplicity/', ajax_search_books_for_duplicates, name='ajax_search_duplicates'),
     path('kniha/nahlasit-duplicitu/', report_book_duplicate, name='report_book_duplicate'),
     path('kniha/odebrat-duplicitu/', remove_book_duplicate, name='remove_book_duplicate'),
+
+    path("nakladatelstvi/", publisher_list, name="publisher_list"),
+    path("nakladatelstvi/<int:publisherurl>/", publisher_detail, name="publisher_detail"),
 
 
     # ANTIKVARIÁT

@@ -187,6 +187,18 @@ class Gamerating(models.Model):
     class Meta:
         db_table = 'GameRating'
 
+class Gamespecial(models.Model):
+    specialid = models.AutoField(db_column='SpecialID', primary_key=True)
+    name = models.CharField(db_column='SpecialName', max_length=255)  # Název speciálního prvku
+    description = models.TextField(db_column='Description', null=True, blank=True)  # Popis prvku
+    gametype = models.CharField(db_column='GameType', max_length=50)  # Typ (např. "EasterEgg", "Error", "SpecialFeature")
+    gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID', related_name='specials')  # Propojení s hrou
+    locationid = models.ForeignKey('Gamelocation', models.DO_NOTHING, db_column='LocationID', related_name='specials', null=True, blank=True)  # Volitelná lokalita
+    image = models.CharField(db_column='Image', max_length=255, null=True, blank=True)
+
+    class Meta:
+        db_table = 'GameSpecial'
+
 class Gametask(models.Model):
     taskid = models.AutoField(db_column='TaskID', primary_key=True)
     name = models.CharField(db_column='TaskName', max_length=255)  # Např. "Najdi 20x diamant"
@@ -210,18 +222,17 @@ class Gametaskitem(models.Model):
     class Meta:
         db_table = 'GameTaskItem'
 
-class Gamespecial(models.Model):
-    specialid = models.AutoField(db_column='SpecialID', primary_key=True)
-    name = models.CharField(db_column='SpecialName', max_length=255)  # Název speciálního prvku
-    description = models.TextField(db_column='Description', null=True, blank=True)  # Popis prvku
-    gametype = models.CharField(db_column='GameType', max_length=50)  # Typ (např. "EasterEgg", "Error", "SpecialFeature")
-    gameid = models.ForeignKey('Game', models.DO_NOTHING, db_column='GameID', related_name='specials')  # Propojení s hrou
-    locationid = models.ForeignKey('Gamelocation', models.DO_NOTHING, db_column='LocationID', related_name='specials', null=True, blank=True)  # Volitelná lokalita
-    image = models.CharField(db_column='Image', max_length=255, null=True, blank=True)
 
-    class Meta:
-        db_table = 'GameSpecial'
 
+class Gametranslation(models.Model):
+    gametranslationid = models.AutoField(db_column='GameTranslationID', primary_key=True)
+    gameid = models.ForeignKey('Game', on_delete=models.CASCADE, db_column='GameID', related_name='translations')
+    userid = models.ForeignKey(User, on_delete=models.SET_NULL, db_column='UserID', null=True, blank=True)
+    language = models.CharField(db_column='Language', max_length=5)
+    title = models.CharField(db_column='Title', max_length=255, null=True, blank=True)
+    description = models.TextField(db_column='Description', null=True, blank=True)
+
+    class Meta: db_table = 'GameTranslation'
 
 
 

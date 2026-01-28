@@ -306,6 +306,17 @@ class Bookrating(models.Model):
     class Meta:
         db_table = 'BookRating'
 
+class Booktranslation(models.Model):
+    booktranslationid = models.AutoField(db_column='BookTranslationID', primary_key=True)
+    bookid = models.ForeignKey('Book', on_delete=models.CASCADE, db_column='BookID', related_name='translations')
+    userid = models.ForeignKey(User, on_delete=models.SET_NULL, db_column='UserID', null=True, blank=True)
+    language = models.CharField(db_column='Language', max_length=5)
+    title = models.CharField(db_column='Title', max_length=255, null=True, blank=True)
+    subtitle = models.CharField(db_column='Subtitle', max_length=255, null=True, blank=True)
+    description = models.TextField(db_column='Description', null=True, blank=True)
+
+    class Meta: db_table = 'BookTranslation'
+
 
 class Bookwriters(models.Model):
     bookwriterid = models.AutoField(db_column='BookWriterID', primary_key=True)

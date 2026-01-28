@@ -1,0 +1,35 @@
+{% extends "books/base.html" %}
+{% load humanize %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
+
+{% block title %} | DIV.cz{% endblock %}
+
+{% block content %}
+
+<div class="row w-full my-4">
+    <div class="col-lg-8">
+
+
+<h1>Nakladatelé</h1>
+
+<ul class="publisher-list">
+{% for p in publishers %}
+    <li>
+        <a href="{% url 'publisher_detail' p.publisherid %}">
+            {{ p.publisher }}
+        </a>
+        <span class="text-muted">({{ p.book_count }} knih)</span>
+    </li>
+{% empty %}
+    <li class="text-muted">Žádná nakladatelství</li>
+{% endfor %}
+</ul>
+
+
+    </div>
+</div>
+
+{% endblock %}
+

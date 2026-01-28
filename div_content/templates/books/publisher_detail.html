@@ -1,0 +1,54 @@
+{% extends "books/base.html" %}
+{% load humanize %}
+{% load i18n %}
+{% load ratings %}
+{% load static %}
+
+{% block title %} | DIV.cz{% endblock %}
+
+{% block content %}
+
+<div class="row w-full my-4">
+    <div class="col-lg-8">
+
+
+<h1>{{ publisher.publisher }}</h1>
+
+<a href="{% url 'publisher_list' %}">Nakladatelé</a> / {{ publisher.publisher }}
+
+<hr>
+
+{% if publisher.publisherurl %}
+<p>
+    <a href="{{ publisher.publisherurl }}" target="_blank" rel="noopener">
+        Oficiální stránky
+    </a>
+</p>
+{% endif %}
+
+<h2>Knihy nakladatelství</h2>
+
+<ul class="book-list">
+{% for book in books %}
+    <li>
+        <a href="{% url 'book_detail' book.url %}">
+            {{ book.titlecz|default:book.title }}
+        </a>
+        {% if book.year %}
+            <span class="text-muted">({{ book.year }})</span>
+        {% endif %}
+        {% if book.author %}
+            – {{ book.author }}
+        {% endif %}
+    </li>
+{% empty %}
+    <li class="text-muted">Žádné knihy</li>
+{% endfor %}
+</ul>
+
+
+
+    </div>
+</div>
+
+{% endblock %}

@@ -428,9 +428,12 @@ def get_ebook_purchase_status(user, book, ebook_formats):
             data['is_external_free'] = True
             continue
 
+        price = data.get('price')
+        
         data['is_paid'] = fmt in paid_formats
-        data['show_qr'] = data.get('price', 0) > 0 and not data['is_paid']
-        data['is_free_div'] = sourcetype == 'DIV' and (data.get('price') == 0 or not data.get('price'))
+        data['show_qr'] = (price is not None and price > 0) and not data['is_paid']
+        data['is_free_div'] = sourcetype == 'DIV' and (price == 0 or price is None)
+
     return ebook_formats
 
 

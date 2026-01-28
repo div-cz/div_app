@@ -158,11 +158,26 @@ def creator_detail(request, creator_url):
     movie_content_type = ContentType.objects.get(id=CONTENTTYPE_MOVIE_ID)
     userlisttype = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_WATCHED_MOVIES)
 
+    page_number = request.GET.get("stranka", 1)
+
     # FILMY
     filmography_query = Moviecrew.objects.filter(
         peopleid=creator.creatorid
     ).select_related('movieid', 'roleid').order_by('-movieid__releaseyear')
     
+    filmography_dict = defaultdict(list)
+    
+    for entry in filmography_query:
+        movie = entry.movieid
+        if request.user.is_authenticated:
+            movie.is_watched = getattr(entry, "is_watched", False)
+        filmography_dict[movie].append(entry.roleid.rolenamecz)
+    
+    filmography_items = list(filmography_dict.items())
+    
+    paginator_movies = Paginator(filmography_items, 20)  # 👈 40 filmů na stránku
+    filmography_page = paginator_movies.get_page(page_number)
+
     if request.user.is_authenticated:
         filmography_query = filmography_query.annotate(
             is_watched=Exists(
@@ -186,7 +201,20 @@ def creator_detail(request, creator_url):
     tvshow_query = Tvcrew.objects.filter(
         peopleid=creator
     ).select_related('tvshowid', 'roleid').order_by('-tvshowid__premieredate')
+    tvshows_dict = defaultdict(list)
     
+    for entry in tvshow_query:
+        tvshow = entry.tvshowid
+        if request.user.is_authenticated:
+            tvshow.is_watched = getattr(entry, "is_watched", False)
+        tvshows_dict[tvshow].append(entry.roleid.rolenamecz)
+    
+    tvshows_items = list(tvshows_dict.items())
+    
+    paginator_tv = Paginator(tvshows_items, 20)
+    tvshows_page = paginator_tv.get_page(page_number)
+
+
     if request.user.is_authenticated:
         tvshow_query = tvshow_query.annotate(
             is_watched=Exists(
@@ -217,7 +245,6 @@ def creator_detail(request, creator_url):
         else:
             creator_div_rating_form = CreatorDivRatingForm(instance=creator)
 
-    # --- BIO SECTION ---
     # --- BIO SECTION ---
     form = None
     
@@ -266,8 +293,8 @@ def creator_detail(request, creator_url):
             'creatorbiography': creatorbiography,
             'latest_biographies': latest_biographies,
             'top_10_creators': top_10_creators,
-            'filmography': filmography.items(),
-            'tvshows': tvshows.items(),
+            'filmography_page': filmography_page,
+            'tvshows_page': tvshows_page,
             'is_favorite': is_favorite,
             'fans': fans,
             'creator_div_rating_form': creator_div_rating_form,

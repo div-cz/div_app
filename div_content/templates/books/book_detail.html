@@ -371,9 +371,24 @@
                     </li>
                     {% endif %}
 
-                    <li><strong>Nakladatelství:</strong>
-                        <!--Nejsou zatím data <a href="">Nějaké nakladatelství</a>-->
-                    </li>
+<li>
+    <strong>Nakladatelství:</strong>
+    {% if publishers %}
+        {% for p in publishers %}
+            {% if p.publisherid__publisherurl %}
+                
+                    {{ p.publisherid__publisher }}
+                {% if not forloop.last %}, {% endif %}
+            {% else %}
+                {{ p.publisherid__publisher }}{% if not forloop.last %}, {% endif %}
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <span class="text-muted">neuvedeno</span>
+    {% endif %}
+</li>
+
+
 
 
                 <!-- E-Book zdarma -->
