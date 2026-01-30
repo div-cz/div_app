@@ -643,14 +643,34 @@
 
         <!-- POPIS KNIHY -->
         <div style="width: 100%; margin-bottom: 1rem;">
-            <p id="biography-text">
-                {% if book.description %}
-                    {{ book.description|safe }} 
-                    <p><a id="toggle-biography">Více...</a></p>   
-                {% else %}
-                    Zatím žádný popis    
-                {% endif %}
-            </p>
+            <div class="lang-switcher">
+                <a href="#" class="lang-btn active" onclick="switchLang(event, 'cz')">CZ</a> |
+                <a href="#" class="lang-btn" onclick="switchLang(event, 'en')">EN</a>
+            </div>
+
+            <!-- CZ -->
+            <div class="biography-wrapper" id="cz">
+                <p class="biography-text">
+                    {% if book.description %}
+                        {{ book.description|safe }}
+                    {% else %}
+                        Zatím žádný popis
+                    {% endif %}
+                </p>
+                <a class="toggle-biography">Více...</a>
+            </div>
+
+            <!-- EN -->
+            <div class="biography-wrapper" id="en" style="display:none;">
+                <p class="biography-text">
+                    {% if book.description_en %}
+                        {{ book.description_en|safe }}
+                    {% else %}
+                        No description yet
+                    {% endif %}
+                </p>
+                <a class="toggle-biography">More...</a>
+            </div>
         </div>
 
         <!-- Karty -->
@@ -1539,28 +1559,51 @@
 <!-- více, méně - zobrazit celý bio -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const bioElement = document.getElementById("biography-text");
-        const toggleButton = document.getElementById("toggle-biography");
 
-        const fullText = bioElement.innerText; 
-        const truncatedText = fullText.substring(0, 500);
+        document.querySelectorAll(".biography-wrapper").forEach(wrapper => {
+            const bioElement = wrapper.querySelector(".biography-text");
+            const toggleButton = wrapper.querySelector(".toggle-biography");
 
-        if (fullText.length > 500) {
-            bioElement.innerText = truncatedText + "...";
-        } else {
-            toggleButton.style.display = "none";
-        }
+            if (!bioElement || !toggleButton) return;
 
-        toggleButton.addEventListener("click", function () {
-            if (bioElement.innerText === truncatedText + "...") {
-                bioElement.innerText = fullText; 
-                toggleButton.innerText = "...Méně"; 
-            } else {
-                bioElement.innerText = truncatedText + "...";
-                toggleButton.innerText = "Více..."; 
+            const fullText = bioElement.innerText.trim();
+            const limit = 500;
+
+            if (fullText.length <= limit) {
+                toggleButton.style.display = "none";
+                return;
             }
+
+            const truncatedText = fullText.substring(0, limit) + "...";
+            bioElement.innerText = truncatedText;
+
+            toggleButton.addEventListener("click", function () {
+                const isCollapsed = bioElement.innerText === truncatedText;
+
+                bioElement.innerText = isCollapsed ? fullText : truncatedText;
+
+                toggleButton.innerText =
+                    wrapper.id === "cz"
+                        ? (isCollapsed ? "...Méně" : "Více...")
+                        : (isCollapsed ? "Less..." : "More...");
+            });
         });
     });
+
+    // language switch
+    function switchLang(e, lang) {
+        e.preventDefault();
+
+        document.querySelectorAll(".biography-wrapper").forEach(el => {
+            el.style.display = el.id === lang ? "block" : "none";
+        });
+
+        document.querySelectorAll(".lang-btn").forEach(btn =>
+            btn.classList.remove("active")
+        );
+
+        e.target.classList.add("active");
+    }
 </script>
 
 <!-- COLLPASE NA ŠIPKY -->

@@ -329,15 +329,34 @@
 
         <!-- POPIS FILMU -->
         <div style="width: 100%; margin-bottom: 1rem;">
-            <p id="biography-text">
-                {% if movie.description %}
-                    {{ movie.description|safe }} 
-                        <p><a id="toggle-biography">Více...</a></p> 
+            <div class="lang-switcher">
+                <a href="#" class="lang-btn active" onclick="switchLang(event, 'cz')">CZ</a> |
+                <a href="#" class="lang-btn" onclick="switchLang(event, 'en')">EN</a>
+            </div>
 
+            <!-- CZ -->
+            <div class="biography-wrapper" id="cz">
+                <p class="biography-text">
+                    {% if movie.description %}
+                        {{ movie.description|safe }}
                     {% else %}
-                    Zatím žádný popis    
-                {% endif %}
-            </p>
+                        Zatím žádný popis
+                    {% endif %}
+                </p>
+                <a class="toggle-biography">Více...</a>
+            </div>
+
+            <!-- EN -->
+            <div class="biography-wrapper" id="en" style="display:none;">
+                <p class="biography-text">
+                    {% if movie.description_en %}
+                        {{ movie.description_en|safe }}
+                    {% else %}
+                        No description yet
+                    {% endif %}
+                </p>
+                <a class="toggle-biography">More...</a>
+            </div>
         </div>
 
         <!-- Karty -->
@@ -898,30 +917,51 @@
 <!-- více, méně - zobrazit celý bio -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const bioElement = document.getElementById("biography-text");
-        const toggleButton = document.getElementById("toggle-biography");
 
-        const fullText = bioElement.innerText; // Store the full biography text
-        const truncatedText = fullText.substring(0, 500); // First 500 characters
+        document.querySelectorAll(".biography-wrapper").forEach(wrapper => {
+            const bioElement = wrapper.querySelector(".biography-text");
+            const toggleButton = wrapper.querySelector(".toggle-biography");
 
-        // Check if text needs truncation
-        if (fullText.length > 500) {
-            bioElement.innerText = truncatedText + "...";
-        } else {
-            toggleButton.style.display = "none"; // Hide button if no truncation needed
-        }
+            if (!bioElement || !toggleButton) return;
 
-        // Toggle functionality
-        toggleButton.addEventListener("click", function () {
-            if (bioElement.innerText === truncatedText + "...") {
-                bioElement.innerText = fullText; // Show full text
-                toggleButton.innerText = "...Méně"; // Update button text
-            } else {
-                bioElement.innerText = truncatedText + "..."; // Show truncated text
-                toggleButton.innerText = "Více..."; // Update button text
+            const fullText = bioElement.innerText.trim();
+            const limit = 500;
+
+            if (fullText.length <= limit) {
+                toggleButton.style.display = "none";
+                return;
             }
+
+            const truncatedText = fullText.substring(0, limit) + "...";
+            bioElement.innerText = truncatedText;
+
+            toggleButton.addEventListener("click", function () {
+                const isCollapsed = bioElement.innerText === truncatedText;
+
+                bioElement.innerText = isCollapsed ? fullText : truncatedText;
+
+                toggleButton.innerText =
+                    wrapper.id === "cz"
+                        ? (isCollapsed ? "...Méně" : "Více...")
+                        : (isCollapsed ? "Less..." : "More...");
+            });
         });
     });
+
+    // language switch
+    function switchLang(e, lang) {
+        e.preventDefault();
+
+        document.querySelectorAll(".biography-wrapper").forEach(el => {
+            el.style.display = el.id === lang ? "block" : "none";
+        });
+
+        document.querySelectorAll(".lang-btn").forEach(btn =>
+            btn.classList.remove("active")
+        );
+
+        e.target.classList.add("active");
+    }
 </script>
 
 {% endblock %}

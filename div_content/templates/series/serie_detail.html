@@ -243,15 +243,34 @@
 
         <!-- POPIS SERIÁLU -->
         <div style="width: 100%; margin-bottom: 1rem;">
-            <p id="biography-text">
-                {% if tvshow.description %}
-                    {{ tvshow.description|safe }} 
-                    <p><a id="toggle-biography">Více...</a></p>   
+            <div class="lang-switcher">
+                <a href="#" class="lang-btn active" onclick="switchLang(event, 'cz')">CZ</a> |
+                <a href="#" class="lang-btn" onclick="switchLang(event, 'en')">EN</a>
+            </div>
 
+            <!-- CZ -->
+            <div class="biography-wrapper" id="cz">
+                <p class="biography-text">
+                    {% if tvshow.description %}
+                        {{ tvshow.description|safe }}
                     {% else %}
-                    Zatím žádný popis    
-                {% endif %}
-            </p>
+                        Zatím žádný popis
+                    {% endif %}
+                </p>
+                <a class="toggle-biography">Více...</a>
+            </div>
+
+            <!-- EN -->
+            <div class="biography-wrapper" id="en" style="display:none;">
+                <p class="biography-text">
+                    {% if tvshow.description_en %}
+                        {{ tvshow.description_en|safe }}
+                    {% else %}
+                        No description yet
+                    {% endif %}
+                </p>
+                <a class="toggle-biography">More...</a>
+            </div>
         </div>
         
         <div class="card">
@@ -803,6 +822,56 @@
         </div>
     </div>
 </div>
+
+<!-- více, méně - zobrazit celý bio -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        document.querySelectorAll(".biography-wrapper").forEach(wrapper => {
+            const bioElement = wrapper.querySelector(".biography-text");
+            const toggleButton = wrapper.querySelector(".toggle-biography");
+
+            if (!bioElement || !toggleButton) return;
+
+            const fullText = bioElement.innerText.trim();
+            const limit = 500;
+
+            if (fullText.length <= limit) {
+                toggleButton.style.display = "none";
+                return;
+            }
+
+            const truncatedText = fullText.substring(0, limit) + "...";
+            bioElement.innerText = truncatedText;
+
+            toggleButton.addEventListener("click", function () {
+                const isCollapsed = bioElement.innerText === truncatedText;
+
+                bioElement.innerText = isCollapsed ? fullText : truncatedText;
+
+                toggleButton.innerText =
+                    wrapper.id === "cz"
+                        ? (isCollapsed ? "...Méně" : "Více...")
+                        : (isCollapsed ? "Less..." : "More...");
+            });
+        });
+    });
+
+    // language switch
+    function switchLang(e, lang) {
+        e.preventDefault();
+
+        document.querySelectorAll(".biography-wrapper").forEach(el => {
+            el.style.display = el.id === lang ? "block" : "none";
+        });
+
+        document.querySelectorAll(".lang-btn").forEach(btn =>
+            btn.classList.remove("active")
+        );
+
+        e.target.classList.add("active");
+    }
+</script>
 
 {% endblock %}
 
