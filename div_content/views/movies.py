@@ -56,7 +56,7 @@ from django.views.generic import DetailView
 from div_content.forms.movies import CommentForm, MovieCinemaForm, MovieDivRatingForm, MovieErrorForm, MovieTitleDIVForm, SearchForm, TrailerForm
 from div_content.models import (
     Article, Book, Creator, Creatorbiography, FavoriteSum, Game, 
-    Metalocation, Metagenre, Movie, Moviecinema, Moviecomments, Moviecountries, Moviecrew, Moviedistributor, Movieerror, Moviegenre, Movielocation, Moviequotes, Movierating, Movietrailer, Movietrivia, Moviekeywords,
+    Metalocation, Metagenre, Movie, Moviecinema, Moviecomments, Moviecountries, Moviecrew, Moviedistributor, Movieerror, Moviegenre, Movielocation, Moviequotes, Movierating, Movietrailer, Movietranslation, Movietrivia, Moviekeywords,
     User, Userlist, Userlistitem, Userlisttype, Userlistmovie, Userprofile
 
 )
@@ -93,6 +93,79 @@ def redirect_view(request):
 # -------------------------------------------------------------------
 def movie_detail(request, movie_url):
     movie = get_object_or_404(Movie, url=movie_url)
+
+    # =========================================================
+    # SAVE TRANSLATIONS (CZ / EN DESCRIPTION)
+    # =========================================================
+    if request.method == "POST" and request.user.is_staff and "update_descriptions" in request.POST:
+
+        desc_cz = request.POST.get("description_cs", "").strip()
+        desc_en = request.POST.get("description_en", "").strip()
+
+        if desc_cz:
+            translation = Movietranslation.objects.filter(
+                movie=movie,
+                language="cs"
+            ).order_by("movietranslationid").first()
+
+            if translation:
+                translation.description = desc_cz
+                translation.save()
+            else:
+                Movietranslation.objects.create(
+                    movie=movie,
+                    language="cs",
+                    description=desc_cz
+                )
+
+        if desc_en:
+            translation = Movietranslation.objects.filter(
+                movie=movie,
+                language="en"
+            ).order_by("movietranslationid").first()
+
+            if translation:
+                translation.description = desc_en
+                translation.save()
+            else:
+                Movietranslation.objects.create(
+                    movie=movie,
+                    language="en",
+                    description=desc_en
+                )
+
+        return redirect("movie_detail", movie_url=movie.url)
+
+
+    translations = Movietranslation.objects.filter(movie=movie)
+
+    trans_cz = next((t for t in translations if t.language == "cs"), None)
+    trans_en = next((t for t in translations if t.language == "en"), None)
+
+    display_desc_cz = trans_cz.description if trans_cz and trans_cz.description else movie.description
+    display_desc_en = trans_en.description if trans_en and trans_en.description else movie.description
+
+
+    # TitleDIV
+    language = 'cs'
+    translation = Movietranslation.objects.filter(
+        movie=movie,
+        language=language
+    ).order_by('movietranslationid').first()
+    
+    if translation and translation.title:
+        display_title = translation.title
+    elif movie.titlecz:
+        display_title = movie.titlecz
+    else:
+        display_title = movie.title
+        
+    if translation and translation.description:
+        display_description = translation.description
+    else:
+        display_description = movie.description
+
+
     genres = movie.moviegenre_set.all()[:3]
     countries = movie.moviecountries_set.all()
 
@@ -277,21 +350,54 @@ def movie_detail(request, movie_url):
         else:
             div_rating_form = MovieDivRatingForm(instance=movie)
 
-    title_div_form = None
+
     # Formulář pro úpravu TitleDIV
+    title_div_form = None
+    language = 'cs'
+    
     if request.user.is_superuser:
         if request.method == 'POST' and 'update_titlediv' in request.POST:
-            title_div_form = MovieTitleDIVForm(request.POST, instance=movie)
+            title_div_form = MovieTitleDIVForm(request.POST)
+    
             if title_div_form.is_valid():
-                title_div_form.save()
-                messages.success(
-                    request,
-                    "DIV název uložen. Bude použit při dalším update (středa, neděle)."
-                )
+                title = title_div_form.cleaned_data['title']
+                description = title_div_form.cleaned_data['description']
+    
+                translation = Movietranslation.objects.filter(
+                    movie=movie,
+                    language=language
+                ).order_by('movietranslationid').first()
+    
+                if translation:
+                    translation.title = title
+                    if description:
+                        translation.description = description
+                    translation.save()
+                else:
+                    Movietranslation.objects.create(
+                        movie=movie,
+                        language=language,
+                        title=title,
+                        description=description or None
+                    )
+    
+                messages.success(request, "DIV název uložen.")
                 return redirect('movie_detail', movie_url=movie_url)
+    if request.user.is_superuser:
+        translation = Movietranslation.objects.filter(
+            movie=movie,
+            language=language
+        ).order_by('movietranslationid').first()
+    
+        if translation:
+            title_div_form = MovieTitleDIVForm(initial={
+                'title': translation.title,
+                'description': translation.description,
+            })
         else:
-            title_div_form = MovieTitleDIVForm(instance=movie)
+            title_div_form = MovieTitleDIVForm()
 
+    
 
 # xsilence8x keywords pro meta tags
     keywords = Moviekeywords.objects.filter(movieid=movie)
@@ -369,6 +475,12 @@ def movie_detail(request, movie_url):
 
     return render(request, 'movies/movie_detail.html', {
         'movie': movie,
+        'display_title': display_title,
+        'display_description': display_description,
+        'desc_cz': display_desc_cz,
+        'desc_en': display_desc_en,
+        'edit_desc_cz': trans_cz.description if trans_cz else '',
+        'edit_desc_en': trans_en.description if trans_en else '',
         'genres': genres,
         'countries': countries,
         'actors_and_characters': actors_and_characters,

@@ -39,36 +39,53 @@ def es():
 
 """
 # FUNKČNÍ PROD
+# -------------------------------------------------------------------
+#                    SEARCH.ES_CLIENT
+# -------------------------------------------------------------------
 import os
 from elasticsearch import Elasticsearch
 
+_es_client = None  # ← DŮLEŽITÉ!
+
 def es():
+    global _es_client
+    if _es_client:
+        return _es_client
+    
     host = os.getenv("ELASTICSEARCH_HOST", "127.0.0.1")
     port = os.getenv("ELASTICSEARCH_PORT", "9200")
     user = os.getenv("ELASTICSEARCH_USER", "elastic")
-    password = os.getenv("ELASTICSEARCH_PASSWORD", "6bS_UOy-JiuE3_fi689Y")
+    password = os.getenv("ELASTICSEARCH_PASSWORD")
     ca_cert = os.getenv("ELASTICSEARCH_CA_CERT", "/var/www/div_app/http_ca.crt")
-
+    
+    if not password:
+        raise ValueError("ELASTICSEARCH_PASSWORD environment variable is not set!")
+    
     url = f"https://{host}:{port}"
-
-    # ✅ MAGIC
+    
+    # ✅ MAGIC / Docker
     if os.getenv("DOCKER_ENV") == "1":
-        return Elasticsearch(
+        _es_client = Elasticsearch(
             url,
             basic_auth=(user, password),
             verify_certs=False,
             request_timeout=30,
             retry_on_timeout=True,
-            max_retries=5
+            max_retries=5,
+            max_retries_per_request=3,  # ← přidej
         )
-
-    # ✅ PRODUKCE 
-    return Elasticsearch(
-        url,
-        basic_auth=(user, password),
-        ca_certs=ca_cert,
-        request_timeout=30,
-        retry_on_timeout=True,
-        max_retries=5
-    )
+    # ✅ PRODUKCE
+    else:
+        _es_client = Elasticsearch(
+            url,
+            basic_auth=(user, password),
+            ca_certs=ca_cert,
+            verify_certs=True,
+            request_timeout=30,
+            retry_on_timeout=True,
+            max_retries=5,
+            max_retries_per_request=3,  # ← přidej
+        )
+    
+    return _es_client
 """

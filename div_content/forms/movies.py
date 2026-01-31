@@ -2,24 +2,45 @@
 
 from django import forms
 from django.contrib.auth.models import User
-from div_content.models import Movie, Moviecinema, Moviecomments, Moviedistributor, Movieerror, Movietrailer, Userprofile
+from div_content.models import Movie, Moviecinema, Moviecomments, Moviedistributor, Movieerror, Movietrailer, Movietranslation, Userprofile
 
 
 
 
-class MovieTitleDIVForm(forms.ModelForm):
-    class Meta:
-        model = Movie
-        fields = ['titlediv']
-        widgets = {
-            'titlediv': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'DIV název (má přednost)'
-            }),
-        }
-        labels = {
-            'titlediv': 'DIV název',
-        }
+class MovieTitleDIVForm(forms.Form):
+    title = forms.CharField(
+        label='DIV název',
+        max_length=255,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'DIV název (má přednost)',
+        })
+    )
+
+    description = forms.CharField(
+        label='Popis',
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 4,
+            'style': 'display:none;',  # skryté – zobrazíš JS / <details>
+            'placeholder': 'Volitelný popis'
+        })
+    )
+
+class MovieTranslationForm(forms.Form):
+    title_cs = forms.CharField(required=False, label="Název (CZ)")
+    description_cs = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 4})
+    )
+
+    title_en = forms.CharField(required=False, label="Title (EN)")
+    description_en = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 4})
+    )
 
 
 class MovieDivRatingForm(forms.ModelForm):
