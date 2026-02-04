@@ -202,7 +202,8 @@
                             <div class="creator-movie-name">
                                 <p>
                                     <a href="/film/{{ movie.url }}">{{ movie.titlecz }}</a> 
-                                    {{ movie.releaseyear|default:"" }}
+                                    {{ movie.releaseyear|cut:"None"|default_if_none:""  }}
+                                
                                 </p>
                                 <p>{{ roles|join:", " }}</p>
                             </div>

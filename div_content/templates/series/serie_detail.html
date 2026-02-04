@@ -3,7 +3,50 @@
 {% load ratings %}
 {% load static %}
 
-{% block title %}{{ tvshow.titlecz }} ({{ tvshow.premieredate|date:"Y"|default:"?" }} - {{ tvshow.enddate|date:"Y"|default:"?" }}) | DIV.cz{% endblock %}
+{% block title %}{{ display_title }} ({{ tvshow.premieredate|date:"Y"|default:"?" }} - {{ tvshow.enddate|date:"Y"|default:"?" }}) | DIV.cz{% endblock %}
+
+{% block meta %}
+    <meta name="description"
+          content="{{ desc_cz|striptags|truncatewords:30 }}">
+    
+    <meta property="og:type" content="tv_show">
+    <meta property="og:site_name" content="Databáze DIV">
+    <meta property="og:title"
+          content="{{ display_title }} ({{ tvshow.premieredate|date:'Y' }}{% if tvshow.enddate %}–{{ tvshow.enddate|date:'Y' }}{% endif %})">
+    <meta property="og:description"
+          content="{{ desc_cz|striptags|truncatewords:30 }}">
+    <meta property="og:image"
+          content="{% if tvshow.imgposter and tvshow.imgposter != 'noimg.png' %}
+                   https://image.tmdb.org/t/p/original{{ tvshow.imgposter }}
+                   {% else %}
+                   https://div.cz/static/img/site/soutez/soutez_wallpaper.png
+                   {% endif %}">
+    <meta property="og:url" content="https://div.cz/serial/{{ tvshow.url }}">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ display_title }}">
+    <meta name="twitter:description"
+          content="{{ desc_cz|striptags|truncatewords:30 }}">
+    <meta name="twitter:image"
+          content="{% if tvshow.imgposter and tvshow.imgposter != 'noimg.png' %}
+                   https://image.tmdb.org/t/p/original{{ tvshow.imgposter }}
+                   {% else %}
+                   https://div.cz/static/img/site/soutez/soutez_wallpaper.png
+                   {% endif %}">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TVSeries",
+      "name": "{{ display_title }}",
+      "startDate": "{{ tvshow.premieredate|date:'Y-m-d' }}",
+      "endDate": "{{ tvshow.enddate|date:'Y-m-d' }}",
+      "description": "{{ desc_cz|striptags|truncatewords:40 }}",
+      "image": "https://image.tmdb.org/t/p/original{{ tvshow.imgposter }}"
+    }
+    </script>
+
+{% endblock %}
 
 {% block content %}
 
@@ -72,7 +115,7 @@
 <div class="row container my-5">
     <!-- Levá strana -->
     <div class="col-lg-8">
-        <h2>{{ tvshow.titlecz }} </h2>
+        <h2>{{ display_title }}</h2>
 
 {% if messages %}
   <div class="mt-3">
@@ -102,7 +145,7 @@
         <div class="d-flex mb-3 mt-4 wrap">
             <div class="mr-4 flex" style="width:40%; max-width:200px">
                 {% if tvshow.imgposter == "noimg.png" %}
-                <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ tvshow.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px; height: fit-content;">
+                <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ display_title }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px; height: fit-content;">
                 {% else %}
                 <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ tvshow.imgposter }}" alt="{{ twshow.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px; height: fit-content;">
                 {% endif %}
@@ -224,7 +267,73 @@
             </div>
         </div>
 
-        <p>{{ tvshow.description|default:"Žádný popis není k dispozici. Máš informace o tomto seriálu? Pomoz nám doplnit popis."|safe }}</p>
+
+{% if request.user.is_staff %}
+<details style="margin-top: .75rem;">
+    <summary style="cursor:pointer; font-weight:bold;">
+        Upravit popisy (CZ / EN)
+    </summary>
+
+    <form method="post" style="margin-top: .75rem;">
+        {% csrf_token %}
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div>
+                <label><strong>CZ</strong></label>
+                <textarea name="description_cs"
+                          rows="6"
+                          class="form-control">{{ edit_desc_cz }}</textarea>
+            </div>
+
+            <div>
+                <label><strong>EN</strong></label>
+                <textarea name="description_en"
+                          rows="6"
+                          class="form-control">{{ edit_desc_en }}</textarea>
+            </div>
+        </div>
+
+        <button type="submit"
+                name="update_descriptions"
+                class="add-movie"
+                style="margin-top:.75rem;">
+            Uložit
+        </button>
+    </form>
+</details>
+<hr>
+{% endif %}
+
+
+<div class="lang-switcher">
+    <a href="#" class="lang-btn active" onclick="switchLanguage(event,'cz')">CZ</a> |
+    <a href="#" class="lang-btn" onclick="switchLanguage(event,'en')">EN</a>
+</div>
+
+<!-- CZ -->
+<div class="biography-wrapper" id="cz">
+    <p class="biography-text">
+        {{ desc_cz|safe }}
+    </p>
+    {% if desc_cz %}
+        <a class="toggle-biography">Více...</a>
+    {% endif %}
+</div>
+
+<!-- EN -->
+<div class="biography-wrapper" id="en" style="display:none;">
+    <p class="biography-text">
+        {% if desc_en %}
+            {{ desc_en|safe }}
+        {% else %}
+            No description yet
+        {% endif %}
+    </p>
+    {% if desc_en %}
+        <a class="toggle-biography">More...</a>
+    {% endif %}
+</div>
+
         
         <div class="my-4">
             <div class="card card-body box-shadow w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
@@ -559,6 +668,30 @@
 
 
         {% if request.user.is_superuser %}
+        <div class="card box-shadow mb-3">
+            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+                <h3 class="card-title">&#128736;&#65039; DIV název</h3>
+        
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="text"
+                           name="title"
+                           class="form-control"
+                           value="{{ display_title }}"
+                           placeholder="DIV název (má přednost)">
+        
+                    <button type="submit"
+                            name="update_titlediv"
+                            class="add-movie"
+                            style="margin-top:.5rem;">
+                        Uložit DIV název
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if request.user.is_superuser %}
         <!--<form method="post">
           {% csrf_token %}
           <button type="submit" name="add_to_metaindex" class="add-movie mt-2">Přidat na hlavní stránku</button>
@@ -617,7 +750,7 @@
 
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
-                <h3 class="card-title font-bold after-h3">{{ tvshow.titlecz }}</h3>
+                <h3 class="card-title font-bold after-h3">{{ display_title }}</h3>
                 <p class="card-text">Sdílet na:</p>
 
                 <!-- Facebook Share Button -->
@@ -653,6 +786,64 @@
         </div>
     </div>
 </div>
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        document.querySelectorAll(".biography-wrapper").forEach(wrapper => {
+            const bioElement = wrapper.querySelector(".biography-text");
+            const toggleButton = wrapper.querySelector(".toggle-biography");
+
+            if (!bioElement || !toggleButton) return;
+
+            const fullText = bioElement.innerText.trim();
+            const limit = 500;
+
+            if (fullText.length <= limit) {
+                toggleButton.style.display = "none";
+                return;
+            }
+
+            const truncatedText = fullText.substring(0, limit) + "...";
+            bioElement.innerText = truncatedText;
+
+            toggleButton.addEventListener("click", function () {
+                const isCollapsed = bioElement.innerText === truncatedText;
+
+                bioElement.innerText = isCollapsed ? fullText : truncatedText;
+
+                toggleButton.innerText =
+                    wrapper.id === "cz"
+                        ? (isCollapsed ? "...Méně" : "Více...")
+                        : (isCollapsed ? "Less..." : "More...");
+            });
+        });
+    });
+
+    function switchLanguage(e, lang) {
+        e.preventDefault();
+
+        document.querySelectorAll(".biography-wrapper").forEach(el => {
+            el.style.display = el.id === lang ? "block" : "none";
+        });
+
+        document.querySelectorAll(".lang-btn").forEach(btn =>
+            btn.classList.remove("active")
+        );
+
+        e.target.classList.add("active");
+    }
+
+    if (window.location.hash === '#en') {
+        const fakeEvent = {
+            preventDefault: function() {},
+            target: document.querySelector('.lang-btn[onclick*="en"]')
+        };
+        switchLanguage(fakeEvent, 'en');
+    }
+</script>
 
 {% endblock %}
 

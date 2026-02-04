@@ -3,7 +3,7 @@
 {% load ratings %}
 {% load static %}
 
-{% block title %}{{ game.title }} | DIV.cz{% endblock %}
+{% block title %}{{ game.title|default:game.titlecz }} | DIV.cz{% endblock %}
 
 
 
@@ -82,7 +82,7 @@
 <div class="row container my-5">
     <!-- Levá strana -->
     <div class="col-lg-8">
-        <h2>{{ game.title }} <small class="text-muted">{% if game.year %} ({{ game.year }}) {% endif %}</small></h2>
+        <h2>{{ game.title|default:game.titlecz }} <small class="text-muted">{% if game.year %} ({{ game.year }}) {% endif %}</small></h2>
 
         {% if messages %}
         <div class="mt-3">

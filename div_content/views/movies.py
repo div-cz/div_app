@@ -142,8 +142,8 @@ def movie_detail(request, movie_url):
     trans_cz = next((t for t in translations if t.language == "cs"), None)
     trans_en = next((t for t in translations if t.language == "en"), None)
 
-    display_desc_cz = trans_cz.description if trans_cz and trans_cz.description else movie.description
-    display_desc_en = trans_en.description if trans_en and trans_en.description else movie.description
+    display_desc_cz = trans_cz.description if trans_cz and trans_cz.description else ""
+    display_desc_en = trans_en.description if trans_en and trans_en.description else ""
 
 
     # TitleDIV

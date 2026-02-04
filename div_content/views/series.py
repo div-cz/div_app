@@ -34,7 +34,10 @@ import math
 from datetime import timedelta
 
 from div_content.models import (
-    FavoriteSum, Tvcountries, Tvcrew, Tvgenre, Tvkeywords, Tvproductions, Tvseason, Tvshow, Tvshowcomments, Tvshowtrailer, Tvshowtrivia, Tvshowquotes, Tvepisode, Userlisttype, Userlist, Userlistitem, Userlisttvshow, Userlisttvseason, Userlisttvepisode
+    FavoriteSum, Tvcountries, Tvcrew, Tvgenre, Tvkeywords, Tvproductions, Tvseason, Tvshow, Tvshowcomments, Tvshowtrailer, Tvshowtrivia, Tvshowquotes, Tvepisode, 
+    Tvepisodetranslation, Tvshowtranslation, Tvseasontranslation,
+    Userlisttype, Userlist, Userlistitem, Userlisttvshow, Userlisttvseason, Userlisttvepisode, 
+    
 )
 
 from div_content.forms.series import CommentForm, SearchForm, TrailerForm, TVShowDivRatingForm
@@ -455,6 +458,124 @@ def serie_detail(request, tv_url):
     user = request.user
     comment_form = None # Default value
 
+    # -------------------------------------------------
+    # DIV TITLE (TV SHOW)
+    # -------------------------------------------------
+    title_translation = Tvshowtranslation.objects.filter(
+        tvshowid=tvshow,
+        language="cs"
+    ).order_by("tvshowtranslationid").first()
+    
+    if title_translation and title_translation.title:
+        display_title = title_translation.title
+    elif tvshow.titlecz:
+        display_title = tvshow.titlecz
+    else:
+        display_title = tvshow.title
+
+
+    if request.method == "POST" and request.user.is_staff and "update_descriptions" in request.POST:
+    
+        desc_cz = request.POST.get("description_cs", "").strip()
+        desc_en = request.POST.get("description_en", "").strip()
+    
+        # CZ
+        if desc_cz:
+            trans = Tvshowtranslation.objects.filter(
+                tvshowid=tvshow,
+                language="cs"
+            ).order_by("tvshowtranslationid").first()
+    
+            if trans:
+                trans.description = desc_cz
+                trans.userid = request.user
+                trans.save()
+            else:
+                Tvshowtranslation.objects.create(
+                    tvshowid=tvshow,
+                    language="cs",
+                    description=desc_cz,
+                    userid=request.user
+                )
+    
+        # EN
+        if desc_en:
+            trans = Tvshowtranslation.objects.filter(
+                tvshowid=tvshow,
+                language="en"
+            ).order_by("tvshowtranslationid").first()
+    
+            if trans:
+                trans.description = desc_en
+                trans.userid = request.user
+                trans.save()
+            else:
+                Tvshowtranslation.objects.create(
+                    tvshowid=tvshow,
+                    language="en",
+                    description=desc_en,
+                    userid=request.user
+                )
+    
+        return redirect("serie_detail", tv_url=tvshow.url)
+    translations = Tvshowtranslation.objects.filter(tvshowid=tvshow)
+    
+    trans_cz = None
+    trans_en = None
+    
+    for t in translations:
+        if t.language == "cs":
+            trans_cz = t
+        elif t.language == "en":
+            trans_en = t
+    
+    # ZOBRAZENÍ
+    desc_cz = trans_cz.description if trans_cz and trans_cz.description else tvshow.description
+    desc_en = trans_en.description if trans_en and trans_en.description else ""
+    
+    # EDITACE (textarea)
+    edit_desc_cz = trans_cz.description if trans_cz else ""
+    edit_desc_en = trans_en.description if trans_en else ""
+
+    # DIV TITLE (stejná logika jako u filmů)
+    title_translation = Tvshowtranslation.objects.filter(
+        tvshowid=tvshow,
+        language="cs",
+        title__isnull=False
+    ).exclude(title="").order_by("tvshowtranslationid").first()
+    
+    if title_translation:
+        display_title = title_translation.title
+    elif tvshow.titlecz:
+        display_title = tvshow.titlecz
+    else:
+        display_title = tvshow.title
+
+    # DIV TITLE (uložení)
+    if request.method == "POST" and request.user.is_superuser and "update_titlediv" in request.POST:
+        title = request.POST.get("title", "").strip()
+    
+        if title:
+            trans = Tvshowtranslation.objects.filter(
+                tvshowid=tvshow,
+                language="cs"
+            ).order_by("tvshowtranslationid").first()
+    
+            if trans:
+                trans.title = title
+                trans.userid = request.user
+                trans.save()
+            else:
+                Tvshowtranslation.objects.create(
+                    tvshowid=tvshow,
+                    language="cs",
+                    title=title,
+                    userid=request.user
+                )
+    
+        return redirect("serie_detail", tv_url=tvshow.url)
+
+
     # Sezóny seriálu
     seasons = Tvseason.objects.filter(tvshowid=tvshow.tvshowid).order_by('seasonnumber')
     #episodes = Tvepisode.objects.filter(tvshowid=tvshow.tvshowid).order_by('seasonid', 'episodenumber')
@@ -637,7 +758,12 @@ def serie_detail(request, tv_url):
         'tvshow': tvshow,
         'genres': genres,
         'countries': countries,
+        'display_title': display_title,
         'productions': productions,
+        'desc_cz': desc_cz,
+        'desc_en': desc_en,
+        'edit_desc_cz': edit_desc_cz,
+        'edit_desc_en': edit_desc_en,
         'seasons': seasons,
         'episodes': episodes,
         'ratings': ratings,

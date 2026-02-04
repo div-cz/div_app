@@ -171,8 +171,7 @@ def get_reading_goal(request):
     # Spočítáme skutečný počet přečtených knih
     read_list = Userlist.objects.filter(
         user=request.user,
-        listtype_id=6,  # ID pro "přečtené" knihy
-        createdat__year=current_year
+        listtype_id=6  # ID pro "přečtené" knihy
     ).first()
     
     if read_list:
@@ -184,13 +183,15 @@ def get_reading_goal(request):
         # Aktualizujeme počet přečtených knih
         user_goal.booksread = books_read
         user_goal.save()
+
         if user_goal.goal > 0:
-            user_goal.progress = round((user_goal.booksread * 100) / user_goal.goal, 1)
+            progress = round((books_read * 100) / user_goal.goal, 1)
         else:
-            user_goal.progress = 0
+            progress = 0
     
-        # Zajistíme správný formát s tečkou
-        user_goal.progress = f"{user_goal.progress:.1f}".replace(",", ".")
+        user_goal.progress = f"{progress:.1f}"
+    else:
+        user_goal.progress = "0.0"
 
     return user_goal
 
