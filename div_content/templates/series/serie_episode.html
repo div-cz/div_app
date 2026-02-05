@@ -3,7 +3,7 @@
 {% load ratings %}
 {% load static %}
 
-{% block title %}{{ tvshow.titlecz }} ({{ tvshow.premieredate|date:"Y"|default:"?" }} - {{ tvshow.enddate|date:"Y"|default:"?" }}) | DIV.cz{% endblock %}
+{% block title %}{{ display_title }} | {{ tvshow.titlecz }} ({{ tvshow.premieredate|date:"Y"|default:"?" }} - {{ tvshow.enddate|date:"Y"|default:"?" }}) | DIV.cz{% endblock %}
 
 {% block content %}
 <style>
@@ -73,7 +73,7 @@
     <div class="col-lg-8">
         <h2><a href="{% url 'serie_detail' tv_url=tvshow.url %}">{{ tvshow.titlecz }}</a> - <a href="../../{{ season.seasonurl }}/">{{ season.seasonnumber }}. {{ season.titlecz }}</a></h2>
         <div class="flex justify-between items-center">
-            <h2><!--{{ episode.episodenumber }}. díl -->{{ episode.episodenumber }}. {{ episode.titlecz|default:episode.title }}</h2>
+            <h2><!--{{ episode.episodenumber }}. díl -->{{ episode.episodenumber }}. {{ display_title }}</h2>
 
             <div class="flex items-center">
                 {% if previous_episode %}
@@ -115,9 +115,9 @@
         <div class="d-flex mb-3 mt-4 wrap">
             <div class="mr-4 flex" style="width:40%; max-width:200px">
                 {% if episode.episodeimg == "noimg.png" %}
-                    <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ episode.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px; height: fit-content;">
+                    <img src="/static/img/movie/w200/nomovie.jpg" alt="{{ display_title }}" class="img-fluid w-full rounded" style="object-fit: cover; max-width: 200px; height: fit-content;">
                     {% else %}
-                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ episode.episodeimg }}" alt="{{ episode.titlecz }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px; height: fit-content;">
+                    <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ episode.episodeimg }}" alt="{{ display_title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px; height: fit-content;">
                 {% endif %}
         
                 <div class="d-lg-none mb-2 sm:ml-5">
@@ -218,6 +218,76 @@
                 <div id="add-thankyou" class="alert alert-success" style="display: none;">Díl přidán do seznamu!</div>
             </div>
         </div>
+
+
+
+{% if request.user.is_staff %}
+<details style="margin-top: .75rem;">
+    <summary style="cursor:pointer; font-weight:bold;">
+        Upravit popisy (CZ / EN)
+    </summary>
+
+    <form method="post" style="margin-top: .75rem;">
+        {% csrf_token %}
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div>
+                <label><strong>CZ</strong></label>
+                <textarea name="description_cs"
+                          rows="6"
+                          class="form-control">{{ edit_desc_cz }}</textarea>
+            </div>
+
+            <div>
+                <label><strong>EN</strong></label>
+                <textarea name="description_en"
+                          rows="6"
+                          class="form-control">{{ edit_desc_en }}</textarea>
+            </div>
+        </div>
+
+        <button type="submit"
+                name="update_descriptions"
+                class="add-movie"
+                style="margin-top:.75rem;">
+            Uložit
+        </button>
+    </form>
+</details>
+<hr>
+{% endif %}
+
+
+<div class="lang-switcher">
+    <a href="#" class="lang-btn active" onclick="switchLanguage(event,'cz')">CZ</a> |
+    <a href="#" class="lang-btn" onclick="switchLanguage(event,'en')">EN</a>
+</div>
+
+<!-- CZ -->
+<div class="biography-wrapper" id="cz">
+    <p class="biography-text">
+        {{ desc_cz|safe }}
+    </p>
+    {% if desc_cz %}
+        <a class="toggle-biography">Více...</a>
+    {% endif %}
+</div>
+
+<!-- EN -->
+<div class="biography-wrapper" id="en" style="display:none;">
+    <p class="biography-text">
+        {% if desc_en %}
+            {{ desc_en|safe }}
+        {% else %}
+            No description yet
+        {% endif %}
+    </p>
+    {% if desc_en %}
+        <a class="toggle-biography">More...</a>
+    {% endif %}
+</div>
+
+
 
         <p>{{ episode.description|default:"Žádný popis není k dispozici. Máš informace o tomto dílu? Pomoz nám doplnit popis."|safe }}</p>
 
@@ -475,6 +545,33 @@
             </div>
         </div>
 
+
+{% if request.user.is_superuser %}
+<div class="card box-shadow mb-3">
+    <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+        <h3 class="card-title">&#128736;&#65039; DIV název epizody</h3>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <input type="text"
+                   name="title"
+                   class="form-control"
+                   value="{{ display_title }}"
+                   placeholder="DIV název epizody (má přednost)">
+
+            <button type="submit"
+                    name="update_titlediv"
+                    class="add-movie"
+                    style="margin-top:.5rem;">
+                Uložit DIV název
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+
         <div class="card box-shadow mb-4">
             <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
                 <h3 class="card-title font-bold after-h3">Sezóny</h3>
@@ -531,5 +628,62 @@
     </div>
 </div>
 
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        document.querySelectorAll(".biography-wrapper").forEach(wrapper => {
+            const bioElement = wrapper.querySelector(".biography-text");
+            const toggleButton = wrapper.querySelector(".toggle-biography");
+
+            if (!bioElement || !toggleButton) return;
+
+            const fullText = bioElement.innerText.trim();
+            const limit = 500;
+
+            if (fullText.length <= limit) {
+                toggleButton.style.display = "none";
+                return;
+            }
+
+            const truncatedText = fullText.substring(0, limit) + "...";
+            bioElement.innerText = truncatedText;
+
+            toggleButton.addEventListener("click", function () {
+                const isCollapsed = bioElement.innerText === truncatedText;
+
+                bioElement.innerText = isCollapsed ? fullText : truncatedText;
+
+                toggleButton.innerText =
+                    wrapper.id === "cz"
+                        ? (isCollapsed ? "...Méně" : "Více...")
+                        : (isCollapsed ? "Less..." : "More...");
+            });
+        });
+    });
+
+    function switchLanguage(e, lang) {
+        e.preventDefault();
+
+        document.querySelectorAll(".biography-wrapper").forEach(el => {
+            el.style.display = el.id === lang ? "block" : "none";
+        });
+
+        document.querySelectorAll(".lang-btn").forEach(btn =>
+            btn.classList.remove("active")
+        );
+
+        e.target.classList.add("active");
+    }
+
+    if (window.location.hash === '#en') {
+        const fakeEvent = {
+            preventDefault: function() {},
+            target: document.querySelector('.lang-btn[onclick*="en"]')
+        };
+        switchLanguage(fakeEvent, 'en');
+    }
+</script>
 {% endblock %}
 

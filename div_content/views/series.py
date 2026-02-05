@@ -169,6 +169,64 @@ def serie_season(request, tv_url, seasonurl):
     season = get_object_or_404(Tvseason, tvshowid=tvshow.tvshowid, seasonurl=seasonurl)
     episodes = Tvepisode.objects.filter(seasonid=season.seasonid)
 
+    # ---------------------------------------
+    # SEASON TRANSLATIONS (CZ / EN)
+    # ---------------------------------------
+    translations = Tvseasontranslation.objects.filter(seasonid=season)
+    
+    trans_cz = next((t for t in translations if t.language == "cs"), None)
+    trans_en = next((t for t in translations if t.language == "en"), None)
+    
+    # TITLE
+    if trans_cz and trans_cz.title:
+        display_title = trans_cz.title
+    elif season.titlecz:
+        display_title = season.titlecz
+    else:
+        display_title = season.title
+    
+    # DESCRIPTION
+    desc_cz = trans_cz.description if trans_cz and trans_cz.description else season.description
+    desc_en = trans_en.description if trans_en and trans_en.description else ""
+
+
+    if request.method == "POST" and request.user.is_staff and "update_descriptions" in request.POST:
+    
+        desc_cz = request.POST.get("description_cs", "").strip()
+        desc_en = request.POST.get("description_en", "").strip()
+    
+        if desc_cz:
+            t = Tvseasontranslation.objects.filter(seasonid=season, language="cs").order_by("tvseasontranslationid").first()
+            if t:
+                t.description = desc_cz
+                t.save()
+            else:
+                Tvseasontranslation.objects.create(seasonid=season, language="cs", description=desc_cz, userid=request.user)
+    
+        if desc_en:
+            t = Tvseasontranslation.objects.filter(seasonid=season, language="en").order_by("tvseasontranslationid").first()
+            if t:
+                t.description = desc_en
+                t.save()
+            else:
+                Tvseasontranslation.objects.create(seasonid=season, language="en", description=desc_en, userid=request.user)
+    
+        return redirect("serie_season", tv_url=tvshow.url, seasonurl=season.seasonurl)
+
+    if request.method == "POST" and request.user.is_superuser and "update_titlediv" in request.POST:
+        title = request.POST.get("title", "").strip()
+    
+        if title:
+            t = Tvseasontranslation.objects.filter(seasonid=season, language="cs").order_by("tvseasontranslationid").first()
+            if t:
+                t.title = title
+                t.save()
+            else:
+                Tvseasontranslation.objects.create(seasonid=season, language="cs", title=title, userid=request.user)
+    
+        return redirect("serie_season", tv_url=tvshow.url, seasonurl=season.seasonurl)
+
+
     # DOČASNĚ
     list(episodes)  # Vyvolá dotaz
     from django.db import connection
@@ -291,6 +349,12 @@ def serie_season(request, tv_url, seasonurl):
     return render(request, 'series/serie_season.html', {
         'tvshow': tvshow,
         'season': season,
+        "display_title": display_title,
+        "desc_cz": desc_cz,
+        "desc_en": desc_en,
+        "edit_desc_cz": trans_cz.description if trans_cz else "",
+        "edit_desc_en": trans_en.description if trans_en else "",
+
         'genres': genres,
         'countries': countries,
         'productions': productions,
@@ -316,6 +380,126 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
     tvshow = get_object_or_404(Tvshow, url=tv_url)
     season = get_object_or_404(Tvseason, tvshowid=tvshow.tvshowid, seasonurl=seasonurl)
     episode = get_object_or_404(Tvepisode, seasonid=season.seasonid, episodeurl=episodeurl)
+
+    # =========================================================
+    # SAVE TRANSLATIONS (TITLE + DESCRIPTION) – EPISODE
+    # =========================================================
+    if request.method == "POST" and request.user.is_staff:
+    
+        # --- TITLE DIV (jen superuser)
+        if request.user.is_superuser and "update_titlediv" in request.POST:
+            title = request.POST.get("title", "").strip()
+    
+            if title:
+                translation = episode.translations.filter(language="cs").first()
+                if translation:
+                    translation.title = title
+                    translation.save()
+                else:
+                    Tvepisodetranslation.objects.create(
+                        episodeid=episode,
+                        language="cs",
+                        title=title,
+                        userid=request.user
+                    )
+    
+            return redirect(
+                "serie_episode",
+                tv_url=tvshow.url,
+                seasonurl=season.seasonurl,
+                episodeurl=episode.episodeurl
+            )
+    
+        # --- DESCRIPTION CZ / EN (staff)
+        if "update_descriptions" in request.POST:
+            desc_cz = request.POST.get("description_cs", "").strip()
+            desc_en = request.POST.get("description_en", "").strip()
+    
+            if desc_cz:
+                t = episode.translations.filter(language="cs").first()
+                if t:
+                    t.description = desc_cz
+                    t.save()
+                else:
+                    Tvepisodetranslation.objects.create(
+                        episodeid=episode,
+                        language="cs",
+                        description=desc_cz,
+                        userid=request.user
+                    )
+    
+            if desc_en:
+                t = episode.translations.filter(language="en").first()
+                if t:
+                    t.description = desc_en
+                    t.save()
+                else:
+                    Tvepisodetranslation.objects.create(
+                        episodeid=episode,
+                        language="en",
+                        description=desc_en,
+                        userid=request.user
+                    )
+    
+            return redirect(
+                "serie_episode",
+                tv_url=tvshow.url,
+                seasonurl=season.seasonurl,
+                episodeurl=episode.episodeurl
+            )
+
+    if request.method == "POST" and request.user.is_superuser and "update_titlediv" in request.POST:
+        title = request.POST.get("title", "").strip()
+    
+        if title:
+            translation = episode.translations.filter(language="cs").first()
+            if translation:
+                translation.title = title
+                translation.save()
+            else:
+                Tvepisodetranslation.objects.create(
+                    episodeid=episode,
+                    language="cs",
+                    title=title,
+                    userid=request.user
+                )
+    
+        return redirect(
+            "serie_episode",
+            tv_url=episode.seasonid.tvshowid.url,
+            seasonurl=episode.seasonid.seasonurl,
+            episodeurl=episode.episodeurl
+        )
+
+
+    translation = episode.translations.filter(language="cs").first()
+    
+    if translation and translation.title:
+        display_title = translation.title
+    elif episode.titlecz:
+        display_title = episode.titlecz
+    else:
+        display_title = episode.title
+
+    # =========================================================
+    # LOAD TRANSLATIONS – EPISODE
+    # =========================================================
+    trans_cz = episode.translations.filter(language="cs").first()
+    trans_en = episode.translations.filter(language="en").first()
+    
+    # TITLE
+    if trans_cz and trans_cz.title:
+        display_title = trans_cz.title
+    elif episode.titlecz:
+        display_title = episode.titlecz
+    else:
+        display_title = episode.title
+    
+    # DESCRIPTION
+    desc_cz = trans_cz.description if trans_cz and trans_cz.description else episode.description
+    desc_en = trans_en.description if trans_en and trans_en.description else ""
+
+
 
     # PREVIOUS
     previous_episode = Tvepisode.objects.filter(
@@ -432,6 +616,7 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
 
     return render(request, 'series/serie_episode.html', {
         'tvshow': tvshow,
+        'display_title': display_title,
         'season': season,
         'genres': genres,
         'countries': countries,

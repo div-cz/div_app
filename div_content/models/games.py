@@ -14,6 +14,7 @@ class Game(models.Model):
     special = models.IntegerField(db_column='Special', db_index=True, blank=True, null=True)
     url = models.CharField(db_column='URL', max_length=255, null=True, blank=True)
     img = models.CharField(db_column='IMG', max_length=255,  null=True, blank=True)
+    igdbid = models.IntegerField(db_column='IgdbID', null=True, blank=True)
     rawgid = models.IntegerField(db_column='RawgID', null=True, blank=True)
     metacritic = models.IntegerField(db_column='MetaCritic', null=True, blank=True)
     descriptioncz = models.TextField(db_column='DescriptionCZ', null=True, blank=True)
@@ -24,6 +25,8 @@ class Game(models.Model):
     countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True, blank=True)
     averageratinggame = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, db_column='AverageRatingGame')
     divrating = models.IntegerField(db_column='DIVRating', default=0, db_index=True)
+    parentid = models.ForeignKey( 'self', db_column='ParentID', null=True, blank=True, on_delete=models.SET_NULL, related_name='editions')
+    lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
 
     class Meta:
         db_table = 'Game'
