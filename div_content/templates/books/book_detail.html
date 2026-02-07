@@ -643,34 +643,14 @@
 
         <!-- POPIS KNIHY -->
         <div style="width: 100%; margin-bottom: 1rem;">
-            <div class="lang-switcher">
-                <a href="#" class="lang-btn active" onclick="switchLang(event, 'cz')">CZ</a> |
-                <a href="#" class="lang-btn" onclick="switchLang(event, 'en')">EN</a>
-            </div>
-
-            <!-- CZ -->
-            <div class="biography-wrapper" id="cz">
-                <p class="biography-text">
-                    {% if book.description %}
-                        {{ book.description|safe }}
-                    {% else %}
-                        Zatím žádný popis
-                    {% endif %}
-                </p>
-                <a class="toggle-biography">Více...</a>
-            </div>
-
-            <!-- EN -->
-            <div class="biography-wrapper" id="en" style="display:none;">
-                <p class="biography-text">
-                    {% if book.description_en %}
-                        {{ book.description_en|safe }}
-                    {% else %}
-                        No description yet
-                    {% endif %}
-                </p>
-                <a class="toggle-biography">More...</a>
-            </div>
+            <p id="biography-text">
+                {% if book.description %}
+                    {{ book.description|safe }} 
+                    <p><a id="toggle-biography">Více...</a></p>   
+                {% else %}
+                    Zatím žádný popis    
+                {% endif %}
+            </p>
         </div>
 
         <!-- Karty -->
