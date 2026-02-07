@@ -71,9 +71,10 @@
 <div class="row container my-5">
     <!-- Levá strana -->
     <div class="col-lg-8">
-        <h2><a href="{% url 'serie_detail' tv_url=tvshow.url %}">{{ tvshow.titlecz }}</a> - <a href="../../{{ season.seasonurl }}/">{{ season.seasonnumber }}. {{ season.titlecz }}</a></h2>
+        <h2><a href="{% url 'serie_detail' tv_url=tvshow.url %}">{{ tvshow.titlecz }}</a> - <a href="../../{{ season.seasonurl }}/">{{ season.seasonnumber }}. {{ season.titlecz }}</a> - {{ episode.episodenumber }}. díl</h2>
         <div class="flex justify-between items-center">
-            <h2><!--{{ episode.episodenumber }}. díl -->{{ episode.episodenumber }}. {{ display_title }}</h2>
+            <h1 style="font-size:150%"><!--{{ episode.episodenumber }}. díl --> {{ display_title }}</h1>
+
 
             <div class="flex items-center">
                 {% if previous_episode %}
@@ -289,7 +290,6 @@
 
 
 
-        <p>{{ episode.description|default:"Žádný popis není k dispozici. Máš informace o tomto dílu? Pomoz nám doplnit popis."|safe }}</p>
 
         <!-- Karty -->
         <div class="tab-container" style="font-size:12px">

@@ -448,29 +448,6 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
                 episodeurl=episode.episodeurl
             )
 
-    if request.method == "POST" and request.user.is_superuser and "update_titlediv" in request.POST:
-        title = request.POST.get("title", "").strip()
-    
-        if title:
-            translation = episode.translations.filter(language="cs").first()
-            if translation:
-                translation.title = title
-                translation.save()
-            else:
-                Tvepisodetranslation.objects.create(
-                    episodeid=episode,
-                    language="cs",
-                    title=title,
-                    userid=request.user
-                )
-    
-        return redirect(
-            "serie_episode",
-            tv_url=episode.seasonid.tvshowid.url,
-            seasonurl=episode.seasonid.seasonurl,
-            episodeurl=episode.episodeurl
-        )
-
 
     translation = episode.translations.filter(language="cs").first()
     
@@ -499,6 +476,8 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
     desc_cz = trans_cz.description if trans_cz and trans_cz.description else episode.description
     desc_en = trans_en.description if trans_en and trans_en.description else ""
 
+    edit_desc_cz = trans_cz.description if trans_cz else ""
+    edit_desc_en = trans_en.description if trans_en else ""
 
 
     # PREVIOUS
@@ -616,8 +595,16 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
 
     return render(request, 'series/serie_episode.html', {
         'tvshow': tvshow,
-        'display_title': display_title,
         'season': season,
+        'episode': episode,
+
+        'display_title': display_title,
+
+        'desc_cz': desc_cz,
+        'desc_en': desc_en,
+        'edit_desc_cz': edit_desc_cz,
+        'edit_desc_en': edit_desc_en,
+
         'genres': genres,
         'countries': countries,
         'productions': productions,

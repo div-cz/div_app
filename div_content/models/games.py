@@ -26,6 +26,7 @@ class Game(models.Model):
     averageratinggame = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, db_column='AverageRatingGame')
     divrating = models.IntegerField(db_column='DIVRating', default=0, db_index=True)
     parentid = models.ForeignKey( 'self', db_column='ParentID', null=True, blank=True, on_delete=models.SET_NULL, related_name='editions')
+    parentigdb = models.IntegerField(db_column='ParentIGDB', null=True, blank=True)
     lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
 
     class Meta:
