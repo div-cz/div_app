@@ -29,7 +29,14 @@
         .info-bar {
             justify-content: space-between;
         }
-
+    #biography-text p {
+        margin-bottom: 1.5rem;  /* Větší mezera mezi odstavci */
+        line-height: 1.6;
+    }
+    
+    #biography-text br {
+        margin-bottom: 0.5rem;  /* Mezera po odřádkování */
+    }
 </style>
 
 {% endblock %}
@@ -113,10 +120,10 @@
         <!-- BIOGRAFIE -->
         {% if creatorbiography %}
         <div style="width: 100%; margin-bottom: 1rem;">
-            <p id="biography-text">
-                {{ creatorbiography.biographytextcz|safe }}
+            <div id="biography-text">
+                {{ creatorbiography.biographytextcz|safe|linebreaks }}
                 <p><a id="toggle-biography">Více...</a></p>  
-            </p>
+            </div>
         
             <p style="font-size: 13px; color: #999;">
                 Naposledy upravil: 
@@ -193,6 +200,8 @@
                         <div>
                         {% if movie.img == "noimg.png" %}
                             <img src="https://div.cz/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}">
+                            {% elif movie.imgposter == "noimg.png" or not movie.imgposter %}
+                                <img src="https://div.cz/static/img/movie/w200/nomovie.jpg" alt="{{ movie.titlecz }}">
                             {% else %}
                             <img src="https://image.tmdb.org/t/p/w300_and_h450_bestv2/{{ movie.imgposter }}" alt="{{ movie.titlecz }}">
                         {% endif %}

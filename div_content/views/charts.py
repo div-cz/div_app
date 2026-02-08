@@ -37,7 +37,7 @@ from django.db import models
 from django.db.models import Avg, Count, Q, F, OuterRef, Subquery, FloatField
 from django.shortcuts import get_object_or_404, render
 
-from div_content.models import Book, Bookauthor, Bookaward, Creator, Favorite, Game, Gameaward, Gamepublisher, Metagenre, Movie, Moviecrew, Moviegenre, Metaaward, Metacountry, Movieaward, Moviecountries, Tvcountries, Tvcrew, Tvshow, Userdivcoins
+from div_content.models import Book, Bookauthor, Bookaward, Creator, Favorite, Game, Gameaward, Gamepublisher, Metagenre, Movie, Moviecrew, Moviegenre, Metaaward, Metacountry, Metaproduction, Metapublisher, Movieaward, Moviecountries, Tvcountries, Tvcrew, Tvshow, Userdivcoins
 
 from star_ratings.models import Rating, UserRating
 
@@ -135,8 +135,8 @@ def charts_books(request):
     favorite_publishers_ids = [1, 2, 3, 4, 5]
     best_publishers_ids = [6, 7, 8, 9, 10]
 
-    favorite_publishers = Bookpublisher.objects.filter(publisherid__in=favorite_publishers_ids)
-    best_publishers = Bookpublisher.objects.filter(publisherid__in=best_publishers_ids)
+    favorite_publishers = Metapublisher.objects.filter(publisherid__in=favorite_publishers_ids)
+    best_publishers = Metapublisher.objects.filter(publisherid__in=best_publishers_ids)
 
     return render(request, "charts/charts_books.html", {
         "best_books": best_books,

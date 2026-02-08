@@ -131,7 +131,12 @@
 
             <div class="flex flex-wrap content-between flex-grow-1 sm:mt-5 w-full lg:w-55">
                 <ul class="list-unstyled">
-                    <li><strong>Originální název:</strong> {{ episode.title }}</li>
+                    {% if episode.title and episode.title|lower != "episode" %}
+                    <li>
+                        <strong>Originální název:</strong> {{ episode.title }}
+                    </li>
+                    {% endif %}
+
                     {% if genres %}
                     <li><strong>Žánr:</strong>
                         {% for genre in genres %}

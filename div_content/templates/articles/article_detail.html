@@ -6,35 +6,56 @@
 {% block title %}{{ article.h1 }} | DIV.cz{% endblock %}
 
 {% block meta %}
-    <!-- ZDE přidejte CSS podle kategorie -->
-    {% if article.typ in "Filmy,Film,Movie,Serialy,Seriál,Seriály" %}
-        <link href="/web/css/movies.css" rel="stylesheet">
-        <style>
-            nav, footer {
-                background: linear-gradient(90deg, #330000 10%, #A52B21 90%);
-            }
-        </style>
-    {% elif article.typ in "Knihy,Kniha,Book" %}
-        <link href="/web/css/books.css" rel="stylesheet">
-        <style>
-            nav, footer {
-                background: linear-gradient(90deg, #003300 10%, #61872B 90%);
-            }
-        </style>
-    {% elif article.typ in "Hry,Hra,Game" %}
-        <link href="/web/css/games.css" rel="stylesheet">
-        <style>
-            nav, footer {
-                background: linear-gradient(90deg, #001933 10%, #0A76A9 90%);
-            }
-        </style>
-    {% else %}
-        <link href="/web/css/navbar_other.css" rel="stylesheet">
-    {% endif %}
+    <style>
+        h1 {
+            margin-top: 2rem
+        }
+
+        .left-side h2 {
+            margin-top: 2rem;
+            width: fit-content;
+        }
+
+        .left-side h2::after {
+            content: "";
+            display: block;
+            height: 3px;
+            background-color: #d2d2d2;
+            margin: 10px 0 0 -2rem;
+        }
+
+        .left-side h3, h4, h5 {
+            margin-top: 1.5rem;
+        }
+
+        .left-side p {
+            margin-left: 1.25rem;
+            margin-top: 10px;
+            color: #d0d0d0;
+        }
+
+        .left-side ul li {
+            margin-left: 3rem;
+        }
+
+        li ul {
+            list-style: disc;
+            margin-left: 1.5rem;
+        }
+
+        .obsah ul li {
+            margin-top: 20px;
+        }
+
+        .obsah ul li ul li {
+            margin-top: 0;
+        }
+    </style> 
 {% endblock %}
 
 
     {% block content %}
+
 
     <div class="container"> 
         <!-- LEVÁ STRANA -->
@@ -175,6 +196,7 @@
                 </div>
             </div>
 
+
             <!-- SOCIÁLNÍ SÍTĚ -->
             <div class="card">
                 <div class="card-body">
@@ -208,27 +230,22 @@
                     <p style="width: 100%;">Sdílet na:</p>
 
                     <!-- Facebook Share Button -->
-                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/{{ article.url }}" class="btn btn-primary" target="_blank">
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://div.cz/{{ article.url }}" class="btn btn-facebook" target="_blank">
                         <i class="fab fa-facebook-f"></i>
                     </a>
 
                     <!-- Twitter Share Button -->
-                    <a href="https://twitter.com/intent/tweet?url=https://div.cz/{{ article.url }}&text={{ article.h1 }}" class="btn btn-info" target="_blank">
+                    <a href="https://twitter.com/intent/tweet?url=https://div.cz/{{ article.url }}&text={{ article.h1 }}" class="btn btn-twitter" target="_blank">
                         <i class="fab fa-twitter"></i>
                     </a>
 
-                    <!-- LinkedIn Share Button -->
-                    <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://div.cz/{{ article.url }}&title={{ article.h1 }}" class="btn add-other" target="_blank">
-                        <i class="fab fa-linkedin-in"></i>
-                    </a>
-
                     <!-- Email Share Button -->
-                    <a href="mailto:?subject={{ movie.titlecz }}&body=Podívej se na https://div.cz/{{ article.url }}" class="btn btn-dark">
+                    <a href="mailto:?subject={{ movie.titlecz }}&body=Podívej se na https://div.cz/{{ article.url }}" class="btn btn-email">
                         <i class="fas fa-envelope"></i>
                     </a>
 
                     <!-- WhatsApp Share Button -->
-                    <a href="https://wa.me/?text={{ article.h1 }} - https://div.cz/{{ article }}" class="btn btn-success" target="_blank">
+                    <a href="https://wa.me/?text={{ article.h1 }} - https://div.cz/{{ article }}" class="btn btn-whatsapp" target="_blank">
                         <i class="fab fa-whatsapp"></i>
                     </a>
                 </div>
