@@ -30,7 +30,16 @@
 # 3) third-part (t¯etÌ strana, django, auth) (abecednÏ)
 # -------------------------------------------------------------------
 from django.shortcuts import get_object_or_404, render
-from div_content.models import Metacity, Metalocation
+
+from div_content.forms.locations import LocationForm
+
+
+from div_content.models.books import Booklocation
+from div_content.models.games import Gamelocation
+from div_content.models.movies import Movielocation
+from div_content.models.meta import Metacity, Metalocation
+
+
 from div_content.views.login import custom_login_view
 
 
@@ -41,10 +50,39 @@ def locations(request):
     
     return render(request, 'meta/locations_list.html', {'locations': locations, 'cities': cities})
 
+def get_breadcrumb(location):
+    items = []
+    current = location
+    while current:
+        items.append(current)
+        current = current.parentlocation
+    return reversed(items)
+
+
 def location_detail(request, location_url):
     location = get_object_or_404(Metalocation, url=location_url)
-    return render(request, 'meta/location_detail.html', {'location': location})
 
+    movies = Movielocation.objects.filter(locationid=location)
+    games = Gamelocation.objects.filter(locationid=location)
+    books = Booklocation.objects.filter(locationid=location)
+
+    if request.user.is_staff:
+        if request.method == "POST":
+            form = LocationForm(request.POST, instance=location)
+            if form.is_valid():
+                form.save()
+        else:
+            form = LocationForm(instance=location)
+    else:
+        form = None
+
+    return render(request, 'meta/location_detail.html', {
+        'location': location,
+        'movies': movies,
+        'games': games,
+        'books': books,
+        'form': form,
+    })
 
 # -------------------------------------------------------------------
 #                    KONEC

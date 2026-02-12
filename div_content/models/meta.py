@@ -203,20 +203,21 @@ class Gamekeywords(models.Model):
 
 class Metalocation(models.Model):
     locationid = models.IntegerField(db_column='LocationID', primary_key=True)
-    locationname = models.CharField(db_column='LocationName', max_length=255, unique=True)
+    locationname = models.CharField(db_column='LocationName', max_length=255)
     locationnamecz = models.CharField(db_column='LocationNameCZ', max_length=255, blank=True, null=True)
     locationurl = models.CharField(db_column='LocationURL', max_length=255, unique=True)
-    locationtype = models.CharField(db_column='LocationType', max_length=50)
     locationtypeid = models.ForeignKey('Metatype', models.DO_NOTHING, db_column='TypeID', blank=True, null=True)
-    locationdescription = models.TextField(db_column='LocationDescription')
-    parentlocationid = models.IntegerField(db_column='ParentLocationID', blank=True, null=True)
+    locationdescription = models.TextField(db_column='LocationDescription', blank=True, null=True)
+    parentlocation = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, db_column='ParentLocationID', related_name='children')
+    universum = models.ForeignKey('Metauniversum', on_delete=models.SET_NULL, null=True, blank=True, db_column='UniversumID')
     locationadress = models.CharField(db_column='LocationAdress', max_length=255, blank=True, null=True)
     gpsx = models.CharField(db_column='gpsX', max_length=32, blank=True, null=True)
     gpsy = models.CharField(db_column='gpsY', max_length=32, blank=True, null=True)
-    divrating = models.IntegerField(db_column='DIVRating', default="0", db_index=True, blank=True, null=True)
+    divrating = models.IntegerField(db_column='DIVRating', default=0, db_index=True, blank=True, null=True)
 
     class Meta:
         db_table = 'MetaLocation'
+
 
 
 class Metaplatform(models.Model):

@@ -1,4 +1,7 @@
-# forms.index.py
+# -------------------------------------------------------------------
+#                    FORMS.iNDEX.PY
+# -------------------------------------------------------------------
+
 from django import forms
 from div_content.models import Article, Articlenews
 
