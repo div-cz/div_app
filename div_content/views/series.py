@@ -167,7 +167,32 @@ def serie_season(request, tv_url, seasonurl):
     user = request.user
     tvshow = get_object_or_404(Tvshow, url=tv_url)
     season = get_object_or_404(Tvseason, tvshowid=tvshow.tvshowid, seasonurl=seasonurl)
-    episodes = Tvepisode.objects.filter(seasonid=season.seasonid)
+    episodes = Tvepisode.objects.filter(seasonid=season.seasonid).prefetch_related("translations")
+
+    # TVSHOW TITLE (DIV)
+    show_trans = Tvshowtranslation.objects.filter(
+        tvshowid=tvshow,
+        language="cs"
+    ).order_by("tvshowtranslationid").first()
+    
+    if show_trans and show_trans.title:
+        series_display_title = show_trans.title
+    elif tvshow.titlecz:
+        series_display_title = tvshow.titlecz
+    else:
+        series_display_title = tvshow.title
+
+    # EPIOSDE TRANSLATION
+    for ep in episodes:
+        trans = next((t for t in ep.translations.all() if t.language == "cs" and t.title), None)
+    
+        if trans:
+            ep.display_title = trans.title
+        elif ep.titlecz:
+            ep.display_title = ep.titlecz
+        else:
+            ep.display_title = ep.title
+
 
     # ---------------------------------------
     # SEASON TRANSLATIONS (CZ / EN)
@@ -179,11 +204,11 @@ def serie_season(request, tv_url, seasonurl):
     
     # TITLE
     if trans_cz and trans_cz.title:
-        display_title = trans_cz.title
+        season_display_title = trans_cz.title
     elif season.titlecz:
-        display_title = season.titlecz
+        season_display_title = season.titlecz
     else:
-        display_title = season.title
+        season_display_title = season.title
     
     # DESCRIPTION
     desc_cz = trans_cz.description if trans_cz and trans_cz.description else season.description
@@ -227,15 +252,6 @@ def serie_season(request, tv_url, seasonurl):
         return redirect("serie_season", tv_url=tvshow.url, seasonurl=season.seasonurl)
 
 
-    # DOČASNĚ
-    list(episodes)  # Vyvolá dotaz
-    from django.db import connection
-    print("DEBUG SQL:", connection.queries[-1])
-
-    if episodes.exists():
-        first_episode = episodes[0]  # Get the first episode if it exists
-    else:
-        first_episode = None 
 
     # Get the previous season
     previous_season = Tvseason.objects.filter(
@@ -349,7 +365,8 @@ def serie_season(request, tv_url, seasonurl):
     return render(request, 'series/serie_season.html', {
         'tvshow': tvshow,
         'season': season,
-        "display_title": display_title,
+        "series_display_title": series_display_title, 
+        "season_display_title": season_display_title,
         "desc_cz": desc_cz,
         "desc_en": desc_en,
         "edit_desc_cz": trans_cz.description if trans_cz else "",

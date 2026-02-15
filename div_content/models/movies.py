@@ -245,18 +245,23 @@ class Movieversions(models.Model):
     class Meta:
         db_table = 'MovieVersions'
 
-class Moviesource(models.Model):
+class Moviecsfdsource(models.Model):
     moviesourceid = models.AutoField(db_column='MovieSourceID', primary_key=True)
-    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID', null=True, blank=True)
-    sourcetype = models.CharField(db_column='SourceType', max_length=20)
+    sourcetype = models.CharField(db_column='SourceType', max_length=128)
     externalid = models.CharField(db_column='ExternalID', max_length=100)
     externaltitle = models.CharField(db_column='ExternalTitle', max_length=2048, null=True, blank=True)
     releaseyear = models.CharField(db_column='ReleaseYear', max_length=4, null=True, blank=True)
     externalurl = models.CharField(db_column='ExternalURL', max_length=1024)
-    createdat = models.DateTimeField(db_column='CreatedAt', auto_now_add=True)
+    createdat = models.DateField(db_column='CreatedAt', auto_now_add=True)
+
+    # napojení na naše entity
+    movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID', null=True, blank=True)
+    tvshowid = models.ForeignKey('Tvshow', models.DO_NOTHING, db_column='TVShowID', null=True, blank=True)
+    seasonid = models.ForeignKey('Tvseason', models.DO_NOTHING, db_column='SeasonID', null=True, blank=True)
+    episodeid = models.ForeignKey('Tvepisode', models.DO_NOTHING, db_column='EpisodeID', null=True, blank=True)
 
     class Meta:
-        db_table = 'MovieSource'
+        db_table = 'MovieCSFDSource'
         unique_together = (('sourcetype', 'externalid'),)
 
 
