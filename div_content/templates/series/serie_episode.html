@@ -296,7 +296,7 @@
                                 <p style="width: 80%;">{{ comment.comment }}</p>
 
                                 {% if user.is_authenticated and comment.user == user %}
-                                    <button type="button"  onclick="toggleEditForm({{ comment.commentid }})">
+                                    <button type="button" onclick="toggleEditForm({{ comment.commentid }})">
                                         Upravit
                                     </button>
                                 {% endif %}
@@ -431,7 +431,11 @@
                 <ul class="list-unstyled komentar">
                     {% for item in trivia %}
                         <li class="card-body">
-                            <p class="after">{{ item.trivia }}</p>
+                            <div class="after my-komentar">
+                                <p>{{ item.trivia }}</p>
+                                <button type="button">&#10060;</button>
+                            </div>
+
                             <div class="user" style="justify-content: end;">
                                 <p>Přidal: 
                                     {% if item.userid %}
@@ -491,7 +495,11 @@
                 <ul class="list-unstyled komentar">
                     {% for quote in quotes %}
                         <li class="card-body">
-                            <p class="after">{{ quote.quote }}</p>
+                            <div class="after my-komentar">
+                                <p>{{ quote.quote }}</p>
+                                <button type="button">&#10060;</button>
+                            </div>
+
                             <div class="user">
                                 <p>Přidal:
                                     {% if quote.user %}
@@ -539,7 +547,11 @@
                 <ul class="list-unstyled komentar">
                     {% for error in errors %}
                         <li class="card-body">
-                            <p class="after">{{ error.error }}</p>
+                            <div class="after my-komentar">
+                                <p>{{ error.error }}</p>
+                                <button type="button">&#10060;</button>
+                            </div>
+                            
                             <div class="user" style="justify-content: end;">
                                 <p>Přidal: 
                                     {% if error.userid %}
