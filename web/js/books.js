@@ -78,3 +78,31 @@ function toggleEditForm(id) {
         text.style.display = 'block';
     }
 }
+
+
+
+$(document).ready(function () {
+
+    const modal = $('#libraryModal');
+    const btn = $('#openLibraryModal');
+    const closeBtn = $('.close');
+
+    if (btn.length && modal.length) {
+
+        btn.on('click', function (e) {
+            e.preventDefault();
+            modal.fadeIn(200);
+        });
+
+        closeBtn.on('click', function () {
+            modal.fadeOut(200);
+        });
+
+        $(window).on('click', function (e) {
+            if ($(e.target).is(modal)) {
+                modal.fadeOut(200);
+            }
+        });
+    }
+
+});

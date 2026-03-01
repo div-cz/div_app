@@ -139,6 +139,32 @@
         .star-ratings-rating-user {
             display: none;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background: #787878;
+            padding: 20px;
+            width: 300px;
+            margin: 10% auto;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .close {
+            float: right;
+            cursor: pointer;
+            font-size: 20px;
+        }
     </style>
 
 {% endblock %}
@@ -273,7 +299,7 @@
                                                 {% if rating.user == request.user %}
                                                     <form method="post" action="">
                                                         {% csrf_token %}
-                                                        <button type="submit" style="padding: .375rem .75rem;">
+                                                        <button type="submit" class="">
                                                             <i class="fa-solid fa-trash-can" title="smazat hodnocení" style="color:#61872B; margin-right:0;"></i>
                                                         </button>
                                                     </form>
@@ -448,7 +474,8 @@
                     {% if not is_in_book_library %}
                     <a href="{% url 'add_to_book_library' bookid=book.bookid %}" class="favorite-link" style="color: white;">
                         {% else %}
-                        <a href="{% url 'remove_from_book_library' bookid=book.bookid %}" class="favorite-link">
+                        <a href="#" id="openLibraryModal" class="favorite-link">
+                        <!-- <a href="{% url 'remove_from_book_library' bookid=book.bookid %}" class="favorite-link"> -->
                         {% endif %}
                             <span class="favorite-link-icon">
                                 <i class="fas fa-home" style="color: {% if is_in_book_library %} #4FB021 {% endif %}"></i>
@@ -659,7 +686,7 @@
                 <li class="karta"><a href="#tab1" class="active">Recenze</a></li>
                 <li class="karta"><a href="#tab2">Postavy</a></li>
                 <li class="karta"><a href="#tab3">Citáty</a></li>
-                <!--<li class="karta"><a href="#tab4">Zajímavosti</a></li>-->
+                <li class="karta"><a href="#tab4">Zajímavosti</a></li>
                 <li class="karta"><a href="#tab5">DIVkvariát</a></li>
                 <li class="karta"><a href="#tab6">ISBN</a></li>
             </ul>
@@ -874,16 +901,45 @@
             </div>
 
             <!-- ZAJÍMAVOSTI -->
-            <!-- <div id="tab4" class="tab-list ">
-                <h3 class="card-title after-h3">Informace o zajímavostech filmu</h3>
+            <div id="tab4" class="tab-list ">
+                <h3 class="card-title after-h3">Zajímavosti o knize</h3>
+
                 <h4>Přidat novou zajímavost</h4>
                 <form method="post" action="">
                     <textarea>
 
                     </textarea>
                     <button type="submit" class="btn add-book">Vložit zajímavost</button>
-                </form>               
-            </div> -->
+                </form>  
+                
+                <!-- výpis zajímavostí -->
+                <ul class="list-unstyled komentar">
+                
+                    <li class="card-body">
+                        <div class="after my-komentar">
+                            <p></p>
+                            <button type="button">&#10060;</button>
+                        </div>
+
+                        <div class="user" style="justify-content: end;">
+                            <p>Přidal: 
+                            {% if item.userid %}
+                                <a href="{% url 'user_profile_with_profil' item.userid.id %}">{{ item.userid.username }}</a>
+                                {% else %}
+                                Anonym
+                            {% endif %}
+                            </p>
+                        </div>
+
+                        <!-- drobečky -->
+                        <div style="margin-top: .25rem; padding: 0 10px;">
+
+                        </div>
+
+                    </li>
+                
+                </ul>
+            </div>
 
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
@@ -1473,6 +1529,35 @@
     </div>
 </div>
 
+<!-- MODAL -->
+<div id="libraryModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Vyber druh knihy</h3>
+
+        <form method="POST" action="{% url 'add_to_book_library' bookid=book.bookid %}">
+            {% csrf_token %}
+
+            <label>
+                <input type="checkbox" name="book_type" value="kniha">
+                Kniha
+            </label><br>
+
+            <label>
+                <input type="checkbox" name="book_type" value="ekniha">
+                E-kniha
+            </label><br>
+
+            <label>
+                <input type="checkbox" name="book_type" value="audio">
+                Audiokniha
+            </label><br><br>
+
+            <button type="submit">Uložit</button>
+        </form>
+    </div>
+</div>
+
 
 <script>
     document.querySelectorAll('.arrow').forEach(arrow => {
@@ -1679,8 +1764,6 @@
         if (qrWrap) {
             qrWrap.style.display = 'block';
         }
-
-
 
         const bookid = document.getElementById("js-bookid")?.value;
         let currentPurchaseId = null;
