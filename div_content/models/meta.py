@@ -135,7 +135,7 @@ class Metaindex(models.Model):
     author = models.CharField(db_column='Author', max_length=255, null=True, blank=True) 
     year = models.CharField(db_column='Year', max_length=255, null=True, blank=True) 
     description = models.CharField(db_column='Description', max_length=255, null=True)
-    divrating = models.CharField(db_column='DIVrating', max_length=9, default=0)
+    divrating = models.IntegerField(db_column='DIVrating', max_length=9, default=0)
     img = models.CharField(db_column='IMG', max_length=255, null=True, blank=True)  # URL obrázku
     url = models.CharField(db_column='URL', max_length=255, null=True, blank=True)  # URL pro detailní stránku položky
     last_updated = models.DateField(db_column='LastUpdated', auto_now=True)  # Datum poslední aktualizace
@@ -202,7 +202,7 @@ class Gamekeywords(models.Model):
         unique_together = [['gameid', 'keywordid']]
 
 class Metalocation(models.Model):
-    locationid = models.IntegerField(db_column='LocationID', primary_key=True)
+    locationid = models.AutoField(db_column='LocationID', primary_key=True)
     locationname = models.CharField(db_column='LocationName', max_length=255)
     locationnamecz = models.CharField(db_column='LocationNameCZ', max_length=255, blank=True, null=True)
     locationurl = models.CharField(db_column='LocationURL', max_length=255, unique=True)
@@ -217,7 +217,29 @@ class Metalocation(models.Model):
 
     class Meta:
         db_table = 'MetaLocation'
-
+    
+    def __str__(self):
+        parts = []
+        parent = self.parentlocation
+    
+        while parent:
+            parts.append(parent.locationname)
+            parent = parent.parentlocation
+    
+        if parts:
+            return f"{self.locationname} ({', '.join(parts[:2])})"
+    
+        return self.locationname
+    
+    
+    def clean(self):
+        parent = self.parentlocation
+    
+        while parent:
+            if parent == self:
+                raise ValidationError("Cyklická struktura lokalit není povolena.")
+            parent = parent.parentlocation
+    
 
 
 class Metaplatform(models.Model):

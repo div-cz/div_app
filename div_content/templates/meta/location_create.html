@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+    <head>
+
+        {% include "inc/head.html" %}
+        
+        <title>Vytvoření nové lokality | Lokality | Databáze DIV</title>
+
+        <link href="https://media.div.cz/css/navbar_other.css" rel="stylesheet">
+
+        <style>
+        </style>
+
+    </head>
+
+    <body class="bg-[#FFFFFF] text-[#0d0c0f] dark:bg-[#0d0c0f] dark:text-[#F9F9F9] d-flex flex-column min-vh-100">
+
+        {% include "inc/navbar.html" %}
+
+<nav>
+{% for item in breadcrumb %}
+    <a href="/lokalita/{{ item.locationurl }}/">{{ item.locationname }}</a> /
+{% endfor %}
+</nav>
+
+
+<div class="container my-4">
+    <h1>Nová lokalita</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Vytvořit</button>
+    </form>
+</div>
+
+
+
+
+        {% include "inc/footer.html" %}
+
+        <script src="/static/js/script.js"></script>
+
+
+    </body>
+</html>

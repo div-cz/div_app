@@ -31,7 +31,7 @@
 # -------------------------------------------------------------------
 from django.shortcuts import get_object_or_404, render
 
-from div_content.forms.locations import LocationForm
+from div_content.forms.locations import LocationCreateForm, LocationForm
 
 
 from div_content.models.books import Booklocation
@@ -60,9 +60,9 @@ def get_breadcrumb(location):
 
 
 def location_detail(request, location_url):
-    location = get_object_or_404(Metalocation, url=location_url)
+    location = get_object_or_404(Metalocation, locationurl=location_url)
 
-    movies = Movielocation.objects.filter(locationid=location)
+    movies = Movielocation.objects.filter(locationid=location).select_related('movieid')
     games = Gamelocation.objects.filter(locationid=location)
     books = Booklocation.objects.filter(locationid=location)
 
@@ -84,6 +84,20 @@ def location_detail(request, location_url):
         'form': form,
     })
 
+
+def location_create(request):
+    if not request.user.is_staff:
+        return redirect('/')
+
+    if request.method == 'POST':
+        form = LocationCreateForm(request.POST)
+        if form.is_valid():
+            location = form.save()
+            return redirect(f'/lokalita/{location.locationurl}/')
+    else:
+        form = LocationCreateForm()
+
+    return render(request, 'meta/location_create.html', {'form': form})
 # -------------------------------------------------------------------
 #                    KONEC
 #           Catalog DIV.cz by eKultura

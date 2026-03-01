@@ -53,11 +53,13 @@ from django.views.decorators.http import require_POST
 
 from django.views.generic import DetailView
 
+from div_content.forms.locations import MovieLocationForm, QuickLocationCreateForm
+
 from div_content.forms.movies import CommentForm, MovieCinemaForm, MovieDivRatingForm, MovieErrorForm, MovieTitleDIVForm, SearchForm, TrailerForm
 from div_content.models import (
     Article, Book, Creator, Creatorbiography, FavoriteSum, Game, 
     Metalocation, Metagenre, Movie, Moviecinema, Moviecomments, Moviecountries, Moviecrew, Moviedistributor, Movieerror, Moviegenre, Movielocation, Moviequotes, Movierating, Movietrailer, Movietranslation, Movietrivia, Moviekeywords,
-    User, Userlist, Userlistitem, Userlisttype, Userlistmovie, Userprofile
+    User, Userdivcoins, Userlist, Userlistitem, Userlisttype, Userlistmovie, Userprofile
 
 )
 from div_content.utils.metaindex import add_to_metaindex
@@ -262,15 +264,29 @@ def movie_detail(request, movie_url):
 
 
 
+    user_comment = None
+    
     if user.is_authenticated:
+        user_comment = Moviecomments.objects.filter(
+            movieid=movie,
+            user=request.user
+        ).order_by('-commentid').first()
+    
+        # POST – přidání nové recenze
         if 'comment' in request.POST:
+            if user_comment:
+                messages.warning(request, "Recenzi už jste přidal/a.")
+                return redirect('movie_detail', movie_url=movie_url)
+    
             comment_form = CommentForm(request.POST)
             if comment_form.is_valid():
-                comment = comment_form.cleaned_data['comment']
-                Moviecomments.objects.create(comment=comment, movieid=movie, user=request.user)
+                comment_text = comment_form.cleaned_data['comment']
+                Moviecomments.objects.create(
+                    comment=comment_text,
+                    movieid=movie,
+                    user=request.user
+                )
                 return redirect('movie_detail', movie_url=movie_url)
-            else:
-                print(comment_form.errors)
         else:
             comment_form = CommentForm(request=request)
 
@@ -297,6 +313,63 @@ def movie_detail(request, movie_url):
     all_crew = Moviecrew.objects.filter(movieid=movie.movieid).select_related('peopleid')
     
     
+    # LOCATION TAB
+    locations = Movielocation.objects.filter(
+        movieid=movie
+    ).select_related('locationid')
+    
+    movie_location_form = None
+    movie_quick_location_form = None
+    
+    if request.user.is_staff:
+    
+        if request.method == "POST":
+    
+            # DELETE
+            if "delete_location" in request.POST:
+                movielocation_id = request.POST.get("delete_location")
+    
+                Movielocation.objects.filter(
+                    movielocationid=movielocation_id,
+                    movieid=movie
+                ).delete()
+    
+            # ADD EXISTING
+            elif "add_location" in request.POST:
+                movie_location_form = MovieLocationForm(request.POST)
+    
+                if movie_location_form.is_valid():
+                    location = movie_location_form.cleaned_data['location_name']
+                    role = movie_location_form.cleaned_data['locationrole']
+    
+                    if not Movielocation.objects.filter(
+                        movieid=movie,
+                        locationid=location,
+                        locationrole=role
+                    ).exists():
+    
+                        Movielocation.objects.create(
+                            movieid=movie,
+                            locationid=location,
+                            locationrole=role
+                        )
+    
+            # CREATE NEW
+            elif "create_location" in request.POST:
+                movie_quick_location_form = QuickLocationCreateForm(request.POST)
+    
+                if movie_quick_location_form.is_valid():
+                    new_location = movie_quick_location_form.save()
+    
+                    Movielocation.objects.create(
+                        movieid=movie,
+                        locationid=new_location,
+                        locationrole="děj"
+                    )
+    
+        # GET (staff)
+        movie_location_form = MovieLocationForm()
+        movie_quick_location_form = QuickLocationCreateForm()
     # # Fetch locations associated with the book
     # locations = Movielocation.objects.filter(movielocationid=movie)
 
@@ -489,10 +562,13 @@ def movie_detail(request, movie_url):
         'writers': writers,
         'user_rating': user_rating,
         'comments': comments,
+        'user_comment': user_comment,
         'comment_form': comment_form,
         'ratings': ratings, 
         'average_rating': average_rating,
         'all_crew': all_crew,
+        'locations': locations,
+        'movie_quick_location_form': movie_quick_location_form,
         'keywordsEN': keywordsEN,
         'keywordsCZ': keywordsCZ,
         "is_in_favourites": is_in_favourites,

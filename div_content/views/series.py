@@ -167,7 +167,7 @@ def serie_season(request, tv_url, seasonurl):
     user = request.user
     tvshow = get_object_or_404(Tvshow, url=tv_url)
     season = get_object_or_404(Tvseason, tvshowid=tvshow.tvshowid, seasonurl=seasonurl)
-    episodes = Tvepisode.objects.filter(seasonid=season.seasonid).prefetch_related("translations")
+    episodes = Tvepisode.objects.filter(seasonid=season.seasonid).order_by('episodenumber').prefetch_related("translations")
 
     # TVSHOW TITLE (DIV)
     show_trans = Tvshowtranslation.objects.filter(
@@ -269,7 +269,11 @@ def serie_season(request, tv_url, seasonurl):
     countries = Tvcountries.objects.filter(tvshowid=tvshow.tvshowid).select_related('countryid')
     productions = Tvproductions.objects.filter(tvshowid=tvshow.tvshowid).select_related('metaproductionid')
     seasons = Tvseason.objects.filter(tvshowid=tvshow.tvshowid).order_by('seasonnumber')
-    directors = Tvcrew.objects.filter(tvshowid=tvshow.tvshowid, roleid='383').select_related('peopleid')
+    # DIRECTORS
+    directors_qs = Tvcrew.objects.filter(tvshowid=tvshow.tvshowid, roleid='383').select_related('peopleid')
+
+    directors = list(directors_qs[:3])
+    directors_count = directors_qs.count()
 
     # Zjistí, jestli má uživatel sezónu v seznamu Oblíbené
     if user.is_authenticated:
@@ -379,6 +383,7 @@ def serie_season(request, tv_url, seasonurl):
         'previous_season': previous_season,
         'next_season': next_season,
         'directors': directors,
+        'directors_more': max(0, directors_count - len(directors)),
         'quotes': quotes,
         'episodes': episodes,
         'is_in_favourites': is_in_favourites,
@@ -512,7 +517,11 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
     countries = Tvcountries.objects.filter(tvshowid=tvshow.tvshowid).select_related('countryid')
     productions = Tvproductions.objects.filter(tvshowid=tvshow.tvshowid).select_related('metaproductionid')
     seasons = Tvseason.objects.filter(tvshowid=tvshow.tvshowid).order_by('seasonnumber')
-    directors = Tvcrew.objects.filter(tvshowid=tvshow.tvshowid, roleid='383').select_related('peopleid')
+    # DIRECTORS
+    directors_qs = Tvcrew.objects.filter(tvshowid=tvshow.tvshowid, roleid='383').select_related('peopleid')
+
+    directors = list(directors_qs[:3])
+    directors_count = directors_qs.count()
 
     user = request.user
 
@@ -627,6 +636,7 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
         'productions': productions,
         'seasons': seasons,
         'directors': directors,
+        'directors_more': max(0, directors_count - len(directors)),
         'episode': episode,
         'previous_episode': previous_episode,
         'next_episode': next_episode,
@@ -809,7 +819,11 @@ def serie_detail(request, tv_url):
     # Získání herců a postav pro seriál
     actors_and_characters = Tvcrew.objects.filter(tvshowid=tvshow.tvshowid, roleid='378').select_related('peopleid', 'characterid')
     actors_and_characters2 = Tvcrew.objects.filter(tvshowid=tvshow.tvshowid, roleid='378').select_related('peopleid', 'characterid').order_by('creworder')[:10]
-    directors = Tvcrew.objects.filter(tvshowid=tvshow.tvshowid, roleid='383').select_related('peopleid')  # Režie
+    # DIRECTORS
+    directors_qs = Tvcrew.objects.filter(tvshowid=tvshow.tvshowid, roleid='383').select_related('peopleid')
+
+    directors = list(directors_qs[:3])
+    directors_count = directors_qs.count()  # Režie
 
     # Zjistí, jestli má uživatel seriál v seznamu Oblíbené
     if user.is_authenticated:
@@ -961,6 +975,7 @@ def serie_detail(request, tv_url):
         'actors_and_characters': actors_and_characters,
         'actors_and_characters2': actors_and_characters2,
         'directors': directors,
+        'directors_more': max(0, directors_count - len(directors)),
         "is_in_favourites": is_in_favourites,
         "is_in_watchlist": is_in_watchlist,
         "is_in_watched": is_in_watched,

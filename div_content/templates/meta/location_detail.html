@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+    <head>
+
+        {% include "inc/head.html" %}
+        
+        <title>{{ location.locationname }} | Lokality | Databáze DIV</title>
+
+        <link href="https://media.div.cz/css/navbar_other.css" rel="stylesheet">
+
+        <style>
+        </style>
+
+    </head>
+
+    <body class="bg-[#FFFFFF] text-[#0d0c0f] dark:bg-[#0d0c0f] dark:text-[#F9F9F9] d-flex flex-column min-vh-100">
+
+        {% include "inc/navbar.html" %}
+
+<nav>
+{% for item in breadcrumb %}
+    <a href="/lokalita/{{ item.locationurl }}">{{ item.locationname }}</a> /
+{% endfor %}
+</nav>
+
+
+<div class="container my-4">
+
+    <h1>{{ location.locationname }}</h1>
+
+    {% if breadcrumb %}
+        <div class="mb-3">
+            {% for item in breadcrumb %}
+                <a href="/lokalita/{{ item.locationurl }}">{{ item.locationname }}</a>
+                {% if not forloop.last %} / {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <p>{{ location.locationdescription }}</p>
+
+    <hr>
+
+    <h3>Podlokality</h3>
+    <ul>
+        {% for child in location.children.all %}
+            <li>
+                <a href="/lokalita/{{ child.locationurl }}">
+                    {{ child.locationname }}
+                </a>
+            </li>
+        {% empty %}
+            <li>Žádné podlokality</li>
+        {% endfor %}
+    </ul>
+
+    <hr>
+
+    <h3>Filmy</h3>
+    <ul>
+        {% for movie in movies %}
+            <li>
+                <a href="/film/{{ movie.movieid.url }}">
+                {{ movie.movieid.titlecz|default:movie.movieid.title }}
+                </a> ({{ movie.locationrole }})
+            </li>
+        {% empty %}
+            <li>Žádné filmy</li>
+        {% endfor %}
+    </ul>
+
+
+
+
+
+
+
+
+    {% if form %}
+        <hr>
+        <h3>Upravit lokalitu</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Uložit</button>
+        </form>
+    {% endif %}
+
+</div>
+
+
+
+        {% include "inc/footer.html" %}
+
+        <script src="/static/js/script.js"></script>
+
+
+    </body>
+</html>

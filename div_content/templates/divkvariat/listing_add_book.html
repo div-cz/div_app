@@ -95,6 +95,7 @@ label {
     <div class="bg-white shadow rounded-lg p-6 mb-10">
 
         <h2 class="text-2xl font-semibold mb-4">1. Vyberte knihu</h2>
+        <p class="mb-3">Zadejte alespoň 3 znaky. Výsledky se zobrazí automaticky.</p>
 
         <div class="relative">
             <input 
@@ -277,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(timeout);
         const q = this.value.trim();
 
-        if (q.length < 2) {
+        if (q.length < 3) {
             resultsBox.classList.add('hidden');
             return;
         }
@@ -288,7 +289,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(res => res.json())
             .then(data => renderResults(data.results));
-        }, 300);
+        }, 400);
     });
 
     function renderResults(results) {

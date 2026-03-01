@@ -1467,17 +1467,29 @@ def listing_search_books(request):
     if request.method == 'GET' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         query = request.GET.get('q', '').strip()
         
-        if len(query) < 2:
+        if len(query) < 3:
             return JsonResponse({'results': []})
         
         # Hledání podle názvu nebo autora
+        # 1️⃣ RYCHLÉ HLEDÁNÍ (index použije DB)
         books = Book.objects.filter(
-            Q(title__icontains=query) | 
-            Q(titlecz__icontains=query) |
-            Q(author__icontains=query), 
+            Q(title__istartswith=query) |
+            Q(titlecz__istartswith=query) |
+            Q(author__istartswith=query),
             parentid__isnull=True,
             special__isnull=True
         ).order_by('-divrating')[:20]
+        
+        # 2️⃣ POMALÝ FALLBACK jen pokud nic nenašlo
+        if not books.exists():
+            books = Book.objects.filter(
+                Q(title__icontains=query) |
+                Q(titlecz__icontains=query) |
+                Q(author__icontains=query),
+                parentid__isnull=True,
+                special__isnull=True
+            ).order_by('-divrating')[:20]
+
         
         results = []
         for book in books:

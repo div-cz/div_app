@@ -151,7 +151,7 @@ class Movielinks(models.Model):
 
 
 class Movielocation(models.Model):
-    movielocationid = models.IntegerField(db_column='MovieLocationID', primary_key=True)
+    movielocationid = models.AutoField(db_column='MovieLocationID', primary_key=True, unique=True)
     locationrole = models.CharField(db_column='LocationRole', max_length=255)
     locationid = models.ForeignKey('Metalocation', models.DO_NOTHING, db_column='LocationID', blank=True, null=True)
     movieid = models.ForeignKey('Movie', models.DO_NOTHING, db_column='MovieID')

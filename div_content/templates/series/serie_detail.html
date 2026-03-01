@@ -185,14 +185,29 @@
                             {{ tvshow.enddate|date:"d.m.Y"|default:"Datum konce vysílání není dostupné" }}
                             {% endif %}
                     </li>
-                    
-                    {% if directors %}
-                    <li><strong>Režie:</strong>
-                        {% for director in directors %}
-                            <a href="/tvurce/{{ director.peopleid.url }}">{{ director.peopleid.firstname }} {{ director.peopleid.lastname }}</a>{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </li>
-                    {% endif %}
+
+{% if directors %}
+<li>
+    <strong>Režie:</strong>
+    {% for director in directors %}
+        <a href="/tvurce/{{ director.peopleid.url }}">
+            {{ director.peopleid.firstname }} {{ director.peopleid.lastname }}
+        </a>{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+
+    {% if directors_more > 0 %}
+        …
+        {% if directors_more == 1 %}
+            a další 1
+        {% elif directors_more < 5 %}
+            a další {{ directors_more }}
+        {% else %}
+            a dalších {{ directors_more }}
+        {% endif %}
+    {% endif %}
+</li>
+{% endif %}
+
 
                     {% if actors_and_characters2 %}
                     <li><strong>Hrají:</strong>
