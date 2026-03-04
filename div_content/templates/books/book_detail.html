@@ -354,6 +354,10 @@
                             </li>
                         {% endif %}
                 
+                        <li><strong>Předloha:</strong>
+                            <a href="">Název filmu / hry</a>
+                        </li>
+
                         <!-- SÉRIE -->
                         {% if series %}
                             <li><strong>Série:</strong>  
@@ -443,59 +447,93 @@
             <!-- Tlačítka -->
             {% if user.is_authenticated %}
                 <div class="favorite-menu">
-                    
+
                     <!-- OBLÍBENÉ -->
-                    {% if not is_in_favourites %}
-                    <a href="{% url 'add_to_favourite_books' bookid=book.bookid %}" class="favorite-link" style="color: white;">
-                        {% else %}
-                        <a href="{% url 'remove_from_favourites_books' bookid=book.bookid %}" class="favorite-link">
-                        {% endif %}
-                            <span class="favorite-link-icon">
-                                <i class="fas fa-heart" style="color: {% if is_in_favourites %} #4FB021 {% endif %}"></i>
-                            </span>
-                            <span class="favorite-link-title"style="color: {% if is_in_favourites %} #4FB021 {% endif %}">Oblíbené</span>
-                        </a>
+                    <a href="{% if is_in_favourites %}{% url 'remove_from_favourites_books' bookid=book.bookid %}{% else %}{% url 'add_to_favourite_books' bookid=book.bookid %}{% endif %}" class="favorite-box {% if is_in_favourites %}active{% endif %}">
+                        <i class="fas fa-heart"></i>
+                        <div class="favorite-info">
+                            <span class="favorite-action">Oblíbené</span>
+                            <span class="favorite-count">1 000 000 x</span>
+                        </div>
                     </a>
 
                     <!-- PŘEČTENO -->
-                    {% if not is_in_read_books %}
-                    <a href="{% url 'add_to_read_books' bookid=book.bookid %}" class="favorite-link" style="color: white;">
-                        {% else %}
-                        <a href="{% url 'remove_from_read_books' bookid=book.bookid %}" class="favorite-link">
-                        {% endif %}
-                            <span class="favorite-link-icon">
-                                <i class="fas fa-book" style="color: {% if is_in_read_books %} #4FB021 {% endif %}"></i>
-                            </span>
-                            <span class="favorite-link-title" style="color: {% if is_in_read_books %} #4FB021 {% endif %}">Přečteno</span>
-                        </a>
+                    <a href="{% if is_in_read_books %}{% url 'remove_from_read_books' bookid=book.bookid %}{% else %}{% url 'add_to_read_books' bookid=book.bookid %}{% endif %}" class="favorite-box {% if is_in_read_books %}active{% endif %}">
+                        <i class="fas fa-book"></i>
+                        <div class="favorite-info">
+                            <span class="favorite-action">Přečteno</span>
+                            <span class="favorite-count">1 000 x</span>
+                        </div>
                     </a>
 
                     <!-- KNIHOVNA -->
-                    {% if not is_in_book_library %}
-                    <a href="{% url 'add_to_book_library' bookid=book.bookid %}" class="favorite-link" style="color: white;">
-                        {% else %}
-                        <a href="#" id="openLibraryModal" class="favorite-link">
-                        <!-- <a href="{% url 'remove_from_book_library' bookid=book.bookid %}" class="favorite-link"> -->
-                        {% endif %}
-                            <span class="favorite-link-icon">
-                                <i class="fas fa-home" style="color: {% if is_in_book_library %} #4FB021 {% endif %}"></i>
-                            </span>
-                            <span class="favorite-link-title" style="color: {% if is_in_book_library %} #4FB021 {% endif %}">Knihovna</span>
-                        </a>
+                    <a href="{% if is_in_book_library %}#{% else %}{% url 'add_to_book_library' bookid=book.bookid %}{% endif %}"
+                    {% if is_in_book_library %}id="openLibraryModal"{% endif %} class="favorite-box {% if is_in_book_library %}active{% endif %}">
+                        <i class="fas fa-home"></i>
+                        <div class="favorite-info">
+                            <span class="favorite-action">Knihovna</span>
+                            <span class="favorite-count">100 x</span>
+                        </div>
+                    </a>
+
+                    <!-- PRÁVĚ ČTU -->
+                    <a href="" class="favorite-box ">
+                        <i class="fas fa-book-reader"></i>
+                        <div class="favorite-info">
+                            <span class="favorite-action">Právě čtu</span>
+                            <span class="favorite-count">100 000 x</span>
+                        </div>
                     </a>
 
                     <!-- CHCI ČÍST -->
-                    {% if not is_in_readlist %}
-                    <a href="{% url 'add_to_readlist' bookid=book.bookid %}" class="favorite-link" style="color: white;">
-                        {% else %}
-                        <a href="{% url 'remove_from_readlist' bookid=book.bookid %}" class="favorite-link">
-                        {% endif %}
-                            <span class="favorite-link-icon">
-                                <i class="fas fa-book-reader" style="color: {% if is_in_readlist %} #4FB021 {% endif %}"></i>
-                            </span>
-                            <span class="favorite-link-title" style="color: {% if is_in_readlist %} #4FB021 {% endif %}">Chci číst</span>
-                        </a>
+                    <a href="{% if is_in_readlist %}{% url 'remove_from_readlist' bookid=book.bookid %}{% else %}{% url 'add_to_readlist' bookid=book.bookid %}{% endif %}" class="favorite-box {% if is_in_readlist %}active{% endif %}">
+                        <i class="fas fa-book-open"></i>
+                        <div class="favorite-info">
+                            <span class="favorite-action">Chci číst</span>
+                            <span class="favorite-count">10 000 x</span>
+                        </div>
                     </a>
+
+                    <!-- Vlastní seznam -->
+                    <a href="#" class="favorite-box" id="openListModal">
+                        <i class="fas fa-plus"></i>
+                        <div class="favorite-info">
+                            <span class="favorite-action">Vlastní seznam</span>
+                        </div>
+                    </a>
+
+                    <!-- POPUP MODAL NA VLASTNÍ SEZNAM -->
+                    <div id="listModal" class="modal">
+                        <div class="favorite-modal">
+
+                            <div class="modal-header">
+                                <h3>Moje seznamy</h3>
+                                <span class="close-modal">&times;</span>
+                            </div>
+
+                            <!-- vytvořit nový seznam -->
+                            <div class="create-list">
+                                <form method="post" action="">
+                                    {% csrf_token %}
+                                    <input type="text" name="list_name" placeholder="Název nového seznamu">
+                                    <button type="submit" class="btn add-movie">Přidat</button>
+                                </form>
+                            </div>
+
+                            <!-- existující seznamy -->
+                            <div class="user-lists">
+                                {% for list in user_lists %}
+                                    <a href="" class="list-item">
+                                        {{ list.name }}
+                                    </a>
+                                    {% empty %}
+                                    <p>Nemáš zatím žádné seznamy</p>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+                    </div>
+
                 </div>
             {% endif %}
         </div>

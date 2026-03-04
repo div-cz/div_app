@@ -145,6 +145,10 @@
                         </li>
                         {% endif %}
 
+                        <li><strong>Předloha:</strong>
+                            <a href="">Název knihy / hry</a>
+                        </li>
+
                         {% if productions %}
                         <li><strong>Produkce:</strong>
                                 {% for production in productions %}
@@ -190,53 +194,96 @@
             {% if user.is_authenticated %}
                 <div class="favorite-menu">
 
-                    <!-- Pokud není v Oblíbené -->
-                    {% if not is_in_favourites %}
-                    <a href="{% url 'add_to_favourite_tvshow' tvshowid=tvshow.tvshowid %}" class="favorite-link" style="color: white;">
-                    {% else %}
-                    <a href="{% url 'remove_from_favourite_tvshow' tvshowid=tvshow.tvshowid %}" class="favorite-link">
-                    {% endif %}
-                        <span class="favorite-link-icon">
-                            <i class="fas fa-heart" style="color: {% if is_in_favourites %} #ED3F2F {% endif %}"></i>
-                        </span>
-                        <span class="favorite-link-title" style="color: {% if is_in_favourites %} #ED3F2F {% endif %}">Oblíbené</span>
-                    </a>
-                    
-                    <!-- Pokud není v Seriálnuto -->
-                    {% if not is_in_watched %}
-                    <a href="{% url 'add_to_watched_tvshows' tvshowid=tvshow.tvshowid %}" class="favorite-link" style="color: white;">
-                        {% else %}
-                        <a href="{% url 'remove_from_watched_tvshows' tvshowid=tvshow.tvshowid %}" class="favorite-link">
-                        {% endif %}
-                            <span class="favorite-link-icon">
-                                <i class="fas fa-film" style="color: {% if is_in_watched %} #ED3F2F {% endif %}"></i>
-                            </span>
-                            <span class="favorite-link-title" style="color: {% if is_in_watched %} #ED3F2F {% endif %}">Seriálnuto</span>
-                        </a>
-
-                    <!-- Pokud není v Seriálotéce -->
-                    {% if not is_in_library %}
-                    <a href="{% url 'add_to_tvshow_library' tvshowid=tvshow.tvshowid %}" class="favorite-link" style="color: white;">
-                        {% else %}
-                        <a href="{% url 'remove_from_tvshow_library' tvshowid=tvshow.tvshowid %}" class="favorite-link">
-                        {% endif %}
-                            <span class="favorite-link-icon">
-                                <i class="fas fa-home" style="color: {% if is_in_library %} #ED3F2F {% endif %}"></i>
-                            </span>                            
-                        <span class="favorite-link-title" style="color: {% if is_in_library %} #ED3F2F {% endif %}">Seriálotéka</span>
+                    <!-- OBLÍBENÉ -->
+                    <a href="{% if is_in_favourites %}{% url 'remove_from_favourite_tvshow' tvshowid=tvshow.tvshowid %}{% else %}{% url 'add_to_favourite_tvshow' tvshowid=tvshow.tvshowid %}{% endif %}"
+                    class="favorite-box {% if is_in_favourites %}active{% endif %}">
+                        <i class="fas fa-heart"></i>
+                        <div class="favorite-info">
+                            <span class="favorite-action">Oblíbené</span>
+                            <span class="favorite-count">400 000 x</span>
+                        </div>
                     </a>
 
-                    <!-- Pokud není v Chci vidět -->
-                    {% if not is_in_watchlist %}
-                    <a href="{% url 'add_to_tvshow_watchlist' tvshowid=tvshow.tvshowid %}" class="favorite-link" style="color: white;">
-                        {% else %}
-                        <a href="{% url 'remove_from_tvshow_watchlist' tvshowid=tvshow.tvshowid %}" class="favorite-link">
-                        {% endif %}
-                            <span class="favorite-link-icon">
-                                <i class="fas fa-eye" style="color: {% if is_in_watchlist %} #ED3F2F {% endif %}"></i>
-                            </span>  
-                        <span class="favorite-link-title" style="color: {% if is_in_watchlist %} #ED3F2F {% endif %}">Chci vidět</span>
+                    <!-- SERIÁLNUTO -->
+                    <a href="{% if is_in_watched %}{% url 'remove_from_watched_tvshows' tvshowid=tvshow.tvshowid %}{% else %}{% url 'add_to_watched_tvshows' tvshowid=tvshow.tvshowid %}{% endif %}"
+                    class="favorite-box {% if is_in_watched %}active{% endif %}">
+                        <i class="fas fa-film"></i>
+                        <div class="favorite-info">
+                            <span class="favorite-action">Seriálnuto</span>
+                            <span class="favorite-count">220 000 x</span>
+                        </div>
                     </a>
+
+                    <!-- SERIÁLOTÉKA -->
+                    <a href="{% if is_in_library %}{% url 'remove_from_tvshow_library' tvshowid=tvshow.tvshowid %}{% else %}{% url 'add_to_tvshow_library' tvshowid=tvshow.tvshowid %}{% endif %}"
+                    class="favorite-box {% if is_in_library %}active{% endif %}">
+                        <i class="fas fa-home"></i>
+                        <div class="favorite-info">
+                            <span class="favorite-action">Seriálotéka</span>
+                            <span class="favorite-count">9 500 000 x</span>
+                        </div>
+                    </a>
+
+                    <!-- PRÁVĚ SLEDUJI -->
+                    <a href=""
+                    class="favorite-box">
+                        <i class="fas fa-desktop"></i>
+                        <div class="favorite-info">
+                            <span class="favorite-action">Sleduji</span>
+                            <span class="favorite-count">9 500 000 x</span>
+                        </div>
+                    </a>
+
+                    <!-- CHCI VIDĚT -->
+                    <a href="{% if is_in_watchlist %}{% url 'remove_from_tvshow_watchlist' tvshowid=tvshow.tvshowid %}{% else %}{% url 'add_to_tvshow_watchlist' tvshowid=tvshow.tvshowid %}{% endif %}"
+                    class="favorite-box {% if is_in_watchlist %}active{% endif %}">
+                        <i class="fas fa-eye"></i>
+                        <div class="favorite-info">
+                            <span class="favorite-action">Chci vidět</span>
+                            <span class="favorite-count">6 100 000 x</span>
+                        </div>
+                    </a>
+
+                    <!-- VLASTNÍ SEZNAM -->
+                    <a href="#" class="favorite-box" id="openListModal">
+                        <i class="fas fa-plus"></i>
+                        <div class="favorite-info">
+                            <span class="favorite-action">Vlastní seznam</span>
+                        </div>
+                    </a>
+
+                    <!-- POPUP MODAL NA VLASTNÍ SEZNAM -->
+                    <div id="listModal" class="modal">
+                        <div class="favorite-modal">
+
+                            <div class="modal-header">
+                                <h3>Moje seznamy</h3>
+                                <span class="close-modal">&times;</span>
+                            </div>
+
+                            <!-- vytvořit nový seznam -->
+                            <div class="create-list">
+                                <form method="post" action="">
+                                    {% csrf_token %}
+                                    <input type="text" name="list_name" placeholder="Název nového seznamu">
+                                    <button type="submit" class="btn add-movie">Přidat</button>
+                                </form>
+                            </div>
+
+                            <!-- existující seznamy -->
+                            <div class="user-lists">
+                                {% for list in user_lists %}
+                                    <a href="" class="list-item">
+                                        {{ list.name }}
+                                    </a>
+                                    {% empty %}
+                                    <p>Nemáš zatím žádné seznamy</p>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+                    </div>
+
                 </div>
             {% endif %}
         </div>

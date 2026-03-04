@@ -170,9 +170,14 @@
                                 {% endfor %}
                             </li>
                         {% endif %}
-                        <!--<li><strong>Země</strong>: 
 
-                        </li>-->
+                        
+                        <li><strong>Předloha:</strong>
+                            <a href="">Název knihy / filmu</a>
+                        </li>
+
+                        <li><strong>Země:</strong></li>
+
                         <li><strong>Výrobce (vývojáři):</strong>
                             {% for developer in developers %}
                                 <a href="{% url 'games_by_developer' developer_url=developer.developerid.developerurl %}">
@@ -202,66 +207,97 @@
             {% if user.is_authenticated %}
                 <div class="favorite-menu">
 
-                    <!-- Pokud není v oblíbených -->                    
-                    {% if not is_in_favourites %}
-                        <a href="{% url 'add_to_favourite_games' gameid=game.gameid %}" class="favorite-link" style="color: white;">
-                            <span class="favorite-link-icon">
-                                <i class="fas fa-heart" style="color: {% if is_in_favourite_games %} #14ACF5 {% endif %}"></i>
-                            </span>
-                        {% else %}
-                            <a href="{% url 'remove_from_favourite_games' gameid=game.gameid %}" class="favorite-link">
-                                <span class="favorite-link-icon">
-                                    <i class="fas fa-heart" style="color: {% if is_in_favourites %} #14ACF5 {% endif %}"></i>
-                                </span>
-                        {% endif %}
-                            <span class="favorite-link-title" style="color: {% if is_in_favourites %} #14ACF5 {% endif %}">Oblíbené</span>
-                        </a>
+                <!-- OBLÍBENÉ -->
+                <a href="{% if is_in_favourites %}{% url 'remove_from_favourite_games' gameid=game.gameid %}{% else %}{% url 'add_to_favourite_games' gameid=game.gameid %}{% endif %}"
+                class="favorite-box {% if is_in_favourites %}active{% endif %}">
+                    <i class="fas fa-heart"></i>
+                    <div class="favorite-info">
+                        <span class="favorite-action">Oblíbené</span>
+                        <span class="favorite-count">10 000 x</span>
+                    </div>
+                </a>
 
-                    <!-- Pokud není v Odehráno -->
-                    {% if not is_in_played %}
-                        <a href="{% url 'add_to_played' gameid=game.gameid %}" class="favorite-link" style="color: white;">
-                            <span class="favorite-link-icon">
-                                <i class="fas fa-gamepad" style="color: {% if is_in_played %} #14ACF5 {% endif %}"></i>
-                            </span>
-                        {% else %}
-                            <a href="{% url 'remove_from_played' gameid=game.gameid %}" class="favorite-link">
-                                <span class="favorite-link-icon">
-                                    <i class="fas fa-gamepad" style="color: {% if is_in_played %} #14ACF5 {% endif %}"></i>
-                                </span>
-                        {% endif %}
-                            <span class="favorite-link-title" style="color: {% if is_in_played %} #14ACF5 {% endif %}">Odehráno</span>
-                        </a>
+                <!-- ODEHRÁNO -->
+                <a href="{% if is_in_played %}{% url 'remove_from_played' gameid=game.gameid %}{% else %}{% url 'add_to_played' gameid=game.gameid %}{% endif %}"
+                class="favorite-box {% if is_in_played %}active{% endif %}">
+                    <i class="fas fa-trophy"></i>
+                    <div class="favorite-info">
+                        <span class="favorite-action">Odehráno</span>
+                        <span class="favorite-count">1 000 x</span>
+                    </div>
+                </a>
 
-                    <!-- Pokud není v Gamotéce -->
-                    {% if not is_in_game_library %}
-                        <a href="{% url 'add_to_game_library' gameid=game.gameid %}" class="favorite-link" style="color: white;">
-                            <span class="favorite-link-icon">
-                                <i class="fas fa-home" style="color: {% if is_in_game_library %} #14ACF5 {% endif %}"></i>
-                            </span>
-                        {% else %}
-                            <a href="{% url 'remove_from_game_library' gameid=game.gameid %}" class="favorite-link">
-                                <span class="favorite-link-icon">
-                                    <i class="fas fas fa-home" style="color: {% if is_in_game_library %} #14ACF5 {% endif %}"></i>
-                                </span>
-                        {% endif %}
-                            <span class="favorite-link-title" style="color: {% if is_in_game_library %} #14ACF5 {% endif %}">Gamotéka</span>
-                        </a>
-                
-                    <!-- Pokud není v Chci hrát -->
-                    {% if not is_in_playlist %}
-                        <a href="{% url 'add_to_playlist_games' gameid=game.gameid %}" class="favorite-link" style="color: white;">
-                            <span class="favorite-link-icon">
-                                <i class="fas fa-dice" style="color: {% if is_in_playlist %} #14ACF5 {% endif %}"></i>
-                            </span>
-                        {% else %}
-                            <a href="{% url 'remove_from_playlist_games' gameid=game.gameid %}" class="favorite-link">
-                                <span class="favorite-link-icon">
-                                    <i class="fas fa-dice" style="color: {% if is_in_playlist %} #14ACF5 {% endif %}"></i>
-                                </span>
-                        {% endif %}
-                            <span class="favorite-link-title" style="color: {% if is_in_playlist %} #14ACF5 {% endif %}">Chci hrát</span>
-                        </a>
+                <!-- GAMOTÉKA -->
+                <a href="{% if is_in_game_library %}{% url 'remove_from_game_library' gameid=game.gameid %}{% else %}{% url 'add_to_game_library' gameid=game.gameid %}{% endif %}"
+                class="favorite-box {% if is_in_game_library %}active{% endif %}">
+                    <i class="fas fa-home"></i>
+                    <div class="favorite-info">
+                        <span class="favorite-action">Gamotéka</span>
+                        <span class="favorite-count">100 000</span>
+                    </div>
+                </a>
+
+                <!-- HRAJU -->
+                <a href=""
+                class="favorite-box">
+                    <i class="fas fa-gamepad"></i>
+                    <div class="favorite-info">
+                        <span class="favorite-action">Hraju</span>
+                        <span class="favorite-count">100 000 x</span>
+                    </div>
+                </a>
+
+                <!-- CHCI HRÁT -->
+                <a href="{% if is_in_playlist %}{% url 'remove_from_playlist_games' gameid=game.gameid %}{% else %}{% url 'add_to_playlist_games' gameid=game.gameid %}{% endif %}"
+                class="favorite-box {% if is_in_playlist %}active{% endif %}">
+                    <i class="fas fa-dice"></i>
+                    <div class="favorite-info">
+                        <span class="favorite-action">Chci hrát</span>
+                        <span class="favorite-count">100 000 x</span>
+                    </div>
+                </a>
+
+                <!-- VLASTNÍ SEZNAM -->
+                <a href="#" class="favorite-box" id="openListModal">
+                    <i class="fas fa-plus"></i>
+                    <div class="favorite-info">
+                        <span class="favorite-action">Vlastní seznam</span>
+                    </div>
+                </a>
+
+                <!-- POPUP MODAL NA VLASTNÍ SEZNAM -->
+                <div id="listModal" class="modal">
+                    <div class="favorite-modal">
+
+                        <div class="modal-header">
+                            <h3>Moje seznamy</h3>
+                            <span class="close-modal">&times;</span>
+                        </div>
+
+                        <!-- vytvořit nový seznam -->
+                        <div class="create-list">
+                            <form method="post" action="">
+                                {% csrf_token %}
+                                <input type="text" name="list_name" placeholder="Název nového seznamu">
+                                <button type="submit" class="btn add-movie">Přidat</button>
+                            </form>
+                        </div>
+
+                        <!-- existující seznamy -->
+                        <div class="user-lists">
+                            {% for list in user_lists %}
+                                <a href="" class="list-item">
+                                    {{ list.name }}
+                                </a>
+                                {% empty %}
+                                <p>Nemáš zatím žádné seznamy</p>
+                            {% endfor %}
+                        </div>
+
+                    </div>
                 </div>
+
+            </div>
             {% endif %}
         </div>
 

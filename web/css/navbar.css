@@ -172,10 +172,10 @@ footer a:hover {
     border-radius: 50%;
     text-align: center;
     top: -5px;
-    left: 20px;
+    left: 15px;
     padding: 1px;
     border: 2px solid rgb(255, 255, 255);
-    font-size: 8px;
+    font-size: 9px;
     color: #ffffff;
 }
 
@@ -198,16 +198,20 @@ footer a:hover {
     position: absolute;
     height: 300px;
     width: 250px;
-    z-index: 10;
-    display: none;
-    top: 100%;    /* začne pod tlačítkem */
     left: 0;
     margin-top: 8px;
     border: 1px solid #ccc;
-    cursor: default;
-    transition: opacity 0.15s ease, transform 0.15s ease;
     opacity: 0;
+    z-index: 9999;
     transform: translateY(-6px);
+    pointer-events: none;
+    transition: opacity .15s ease, transform .15s ease;
+}
+
+.dropbox:not(.hidden) {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 /* také při klávesové fokusaci */
@@ -237,15 +241,20 @@ footer a:hover {
 }
 
 .dropbox p {
+    width: 100%;
     line-height: 1.25rem;
     font-weight: 700;
-    margin-bottom: .5rem; /* 8px */
+    margin-bottom: .5rem;
 }
 
 .dropbox ul {
-    font-size: .875rem; /* 14px */
-    line-height: 1.25rem; /* 20px */
-    margin-left: 0px;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: .875rem;
+    line-height: 1.25rem;
+    gap: 0;
+    margin: 0;
+    margin-left: .5rem;
 }
 
 .dropbox ul li a {
@@ -253,6 +262,12 @@ footer a:hover {
     border-radius: .5rem !important;
     padding-top: .25rem;
     padding-bottom: .25rem;
+}
+
+.dropbox ul li p {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
 }
 
 .menu {
