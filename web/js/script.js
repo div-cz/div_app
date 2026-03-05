@@ -233,7 +233,27 @@ document.addEventListener("DOMContentLoaded", () => {
                 modal.style.display = "none";
             }
         });
+    }
+    
+    const userLists = document.querySelector(".user-lists");
 
+    if (userLists) {
+        userLists.addEventListener("click", (e) => {
+
+            const item = e.target.closest(".list-item");
+            if (!item) return;
+
+            item.classList.toggle("active");
+
+            const toggle = item.querySelector(".list-toggle");
+
+            toggle.textContent = item.classList.contains("active") ? "✓" : "+";
+
+            const listId = item.dataset.listId;
+
+            console.log("toggle list:", listId);
+
+        });
     }
 
 });

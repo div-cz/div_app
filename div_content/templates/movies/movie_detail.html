@@ -220,11 +220,11 @@
                                     {% comment %}
                                     {% if actor.characterid %}
                                         {% if actor.characterid.characterbio %}
-                                        jako <a href="/postava/{{ actor.characterid.characterurl }}" class="character-link">{{ actor.characterid.characternamecz|default:actor.characterid.charactername }}</a>
-                                        {% elif actor.characterid.characternamecz %}
-                                        jako {{ actor.characterid.characternamecz }}
-                                        {% elif actor.characterid.charactername %}
-                                        jako {{ actor.characterid.charactername }}
+                                            jako <a href="/postava/{{ actor.characterid.characterurl }}" class="character-link">{{ actor.characterid.characternamecz|default:actor.characterid.charactername }}</a>
+                                            {% elif actor.characterid.characternamecz %}
+                                            jako {{ actor.characterid.characternamecz }}
+                                            {% elif actor.characterid.charactername %}
+                                            jako {{ actor.characterid.charactername }}
                                         {% endif %}
                                     {% endif %}
                                     {% endcomment %}
@@ -277,46 +277,46 @@
                         </div>
                     </a>
 
-                    <!-- Vlastní seznam -->
-                    <a href="#" class="favorite-box" id="openListModal">
+                    <!-- VLASTNÍ SEZNAM -->
+                    <button class="favorite-box" id="openListModal" type="button">
                         <i class="fas fa-plus"></i>
                         <div class="favorite-info">
                             <span class="favorite-action">Vlastní seznam</span>
                         </div>
-                    </a>
+                    </button>
+                </div>
+                
+                <!-- POPUP MODAL NA VLASTNÍ SEZNAM -->
+                <div id="listModal" class="modal">
+                    <div class="favorite-modal">
 
-                    <!-- POPUP MODAL NA VLASTNÍ SEZNAM -->
-                    <div id="listModal" class="modal">
-                        <div class="favorite-modal">
-
-                            <div class="modal-header">
-                                <h3>Moje seznamy</h3>
-                                <span class="close-modal">&times;</span>
-                            </div>
-
-                            <!-- vytvořit nový seznam -->
-                            <div class="create-list">
-                                <form method="post" action="">
-                                    {% csrf_token %}
-                                    <input type="text" name="list_name" placeholder="Název nového seznamu">
-                                    <button type="submit" class="btn add-movie">Přidat</button>
-                                </form>
-                            </div>
-
-                            <!-- existující seznamy -->
-                            <div class="user-lists">
-                                {% for list in user_lists %}
-                                    <a href="" class="list-item">
-                                        {{ list.name }}
-                                    </a>
-                                    {% empty %}
-                                    <p>Nemáš zatím žádné seznamy</p>
-                                {% endfor %}
-                            </div>
-
+                        <div class="modal-header">
+                            <h3>Moje seznamy</h3>
+                            <span class="close-modal">&times;</span>
                         </div>
-                    </div>
 
+                        <!-- vytvořit nový seznam -->
+                        <div class="create-list">
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="text" name="list_name" placeholder="Název nového seznamu">
+                                <button type="submit" class="btn add-movie">Přidat</button>
+                            </form>
+                        </div>
+
+                        <!-- existující seznamy -->
+                        <div class="user-lists" data-movie-id="">
+                            {% for list in user_lists %}
+                                <button type="button" class="list-item" data-list-id="">
+                                    <span class="list-name">Název seznamu</span>
+                                    <span class="list-toggle">+</span>
+                                </button>
+                                {% empty %}
+                                <p>Nemáš zatím žádné seznamy</p>
+                            {% endfor %}
+                        </div>
+
+                    </div>
                 </div>
             {% endif %}
         </div>
