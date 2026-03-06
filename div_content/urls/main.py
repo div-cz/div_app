@@ -36,7 +36,7 @@ from div_content.views.blog import blog_add_post, blog_detail, blog_index, blog_
 #                    BOOKS
 # -------------------------------------------------------------------
 from div_content.views.books import (
- add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, 
+ add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, add_to_im_reading, remove_from_im_reading, 
  book_add, book_detail, books, books_search, books_market_offers, books_market_wants, 
  rate_book, ratequote, remove_book_rating, remove_from_favourites_books, remove_from_readlist, 
  remove_from_read_books, remove_from_book_library, character_list_ajax, set_reading_goal, 
@@ -324,11 +324,13 @@ urlpatterns = [
     path('kniha/chci-cist-<int:bookid>', add_to_readlist, name="add_to_readlist"),
     path('kniha/precteno-<int:bookid>', add_to_read_books, name="add_to_read_books"),
     path('kniha/do-knihovny-<int:bookid>', add_to_book_library, name="add_to_book_library"),
+    path('kniha/prave-ctu-<int:bookid>', add_to_im_reading, name="add_to_im_reading"),
 
     path('kniha/odebrat-z-oblibenych-<int:bookid>', remove_from_favourites_books, name="remove_from_favourites_books"),
     path('kniha/odebrat-z-chci-cist-<int:bookid>', remove_from_readlist, name="remove_from_readlist"),
     path('kniha/odebrat-z-precteno-<int:bookid>', remove_from_read_books, name="remove_from_read_books"),
     path('kniha/odebrat-z-knihovny-<int:bookid>', remove_from_book_library, name="remove_from_book_library"),
+    path('kniha/odebrat-z-prave-ctu-<int:bookid>', remove_from_im_reading, name="remove_from_im_reading"),
     path('kniha/<slug:book_url>/smazat-hodnoceni/', remove_book_rating, name='remove_book_rating'),
 
     path('kniha/<str:book_url>', book_detail, name='book_detail'),

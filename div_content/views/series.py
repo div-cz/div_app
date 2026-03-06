@@ -63,6 +63,7 @@ USERLISTTYPE_OBLIBENY = 13
 USERLISTTYPE_CHCI_VIDET = 14
 USERLISTTYPE_SERIALNUTO = 15
 USERLISTTYPE_SERIALOTEKA = 16
+USERLISTTYPE_SLEDUJI = 28
 # pro sezóny
 USERLISTTYPE_OBLIBENA_SEZONA = 17
 USERLISTTYPE_CHCI_VIDET_SEZONU = 18
@@ -583,6 +584,17 @@ def serie_detail(request, tv_url):
             is_in_library = False
     else:
         is_in_library = False
+    
+    # Zjistí, jestli má uživatel seriál v seznamu Sleduji
+    if user.is_authenticated:
+        try:
+            im_watching_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SLEDUJI)
+            im_watching_list = Userlist.objects.get(user=user, listtype=im_watching_type)
+            is_in_im_watching = Userlistitem.objects.filter(object_id=tvshow.tvshowid, userlist=im_watching_list).exists()
+        except Exception as e:
+            is_in_im_watching = False
+    else:
+        is_in_im_watching = False
 
     #  Recenze k seriálům
 
@@ -704,6 +716,7 @@ def serie_detail(request, tv_url):
         "is_in_watchlist": is_in_watchlist,
         "is_in_watched": is_in_watched,
         "is_in_library": is_in_library,
+        "is_in_im_watching": is_in_im_watching,
         'tvshow_div_rating_form': tvshow_div_rating_form,
         "serie_page": serie_page,
         "content_season_page": content_season_page,
@@ -936,6 +949,37 @@ def remove_from_tvshow_library(request, tvshowid):
     return redirect("serie_detail", tv_url=tvshow.url)
 
 
+# Smazat ze seznamu: Sleduji
+@login_required
+def remove_from_im_watching_tvseason(request, tvshowid):
+    tvshow = get_object_or_404(Tvshow, tvshowid=tvshowid)
+    im_watching_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SLEDUJI)
+    im_watching_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=im_watching_type)
+    userlisttvshow = Userlistitem.objects.get(object_id=tvshowid, userlist=im_watching_list)
+    userlisttvshow.delete()
+    
+    return redirect("serie_detail", tv_url=tvshow.url)
+
+
+# Přidat do seznamu: Sleduji
+@login_required
+def add_to_im_watching_tvseason(request, tvshowid):
+    tvshow = get_object_or_404(Tvshow, tvshowid=tvshowid)
+    im_watching_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SLEDUJI)
+    im_watching_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=im_watching_type)
+
+    if Userlistitem.objects.filter(userlist=im_watching_list, object_id=tvshowid).exists():
+        pass
+    else:
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_SERIES_ID)
+        Userlistitem.objects.create(
+            userlist=im_watching_list, 
+            content_type=content_type,
+            object_id=tvshowid
+            )
+    
+    return redirect("serie_detail", tv_url=tvshow.url) 
+
 
 # Přidat do seznamu: Oblíbená sezóna
 @login_required
@@ -1136,7 +1180,7 @@ def remove_from_tvepisode_watchlist(request, tv_url, seasonurl, tvepisodeid):
 
 # Smazat ze seznamu: Shlédnuto
 @login_required
-def remove_from_watched_tvepisodes(request, tv_url, seasonurl, tvepisodeid):
+def remove_from_watched_tvepisodes(request, tv_url, seasonurl):
     tvepisode = get_object_or_404(Tvepisode, episodeid=tvepisodeid)
     watched_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SHLEDNUTY_DIL)
     watched_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=watched_type)

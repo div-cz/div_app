@@ -453,7 +453,7 @@
                         <i class="fas fa-heart"></i>
                         <div class="favorite-info">
                             <span class="favorite-action">Oblíbené</span>
-                            <span class="favorite-count">1 000 000 x</span>
+                            <span class="favorite-count">1 000 000 x</span> <!-- počet uživatelů, kteří to mají v DB -->
                         </div>
                     </a>
 
@@ -462,7 +462,7 @@
                         <i class="fas fa-book"></i>
                         <div class="favorite-info">
                             <span class="favorite-action">Přečteno</span>
-                            <span class="favorite-count">1 000 x</span>
+                            <span class="favorite-count">1 000 x</span> <!-- počet uživatelů, kteří to mají v DB -->
                         </div>
                     </a>
 
@@ -472,16 +472,16 @@
                         <i class="fas fa-home"></i>
                         <div class="favorite-info">
                             <span class="favorite-action">Knihovna</span>
-                            <span class="favorite-count">100 x</span>
+                            <span class="favorite-count">100 x</span> <!-- počet uživatelů, kteří to mají v DB -->
                         </div>
                     </a>
 
                     <!-- PRÁVĚ ČTU -->
-                    <a href="" class="favorite-box ">
+                    <a href="{% if is_in_im_reading %}{% url 'remove_from_im_reading' bookid=book.bookid %}{% else %}{% url 'add_to_im_reading' bookid=book.bookid %}{% endif %}" class="favorite-box {% if is_in_im_reading %}active{% endif %}">
                         <i class="fas fa-book-reader"></i>
                         <div class="favorite-info">
                             <span class="favorite-action">Právě čtu</span>
-                            <span class="favorite-count">100 000 x</span>
+                            <span class="favorite-count">100 000 x</span> <!-- počet uživatelů, kteří to mají v DB -->
                         </div>
                     </a>
 
@@ -490,11 +490,11 @@
                         <i class="fas fa-book-open"></i>
                         <div class="favorite-info">
                             <span class="favorite-action">Chci číst</span>
-                            <span class="favorite-count">10 000 x</span>
+                            <span class="favorite-count">10 000 x</span> <!-- počet uživatelů, kteří to mají v DB -->
                         </div>
                     </a>
 
-                    <!-- Vlastní seznam -->
+                    <!-- VLASTNÍ SEZNAM -->
                     <button class="favorite-box" id="openListModal" type="button">
                         <i class="fas fa-plus"></i>
                         <div class="favorite-info">

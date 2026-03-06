@@ -104,6 +104,7 @@ USERLISTTYPE_FAVORITE_BOOK_ID = 4 # Oblíbená kniha
 USERLISTTYPE_READLIST_ID = 5 # Chci číst
 USERLISTTYPE_READ_BOOKS_ID = 6 # Přečteno
 USERLISTTYPE_BOOK_LIBRARY_ID = 10 # Knihovna
+USERLISTTYPE_IM_READING = 26 # Právě čtu
 
 #CONTENT_TYPE_BOOK_ID = 9
 book_content_type = ContentType.objects.get_for_model(Book)
@@ -525,6 +526,17 @@ def book_detail(request, book_url):
     else:
         is_in_book_library = False
     
+        # Zjistí, jestli má uživatel knihu v seznamu Právě čtu
+    if user.is_authenticated:
+        try:
+            im_reading_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_IM_READING)
+            im_reading_list = Userlist.objects.get(user=user, listtype=im_reading_type)
+            is_in_im_reading = Userlistitem.objects.filter(object_id=book.bookid, userlist=im_reading_list).exists()
+        except Exception as e:
+            is_in_im_reading = False
+    else:
+        is_in_im_reading = False
+    
     if user.is_authenticated:
         if 'comment' in request.POST:
                 comment_form = CommentFormBook(request.POST)
@@ -806,6 +818,7 @@ def book_detail(request, book_url):
         "is_in_readlist": is_in_readlist,
         "is_in_read_books": is_in_read_books,
         "is_in_book_library": is_in_book_library,
+        "is_in_im_reading": is_in_im_reading,
         'ratings': ratings,
         'average_rating': average_rating,
         'user_rating': user_rating,
@@ -1231,6 +1244,26 @@ def add_to_book_library(request, bookid):
     return redirect("book_detail", book_url=book.url) 
 
 
+# Přidat do sezanmu: Právě čtu
+@login_required
+def add_to_im_reading(request, bookid):
+    book = get_object_or_404(Book, bookid=bookid)
+    im_reading_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_IM_READING)
+    im_reading_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=im_reading_type)
+
+    if Userlistitem.objects.filter(userlist=im_reading_list, object_id=bookid).exists():
+        pass
+    else:
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_BOOK_ID)
+        Userlistitem.objects.create(
+            userlist=im_reading_list, 
+            content_type=content_type,
+            object_id=bookid
+            )
+
+    return redirect("book_detail", book_url=book.url)
+
+
 # -------------------------------------------------------------------
 # F:                 REMOVE FROM FAVOURITES BOOKS
 # -------------------------------------------------------------------
@@ -1295,6 +1328,20 @@ def remove_from_book_library(request, bookid):
     library_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_BOOK_LIBRARY_ID)
     library_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=library_type)
     userlistbook = Userlistitem.objects.get(object_id=bookid, userlist=library_list)
+    userlistbook.delete()
+    
+    return redirect("book_detail", book_url=book.url)
+
+
+# -------------------------------------------------------------------
+# F:                 REMOVE FROM IM READING LIST
+# -------------------------------------------------------------------
+@login_required
+def remove_from_im_reading(request, bookid):
+    book = get_object_or_404(Book, bookid=bookid)
+    im_reading = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_IM_READING)
+    im_reading_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=im_reading)
+    userlistbook = Userlistitem.objects.get(object_id=bookid, userlist=im_reading_list)
     userlistbook.delete()
     
     return redirect("book_detail", book_url=book.url)

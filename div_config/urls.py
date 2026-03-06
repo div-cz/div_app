@@ -36,7 +36,10 @@ from div_content.views.blog import blog_add_post, blog_detail, blog_index, blog_
 #                    BOOKS
 # -------------------------------------------------------------------
 from div_content.views.books import (
- add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, book_add, book_detail, books, books_search, books_market_offers, books_market_wants, rate_book, ratequote, remove_book_rating, remove_from_favourites_books, remove_from_readlist, remove_from_read_books, remove_from_book_library, character_list_ajax, set_reading_goal, books_alphabetical, elastic_books
+ add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, book_add, book_detail, books, 
+ books_search, books_market_offers, books_market_wants, rate_book, ratequote, remove_book_rating, 
+ remove_from_favourites_books, remove_from_readlist, remove_from_read_books, remove_from_book_library, add_to_im_reading, 
+ remove_from_im_reading, character_list_ajax, set_reading_goal, books_alphabetical, elastic_books
     )
 # -------------------------------------------------------------------
 #                    CREATORS
@@ -71,9 +74,10 @@ from div_content.views.gamekvariat import game_listing_detail, games_market_offe
 #                    GAMES
 # -------------------------------------------------------------------
 from div_content.views.games import (
-    game_detail, game_add, games, add_to_favourite_games, rate_game, developer_list_ajax, platform_list_ajax, publisher_list_ajax, country_list_ajax, universum_list_ajax, remove_from_favourite_games, 
+    game_detail, game_add, games, add_to_favourite_games, rate_game, developer_list_ajax, platform_list_ajax, 
+    publisher_list_ajax, country_list_ajax, universum_list_ajax, remove_from_favourite_games, 
     add_to_playlist_games, remove_from_playlist_games, add_to_played, remove_from_played,
-    add_to_game_library, remove_from_game_library, 
+    add_to_game_library, remove_from_game_library, add_to_im_playing, remove_from_im_playing,
     publishers_list, games_by_developer, games_by_publisher, games_by_genre, games_by_year, games_alphabetical, games_genres
     )
 # -------------------------------------------------------------------
@@ -117,6 +121,7 @@ from div_content.views.series import (
     remove_from_tvshow_library, remove_from_tvshow_watchlist, remove_from_watched_tvshows, add_to_favourite_tvseason,
     add_to_tvseason_watchlist, add_to_watched_tvseasons, remove_from_favourite_tvseasons, remove_from_tvseason_watchlist,
     remove_from_watched_tvseasons, add_to_favourite_tvepisodes, add_to_tvepisode_watchlist, add_to_watched_tvepisode, 
+    add_to_im_watching_tvseason, remove_from_im_watching_tvseason, 
     remove_from_favourite_tvepisodes, remove_from_tvepisode_watchlist, remove_from_watched_tvepisodes, series_alphabetical
 )
 # -------------------------------------------------------------------
@@ -227,11 +232,13 @@ urlpatterns = [
     path('serial/chci-videt-<int:tvshowid>', add_to_tvshow_watchlist, name="add_to_tvshow_watchlist"),
     path('serial/serialnuto-<int:tvshowid>', add_to_watched_tvshows, name="add_to_watched_tvshows"),
     path('serial/do-serialoteky-<int:tvshowid>', add_to_tvshow_library, name="add_to_tvshow_library"),
+    path('serial/pridat-do-sleduji-<int:tvshowid>', add_to_im_watching_tvseason, name="add_to_im_watching_tvseason"),
 
     path('serial/odebrat-z-oblibenych-<int:tvshowid>', remove_from_favourite_tvshow, name='remove_from_favourite_tvshow'),
     path('serial/odebrat-ze-chci-videt-<int:tvshowid>', remove_from_tvshow_watchlist, name='remove_from_tvshow_watchlist'),
     path('serial/odebrat-ze-serialnuto-<int:tvshowid>', remove_from_watched_tvshows, name='remove_from_watched_tvshows'),
     path('serial/odebrat-ze-serialoteky-<int:tvshowid>', remove_from_tvshow_library, name='remove_from_tvshow_library'),
+    path('serial/odebrat-ze-sleduji-<int:tvshowid>', remove_from_im_watching_tvseason, name='remove_from_im_watching_tvseason'),
 
     path('serial/<str:tv_url>/pridat-do-oblibenych-<int:tvseasonid>', add_to_favourite_tvseason, name="add_to_favourite_tvseason"),
     path('serial/<str:tv_url>/chci-videt-<int:tvseasonid>', add_to_tvseason_watchlist, name="add_to_tvseason_watchlist"),
@@ -279,11 +286,12 @@ urlpatterns = [
     path('hra/chci-hrat-<int:gameid>', add_to_playlist_games, name="add_to_playlist_games"),
     path('hra/odehrano-<int:gameid>', add_to_played, name="add_to_played"),
     path('hra/do-gamoteky-<int:gameid>', add_to_game_library, name="add_to_game_library"),
+    path('hra/pridat-do-hraju-<int:gameid>', add_to_im_playing, name="add_to_im_playing"),
         
     path('hra/odebrat-z-oblibenych-<int:gameid>', remove_from_favourite_games, name="remove_from_favourite_games"),
     path('hra/odebrat-z-chci-hrat-<int:gameid>', remove_from_playlist_games, name="remove_from_playlist_games"),
     path('hra/odebrat-z-odehrano-<int:gameid>', remove_from_played, name="remove_from_played"),
-    path('hra/odebrat-z-gamoteky-<int:gameid>', remove_from_game_library, name="remove_from_game_library"),
+    path('hra/odebrat-hraju-<int:gameid>', remove_from_im_playing, name="remove_from_im_playing"),
 
     path('hra/<str:game_url>', game_detail, name='game_detail'),
     path('hra/pridat/', game_add, name='game_add'),
@@ -319,11 +327,13 @@ urlpatterns = [
     path('kniha/chci-cist-<int:bookid>', add_to_readlist, name="add_to_readlist"),
     path('kniha/precteno-<int:bookid>', add_to_read_books, name="add_to_read_books"),
     path('kniha/do-knihovny-<int:bookid>', add_to_book_library, name="add_to_book_library"),
+    path('kniha/prave-ctu-<int:bookid>', add_to_im_reading, name="add_to_im_reading"),
 
     path('kniha/odebrat-z-oblibenych-<int:bookid>', remove_from_favourites_books, name="remove_from_favourites_books"),
     path('kniha/odebrat-z-chci-cist-<int:bookid>', remove_from_readlist, name="remove_from_readlist"),
     path('kniha/odebrat-z-precteno-<int:bookid>', remove_from_read_books, name="remove_from_read_books"),
     path('kniha/odebrat-z-knihovny-<int:bookid>', remove_from_book_library, name="remove_from_book_library"),
+    path('kniha/odebrat-z-prave-ctu-<int:bookid>', remove_from_im_reading, name="remove_from_im_reading"),
     path('kniha/<slug:book_url>/smazat-hodnoceni/', remove_book_rating, name='remove_book_rating'),
 
     path('kniha/<str:book_url>', book_detail, name='book_detail'),

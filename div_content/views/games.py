@@ -37,6 +37,7 @@ USERLISTTYPE_FAVORITE_GAME_ID = 7 # Oblíbená hra
 USERLISTTYPE_PLAYLIST_ID = 8 # Chci hrát
 USERLISTTYPE_PLAYED_GAMES_ID = 9 # Odehráno
 USERLISTTYPE_GAME_LIBRARY_ID = 12 # Gamotéka
+USERLISTTYPE_IM_PLAYING = 27 # Hraju
 
 CONTENT_TYPE_GAME_ID = 19
 
@@ -234,6 +235,17 @@ def game_detail(request, game_url):
             is_in_game_library = False
     else:
         is_in_game_library = False
+    
+
+    if user.is_authenticated:
+        try:
+            im_playing_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_IM_PLAYING)
+            im_playing_list = Userlist.objects.get(user=user, listtype=im_playing_type)
+            is_in_im_playing = Userlistitem.objects.filter(object_id=game.gameid, userlist=im_playing_list).exists()
+        except Exception as e:
+            is_in_im_playing = False
+    else:
+        is_in_im_playing = False
 
 
 
@@ -293,6 +305,7 @@ def game_detail(request, game_url):
         "is_in_playlist": is_in_playlist,
         "is_in_played": is_in_played,
         "is_in_game_library": is_in_game_library,
+        "is_in_im_playing": is_in_im_playing,
         'ratings': ratings,
         'average_rating': average_rating,
         'user_rating': user_rating,
@@ -457,6 +470,26 @@ def add_to_game_library(request, gameid):
     return redirect("game_detail", game_url=game.url)
 
 
+# Přidat do seznamu: Hraju
+@login_required
+def add_to_im_playing(request, gameid):
+    game = get_object_or_404(Game, gameid=gameid)
+    im_playing_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_IM_PLAYING)
+    im_playing_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=im_playing_type)
+
+    if Userlistitem.objects.filter(userlist=im_playing_list, object_id=gameid).exists():
+        pass
+    else:
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_GAME_ID)
+        Userlistitem.objects.create(
+            userlist=im_playing_list, 
+            content_type=content_type,
+            object_id=gameid
+            )
+    
+    return redirect("game_detail", game_url=game.url)
+
+
 # Smazat ze seznamu: Oblíbené
 @login_required
 def remove_from_favourite_games(request, gameid):
@@ -509,6 +542,17 @@ def remove_from_game_library(request, gameid):
     
     return redirect("game_detail", game_url=game.url)
 
+
+# Smazat ze seznamu: Hraju
+@login_required
+def remove_from_im_playing(request, gameid):
+    game = get_object_or_404(Game, gameid=gameid)
+    im_playing_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_IM_PLAYING)
+    im_playing_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=im_playing_type)
+    userlistgame = Userlistitem.objects.get(object_id=gameid, userlist=im_playing_list)
+    userlistgame.delete()
+    
+    return redirect("game_detail", game_url=game.url)
 
 # -------------------------------------------------------------------
 #                    KONEC
