@@ -420,6 +420,15 @@ def books(request):
     
     recent_sell_listings, recent_buy_listings = get_market_listings()
 
+
+    random_quote = (
+        Bookquotes.objects
+        .filter(divrating__gte=1)
+        .select_related("bookid", "authorid", "characterid")
+        .order_by("?")
+        .first()
+    )
+
     return render(request, 'books/books_list.html', {
         'top_books': top_books,
         'book_list_15': book_list_15,
@@ -433,6 +442,7 @@ def books(request):
         'latest_comments': latest_comments,
         'recent_sell_listings': recent_sell_listings,
         'recent_buy_listings': recent_buy_listings,
+        'random_quote': random_quote,
         })
 #'top_20_books': top_20_books, 'all_books': all_books, 'api_test_message': api_test_message
 

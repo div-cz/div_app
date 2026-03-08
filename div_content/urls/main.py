@@ -114,6 +114,13 @@ from div_content.views.movies import (
 #                    PAYMENTS
 # -------------------------------------------------------------------
 from div_content.views.payments import (bank_transactions, generate_qr, check_purchase_status, posledni_pending_purchaseid)
+
+# -------------------------------------------------------------------
+#                    RATINGS
+# -------------------------------------------------------------------
+from div_content.views.ratings import div_rate_movie
+
+
 # -------------------------------------------------------------------
 #                    SERIES
 # -------------------------------------------------------------------
@@ -161,6 +168,12 @@ from allauth.account.views import SignupView, LogoutView, LoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    path(
+        "film/<slug:movie_url>/rate/",
+        rate_movie,
+        name="rate_movie"
+    ),
 
     path('spravce/', admin_index, name='admin_index'),
     path('spravce/sprava-komentaru', admin_comments, name='admin_comments'),

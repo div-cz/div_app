@@ -285,7 +285,14 @@
             </div>-->
 
             <script>
-                document.getElementById('editBookButton').addEventListener('click', function() {
+                    const editBtn = document.getElementById('editBookButton');
+                    
+                    if (editBtn) {
+                        editBtn.addEventListener('click', function() {
+                            const bookId = this.getAttribute('data-book-id');
+                            window.location.href = `/scripts/update_book?book_id=${bookId}`;
+                        });
+                    }
                     const bookId = this.getAttribute('data-book-id'); // Získání BOOKID z data atributu
                     console.log(bookId.value)
                     window.location.href = `/scripts/update_book?book_id=${bookId}`; // Přesměrování na URL s BOOKID
@@ -1940,7 +1947,7 @@ function renderEbookActions() {
     } else if (data.is_paid || data.is_free_div || data.is_external_free) {
         html += `
             <div style="margin-top:15px;">
-            	{% if primary_source != "MLP" %}
+                {% if primary_source != "MLP" %}
                 <button type="submit" class="add-book" id="send-to-reader-btn">Poslat do čtečky</button>
                 {% endif %}
                 <a id="download-link" href="/stahnout-eknihu/${data.isbn}/${fmt}/" class="btn btn-success">Stáhnout</a>
@@ -1991,7 +1998,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
 document.addEventListener("DOMContentLoaded", function() {
     const radios = document.querySelectorAll("#ebook-popup input[name='format']");
-    const kindleBlock = document.getElementById("kindle-block");
+    if (kindleBlock) {
+        kindleBlock.style.display = "block";
+    }
 
     function toggleKindleBlock() {
         let selected = Array.from(radios).find(r => r.checked);
@@ -2012,7 +2021,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const formatKindlemails = JSON.parse(document.getElementById('formatKindlemailsData').textContent);
+    const dataEl = document.getElementById('formatKindlemailsData');
+    
+    if (dataEl) {
+        const formatKindlemails = JSON.parse(dataEl.textContent);
+    }
 
     const radios = document.querySelectorAll("#ebook-popup input[name='format']");
     const kindlemailInput = document.getElementById('kindlemail');
@@ -2043,6 +2056,24 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     setKindlemailFromRadio(); // nastavit hned při načtení popupu
+});
+
+
+// aktivace tabů podle URL hash (reseni jqurey)
+$(document).ready(function () {
+
+    var hash = window.location.hash;
+
+    if (hash) {
+
+        var tabLink = $('.tab-links a[href="' + hash + '"]');
+
+        if (tabLink.length) {
+            tabLink.trigger('click');
+        }
+
+    }
+
 });
 </script>
 

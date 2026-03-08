@@ -114,6 +114,12 @@ from div_content.views.movies import (
 #                    PAYMENTS
 # -------------------------------------------------------------------
 from div_content.views.payments import (bank_transactions, generate_qr, check_purchase_status, posledni_pending_purchaseid)
+
+# -------------------------------------------------------------------
+#                    RATINGSS
+# -------------------------------------------------------------------
+from div_content.views.ratings import (div_rate_movie)
+
 # -------------------------------------------------------------------
 #                    SERIES
 # -------------------------------------------------------------------
@@ -227,7 +233,7 @@ urlpatterns = [
     path('film/<int:pk>/', MovieDetailView.as_view(), name='movie_detail_id'),
     path('film/<int:pk>/rate/', rate_movie, name='movie_rate'),
     path('film/add-to-list/', add_to_list, name='add_to_list'),
-  
+    path("film/<slug:movie_url>/rate/",div_rate_movie,name="div_rate_movie"),
 
     path('serial/pridat-do-oblibenych-<int:tvshowid>', add_to_favourite_tvshow, name="add_to_favourite_tvshow"),
     path('serial/chci-videt-<int:tvshowid>', add_to_tvshow_watchlist, name="add_to_tvshow_watchlist"),

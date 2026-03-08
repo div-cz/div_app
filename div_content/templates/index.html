@@ -7,10 +7,10 @@
 
         <title>DIV.cz | Databáze filmů, knih a her DIV</title>
 
-        <link href="/web/css/index.css" rel="stylesheet">
-        <link href="/web/css/navbar_other.css" rel="stylesheet">
-        <link href="/web/css/navbar.css" rel="stylesheet">
-        <link href="/web/css/hodnoceni.css" rel="stylesheet">
+        <link href="/web/css/index.css?v.1.2" rel="stylesheet">
+        <link href="/web/css/navbar_other.css?v.1.2" rel="stylesheet">
+        <link href="/web/css/navbar.css?v.1.2" rel="stylesheet">
+        <link href="/web/css/hodnoceni.css?v.1.2" rel="stylesheet">
 
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
@@ -521,8 +521,8 @@
                                                     <div class="card-item swiper-slide">
                                                         <!-- hodnocení -->
                                                         <div class="carousel-ratting">
-                                                            <div class="rating" data-rating="{{ item.real_rating }}">
-                                                                <div class="rating-inner">
+                                                            <div class="rating-index" data-rating="{{ item.real_rating }}">
+                                                                <div class="rating-index-inner">
                                                                     {{ item.real_rating }}%
                                                                 </div>
                                                             </div>
@@ -556,8 +556,8 @@
                                                     <div class="card-item swiper-slide">
                                                         <!-- hodnocení -->
                                                         <div class="carousel-ratting">
-                                                            <div class="rating" data-rating="{{ item.real_rating }}">
-                                                                <div class="rating-inner">
+                                                            <div class="rating-index" data-rating="{{ item.real_rating }}">
+                                                                <div class="rating-index-inner">
                                                                     {{ item.real_rating }}%
                                                                 </div>
                                                             </div>
@@ -591,8 +591,8 @@
                                                     <div class="card-item swiper-slide">
                                                         <!-- hodnocení -->
                                                         <div class="carousel-ratting">
-                                                            <div class="rating" data-rating="{{ item.real_rating }}">
-                                                                <div class="rating-inner">
+                                                            <div class="rating-index" data-rating="{{ item.real_rating }}">
+                                                                <div class="rating-index-inner">
                                                                     {{ item.real_rating }}%
                                                                 </div>
                                                             </div>
@@ -633,8 +633,8 @@
                                                     <div class="card-item swiper-slide">
                                                         <!-- hodnocení -->
                                                         <div class="carousel-ratting">
-                                                            <div class="rating" data-rating="{{ item.real_rating }}">
-                                                                <div class="rating-inner">
+                                                            <div class="rating-index" data-rating="{{ item.real_rating }}">
+                                                                <div class="rating-index-inner">
                                                                     {{ item.real_rating }}%
                                                                 </div>
                                                             </div>
@@ -739,21 +739,21 @@
                                             {% if comment.movieid %}
                                                 <p class="comment-head">&#127902;&#65039;
                                                     <a href="/film/{{ comment.movieid.url }}" class="movies">
-                                                        {{ comment.movieid.titlecz }}
+                                                        {{ comment.movieid.titlecz|default:comment.movieid.title }}
                                                     </a>
                                                 </p>
 
                                             {% elif comment.bookid %}
                                                 <p class="comment-head">&#128214;
                                                     <a href="/kniha/{{ comment.bookid.url }}" class="books">
-                                                        {{ comment.bookid.titlecz }}
+                                                        {{ comment.bookid.titlecz|default:comment.bookid.title }}
                                                     </a>
                                                 </p>
 
                                             {% elif comment.gameid %}
                                                 <p class="comment-head">&#127918;
                                                     <a href="/hra/{{ comment.gameid.url }}" class="games">
-                                                        {{ comment.gameid.titlecz }}
+                                                        {{ comment.gameid.titlecz|default:comment.gameid.title }}
                                                     </a>
                                                 </p>
 

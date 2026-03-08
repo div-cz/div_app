@@ -160,6 +160,33 @@
             </div>
         {% endif %}
 
+
+{% if random_quote %}
+<div class="card">
+    <div class="card-body quotes">
+
+        <h3>Citát z knihy</h3>
+
+        <a href="/kniha/{{ random_quote.bookid.url }}" style="margin-bottom: 1rem;">
+            {{ random_quote.bookid.titlecz|default:random_quote.bookid.title }}
+        </a>
+
+        <p>„{{ random_quote.quote }}“</p>
+
+        {% if random_quote.characterid %}
+            <div class="quote-author">
+                — {{ random_quote.characterid.charactername }}
+            </div>
+        {% endif %}
+
+        <a href="/kniha/{{ random_quote.bookid.url }}" class="more-quotes">
+            Zobrazit detail knihy
+        </a>
+
+    </div>
+</div>
+{% endif %}
+
         <!-- generování knih -->
         <div style="margin-bottom: 1rem;">
             <div class="generating-books">

@@ -48,6 +48,8 @@ from django.db import connection
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
+#from django.utils import timezone
+
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_POST
 
@@ -56,6 +58,9 @@ from django.views.generic import DetailView
 from div_content.forms.locations import MovieLocationForm, QuickLocationCreateForm
 
 from div_content.forms.movies import CommentForm, MovieCinemaForm, MovieDivRatingForm, MovieErrorForm, MovieTitleDIVForm, SearchForm, TrailerForm
+
+#from div_content.models.meta import Divuserrating, Divrating
+
 from div_content.models import (
     Article, Book, Creator, Creatorbiography, FavoriteSum, Game, 
     Metalocation, Metagenre, Movie, Moviecinema, Moviecomments, Moviecountries, Moviecrew, Moviedistributor, Movieerror, Moviegenre, Movielocation, Moviequotes, Movierating, Movietrailer, Movietranslation, Movietrivia, Moviekeywords,
@@ -64,7 +69,8 @@ from div_content.models import (
 )
 from div_content.utils.metaindex import add_to_metaindex
 
-from star_ratings.models import Rating, UserRating
+#from star_ratings.models import Rating, UserRating
+from div_content.models.meta import Divrating, Divuserrating
 
 from django.contrib import messages
 
@@ -231,10 +237,15 @@ def movie_detail(request, movie_url):
     movie_content_type = ContentType.objects.get_for_model(Movie)
     #ratings = UserRating.objects.filter(rating__content_type=movie_content_type, rating__object_id=movie.movieid)
     # HODNOCENÍ UŽIVATELE
-    base_ratings = UserRating.objects.filter(
-        rating__content_type=movie_content_type, 
-        rating__object_id=movie.movieid
-    )
+    rating_obj = Divrating.objects.filter(
+        content_type=movie_content_type,
+        object_id=movie.movieid
+    ).first()
+
+    if rating_obj:
+        base_ratings = Divuserrating.objects.filter(rating=rating_obj)
+    else:
+        base_ratings = Divuserrating.objects.none()
     
     # Použijeme tento QuerySet pro výpočet průměru
     average_rating_result = base_ratings.aggregate(average=Avg('score'))
@@ -886,7 +897,7 @@ def remove_movie_rating(request, movie_url):
     movie = get_object_or_404(Movie, url=movie_url)
     movie_content_type = ContentType.objects.get_for_model(Movie)
 
-    user_rating = UserRating.objects.filter(
+    user_rating = Divuserrating.objects.filter(
         user=request.user,
         rating__content_type=movie_content_type,
         rating__object_id=movie.movieid
@@ -895,12 +906,12 @@ def remove_movie_rating(request, movie_url):
     if user_rating:
         user_rating.delete()
         # přepočet průměru
-        rating_obj = Rating.objects.filter(
+        rating_obj = Divrating.objects.filter(
             content_type=movie_content_type,
             object_id=movie.movieid
         ).first()
         if rating_obj:
-            agg = UserRating.objects.filter(rating=rating_obj).aggregate(avg=Avg("score"), count=Count("id"))
+            agg = Divuserrating.objects.filter(rating=rating_obj).aggregate(avg=Avg("score"), count=Count("id"))
             rating_obj.average = agg["avg"] or 0
             rating_obj.count = agg["count"] or 0
             rating_obj.save()

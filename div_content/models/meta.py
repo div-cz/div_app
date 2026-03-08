@@ -4,7 +4,65 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
+# -------------------------------------------------------------------
+#                    STAR RATINGS (WRAPPER)
+# -------------------------------------------------------------------
+
+class Divrating(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    count = models.PositiveIntegerField()
+    total = models.PositiveIntegerField()
+    average = models.DecimalField(max_digits=6, decimal_places=3)
+
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+
+    content_type = models.ForeignKey(
+        ContentType,
+        models.DO_NOTHING,
+        db_column="content_type_id",
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        db_table = "star_ratings_rating"
+        managed = False
+
+
+class Divuserrating(models.Model):
+    id = models.BigAutoField(primary_key=True)
+
+    created = models.DateTimeField()
+    modified = models.DateTimeField()
+
+    ip = models.CharField(max_length=39, null=True, blank=True)
+
+    score = models.PositiveSmallIntegerField()
+
+    rating = models.ForeignKey(
+        Divrating,
+        models.DO_NOTHING,
+        db_column="rating_id"
+    )
+
+    user = models.ForeignKey(
+        User,
+        models.DO_NOTHING,
+        db_column="user_id",
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        db_table = "star_ratings_userrating"
+        managed = False
+
+
+# -------------------------------------------------------------------
+#                    META
+# -------------------------------------------------------------------
 
 class Metacharts(models.Model):
     MetaChartsID = models.AutoField(db_column='MetaChartsID', primary_key=True)

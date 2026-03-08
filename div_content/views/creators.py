@@ -165,13 +165,15 @@ def creator_detail(request, creator_url):
         peopleid=creator.creatorid
     ).select_related('movieid', 'roleid').order_by('-movieid__releaseyear')
     
-    filmography_dict = defaultdict(list)
+    filmography_dict = defaultdict(set)
     
     for entry in filmography_query:
         movie = entry.movieid
         if request.user.is_authenticated:
             movie.is_watched = getattr(entry, "is_watched", False)
-        filmography_dict[movie].append(entry.roleid.rolenamecz)
+    
+        if entry.roleid:
+            filmography_dict[movie].add(entry.roleid.rolenamecz)
     
     filmography_items = list(filmography_dict.items())
     
@@ -190,24 +192,27 @@ def creator_detail(request, creator_url):
             )
         )
 
-    filmography = defaultdict(list)
+    filmography = defaultdict(set)
     for entry in filmography_query:
         movie = entry.movieid
         if request.user.is_authenticated:
             movie.is_watched = entry.is_watched
-        filmography[movie].append(entry.roleid.rolenamecz)
+    
+        if entry.roleid:
+            filmography[movie].add(entry.roleid.rolenamecz)
 
     # SERIÁLY
     tvshow_query = Tvcrew.objects.filter(
         peopleid=creator
     ).select_related('tvshowid', 'roleid').order_by('-tvshowid__premieredate')
-    tvshows_dict = defaultdict(list)
+
+    tvshows_dict = defaultdict(set)
     
     for entry in tvshow_query:
         tvshow = entry.tvshowid
         if request.user.is_authenticated:
             tvshow.is_watched = getattr(entry, "is_watched", False)
-        tvshows_dict[tvshow].append(entry.roleid.rolenamecz)
+        tvshows_dict[tvshow].add(entry.roleid.rolenamecz)
     
     tvshows_items = list(tvshows_dict.items())
     
@@ -227,12 +232,12 @@ def creator_detail(request, creator_url):
             )
         )
     
-    tvshows = defaultdict(list)
+    tvshows = defaultdict(set)
     for entry in tvshow_query:
         tvshow = entry.tvshowid
         if request.user.is_authenticated:
             tvshow.is_watched = entry.is_watched
-        tvshows[tvshow].append(entry.roleid.rolenamecz)
+        tvshows[tvshow].add(entry.roleid.rolenamecz)
 
     # --- DIV RATING FORM ---
     creator_div_rating_form = None

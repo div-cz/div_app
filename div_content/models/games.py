@@ -28,6 +28,7 @@ class Game(models.Model):
     parentid = models.ForeignKey( 'self', db_column='ParentID', null=True, blank=True, on_delete=models.SET_NULL, related_name='editions')
     parentigdb = models.IntegerField(db_column='ParentIGDB', null=True, blank=True)
     lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
+    #releasedate = models.DateField(db_column='ReleaseDate', null=True, blank=True)
 
     class Meta:
         db_table = 'Game'

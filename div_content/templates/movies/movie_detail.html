@@ -1,6 +1,5 @@
 {% extends "movies/base_new.html" %}
 {% load i18n %}
-{% load ratings %}
 {% load static %}
 
 {% block title %}{{ display_title }} ({{ movie.releaseyear }}) | DIV.cz{% endblock %}
@@ -42,6 +41,48 @@
             https://div.cz/static/img/site/soutez/soutez_wallpaper.png
         {% endif %}
             ">
+
+<style>
+.div-rating-stars{
+text-align:center;
+}
+
+.stars-display{
+font-size:28px;
+color:#FFC107;
+white-space:nowrap;
+}
+
+.rate-btn{
+background:none;
+border:none;
+cursor:pointer;
+font-size:28px;
+color:#FFC107;
+padding:0;
+margin:0 3px;
+}
+
+.rate-btn:hover{
+transform:scale(1.15);
+color:#f5c518;
+}
+
+.rate-btn.trash{
+color:#c0392b;
+}
+
+.rating-trash{
+color:#c0392b;
+font-size:28px;
+margin-right:6px;
+}
+.rating-odpad{
+color:#c0392b;
+font-weight:bold;
+letter-spacing:1px;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -101,8 +142,46 @@
                             </div>
                         </div>
 
-                        <div class="rating-stars" style="white-space: nowrap;">
-                            <div class="smaller-stars">{% ratings movie %}</div>
+
+
+
+<div class="hvezdicky after">
+<div class="div-rating-stars">
+
+{% if user.is_authenticated %}
+<form method="post" action="{% url 'div_rate_movie' movie_url=movie.url %}">
+{% csrf_token %}
+{% endif %}
+
+<span class="stars-display">
+
+{% if user.is_authenticated %}
+<button type="submit" name="score" value="0" class="rate-btn trash">👎</button>
+<button type="submit" name="score" value="1" class="rate-btn">{% if average_rating >= 20 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="2" class="rate-btn">{% if average_rating >= 40 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="3" class="rate-btn">{% if average_rating >= 60 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="4" class="rate-btn">{% if average_rating >= 80 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="5" class="rate-btn">{% if average_rating >= 100 %}★{% else %}☆{% endif %}</button>
+{% else %}
+<span class="rating-trash">👎</span>
+{% if average_rating >= 20 %}★{% else %}☆{% endif %}
+{% if average_rating >= 40 %}★{% else %}☆{% endif %}
+{% if average_rating >= 60 %}★{% else %}☆{% endif %}
+{% if average_rating >= 80 %}★{% else %}☆{% endif %}
+{% if average_rating >= 100 %}★{% else %}☆{% endif %}
+{% endif %}
+
+</span>
+
+{% if user.is_authenticated %}
+</form>
+{% endif %}
+
+</div>
+
+
+
+
                             <div id="rating-thankyou" class="alert" style="display: none;">
                                 Děkujeme za hodnocení!
                             </div>
@@ -167,7 +246,64 @@
                         </div>
 
                         <div class="rating-stars" style="white-space: nowrap;">
-                            <div class="smaller-stars">{% ratings movie %}</div>
+                            <div class="smaller-stars">
+                        <div class="rating-stars" style="white-space: nowrap;">
+                            <div class="smaller-stars">
+
+
+<div class="div-rating-stars">
+
+{% if user.is_authenticated %}
+<form method="post" action="{% url 'div_rate_movie' movie_url=movie.url %}">
+{% csrf_token %}
+{% endif %}
+
+<span class="stars-display">
+
+{% if user.is_authenticated %}
+<button type="submit" name="score" value="0" class="rate-btn trash">👎</button>
+{% else %}
+<span class="rating-trash">👎</span>
+{% endif %}
+
+{% if user.is_authenticated %}
+<button type="submit" name="score" value="1" class="rate-btn">
+{% if average_rating >= 20 %}★{% else %}☆{% endif %}
+</button>
+<button type="submit" name="score" value="2" class="rate-btn">
+{% if average_rating >= 40 %}★{% else %}☆{% endif %}
+</button>
+<button type="submit" name="score" value="3" class="rate-btn">
+{% if average_rating >= 60 %}★{% else %}☆{% endif %}
+</button>
+<button type="submit" name="score" value="4" class="rate-btn">
+{% if average_rating >= 80 %}★{% else %}☆{% endif %}
+</button>
+<button type="submit" name="score" value="5" class="rate-btn">
+{% if average_rating >= 90 %}★{% else %}☆{% endif %}
+</button>
+{% else %}
+{% if average_rating >= 20 %}★{% else %}☆{% endif %}
+{% if average_rating >= 40 %}★{% else %}☆{% endif %}
+{% if average_rating >= 60 %}★{% else %}☆{% endif %}
+{% if average_rating >= 80 %}★{% else %}☆{% endif %}
+{% if average_rating >= 90 %}★{% else %}☆{% endif %}
+{% endif %}
+
+</span>
+
+{% if user.is_authenticated %}
+</form>
+{% endif %}
+
+</div>
+
+                            </div>
+                            <div id="rating-thankyou" class="alert" style="display: none;">
+                                Děkujeme za hodnocení!
+                            </div>
+                        </div>
+                            </div>
                             <div id="rating-thankyou2" class="alert" style="display: none;">Děkujeme za hodnocení!</div>
                         </div>
                     </div>
@@ -249,19 +385,19 @@
                 </a>
 
                 <!-- Pokud není v Filmotéce -->
-				{% if not is_in_movie_library %}
-				<a href="{% url 'add_to_movie_library' movieid=movie.movieid %}" class="favorite-link" style="color: white;">
-					<span class="favorite-link-icon">
-						<i class="fas fa-home" style="color: {% if is_in_movie_library %} #ED3F2F {% endif %}"></i>
-					</span>
-				{% else %}
-				<a href="{% url 'remove_from_movie_library' movieid=movie.movieid %}" class="favorite-link">
-					<span class="favorite-link-icon">
-						<i class="fas fa-home" style="color: {% if is_in_movie_library %} #ED3F2F {% endif %}"></i>
-					</span>
-				{% endif %}                               
-					<span class="favorite-link-title" style="color: {% if is_in_movie_library %} #ED3F2F {% endif %}">Filmotéka</span>
-				</a>
+                {% if not is_in_movie_library %}
+                <a href="{% url 'add_to_movie_library' movieid=movie.movieid %}" class="favorite-link" style="color: white;">
+                    <span class="favorite-link-icon">
+                        <i class="fas fa-home" style="color: {% if is_in_movie_library %} #ED3F2F {% endif %}"></i>
+                    </span>
+                {% else %}
+                <a href="{% url 'remove_from_movie_library' movieid=movie.movieid %}" class="favorite-link">
+                    <span class="favorite-link-icon">
+                        <i class="fas fa-home" style="color: {% if is_in_movie_library %} #ED3F2F {% endif %}"></i>
+                    </span>
+                {% endif %}                               
+                    <span class="favorite-link-title" style="color: {% if is_in_movie_library %} #ED3F2F {% endif %}">Filmotéka</span>
+                </a>
 
                 <!-- Pokud není v Chci vidět -->
                 {% if not is_in_watchlist %}
@@ -424,7 +560,7 @@
 
                         <!-- TEXT RECENZE -->
                         <div class="after my-komentar">
-                            <p style="width: 80%;">{{ comment.comment }}</p>
+                            <p style="width: 80%;">{{ comment.comment|safe }}</p>
                         </div>
 
                         <!-- INFO -->
@@ -502,7 +638,7 @@
                     {% for item in trivia %}
                         <li class="card-body">
                             <div class="after my-komentar">
-                                <p>{{ item.trivia }}</p>
+                                <p>{{ item.trivia|safe }}</p>
                             </div>
                             
                             <div class="user" style="justify-content: end;">
@@ -562,7 +698,7 @@
                     {% for quote in quotes %}
                         <li class="card-body" data-quote-id="{{ quote.quoteid }}">
                             <div class="after my-komentar">
-                                <p>{{ quote.quote }}</p>
+                                <p>{{ quote.quote|safe }}</p>
                             </div>
 
                             <div class="user">
@@ -612,7 +748,7 @@
                     {% for error in errors %}
                         <li class="card-body">
                             <div class="after my-komentar">
-                                <p>{{ error.error }}</p>
+                                <p>{{ error.error|safe }}</p>
                             </div>
                             
                             <div class="user" style="justify-content: end;">
@@ -718,7 +854,48 @@
                     </div>
 
                     <div class="hvezdicky after">
-                        {% ratings movie %}
+
+
+<div class="div-rating-stars">
+
+{% if user.is_authenticated %}
+<form method="post" action="{% url 'div_rate_movie' movie_url=movie.url %}">
+{% csrf_token %}
+{% endif %}
+
+
+<button type="submit" name="score" value="0" class="rate-btn trash">👎</button>
+
+
+<span class="stars-display">
+
+<button type="submit" name="score" value="1" class="rate-btn">
+{% if average_rating >= 20 %}★{% else %}☆{% endif %}
+</button>
+
+<button type="submit" name="score" value="2" class="rate-btn">
+{% if average_rating >= 40 %}★{% else %}☆{% endif %}
+</button>
+
+<button type="submit" name="score" value="3" class="rate-btn">
+{% if average_rating >= 60 %}★{% else %}☆{% endif %}
+</button>
+
+<button type="submit" name="score" value="4" class="rate-btn">
+{% if average_rating >= 80 %}★{% else %}☆{% endif %}
+</button>
+
+<button type="submit" name="score" value="5" class="rate-btn">
+{% if average_rating >= 90 %}★{% else %}☆{% endif %}
+</button>
+
+</span>
+
+{% if user.is_authenticated %}
+</form>
+{% endif %}
+
+</div>
                         {% if user.is_authenticated %}
                         {% else %}
                         <p>Pro hodnocení je třeba se <a href="/prihlaseni/">Přihlásit!</a></p>
@@ -736,6 +913,9 @@
                             <small><p style="text-align: center; padding: .25rem;">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
                             <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a>
                             <span class="right">
+                                {% if rating.score == 0 %}
+                                <span class="rating-odpad">ODPAD!</span>
+                                {% else %}
                                 {% for _ in "12345" %}
                                 {% if forloop.counter <= rating.score %}
                                 <span>★</span>
@@ -743,6 +923,7 @@
                                 ☆
                                 {% endif %}
                                 {% endfor %}
+                                {% endif %}
                             </span>
 
                 {% if rating.user == request.user %}
