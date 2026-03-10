@@ -77,9 +77,11 @@ from div_content.views.gamekvariat import game_listing_detail, games_market_offe
 #                    GAMES
 # -------------------------------------------------------------------
 from div_content.views.games import (
-    game_detail, game_add, games, add_to_favourite_games, rate_game, developer_list_ajax, platform_list_ajax, publisher_list_ajax, country_list_ajax, universum_list_ajax, remove_from_favourite_games, 
+    game_detail, game_add, games, add_to_favourite_games, rate_game, 
+    developer_list_ajax, platform_list_ajax, publisher_list_ajax, country_list_ajax, 
+    universum_list_ajax, remove_from_favourite_games, 
     add_to_playlist_games, remove_from_playlist_games, add_to_played, remove_from_played,
-    add_to_game_library, remove_from_game_library, 
+    add_to_game_library, remove_from_game_library, add_to_im_playing, remove_from_im_playing, 
     publishers_list, games_by_developer, games_by_publisher, games_by_genre, games_by_year, games_alphabetical, games_genres
     )
 # -------------------------------------------------------------------
@@ -295,11 +297,13 @@ urlpatterns = [
     path('hra/chci-hrat-<int:gameid>', add_to_playlist_games, name="add_to_playlist_games"),
     path('hra/odehrano-<int:gameid>', add_to_played, name="add_to_played"),
     path('hra/do-gamoteky-<int:gameid>', add_to_game_library, name="add_to_game_library"),
-        
+    path('hra/hraju-<int:gameid>', add_to_im_playing, name="add_to_im_playing"),
+
     path('hra/odebrat-z-oblibenych-<int:gameid>', remove_from_favourite_games, name="remove_from_favourite_games"),
     path('hra/odebrat-z-chci-hrat-<int:gameid>', remove_from_playlist_games, name="remove_from_playlist_games"),
     path('hra/odebrat-z-odehrano-<int:gameid>', remove_from_played, name="remove_from_played"),
     path('hra/odebrat-z-gamoteky-<int:gameid>', remove_from_game_library, name="remove_from_game_library"),
+    path('hra/odebrat-z-hraju-<int:gameid>', remove_from_im_playing, name="remove_from_im_playing"),
 
     path('hra/<str:game_url>', game_detail, name='game_detail'),
     path('hra/pridat/', game_add, name='game_add'),

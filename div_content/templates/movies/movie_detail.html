@@ -60,23 +60,27 @@
 
 .div-rating-movie .stars-display { font-size: 28px; color: #E31E24; }
 
-/* mobil: hodnocení pod obrázkem */
-@media (max-width: 767px) {
+/* mobil + tablet: hodnocení pod obrázkem */
+@media (max-width: 991px) {
     .box-detail .box-info-rating { display: none !important; }
     .box-img .box-info-rating    { display: flex !important; flex-direction: column; align-items: center; }
 }
 
-/* tablet: hodnocení v box-detail (bez kolečka), box-img skrýt */
-@media (min-width: 768px) and (max-width: 991px) {
-    .box-img .box-info-rating    { display: none !important; }
-    .box-detail .box-info-rating { display: flex !important; }
-    .box-detail .box-info-rating .rating { display: none; }
-}
-
-/* desktop: obě levé skrýt, pouze pravý sloupec */
+/* desktop: pouze pravý sloupec */
 @media (min-width: 992px) {
     .box-img .box-info-rating    { display: none !important; }
     .box-detail .box-info-rating { display: none !important; }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+    .box-detail {
+        width: 100% !important;
+        flex-basis: 100% !important;
+    }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+    .box-body                 { flex-wrap: wrap !important; }
+    .box-detail               { width: 100% !important; flex-basis: 100% !important; margin-top: 1rem !important; }
+    .box-img .box-info-rating { padding-left: 4rem !important; }
 }
 </style>
 {% endblock %}
@@ -229,59 +233,8 @@
                         </div>
                     </div>
                 </div>
-
+<!-- HODNOCENÍ NA TABLET -->
                 <div class="box-detail">
-                    <div class="box-info-rating">
-                        <div class="rating" data-rating="{{ average_rating }}">
-                            <div class="rating-inner">
-                                {{ average_rating }}%
-                            </div>
-                        </div>
-
-                        <div class="rating-stars" style="white-space: nowrap;">
-                            <div class="smaller-stars">
-
-
-<div class="div-rating-stars div-rating-movie">
-{% if user.is_authenticated %}
-<form method="post" action="{% url 'div_rate_movie' movie_url=movie.url %}">{% csrf_token %}
-<span class="stars-display">
-<button type="submit" name="score" value="0" class="rate-btn trash">{% if user_rating and user_rating.score == 0 %}👎{% else %}👎{% endif %}</button>
-{% if user_rating %}
-<button type="submit" name="score" value="1" class="rate-btn">{% if user_rating.score >= 1 %}★{% else %}☆{% endif %}</button>
-<button type="submit" name="score" value="2" class="rate-btn">{% if user_rating.score >= 2 %}★{% else %}☆{% endif %}</button>
-<button type="submit" name="score" value="3" class="rate-btn">{% if user_rating.score >= 3 %}★{% else %}☆{% endif %}</button>
-<button type="submit" name="score" value="4" class="rate-btn">{% if user_rating.score >= 4 %}★{% else %}☆{% endif %}</button>
-<button type="submit" name="score" value="5" class="rate-btn">{% if user_rating.score >= 5 %}★{% else %}☆{% endif %}</button>
-{% else %}
-<button type="submit" name="score" value="1" class="rate-btn">☆</button>
-<button type="submit" name="score" value="2" class="rate-btn">☆</button>
-<button type="submit" name="score" value="3" class="rate-btn">☆</button>
-<button type="submit" name="score" value="4" class="rate-btn">☆</button>
-<button type="submit" name="score" value="5" class="rate-btn">☆</button>
-{% endif %}
-</span>
-</form>
-{% else %}
-<span class="stars-display">
-<span class="rating-trash">👎</span>
-{% if average_rating >= 20 %}★{% else %}☆{% endif %}
-{% if average_rating >= 40 %}★{% else %}☆{% endif %}
-{% if average_rating >= 60 %}★{% else %}☆{% endif %}
-{% if average_rating >= 80 %}★{% else %}☆{% endif %}
-{% if average_rating >= 90 %}★{% else %}☆{% endif %}
-</span>
-{% endif %}
-</div>
-
-                            </div>
-                            <div id="rating-thankyou" class="alert" style="display: none;">
-                                Děkujeme za hodnocení1!
-                            </div>
-
-                            <div id="rating-thankyou2" class="alert" style="display: none;">Děkujeme za hodnocení!</div>
-                        </div>
-                    </div>
 
                     <ul class="list-unstyled" style="margin-top: 0;">
                         <li><strong>Originální název:</strong> {{ movie.title }}</li>

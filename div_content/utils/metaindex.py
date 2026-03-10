@@ -48,7 +48,7 @@ def add_to_metaindex(instance, section):
             item_id=instance.gameid,
             title=instance.titlecz or instance.title,
             author="",
-            year = str(instance.premieredate.year) if instance.premieredate else "",
+            year = str(instance.year) if instance.year else "",
             description=(instance.descriptioncz or instance.description or "")[:255],
             divrating=str(instance.divrating or "0"),
             img=instance.img,

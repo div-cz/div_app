@@ -13,6 +13,51 @@ from django.db.models import Max, OuterRef, Subquery, Count
 from django.core.paginator import Paginator
 from div_content.views.login import custom_login_view
 
+import os
+import smtplib
+import threading
+
+from email.message import EmailMessage as PyEmailMessage
+from django.template.loader import render_to_string
+
+def send_forum_comment_notification(comment):
+
+    def _send(comment):
+        topic = comment.topic
+        user = comment.user
+
+        recipient = ["forum@div.cz"]
+
+        context = {
+            "username": user.username,
+            "topic_title": topic.title,
+            "topic_url": f"https://div.cz/forum/{topic.section.slug}/{topic.topicurl}/",
+            "comment": comment.body[:500],
+        }
+
+        html_email = render_to_string(
+            "emails/forum_new_comment.html",
+            context
+        )
+
+        msg = PyEmailMessage()
+        msg["Subject"] = f"[DIV Fórum]: {topic.title}"
+        msg["From"] = os.getenv("FORUM_EMAIL")
+        msg["To"] = os.getenv("FORUM_EMAIL") # recipient[0]
+        msg.set_content(html_email, subtype="html")
+
+        try:
+            with smtplib.SMTP_SSL("smtp.seznam.cz", 465) as smtp:
+                smtp.login(
+                    os.getenv("FORUM_EMAIL"),
+                    os.getenv("FORUM_PASSWORD")
+                )
+                smtp.send_message(msg)
+        except Exception as e:
+            print(f"[✖] Chyba při odesílání forum emailu: {e}")
+
+    threading.Thread(target=_send, args=(comment,)).start()
+
 
 
 # index
@@ -111,11 +156,13 @@ def create_new_topic(request, slug):
             new_topic.section = section
             new_topic.save()
 
-            Forumcomment.objects.create(
+            comment = Forumcomment.objects.create(
                 topic=new_topic,
                 user=request.user,
                 body=form.cleaned_data['first_post']
             )
+
+            send_forum_comment_notification(comment)
 
             return redirect("forum_topic_detail", slug=section.slug, topicurl=new_topic.topicurl)
     else:
@@ -140,6 +187,9 @@ def forum_topic_detail(request, slug, topicurl):
             comment.topic = topic
             comment.user = request.user
             comment.save()
+            
+            send_forum_comment_notification(comment)
+            
             return redirect("forum_topic_detail", slug=slug, topicurl=topicurl)
     else:
         form = ForumCommentForm()
@@ -242,6 +292,9 @@ def comment_reply(request, slug, topicurl, forumcommentid):
             reply_comment.user = request.user
             reply_comment.parentcommentid = comment.forumcommentid
             reply_comment.save()
+            
+            send_forum_comment_notification(reply_comment)
+            
             return redirect("forum_topic_detail", slug=slug, topicurl=topicurl)
     else:
         form = ForumCommentForm()

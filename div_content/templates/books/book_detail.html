@@ -218,56 +218,23 @@
 .div-rating-book .rate-btn { font-size: 28px !important; margin: 0 !important; padding: 0 !important; }
 
 /* Zobrazit hodnocení pod obrázkem na mobilu */
-@media (max-width: 991px) {
-    .box-img .box-info-rating {
-        display: flex !important;
-    }
-    .box-img .div-rating-stars {
-        width: 100%;
-        text-align: center;
-    }
-}
-
-/* Tablet – box-detail hodnocení zobrazit, ale bez kolečka */
-@media (min-width: 768px) and (max-width: 991px) {
-    .box-detail .box-info-rating {
-        display: flex !important;
-    }
-    .box-detail .box-info-rating .rating {
-        display: none;
-    }
-}
-
-/* Desktop 992px+ – box-img hodnocení skrýt (je na pravé straně) */
-@media (min-width: 992px) {
-    .box-img .box-info-rating {
-        display: none;
-    }
-}
-/* Na tabletu skrýt hvězdičky v box-img, zobrazit jen v box-detail */
-@media (min-width: 768px) {
-    .box-img .box-info-rating {
-        display: none !important;
-    }
-}
-
-/* Na mobilu skrýt hvězdičky v box-detail, zobrazit jen v box-img */
 @media (max-width: 767px) {
-    .box-detail .box-info-rating {
-        display: none !important;
-    }
-    .box-img .box-info-rating {
-        display: flex !important;
-    }
-    .box-img .box-info-rating {
-        flex-direction: column;
-        align-items: center;
-        margin-top: 0.5rem;
-    }
-    .box-img .div-rating-stars {
-        display: flex;
-        justify-content: center;
-    }
+    .box-detail .box-info-rating { display: none !important; }
+    .box-img .box-info-rating    { display: flex !important; flex-direction: column; align-items: center; margin-top: 0.5rem; }
+}
+
+/* tablet */
+@media (min-width: 768px) and (max-width: 991px) {
+    .box-body                    { flex-wrap: wrap !important; }
+    .box-detail                  { width: 100% !important; flex-basis: 100% !important; margin-top: 1rem !important; }
+    .box-img .box-info-rating    { display: flex !important; flex-direction: column; align-items: center; padding-left: 4rem !important; }
+    .box-detail .box-info-rating { display: none !important; }
+}
+
+/* desktop */
+@media (min-width: 992px) {
+    .box-img .box-info-rating    { display: none !important; }
+    .box-detail .box-info-rating { display: none !important; }
 }
     </style>
 
@@ -445,51 +412,8 @@
                     </div>
                 </div>
 
-<!-- tablet -->
+
                 <div class="box-detail">
-                    <div class="box-info-rating">
-                        <div class="rating" data-rating="{{ average_rating }}">
-                            <div class="rating-inner">
-                                {{ average_rating }}%
-                            </div>
-                        </div>
-
-
-<div class="div-rating-stars div-rating-book">
-{% if user.is_authenticated %}
-<form method="post" action="{% url 'div_rate_book' book_url=book.url %}">{% csrf_token %}
-<span class="stars-display">
-<button type="submit" name="score" value="0" class="rate-btn trash">{% if user_rating and user_rating.score == 0 %}👎{% else %}👎{% endif %}</button>
-{% if user_rating %}
-<button type="submit" name="score" value="1" class="rate-btn">{% if user_rating.score >= 1 %}★{% else %}☆{% endif %}</button>
-<button type="submit" name="score" value="2" class="rate-btn">{% if user_rating.score >= 2 %}★{% else %}☆{% endif %}</button>
-<button type="submit" name="score" value="3" class="rate-btn">{% if user_rating.score >= 3 %}★{% else %}☆{% endif %}</button>
-<button type="submit" name="score" value="4" class="rate-btn">{% if user_rating.score >= 4 %}★{% else %}☆{% endif %}</button>
-<button type="submit" name="score" value="5" class="rate-btn">{% if user_rating.score >= 5 %}★{% else %}☆{% endif %}</button>
-{% else %}
-<button type="submit" name="score" value="1" class="rate-btn">☆</button>
-<button type="submit" name="score" value="2" class="rate-btn">☆</button>
-<button type="submit" name="score" value="3" class="rate-btn">☆</button>
-<button type="submit" name="score" value="4" class="rate-btn">☆</button>
-<button type="submit" name="score" value="5" class="rate-btn">☆</button>
-{% endif %}
-</span>
-</form>
-{% else %}
-<span class="stars-display">
-<span class="rating-trash">👎</span>
-{% if average_rating >= 20 %}★{% else %}☆{% endif %}
-{% if average_rating >= 40 %}★{% else %}☆{% endif %}
-{% if average_rating >= 60 %}★{% else %}☆{% endif %}
-{% if average_rating >= 80 %}★{% else %}☆{% endif %}
-{% if average_rating >= 90 %}★{% else %}☆{% endif %}
-</span>
-{% endif %}
-</div>
-
-
-                        <button class="rating-popup-btn btn add-book" style="margin: 0 auto;">Hodnocení knihy</button>
-                    </div>
 
                     <ul class="list-unstyled" style="margin-top: 0;">
                         <li><strong>Originální název: </strong>{{ book.title|default:"" }}</li>
@@ -516,9 +440,9 @@
                             </li>
                         {% endif %}
                 
-                        <li><strong>Předloha:</strong>
+                        <!--<li><strong>Předloha:</strong>
                             <a href="">Název filmu / hry</a>
-                        </li>
+                        </li>-->
 
                         <!-- SÉRIE -->
                         {% if series %}

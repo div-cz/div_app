@@ -12,7 +12,7 @@ class Game(models.Model):
     title = models.CharField(db_column='Title', max_length=255)
     titlecz = models.CharField(db_column='TitleCZ', max_length=255, null=True, blank=True)
     special = models.IntegerField(db_column='Special', db_index=True, blank=True, null=True)
-    url = models.CharField(db_column='URL', max_length=255, null=True, blank=True)
+    url = models.CharField(db_column='URL', max_length=255, db_index=True, null=True, blank=True)
     img = models.CharField(db_column='IMG', max_length=255,  null=True, blank=True)
     igdbid = models.IntegerField(db_column='IgdbID', null=True, blank=True)
     rawgid = models.IntegerField(db_column='RawgID', null=True, blank=True)

@@ -39,6 +39,7 @@ USERLISTTYPE_FAVORITE_GAME_ID = 7 # Oblíbená hra
 USERLISTTYPE_PLAYLIST_ID = 8 # Chci hrát
 USERLISTTYPE_PLAYED_GAMES_ID = 9 # Odehráno
 USERLISTTYPE_GAME_LIBRARY_ID = 12 # Gamotéka
+USERLISTTYPE_IM_PLAYING_ID = 27     # Hraju 
 
 CONTENT_TYPE_GAME_ID = 19
 
@@ -127,6 +128,46 @@ def game_detail(request, game_url):
 
     genres = Gamegenre.objects.filter(gameid=game).select_related('genreid')
 
+    # POČTY PRO SYSTÉMOVÉ SEZNAMY
+    list_counts = {
+        "favourites": 0,
+        "playlist": 0,
+        "played": 0,
+        "library": 0,
+        "playing": 0,
+    }
+
+    rows = (
+        Userlistitem.objects
+        .filter(
+            content_type_id=CONTENT_TYPE_GAME_ID,
+            object_id=game.gameid,
+            userlist__listtype_id__in=[
+                USERLISTTYPE_FAVORITE_GAME_ID,
+                USERLISTTYPE_PLAYLIST_ID,
+                USERLISTTYPE_PLAYED_GAMES_ID,
+                USERLISTTYPE_GAME_LIBRARY_ID,
+                USERLISTTYPE_IM_PLAYING_ID,
+            ]
+        )
+        .values("userlist__listtype_id")
+        .annotate(total=Count("userlistitemid"))
+    )
+
+    for r in rows:
+        if r["userlist__listtype_id"] == USERLISTTYPE_FAVORITE_GAME_ID:
+            list_counts["favourites"] = r["total"]
+        if r["userlist__listtype_id"] == USERLISTTYPE_PLAYLIST_ID:
+            list_counts["playlist"] = r["total"]
+        if r["userlist__listtype_id"] == USERLISTTYPE_PLAYED_GAMES_ID:
+            list_counts["played"] = r["total"]
+        if r["userlist__listtype_id"] == USERLISTTYPE_GAME_LIBRARY_ID:
+            list_counts["library"] = r["total"]
+        if r["userlist__listtype_id"] == USERLISTTYPE_IM_PLAYING_ID:
+            list_counts["playing"] = r["total"]
+    # // POČTY PRO SYSTÉMOVÉ SEZNAMY
+
+
     # Formulář a jeho odeslání
     gamelisting_form = None
     if request.user.is_authenticated:
@@ -212,7 +253,15 @@ def game_detail(request, game_url):
     else:
         is_in_game_library = False
 
-
+    if user.is_authenticated:
+        try:
+            im_playing_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_IM_PLAYING_ID)
+            im_playing_list = Userlist.objects.get(user=user, listtype=im_playing_type)
+            is_in_im_playing = Userlistitem.objects.filter(object_id=game.gameid, userlist=im_playing_list).exists()
+        except Exception:
+            is_in_im_playing = False
+    else:
+        is_in_im_playing = False
 
 
     # Game rating
@@ -277,6 +326,8 @@ def game_detail(request, game_url):
         "is_in_playlist": is_in_playlist,
         "is_in_played": is_in_played,
         "is_in_game_library": is_in_game_library,
+        'list_counts': list_counts,
+        'is_in_im_playing': is_in_im_playing,
         'ratings': ratings,
         'average_rating': average_rating,
         'user_rating': user_rating,
@@ -493,6 +544,36 @@ def remove_from_game_library(request, gameid):
     
     return redirect("game_detail", game_url=game.url)
 
+
+
+# Přidat do seznamu: Hraju
+@login_required
+def add_to_im_playing(request, gameid):
+    game = get_object_or_404(Game, gameid=gameid)
+    im_playing_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_IM_PLAYING_ID)
+    im_playing_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=im_playing_type)
+
+    if not Userlistitem.objects.filter(userlist=im_playing_list, object_id=gameid).exists():
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_GAME_ID)
+        Userlistitem.objects.create(
+            userlist=im_playing_list,
+            content_type=content_type,
+            object_id=gameid
+        )
+
+    return redirect("game_detail", game_url=game.url)
+
+
+# Smazat ze seznamu: Hraju
+@login_required
+def remove_from_im_playing(request, gameid):
+    game = get_object_or_404(Game, gameid=gameid)
+    im_playing_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_IM_PLAYING_ID)
+    im_playing_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=im_playing_type)
+    userlistgame = Userlistitem.objects.get(object_id=gameid, userlist=im_playing_list)
+    userlistgame.delete()
+
+    return redirect("game_detail", game_url=game.url)
 
 # -------------------------------------------------------------------
 #                    KONEC
