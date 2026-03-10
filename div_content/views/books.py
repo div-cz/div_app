@@ -104,6 +104,7 @@ USERLISTTYPE_FAVORITE_BOOK_ID = 4 # Oblíbená kniha
 USERLISTTYPE_READLIST_ID = 5 # Chci číst
 USERLISTTYPE_READ_BOOKS_ID = 6 # Přečteno
 USERLISTTYPE_BOOK_LIBRARY_ID = 10 # Knihovna
+USERLISTTYPE_IM_READING = 26 # Právě čtu
 
 #CONTENT_TYPE_BOOK_ID = 9
 book_content_type = ContentType.objects.get_for_model(Book)
@@ -460,6 +461,52 @@ def get_book_price(book_id, format):
 
 def book_detail(request, book_url):
     book = get_object_or_404(Book, url=book_url)
+    # -------------------------------------------------------------------
+    # COUNTY PRO SYSTÉMOVÉ SEZNAMY
+    # -------------------------------------------------------------------
+    
+    list_counts = {
+        "favourites": 0,
+        "readlist": 0,
+        "read": 0,
+        "library": 0,
+        "reading": 0,
+    }
+    
+    rows = (
+        Userlistitem.objects
+        .filter(
+            content_type_id=CONTENT_TYPE_BOOK_ID,
+            object_id=book.bookid,
+            userlist__listtype_id__in=[
+                USERLISTTYPE_FAVORITE_BOOK_ID,
+                USERLISTTYPE_READLIST_ID,
+                USERLISTTYPE_READ_BOOKS_ID,
+                USERLISTTYPE_BOOK_LIBRARY_ID,
+                USERLISTTYPE_IM_READING
+            ]
+        )
+        .values("userlist__listtype_id")
+        .annotate(total=Count("userlistitemid"))
+    )
+    
+    for r in rows:
+        if r["userlist__listtype_id"] == USERLISTTYPE_FAVORITE_BOOK_ID:
+            list_counts["favourites"] = r["total"]
+    
+        if r["userlist__listtype_id"] == USERLISTTYPE_READLIST_ID:
+            list_counts["readlist"] = r["total"]
+    
+        if r["userlist__listtype_id"] == USERLISTTYPE_READ_BOOKS_ID:
+            list_counts["read"] = r["total"]
+    
+        if r["userlist__listtype_id"] == USERLISTTYPE_BOOK_LIBRARY_ID:
+            list_counts["library"] = r["total"]
+    
+        if r["userlist__listtype_id"] == USERLISTTYPE_IM_READING:
+            list_counts["reading"] = r["total"]
+    # // COUNTY PRO SYSTÉMOVÉ SEZNAMY
+
     user = request.user
     comment_form = None
     series = None
@@ -538,6 +585,26 @@ def book_detail(request, book_url):
             is_in_book_library = False
     else:
         is_in_book_library = False
+
+        # Zjistí, jestli má uživatel knihu v seznamu Právě čtu
+    if user.is_authenticated:
+        try:
+            im_reading_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_IM_READING)
+            im_reading_list = Userlist.objects.get(user=user, listtype=im_reading_type)
+            is_in_im_reading = Userlistitem.objects.filter(object_id=book.bookid, userlist=im_reading_list).exists()
+        except Exception as e:
+            is_in_im_reading = False
+    else:
+        is_in_im_reading = False
+    
+    # VLASTNÍ SEZNAMY
+    user_lists = []
+    
+    if request.user.is_authenticated:
+        user_lists = Userlist.objects.filter(
+            user=request.user,
+            listtype__isnull=True
+        )
     
     if user.is_authenticated:
         if 'comment' in request.POST:
@@ -823,6 +890,7 @@ def book_detail(request, book_url):
 
     return render(request, 'books/book_detail.html', {
         'book': book,
+        'list_counts': list_counts,
         'authors': authors, 
         'genres': genres, 
         'duplicate_editions': duplicate_editions,
@@ -835,6 +903,8 @@ def book_detail(request, book_url):
         "is_in_readlist": is_in_readlist,
         "is_in_read_books": is_in_read_books,
         "is_in_book_library": is_in_book_library,
+        "is_in_im_reading": is_in_im_reading,
+        'user_lists': user_lists,
         'ratings': ratings,
         'average_rating': average_rating,
         'user_rating': user_rating,
@@ -1278,6 +1348,36 @@ def add_to_read_books(request, bookid):
     
     return redirect("book_detail", book_url=book.url)   
 
+# -------------------------------------------------------------------
+# F:                 USER LIST
+# -------------------------------------------------------------------
+
+@login_required
+def add_to_user_list(request, listid, bookid):
+
+    userlist = get_object_or_404(Userlist, userlistid=listid, user=request.user)
+
+    Userlistitem.objects.get_or_create(
+        userlist=userlist,
+        content_type_id=CONTENT_TYPE_BOOK_ID,
+        object_id=bookid
+    )
+
+    return redirect("book_detail", book_url=request.GET.get("url"))
+
+
+@login_required
+def create_user_list(request):
+
+    name = request.POST.get("name")
+
+    if name:
+        Userlist.objects.create(
+            user=request.user,
+            namelist=name
+        )
+
+    return redirect(request.META.get("HTTP_REFERER"))
 
 # -------------------------------------------------------------------
 # F:                 ADD TO BOOK LIBRARY
@@ -1298,6 +1398,26 @@ def add_to_book_library(request, bookid):
             object_id=bookid)
     
     return redirect("book_detail", book_url=book.url) 
+
+
+# Přidat do sezanmu: Právě čtu
+@login_required
+def add_to_im_reading(request, bookid):
+    book = get_object_or_404(Book, bookid=bookid)
+    im_reading_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_IM_READING)
+    im_reading_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=im_reading_type)
+
+    if Userlistitem.objects.filter(userlist=im_reading_list, object_id=bookid).exists():
+        pass
+    else:
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_BOOK_ID)
+        Userlistitem.objects.create(
+            userlist=im_reading_list, 
+            content_type=content_type,
+            object_id=bookid
+            )
+
+    return redirect("book_detail", book_url=book.url)
 
 
 # -------------------------------------------------------------------
@@ -1518,6 +1638,20 @@ def remove_book_duplicate(request):
             })
     
     return JsonResponse({'success': False, 'error': 'Neplatný požadavek'})
+
+
+# -------------------------------------------------------------------
+# F:                 REMOVE FROM IM READING LIST
+# -------------------------------------------------------------------
+@login_required
+def remove_from_im_reading(request, bookid):
+    book = get_object_or_404(Book, bookid=bookid)
+    im_reading = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_IM_READING)
+    im_reading_list, _ = Userlist.objects.get_or_create(user = request.user, listtype=im_reading)
+    userlistbook = Userlistitem.objects.get(object_id=bookid, userlist=im_reading_list)
+    userlistbook.delete()
+    
+    return redirect("book_detail", book_url=book.url)
 
 # -------------------------------------------------------------------
 #                    KONEC

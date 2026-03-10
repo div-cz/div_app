@@ -1,8 +1,9 @@
-
-/* TOGGLE */
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* MENU */
+    /* =========================
+       MENU TOGGLE
+    ========================= */
+
     const menuIcon = document.getElementById("menu-icon");
     const menuSection = document.getElementById("menu-section");
     const menuOpen = document.getElementById("menu-open");
@@ -18,197 +19,288 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    /* DARK / LIGHT MODE */
+
+    /* =========================
+       DARK / LIGHT MODE
+    ========================= */
+
     const sunIcon = document.querySelector(".sun");
     const moonIcon = document.querySelector(".moon");
-
-    if (!sunIcon || !moonIcon) return;
-
     const html = document.documentElement;
 
-    const setInitialTheme = () => {
-        const savedTheme = localStorage.getItem("theme");
-        const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (sunIcon && moonIcon) {
 
-        if (savedTheme === "dark" || (!savedTheme && systemDark)) {
-            html.classList.add("dark");
-        } else {
-            html.classList.remove("dark");
-        }
-    };
+        const setInitialTheme = () => {
+            const savedTheme = localStorage.getItem("theme");
+            const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-    const toggleTheme = () => {
-        html.classList.toggle("dark");
-        localStorage.setItem(
-            "theme",
-            html.classList.contains("dark") ? "dark" : "light"
-        );
-    };
+            if (savedTheme === "dark" || (!savedTheme && systemDark)) {
+                html.classList.add("dark");
+            } else {
+                html.classList.remove("dark");
+            }
+        };
 
-    sunIcon.addEventListener("click", toggleTheme);
-    moonIcon.addEventListener("click", toggleTheme);
+        const toggleTheme = () => {
+            html.classList.toggle("dark");
 
-    setInitialTheme();
-});
+            localStorage.setItem(
+                "theme",
+                html.classList.contains("dark") ? "dark" : "light"
+            );
+        };
+
+        sunIcon.addEventListener("click", toggleTheme);
+        moonIcon.addEventListener("click", toggleTheme);
+
+        setInitialTheme();
+    }
 
 
+    /* =========================
+       LOGOUT AJAX
+    ========================= */
 
-
-
-document.addEventListener("DOMContentLoaded", function() {
     const logoutBtn = document.getElementById("logout-btn");
 
-    // Zkontrolujeme, zda existuje prvek logout-btn
     if (logoutBtn) {
-        logoutBtn.addEventListener("click", function() {
+        logoutBtn.addEventListener("click", () => {
+
             const logoutForm = document.getElementById("logout-form");
+            if (!logoutForm) return;
+
             const formData = new FormData(logoutForm);
 
             fetch(logoutForm.action, {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRFToken": formData.get("csrfmiddlewaretoken")
                 },
                 body: formData
-            }).then(response => {
+            })
+            .then(response => {
                 if (response.ok) {
-                    // Odhlášení bylo úspěšné
-                    window.location.reload(); // Obnovíme stránku pro aktualizaci stavu
+                    window.location.reload();
                 } else {
                     alert("Odhlášení se nezdařilo.");
                 }
-            }).catch(error => {
+            })
+            .catch(error => {
                 console.error("Chyba při odhlášení:", error);
                 alert("Odhlášení se nezdařilo.");
             });
         });
     }
-});
 
 
+    /* =========================
+       RATING (stars)
+    ========================= */
+const stars = document.querySelectorAll(".stars-display .rate-btn");
+let savedRating = -1;
 
+stars.forEach((star, index) => {
 
-// RATING
-document.addEventListener('DOMContentLoaded', () => {
-    // Najdeme všechny elementy s třídou .rating
-    const ratingElements = document.querySelectorAll('.rating');
+    star.addEventListener("mouseenter", () => {
+        highlight(index);
+    });
 
-    ratingElements.forEach(ratingElement => {
-        // Získáme hodnotu hodnocení z datového atributu nebo DOM
-        const ratingValue = parseInt(ratingElement.getAttribute('data-rating')) || 0;
+    star.addEventListener("click", () => {
+        savedRating = index;
+        highlight(savedRating);
+    });
 
-        // Dynamický výběr barvy podle hodnocení
-        let gradientColor;
-
-        if (ratingValue >= 80) {
-            gradientColor = '#0a0'; // Zelená
-        } else if (ratingValue >= 60) {
-            gradientColor = '#FFD700'; // Žlutá
-        } else if (ratingValue >= 40) {
-            gradientColor = '#1E90FF'; // Světle modrá
-        } else if (ratingValue >= 10) {
-            gradientColor = '#FF4500'; // Červená
+    star.addEventListener("mouseleave", () => {
+        if(savedRating === -1){
+            clearStars();
         } else {
-            gradientColor = '#555'; // Šedá
-        }
-
-        const gradientValue = `${ratingValue}%`;
-
-        // Nastavení vlastností CSS proměnných pro každý element
-        ratingElement.style.setProperty('--gradient-color', gradientColor);
-        ratingElement.style.setProperty('--gradient-value', gradientValue);
-
-        // Nastavení textu hodnocení uvnitř elementu
-        const ratingInner = ratingElement.querySelector('.rating-inner');
-        if (ratingInner) {
-            ratingInner.innerHTML = `${ratingValue}<span>%</span>`;
+            highlight(savedRating);
         }
     });
+
 });
 
-
-
-// RATING-LIST -> ...list.html
-document.addEventListener('DOMContentLoaded', () => {
-    // Najdeme všechny elementy s třídou .rating
-    const ratingElements = document.querySelectorAll('.rating-list');
-
-    ratingElements.forEach(ratingElement => {
-        // Získáme hodnotu hodnocení z datového atributu nebo DOM
-        const ratingValue = parseInt(ratingElement.getAttribute('data-rating')) || 0;
-
-        // Dynamický výběr barvy podle hodnocení
-        let gradientColor;
-
-        if (ratingValue >= 80) {
-            gradientColor = '#0a0'; // Zelená
-        } else if (ratingValue >= 60) {
-            gradientColor = '#FFD700'; // Žlutá
-        } else if (ratingValue >= 40) {
-            gradientColor = '#1E90FF'; // Světle modrá
-        } else if (ratingValue >= 10) {
-            gradientColor = '#FF4500'; // Červená
+function highlight(index){
+    stars.forEach((star,i)=>{
+        if(i <= index){
+            star.classList.add("active");
         } else {
-            gradientColor = '#555'; // Šedá
-        }
-
-        const gradientValue = `${ratingValue}%`;
-
-        // Nastavení vlastností CSS proměnných pro každý element
-        ratingElement.style.setProperty('--gradient-color', gradientColor);
-        ratingElement.style.setProperty('--gradient-value', gradientValue);
-
-        // Nastavení textu hodnocení uvnitř elementu
-        const ratingInner = ratingElement.querySelector('.rating-list-inner');
-        if (ratingInner) {
-            ratingInner.innerHTML = `${ratingValue}<span>%</span>`;
-        }
-    });
-});
-
-
-const bellBtn = document.getElementById('bellBtn');
-const dropbox = document.getElementById('dropbox');
-
-if (bellBtn && dropbox) {
-
-    bellBtn.addEventListener('click', () => {
-        const isHidden = dropbox.classList.contains('hidden');
-        dropbox.classList.toggle('hidden', !isHidden);
-        bellBtn.setAttribute('aria-expanded', isHidden);
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!bellBtn.contains(e.target) && !dropbox.contains(e.target)) {
-            dropbox.classList.add('hidden');
-            bellBtn.setAttribute('aria-expanded', 'false');
+            star.classList.remove("active");
         }
     });
 }
 
+function clearStars(){
+    stars.forEach(star => star.classList.remove("active"));
+}
 
 
 
-  
-// HODNOCENÍ POPUP NA MOBIL
-document.addEventListener("DOMContentLoaded", () => {
-    const popup = document.getElementById("ratingPopup");
-    const closeBtn = popup.querySelector(".popup-close");
+    /* =========================
+       RATING (detail)
+    ========================= */
 
-    // Všechna tlačítka (mobil + desktop)
-    document.querySelectorAll(".rating-popup-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            popup.style.display = "block";
+    document.querySelectorAll(".rating").forEach(ratingElement => {
+
+        const ratingValue = parseInt(ratingElement.dataset.rating) || 0;
+
+        let gradientColor;
+
+        if (ratingValue >= 80) gradientColor = "#0a0";
+        else if (ratingValue >= 60) gradientColor = "#FFD700";
+        else if (ratingValue >= 40) gradientColor = "#1E90FF";
+        else if (ratingValue >= 10) gradientColor = "#FF4500";
+        else gradientColor = "#555";
+
+        ratingElement.style.setProperty("--gradient-color", gradientColor);
+        ratingElement.style.setProperty("--gradient-value", `${ratingValue}%`);
+
+        const ratingInner = ratingElement.querySelector(".rating-inner");
+
+        if (ratingInner) {
+            ratingInner.innerHTML = `${ratingValue}<span>%</span>`;
+        }
+
+    });
+
+
+    /* =========================
+       RATING LIST
+    ========================= */
+
+    document.querySelectorAll(".rating-list").forEach(ratingElement => {
+
+        const ratingValue = parseInt(ratingElement.dataset.rating) || 0;
+
+        let gradientColor;
+
+        if (ratingValue >= 80) gradientColor = "#0a0";
+        else if (ratingValue >= 60) gradientColor = "#FFD700";
+        else if (ratingValue >= 40) gradientColor = "#1E90FF";
+        else if (ratingValue >= 10) gradientColor = "#FF4500";
+        else gradientColor = "#555";
+
+        ratingElement.style.setProperty("--gradient-color", gradientColor);
+        ratingElement.style.setProperty("--gradient-value", `${ratingValue}%`);
+
+        const ratingInner = ratingElement.querySelector(".rating-list-inner");
+
+        if (ratingInner) {
+            ratingInner.innerHTML = `${ratingValue}<span>%</span>`;
+        }
+
+    });
+
+
+    /* =========================
+       NOTIFICATION DROPDOWN
+    ========================= */
+
+    const bellBtn = document.getElementById("bellBtn");
+    const dropbox = document.getElementById("dropbox");
+
+    if (bellBtn && dropbox) {
+
+        bellBtn.addEventListener("click", (e) => {
+
+            e.stopPropagation();
+
+            const isHidden = dropbox.classList.contains("hidden");
+
+            dropbox.classList.toggle("hidden", !isHidden);
+            bellBtn.setAttribute("aria-expanded", isHidden);
         });
-    });
 
-    closeBtn.addEventListener("click", () => {
-        popup.style.display = "none";
-    });
+        document.addEventListener("click", (e) => {
+            if (!bellBtn.contains(e.target) && !dropbox.contains(e.target)) {
+                dropbox.classList.add("hidden");
+                bellBtn.setAttribute("aria-expanded", "false");
+            }
+        });
 
-    // klik mimo okno = zavřít
-    popup.addEventListener("click", e => {
-        if (e.target === popup) popup.style.display = "none";
-    });
+    }
+
+
+    /* =========================
+       RATING POPUP (MOBILE)
+    ========================= */
+
+    const popup = document.getElementById("ratingPopup");
+
+    if (popup) {
+
+        const closeBtn = popup.querySelector(".popup-close");
+
+        document.querySelectorAll(".rating-popup-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                popup.style.display = "block";
+            });
+        });
+
+        if (closeBtn) {
+            closeBtn.addEventListener("click", () => {
+                popup.style.display = "none";
+            });
+        }
+
+        popup.addEventListener("click", e => {
+            if (e.target === popup) {
+                popup.style.display = "none";
+            }
+        });
+
+    }
+
+
+    /* =========================
+       CUSTOM LIST MODAL
+    ========================= */
+
+    const modal = document.getElementById("listModal");
+    const openBtn = document.getElementById("openListModal");
+    const closeBtn = document.querySelector(".close-modal");
+
+    if (modal && openBtn && closeBtn) {
+
+        openBtn.addEventListener("click", () => {
+            modal.style.display = "block";
+        });
+
+        closeBtn.addEventListener("click", () => {
+            modal.style.display = "none";
+        });
+
+        window.addEventListener("click", (event) => {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+    }
+    
+    const userLists = document.querySelector(".user-lists");
+
+    if (userLists) {
+        userLists.addEventListener("click", (e) => {
+
+            const item = e.target.closest(".list-item");
+            if (!item) return;
+
+            item.classList.toggle("active");
+
+            const toggle = item.querySelector(".list-toggle");
+
+            toggle.textContent = item.classList.contains("active") ? "✓" : "+";
+
+            const listId = item.dataset.listId;
+
+            console.log("toggle list:", listId);
+
+        });
+    }
+
 });
+
+
+
+

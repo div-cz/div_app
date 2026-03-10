@@ -16,7 +16,7 @@ from div_content.forms.movies import CommentForm, SearchForm
 from div_content.models import (
 
     AATask, Article, Articlenews, Book, Bookcomments, Booklisting, Bookpurchase, Creator, Creatorbiography, Game, Gamecomments, 
-    Metacharts, Metagenre, Metaindex, Metalocation,  Metastats, Movie, Moviecinema, Moviedistributor, Moviecomments, Moviecrew, Moviegenre, Movierating, 
+    Metacharts, Metagenre, Metaindex, Metalocation,  Metastats, Movie, Moviecinema, Moviedistributor, Moviecomments, Moviecrew, Moviegenre, Moviequotes, Movierating, 
     Tvgenre, Tvshow, User, Userprofile
 
 )
@@ -32,6 +32,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import DetailView
 
+from django.core.cache import cache
 #importy pro zasílání e-mailu
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
@@ -534,7 +535,19 @@ def movies(request, year=None, genre_url=None, movie_url=None):
         stats_tvshows = Metastats.objects.filter(tablemodel="TVShow").first()
         stats_moviecomments = Metastats.objects.filter(tablemodel="MovieComments").first()
 
-
+        # náhodná hláška z filmu
+        random_movie_quote = cache.get("div_random_movie_quote")
+        
+        if not random_movie_quote:
+            random_movie_quote = (
+                Moviequotes.objects
+                .filter(divrating__gte=1)
+                .select_related("movie")
+                .order_by("?")
+                .first()
+            )
+            cache.set("div_random_movie_quote", random_movie_quote, 600)
+    
         # Filmy v kinech
         movies_in_cinema = Moviecinema.objects.select_related('movieid', 'distributorid').order_by('-releasedate').values(
         'movieid__title', 'movieid__titlecz', 'movieid__img', 'movieid__imgposter', 'releasedate', 'movieid__url')[:10]
@@ -545,6 +558,7 @@ def movies(request, year=None, genre_url=None, movie_url=None):
         )[:10]
 
         latest_comments = Moviecomments.objects.order_by('-dateadded')[:3]
+        
         return render(request, 'movies/movies_list.html', {
             'movies': movies, 
             'movies_carousel': movies_carousel, 
@@ -552,6 +566,7 @@ def movies(request, year=None, genre_url=None, movie_url=None):
             'stats_movie': stats_movie,
             'stats_tvshows': stats_tvshows,
             'stats_moviecomments': stats_moviecomments,
+            'random_movie_quote': random_movie_quote,
             'movies_in_cinema': movies_in_cinema,
             'carousel_cinema': carousel_cinema,
             'category_key': 'serialy',

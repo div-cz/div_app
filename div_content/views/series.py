@@ -39,6 +39,7 @@ from div_content.models import (
     Userlisttype, Userlist, Userlistitem, Userlisttvshow, Userlisttvseason, Userlisttvepisode, 
     
 )
+from div_content.models.meta import Divrating, Divuserrating
 
 from div_content.forms.series import CommentForm, SearchForm, TrailerForm, TVShowDivRatingForm
 
@@ -799,21 +800,27 @@ def serie_detail(request, tv_url):
     productions = Tvproductions.objects.filter(tvshowid=tvshow.tvshowid).select_related('metaproductionid')
 
     # Hodnocení pro TV Show
+    # Hodnocení pro TV Show – Divrating
+    from div_content.models.meta import Divrating, Divuserrating
+    from django.db.models import Avg
+    
     tvshow_content_type = ContentType.objects.get_for_model(Tvshow)
-    ratings = UserRating.objects.filter(rating__content_type=tvshow_content_type, rating__object_id=tvshow.tvshowid)
-
-    # Výpočet průměrného hodnocení
-    average_rating_result = ratings.aggregate(average=Avg('score'))
-    average_rating = average_rating_result.get('average')
-    if average_rating is not None:
-        average_rating = round(float(average_rating) * 20)
+    div_rating_obj = Divrating.objects.filter(
+        content_type=tvshow_content_type,
+        object_id=tvshow.tvshowid
+    ).first()
+    
+    ratings = Divuserrating.objects.filter(rating=div_rating_obj).select_related("user").order_by("-modified") if div_rating_obj else []
+    
+    if div_rating_obj and div_rating_obj.average:
+        average_rating = round(float(div_rating_obj.average) * 20)
     else:
         average_rating = 0
-
-    # Získání uživatelského hodnocení
+    
     user_rating = None
-    if user.is_authenticated:
-        user_rating = UserRating.objects.filter(user=user, rating__object_id=tvshow.tvshowid).first()
+    if user.is_authenticated and div_rating_obj:
+        user_rating = Divuserrating.objects.filter(rating=div_rating_obj, user=user).first()
+    
 
 
     # Získání herců a postav pro seriál

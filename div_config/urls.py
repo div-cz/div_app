@@ -36,11 +36,11 @@ from div_content.views.blog import blog_add_post, blog_detail, blog_index, blog_
 #                    BOOKS
 # -------------------------------------------------------------------
 from div_content.views.books import (
- add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, book_add, 
+ add_to_favourite_books, add_to_readlist, add_to_read_books, add_to_book_library, add_to_im_reading, book_add, 
  book_detail, books, books_search, books_market_offers, books_market_wants, rate_book, 
  publisher_detail, publisher_list, 
  ratequote, remove_book_rating, remove_from_favourites_books, remove_from_readlist, 
- remove_from_read_books, remove_from_book_library, character_list_ajax, set_reading_goal, 
+ remove_from_read_books, remove_from_book_library, remove_from_im_reading, character_list_ajax, set_reading_goal, 
  books_alphabetical, elastic_books, ajax_search_books_for_duplicates, report_book_duplicate, 
  remove_book_duplicate,
     )
@@ -118,7 +118,7 @@ from div_content.views.payments import (bank_transactions, generate_qr, check_pu
 # -------------------------------------------------------------------
 #                    RATINGSS
 # -------------------------------------------------------------------
-from div_content.views.ratings import (div_rate_movie)
+from div_content.views.ratings import (div_rate_book, div_rate_movie, div_remove_book_rating, div_rate_game, div_remove_game_rating, div_rate_tvshow, div_remove_tvshow_rating)
 
 # -------------------------------------------------------------------
 #                    SERIES
@@ -268,11 +268,15 @@ urlpatterns = [
     path('serialy/<int:year>', series_year, name='series_year'),
     path('serialy/<slug:genre_url>', series_genre, name='series_genre'),
 
+    path('serial/<str:tv_url>/hodnotit/', div_rate_tvshow, name='div_rate_tvshow'),
+    path('serial/<str:tv_url>/smazat-hodnoceni/', div_remove_tvshow_rating, name='div_remove_tvshow_rating'),
+
 
     path('serial/<str:tv_url>', serie_detail, name='serie_detail'),
     path('serial/<str:tv_url>/rate/', rate_tvshow, name='rate_tvshow'),
     path('serial/<str:tv_url>/<str:seasonurl>/', serie_season, name='serie_season'),
     path('serial/<str:tv_url>/<str:seasonurl>/<str:episodeurl>/', serie_episode, name='serie_episode'),
+
 
     path('tv/', tv, name='tv_index'),
     path('tv/<str:tv_url>', tv_detail, name='tv_detail'),
@@ -308,6 +312,10 @@ urlpatterns = [
     path('hra/ajax/countries/', country_list_ajax, name='ajax_countries'),
     path('hra/ajax/universes/', universum_list_ajax, name='ajax_universes'),
 
+
+    path('hra/hodnotit/<str:game_url>/', div_rate_game, name='div_rate_game'),
+    path('hra/smazat-hodnoceni/<str:game_url>/', div_remove_game_rating, name='div_remove_game_rating'),
+
     # GAMEKVARIAT
     path("gamekvariat/poptavky/", games_market_wants, name="games_market_wants"),
     path("gamekvariat/nabidky/", games_market_offers, name="games_market_offers"),
@@ -331,12 +339,17 @@ urlpatterns = [
     path('kniha/chci-cist-<int:bookid>', add_to_readlist, name="add_to_readlist"),
     path('kniha/precteno-<int:bookid>', add_to_read_books, name="add_to_read_books"),
     path('kniha/do-knihovny-<int:bookid>', add_to_book_library, name="add_to_book_library"),
+    path('kniha/prave-ctu-<int:bookid>', add_to_im_reading, name="add_to_im_reading"),
 
     path('kniha/odebrat-z-oblibenych-<int:bookid>', remove_from_favourites_books, name="remove_from_favourites_books"),
     path('kniha/odebrat-z-chci-cist-<int:bookid>', remove_from_readlist, name="remove_from_readlist"),
     path('kniha/odebrat-z-precteno-<int:bookid>', remove_from_read_books, name="remove_from_read_books"),
     path('kniha/odebrat-z-knihovny-<int:bookid>', remove_from_book_library, name="remove_from_book_library"),
+    path('kniha/odebrat-z-prave-ctu-<int:bookid>', remove_from_im_reading, name="remove_from_im_reading"),
     path('kniha/<slug:book_url>/smazat-hodnoceni/', remove_book_rating, name='remove_book_rating'),
+
+    path('kniha/hodnotit/<str:book_url>/', div_rate_book, name='div_rate_book'),
+    path('kniha/smazat-hodnoceni/<str:book_url>/', div_remove_book_rating, name='div_remove_book_rating'),
 
     path('kniha/<str:book_url>', book_detail, name='book_detail'),
     path('knihy/pridat/', book_add, name='book_add'),

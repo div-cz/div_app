@@ -102,7 +102,28 @@
                 </div>
             {% endfor %}
         </div>
-        
+
+{% if random_movie_quote %}
+<div class="card">
+    <div class="card-body quotes">
+
+        <h3>Hláška z filmu</h3>
+
+        <a href="/film/{{ random_movie_quote.movie.url }}" style="margin-bottom: 1rem;">
+            {{ random_movie_quote.movie.titlecz|default:random_movie_quote.movie.title }}
+        </a>
+
+        <p>„{{ random_movie_quote.quote }}“</p>
+
+        <a href="/film/{{ random_movie_quote.movie.url }}" class="more-quotes">
+            Zobrazit detail filmu
+        </a>
+
+    </div>
+</div>
+{% endif %}
+
+
         <!-- generování filmů -->
         <div class="genre-list" style="margin-bottom: 1rem;">
             {% for movie in movies_list_15 %} 
@@ -131,6 +152,7 @@
                 </div>
             {% endfor %}
         </div>
+
 
         <!-- Poslední filmové recenze -->
         <div class="card">

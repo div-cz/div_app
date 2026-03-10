@@ -1,0 +1,151 @@
+/* ==========================================================================
+   META.CSS – DIV.cz rating systém
+   film=červená | kniha=zelená | hra=modrá | seriál=červená
+   ========================================================================== */
+
+:root {
+    --div-red:        #E31E24;
+    --div-red-dark:   #A52B21;
+    --div-green:      #80AE2E;
+    --div-green-dark: #61872B;
+    --div-blue:       #00A0E3;
+    --div-blue-dark:  #0A76A9;
+    --div-gray:       #9e9e9e;
+    --star-size:      26px;
+}
+
+/* Sekční barvy – přepisuje --star-active */
+.movie-rating  { --star-active: var(--div-red); }
+.serial-rating { --star-active: var(--div-red); }
+.book-rating   { --star-active: var(--div-green); }
+.game-rating   { --star-active: var(--div-blue); }
+
+.movie-rating .stars-display {
+    font-size: 28px;
+    color: var(--div-red);
+}
+.book-rating .stars-display {
+    font-size: 28px;
+    color: var(--div-green);
+}
+.game-rating .stars-display {
+    font-size: 28px;
+    color: var(--div-blue);
+}
+
+/* Wrapper hvězdiček – vždy řádek, nikdy sloupeček */
+.div-rating-stars {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+/* Form uvnitř rating-stars musí být také inline-flex */
+.div-rating-stars form {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+}
+
+/* Žádné focus outline nikde v rating bloku */
+.div-rating-stars form:focus,
+.div-rating-stars form:focus-visible,
+.rate-btn:focus,
+.rate-btn:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Základní tlačítko hvězdičky */
+.rate-btn {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    font-size: var(--star-size);
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    color: var(--div-gray);
+    transition: transform .12s ease, color .12s ease;
+}
+
+.rate-btn:hover {
+    transform: scale(1.2);
+}
+
+/* Plná hvězda = aktivní barva sekce */
+.rate-btn .fa-solid.fa-star {
+    color: var(--star-active, var(--div-red));
+}
+
+/* Prázdná hvězda = šedá */
+.rate-btn .fa-regular.fa-star {
+    color: var(--div-gray);
+}
+
+/* Palec dolů – trochu menší, tlumený */
+.rate-btn.trash {
+    font-size: calc(var(--star-size) * 0.75);
+    opacity: 0.5;
+    margin-right: 4px;
+}
+
+.rate-btn.trash .fa-regular.fa-thumbs-down {
+    color: var(--div-gray);
+    transition: color .12s ease, opacity .12s ease;
+}
+
+.rate-btn.trash:hover {
+    transform: scale(1.15);
+    opacity: 1;
+}
+
+.rate-btn.trash:hover .fa-regular.fa-thumbs-down {
+    color: var(--div-red-dark);
+}
+
+/* Nepřihlášený – statický palec */
+.rating-trash {
+    display: inline-flex;
+    align-items: center;
+    font-size: calc(var(--star-size) * 0.75);
+    opacity: 0.4;
+    margin-right: 4px;
+    color: var(--div-gray);
+}
+
+/* ODPAD label */
+.rating-odpad {
+    color: var(--div-red);
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-size: 13px;
+}
+
+/* Mazací tlačítko v seznamu hodnocení */
+.btn-delete-rating {
+    background: none;
+    border: none;
+    color: #bbb;
+    font-size: 11px;
+    cursor: pointer;
+    padding: 2px 4px;
+    opacity: 0.6;
+    transition: color .12s ease, opacity .12s ease;
+}
+.btn-delete-rating:hover {
+    color: var(--div-red);
+    opacity: 1;
+}
+
+/* Mobil – mírně menší hvězdičky */
+@media (max-width: 767px) {
+    :root { --star-size: 22px; }
+}

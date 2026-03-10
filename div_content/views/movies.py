@@ -30,7 +30,7 @@
 # 3) third-part (třetí strana, django, auth) (abecedně)
 # -------------------------------------------------------------------
 
-import math
+import math, random
 
 from datetime import date
 from decimal import Decimal
@@ -41,7 +41,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from django.core.paginator import Paginator
 
-from django.db.models import Avg, Count, F
+from django.db.models import Avg, Count, F, Max
 
 
 from django.db import connection
@@ -557,6 +557,32 @@ def movie_detail(request, movie_url):
             messages.error(request, "Nepodařilo se přidat.")
         return redirect('movie_detail', movie_url=movie.url)
 
+
+    # Počty pro tlačítka
+    favourite_count = Userlistitem.objects.filter(
+        content_type=ContentType.objects.get(id=CONTENT_TYPE_MOVIE_ID),
+        object_id=movie.movieid,
+        userlist__listtype__userlisttypeid=USERLISTTYPE_FAVORITE_MOVIE_ID
+    ).count()
+    
+    watched_count = Userlistitem.objects.filter(
+        content_type=ContentType.objects.get(id=CONTENT_TYPE_MOVIE_ID),
+        object_id=movie.movieid,
+        userlist__listtype__userlisttypeid=USERLISTTYPE_WATCHED_ID
+    ).count()
+    
+    library_count = Userlistitem.objects.filter(
+        content_type=ContentType.objects.get(id=CONTENT_TYPE_MOVIE_ID),
+        object_id=movie.movieid,
+        userlist__listtype__userlisttypeid=USERLISTTYPE_MOVIE_LIBRARY_ID
+    ).count()
+    
+    watchlist_count = Userlistitem.objects.filter(
+        content_type=ContentType.objects.get(id=CONTENT_TYPE_MOVIE_ID),
+        object_id=movie.movieid,
+        userlist__listtype__userlisttypeid=USERLISTTYPE_WATCHLIST_ID
+    ).count()
+
     return render(request, 'movies/movie_detail.html', {
         'movie': movie,
         'display_title': display_title,
@@ -596,6 +622,12 @@ def movie_detail(request, movie_url):
         'quotes': quotes,
         'trivia': trivia,
         'errors': errors,
+        
+        'favourite_count': favourite_count,
+        'watched_count': watched_count,
+        'library_count': library_count,
+        'watchlist_count': watchlist_count,
+
     })
 
 

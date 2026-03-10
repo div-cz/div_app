@@ -3,12 +3,14 @@
 # -------------------------------------------------------------------
 
 # IMPORT na začátku, řazeno abecedně
-import math
+#import math
 
 from div_content.models import (
     Game, Gamecomments, Gamedevelopers, Gamegenre, Gamelisting, Gameplatform, Gamepublisher, Gamepurchase, Gamerating, Metacountry, Metadeveloper, Metagenre, Metaplatform, Metapublisher, Metauniversum, Userlisttype, Userlist, 
     Userlistgame, FavoriteSum, Userlistitem
 )
+from div_content.models.meta import Divrating, Divuserrating
+
 from div_content.forms.gamekvariat import GameListingForm
 from div_content.forms.games import CommentFormGame, GameForm, GameDivRatingForm
 from div_content.utils.metaindex import add_to_metaindex
@@ -25,7 +27,7 @@ from django.http import JsonResponse
 
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_POST
-from star_ratings.models import Rating, UserRating
+
 
 
 
@@ -43,42 +45,17 @@ CONTENT_TYPE_GAME_ID = 19
 
 def games(request):
     carousel_games = Game.objects.all().order_by('-divrating')[:10]
-
-    #games = Game.objects.all().order_by('-divrating')[:20] 
-    # Získáme hry včetně jejich hodnocení
-    game_content_type = ContentType.objects.get_for_model(Game)
-    games = Game.objects.all().annotate(
-        average_rating=models.Subquery(
-            Rating.objects.filter(
-                content_type=game_content_type,
-                object_id=models.OuterRef('gameid')
-            ).values('average')[:1]
-        )
-    ).order_by('-divrating').values(
-        'title', 
-        'titlecz', 
-        'description', 
-        'descriptioncz', 
-        'year',
-        'url', 
-        'img',
-        'average_rating'
+    games = Game.objects.all().order_by('-divrating').values(
+        'title', 'titlecz', 'description', 'descriptioncz',
+        'year', 'url', 'img', 'divrating'
     )[:20]
-
     latest_comments = Gamecomments.objects.order_by('-dateadded')[:3]
-    # Zaokrouhlíme hodnoty na celá čísla a převedeme na procenta
-    for game in games:
-        if game['average_rating'] is not None:
-            game['average_rating'] = round(float(game['average_rating']) * 20)  # převod z 5 na 100%
-        else:
-            game['average_rating'] = 0
-    # //
     return render(request, 'games/games_list.html', {
-        'games': games, 
+        'games': games,
         'carousel_games': carousel_games,
         'category_key': 'hry',
         'latest_comments': latest_comments,
-        })
+    })
 
 
 def games_genres(request):
@@ -240,19 +217,26 @@ def game_detail(request, game_url):
 
     # Game rating
     game_content_type = ContentType.objects.get_for_model(Game)
-    ratings = UserRating.objects.filter(rating__content_type=game_content_type, rating__object_id=game.gameid)
-
-    average_rating_result = ratings.aggregate(average=Avg('score'))
-    average_rating = average_rating_result.get('average')
-    if average_rating is not None:
-        average_rating = math.ceil(average_rating)
+    rating_obj = Divrating.objects.filter(content_type=game_content_type, object_id=game.gameid).first()
+    
+    if rating_obj:
+        base_ratings = Divuserrating.objects.filter(rating=rating_obj)
     else:
-        average_rating = 0
-
+        base_ratings = Divuserrating.objects.none()
+    
+    agg = base_ratings.aggregate(average=Avg('score'))
+    average_rating = agg.get('average')
+    average_rating = round(average_rating * 20) if average_rating else 0
+    
     user_rating = None
     if user.is_authenticated:
-        user_rating = UserRating.objects.filter(user=user, rating__object_id=game.gameid).first()
-
+        ratings = list(base_ratings.order_by('-created'))
+        idx = next((i for i, r in enumerate(ratings) if r.user == user), None)
+        if idx is not None:
+            user_rating = ratings.pop(idx)
+            ratings.insert(0, user_rating)
+    else:
+        ratings = base_ratings.order_by('-created')
 
     # Formulář pro úpravu DIV Ratingu u Game
     game_div_rating_form = None

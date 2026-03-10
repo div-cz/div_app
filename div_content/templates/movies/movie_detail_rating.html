@@ -1,0 +1,28 @@
+<div class="rating-stars movie-rating">
+
+{% if user.is_authenticated %}
+<form method="post" action="{% url 'div_rate_movie' movie_url=movie.url %}">
+{% csrf_token %}
+{% endif %}
+
+<button type="submit" name="score" value="0" class="rate-btn rating-thumb">
+<i class="fa-regular fa-thumbs-down"></i>
+</button>
+
+{% for i in "12345" %}
+<button type="submit" name="score" value="{{ forloop.counter }}" class="rate-btn">
+
+{% if average_rating >= forloop.counter|add:"0"|add:"0"|add:"0" %}
+<i class="fa-solid fa-star selected"></i>
+{% else %}
+<i class="fa-regular fa-star"></i>
+{% endif %}
+
+</button>
+{% endfor %}
+
+{% if user.is_authenticated %}
+</form>
+{% endif %}
+
+</div>

@@ -1,6 +1,5 @@
 {% extends "games/base.html" %}
 {% load i18n %}
-{% load ratings %}
 {% load static %}
 
 {% block title %}{{ game.title|default:game.titlecz }} | DIV.cz{% endblock %}
@@ -77,6 +76,35 @@
         color: #ffd700;
         margin-top: -10px;
     }
+
+.rating-stars i {
+    color: #727271
+}
+
+.game-rating .selected {
+    color: #00A0E3;
+}
+
+
+
+.div-rating-stars form { display: inline-flex; align-items: center; gap: 2px; border: none; outline: none; padding: 0; margin: 0; background: none; box-shadow: none; }
+
+
+
+.hodnoceni { display: flex; flex-direction: column; align-items: center; }
+.hodnoceni .rating-users { align-self: stretch; }
+.div-rating-stars { display: inline-flex; align-items: center; gap: 2px; }
+.div-rating-stars form { display: inline-flex; align-items: center; gap: 2px; border: none; outline: none; padding: 0; margin: 0; background: none; }
+.stars-display { display: inline-flex; align-items: center; gap: 2px; font-size: 28px; }
+.rate-btn { background: none; border: none; outline: none; cursor: pointer; padding: 0; margin: 0; font-size: 28px; color: inherit; line-height: 1; }
+.rate-btn.trash { font-size: 20px; opacity: 0.5; }
+.rate-btn.trash.odpad-active { color: #E31E24; opacity: 1; }
+.rating-trash { font-size: 20px; opacity: 0.4; }
+.rating-odpad { color: #E31E24; font-weight: bold; }
+.btn-delete-rating { background: none; border: none; color: #aaa; font-size: 11px; cursor: pointer; opacity: 0.6; }
+.btn-delete-rating:hover { color: #E31E24; opacity: 1; }
+.div-rating-game .stars-display { color: #00A0E3; }
+.div-rating-game .rate-btn { color: #00A0E3; }
 </style>
 
 <div class="row container my-5">
@@ -132,13 +160,62 @@
                     {% else %}
                     <img src="/static/img/game/game.png" alt="{{ game.title }}" class="img-fluid w-full rounded" style="object-fit: cover;max-width: 200px;">
                 {% endif %}-->
-
+<!--
                 <div class="d-lg-none mb-2 sm:ml-5">
-                    <div class="rating-stars" style="white-space: nowrap;"><!--&nbsp;|&nbsp;-->
-                        <div class="smaller-stars">{% ratings game %}</div>
+                    <div class="rating-stars" style="white-space: nowrap;">
+
+<div class="hodnoceni">
+    <div class="rating" data-rating="{{ average_rating }}">
+        <div class="rating-inner">{{ average_rating }}<span>%</span></div>
+    </div>
+
+    <div class="div-rating-stars div-rating-game">
+    {% if user.is_authenticated %}
+    <form method="post" action="{% url 'div_rate_game' game_url=game.url %}">{% csrf_token %}
+    <span class="stars-display">
+    <button type="submit" name="score" value="0" class="rate-btn trash {% if user_rating and user_rating.score == 0 %}odpad-active{% endif %}">👎</button>
+    {% if user_rating %}
+    <button type="submit" name="score" value="1" class="rate-btn">{% if user_rating.score >= 1 %}★{% else %}☆{% endif %}</button>
+    <button type="submit" name="score" value="2" class="rate-btn">{% if user_rating.score >= 2 %}★{% else %}☆{% endif %}</button>
+    <button type="submit" name="score" value="3" class="rate-btn">{% if user_rating.score >= 3 %}★{% else %}☆{% endif %}</button>
+    <button type="submit" name="score" value="4" class="rate-btn">{% if user_rating.score >= 4 %}★{% else %}☆{% endif %}</button>
+    <button type="submit" name="score" value="5" class="rate-btn">{% if user_rating.score >= 5 %}★{% else %}☆{% endif %}</button>
+    {% else %}
+    <button type="submit" name="score" value="1" class="rate-btn">☆</button>
+    <button type="submit" name="score" value="2" class="rate-btn">☆</button>
+    <button type="submit" name="score" value="3" class="rate-btn">☆</button>
+    <button type="submit" name="score" value="4" class="rate-btn">☆</button>
+    <button type="submit" name="score" value="5" class="rate-btn">☆</button>
+    {% endif %}
+    </span>
+    </form>
+    {% else %}
+    <span class="stars-display">
+    <span class="rating-trash">👎</span>
+    {% if average_rating >= 20 %}★{% else %}☆{% endif %}
+    {% if average_rating >= 40 %}★{% else %}☆{% endif %}
+    {% if average_rating >= 60 %}★{% else %}☆{% endif %}
+    {% if average_rating >= 80 %}★{% else %}☆{% endif %}
+    {% if average_rating >= 90 %}★{% else %}☆{% endif %}
+    </span>
+    {% endif %}
+    </div>
+
+    {% if not user.is_authenticated %}
+    <p>Pro hodnocení je třeba se <a href="/prihlaseni/">Přihlásit!</a></p>
+    {% endif %}
+
+</div>
+
+
+
                         <div id="rating-thankyou2" class="alert alert-success" style="display: none;">Děkujeme za hodnocení!</div>
                     </div>
-                </div>
+                </div>-->
+
+
+
+
             </div>
 
             <div class="flex flex-wrap content-between flex-grow-1 sm:mt-5 w-full lg:w-55">
@@ -387,46 +464,85 @@
 
         <!-- Hodnocení -->
         <div class="card box-shadow mb-4 mt-4">
-            <div class="card-body w-full bg-[#F9F9F9] dark:bg-[#1A161F] rounded-1xl">
+            <div class="card-body">
                 <h3 style="text-align:center" class="after font-bold">Hodnocení</h3>
-                <div class="grid columns">
-                    <div class="rating" data-rating="{{ game.average_rating }}">
-                        <div class="rating-inner">
-                            {{ game.average_rating }}%
-                        </div>
-                    </div>
+                <div>
 
-                    <div class="hodnoceni after">
-                        {% ratings game %}
-                        {% if user.is_authenticated %}
-                        {% else %}
-                        <p>Pro hodnocení je třeba se <a href="/prihlaseni/">Přihlásit!</a></p>
-                        {% endif %}
-                    </div>
+
+
+
+<div class="hodnoceni">
+    <div class="rating" data-rating="{{ average_rating }}">
+        <div class="rating-inner">{{ average_rating }}<span>%</span></div>
+    </div>
+
+    <div class="div-rating-stars div-rating-game">
+    {% if user.is_authenticated %}
+    <form method="post" action="{% url 'div_rate_game' game_url=game.url %}">{% csrf_token %}
+    <span class="stars-display">
+    <button type="submit" name="score" value="0" class="rate-btn trash {% if user_rating and user_rating.score == 0 %}odpad-active{% endif %}">👎</button>
+    {% if user_rating %}
+    <button type="submit" name="score" value="1" class="rate-btn">{% if user_rating.score >= 1 %}★{% else %}☆{% endif %}</button>
+    <button type="submit" name="score" value="2" class="rate-btn">{% if user_rating.score >= 2 %}★{% else %}☆{% endif %}</button>
+    <button type="submit" name="score" value="3" class="rate-btn">{% if user_rating.score >= 3 %}★{% else %}☆{% endif %}</button>
+    <button type="submit" name="score" value="4" class="rate-btn">{% if user_rating.score >= 4 %}★{% else %}☆{% endif %}</button>
+    <button type="submit" name="score" value="5" class="rate-btn">{% if user_rating.score >= 5 %}★{% else %}☆{% endif %}</button>
+    {% else %}
+    <button type="submit" name="score" value="1" class="rate-btn">☆</button>
+    <button type="submit" name="score" value="2" class="rate-btn">☆</button>
+    <button type="submit" name="score" value="3" class="rate-btn">☆</button>
+    <button type="submit" name="score" value="4" class="rate-btn">☆</button>
+    <button type="submit" name="score" value="5" class="rate-btn">☆</button>
+    {% endif %}
+    </span>
+    </form>
+    {% else %}
+    <span class="stars-display">
+    <span class="rating-trash">👎</span>
+    {% if average_rating >= 20 %}★{% else %}☆{% endif %}
+    {% if average_rating >= 40 %}★{% else %}☆{% endif %}
+    {% if average_rating >= 60 %}★{% else %}☆{% endif %}
+    {% if average_rating >= 80 %}★{% else %}☆{% endif %}
+    {% if average_rating >= 90 %}★{% else %}☆{% endif %}
+    </span>
+    {% endif %}
+    </div>
+
+    {% if not user.is_authenticated %}
+    <p>Pro hodnocení je třeba se <a href="/prihlaseni/">Přihlásit!</a></p>
+    {% endif %}
+
+    {% if ratings %}
+    <ul class="list-unstyled rating-users">
+    {% for rating in ratings %}
+        <li>
+            <small><p style="text-align:center; padding:.25rem;">Hodnoceno: {{ rating.modified|date:"j. n. Y" }}</p></small>
+            <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a>
+            <span class="right">
+                {% if rating.score == 0 %}
+                <span class="rating-odpad">ODPAD!</span>
+                {% else %}
+                {% for _ in "12345" %}{% if forloop.counter <= rating.score %}★{% else %}☆{% endif %}{% endfor %}
+                {% endif %}
+            </span>
+            {% if rating.user == request.user %}
+            <form method="post" action="{% url 'div_remove_game_rating' game_url=game.url %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-delete-rating"><i class="fa-solid fa-trash-can"></i> Smazat hodnocení</button>
+            </form>
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+
 
                     <div id="rating-thankyou" class="alert alert-success" style="display: none;">
                         Děkujeme za hodnocení!
                     </div>
 
-                    {% if ratings %}
-                    <ul class="list-unstyled rating-users">
-                    {% for rating in ratings %}
-                        <li class="after">
-                            <small><p class="text-center p-1">Hodnoceno: {{ rating.modified|date:"j. n. Y" }} </p></small>
-                            <a href="{% url 'user_profile_with_profil' user_id=rating.user.id %}">{{ rating.user.username }}</a>
-                            <span class="right">
-                                {% for _ in "12345" %}
-                                {% if forloop.counter <= rating.score %}
-                                <span class="text-warning">★</span>
-                                {% else %}
-                                ☆
-                                {% endif %}
-                                {% endfor %}
-                            </span>
-                        </li>
-                    {% endfor %}
-                    </ul>
-                    {% endif %}
+
                 </div>
             </div>
         </div>

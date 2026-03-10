@@ -43,44 +43,40 @@
             ">
 
 <style>
-.div-rating-stars{
-text-align:center;
+
+.hodnoceni { display: flex; flex-direction: column; align-items: center; }
+.hodnoceni .rating-users { align-self: stretch; }
+
+/* RATING */
+.div-rating-stars { display: inline-flex; align-items: center; gap: 2px; }
+.div-rating-stars form { display: inline-flex; align-items: center; gap: 2px; border: none; outline: none; padding: 0; margin: 0; background: none; }
+.stars-display { display: inline-flex; align-items: center; gap: 2px; font-size: 28px; color: #E31E24; }
+.rate-btn { background: none; border: none; outline: none; cursor: pointer; padding: 0; margin: 0; font-size: 28px; color: inherit; line-height: 1; }
+.rate-btn.trash { font-size: 20px; opacity: 0.5; color: #999; }
+.rating-trash { font-size: 20px; opacity: 0.4; color: #999; }
+.rating-odpad { color: #E31E24; font-weight: bold; }
+.btn-delete-rating { background: none; border: none; color: #aaa; font-size: 11px; cursor: pointer; opacity: 0.6; }
+.btn-delete-rating:hover { color: #E31E24; opacity: 1; }
+
+.div-rating-movie .stars-display { font-size: 28px; color: #E31E24; }
+
+/* mobil: hodnocení pod obrázkem */
+@media (max-width: 767px) {
+    .box-detail .box-info-rating { display: none !important; }
+    .box-img .box-info-rating    { display: flex !important; flex-direction: column; align-items: center; }
 }
 
-.stars-display{
-font-size:28px;
-color:#FFC107;
-white-space:nowrap;
+/* tablet: hodnocení v box-detail (bez kolečka), box-img skrýt */
+@media (min-width: 768px) and (max-width: 991px) {
+    .box-img .box-info-rating    { display: none !important; }
+    .box-detail .box-info-rating { display: flex !important; }
+    .box-detail .box-info-rating .rating { display: none; }
 }
 
-.rate-btn{
-background:none;
-border:none;
-cursor:pointer;
-font-size:28px;
-color:#FFC107;
-padding:0;
-margin:0 3px;
-}
-
-.rate-btn:hover{
-transform:scale(1.15);
-color:#f5c518;
-}
-
-.rate-btn.trash{
-color:#c0392b;
-}
-
-.rating-trash{
-color:#c0392b;
-font-size:28px;
-margin-right:6px;
-}
-.rating-odpad{
-color:#c0392b;
-font-weight:bold;
-letter-spacing:1px;
+/* desktop: obě levé skrýt, pouze pravý sloupec */
+@media (min-width: 992px) {
+    .box-img .box-info-rating    { display: none !important; }
+    .box-detail .box-info-rating { display: none !important; }
 }
 </style>
 {% endblock %}
@@ -144,39 +140,36 @@ letter-spacing:1px;
 
 
 
-
-<div class="hvezdicky after">
-<div class="div-rating-stars">
-
+<div class="div-rating-stars div-rating-movie">
 {% if user.is_authenticated %}
-<form method="post" action="{% url 'div_rate_movie' movie_url=movie.url %}">
-{% csrf_token %}
-{% endif %}
-
+<form method="post" action="{% url 'div_rate_movie' movie_url=movie.url %}">{% csrf_token %}
 <span class="stars-display">
-
-{% if user.is_authenticated %}
-<button type="submit" name="score" value="0" class="rate-btn trash">👎</button>
-<button type="submit" name="score" value="1" class="rate-btn">{% if average_rating >= 20 %}★{% else %}☆{% endif %}</button>
-<button type="submit" name="score" value="2" class="rate-btn">{% if average_rating >= 40 %}★{% else %}☆{% endif %}</button>
-<button type="submit" name="score" value="3" class="rate-btn">{% if average_rating >= 60 %}★{% else %}☆{% endif %}</button>
-<button type="submit" name="score" value="4" class="rate-btn">{% if average_rating >= 80 %}★{% else %}☆{% endif %}</button>
-<button type="submit" name="score" value="5" class="rate-btn">{% if average_rating >= 100 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="0" class="rate-btn trash">{% if user_rating and user_rating.score == 0 %}👎{% else %}👎{% endif %}</button>
+{% if user_rating %}
+<button type="submit" name="score" value="1" class="rate-btn">{% if user_rating.score >= 1 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="2" class="rate-btn">{% if user_rating.score >= 2 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="3" class="rate-btn">{% if user_rating.score >= 3 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="4" class="rate-btn">{% if user_rating.score >= 4 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="5" class="rate-btn">{% if user_rating.score >= 5 %}★{% else %}☆{% endif %}</button>
 {% else %}
+<button type="submit" name="score" value="1" class="rate-btn">☆</button>
+<button type="submit" name="score" value="2" class="rate-btn">☆</button>
+<button type="submit" name="score" value="3" class="rate-btn">☆</button>
+<button type="submit" name="score" value="4" class="rate-btn">☆</button>
+<button type="submit" name="score" value="5" class="rate-btn">☆</button>
+{% endif %}
+</span>
+</form>
+{% else %}
+<span class="stars-display">
 <span class="rating-trash">👎</span>
 {% if average_rating >= 20 %}★{% else %}☆{% endif %}
 {% if average_rating >= 40 %}★{% else %}☆{% endif %}
 {% if average_rating >= 60 %}★{% else %}☆{% endif %}
 {% if average_rating >= 80 %}★{% else %}☆{% endif %}
-{% if average_rating >= 100 %}★{% else %}☆{% endif %}
-{% endif %}
-
+{% if average_rating >= 90 %}★{% else %}☆{% endif %}
 </span>
-
-{% if user.is_authenticated %}
-</form>
 {% endif %}
-
 </div>
 
 
@@ -185,7 +178,7 @@ letter-spacing:1px;
                             <div id="rating-thankyou" class="alert" style="display: none;">
                                 Děkujeme za hodnocení!
                             </div>
-                        </div>
+
 
                         <button class="rating-popup-btn btn add-movie" style="margin: 0 auto;">Hodnocení filmu</button>
                     </div>
@@ -223,8 +216,8 @@ letter-spacing:1px;
                                                 {% if rating.user == request.user %}
                                                     <form method="post" action="{% url 'remove_movie_rating' movie_url=movie.url %}">
                                                         {% csrf_token %}
-                                                        <button type="submit" class="btn">
-                                                            <i class="fa-solid fa-trash-can" title="smazat hodnocení" style="color:#A52B21; margin-right:0;"></i>
+                                                        <button type="submit" class="">
+                                                            <i class="fa-solid fa-trash-can" title="smazat hodnocení" style="color:#61872B; margin-right:0;"></i>
                                                         </button>
                                                     </form>
                                                 {% endif %}
@@ -247,63 +240,45 @@ letter-spacing:1px;
 
                         <div class="rating-stars" style="white-space: nowrap;">
                             <div class="smaller-stars">
-                        <div class="rating-stars" style="white-space: nowrap;">
-                            <div class="smaller-stars">
 
 
-<div class="div-rating-stars">
-
+<div class="div-rating-stars div-rating-movie">
 {% if user.is_authenticated %}
-<form method="post" action="{% url 'div_rate_movie' movie_url=movie.url %}">
-{% csrf_token %}
-{% endif %}
-
+<form method="post" action="{% url 'div_rate_movie' movie_url=movie.url %}">{% csrf_token %}
 <span class="stars-display">
-
-{% if user.is_authenticated %}
-<button type="submit" name="score" value="0" class="rate-btn trash">👎</button>
+<button type="submit" name="score" value="0" class="rate-btn trash">{% if user_rating and user_rating.score == 0 %}👎{% else %}👎{% endif %}</button>
+{% if user_rating %}
+<button type="submit" name="score" value="1" class="rate-btn">{% if user_rating.score >= 1 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="2" class="rate-btn">{% if user_rating.score >= 2 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="3" class="rate-btn">{% if user_rating.score >= 3 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="4" class="rate-btn">{% if user_rating.score >= 4 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="5" class="rate-btn">{% if user_rating.score >= 5 %}★{% else %}☆{% endif %}</button>
 {% else %}
-<span class="rating-trash">👎</span>
+<button type="submit" name="score" value="1" class="rate-btn">☆</button>
+<button type="submit" name="score" value="2" class="rate-btn">☆</button>
+<button type="submit" name="score" value="3" class="rate-btn">☆</button>
+<button type="submit" name="score" value="4" class="rate-btn">☆</button>
+<button type="submit" name="score" value="5" class="rate-btn">☆</button>
 {% endif %}
-
-{% if user.is_authenticated %}
-<button type="submit" name="score" value="1" class="rate-btn">
-{% if average_rating >= 20 %}★{% else %}☆{% endif %}
-</button>
-<button type="submit" name="score" value="2" class="rate-btn">
-{% if average_rating >= 40 %}★{% else %}☆{% endif %}
-</button>
-<button type="submit" name="score" value="3" class="rate-btn">
-{% if average_rating >= 60 %}★{% else %}☆{% endif %}
-</button>
-<button type="submit" name="score" value="4" class="rate-btn">
-{% if average_rating >= 80 %}★{% else %}☆{% endif %}
-</button>
-<button type="submit" name="score" value="5" class="rate-btn">
-{% if average_rating >= 90 %}★{% else %}☆{% endif %}
-</button>
-{% else %}
-{% if average_rating >= 20 %}★{% else %}☆{% endif %}
-{% if average_rating >= 40 %}★{% else %}☆{% endif %}
-{% if average_rating >= 60 %}★{% else %}☆{% endif %}
-{% if average_rating >= 80 %}★{% else %}☆{% endif %}
-{% if average_rating >= 90 %}★{% else %}☆{% endif %}
-{% endif %}
-
 </span>
-
-{% if user.is_authenticated %}
 </form>
+{% else %}
+<span class="stars-display">
+<span class="rating-trash">👎</span>
+{% if average_rating >= 20 %}★{% else %}☆{% endif %}
+{% if average_rating >= 40 %}★{% else %}☆{% endif %}
+{% if average_rating >= 60 %}★{% else %}☆{% endif %}
+{% if average_rating >= 80 %}★{% else %}☆{% endif %}
+{% if average_rating >= 90 %}★{% else %}☆{% endif %}
+</span>
 {% endif %}
-
 </div>
 
                             </div>
                             <div id="rating-thankyou" class="alert" style="display: none;">
-                                Děkujeme za hodnocení!
+                                Děkujeme za hodnocení1!
                             </div>
-                        </div>
-                            </div>
+
                             <div id="rating-thankyou2" class="alert" style="display: none;">Děkujeme za hodnocení!</div>
                         </div>
                     </div>
@@ -352,69 +327,87 @@ letter-spacing:1px;
                 </div>
             </div>
 
-            <!-- Tlačítka -->
-            {% if user.is_authenticated %}
-            <div class="favorite-menu">
 
-                {% if not is_in_favourites %}
-                <a href="{% url 'add_to_favourites' movieid=movie.movieid %}" class="favorite-link" style="color: white;">
-                    <span class="favorite-link-icon">
-                        <i class="fas fa-heart" style="color: {% if is_in_favourites %} #ED3F2F {% endif %}"></i>
-                    </span>
-                {% else %}
-                <a href="{% url 'remove_from_favourites' movieid=movie.movieid %}" class="favorite-link">
-                    <span class="favorite-link-icon">
-                        <i class="fas fa-heart" style="color: {% if is_in_favourites %} #ED3F2F {% endif %}"></i>
-                    </span>
-                {% endif %}
-                    <span class="favorite-link-title" style="color: {% if is_in_favourites %} #ED3F2F {% endif %}">Oblíbené</span>
-                </a>
-                
-                {% if not is_in_watched %}
-                <a href="{% url 'add_to_watched' movieid=movie.movieid %}" class="favorite-link" style="color: white;">
-                    <span class="favorite-link-icon">
-                        <i class="fas fa-film" style="color: {% if is_in_watched %} #ED3F2F {% endif %}"></i>
-                    </span>
-                {% else %}
-                <a href="{% url 'remove_from_watched' movieid=movie.movieid %}" class="favorite-link">
-                    <span class="favorite-link-icon">
-                        <i class="fas fa-film" style="color: {% if is_in_watched %} #ED3F2F {% endif %}"></i>
-                    </span>
-                {% endif %}
-                    <span class="favorite-link-title" style="color: {% if is_in_watched %} #ED3F2F {% endif %}">Shlédnuto</span>
-                </a>
 
-                <!-- Pokud není v Filmotéce -->
-                {% if not is_in_movie_library %}
-                <a href="{% url 'add_to_movie_library' movieid=movie.movieid %}" class="favorite-link" style="color: white;">
-                    <span class="favorite-link-icon">
-                        <i class="fas fa-home" style="color: {% if is_in_movie_library %} #ED3F2F {% endif %}"></i>
-                    </span>
-                {% else %}
-                <a href="{% url 'remove_from_movie_library' movieid=movie.movieid %}" class="favorite-link">
-                    <span class="favorite-link-icon">
-                        <i class="fas fa-home" style="color: {% if is_in_movie_library %} #ED3F2F {% endif %}"></i>
-                    </span>
-                {% endif %}                               
-                    <span class="favorite-link-title" style="color: {% if is_in_movie_library %} #ED3F2F {% endif %}">Filmotéka</span>
-                </a>
 
-                <!-- Pokud není v Chci vidět -->
-                {% if not is_in_watchlist %}
-                <a href="{% url 'add_to_watchlist' movieid=movie.movieid %}" class="favorite-link" style="color: white;">
-                    <span class="favorite-link-icon">
-                        <i class="fas fa-eye" style="color: {% if is_in_watchlist %} #ED3F2F {% endif %}"></i>
-                    </span>
-                {% else %}
-                <a href="{% url 'remove_from_watchlist' movieid=movie.movieid %}" class="favorite-link">
-                    <span class="favorite-link-icon">
-                        <i class="fas fa-eye" style="color: {% if is_in_watchlist %} #ED3F2F {% endif %}"></i>
-                    </span>
-                {% endif %}
-                    <span class="favorite-link-title" style="color: {% if is_in_watchlist %} #ED3F2F {% endif %}">Chci vidět</span>
-                </a>
-            </div>
-            {% endif %}
+<!-- Tlačítka -->
+{% if user.is_authenticated %}
+<div class="favorite-menu">
+
+    <a href="{% if is_in_favourites %}{% url 'remove_from_favourites' movieid=movie.movieid %}{% else %}{% url 'add_to_favourites' movieid=movie.movieid %}{% endif %}"
+       class="favorite-box {% if is_in_favourites %}active{% endif %}">
+        <i class="fas fa-heart"></i>
+        <div class="favorite-info">
+            <span class="favorite-action">Oblíbené</span>
+            <span class="favorite-count">{{ favourite_count|default:"0" }} x</span>
+        </div>
+    </a>
+
+    <a href="{% if is_in_watched %}{% url 'remove_from_watched' movieid=movie.movieid %}{% else %}{% url 'add_to_watched' movieid=movie.movieid %}{% endif %}"
+       class="favorite-box {% if is_in_watched %}active{% endif %}">
+        <i class="fas fa-film"></i>
+        <div class="favorite-info">
+            <span class="favorite-action">Shlédnuto</span>
+            <span class="favorite-count">{{ watched_count|default:"0" }} x</span>
+        </div>
+    </a>
+
+    <a href="{% if is_in_movie_library %}{% url 'remove_from_movie_library' movieid=movie.movieid %}{% else %}{% url 'add_to_movie_library' movieid=movie.movieid %}{% endif %}"
+       class="favorite-box {% if is_in_movie_library %}active{% endif %}">
+        <i class="fas fa-home"></i>
+        <div class="favorite-info">
+            <span class="favorite-action">Filmotéka</span>
+            <span class="favorite-count">{{ library_count|default:"0" }} x</span>
+        </div>
+    </a>
+
+    <a href="{% if is_in_watchlist %}{% url 'remove_from_watchlist' movieid=movie.movieid %}{% else %}{% url 'add_to_watchlist' movieid=movie.movieid %}{% endif %}"
+       class="favorite-box {% if is_in_watchlist %}active{% endif %}">
+        <i class="fas fa-eye"></i>
+        <div class="favorite-info">
+            <span class="favorite-action">Chci vidět</span>
+            <span class="favorite-count">{{ watchlist_count|default:"0" }} x</span>
+        </div>
+    </a>
+
+    <button class="favorite-box" id="openListModal" type="button">
+        <i class="fas fa-plus"></i>
+        <div class="favorite-info">
+            <span class="favorite-action">Vlastní seznam</span>
+        </div>
+    </button>
+
+</div>
+
+<!-- POPUP MODAL NA VLASTNÍ SEZNAM -->
+<div id="listModal" class="modal">
+    <div class="favorite-modal">
+        <div class="modal-header">
+            <h3>Moje seznamy</h3>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="create-list">
+            <form method="post">
+                {% csrf_token %}
+                <input type="text" name="list_name" placeholder="Název nového seznamu">
+                <button type="submit" class="btn add-movie">Přidat</button>
+            </form>
+        </div>
+        <div class="user-lists" data-movie-id="">
+            {% for list in user_lists %}
+                <button type="button" class="list-item" data-list-id="">
+                    <span class="list-name">Název seznamu</span>
+                    <span class="list-toggle">+</span>
+                </button>
+            {% empty %}
+                <p><!--Nemáš zatím žádné seznamy.--> Seznamy v přípravě - <a href="/forum/filmy">Napiš do fóra</a> pokud je potřebuješ.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
         </div>
 
         {% if user.is_staff %}
@@ -853,54 +846,47 @@ letter-spacing:1px;
                         </div>
                     </div>
 
-                    <div class="hvezdicky after">
 
 
-<div class="div-rating-stars">
-
+<div class="div-rating-stars div-rating-movie">
 {% if user.is_authenticated %}
-<form method="post" action="{% url 'div_rate_movie' movie_url=movie.url %}">
-{% csrf_token %}
-{% endif %}
-
-
-<button type="submit" name="score" value="0" class="rate-btn trash">👎</button>
-
-
+<form method="post" action="{% url 'div_rate_movie' movie_url=movie.url %}">{% csrf_token %}
 <span class="stars-display">
-
-<button type="submit" name="score" value="1" class="rate-btn">
-{% if average_rating >= 20 %}★{% else %}☆{% endif %}
-</button>
-
-<button type="submit" name="score" value="2" class="rate-btn">
-{% if average_rating >= 40 %}★{% else %}☆{% endif %}
-</button>
-
-<button type="submit" name="score" value="3" class="rate-btn">
-{% if average_rating >= 60 %}★{% else %}☆{% endif %}
-</button>
-
-<button type="submit" name="score" value="4" class="rate-btn">
-{% if average_rating >= 80 %}★{% else %}☆{% endif %}
-</button>
-
-<button type="submit" name="score" value="5" class="rate-btn">
-{% if average_rating >= 90 %}★{% else %}☆{% endif %}
-</button>
-
-</span>
-
-{% if user.is_authenticated %}
-</form>
+<button type="submit" name="score" value="0" class="rate-btn trash">{% if user_rating and user_rating.score == 0 %}👎{% else %}👎{% endif %}</button>
+{% if user_rating %}
+<button type="submit" name="score" value="1" class="rate-btn">{% if user_rating.score >= 1 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="2" class="rate-btn">{% if user_rating.score >= 2 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="3" class="rate-btn">{% if user_rating.score >= 3 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="4" class="rate-btn">{% if user_rating.score >= 4 %}★{% else %}☆{% endif %}</button>
+<button type="submit" name="score" value="5" class="rate-btn">{% if user_rating.score >= 5 %}★{% else %}☆{% endif %}</button>
+{% else %}
+<button type="submit" name="score" value="1" class="rate-btn">☆</button>
+<button type="submit" name="score" value="2" class="rate-btn">☆</button>
+<button type="submit" name="score" value="3" class="rate-btn">☆</button>
+<button type="submit" name="score" value="4" class="rate-btn">☆</button>
+<button type="submit" name="score" value="5" class="rate-btn">☆</button>
 {% endif %}
-
+</span>
+</form>
+{% else %}
+<span class="stars-display">
+<span class="rating-trash">👎</span>
+{% if average_rating >= 20 %}★{% else %}☆{% endif %}
+{% if average_rating >= 40 %}★{% else %}☆{% endif %}
+{% if average_rating >= 60 %}★{% else %}☆{% endif %}
+{% if average_rating >= 80 %}★{% else %}☆{% endif %}
+{% if average_rating >= 90 %}★{% else %}☆{% endif %}
+</span>
+{% endif %}
 </div>
+
+
+
                         {% if user.is_authenticated %}
                         {% else %}
                         <p>Pro hodnocení je třeba se <a href="/prihlaseni/">Přihlásit!</a></p>
                         {% endif %}
-                    </div>
+
                 
                     <div id="rating-thankyou2" class="alert" style="display: none;">
                         Děkujeme za hodnocení!
@@ -929,7 +915,10 @@ letter-spacing:1px;
                 {% if rating.user == request.user %}
                 <form method="post" action="{% url 'remove_movie_rating' movie_url=movie.url %}">
                     {% csrf_token %}
-                    <button type="submit" class="btn add-movie"><i class="fa-solid fa-trash-can"></i> Smazat hodnocení</button>
+                                            <button type="submit" class="btn-delete-rating" title="Smazat hodnocení">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                                Smazat hodnocení
+                                            </button>
                 </form>
                 {% endif %}
 
