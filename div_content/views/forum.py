@@ -8,6 +8,8 @@ from div_content.forms.forum import ForumTopicForm, ForumCommentForm, EditCommen
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.utils import timezone
+from django.utils.html import strip_tags
+
 from datetime import timedelta
 from django.db.models import Max, OuterRef, Subquery, Count
 from django.core.paginator import Paginator
@@ -31,8 +33,8 @@ def send_forum_comment_notification(comment):
         context = {
             "username": user.username,
             "topic_title": topic.title,
-            "topic_url": f"https://div.cz/forum/{topic.section.slug}/{topic.topicurl}/",
-            "comment": comment.body[:500],
+            "topic_url": f"https://div.cz/forum/{topic.section.slug}/{topic.topicurl}",
+            "comment": strip_tags(comment.body)[:500],
         }
 
         html_email = render_to_string(

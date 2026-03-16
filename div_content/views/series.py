@@ -67,6 +67,7 @@ USERLISTTYPE_OBLIBENY = 13
 USERLISTTYPE_CHCI_VIDET = 14
 USERLISTTYPE_SERIALNUTO = 15
 USERLISTTYPE_SERIALOTEKA = 16
+USERLISTTYPE_SLEDUJI = 28 
 # pro sezóny
 USERLISTTYPE_OBLIBENA_SEZONA = 17
 USERLISTTYPE_CHCI_VIDET_SEZONU = 18
@@ -326,16 +327,13 @@ def serie_season(request, tv_url, seasonurl):
             return redirect('serie_season', tv_url=tvshow.url, seasonurl=season.seasonurl)
 
 
-    ratings = UserRating.objects.filter(rating__content_type=tvseason_content_type, rating__object_id=season.seasonid)
-    average_rating_result = ratings.aggregate(average=Avg('score'))
-    average_rating = average_rating_result.get('average')
-    if average_rating is not None:
-        average_rating = round(float(average_rating) * 20)
-    else:
-        average_rating = 0
+    season_content_type = ContentType.objects.get_for_model(Tvseason)
+    div_rating_obj = Divrating.objects.filter(content_type=season_content_type, object_id=season.seasonid).first()
+    ratings = Divuserrating.objects.filter(rating=div_rating_obj).select_related("user").order_by("-modified") if div_rating_obj else []
+    average_rating = round(float(div_rating_obj.average) * 20) if div_rating_obj and div_rating_obj.average else 0
+    user_rating = Divuserrating.objects.filter(rating=div_rating_obj, user=user).first() if user.is_authenticated and div_rating_obj else None
 
-
-
+    
     if user.is_authenticated and 'comment' in request.POST:
         comment_form = CommentForm(request.POST)
         if comment_form.is_valid():
@@ -387,6 +385,12 @@ def serie_season(request, tv_url, seasonurl):
         'directors_more': max(0, directors_count - len(directors)),
         'quotes': quotes,
         'episodes': episodes,
+
+        'favourite_count': Userlistitem.objects.filter(userlist__listtype__userlisttypeid=USERLISTTYPE_OBLIBENA_SEZONA, object_id=season.seasonid).count(),
+        'watched_count':   Userlistitem.objects.filter(userlist__listtype__userlisttypeid=USERLISTTYPE_SHLEDNUTA_SEZONA, object_id=season.seasonid).count(),
+        'watchlist_count': Userlistitem.objects.filter(userlist__listtype__userlisttypeid=USERLISTTYPE_CHCI_VIDET_SEZONU, object_id=season.seasonid).count(),
+        'user_rating': user_rating,
+    
         'is_in_favourites': is_in_favourites,
         'is_in_watchlist': is_in_watchlist,
         'is_in_watched': is_in_watched,
@@ -576,15 +580,33 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
             )
             return redirect('serie_episode', tv_url=tvshow.url, seasonurl=season.seasonurl, episodeurl=episode.episodeurl)
 
-    ratings = UserRating.objects.filter(rating__content_type=tvepisode_content_type, rating__object_id=episode.episodeid)
-    
-    # Výpočet průměrného hodnocení
-    average_rating_result = ratings.aggregate(average=Avg('score'))
-    average_rating = average_rating_result.get('average')
-    if average_rating is not None:
-        average_rating = round(float(average_rating) * 20)
+    # SERIES DISPLAY TITLE
+    show_trans = Tvshowtranslation.objects.filter(
+        tvshowid=tvshow, language="cs", title__isnull=False
+    ).exclude(title="").order_by("tvshowtranslationid").first()
+    if show_trans and show_trans.title:
+        series_display_title = show_trans.title
+    elif tvshow.titlecz:
+        series_display_title = tvshow.titlecz
     else:
-        average_rating = 0
+        series_display_title = tvshow.title
+
+    # SEASON DISPLAY TITLE
+    season_trans = Tvseasontranslation.objects.filter(
+        seasonid=season, language="cs", title__isnull=False
+    ).exclude(title="").order_by("tvseasontranslationid").first()
+    if season_trans and season_trans.title:
+        season_display_title = season_trans.title
+    elif season.titlecz:
+        season_display_title = season.titlecz
+    else:
+        season_display_title = season.title
+
+    episode_content_type = ContentType.objects.get_for_model(Tvepisode)
+    div_rating_obj = Divrating.objects.filter(content_type=episode_content_type, object_id=episode.episodeid).first()
+    ratings = Divuserrating.objects.filter(rating=div_rating_obj).select_related("user").order_by("-modified") if div_rating_obj else []
+    average_rating = round(float(div_rating_obj.average) * 20) if div_rating_obj and div_rating_obj.average else 0
+    user_rating = Divuserrating.objects.filter(rating=div_rating_obj, user=user).first() if user.is_authenticated and div_rating_obj else None
 
 
     if user.is_authenticated and 'comment' in request.POST:
@@ -645,8 +667,17 @@ def serie_episode(request, tv_url, seasonurl, episodeurl):
         'is_in_watchlist': is_in_watchlist,
         'is_in_watched': is_in_watched,
         'quotes': quotes,
+
         'ratings': ratings,
         'average_rating': average_rating,
+
+        'user_rating': user_rating,
+        'favourite_count': Userlistitem.objects.filter(userlist__listtype__userlisttypeid=USERLISTTYPE_OBLIBENY_DIL, object_id=episode.episodeid).count(),
+        'watched_count':   Userlistitem.objects.filter(userlist__listtype__userlisttypeid=USERLISTTYPE_SHLEDNUTY_DIL, object_id=episode.episodeid).count(),
+        'watchlist_count': Userlistitem.objects.filter(userlist__listtype__userlisttypeid=USERLISTTYPE_CHCI_VIDET_DIL, object_id=episode.episodeid).count(),
+        'series_display_title': series_display_title,
+        'season_display_title': season_display_title,
+
         'comments': comments,
         'comment_form': comment_form,
         'trivia': trivia,
@@ -876,8 +907,18 @@ def serie_detail(request, tv_url):
     else:
         is_in_library = False
 
-    #  Recenze k seriálům
+    # Zjistí, jestli má uživatel seriál v seznamu Seriáluju
+    if user.is_authenticated:
+            try:
+                watching_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SLEDUJI)
+                watching_list = Userlist.objects.get(user=user, listtype=watching_type)
+                is_in_im_watching = Userlistitem.objects.filter(object_id=tvshow.tvshowid, userlist=watching_list).exists()
+            except Exception:
+                is_in_im_watching = False
+    else:
+        is_in_im_watching = False
 
+    #  Recenze k seriálům
     if user.is_authenticated:
         if 'comment' in request.POST:
             comment_form = CommentForm(request.POST)
@@ -964,6 +1005,7 @@ def serie_detail(request, tv_url):
             messages.error(request, "Nepodařilo se přidat.")
         return redirect('serie_detail', tv_url=tvshow.url)
 
+
     return render(request, 'series/serie_detail.html', {
         'tvshow': tvshow,
         'genres': genres,
@@ -987,6 +1029,7 @@ def serie_detail(request, tv_url):
         "is_in_watchlist": is_in_watchlist,
         "is_in_watched": is_in_watched,
         "is_in_library": is_in_library,
+        'is_in_im_watching': is_in_im_watching,
         'tvshow_div_rating_form': tvshow_div_rating_form,
         "serie_page": serie_page,
         "content_season_page": content_season_page,
@@ -997,6 +1040,15 @@ def serie_detail(request, tv_url):
         'trivia': trivia,
         'trailer_form': trailer_form,
         'episodes_count': episodes_count,
+
+        # počty pro favorite-box
+        'favourite_count':    FavoriteSum.objects.filter(content_type=tvshow_content_type, object_id=tvshow.tvshowid).values_list('favorite_count', flat=True).first() or 0,
+        'watched_count':      Userlistitem.objects.filter(userlist__listtype__userlisttypeid=USERLISTTYPE_SERIALNUTO, object_id=tvshow.tvshowid).count(),
+        'library_count':      Userlistitem.objects.filter(userlist__listtype__userlisttypeid=USERLISTTYPE_SERIALOTEKA, object_id=tvshow.tvshowid).count(),
+        'im_watching_count':  Userlistitem.objects.filter(userlist__listtype__userlisttypeid=USERLISTTYPE_SLEDUJI, object_id=tvshow.tvshowid).count(),
+        'watchlist_count':    Userlistitem.objects.filter(userlist__listtype__userlisttypeid=USERLISTTYPE_CHCI_VIDET, object_id=tvshow.tvshowid).count(),
+        # user_comment
+        'user_comment': Tvshowcomments.objects.filter(tvshowkid=tvshow, user=user).first() if user.is_authenticated else None,
     })
 
 
@@ -1387,6 +1439,21 @@ def add_to_watched_tvepisode(request, tv_url, seasonurl, tvepisodeid):
     
     return redirect("serie_episode", tv_url=tvepisode.seasonid.tvshowid.url, seasonurl=tvepisode.seasonid.seasonurl, episodeurl=tvepisode.episodeurl)
 
+# Přidat do seznamu: Seriáluju
+@login_required
+def add_to_im_watching_tvseason(request, tvshowid):
+    tvshow = get_object_or_404(Tvshow, tvshowid=tvshowid)
+    list_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SLEDUJI)
+    user_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=list_type)
+
+    if not Userlistitem.objects.filter(userlist=user_list, object_id=tvshowid).exists():
+        content_type = ContentType.objects.get(id=CONTENT_TYPE_SERIES_ID)
+        Userlistitem.objects.create(
+            userlist=user_list,
+            content_type=content_type,
+            object_id=tvshowid
+        )
+    return redirect("serie_detail", tv_url=tvshow.url)
 
 # Smazat ze seznamu: Oblíbený díl
 @login_required
@@ -1426,6 +1493,16 @@ def remove_from_watched_tvepisodes(request, tv_url, seasonurl, tvepisodeid):
     userlisttvepisode.delete()
     
     return redirect("serie_episode", tv_url=tvepisode.seasonid.tvshowid.url, seasonurl=tvepisode.seasonid.seasonurl, episodeurl=tvepisode.episodeurl)
+
+
+# Smazat ze seznamu: Sleduji
+@login_required
+def remove_from_im_watching_tvseason(request, tvshowid):
+    tvshow = get_object_or_404(Tvshow, tvshowid=tvshowid)
+    list_type = Userlisttype.objects.get(userlisttypeid=USERLISTTYPE_SLEDUJI)
+    user_list, _ = Userlist.objects.get_or_create(user=request.user, listtype=list_type)
+    Userlistitem.objects.filter(object_id=tvshowid, userlist=user_list).delete()
+    return redirect("serie_detail", tv_url=tvshow.url)
 
 
 # -------------------------------------------------------------------

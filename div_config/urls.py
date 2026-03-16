@@ -120,7 +120,10 @@ from div_content.views.payments import (bank_transactions, generate_qr, check_pu
 # -------------------------------------------------------------------
 #                    RATINGSS
 # -------------------------------------------------------------------
-from div_content.views.ratings import (div_rate_book, div_rate_movie, div_remove_book_rating, div_rate_game, div_remove_game_rating, div_rate_tvshow, div_remove_tvshow_rating)
+from div_content.views.ratings import (div_rate_book, div_rate_movie, div_remove_book_rating, div_rate_game, 
+    div_remove_game_rating, div_rate_tvshow, div_remove_tvshow_rating, div_rate_tvshow, div_remove_tvshow_rating, 
+    div_rate_tvseason, div_remove_tvseason_rating, div_rate_tvseason, div_remove_tvseason_rating, 
+    div_rate_tvepisode, div_remove_tvepisode_rating)
 
 # -------------------------------------------------------------------
 #                    SERIES
@@ -131,7 +134,9 @@ from div_content.views.series import (
     remove_from_tvshow_library, remove_from_tvshow_watchlist, remove_from_watched_tvshows, add_to_favourite_tvseason,
     add_to_tvseason_watchlist, add_to_watched_tvseasons, remove_from_favourite_tvseasons, remove_from_tvseason_watchlist,
     remove_from_watched_tvseasons, add_to_favourite_tvepisodes, add_to_tvepisode_watchlist, add_to_watched_tvepisode, 
-    remove_from_favourite_tvepisodes, remove_from_tvepisode_watchlist, remove_from_watched_tvepisodes, series_alphabetical
+    remove_from_favourite_tvepisodes, remove_from_tvepisode_watchlist, remove_from_watched_tvepisodes, series_alphabetical, 
+    add_to_watched_tvepisode, add_to_im_watching_tvseason, 
+    remove_from_im_watching_tvseason
 )
 # -------------------------------------------------------------------
 #                    UNIVERSUM
@@ -233,7 +238,7 @@ urlpatterns = [
 
     path('film/<str:movie_url>', movie_detail, name='movie_detail'),
     path('film/<int:pk>/', MovieDetailView.as_view(), name='movie_detail_id'),
-    path('film/<int:pk>/rate/', rate_movie, name='movie_rate'),
+    #path('film/<int:pk>/rate/', rate_movie, name='movie_rate'),
     path('film/add-to-list/', add_to_list, name='add_to_list'),
     path("film/<slug:movie_url>/rate/",div_rate_movie,name="div_rate_movie"),
 
@@ -258,27 +263,33 @@ urlpatterns = [
     path('serial/<str:tv_url>/<str:seasonurl>/pridat-do-oblibenych-<int:tvepisodeid>', add_to_favourite_tvepisodes, name="add_to_favourite_tvepisodes"),
     path('serial/<str:tv_url>/<str:seasonurl>/chci-videt-<int:tvepisodeid>', add_to_tvepisode_watchlist, name="add_to_tvepisode_watchlist"),
     path('serial/<str:tv_url>/<str:seasonurl>/shlednuto-<int:tvepisodeid>', add_to_watched_tvepisode, name="add_to_watched_tvepisode"),
+    path('serial/sleduji-<int:tvshowid>', add_to_im_watching_tvseason, name='add_to_im_watching_tvseason'),
 
     path('serial/<str:tv_url>/<str:seasonurl>/odebrat-z-oblibenych-<int:tvepisodeid>', remove_from_favourite_tvepisodes, name='remove_from_favourite_tvepisodes'),
     path('serial/<str:tv_url>/<str:seasonurl>/odebrat-ze-chci-videt-<int:tvepisodeid>', remove_from_tvepisode_watchlist, name='remove_from_tvepisode_watchlist'),
     path('serial/<str:tv_url>/<str:seasonurl>/odebrat-ze-shlednuto-<int:tvepisodeid>', remove_from_watched_tvepisodes, name='remove_from_watched_tvepisodes'),
+    path('serial/odebrat-ze-sleduji-<int:tvshowid>', remove_from_im_watching_tvseason, name='remove_from_im_watching_tvseason'),
 
-
+    path('serial/<str:tv_url>/hodnotit/', div_rate_tvshow, name='div_rate_tvshow'),
+    path('serial/<str:tv_url>/smazat-hodnoceni/', div_remove_tvshow_rating, name='div_remove_tvshow_rating'),
 
     path('serialy/', series_list, name='series_list'),
     path('serialy/abecedne/', series_alphabetical, name='series_alphabetical'),
     path('serialy/<int:year>', series_year, name='series_year'),
     path('serialy/<slug:genre_url>', series_genre, name='series_genre'),
 
-    path('serial/<str:tv_url>/hodnotit/', div_rate_tvshow, name='div_rate_tvshow'),
-    path('serial/<str:tv_url>/smazat-hodnoceni/', div_remove_tvshow_rating, name='div_remove_tvshow_rating'),
-
+    path('serial/<str:tv_url>/sezona/<str:seasonurl>/hodnotit/', div_rate_tvseason, name='div_rate_tvseason'),
+    path('serial/<str:tv_url>/sezona/<str:seasonurl>/smazat-hodnoceni/', div_remove_tvseason_rating, name='div_remove_tvseason_rating'),
+    path('serial/<str:tv_url>/sezona/<str:seasonurl>/epizoda/<str:episodeurl>/hodnotit/', div_rate_tvepisode, name='div_rate_tvepisode'),
+    path('serial/<str:tv_url>/sezona/<str:seasonurl>/epizoda/<str:episodeurl>/smazat-hodnoceni/', div_remove_tvepisode_rating, name='div_remove_tvepisode_rating'),
 
     path('serial/<str:tv_url>', serie_detail, name='serie_detail'),
     path('serial/<str:tv_url>/rate/', rate_tvshow, name='rate_tvshow'),
     path('serial/<str:tv_url>/<str:seasonurl>/', serie_season, name='serie_season'),
     path('serial/<str:tv_url>/<str:seasonurl>/<str:episodeurl>/', serie_episode, name='serie_episode'),
 
+    path('serial/sezona/<str:seasonurl>/hodnotit/', div_rate_tvseason, name='div_rate_tvseason'),
+    path('serial/sezona/<str:seasonurl>/smazat-hodnoceni/', div_remove_tvseason_rating, name='div_remove_tvseason_rating'),
 
     path('tv/', tv, name='tv_index'),
     path('tv/<str:tv_url>', tv_detail, name='tv_detail'),

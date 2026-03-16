@@ -18,6 +18,7 @@ from django.db.models import Avg, Count, Sum
 
 from div_content.models import Movie, Book
 from div_content.models.meta import Divrating, Divuserrating
+from div_content.models.movies import Tvshow, Tvseason
 
 
 # -------------------------------------------------------------------
@@ -376,4 +377,75 @@ def div_remove_tvshow_rating(request, tv_url):
 
     return redirect("serie_detail", tv_url=tvshow.url)
 
+
+@require_POST
+@login_required
+def div_rate_tvseason(request, tv_url, seasonurl):
+    tvshow = get_object_or_404(Tvshow, url=tv_url)
+    season = get_object_or_404(Tvseason, tvshowid=tvshow.tvshowid, seasonurl=seasonurl)
+    score = int(request.POST.get("score", 0))
+    if score < 0 or score > 5:
+        return redirect("serie_season", tv_url=season.tvshowid.url, seasonurl=season.seasonurl)
+    content_type = ContentType.objects.get_for_model(Tvseason)
+    rating_obj, _ = Divrating.objects.get_or_create(content_type=content_type, object_id=season.seasonid, defaults={"count":0,"total":0,"average":0})
+    user_rating, created = Divuserrating.objects.get_or_create(user=request.user, rating=rating_obj, defaults={"score":score,"created":timezone.now(),"modified":timezone.now(),"ip":request.META.get("REMOTE_ADDR")})
+    if not created:
+        user_rating.score = score
+        user_rating.modified = timezone.now()
+        user_rating.save()
+    agg = Divuserrating.objects.filter(rating=rating_obj).aggregate(avg=Avg("score"), count=Count("id"))
+    rating_obj.average = agg["avg"] or 0
+    rating_obj.count = agg["count"] or 0
+    rating_obj.save()
+    return redirect("serie_season", tv_url=tv_url, seasonurl=season.seasonurl)
+
+@require_POST
+@login_required
+def div_remove_tvseason_rating(request, tv_url, seasonurl):
+    tvshow = get_object_or_404(Tvshow, url=tv_url)
+    season = get_object_or_404(Tvseason, tvshowid=tvshow.tvshowid, seasonurl=seasonurl)
+    content_type = ContentType.objects.get_for_model(Tvseason)
+    rating_obj = Divrating.objects.filter(content_type=content_type, object_id=season.seasonid).first()
+    if rating_obj:
+        Divuserrating.objects.filter(rating=rating_obj, user=request.user).delete()
+        agg = Divuserrating.objects.filter(rating=rating_obj).aggregate(avg=Avg("score"), count=Count("id"))
+        rating_obj.average = agg["avg"] or 0
+        rating_obj.count = agg["count"] or 0
+        rating_obj.save()
+    return redirect("serie_season", tv_url=tv_url, seasonurl=season.seasonurl)
+
+
+@require_POST
+@login_required
+def div_rate_tvepisode(request, tv_url, seasonurl, episodeurl):
+    from div_content.models import Tvshow, Tvseason, Tvepisode
+    tvshow = get_object_or_404(Tvshow, url=tv_url)
+    season = get_object_or_404(Tvseason, tvshowid=tvshow.tvshowid, seasonurl=seasonurl)
+    episode = get_object_or_404(Tvepisode, seasonid=season.seasonid, episodeurl=episodeurl)
+    score = int(request.POST.get("score", 0))
+    if score < 0 or score > 5:
+        return redirect("serie_episode", tv_url=tv_url, seasonurl=seasonurl, episodeurl=episodeurl)
+    content_type = ContentType.objects.get_for_model(Tvepisode)
+    rating_obj, _ = Divrating.objects.get_or_create(content_type=content_type, object_id=episode.episodeid, defaults={"count":0,"total":0,"average":0})
+    user_rating, created = Divuserrating.objects.get_or_create(user=request.user, rating=rating_obj, defaults={"score":score,"created":timezone.now(),"modified":timezone.now(),"ip":request.META.get("REMOTE_ADDR")})
+    if not created:
+        user_rating.score = score; user_rating.modified = timezone.now(); user_rating.save()
+    agg = Divuserrating.objects.filter(rating=rating_obj).aggregate(avg=Avg("score"), count=Count("id"))
+    rating_obj.average = agg["avg"] or 0; rating_obj.count = agg["count"] or 0; rating_obj.save()
+    return redirect("serie_episode", tv_url=tv_url, seasonurl=seasonurl, episodeurl=episodeurl)
+
+@require_POST
+@login_required
+def div_remove_tvepisode_rating(request, tv_url, seasonurl, episodeurl):
+    from div_content.models import Tvshow, Tvseason, Tvepisode
+    tvshow = get_object_or_404(Tvshow, url=tv_url)
+    season = get_object_or_404(Tvseason, tvshowid=tvshow.tvshowid, seasonurl=seasonurl)
+    episode = get_object_or_404(Tvepisode, seasonid=season.seasonid, episodeurl=episodeurl)
+    content_type = ContentType.objects.get_for_model(Tvepisode)
+    rating_obj = Divrating.objects.filter(content_type=content_type, object_id=episode.episodeid).first()
+    if rating_obj:
+        Divuserrating.objects.filter(rating=rating_obj, user=request.user).delete()
+        agg = Divuserrating.objects.filter(rating=rating_obj).aggregate(avg=Avg("score"), count=Count("id"))
+        rating_obj.average = agg["avg"] or 0; rating_obj.count = agg["count"] or 0; rating_obj.save()
+    return redirect("serie_episode", tv_url=tv_url, seasonurl=seasonurl, episodeurl=episodeurl)
 
