@@ -28,7 +28,7 @@
 /* RATING */
 .div-rating-stars { display: inline-flex; align-items: center; gap: 2px; }
 .div-rating-stars form { display: inline-flex; align-items: center; gap: 2px; border: none; outline: none; padding: 0; margin: 0; background: none; }
-.stars-display { display: inline-flex; align-items: center; gap: 2px; font-size: 28px; color: #FF8C00; }
+.stars-display { display: inline-flex; align-items: center; gap: 2px; font-size: 28px; color: #E31E24; }
 .rate-btn { background: none; border: none; outline: none; cursor: pointer; padding: 0; margin: 0; font-size: 28px; color: inherit; line-height: 1; }
 .rate-btn.trash { font-size: 20px; opacity: 0.5; color: #999; }
 .rating-trash { font-size: 20px; opacity: 0.4; color: #999; }
@@ -36,7 +36,7 @@
 .btn-delete-rating { background: none; border: none; color: #aaa; font-size: 11px; cursor: pointer; opacity: 0.6; }
 .btn-delete-rating:hover { color: #E31E24; opacity: 1; }
 
-.div-rating-series .stars-display { font-size: 28px; color: #FF8C00; }
+.div-rating-series .stars-display { font-size: 28px; color: #E31E24; }
 
 /* mobil + tablet: hodnocení pod obrázkem */
 @media (max-width: 991px) {
@@ -176,7 +176,7 @@
                                                     <form method="post" action="{% url 'div_remove_tvshow_rating' tv_url=tvshow.url %}">
                                                         {% csrf_token %}
                                                         <button type="submit" class="">
-                                                            <i class="fa-solid fa-trash-can" title="smazat hodnocení" style="color:#61872B; margin-right:0;"></i>
+                                                            <i class="fa-solid fa-trash-can" title="smazat hodnocení" style="margin-right: 0; color: #A52B21;"></i>
                                                         </button>
                                                     </form>
                                                 {% endif %}
@@ -818,7 +818,7 @@
         // RATING KOLEČKO – inicializace CSS custom properties
         document.querySelectorAll('.rating').forEach(el => {
             const val = parseInt(el.dataset.rating) || 0;
-            const color = val >= 70 ? '#0a0' : val >= 40 ? '#FF8C00' : '#E31E24';
+            const color = val >= 70 ? '#0a0' : val >= 40 ? '#E31E24' : '#E31E24';
             el.style.setProperty('--gradient-value', val + '%');
             el.style.setProperty('--gradient-color', color);
         });

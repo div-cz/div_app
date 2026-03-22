@@ -483,11 +483,6 @@ def movie_detail(request, movie_url):
 
     
 
-# xsilence8x keywords pro meta tags
-    keywords = Moviekeywords.objects.filter(movieid=movie)
-    keywordsEN = [keyword.keywordid.keyword for keyword in keywords if keyword.keywordid.keyword]
-    keywordsCZ = [keyword.keywordid.keywordcz for keyword in keywords if keyword.keywordid.keywordcz]
-
     distributors = Moviedistributor.objects.all()
 
     # Přidávání nové hlášky

@@ -2,6 +2,7 @@
 #                    MODELS.CORE.PY
 # -------------------------------------------------------------------
 
+from datetime import date
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
@@ -148,7 +149,7 @@ class Articleblogpost(models.Model):
     slug = models.SlugField(db_column='Slug', max_length=255, null=True, blank=True, unique=True)
     content = models.TextField(db_column='Content')
     category = models.CharField(db_column='Category', max_length=100, null=True, blank=True)
-    published_at = models.DateTimeField(db_column='PublishedAt', auto_now_add=True)
+    published_at = models.DateTimeField(db_column='PublishedAt', null=True, blank=True)
     tags = models.CharField(db_column='Tags', max_length=255, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_column='UserID', null=True, blank=True)
     created_at = models.DateTimeField(db_column='CreatedAt', auto_now_add=True)
@@ -160,6 +161,11 @@ class Articleblogpost(models.Model):
 
     def __str__(self):
         return self.title
+
+    def is_published(self):
+        if not self.published_at:
+            return False
+        return self.published_at <= timezone.now()
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -352,6 +358,17 @@ class Creator(models.Model):
 
     lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
 
+    @property
+    def age(self):
+        if not self.birthdate:
+            return None
+
+        end_date = self.deathdate or date.today()
+
+        return end_date.year - self.birthdate.year - (
+            (end_date.month, end_date.day) < (self.birthdate.month, self.birthdate.day)
+        )
+
     class Meta:
         db_table = 'Creator'
         indexes = [
@@ -396,76 +413,6 @@ class Creatorrole(models.Model):
     class Meta:
 
         db_table = 'CreatorRole'
-
-
-
-
-class Creator(models.Model):
-    creatorid = models.IntegerField(db_column='CreatorID', primary_key=True)
-    firstname = models.CharField(db_column='FirstName', max_length=255)
-    lastname = models.CharField(db_column='LastName', max_length=255)
-    url = models.CharField(db_column='URL', max_length=512, null=True, blank=True, unique=True)
-    url2 = models.CharField(db_column='URL2', max_length=512, null=True, blank=True)
-    birthdate = models.DateField(db_column='BirthDate', null=True, blank=True)
-    deathdate = models.DateField(db_column='DeathDate', null=True, blank=True)
-    imdbid = models.CharField(db_column='Imdb_id', max_length=16, null=True)
-    divrating = models.IntegerField(db_column='DIVRating', default="0", db_index=True, blank=True, null=True)
-    popularity = models.IntegerField(db_column='Popularity', null=True)
-    img = models.CharField(db_column='IMG', max_length=32, null=True)
-    knownfordepartment = models.CharField(db_column='KnownForDepartment', max_length=255, null=True)
-    countryid = models.ForeignKey('Metacountry', models.DO_NOTHING, db_column='CountryID', null=True)
-    gender = models.IntegerField(db_column='Gender', null=True, blank=True, default=0) 
-    adult = models.IntegerField(db_column='Adult', default="0")
-
-    lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
-
-    class Meta:
-        db_table = 'Creator'
-        indexes = [
-            models.Index(fields=['url'], name='url_idx'),
-        ]
-
-
-class Creatorbiography(models.Model):
-    biographyid = models.AutoField(primary_key=True)
-    creator = models.ForeignKey('Creator', on_delete=models.CASCADE, db_column='CreatorID', related_name='biographies')
-    biographytext = models.TextField(db_column='BiographyText', null=True, blank=True)
-    biographytextcz = models.TextField(db_column='BiographyTextCZ', null=True, blank=True)
-    source = models.CharField(db_column='Source', max_length=255, blank=True)
-    lastupdated = models.DateField(db_column='LastUpdated', auto_now=True)
-    language = models.CharField(db_column='Language', max_length=10, default='en')
-    externallink = models.URLField(db_column='ExternalLink', blank=True)
-    imageurl = models.URLField(db_column='ImageURL', blank=True)
-    notes = models.TextField(db_column='Notes', blank=True)
-    author = models.CharField(db_column='Author', max_length=255, blank=True)
-    userid = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column='UserID', default=1)  
-    verificationstatus = models.CharField(
-        db_column='VerificationStatus',
-        max_length=10,
-        choices=[
-            ('Verified', 'Verified'),
-            ('Unverified', 'Unverified'),
-            ('Pending', 'Pending')
-        ],
-        default='Unverified'
-    )
-    is_primary = models.BooleanField(db_column='IsPrimary', default=False)
-
-    class Meta:
-        db_table = 'CreatorBiography'
-
-
-
-
-class Creatorrole(models.Model):
-    roleid = models.IntegerField(db_column='RoleID', primary_key=True)
-    rolename = models.CharField(db_column='RoleName', max_length=255)
-    rolenamecz = models.CharField(db_column='RoleNameCZ', max_length=255, blank=True)
-    department = models.CharField(db_column='Department', max_length=255, blank=True)
-    class Meta:
-
-        db_table = 'CreatorRole'
-
 
 class Drink(models.Model):
     drinkid = models.AutoField(db_column='DrinkID', primary_key=True)

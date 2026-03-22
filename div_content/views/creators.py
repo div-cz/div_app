@@ -34,7 +34,10 @@ from datetime import date
 from django.db.models import Exists, OuterRef
 from django.contrib.contenttypes.models import ContentType
 from div_content.models import (
-    Creator, Creatorbiography, Bookauthor, Favorite, FavoriteSum, Metaindex, Movie, Moviecrew, Tvcrew, Tvshow, Userlisttype, Userlist, Userlistitem
+    Creatorbiography, Bookauthor, Favorite, FavoriteSum, Metaindex, Movie, Moviecrew, Tvcrew, Tvshow, Userlisttype, Userlist, Userlistitem
+)
+from div_content.models.core import (
+    Creator
 )
 from div_content.forms.creators import FavoriteForm, CreatorBiographyForm, CreatorDivRatingForm
 

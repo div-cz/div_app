@@ -69,7 +69,7 @@ from div_content.forms.books import BookAddForm, BookAdminForm, BookDivRatingFor
 from div_content.forms.divkvariat import BookListingForm
 from div_content.models import (
     Book, Bookauthor, Bookcharacter, Bookcomments, Bookcover, Bookgenre, Bookisbn, Booklisting, 
-    Bookpurchase, Bookquotes, Bookrating, Booksource, Bookwriters, Charactermeta, 
+    Bookpurchase, Bookquotes, Bookrating, Booksource, Booktranslation, Bookwriters, Charactermeta, 
     Metagenre, Metaindex, Metapublisher, Metastats, Metauniversum, 
     Userdivcoins, Userlist, Userlistbook, Userlisttype, FavoriteSum, Userbookgoal, Userlistitem
 )
@@ -461,6 +461,79 @@ def get_book_price(book_id, format):
 
 def book_detail(request, book_url):
     book = get_object_or_404(Book, url=book_url)
+
+    # =========================================================
+    # SAVE TRANSLATIONS (CZ / EN DESCRIPTION)
+    # =========================================================
+    if request.method == "POST" and request.user.is_staff and "update_descriptions" in request.POST:
+    
+        desc_cz = request.POST.get("description_cs", "").strip()
+        desc_en = request.POST.get("description_en", "").strip()
+    
+        if desc_cz:
+            translation = Booktranslation.objects.filter(
+                bookid=book,
+                language="cs"
+            ).order_by("booktranslationid").first()
+    
+            if translation:
+                translation.description = desc_cz
+                translation.userid = request.user
+                translation.save()
+            else:
+                Booktranslation.objects.create(
+                    bookid=book,
+                    language="cs",
+                    description=desc_cz,
+                    userid=request.user
+                )
+    
+        if desc_en:
+            translation = Booktranslation.objects.filter(
+                bookid=book,
+                language="en"
+            ).order_by("booktranslationid").first()
+    
+            if translation:
+                translation.description = desc_en
+                translation.userid = request.user
+                translation.save()
+            else:
+                Booktranslation.objects.create(
+                    bookid=book,
+                    language="en",
+                    description=desc_en,
+                    userid=request.user
+                )
+    
+        return redirect("book_detail", book_url=book.url)
+
+    translations = Booktranslation.objects.filter(bookid=book)
+    
+    trans_cz = next((t for t in translations if t.language == "cs"), None)
+    trans_en = next((t for t in translations if t.language == "en"), None)
+    
+    display_desc_cz = trans_cz.description if trans_cz and trans_cz.description else ""
+    display_desc_en = trans_en.description if trans_en and trans_en.description else ""
+
+    language = 'cs'
+    
+    translation = Booktranslation.objects.filter(
+        bookid=book,
+        language=language
+    ).order_by('booktranslationid').first()
+    
+    if translation and translation.title:
+        display_title = translation.title
+    elif book.titlecz:
+        display_title = book.titlecz
+    else:
+        display_title = book.title
+    
+    if translation and translation.description:
+        display_description = translation.description
+    else:
+        display_description = book.description
     # -------------------------------------------------------------------
     # COUNTY PRO SYSTÉMOVÉ SEZNAMY
     # -------------------------------------------------------------------
@@ -890,6 +963,14 @@ def book_detail(request, book_url):
 
     return render(request, 'books/book_detail.html', {
         'book': book,
+
+        'display_title': display_title,
+        'display_description': display_description,
+        'desc_cz': display_desc_cz,
+        'desc_en': display_desc_en,
+        'edit_desc_cz': trans_cz.description if trans_cz else '',
+        'edit_desc_en': trans_en.description if trans_en else '',
+
         'list_counts': list_counts,
         'authors': authors, 
         'genres': genres, 
